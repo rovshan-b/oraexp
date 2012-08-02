@@ -1,0 +1,4 @@
+select all_tables.*, 
+case when exists (select 0 from all_external_tables where owner=all_tables.owner and table_name=all_tables.table_name) then 'YES'
+else 'NO' end as is_external
+from all_tables where owner=:owner and table_name=:table_name

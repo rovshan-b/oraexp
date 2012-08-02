@@ -1,0 +1,1 @@
+SELECT object_name, status FROM all_objects WHERE object_type='TYPE' and owner=:owner ORDER BY object_name

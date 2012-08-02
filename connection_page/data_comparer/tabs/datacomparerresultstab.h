@@ -1,0 +1,22 @@
+#ifndef DATACOMPARERRESULTSTAB_H
+#define DATACOMPARERRESULTSTAB_H
+
+#include "connection_page/db_object_comparer/tabs/dbobjectcomparerresultstab.h"
+#include "beans/datacompareinfo.h"
+
+class DataComparerResultsTab : public DbObjectComparerResultsTab
+{
+    Q_OBJECT
+public:
+    explicit DataComparerResultsTab(QWidget *parent = 0);
+
+    virtual DataTable *createChangeListTable();
+    
+signals:
+    
+public slots:
+    void compareInfoAvailable(const DataCompareInfo &info);
+    
+};
+
+#endif // DATACOMPARERRESULTSTAB_H

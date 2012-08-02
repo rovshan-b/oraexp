@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>grammars/pl_sql</file>
+    </qresource>
+</RCC>

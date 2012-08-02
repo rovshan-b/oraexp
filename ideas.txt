@@ -1,0 +1,3 @@
+- set QCompleter for column list editor in table/constraints creator
+- set LineEditWithButton as delegate for table/columns creator
+- new connection penceresinde test connection duymesi butun emeliyyat sistemlerinde sol terefde olsun

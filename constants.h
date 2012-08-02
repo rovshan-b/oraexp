@@ -1,0 +1,6 @@
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
+
+#define ORACLE_MAX_EXTENT_SIZE 2147483645
+
+#endif // CONSTANTS_H

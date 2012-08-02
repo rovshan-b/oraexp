@@ -1,0 +1,8 @@
+select all_lobs.segment_name, all_lobs.chunk, all_lobs.pctversion, all_lobs.retention, all_lobs.freepools, 
+all_lobs.cache, all_lobs.logging, all_lobs.in_row,
+s.tablespace_name, s.initial_extent, s.next_extent,
+s.pct_increase, s.min_extents, s.max_extents, s.max_size,
+s.freelists, s.freelist_groups, buffer_pool
+from all_lobs left join user_segments s on (all_lobs.segment_name=s.segment_name and s.segment_type='LOBSEGMENT')
+where all_lobs.owner=:owner and all_lobs.table_name=:table_name
+and all_lobs.column_name=:column_name

@@ -1,0 +1,3 @@
+select owner, index_name, index_type, uniqueness, status, table_owner, table_name from all_indexes 
+where table_owner=:owner and table_name=:table_name
+and table_type='TABLE' order by index_name
