@@ -178,9 +178,7 @@ void DataComparerThread::createComparisonScript(const QStringList &uqColumns)
 
     QStringList columnVariableDeclarations;
     QStringList columnVariableNames;
-    //QStringList collAll;
-    //QStringList uqCollAll;
-    //QStringList uqCollValues;
+
     QStringList uqColumnsANDCollAll;
     QStringList uqColumnsANDCollValues;
     QStringList allCollValues;
@@ -217,7 +215,7 @@ void DataComparerThread::createComparisonScript(const QStringList &uqColumns)
 
         columnVariableNames.append(colVarName);
         columnVariableDeclarations.append(colVarDecl);
-        //collAll.append(collName);
+
         allCollValues.append(toDynamicSqlValue(collName, dataType));
 
         if(!uqColumns.contains(currentColumnName)){
@@ -265,7 +263,6 @@ void DataComparerThread::createComparisonScript(const QStringList &uqColumns)
     compareScript.replace("{uq_columns_and_coll_all}", joinedUqColumnsANDCollAll);
     compareScript.replace("{uq_columns_and_coll_values}", joinedUqColumnsANDCollValues);
     compareScript.replace("{all_coll_values}", allCollValues.join("'||','||'"));
-    //compareScript.replace("{coll_all}", collAll.join(","));
     compareScript.replace("{compare_col_values_script}", updateScript);
 
     QString sourceTableName = QString("\"%1\".\"%2\"").arg(sourceSchema, this->tableName);
@@ -340,8 +337,6 @@ void DataComparerThread::doComparison()
     if(!tableOptions.whereClause.isEmpty()){
         selectFromSourceSql.append(ensureStartsWith(tableOptions.whereClause, "WHERE"));
     }
-
-    //selectFromSourceSql.append(" ORDER BY ").append(uqColumns);
 
     qDebug() << "select statement from source table:" << selectFromSourceSql;
 
@@ -513,15 +508,16 @@ void DataComparerThread::doReverseComparison(const QStringList &uqColumns)
         sourceDeleteGeneratorStmt->execute();
 
         dml=sourceDeleteGeneratorStmt->rsAt(0)->fetchOneAsString(1);
+        currentDeleteCount += deleteCountParam->getIntValue();
 
         if(!dml.isEmpty()){
             fullDml.append(dml);
         }
         if(options->comparisonMode==DataComparisonOptions::GenerateDml && !dml.isEmpty()){
-           emitCompareInfo(tableName, "", 0, 0, deleteCountParam->getIntValue(), dml);
+           emitCompareInfo(tableName, "", 0, 0, currentDeleteCount, dml);
         }else if(!fullDml.isEmpty()){
-            emitCompareInfo(tableName, "", 0, 0, deleteCountParam->getIntValue(), "");
-            qDebug() << QString("begin %1 commit; end;").arg(fullDml);
+            emitCompareInfo(tableName, "", 0, 0, currentDeleteCount, "");
+            //qDebug() << QString("begin %1 commit; end;").arg(fullDml);
             targetDb->executeQueryAndCleanup(QString("begin %1 commit; end;").arg(fullDml));
         }
     }
