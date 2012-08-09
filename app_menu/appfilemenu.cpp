@@ -64,6 +64,7 @@ void AppFileMenu::createFileNewMenu()
 
     fileNewMenu->addAction(IconUtil::getIcon("worksheet"), tr("&Worksheet"), this, SLOT(addWorksheet()), QKeySequence(tr("Ctrl+N", "File|New worksheet")));
     fileNewMenu->addAction(IconUtil::getIcon("table"), tr("&Table"), this, SLOT(showTableCreator()), QKeySequence(tr("Ctrl+T", "File|New table")));
+    fileNewMenu->addAction(IconUtil::getIcon("view"), tr("&View"), this, SLOT(showViewCreator()), QKeySequence(tr("Ctrl+w", "File|New view")));
 }
 
 void AppFileMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *cnPageTab)

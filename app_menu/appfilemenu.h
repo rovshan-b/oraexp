@@ -23,6 +23,7 @@ public:
 private slots:
     void addWorksheet(){uiManager()->addWorksheet();}
     void showTableCreator(){uiManager()->showTableCreator();}
+    void showViewCreator(){uiManager()->showViewCreator();}
 
     void open(){currentConnectionPageTab()->open();}
 

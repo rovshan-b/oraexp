@@ -21,6 +21,8 @@ public:
 
     void setNameFilter(const QString &nameFilter){this->nameFilter=nameFilter;}
 
+    virtual QList<QAction *> getContextMenuItems(const QModelIndex &index) const;
+
 protected:
     virtual DbTreeItem *createNodeFromRecord(Resultset *);
 

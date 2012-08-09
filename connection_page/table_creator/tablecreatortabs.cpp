@@ -117,10 +117,12 @@ void TableCreatorTabs::setConnection(DbConnection *db)
     partitionsTab->setConnection(db);
     grantsTab->setConnection(db);
 
-    TableInfoLoader *metadataLoader=new TableInfoLoader(scheduler(), getSchemaName(), getTableName(), this);
-    connect(metadataLoader, SIGNAL(objectInfoReady(DbObjectInfo*,MetadataLoader*)), this, SLOT(tableInfoReady(DbObjectInfo*,MetadataLoader*)));
-    connect(metadataLoader, SIGNAL(loadError(QString,OciException,MetadataLoader*)), this, SLOT(loadError(QString,OciException,MetadataLoader*)));
-    metadataLoader->loadObjectInfo();
+    if(editMode){
+        TableInfoLoader *metadataLoader=new TableInfoLoader(scheduler(), getSchemaName(), getTableName(), this);
+        connect(metadataLoader, SIGNAL(objectInfoReady(DbObjectInfo*,MetadataLoader*)), this, SLOT(tableInfoReady(DbObjectInfo*,MetadataLoader*)));
+        connect(metadataLoader, SIGNAL(loadError(QString,OciException,MetadataLoader*)), this, SLOT(loadError(QString,OciException,MetadataLoader*)));
+        metadataLoader->loadObjectInfo();
+    }
 }
 
 void TableCreatorTabs::tableInfoReady(DbObjectInfo *tableInfo, MetadataLoader *loader)

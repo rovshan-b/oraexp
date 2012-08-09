@@ -171,18 +171,21 @@ QString DbUtil::getPartitionTypeName(OraExp::PartitionType pType)
     return result;
 }
 
-QString DbUtil::getDbObjectTypeNameByParentNodeType(DbTreeModel::DbTreeNodeType nodeType)
+QString DbUtil::getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeType)
 {
     QString result;
 
     switch(nodeType){
     case DbTreeModel::Tables:
+    case DbTreeModel::Table:
         result="TABLE";
         break;
     case DbTreeModel::Views:
+    case DbTreeModel::View:
         result="VIEW";
         break;
     case DbTreeModel::Packages:
+    case DbTreeModel::Package:
         result="PACKAGE";
         break;
     case DbTreeModel::PackageSpecs:
@@ -192,21 +195,26 @@ QString DbUtil::getDbObjectTypeNameByParentNodeType(DbTreeModel::DbTreeNodeType 
         result="PACKAGE BODY";
         break;
     case DbTreeModel::Procedures:
+    case DbTreeModel::Procedure:
         result="PROCEDURE";
         break;
     case DbTreeModel::Functions:
+    case DbTreeModel::Function:
         result="FUNCTION";
         break;
     case DbTreeModel::Sequences:
+    case DbTreeModel::Sequence:
         result="SEQUENCE";
         break;
     case DbTreeModel::Types:
+    case DbTreeModel::Type:
         result="TYPE";
         break;
     case DbTreeModel::TypeBodies:
         result="TYPE BODY";
         break;
     case DbTreeModel::Synonyms:
+    case DbTreeModel::Synonym:
         result="SYNONYM";
         break;
     default:

@@ -20,21 +20,27 @@ public slots:
     void viewTableDetails();
     void showTableCreator();
 
+    void showViewCreator();
+
     void addWorksheet(const QString &contents="");
+
     void viewTableDetails(const QString &schemaName, const QString &tableName);
     void showTableCreator(const QString &schemaName, const QString &tableName);
+
+    void showViewCreator(const QString &schemaName, const QString &viewName);
+
     void addSchemaComparer();
     void addDataComparer();
 
     void alterTable();
-
-    void addProgramUnitEditor();
+    void alterView();
 
     void closeTab(QWidget *widget);
 private:
     DbConnection *db;
     ConnectionPage *cnPage;
 
+    QString getCorrectSchemaNameForCurrentContext();
 };
 
 #endif // DBUIMANAGER_H

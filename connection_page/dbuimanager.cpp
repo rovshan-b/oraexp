@@ -9,10 +9,10 @@
 #include "util/iconutil.h"
 #include "worksheet/worksheet.h"
 #include "table_info/tableinfoviewer.h"
-#include "program_unit_editor/programuniteditor.h"
 #include "table_creator/tablecreator.h"
 #include "schema_comparer/schemacomparer.h"
 #include "data_comparer/datacomparer.h"
+#include "code_creator/codecreator.h"
 #include <QtGui>
 
 DbUiManager::DbUiManager(DbConnection *db, QObject *parent) :
@@ -31,29 +31,31 @@ void DbUiManager::refreshTreeNodeChildren()
 
 void DbUiManager::viewTableDetails()
 {
-    //if(this->db->isBusy()){
-    //    WidgetHelper::showConnectionBusyMessage();
-    //    return;
-    //}
     const QModelIndex index=((NodeAction*)sender())->getModelIndex();
     DbTreeItem *node=(DbTreeItem*)index.internalPointer();
     viewTableDetails(node->schemaName(), node->itemName());
 }
 
-void DbUiManager::showTableCreator()
+QString DbUiManager::getCorrectSchemaNameForCurrentContext()
 {
-    QString schemaName;
-
     NodeAction* nodeAction=dynamic_cast<NodeAction*>(sender());
     if(nodeAction){
         const QModelIndex index=((NodeAction*)sender())->getModelIndex();
         DbTreeItem *node=(DbTreeItem*)index.internalPointer();
-        schemaName=node->schemaName();
+        return node->schemaName();
     }else{
-        schemaName=db->getSchemaName();
+        return db->getSchemaName();
     }
+}
 
-    showTableCreator(schemaName, "");
+void DbUiManager::showTableCreator()
+{
+    showTableCreator(getCorrectSchemaNameForCurrentContext(), "");
+}
+
+void DbUiManager::showViewCreator()
+{
+    showViewCreator(getCorrectSchemaNameForCurrentContext(), "");
 }
 
 void DbUiManager::addWorksheet(const QString &contents)
@@ -67,28 +69,30 @@ void DbUiManager::addWorksheet(const QString &contents)
 
 void DbUiManager::viewTableDetails(const QString &schemaName, const QString &tableName)
 {
-    //if(this->db->isBusy()){
-    //    WidgetHelper::showConnectionBusyMessage();
-    //    return;
-    //}
-
     TableInfoViewer *tableInfoViewer=new TableInfoViewer(schemaName, tableName, this);
     cnPage->addTab(tableInfoViewer, IconUtil::getIcon("table"), tableName);
 }
 
 void DbUiManager::showTableCreator(const QString &schemaName, const QString &tableName)
 {
-    //if(this->db->isBusy()){
-    //    WidgetHelper::showConnectionBusyMessage();
-    //    return;
-    //}
-
     TableCreator *tableCreator=new TableCreator(schemaName, tableName, this);
 
     QString iconName=(tableName.isEmpty() ? "table_add" : "table_alter");
     QString tabTitle=(tableName.isEmpty() ? tr("Create table") : tr("Alter %1").arg(tableName));
 
     cnPage->addTab(tableCreator, IconUtil::getIcon(iconName), tabTitle);
+}
+
+void DbUiManager::showViewCreator(const QString &schemaName, const QString &viewName)
+{
+    CodeCreator *codeCreator=new CodeCreator(schemaName, viewName,
+                                             DbTreeModel::View,
+                                             this);
+
+    QString iconName=(viewName.isEmpty() ? "view_add" : "view_alter");
+    QString tabTitle=(viewName.isEmpty() ? tr("Create view") : tr("Alter %1").arg(viewName));
+
+    cnPage->addTab(codeCreator, IconUtil::getIcon(iconName), tabTitle);
 }
 
 void DbUiManager::alterTable()
@@ -98,10 +102,11 @@ void DbUiManager::alterTable()
     showTableCreator(node->schemaName(), node->itemName());
 }
 
-void DbUiManager::addProgramUnitEditor()
+void DbUiManager::alterView()
 {
-    ProgramUnitEditor *programEditor=new ProgramUnitEditor(this);
-    cnPage->addTab(programEditor, IconUtil::getIcon("package"), tr("Program editor"));
+    const QModelIndex index=((NodeAction*)sender())->getModelIndex();
+    DbTreeItem *node=(DbTreeItem*)index.internalPointer();
+    showViewCreator(node->schemaName(), node->itemName());
 }
 
 void DbUiManager::addSchemaComparer()

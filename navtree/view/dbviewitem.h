@@ -19,6 +19,7 @@ public:
 
     virtual DbTreeModel::DbTreeNodeType getItemType() const {return DbTreeModel::View;}
 
+    virtual QList<QAction *> getContextMenuItems(const QModelIndex &index) const;
 };
 
 #endif // DBVIEWITEM_H

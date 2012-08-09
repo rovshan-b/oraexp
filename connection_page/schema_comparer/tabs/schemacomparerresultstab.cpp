@@ -13,7 +13,7 @@ void SchemaComparerResultsTab::changedObjectDetected(const QString &objectName, 
 {
     QList<QStandardItem*> rowItems;
     rowItems.append(new QStandardItem(IconUtil::getIcon(DbUtil::getDbObjectIconNameByParentNodeType(objectType)), objectName));
-    rowItems.append(new QStandardItem(DbUtil::getDbObjectTypeNameByParentNodeType(objectType)));
+    rowItems.append(new QStandardItem(DbUtil::getDbObjectTypeNameByNodeType(objectType)));
     rowItems.append(new QStandardItem(compareResult=="new" ?  tr("New") : tr("Changed")));
     tableModel->appendRow(rowItems);
 }

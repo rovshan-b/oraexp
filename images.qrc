@@ -94,5 +94,7 @@
         <file>images/previous.png</file>
         <file>images/compare_data.png</file>
         <file>images/compare_schemas.png</file>
+        <file>images/view_alter.png</file>
+        <file>images/view_add.png</file>
     </qresource>
 </RCC>

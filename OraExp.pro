@@ -188,8 +188,6 @@ SOURCES += main.cpp\
     connection_page/table_info/tabs/tablereferencingfkviewer.cpp \
     connection_page/table_info/tableinfogenerictab.cpp \
     connectivity/fetchresult.cpp \
-    connection_page/program_unit_editor/programuniteditor.cpp \
-    connection_page/program_unit_editor/programcodeeditor.cpp \
     grammar_parser/codescanner.cpp \
     grammar_parser/ebnfscanner.cpp \
     grammar_parser/ebnftoken.cpp \
@@ -302,7 +300,8 @@ SOURCES += main.cpp\
     connection_page/data_comparer/comparers/datacomparerthread.cpp \
     connectivity/bulkoperationhelper.cpp \
     connection_page/data_comparer/tabs/datacomparerresultstab.cpp \
-    beans/datacompareinfo.cpp
+    beans/datacompareinfo.cpp \
+    connection_page/code_creator/codecreator.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -476,8 +475,6 @@ HEADERS  += mainwindow.h \
     connection_page/table_info/tabs/tablereferencingfkviewer.h \
     connection_page/table_info/tableinfogenerictab.h \
     connectivity/fetchresult.h \
-    connection_page/program_unit_editor/programuniteditor.h \
-    connection_page/program_unit_editor/programcodeeditor.h \
     grammar_parser/codescanner.h \
     grammar_parser/ebnfscanner.h \
     grammar_parser/ebnftoken.h \
@@ -598,7 +595,8 @@ HEADERS  += mainwindow.h \
     connection_page/data_comparer/comparers/datacomparerthread.h \
     connectivity/bulkoperationhelper.h \
     connection_page/data_comparer/tabs/datacomparerresultstab.h \
-    beans/datacompareinfo.h
+    beans/datacompareinfo.h \
+    connection_page/code_creator/codecreator.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

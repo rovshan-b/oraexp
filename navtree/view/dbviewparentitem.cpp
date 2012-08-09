@@ -1,6 +1,9 @@
 #include "dbviewparentitem.h"
 #include "connectivity/resultset.h"
 #include "dbviewitem.h"
+#include "../nodeaction.h"
+#include "connection_page/dbuimanager.h"
+#include "util/iconutil.h"
 
 #include <QList>
 
@@ -31,4 +34,21 @@ DbTreeItem *DbViewParentItem::createNodeFromRecord(Resultset *rs)
     col->setInactive(status!="VALID");
 
     return col;
+}
+
+QList<QAction*> DbViewParentItem::getContextMenuItems(const QModelIndex &index) const
+{
+    QList<QAction*> actions;
+
+    actions.append(DbTreeItem::getContextMenuItems(index));
+
+    QAction *separator=new QAction(0);
+    separator->setSeparator(true);
+    actions.append(separator);
+
+    NodeAction *createNewViewAction=new NodeAction(index, IconUtil::getIcon("view_add"), QObject::tr("Create view"));
+    QObject::connect(createNewViewAction, SIGNAL(triggered()), getModel()->getUiManager(), SLOT(showViewCreator()));
+    actions.append(createNewViewAction);
+
+    return actions;
 }

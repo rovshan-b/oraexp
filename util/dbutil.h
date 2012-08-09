@@ -25,7 +25,7 @@ public:
     static QString getIndexPartitioningTypeName(int partitioningType, bool translate=true);
     static void populatePrivilegeNames(QStringList &list);
     static QString getPartitionTypeName(OraExp::PartitionType pType);
-    static QString getDbObjectTypeNameByParentNodeType(DbTreeModel::DbTreeNodeType nodeType);
+    static QString getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeType);
     static QString getDbObjectIconNameByParentNodeType(DbTreeModel::DbTreeNodeType nodeType);
 
     static bool isLob(const QString &dataType);

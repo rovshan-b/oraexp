@@ -35,7 +35,7 @@ void DbObjectsCompareHelper::compare(const QString &sourceSchema, IQuerySchedule
     this->targetScheduler=targetScheduler;
     this->objectNames=objectNames;
     this->currentObjectsType=currentObjectsType;
-    this->currentObjectsTypeName=DbUtil::getDbObjectTypeNameByParentNodeType(currentObjectsType);
+    this->currentObjectsTypeName=DbUtil::getDbObjectTypeNameByNodeType(currentObjectsType);
     this->endDdl.clear();
 
     currentOffset=0;
