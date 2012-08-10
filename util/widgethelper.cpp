@@ -348,3 +348,17 @@ void WidgetHelper::increaseValueAtPos(QStandardItemModel *model, int row, int co
     QStandardItem *item = model->item(row, column);
     item->setText(QString::number(item->text().toInt()+increaseBy));
 }
+
+void WidgetHelper::changeFontSize(QWidget *widget, int changeBy)
+{
+    QFont font=widget->font();
+    font.setPointSize(font.pointSize()+changeBy);
+    widget->setFont(font);
+}
+
+void WidgetHelper::changeFontSize(QAction *action, int changeBy)
+{
+    QFont font=action->font();
+    font.setPointSize(font.pointSize()+changeBy);
+    action->setFont(font);
+}

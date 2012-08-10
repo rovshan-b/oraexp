@@ -47,6 +47,9 @@ public:
     static QCheckBox *createCheckBox(QGridLayout *layout, int row, int column, const QString &text, bool checked=false, int rowSpan=1, int colSpan=1);
 
     static void increaseValueAtPos(QStandardItemModel *model, int row, int column, int increaseBy);
+
+    static void changeFontSize(QWidget *widget, int changeBy);
+    static void changeFontSize(QAction *action, int changeBy);
 };
 
 #endif // WIDGETHELPER_H

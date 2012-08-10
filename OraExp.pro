@@ -301,7 +301,8 @@ SOURCES += main.cpp\
     connectivity/bulkoperationhelper.cpp \
     connection_page/data_comparer/tabs/datacomparerresultstab.cpp \
     beans/datacompareinfo.cpp \
-    connection_page/code_creator/codecreator.cpp
+    connection_page/code_creator/codecreator.cpp \
+    widgets/infopanel.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -596,7 +597,8 @@ HEADERS  += mainwindow.h \
     connectivity/bulkoperationhelper.h \
     connection_page/data_comparer/tabs/datacomparerresultstab.h \
     beans/datacompareinfo.h \
-    connection_page/code_creator/codecreator.h
+    connection_page/code_creator/codecreator.h \
+    widgets/infopanel.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

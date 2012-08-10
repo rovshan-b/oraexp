@@ -3,6 +3,8 @@
 #include "metadata_loaders/code/sourceinfoloader.h"
 #include "beans/sourceinfo.h"
 #include "util/dbutil.h"
+#include "util/iconutil.h"
+#include "widgets/infopanel.h"
 #include <QtGui>
 
 CodeCreator::CodeCreator(const QString &schemaName,
@@ -20,19 +22,47 @@ CodeCreator::CodeCreator(const QString &schemaName,
 
 void CodeCreator::createUi()
 {
-    QSplitter *splitter=new QSplitter(Qt::Horizontal);
+    QSplitter *topSplitter=new QSplitter(Qt::Horizontal);
 
     //create left pane
     //will use this for displaying code structure
     //splitter->addWidget(new QTreeView());
 
     //create right pane
+    topSplitter->addWidget(createRightPane());
+
+    //for splitting tree/editor area and info panel
+    QSplitter *bottomSplitter=new QSplitter(Qt::Vertical);
+    bottomSplitter->setChildrenCollapsible(false);
+    bottomSplitter->addWidget(topSplitter);
+
+    InfoPanel *infoPanel=new InfoPanel();
+    infoPanel->addPanel(new QPlainTextEdit("pane 1"), tr("Compile errors"), IconUtil::getIcon("help"));
+    infoPanel->addPanel(new QPlainTextEdit("pane 2"), tr("Debug messages"), IconUtil::getIcon("add"));
+    infoPanel->setCurrentIndex(0);
+
+    bottomSplitter->addWidget(infoPanel);
+
+
+    bottomSplitter->setStretchFactor(0, 2);
+
+    QVBoxLayout *layout=new QVBoxLayout();
+    layout->setContentsMargins(0,2,0,2);
+    layout->addWidget(bottomSplitter);
+
+    setLayout(layout);
+}
+
+QWidget *CodeCreator::createRightPane()
+{
     QVBoxLayout *rightPaneLayout=new QVBoxLayout();
 
+    //toolbar
     QToolBar *toolbar=new QToolBar();
     toolbar->addAction("test");
     rightPaneLayout->addWidget(toolbar);
 
+    //editor
     editor=new CodeEditorAndSearchPaneWidget();
     rightPaneLayout->addWidget(editor);
 
@@ -40,16 +70,7 @@ void CodeCreator::createUi()
     QWidget *rightPaneWidget=new QWidget();
     rightPaneWidget->setLayout(rightPaneLayout);
 
-    splitter->addWidget(rightPaneWidget);
-
-    //splitter->setSizes(QList<int>() << 120 << 300);
-
-    //create main layout
-    QVBoxLayout *layout=new QVBoxLayout();
-    layout->setContentsMargins(0,2,0,2);
-    layout->addWidget(splitter);
-
-    setLayout(layout);
+    return rightPaneWidget;
 }
 
 void CodeCreator::setConnection(DbConnection *db)

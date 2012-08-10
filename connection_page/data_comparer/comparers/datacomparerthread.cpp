@@ -63,7 +63,7 @@ void DataComparerThread::run()
             return;
         }
 
-        if(uqColumns.size()==tableOptions.columnsToCompare.size()){
+        if(!allExistInCollection(uqCols, tableOptions.columnsToCompare)){
             emitCompareInfo(tableName, tr("Skipped. No complete PK or unique key selected."));
             emitCompletedSignal();
             return;

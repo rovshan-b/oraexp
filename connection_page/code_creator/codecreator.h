@@ -28,6 +28,8 @@ private slots:
     void loadError(const QString &taskName, const OciException &ex, MetadataLoader *loader);
 
 private:
+    QWidget *createRightPane();
+
     QString schemaName;
     QString objectName;
     DbTreeModel::DbTreeNodeType objectType;
