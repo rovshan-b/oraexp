@@ -9,6 +9,10 @@ CodeEditorAndSearchPaneWidget::CodeEditorAndSearchPaneWidget(QWidget *parent) :
     codeEditor=new CodeEditor();
     searchPane=new SearchPane(codeEditor);
 
+    codeEditor->installEventFilter(this);
+    searchPane->getFindTextBox()->installEventFilter(this);
+    searchPane->getReplaceTextBox()->installEventFilter(this);
+
     layout->setContentsMargins(0,0,0,0);
     layout->setSpacing(0);
 
@@ -23,20 +27,34 @@ CodeEditorAndSearchPaneWidget::CodeEditorAndSearchPaneWidget(QWidget *parent) :
 
 void CodeEditorAndSearchPaneWidget::keyReleaseEvent ( QKeyEvent * event )
 {
-    QWidget::keyReleaseEvent(event);
-
     if(event->key()==Qt::Key_Escape){
         hideSearchPane();
+    }else{
+        QWidget::keyReleaseEvent(event);
     }
+}
+
+bool CodeEditorAndSearchPaneWidget::eventFilter(QObject *obj, QEvent *event)
+{
+    if(event->type()==QEvent::FocusIn){
+        emit focusEvent(this, true);
+    }
+
+    return QWidget::eventFilter(obj, event);
 }
 
 void CodeEditorAndSearchPaneWidget::hideSearchPane()
 {
-    if(searchPane->isVisible()){
+    bool visible = searchPane->isVisible();
+    if(visible){
         searchPane->closePane();
     }
 
     codeEditor->setFocus();
+
+    if(!visible){
+        emit escapeKeyPressed();
+    }
 }
 
 void CodeEditorAndSearchPaneWidget::showSearchPane()

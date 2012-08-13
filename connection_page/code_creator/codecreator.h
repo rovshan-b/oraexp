@@ -3,10 +3,15 @@
 
 #include "../connectionpagetab.h"
 #include "navtree/dbtreemodel.h"
+#include "widgets/codeeditorandsearchpanewidget.h"
 
 class DbObjectInfo;
 class MetadataLoader;
 class CodeEditorAndSearchPaneWidget;
+class InfoPanel;
+class QSplitter;
+class QToolBar;
+class QActionGroup;
 
 class CodeCreator : public ConnectionPageTab
 {
@@ -21,14 +26,29 @@ public:
     virtual void createUi();
     virtual void setConnection(DbConnection *db);
 
-signals:
+
+    virtual bool canFind() const {return true;}
+    virtual void showSearchWidget(){currentEditor->showSearchPane();}
+    virtual void findNext() {currentEditor->findNext();}
+    virtual void findPrevious() {currentEditor->findPrevious();}
+
+protected:
+    void keyReleaseEvent (QKeyEvent * event);
+
     
 private slots:
     void objectInfoReady(DbObjectInfo *objectInfo, MetadataLoader *loader);
     void loadError(const QString &taskName, const OciException &ex, MetadataLoader *loader);
+    void editorCountActionSelected(bool checked);
+    void editorOrientationActionSelected(QAction *action);
+    void codeEditorFocusEvent(QWidget *object, bool focusIn);
 
 private:
     QWidget *createRightPane();
+    QToolBar *createToolbar();
+    void setEditorCount(int count);
+    QWidget *createEditor();
+    int visibleEditorCount() const;
 
     QString schemaName;
     QString objectName;
@@ -36,7 +56,13 @@ private:
 
     bool editMode;
 
-    CodeEditorAndSearchPaneWidget *editor;
+    QSplitter *editorSplitter;
+    CodeEditorAndSearchPaneWidget *currentEditor;
+    InfoPanel *infoPanel;
+
+    QActionGroup *splitDirectionGroup;
+
+    QList<CodeEditorAndSearchPaneWidget*> editors;
     
 };
 

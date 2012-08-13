@@ -31,6 +31,9 @@ public slots:
 
     void closePane();
 
+    QLineEdit *getFindTextBox() const {return this->findTextBox;}
+    QLineEdit *getReplaceTextBox() const {return this->replaceTextBox;}
+
 private:
     QLineEdit *findTextBox;
     QLineEdit *replaceTextBox;

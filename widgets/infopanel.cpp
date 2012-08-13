@@ -1,29 +1,18 @@
 #include "infopanel.h"
 #include "util/widgethelper.h"
+#include "widgets/closebutton.h"
 #include <QtGui>
 
 InfoPanel::InfoPanel(QWidget *parent) :
-    QWidget(parent)
+    QObject(parent)
 {
     tab=new QStackedWidget();
     WidgetHelper::changeFontSize(tab, -2);
-    createToolbar();
+    tab->hide();
 
-    QVBoxLayout *mainLayout=new QVBoxLayout();
-    mainLayout->addWidget(tab);
-    mainLayout->addWidget(toolbar);
-    mainLayout->setAlignment(toolbar, Qt::AlignBottom);
-
-    mainLayout->setContentsMargins(0,0,0,0);
-    setLayout(mainLayout);
-}
-
-void InfoPanel::createToolbar()
-{
     toolbar=new QToolBar();
     toolbar->setIconSize(QSize(12,12));
     WidgetHelper::changeFontSize(toolbar, -2);
-
     toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     toolbar->setContentsMargins(0,0,0,0);
 }
@@ -33,9 +22,19 @@ void InfoPanel::addPanel(QWidget *panel, const QString &title, const QIcon &icon
     QAction *action=toolbar->addAction(icon, title);
     action->setData(tab->count());
     action->setCheckable(true);
+    action->setChecked(false);
     WidgetHelper::changeFontSize(action, -2);
 
-    tab->addWidget(panel);
+    QWidget *containerWidget=new QWidget();
+    QVBoxLayout *containerLayout=new QVBoxLayout();
+    containerLayout->setContentsMargins(0,0,0,0);
+    containerLayout->setSpacing(0);
+
+    containerLayout->addLayout(createPanelHeader(title));
+    containerLayout->addWidget(panel);
+
+    containerWidget->setLayout(containerLayout);
+    tab->addWidget(containerWidget);
 
     //triggered signal is not emitted when changing status programmatically
     connect(action, SIGNAL(triggered(bool)), this, SLOT(buttonToggled(bool)));
@@ -45,7 +44,7 @@ void InfoPanel::setCurrentIndex(int index)
 {
     Q_ASSERT(index>=0 && index<tab->count());
 
-    setUpdatesEnabled(false);
+    toolbar->setUpdatesEnabled(false);
 
     if(!tab->isVisible()){
         tab->show();
@@ -64,7 +63,17 @@ void InfoPanel::setCurrentIndex(int index)
         }
     }
 
-    setUpdatesEnabled(true);
+    toolbar->setUpdatesEnabled(true);
+}
+
+int InfoPanel::getCurrentIndex() const
+{
+    return tab->isVisible() ? tab->currentIndex() : -1;
+}
+
+bool InfoPanel::isPanelVisible() const
+{
+    return tab->isVisible();
 }
 
 void InfoPanel::buttonToggled(bool checked)
@@ -79,4 +88,29 @@ void InfoPanel::buttonToggled(bool checked)
 
     int actionIx = action->data().toInt();
     setCurrentIndex(actionIx);
+}
+
+void InfoPanel::closePanel()
+{
+    int currentIx = getCurrentIndex();
+    if(currentIx!=-1){
+        toolbar->actions().at(currentIx)->toggle();
+        tab->hide();
+    }
+}
+
+QBoxLayout *InfoPanel::createPanelHeader(const QString &title)
+{
+    QHBoxLayout *headerLayout=new QHBoxLayout();
+    headerLayout->setContentsMargins(0,0,0,0);
+    headerLayout->addWidget(new QLabel(title));
+
+    headerLayout->addStretch();
+
+    CloseButton *closeButton = new CloseButton();
+    headerLayout->addWidget(closeButton);
+
+    connect(closeButton, SIGNAL(clicked()), this, SLOT(closePanel()));
+
+    return headerLayout;
 }

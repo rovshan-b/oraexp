@@ -362,3 +362,10 @@ void WidgetHelper::changeFontSize(QAction *action, int changeBy)
     font.setPointSize(font.pointSize()+changeBy);
     action->setFont(font);
 }
+
+void WidgetHelper::addStretchToToolbar(QToolBar *toolbar)
+{
+    QWidget *widget=new QWidget();
+    widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    toolbar->addWidget(widget);
+}

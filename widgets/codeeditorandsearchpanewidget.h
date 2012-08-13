@@ -20,8 +20,13 @@ public:
     void findNext(){searchPane->findNext();}
     void findPrevious(){searchPane->findPrevious();}
 
+signals:
+    void escapeKeyPressed();
+    void focusEvent(QWidget *object, bool focusIn);
+
 protected:
     void keyReleaseEvent (QKeyEvent * event);
+    bool eventFilter(QObject *obj, QEvent *event);
 
 private slots:
     void hideSearchPane();

@@ -32,7 +32,6 @@ SearchPane::SearchPane(CodeEditor *editor, QWidget *parent) :
     rightLayout->setSpacing(2);
 
     CloseButton *btnClose=new CloseButton();
-    btnClose->setToolTip(tr("Close"));
     rightLayout->addWidget(btnClose);
     connect(btnClose, SIGNAL(clicked()), this, SLOT(closePane()));
 
@@ -294,5 +293,5 @@ bool SearchPane::eventFilter(QObject *obj, QEvent *event)
          }
      }
 
-     return QObject::eventFilter(obj, event);
+     return QWidget::eventFilter(obj, event);
  }

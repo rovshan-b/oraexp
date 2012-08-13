@@ -21,7 +21,6 @@ public:
 
     virtual bool disableWhileConnecting(){return false;}
 
-    virtual bool canOpen() const {return true;}
     virtual bool canSave() const {return true;}
     virtual bool canPrint() const {return true;}
     virtual bool canFind() const {return true;}

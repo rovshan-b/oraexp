@@ -7,6 +7,8 @@ CloseButton::CloseButton(QWidget *parent)
     setFocusPolicy(Qt::NoFocus);
 
     resize(sizeHint());
+
+    this->setToolTip(tr("Close"));
 }
 
 QSize CloseButton::sizeHint() const

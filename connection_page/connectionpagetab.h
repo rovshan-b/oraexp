@@ -32,7 +32,7 @@ public:
     bool isBusy() const;
     void setBusy(bool busy);
 
-    virtual bool canOpen() const {return false;}
+    virtual bool canOpen() const {return true;}
     virtual bool canSave() const {return false;}
     virtual bool canPrint() const {return false;}
 
