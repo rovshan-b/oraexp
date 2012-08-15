@@ -15,6 +15,7 @@ public:
                               const QString &objectType,
                               const QString &targetSchemaName,
                               bool wrap,
+                              bool sqlTerminator,
                               QObject *parent);
 
     virtual void loadObjectInfo();
@@ -28,6 +29,7 @@ private:
     QString objectType;
     QString targetSchemaName;
     bool wrap;
+    bool sqlTerminator;
     
 };
 

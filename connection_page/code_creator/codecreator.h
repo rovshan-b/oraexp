@@ -4,6 +4,8 @@
 #include "../connectionpagetab.h"
 #include "navtree/dbtreemodel.h"
 #include "widgets/codeeditorandsearchpanewidget.h"
+#include "connectivity/queryresult.h"
+#include "connectivity/fetchresult.h"
 
 class DbObjectInfo;
 class MetadataLoader;
@@ -43,18 +45,29 @@ private slots:
     void editorOrientationActionSelected(QAction *action);
     void codeEditorFocusEvent(QWidget *object, bool focusIn);
 
+    void compileObject(bool forDebug=false);
+    void compileObjectForDebug();
+
+    void compilationCompleted(const QueryResult &result);
+    void compilationErrorFetched(const FetchResult &fetchResult);
+    void compilationErrorFetchCompleted(const QString &);
+
 private:
     QWidget *createRightPane();
-    QToolBar *createToolbar();
+    void createToolbar();
     void setEditorCount(int count);
     QWidget *createEditor();
     int visibleEditorCount() const;
+    QString getObjectTypeName() const;
 
     QString schemaName;
     QString objectName;
     DbTreeModel::DbTreeNodeType objectType;
 
     bool editMode;
+
+    QToolBar *toolbar;
+    QAction *progressBarAction;
 
     QSplitter *editorSplitter;
     CodeEditorAndSearchPaneWidget *currentEditor;

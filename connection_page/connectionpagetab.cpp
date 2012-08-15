@@ -6,7 +6,7 @@
 using namespace std;
 
 ConnectionPageTab::ConnectionPageTab(DbUiManager *uiManager, QWidget *parent) :
-    QWidget(parent), uiManager(uiManager), db(0), requiresSeparateConnection(false), busy(true), activeQueryCount(0)
+    QWidget(parent), uiManager(uiManager), db(0), requiresSeparateConnection(false), busy(false), activeQueryCount(0)
 {
 }
 

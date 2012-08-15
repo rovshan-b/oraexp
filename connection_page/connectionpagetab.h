@@ -30,7 +30,6 @@ public:
     virtual void decreaseRefCount();
 
     bool isBusy() const;
-    void setBusy(bool busy);
 
     virtual bool canOpen() const {return true;}
     virtual bool canSave() const {return false;}
@@ -63,6 +62,8 @@ protected:
 
 private:
     int activeQueryCount;
+
+    void setBusy(bool busy);
 
 };
 

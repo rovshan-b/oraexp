@@ -9,6 +9,7 @@
 #include "connectionspane.h"
 #include "connection_page/connectionpage.h"
 #include "connection_page/connectionpagetab.h"
+#include "util/widgethelper.h"
 #include <QtGui>
 
 AppMenu *AppMenu::singleInstance=0;
@@ -61,6 +62,8 @@ void AppMenu::setupMenu(MainWindow *mainWindow, ConnectionsPane *connectionsPane
     appSessionMenu=new AppSessionMenu(sessionMenu, toolBar, this);
     appToolsMenu=new AppToolsMenu(toolsMenu, toolBar, this);
     appHelpMenu=new AppHelpMenu(helpMenu, toolBar, this);
+
+    WidgetHelper::updateActionTooltips(toolBar);
 
     connectionsPaneStateChanged();
 }

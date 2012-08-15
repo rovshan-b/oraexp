@@ -290,12 +290,13 @@ void WidgetHelper::showConnectionBusyMessage()
                                                           "Please, wait for it to complete, and try again."));
 }
 
-QAction* WidgetHelper::addProgressBarAction(QToolBar *toolbar)
+QAction* WidgetHelper::addProgressBarAction(QToolBar *toolbar, bool visible)
 {
     QProgressBar *progressBar=new QProgressBar();
     progressBar->setRange(0,0);
     progressBar->setMaximumWidth(100);
     progressBar->setMaximumHeight(16);
+    progressBar->setVisible(visible);
     return toolbar->addWidget(progressBar);
 }
 
@@ -369,3 +370,15 @@ void WidgetHelper::addStretchToToolbar(QToolBar *toolbar)
     widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     toolbar->addWidget(widget);
 }
+
+void WidgetHelper::updateActionTooltips(QWidget *widget)
+{
+    QKeySequence shortcut;
+    foreach(QAction *action, widget->actions()){
+        shortcut = action->shortcut();
+        if(!shortcut.isEmpty()){
+            action->setToolTip(QString("%1 (%2)").arg(action->toolTip(), shortcut.toString()));
+        }
+    }
+}
+

@@ -98,5 +98,8 @@
         <file>images/view_add.png</file>
         <file>images/horizontal.png</file>
         <file>images/vertical.png</file>
+        <file>images/compile.png</file>
+        <file>images/compile_for_debug.png</file>
+        <file>images/debug.png</file>
     </qresource>
 </RCC>

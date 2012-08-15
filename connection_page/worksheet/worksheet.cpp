@@ -36,8 +36,6 @@ void Worksheet::setConnection(DbConnection *db)
     ConnectionPageTab::setConnection(db);
 
     queryPane->setConnection(db);
-
-    setBusy(false);
 }
 
 void Worksheet::queryCompleted(const QueryResult &result)

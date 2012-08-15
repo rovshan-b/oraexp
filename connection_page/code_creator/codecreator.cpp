@@ -39,8 +39,7 @@ void CodeCreator::createUi()
     bottomSplitter->setChildrenCollapsible(false);
     bottomSplitter->addWidget(outerSplitter);
 
-    infoPanel->addPanel(new QPlainTextEdit("pane 1"), tr("Compile errors"), IconUtil::getIcon("help"));
-    infoPanel->addPanel(new QPlainTextEdit("pane 2"), tr("Debug messages"), IconUtil::getIcon("add"));
+    infoPanel->addPanel(new QPlainTextEdit("pane 1"), tr("Compiler messages"), IconUtil::getIcon("help"));
 
     bottomSplitter->addWidget(infoPanel->getPanel());
 
@@ -62,7 +61,8 @@ QWidget *CodeCreator::createRightPane()
     QVBoxLayout *rightPaneLayout=new QVBoxLayout();
 
     //toolbar
-    rightPaneLayout->addWidget(createToolbar());
+    createToolbar();
+    rightPaneLayout->addWidget(toolbar);
 
     //create editor in splitter
     editorSplitter = new QSplitter(Qt::Horizontal);
@@ -78,11 +78,16 @@ QWidget *CodeCreator::createRightPane()
     return rightPaneWidget;
 }
 
-QToolBar *CodeCreator::createToolbar()
+void CodeCreator::createToolbar()
 {
-    QToolBar *toolbar=new QToolBar();
+    toolbar=new QToolBar();
     toolbar->setIconSize(QSize(16, 16));
-    toolbar->addAction("test");
+    toolbar->addAction(IconUtil::getIcon("compile_for_debug"), tr("Compile for debug"), this, SLOT(compileObjectForDebug()))->setShortcut(QKeySequence("F8"));
+    toolbar->addAction(IconUtil::getIcon("compile"), tr("Compile"), this, SLOT(compileObject(bool)))->setShortcut(QKeySequence("F9"));
+
+    progressBarAction = WidgetHelper::addProgressBarAction(toolbar, false);
+
+    //add buttons for accessing editor splitting functionality
     WidgetHelper::addStretchToToolbar(toolbar);
 
     QActionGroup *editorCountGroup=new QActionGroup(this);
@@ -90,10 +95,12 @@ QToolBar *CodeCreator::createToolbar()
         QAction *action=new QAction(QString::number(i), editorCountGroup);
         action->setCheckable(true);
         action->setData(i);
-        action->setToolTip(tr("Split editor to %1 panes").arg(i));
 
         if(i==1){
             action->setChecked(true);
+            action->setToolTip(tr("Single editor pane"));
+        }else{
+            action->setToolTip(tr("Split editor to %1 panes").arg(i));
         }
 
         connect(action, SIGNAL(triggered(bool)), this, SLOT(editorCountActionSelected(bool)));
@@ -118,7 +125,7 @@ QToolBar *CodeCreator::createToolbar()
 
     toolbar->addActions(splitDirectionGroup->actions());
 
-    return toolbar;
+    WidgetHelper::updateActionTooltips(toolbar);
 }
 
 void CodeCreator::setConnection(DbConnection *db)
@@ -128,12 +135,12 @@ void CodeCreator::setConnection(DbConnection *db)
     if(editMode){
         SourceInfoLoader *metadataLoader=new SourceInfoLoader(this, schemaName, objectName,
                                                               DbUtil::getDbObjectTypeNameByNodeType(objectType),
-                                                              schemaName, false, this);
+                                                              schemaName, false, false, this);
         connect(metadataLoader, SIGNAL(objectInfoReady(DbObjectInfo*,MetadataLoader*)), this, SLOT(objectInfoReady(DbObjectInfo*,MetadataLoader*)));
         connect(metadataLoader, SIGNAL(loadError(QString,OciException,MetadataLoader*)), this, SLOT(loadError(QString,OciException,MetadataLoader*)));
         metadataLoader->loadObjectInfo();
     }else{
-        setBusy(false);
+        //setBusy(false);
     }
 }
 
@@ -157,7 +164,7 @@ void CodeCreator::objectInfoReady(DbObjectInfo *objectInfo, MetadataLoader *load
 
     loader->deleteLater();
 
-    setBusy(false);
+    //setBusy(false);
 }
 
 void CodeCreator::loadError(const QString &taskName, const OciException &ex, MetadataLoader *loader)
@@ -167,7 +174,7 @@ void CodeCreator::loadError(const QString &taskName, const OciException &ex, Met
 
     loader->deleteLater();
 
-    setBusy(false);
+    //setBusy(false);
 }
 
 void CodeCreator::editorCountActionSelected(bool checked)
@@ -210,9 +217,12 @@ void CodeCreator::setEditorCount(int count)
         }
     }else if(count<currentCount){
         for(int i=currentCount; i>count; --i){
+            if(editors.at(i-1)==currentEditor){
+                Q_ASSERT(i-2 >= 0);
+                editors.at(i-2)->editor()->setFocus();
+            }
+
             editors.at(i-1)->hide();
-            Q_ASSERT(i-2 >= 0);
-            editors.at(i-2)->editor()->setFocus();
         }
     }
 
@@ -249,4 +259,57 @@ int CodeCreator::visibleEditorCount() const
     }
 
     return result;
+}
+
+QString CodeCreator::getObjectTypeName() const
+{
+    return DbUtil::getDbObjectTypeNameByNodeType(this->objectType);
+}
+
+void CodeCreator::compileObject(bool forDebug)
+{
+    toolbar->setEnabled(false);
+    progressBarAction->setVisible(true);
+    this->enqueueQuery("compile_object", QList<Param*>() <<
+                       new Param(":object_name", objectName) <<
+                       new Param(":owner", schemaName) <<
+                       new Param(":object_type", getObjectTypeName()) <<
+                       new Param(":for_debug", forDebug),
+                       this,
+                       "compile_object",
+                       "compilationCompleted",
+                       "compilationErrorFetched",
+                       "compilationErrorFetchCompleted",
+                       true);
+}
+
+void CodeCreator::compileObjectForDebug()
+{
+    compileObject(true);
+}
+
+void CodeCreator::compilationCompleted(const QueryResult &result)
+{
+    if(result.hasError){
+        QMessageBox::critical(this->window(), tr("Error compiling object"),
+                              result.exception.getErrorMessage());
+
+        compilationErrorFetchCompleted("");
+    }
+}
+
+void CodeCreator::compilationErrorFetched(const FetchResult &fetchResult)
+{
+    if(fetchResult.hasError){
+        QMessageBox::critical(this->window(), tr("Error fetching compiler messages"), fetchResult.exception.getErrorMessage());
+        return;
+    }
+
+    qDebug() << fetchResult.colValue("TEXT");
+}
+
+void CodeCreator::compilationErrorFetchCompleted(const QString &)
+{
+    progressBarAction->setVisible(false);
+    toolbar->setEnabled(true);
 }

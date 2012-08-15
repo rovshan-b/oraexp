@@ -2,9 +2,17 @@
 #include "beans/sourceinfo.h"
 
 SourceInfoLoader::SourceInfoLoader(IQueryScheduler *queryScheduler, const QString &schemaName,
-                                   const QString &objectName, const QString &objectType, const QString &targetSchemaName,
-                                   bool wrap, QObject *parent) :
-    MetadataLoader(queryScheduler, schemaName, objectName, parent), objectType(objectType), targetSchemaName(targetSchemaName), wrap(wrap)
+                                   const QString &objectName,
+                                   const QString &objectType,
+                                   const QString &targetSchemaName,
+                                   bool wrap,
+                                   bool sqlTerminator,
+                                   QObject *parent) :
+    MetadataLoader(queryScheduler, schemaName, objectName, parent),
+    objectType(objectType),
+    targetSchemaName(targetSchemaName),
+    wrap(wrap),
+    sqlTerminator(sqlTerminator)
 {
 }
 
@@ -16,7 +24,8 @@ void SourceInfoLoader::loadObjectInfo()
                                  new Param("object_name", objectName) <<
                                  new Param("owner", schemaName) <<
                                  new Param("target_owner", targetSchemaName) <<
-                                 new Param("wrap", wrap),
+                                 new Param("wrap", wrap) <<
+                                 new Param("sql_terminator", sqlTerminator),
                                  this,
                                  "get_object_source_code",
                                  "queryCompleted",

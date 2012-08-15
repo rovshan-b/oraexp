@@ -7,12 +7,12 @@ InfoPanel::InfoPanel(QWidget *parent) :
     QObject(parent)
 {
     tab=new QStackedWidget();
-    WidgetHelper::changeFontSize(tab, -2);
+    WidgetHelper::changeFontSize(tab, -1);
     tab->hide();
 
     toolbar=new QToolBar();
     toolbar->setIconSize(QSize(12,12));
-    WidgetHelper::changeFontSize(toolbar, -2);
+    WidgetHelper::changeFontSize(toolbar, -1);
     toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     toolbar->setContentsMargins(0,0,0,0);
 }
@@ -23,7 +23,7 @@ void InfoPanel::addPanel(QWidget *panel, const QString &title, const QIcon &icon
     action->setData(tab->count());
     action->setCheckable(true);
     action->setChecked(false);
-    WidgetHelper::changeFontSize(action, -2);
+    WidgetHelper::changeFontSize(action, -1);
 
     QWidget *containerWidget=new QWidget();
     QVBoxLayout *containerLayout=new QVBoxLayout();

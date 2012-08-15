@@ -37,7 +37,7 @@ public:
 
     static void showConnectionBusyMessage();
 
-    static QAction* addProgressBarAction(QToolBar *toolbar);
+    static QAction* addProgressBarAction(QToolBar *toolbar, bool visible=false);
 
     static QLayout* layoutWidgetsInColumns(const QList< QPair<QString,QWidget*> > &widgets, int maxColumnCount);
 
@@ -52,6 +52,8 @@ public:
     static void changeFontSize(QAction *action, int changeBy);
 
     static void addStretchToToolbar(QToolBar *toolbar);
+
+    static void updateActionTooltips(QWidget *widget);
 };
 
 #endif // WIDGETHELPER_H

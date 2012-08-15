@@ -15,4 +15,10 @@ BEGIN
   DBMS_SQL.PARSE(l_cur, l_sql, 1, l_upperbound, FALSE, DBMS_SQL.NATIVE);
   l_ret := DBMS_SQL.EXECUTE(l_cur);
   dbms_sql.close_cursor(l_cur);
+EXCEPTION WHEN OTHERS THEN
+  if dbms_sql.is_open(l_cur) then
+    dbms_sql.close_cursor(l_cur);
+  end if;
+  
+  RAISE;
 END;

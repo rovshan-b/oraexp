@@ -78,7 +78,7 @@ void DbUiManager::showTableCreator(const QString &schemaName, const QString &tab
     TableCreator *tableCreator=new TableCreator(schemaName, tableName, this);
 
     QString iconName=(tableName.isEmpty() ? "table_add" : "table_alter");
-    QString tabTitle=(tableName.isEmpty() ? tr("Create table") : tr("Alter %1").arg(tableName));
+    QString tabTitle=(tableName.isEmpty() ? tr("Create table") : tableName);
 
     cnPage->addTab(tableCreator, IconUtil::getIcon(iconName), tabTitle);
 }
@@ -90,7 +90,7 @@ void DbUiManager::showViewCreator(const QString &schemaName, const QString &view
                                              this);
 
     QString iconName=(viewName.isEmpty() ? "view_add" : "view_alter");
-    QString tabTitle=(viewName.isEmpty() ? tr("Create view") : tr("Alter %1").arg(viewName));
+    QString tabTitle=(viewName.isEmpty() ? tr("Create view") : viewName);
 
     cnPage->addTab(codeCreator, IconUtil::getIcon(iconName), tabTitle);
 }

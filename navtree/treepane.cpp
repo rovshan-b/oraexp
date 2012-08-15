@@ -24,7 +24,7 @@ void TreePane::setConnection(DbConnection *db)
 
     populateTree();
 
-    setBusy(false);
+    //decreaseRefCount();
 }
 
 void TreePane::populateTree()

@@ -105,7 +105,7 @@ void ConnectionPage::addTab(ConnectionPageTab *tab, const QPixmap &icon, const Q
     int newTabIx=centralTab->addTab(tab, icon, title);
 
     centralTab->setCurrentIndex(newTabIx);
-    centralTab->setTabBusy(newTabIx, true);
+    //centralTab->setTabBusy(newTabIx, true);
     connect(tab, SIGNAL(stateChanged()), this, SIGNAL(connectionPageStateChanged()));
 
     prepareTab(tab);
@@ -117,7 +117,7 @@ void ConnectionPage::asyncConnectionReady(DbConnection *db, void *data, bool err
     if(error){
         delete db;
         QMessageBox::critical(this->window(), tr("Error while connecting to database"), ex.getErrorMessage());
-        tab->setBusy(false);
+        //tab->decreaseRefCount();
     }
     else{
         tab->setUpdatesEnabled(false);

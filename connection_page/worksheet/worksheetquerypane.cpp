@@ -1,5 +1,7 @@
 #include "worksheetquerypane.h"
 #include "connectivity/dbconnection.h"
+#include "util/iconutil.h"
+#include "util/widgethelper.h"
 #include <QtGui>
 
 #include <iostream>
@@ -15,14 +17,7 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
     toolbar->setIconSize(QSize(16, 16));
     toolbar->setEnabled(false);
 
-    QToolButton *executeButton=new QToolButton();
-    executeButton->setIcon(QIcon(":/images/execute.png"));
-    executeButton->setAutoRaise(true);
-    executeButton->setToolTip(tr("Execute query"));
-    executeButton->setShortcut(QKeySequence("Ctrl+Return"));
-    connect(executeButton, SIGNAL(clicked()), this, SLOT(executeQuery()));
-
-    toolbar->addWidget(executeButton);
+    toolbar->addAction(IconUtil::getIcon("execute"), tr("Execute"), this, SLOT(executeQuery()))->setShortcut(QKeySequence("Ctrl+Return"));
 
     toolbar->addSeparator();
 
@@ -39,6 +34,7 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
     codeEditor=codeEditorAndSearchPaneWidget->editor();
     codeEditor->setPlainText("select * from az_fdl");
 
+    WidgetHelper::updateActionTooltips(toolbar);
     layout->addWidget(toolbar);
     layout->addWidget(codeEditorAndSearchPaneWidget);
 

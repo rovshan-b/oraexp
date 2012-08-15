@@ -86,5 +86,6 @@
         <file>queries/func_write_to_log</file>
         <file>queries/disable_all_ref_constraints</file>
         <file>queries/enable_all_ref_constraints</file>
+        <file>queries/compile_object</file>
     </qresource>
 </RCC>

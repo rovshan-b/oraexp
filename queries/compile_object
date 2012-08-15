@@ -1,0 +1,19 @@
+declare
+  l_object_name varchar2(50) := :object_name;
+  l_owner varchar2(50) := :owner;
+  l_object_type varchar2(50) := :object_type;
+  
+  l_for_debug number := :for_debug;
+  
+  l_compile_statement varchar2(500);
+  
+  {@replace_with:func_execute_clob}
+begin 
+  l_compile_statement := 'alter '||l_object_type||' "'||l_owner||'"."'||l_object_name||'" compile';
+  if l_for_debug = 1 then
+     l_compile_statement := l_compile_statement || ' debug';
+  end if;
+  
+  execute immediate l_compile_statement;
+  open :rs_out for select * from all_errors where owner=l_owner and name=l_object_name and type=l_object_type;
+end;
