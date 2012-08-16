@@ -101,5 +101,7 @@
         <file>images/compile.png</file>
         <file>images/compile_for_debug.png</file>
         <file>images/debug.png</file>
+        <file>images/warning.png</file>
+        <file>images/native_compilation.png</file>
     </qresource>
 </RCC>

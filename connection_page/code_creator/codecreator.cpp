@@ -84,6 +84,15 @@ void CodeCreator::createToolbar()
     toolbar->setIconSize(QSize(16, 16));
     toolbar->addAction(IconUtil::getIcon("compile_for_debug"), tr("Compile for debug"), this, SLOT(compileObjectForDebug()))->setShortcut(QKeySequence("F8"));
     toolbar->addAction(IconUtil::getIcon("compile"), tr("Compile"), this, SLOT(compileObject(bool)))->setShortcut(QKeySequence("F9"));
+    toolbar->addSeparator();
+
+    enableWarningsAction=toolbar->addAction(IconUtil::getIcon("warning"), tr("Enable warnings"));
+    enableWarningsAction->setCheckable(true);
+    enableWarningsAction->setChecked(true);
+
+    enableNativeCodeAction=toolbar->addAction(IconUtil::getIcon("native_compilation"), tr("Enable native compilation for non-debug mode"));
+    enableNativeCodeAction->setCheckable(true);
+    enableNativeCodeAction->setChecked(false);
 
     progressBarAction = WidgetHelper::addProgressBarAction(toolbar, false);
 
@@ -134,7 +143,7 @@ void CodeCreator::setConnection(DbConnection *db)
 
     if(editMode){
         SourceInfoLoader *metadataLoader=new SourceInfoLoader(this, schemaName, objectName,
-                                                              DbUtil::getDbObjectTypeNameByNodeType(objectType),
+                                                              getObjectTypeName(),
                                                               schemaName, false, false, this);
         connect(metadataLoader, SIGNAL(objectInfoReady(DbObjectInfo*,MetadataLoader*)), this, SLOT(objectInfoReady(DbObjectInfo*,MetadataLoader*)));
         connect(metadataLoader, SIGNAL(loadError(QString,OciException,MetadataLoader*)), this, SLOT(loadError(QString,OciException,MetadataLoader*)));
@@ -274,7 +283,9 @@ void CodeCreator::compileObject(bool forDebug)
                        new Param(":object_name", objectName) <<
                        new Param(":owner", schemaName) <<
                        new Param(":object_type", getObjectTypeName()) <<
-                       new Param(":for_debug", forDebug),
+                       new Param(":for_debug", forDebug) <<
+                       new Param(":enable_warnings", enableWarningsAction->isChecked()) <<
+                       new Param(":native_code", enableNativeCodeAction->isChecked() && !forDebug),
                        this,
                        "compile_object",
                        "compilationCompleted",

@@ -22,6 +22,8 @@ public slots:
 
     void showViewCreator();
 
+    void showProcedureCreator();
+
     void addWorksheet(const QString &contents="");
 
     void viewTableDetails(const QString &schemaName, const QString &tableName);
@@ -29,11 +31,14 @@ public slots:
 
     void showViewCreator(const QString &schemaName, const QString &viewName);
 
+    void showProcedureCreator(const QString &schemaName, const QString &procName);
+
     void addSchemaComparer();
     void addDataComparer();
 
     void alterTable();
     void alterView();
+    void alterProcedure();
 
     void closeTab(QWidget *widget);
 private:

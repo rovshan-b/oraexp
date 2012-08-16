@@ -84,6 +84,7 @@ void QueryRunner::fetchResultset(QueryResult &result, const QueryExecTask &task)
 
             QMetaObject::invokeMethod(task.requester, task.fetchSlotName.toStdString().c_str(), Qt::QueuedConnection, Q_ARG(FetchResult, fetchResult));
         }
+        rs->endFetchRows();
     }catch(OciException &ex){
         fetchResult.hasError=true;
         fetchResult.exception=ex;
@@ -93,7 +94,6 @@ void QueryRunner::fetchResultset(QueryResult &result, const QueryExecTask &task)
         QMetaObject::invokeMethod(task.requester, task.fetchSlotName.toStdString().c_str(), Qt::QueuedConnection, Q_ARG(FetchResult, fetchResult));
     }
 
-    rs->endFetchRows();
     result.statement=0;
 
     checkPointer(task.requester, "completed fetching rows");

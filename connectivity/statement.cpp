@@ -65,6 +65,7 @@ void Statement::createOciStatement(Connection *connection)
 {
     this->connection=connection;
     ociStmt = OCI_StatementCreate(connection->getOciConnection());
+    DbUtil::checkForOciError(ociStmt);
     OCI_AllowRebinding(ociStmt, true);
 }
 
@@ -348,6 +349,9 @@ void Statement::collectParamResultsets()
         if(paramType==Param::Stmt){
             Statement *childStmt=parameter->getStmtValue();
             OCI_Resultset *ociResultSet=OCI_GetResultset(childStmt->ociStatement());
+            if(!ociResultSet){
+                DbUtil::checkForOciError(ociStmt);
+            }
             this->resultsets.append(new Resultset(ociResultSet, this->connection, this));
         }
     }

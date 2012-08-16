@@ -5,6 +5,10 @@ declare
   
   l_for_debug number := :for_debug;
   
+  l_enable_warnings number := :enable_warnings;
+  
+  l_native_code number := :native_code;
+  
   l_compile_statement varchar2(500);
   
   {@replace_with:func_execute_clob}
@@ -14,6 +18,20 @@ begin
      l_compile_statement := l_compile_statement || ' debug';
   end if;
   
-  execute immediate l_compile_statement;
+  if l_enable_warnings = 1 then
+     l_compile_statement := l_compile_statement || ' PLSQL_WARNINGS=''ENABLE:ALL''';
+  end if;
+  
+  if l_for_debug != 1 and l_native_code = 1 then
+    l_compile_statement := l_compile_statement || ' PLSQL_CODE_TYPE=NATIVE';
+  end if;
+
+  begin
+    execute_clob(l_compile_statement);
+  exception when others then
+    --null;
+    raise;
+  end;
+  
   open :rs_out for select * from all_errors where owner=l_owner and name=l_object_name and type=l_object_type;
 end;

@@ -68,6 +68,8 @@ private:
 
     QToolBar *toolbar;
     QAction *progressBarAction;
+    QAction *enableWarningsAction;
+    QAction *enableNativeCodeAction;
 
     QSplitter *editorSplitter;
     CodeEditorAndSearchPaneWidget *currentEditor;

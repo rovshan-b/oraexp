@@ -97,7 +97,7 @@ int CodeEditor::lineNumberAreaWidth()
 
      for(int i=0; i<foundTextPositions.size(); ++i){
          QTextEdit::ExtraSelection searchTextSelection;
-         searchTextSelection.format.setBackground(palette().color(QPalette::Highlight).lighter());
+         searchTextSelection.format.setBackground(QColor(Qt::yellow));
          searchTextSelection.format.setForeground(palette().color(QPalette::HighlightedText));
          searchTextSelection.cursor=foundTextPositions.at(i);
 

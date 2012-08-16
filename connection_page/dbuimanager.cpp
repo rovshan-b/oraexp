@@ -58,6 +58,11 @@ void DbUiManager::showViewCreator()
     showViewCreator(getCorrectSchemaNameForCurrentContext(), "");
 }
 
+void DbUiManager::showProcedureCreator()
+{
+    showProcedureCreator(getCorrectSchemaNameForCurrentContext(), "");
+}
+
 void DbUiManager::addWorksheet(const QString &contents)
 {
     Worksheet *worksheet=new Worksheet(this);
@@ -95,6 +100,18 @@ void DbUiManager::showViewCreator(const QString &schemaName, const QString &view
     cnPage->addTab(codeCreator, IconUtil::getIcon(iconName), tabTitle);
 }
 
+void DbUiManager::showProcedureCreator(const QString &schemaName, const QString &procName)
+{
+    CodeCreator *codeCreator=new CodeCreator(schemaName, procName,
+                                             DbTreeModel::Procedure,
+                                             this);
+
+    QString iconName=(procName.isEmpty() ? "procedure" : "procedure");
+    QString tabTitle=(procName.isEmpty() ? tr("Create procedure") : procName);
+
+    cnPage->addTab(codeCreator, IconUtil::getIcon(iconName), tabTitle);
+}
+
 void DbUiManager::alterTable()
 {
     const QModelIndex index=((NodeAction*)sender())->getModelIndex();
@@ -107,6 +124,13 @@ void DbUiManager::alterView()
     const QModelIndex index=((NodeAction*)sender())->getModelIndex();
     DbTreeItem *node=(DbTreeItem*)index.internalPointer();
     showViewCreator(node->schemaName(), node->itemName());
+}
+
+void DbUiManager::alterProcedure()
+{
+    const QModelIndex index=((NodeAction*)sender())->getModelIndex();
+    DbTreeItem *node=(DbTreeItem*)index.internalPointer();
+    showProcedureCreator(node->schemaName(), node->itemName());
 }
 
 void DbUiManager::addSchemaComparer()
