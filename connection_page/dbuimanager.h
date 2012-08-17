@@ -2,9 +2,11 @@
 #define DBUIMANAGER_H
 
 #include <QObject>
+#include "../navtree/dbtreemodel.h"
 
 class DbConnection;
 class ConnectionPage;
+class DbItemAction;
 
 class DbUiManager : public QObject
 {
@@ -17,28 +19,18 @@ signals:
 public slots:
     void refreshTreeNodeChildren();
 
-    void viewTableDetails();
-    void showTableCreator();
-
-    void showViewCreator();
-
-    void showProcedureCreator();
+    void createCreator();
+    void createCreator(const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType);
+    void createEditor(bool editMode=true);
+    void createEditor(const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType, bool editMode=true);
+    void createViewer();
+    void createViewer(const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType);
 
     void addWorksheet(const QString &contents="");
-
-    void viewTableDetails(const QString &schemaName, const QString &tableName);
-    void showTableCreator(const QString &schemaName, const QString &tableName);
-
-    void showViewCreator(const QString &schemaName, const QString &viewName);
-
-    void showProcedureCreator(const QString &schemaName, const QString &procName);
-
     void addSchemaComparer();
     void addDataComparer();
 
-    void alterTable();
-    void alterView();
-    void alterProcedure();
+    DbItemAction *getSenderAction() const;
 
     void closeTab(QWidget *widget);
 private:

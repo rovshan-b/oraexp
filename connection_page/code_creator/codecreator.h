@@ -14,6 +14,7 @@ class InfoPanel;
 class QSplitter;
 class QToolBar;
 class QActionGroup;
+class CompilerMessagesPane;
 
 class CodeCreator : public ConnectionPageTab
 {
@@ -39,11 +40,21 @@ protected:
 
     
 private slots:
+    void loadObjectInfo();
     void objectInfoReady(DbObjectInfo *objectInfo, MetadataLoader *loader);
     void loadError(const QString &taskName, const OciException &ex, MetadataLoader *loader);
+
+    void loadCompilationParams();
+    void compilationParamsQueryCompleted(const QueryResult &result);
+    void compilationParamsFetched(const FetchResult &fetchResult);
+    void compilationParamsFetchCompleted(const QString &);
+
     void editorCountActionSelected(bool checked);
     void editorOrientationActionSelected(QAction *action);
     void codeEditorFocusEvent(QWidget *object, bool focusIn);
+
+    int getEnableWarnings();
+    int getEnableNativeCode();
 
     void compileObject(bool forDebug=false);
     void compileObjectForDebug();
@@ -74,6 +85,7 @@ private:
     QSplitter *editorSplitter;
     CodeEditorAndSearchPaneWidget *currentEditor;
     InfoPanel *infoPanel;
+    CompilerMessagesPane *compilerMessagesPane;
 
     QActionGroup *splitDirectionGroup;
 

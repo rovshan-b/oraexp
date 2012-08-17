@@ -42,6 +42,8 @@ public:
 
     static QString toIntervalOrTimestamp(const QString &columnName, const QString &dataType);
     static QString intervalOrTimestampToChar(const QString &columnName, const QString &dataType);
+
+    static bool isPLSQLProgramUnit(DbTreeModel::DbTreeNodeType itemType);
 };
 
 #endif // DBUTIL_H

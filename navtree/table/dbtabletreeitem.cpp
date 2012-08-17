@@ -64,29 +64,6 @@ bool DbTableTreeItem::displayChildCount() const
     return false;
 }
 
-QList<QAction*> DbTableTreeItem::getContextMenuItems(const QModelIndex &index) const
-{
-    QList<QAction*> actions;
-
-    actions.append(DbTreeItem::getContextMenuItems(index));
-
-    QAction *separator=new QAction(0);
-    separator->setSeparator(true);
-    actions.append(separator);
-
-    //view
-    NodeAction *viewDetailsAction=new NodeAction(index, IconUtil::getIcon("view_detailed"), QObject::tr("View"));
-    QObject::connect(viewDetailsAction, SIGNAL(triggered()), getModel()->getUiManager(), SLOT(viewTableDetails()));
-    actions.append(viewDetailsAction);
-
-    //alter
-    NodeAction *alterTableAction=new NodeAction(index, IconUtil::getIcon("table_alter"), QObject::tr("Alter"));
-    QObject::connect(alterTableAction, SIGNAL(triggered()), getModel()->getUiManager(), SLOT(alterTable()));
-    actions.append(alterTableAction);
-
-    return actions;
-}
-
 DbTreeItem::CheckBehavior DbTableTreeItem::checkBehavior() const
 {
     if(this->parent()!=0 && this->parent()->getItemType()==DbTreeModel::Tables){

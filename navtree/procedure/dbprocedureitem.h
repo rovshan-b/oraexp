@@ -17,8 +17,6 @@ public:
 
     virtual DbTreeModel::DbTreeNodeType getItemType() const {return DbTreeModel::Procedure;}
 
-    virtual QList<QAction *> getContextMenuItems(const QModelIndex &index) const;
-
 };
 
 #endif // DBPROCEDUREITEM_H

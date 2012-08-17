@@ -2,6 +2,8 @@
 #include "util/iconutil.h"
 #include "connection_page/connectionpage.h"
 #include "connection_page/connectionpagetab.h"
+#include "util/widgethelper.h"
+#include "beans/dbitemaction.h"
 #include <QtGui>
 
 AppFileMenu::AppFileMenu(QMenu *fileMenu, QToolBar *toolbar, QObject *parent) : AppMainMenu(parent)
@@ -63,8 +65,8 @@ void AppFileMenu::createFileNewMenu()
     fileNewMenu=new QMenu(tr("Create new..."));
 
     fileNewMenu->addAction(IconUtil::getIcon("worksheet"), tr("&Worksheet"), this, SLOT(addWorksheet()), QKeySequence(tr("Ctrl+N", "File|New worksheet")));
-    fileNewMenu->addAction(IconUtil::getIcon("table"), tr("&Table"), this, SLOT(showTableCreator()), QKeySequence(tr("Ctrl+T", "File|New table")));
-    fileNewMenu->addAction(IconUtil::getIcon("view"), tr("&View"), this, SLOT(showViewCreator()), QKeySequence(tr("Ctrl+w", "File|New view")));
+    WidgetHelper::addDbItemAction(fileNewMenu, IconUtil::getIcon("table"), tr("&Table"), "", "", DbTreeModel::Table, this, SLOT(showCreator()), QKeySequence(tr("Ctrl+T", "File|New table")));
+    WidgetHelper::addDbItemAction(fileNewMenu, IconUtil::getIcon("view"), tr("&View"), "", "", DbTreeModel::View, this, SLOT(showCreator()), QKeySequence(tr("Ctrl+T", "File|New table")));
 }
 
 void AppFileMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *cnPageTab)
@@ -85,4 +87,12 @@ void AppFileMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *
     filePrintAction->setEnabled(cnPageTab!=0 && cnPageTab->canPrint());
     filePrintPreviewAction->setEnabled(cnPageTab!=0 && cnPageTab->canPrint());
 
+}
+
+void AppFileMenu::showCreator()
+{
+    DbItemAction *action=static_cast<DbItemAction*>(sender());
+    Q_ASSERT(action);
+
+    uiManager()->createCreator(action->getSchemaName(), action->getObjectName(), action->getItemType());
 }

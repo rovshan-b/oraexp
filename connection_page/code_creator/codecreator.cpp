@@ -4,7 +4,8 @@
 #include "util/dbutil.h"
 #include "util/iconutil.h"
 #include "util/widgethelper.h"
-#include "widgets/infopanel.h"
+#include "info_panel/infopanel.h"
+#include "info_panel/panes/compilermessagespane.h"
 #include <QtGui>
 
 CodeCreator::CodeCreator(const QString &schemaName,
@@ -39,13 +40,14 @@ void CodeCreator::createUi()
     bottomSplitter->setChildrenCollapsible(false);
     bottomSplitter->addWidget(outerSplitter);
 
-    infoPanel->addPanel(new QPlainTextEdit("pane 1"), tr("Compiler messages"), IconUtil::getIcon("help"));
+    compilerMessagesPane=new CompilerMessagesPane();
+    infoPanel->addPanel(compilerMessagesPane, tr("Compiler messages"), IconUtil::getIcon("help"));
 
     bottomSplitter->addWidget(infoPanel->getPanel());
 
 
     bottomSplitter->setStretchFactor(0, 2);
-    bottomSplitter->setSizes(QList<int>() << 9 << 3);
+    bottomSplitter->setSizes(QList<int>() << 3 << 1);
 
     QVBoxLayout *layout=new QVBoxLayout();
     layout->setContentsMargins(0,2,0,0);
@@ -80,19 +82,29 @@ QWidget *CodeCreator::createRightPane()
 
 void CodeCreator::createToolbar()
 {
+    bool isPLSQLProgramUnit = DbUtil::isPLSQLProgramUnit(this->objectType);
+
     toolbar=new QToolBar();
     toolbar->setIconSize(QSize(16, 16));
-    toolbar->addAction(IconUtil::getIcon("compile_for_debug"), tr("Compile for debug"), this, SLOT(compileObjectForDebug()))->setShortcut(QKeySequence("F8"));
+    if(isPLSQLProgramUnit){
+        toolbar->addAction(IconUtil::getIcon("compile_for_debug"), tr("Compile for debug"), this, SLOT(compileObjectForDebug()))->setShortcut(QKeySequence("F8"));
+    }
+
     toolbar->addAction(IconUtil::getIcon("compile"), tr("Compile"), this, SLOT(compileObject(bool)))->setShortcut(QKeySequence("F9"));
-    toolbar->addSeparator();
 
-    enableWarningsAction=toolbar->addAction(IconUtil::getIcon("warning"), tr("Enable warnings"));
-    enableWarningsAction->setCheckable(true);
-    enableWarningsAction->setChecked(true);
+    if(isPLSQLProgramUnit){
+        toolbar->addSeparator();
 
-    enableNativeCodeAction=toolbar->addAction(IconUtil::getIcon("native_compilation"), tr("Enable native compilation for non-debug mode"));
-    enableNativeCodeAction->setCheckable(true);
-    enableNativeCodeAction->setChecked(false);
+        enableWarningsAction=toolbar->addAction(IconUtil::getIcon("warning"), tr("Enable warnings"));
+        enableWarningsAction->setCheckable(true);
+        if(!editMode){
+            enableWarningsAction->setChecked(true);
+        }
+
+        enableNativeCodeAction=toolbar->addAction(IconUtil::getIcon("native_compilation"), tr("Enable native compilation for non-debug mode"));
+        enableNativeCodeAction->setCheckable(true);
+        enableNativeCodeAction->setChecked(false);
+    }
 
     progressBarAction = WidgetHelper::addProgressBarAction(toolbar, false);
 
@@ -142,15 +154,24 @@ void CodeCreator::setConnection(DbConnection *db)
     ConnectionPageTab::setConnection(db);
 
     if(editMode){
-        SourceInfoLoader *metadataLoader=new SourceInfoLoader(this, schemaName, objectName,
-                                                              getObjectTypeName(),
-                                                              schemaName, false, false, this);
-        connect(metadataLoader, SIGNAL(objectInfoReady(DbObjectInfo*,MetadataLoader*)), this, SLOT(objectInfoReady(DbObjectInfo*,MetadataLoader*)));
-        connect(metadataLoader, SIGNAL(loadError(QString,OciException,MetadataLoader*)), this, SLOT(loadError(QString,OciException,MetadataLoader*)));
-        metadataLoader->loadObjectInfo();
+        if(DbUtil::isPLSQLProgramUnit(this->objectType)){
+            loadCompilationParams();
+        }else{
+            loadObjectInfo();
+        }
     }else{
         //setBusy(false);
     }
+}
+
+void CodeCreator::loadObjectInfo()
+{
+    SourceInfoLoader *metadataLoader=new SourceInfoLoader(this, schemaName, objectName,
+                                                          getObjectTypeName(),
+                                                          schemaName, false, false, this);
+    connect(metadataLoader, SIGNAL(objectInfoReady(DbObjectInfo*,MetadataLoader*)), this, SLOT(objectInfoReady(DbObjectInfo*,MetadataLoader*)));
+    connect(metadataLoader, SIGNAL(loadError(QString,OciException,MetadataLoader*)), this, SLOT(loadError(QString,OciException,MetadataLoader*)));
+    metadataLoader->loadObjectInfo();
 }
 
 void CodeCreator::keyReleaseEvent(QKeyEvent *event)
@@ -184,6 +205,39 @@ void CodeCreator::loadError(const QString &taskName, const OciException &ex, Met
     loader->deleteLater();
 
     //setBusy(false);
+}
+
+void CodeCreator::loadCompilationParams()
+{
+    this->enqueueQuery("get_plsql_object_settings",
+                       QList<Param*>() <<
+                       new Param(":owner", this->schemaName) <<
+                       new Param(":object_name", this->objectName) <<
+                       new Param(":object_type", getObjectTypeName()),
+                       this,
+                       "get_plsql_object_settings",
+                       "compilationParamsQueryCompleted",
+                       "compilationParamsFetched",
+                       "compilationParamsFetchCompleted");
+}
+
+void CodeCreator::compilationParamsQueryCompleted(const QueryResult &result)
+{
+    if(result.hasError){
+        QMessageBox::critical(this, tr("Failed to load compilation parameters"),
+                              tr("Task name: %1\nError: %2").arg(result.taskName, result.exception.getErrorMessage()));
+    }
+}
+
+void CodeCreator::compilationParamsFetched(const FetchResult &fetchResult)
+{
+    enableWarningsAction->setChecked(fetchResult.colValue("PLSQL_WARNINGS").startsWith("ENABLE"));
+    enableNativeCodeAction->setChecked(fetchResult.colValue("PLSQL_CODE_TYPE")=="NATIVE");
+}
+
+void CodeCreator::compilationParamsFetchCompleted(const QString &)
+{
+    loadObjectInfo();
 }
 
 void CodeCreator::editorCountActionSelected(bool checked)
@@ -275,8 +329,32 @@ QString CodeCreator::getObjectTypeName() const
     return DbUtil::getDbObjectTypeNameByNodeType(this->objectType);
 }
 
+int CodeCreator::getEnableWarnings()
+{
+    if(!DbUtil::isPLSQLProgramUnit(this->objectType)){
+        return 2;
+    }else if(enableWarningsAction->isChecked()){
+        return 1;
+    }else{
+        return 0;
+    }
+}
+
+int CodeCreator::getEnableNativeCode()
+{
+    if(!DbUtil::isPLSQLProgramUnit(this->objectType)){
+        return 2;
+    }else if(enableNativeCodeAction->isChecked()){
+        return 1;
+    }else{
+        return 0;
+    }
+}
+
 void CodeCreator::compileObject(bool forDebug)
 {
+    compilerMessagesPane->clearCompilerMessages();
+
     toolbar->setEnabled(false);
     progressBarAction->setVisible(true);
     this->enqueueQuery("compile_object", QList<Param*>() <<
@@ -284,8 +362,8 @@ void CodeCreator::compileObject(bool forDebug)
                        new Param(":owner", schemaName) <<
                        new Param(":object_type", getObjectTypeName()) <<
                        new Param(":for_debug", forDebug) <<
-                       new Param(":enable_warnings", enableWarningsAction->isChecked()) <<
-                       new Param(":native_code", enableNativeCodeAction->isChecked() && !forDebug),
+                       new Param(":enable_warnings", getEnableWarnings()) <<
+                       new Param(":native_code", getEnableNativeCode() && !forDebug),
                        this,
                        "compile_object",
                        "compilationCompleted",
@@ -316,11 +394,22 @@ void CodeCreator::compilationErrorFetched(const FetchResult &fetchResult)
         return;
     }
 
-    qDebug() << fetchResult.colValue("TEXT");
+    compilerMessagesPane->addCompilerMessage(fetchResult.colValue("LINE",0),
+                                             fetchResult.colValue("POSITION",0),
+                                             fetchResult.colValue("TEXT"),
+                                             fetchResult.colValue("ATTRIBUTE"));
 }
 
 void CodeCreator::compilationErrorFetchCompleted(const QString &)
 {
     progressBarAction->setVisible(false);
     toolbar->setEnabled(true);
+
+    //burani duzeltmek lazimdir
+    if(!compilerMessagesPane->isEmpty()){
+        infoPanel->setCurrentIndex(0); //burda setCurrentWidget
+        compilerMessagesPane->resizeToFit();
+    }else{
+        infoPanel->closePanel(); //burda eger aktiv compilerMessagePane-dirsa yalniz o halda close
+    }
 }

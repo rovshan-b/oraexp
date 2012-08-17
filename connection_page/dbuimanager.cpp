@@ -1,18 +1,17 @@
 #include "dbuimanager.h"
 #include "../navtree/dbtreeitem.h"
 #include "../navtree/nodeaction.h"
-#include "../navtree/dbtreemodel.h"
+#include "beans/dbitemaction.h"
 #include "../navtree/dbtreeitem.h"
 #include "connectionpage.h"
 #include "connectivity/dbconnection.h"
 #include "util/widgethelper.h"
 #include "util/iconutil.h"
+#include "util/dbutil.h"
 #include "worksheet/worksheet.h"
-#include "table_info/tableinfoviewer.h"
-#include "table_creator/tablecreator.h"
 #include "schema_comparer/schemacomparer.h"
 #include "data_comparer/datacomparer.h"
-#include "code_creator/codecreator.h"
+#include "editorcreatorutil.h"
 #include <QtGui>
 
 DbUiManager::DbUiManager(DbConnection *db, QObject *parent) :
@@ -29,38 +28,62 @@ void DbUiManager::refreshTreeNodeChildren()
     ((DbTreeModel*)index.model())->refreshChildren(index);
 }
 
-void DbUiManager::viewTableDetails()
+void DbUiManager::createCreator()
 {
-    const QModelIndex index=((NodeAction*)sender())->getModelIndex();
-    DbTreeItem *node=(DbTreeItem*)index.internalPointer();
-    viewTableDetails(node->schemaName(), node->itemName());
+    createEditor(false);
 }
 
-QString DbUiManager::getCorrectSchemaNameForCurrentContext()
+void DbUiManager::createCreator(const QString &schemaName,
+                               const QString &objectName,
+                               const DbTreeModel::DbTreeNodeType itemType)
 {
-    NodeAction* nodeAction=dynamic_cast<NodeAction*>(sender());
-    if(nodeAction){
-        const QModelIndex index=((NodeAction*)sender())->getModelIndex();
-        DbTreeItem *node=(DbTreeItem*)index.internalPointer();
-        return node->schemaName();
-    }else{
-        return db->getSchemaName();
+    createEditor(schemaName, objectName, itemType, false);
+}
+
+void DbUiManager::createEditor(bool editMode)
+{
+    DbItemAction *action=getSenderAction();
+    QString schemaName=action->getSchemaName();
+    if(schemaName.isEmpty()){
+        schemaName=db->getSchemaName();
     }
+    createEditor(schemaName, action->getObjectName(), action->getItemType(), editMode);
 }
 
-void DbUiManager::showTableCreator()
+void DbUiManager::createEditor(const QString &schemaName,
+                               const QString &objectName,
+                               const DbTreeModel::DbTreeNodeType itemType,
+                               bool editMode)
 {
-    showTableCreator(getCorrectSchemaNameForCurrentContext(), "");
+    ConnectionPageTab *editor = EditorCreatorUtil::createEditor(schemaName,
+                                                      objectName,
+                                                      itemType,
+                                                      this);
+
+    QString iconName = DbUtil::getDbObjectIconNameByParentNodeType(itemType);
+    if(editMode){
+        iconName.append("_alter");
+    }else{
+        iconName.append("_add");
+    }
+    QString objectTypeName = DbUtil::getDbObjectTypeNameByNodeType(itemType).toLower();
+    cnPage->addTab(editor, IconUtil::getIcon(iconName), editMode ? objectName : QString("Create %1").arg(objectTypeName));
 }
 
-void DbUiManager::showViewCreator()
+void DbUiManager::createViewer()
 {
-    showViewCreator(getCorrectSchemaNameForCurrentContext(), "");
+    DbItemAction *action=getSenderAction();
+    createViewer(action->getSchemaName(), action->getObjectName(), action->getItemType());
 }
 
-void DbUiManager::showProcedureCreator()
+void DbUiManager::createViewer(const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType)
 {
-    showProcedureCreator(getCorrectSchemaNameForCurrentContext(), "");
+    ConnectionPageTab *viewer = EditorCreatorUtil::createViewer(schemaName,
+                                                                objectName,
+                                                                itemType,
+                                                                this);
+    QString iconName = DbUtil::getDbObjectIconNameByParentNodeType(itemType);
+    cnPage->addTab(viewer, IconUtil::getIcon(iconName), objectName);
 }
 
 void DbUiManager::addWorksheet(const QString &contents)
@@ -72,65 +95,12 @@ void DbUiManager::addWorksheet(const QString &contents)
     }
 }
 
-void DbUiManager::viewTableDetails(const QString &schemaName, const QString &tableName)
+DbItemAction *DbUiManager::getSenderAction() const
 {
-    TableInfoViewer *tableInfoViewer=new TableInfoViewer(schemaName, tableName, this);
-    cnPage->addTab(tableInfoViewer, IconUtil::getIcon("table"), tableName);
-}
+    DbItemAction* itemAction=dynamic_cast<DbItemAction*>(sender());
+    Q_ASSERT(itemAction);
 
-void DbUiManager::showTableCreator(const QString &schemaName, const QString &tableName)
-{
-    TableCreator *tableCreator=new TableCreator(schemaName, tableName, this);
-
-    QString iconName=(tableName.isEmpty() ? "table_add" : "table_alter");
-    QString tabTitle=(tableName.isEmpty() ? tr("Create table") : tableName);
-
-    cnPage->addTab(tableCreator, IconUtil::getIcon(iconName), tabTitle);
-}
-
-void DbUiManager::showViewCreator(const QString &schemaName, const QString &viewName)
-{
-    CodeCreator *codeCreator=new CodeCreator(schemaName, viewName,
-                                             DbTreeModel::View,
-                                             this);
-
-    QString iconName=(viewName.isEmpty() ? "view_add" : "view_alter");
-    QString tabTitle=(viewName.isEmpty() ? tr("Create view") : viewName);
-
-    cnPage->addTab(codeCreator, IconUtil::getIcon(iconName), tabTitle);
-}
-
-void DbUiManager::showProcedureCreator(const QString &schemaName, const QString &procName)
-{
-    CodeCreator *codeCreator=new CodeCreator(schemaName, procName,
-                                             DbTreeModel::Procedure,
-                                             this);
-
-    QString iconName=(procName.isEmpty() ? "procedure" : "procedure");
-    QString tabTitle=(procName.isEmpty() ? tr("Create procedure") : procName);
-
-    cnPage->addTab(codeCreator, IconUtil::getIcon(iconName), tabTitle);
-}
-
-void DbUiManager::alterTable()
-{
-    const QModelIndex index=((NodeAction*)sender())->getModelIndex();
-    DbTreeItem *node=(DbTreeItem*)index.internalPointer();
-    showTableCreator(node->schemaName(), node->itemName());
-}
-
-void DbUiManager::alterView()
-{
-    const QModelIndex index=((NodeAction*)sender())->getModelIndex();
-    DbTreeItem *node=(DbTreeItem*)index.internalPointer();
-    showViewCreator(node->schemaName(), node->itemName());
-}
-
-void DbUiManager::alterProcedure()
-{
-    const QModelIndex index=((NodeAction*)sender())->getModelIndex();
-    DbTreeItem *node=(DbTreeItem*)index.internalPointer();
-    showProcedureCreator(node->schemaName(), node->itemName());
+    return itemAction;
 }
 
 void DbUiManager::addSchemaComparer()

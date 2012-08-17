@@ -30,6 +30,8 @@ public:
     void resizeColumnAccountingForEditor(int column);
     void resizeColumnsAccountingForEditor();
 
+    void resizeColumnsToFitContents();
+
 signals:
     void currentRowChanged(const QModelIndex &current, const QModelIndex &previous);
     void asyncQueryCompleted(const QueryResult &result);
@@ -38,7 +40,6 @@ signals:
 
 private slots:
     void queryCompleted(const QueryResult &result);
-    void resizeColumnsToFitContents();
 
 private:
     IQueryScheduler *queryScheduler;

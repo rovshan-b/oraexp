@@ -5,6 +5,7 @@
 #include "connectivity/ociexception.h"
 #include "connection_page/dbuimanager.h"
 #include "dialogs/descriptiveerrordialog.h"
+#include "navtree/dbtreemodel.h"
 #include <QDebug>
 #include <QtGui>
 
@@ -147,7 +148,8 @@ void TableCreator::createTable()
     }
 
     if(success){
-        uiManager->viewTableDetails(tableCreatorTabs->getSchemaName().toUpper(), tableCreatorTabs->getTableName().toUpper());
+        uiManager->createViewer(tableCreatorTabs->getSchemaName().toUpper(), tableCreatorTabs->getTableName().toUpper(),
+                                DbTreeModel::Table);
         uiManager->closeTab(this);
     }
 

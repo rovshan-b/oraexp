@@ -8,6 +8,7 @@ class QListWidget;
 class DataTable;
 
 #include <QStandardItemModel>
+#include "navtree/dbtreemodel.h"
 
 class WidgetHelper
 {
@@ -54,6 +55,14 @@ public:
     static void addStretchToToolbar(QToolBar *toolbar);
 
     static void updateActionTooltips(QWidget *widget);
+
+    static void addDbItemAction(QMenu *menu, const QIcon &icon, const QString &text,
+                                const QString &schemaName,
+                                const QString &objectName,
+                                const DbTreeModel::DbTreeNodeType itemType,
+                                const QObject *receiver=0,
+                                const char *slotName=0,
+                                QKeySequence shortcut = QKeySequence());
 };
 
 #endif // WIDGETHELPER_H

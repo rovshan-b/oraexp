@@ -87,5 +87,6 @@
         <file>queries/disable_all_ref_constraints</file>
         <file>queries/enable_all_ref_constraints</file>
         <file>queries/compile_object</file>
+        <file>queries/get_plsql_object_settings</file>
     </qresource>
 </RCC>

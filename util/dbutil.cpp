@@ -231,30 +231,38 @@ QString DbUtil::getDbObjectIconNameByParentNodeType(DbTreeModel::DbTreeNodeType 
 
     switch(nodeType){
     case DbTreeModel::Tables:
+    case DbTreeModel::Table:
         result="table";
         break;
     case DbTreeModel::Views:
+    case DbTreeModel::View:
         result="view";
         break;
     case DbTreeModel::Packages:
     case DbTreeModel::PackageSpecs:
     case DbTreeModel::PackageBodies:
+    case DbTreeModel::Package:
         result="package";
         break;
     case DbTreeModel::Procedures:
+    case DbTreeModel::Procedure:
         result="procedure";
         break;
     case DbTreeModel::Functions:
+    case DbTreeModel::Function:
         result="function";
         break;
     case DbTreeModel::Sequences:
+    case DbTreeModel::Sequence:
         result="sequence";
         break;
     case DbTreeModel::Types:
     case DbTreeModel::TypeBodies:
+    case DbTreeModel::Type:
         result="type";
         break;
     case DbTreeModel::Synonyms:
+    case DbTreeModel::Synonym:
         result="synonym";
         break;
     default:
@@ -373,4 +381,14 @@ QString DbUtil::intervalOrTimestampToChar(const QString &columnName, const QStri
         }
     }
     return result;
+}
+
+bool DbUtil::isPLSQLProgramUnit(DbTreeModel::DbTreeNodeType itemType)
+{
+    return itemType==DbTreeModel::PackageSpec ||
+            itemType==DbTreeModel::PackageBody ||
+            itemType==DbTreeModel::Procedure ||
+            itemType==DbTreeModel::Function ||
+            itemType==DbTreeModel::Trigger ||
+            itemType==DbTreeModel::Type;
 }

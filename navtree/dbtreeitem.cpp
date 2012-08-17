@@ -14,6 +14,7 @@
 #include "util/iconutil.h"
 #include "connection_page/dbuimanager.h"
 #include "nodeaction.h"
+#include "context_menu/contextmenuutil.h"
 #include <QMessageBox>
 
 using namespace std;
@@ -280,6 +281,19 @@ QList<QAction*> DbTreeItem::getContextMenuItems(const QModelIndex &index) const
         QObject::connect(refreshAction, SIGNAL(triggered()), this->getModel()->getUiManager(), SLOT(refreshTreeNodeChildren()));
         actions.append(refreshAction);
     }
+
+    QList<QAction*> itemSpecificActions = ContextMenuUtil::getActionsForObject(schemaName(),
+                                                                               itemName(),
+                                                                               getItemType(),
+                                                                               getModel()->getUiManager());
+
+    if(!actions.isEmpty() && !itemSpecificActions.isEmpty()){
+        QAction *separator=new QAction("-",0);
+        separator->setSeparator(true);
+        actions.append(separator);
+    }
+
+    actions.append(itemSpecificActions);
 
     return actions;
 }

@@ -31,21 +31,3 @@ bool DbViewItem::displayChildCount() const
 {
     return false;
 }
-
-QList<QAction*> DbViewItem::getContextMenuItems(const QModelIndex &index) const
-{
-    QList<QAction*> actions;
-
-    actions.append(DbTreeItem::getContextMenuItems(index));
-
-    QAction *separator=new QAction(0);
-    separator->setSeparator(true);
-    actions.append(separator);
-
-    //alter
-    NodeAction *alterViewAction=new NodeAction(index, IconUtil::getIcon("view_alter"), QObject::tr("Alter"));
-    QObject::connect(alterViewAction, SIGNAL(triggered()), getModel()->getUiManager(), SLOT(alterView()));
-    actions.append(alterViewAction);
-
-    return actions;
-}

@@ -19,8 +19,6 @@ public:
 
     virtual bool displayChildCount() const;
 
-    virtual QList<QAction*> getContextMenuItems(const QModelIndex &index) const;
-
     virtual CheckBehavior checkBehavior() const;
 
     virtual DbTreeModel::DbTreeNodeType getItemType() const {return DbTreeModel::Table;}

@@ -10,6 +10,8 @@
 #include <QStandardItemModel>
 #include <QStandardItem>
 #include <QMessageBox>
+#include <QMenu>
+#include "beans/dbitemaction.h"
 #include <memory>
 
 using namespace std;
@@ -380,5 +382,14 @@ void WidgetHelper::updateActionTooltips(QWidget *widget)
             action->setToolTip(QString("%1 (%2)").arg(action->toolTip(), shortcut.toString()));
         }
     }
+}
+
+void WidgetHelper::addDbItemAction(QMenu *menu, const QIcon &icon, const QString &text, const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType, const QObject *receiver, const char *slotName, QKeySequence shortcut)
+{
+    DbItemAction *action = new DbItemAction(icon, text, schemaName, objectName, itemType, receiver, slotName);
+    if(!shortcut.isEmpty()){
+        action->setShortcut(shortcut);
+    }
+    menu->addAction(action);
 }
 

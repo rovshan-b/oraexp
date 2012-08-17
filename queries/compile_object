@@ -20,18 +20,19 @@ begin
   
   if l_enable_warnings = 1 then
      l_compile_statement := l_compile_statement || ' PLSQL_WARNINGS=''ENABLE:ALL''';
+  elsif l_enable_warnings = 0 then
+     l_compile_statement := l_compile_statement || ' PLSQL_WARNINGS=''DISABLE:ALL''';
   end if;
   
-  if l_for_debug != 1 and l_native_code = 1 then
-    l_compile_statement := l_compile_statement || ' PLSQL_CODE_TYPE=NATIVE';
+  if l_for_debug != 1 then
+     if l_native_code = 1 then
+       l_compile_statement := l_compile_statement || ' PLSQL_CODE_TYPE=NATIVE';
+     elsif l_native_code = 0 then
+       l_compile_statement := l_compile_statement || ' PLSQL_CODE_TYPE=INTERPRETED';
+     end if;
   end if;
 
-  begin
-    execute_clob(l_compile_statement);
-  exception when others then
-    --null;
-    raise;
-  end;
+  execute_clob(l_compile_statement);
   
-  open :rs_out for select * from all_errors where owner=l_owner and name=l_object_name and type=l_object_type;
+  open :rs_out for select * from all_errors where owner=l_owner and name=l_object_name and type=l_object_type order by sequence;
 end;

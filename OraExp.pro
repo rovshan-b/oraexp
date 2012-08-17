@@ -302,7 +302,15 @@ SOURCES += main.cpp\
     connection_page/data_comparer/tabs/datacomparerresultstab.cpp \
     beans/datacompareinfo.cpp \
     connection_page/code_creator/codecreator.cpp \
-    widgets/infopanel.cpp
+    info_panel/infopanel.cpp \
+    beans/dbitemaction.cpp \
+    context_menu/contextmenuutil.cpp \
+    context_menu/tablecontextmenuutil.cpp \
+    context_menu/procedurecontextmenuutil.cpp \
+    context_menu/viewcontextmenuutil.cpp \
+    connection_page/editorcreatorutil.cpp \
+    info_panel/panes/compilermessagespane.cpp \
+    info_panel/infopane.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -598,7 +606,15 @@ HEADERS  += mainwindow.h \
     connection_page/data_comparer/tabs/datacomparerresultstab.h \
     beans/datacompareinfo.h \
     connection_page/code_creator/codecreator.h \
-    widgets/infopanel.h
+    info_panel/infopanel.h \
+    beans/dbitemaction.h \
+    context_menu/contextmenuutil.h \
+    context_menu/tablecontextmenuutil.h \
+    context_menu/procedurecontextmenuutil.h \
+    context_menu/viewcontextmenuutil.h \
+    connection_page/editorcreatorutil.h \
+    info_panel/panes/compilermessagespane.h \
+    info_panel/infopane.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

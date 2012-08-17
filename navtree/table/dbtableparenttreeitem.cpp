@@ -40,26 +40,6 @@ DbTreeItem *DbTableParentTreeItem::createNodeFromRecord(Resultset *rs)
                                );
 }
 
-QList<QAction*> DbTableParentTreeItem::getContextMenuItems(const QModelIndex &index) const
-{
-    QList<QAction*> actions;
-
-    actions.append(DbTreeItem::getContextMenuItems(index));
-
-    QAction *separator=new QAction(0);
-    separator->setSeparator(true);
-    actions.append(separator);
-
-    NodeAction *createNewTableAction=new NodeAction(index, IconUtil::getIcon("table_add"),
-                                                 QObject::tr("Create table"));
-    QObject::connect(createNewTableAction, SIGNAL(triggered()),
-                     getModel()->getUiManager(),
-                     SLOT(showTableCreator()));
-    actions.append(createNewTableAction);
-
-    return actions;
-}
-
 QList<DbTreeItem*> DbTableParentTreeItem::createFilteredItem(const QString &sourceObjectOwner,
                                                              const QString &tableOwner,
                                                              const QString &tableName,

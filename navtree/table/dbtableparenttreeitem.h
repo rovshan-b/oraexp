@@ -16,8 +16,6 @@ public:
 
     virtual QList<DbTreeItem*> populateChildren();
 
-    QList<QAction*> getContextMenuItems(const QModelIndex &index) const;
-
     virtual CheckBehavior checkBehavior() const {return CheckableForTogglingChildren;}
 
     virtual DbTreeModel::DbTreeNodeType getItemType() const {return DbTreeModel::Tables;}
