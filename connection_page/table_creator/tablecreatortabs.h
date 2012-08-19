@@ -1,4 +1,4 @@
-#ifndef TABLECREATORTABS_H
+#ifndef TABS_H
 #define TABLECREATORTABS_H
 
 #include "widgets/subtabwidget.h"
@@ -57,6 +57,8 @@ public:
 signals:
     void ddlChanged() const;
     void alterQuerySucceeded(const QString &taskName);
+
+    void objectInfoLoaded();
 
 private:
     DbConnection *db;

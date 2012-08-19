@@ -30,7 +30,7 @@ void CompilerMessagesPane::addCompilerMessage(int line, int position,
     QStandardItem *lineItem=new QStandardItem(QString::number(line));
     QStandardItem *positionItem=new QStandardItem(QString::number(position));
     QStandardItem *messageItem=new QStandardItem(message);
-    messageItem->setIcon(IconUtil::getIcon(attribute=="ERROR" ? "help" : "warning"));
+    messageItem->setIcon(IconUtil::getIcon(attribute=="ERROR" ? "error" : "warning"));
 
     tableModel->appendRow(QList<QStandardItem*>() << lineItem << positionItem << messageItem);
 }

@@ -31,6 +31,11 @@ Worksheet::~Worksheet()
     cout << "deleting worksheet"  << endl;
 }
 
+void Worksheet::initialize()
+{
+    emitInitCompletedSignal();
+}
+
 void Worksheet::setConnection(DbConnection *db)
 {
     ConnectionPageTab::setConnection(db);

@@ -85,21 +85,19 @@ void ConnectionPage::prepareTab(ConnectionPageTab *tab)
     connect(tab, SIGNAL(tabBusyStateChanged(ConnectionPageTab*,bool)), this, SLOT(tabBusyStateChanged(ConnectionPageTab*,bool)));
 
     if(tab->needsSeparateConnection()){
-        if(tab->disableWhileConnecting()){
-            tab->setEnabled(false);
-        }
-
         connectionPool.requestConnection(this->db, tab);
-
     }else{
-        tab->setUpdatesEnabled(false);
+        //tab->setUpdatesEnabled(false);
         tab->setConnection(db);
-        tab->setUpdatesEnabled(true);
+        //tab->setUpdatesEnabled(true);
     }
 }
 
 void ConnectionPage::addTab(ConnectionPageTab *tab, const QPixmap &icon, const QString &title)
 {
+    tab->setEnabled(false);
+    connect(tab, SIGNAL(initCompleted(ConnectionPageTab*)), this, SLOT(tabInitializationCompleted(ConnectionPageTab*)));
+
     tab->createUi();
 
     int newTabIx=centralTab->addTab(tab, icon, title);
@@ -128,10 +126,12 @@ void ConnectionPage::asyncConnectionReady(DbConnection *db, void *data, bool err
 
 void ConnectionPage::tabBusyStateChanged(ConnectionPageTab *tab, bool busy)
 {
-    if(!busy && tab->disableWhileConnecting()){
-        tab->setEnabled(true);
-    }
     centralTab->setTabBusy(tab, busy);
+}
+
+void ConnectionPage::tabInitializationCompleted(ConnectionPageTab *tab)
+{
+    tab->setEnabled(true);
 }
 
 ConnectionPageTab *ConnectionPage::currentConnectionPage() const

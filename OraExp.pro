@@ -301,7 +301,6 @@ SOURCES += main.cpp\
     connectivity/bulkoperationhelper.cpp \
     connection_page/data_comparer/tabs/datacomparerresultstab.cpp \
     beans/datacompareinfo.cpp \
-    connection_page/code_creator/codecreator.cpp \
     info_panel/infopanel.cpp \
     beans/dbitemaction.cpp \
     context_menu/contextmenuutil.cpp \
@@ -310,7 +309,9 @@ SOURCES += main.cpp\
     context_menu/viewcontextmenuutil.cpp \
     connection_page/editorcreatorutil.cpp \
     info_panel/panes/compilermessagespane.cpp \
-    info_panel/infopane.cpp
+    info_panel/infopane.cpp \
+    connection_page/code_creator/codecreatorwidget.cpp \
+    connection_page/code_creator/codecreator.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -605,7 +606,6 @@ HEADERS  += mainwindow.h \
     connectivity/bulkoperationhelper.h \
     connection_page/data_comparer/tabs/datacomparerresultstab.h \
     beans/datacompareinfo.h \
-    connection_page/code_creator/codecreator.h \
     info_panel/infopanel.h \
     beans/dbitemaction.h \
     context_menu/contextmenuutil.h \
@@ -614,7 +614,9 @@ HEADERS  += mainwindow.h \
     context_menu/viewcontextmenuutil.h \
     connection_page/editorcreatorutil.h \
     info_panel/panes/compilermessagespane.h \
-    info_panel/infopane.h
+    info_panel/infopane.h \
+    connection_page/code_creator/codecreatorwidget.h \
+    connection_page/code_creator/codecreator.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

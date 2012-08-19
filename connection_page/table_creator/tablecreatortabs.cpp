@@ -148,6 +148,8 @@ void TableCreatorTabs::tableInfoReady(DbObjectInfo *tableInfo, MetadataLoader *l
     grantsTab->setTableInfo(originalTableInfo);
 
     loader->deleteLater();
+
+    emit objectInfoLoaded();
 }
 
 void TableCreatorTabs::loadError(const QString &taskName, const OciException &ex, MetadataLoader *loader)

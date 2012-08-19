@@ -21,7 +21,6 @@ public:
     virtual void createUi(){}
 
     bool needsSeparateConnection(){return  requiresSeparateConnection;}
-    virtual bool disableWhileConnecting(){return true;}
     virtual void setConnection(DbConnection *db);
 
     virtual QObject *getQueryEndMonitor() {return this;}
@@ -49,8 +48,11 @@ signals:
     void tabBusyStateChanged(ConnectionPageTab *tab, bool busy);
     void stateChanged();
 
+    void initCompleted(ConnectionPageTab *tab);
+
 public slots:
     void queryExecTaskCompleted(const QString &taskName);
+    void emitInitCompletedSignal();
 
 protected:
     DbUiManager *uiManager;

@@ -7,6 +7,7 @@
 class QToolBar;
 class QStackedWidget;
 class QBoxLayout;
+class InfoPane;
 
 class InfoPanel : public QObject
 {
@@ -14,7 +15,7 @@ class InfoPanel : public QObject
 public:
     explicit InfoPanel(QWidget *parent = 0);
 
-    void addPanel(QWidget *panel, const QString &title, const QIcon &icon);
+    void addPane(InfoPane *pane, const QString &title, const QIcon &icon);
     void setCurrentIndex(int index);
     int getCurrentIndex() const;
 
@@ -22,6 +23,11 @@ public:
     QStackedWidget *getPanel() const {return this->tab;}
 
     bool isPanelVisible() const;
+
+    void setCurrentPane(InfoPane *pane);
+    int indexOf(InfoPane *pane) const;
+
+    void closePane(InfoPane *pane);
 
 public slots:
     void closePanel();
@@ -32,6 +38,7 @@ private slots:
 private:
     QToolBar *toolbar;
     QStackedWidget *tab;
+    QList<InfoPane*> panes;
 
     QBoxLayout *createPanelHeader(const QString &title);
 };

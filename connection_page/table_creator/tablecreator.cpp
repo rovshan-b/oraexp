@@ -52,6 +52,7 @@ TableCreator::TableCreator(const QString &schemaName,
     setLayout(layout);
 
     connect(tableCreatorTabs, SIGNAL(ddlChanged()), this, SLOT(updateDdlText()));
+    connect(tableCreatorTabs, SIGNAL(objectInfoLoaded()), this, SLOT(emitInitCompletedSignal()));
 }
 
 void TableCreator::setConnection(DbConnection *db)

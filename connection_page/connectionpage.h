@@ -36,6 +36,7 @@ public slots:
     void closeTab(int index);
     void asyncConnectionReady(DbConnection *db, void *data, bool error, const OciException &ex);
     void tabBusyStateChanged(ConnectionPageTab *tab, bool busy);
+    void tabInitializationCompleted(ConnectionPageTab *tab);
 
 private:
     DbConnection *db;

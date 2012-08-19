@@ -1,4 +1,5 @@
 #include "infopanel.h"
+#include "infopane.h"
 #include "util/widgethelper.h"
 #include "widgets/closebutton.h"
 #include <QtGui>
@@ -17,8 +18,10 @@ InfoPanel::InfoPanel(QWidget *parent) :
     toolbar->setContentsMargins(0,0,0,0);
 }
 
-void InfoPanel::addPanel(QWidget *panel, const QString &title, const QIcon &icon)
+void InfoPanel::addPane(InfoPane *pane, const QString &title, const QIcon &icon)
 {
+    panes.append(pane);
+
     QAction *action=toolbar->addAction(icon, title);
     action->setData(tab->count());
     action->setCheckable(true);
@@ -31,7 +34,7 @@ void InfoPanel::addPanel(QWidget *panel, const QString &title, const QIcon &icon
     containerLayout->setSpacing(0);
 
     containerLayout->addLayout(createPanelHeader(title));
-    containerLayout->addWidget(panel);
+    containerLayout->addWidget(pane);
 
     containerWidget->setLayout(containerLayout);
     tab->addWidget(containerWidget);
@@ -74,6 +77,31 @@ int InfoPanel::getCurrentIndex() const
 bool InfoPanel::isPanelVisible() const
 {
     return tab->isVisible();
+}
+
+void InfoPanel::setCurrentPane(InfoPane *pane)
+{
+    int ix = indexOf(pane);
+    Q_ASSERT(ix!=-1);
+
+    setCurrentIndex(ix);
+}
+
+int InfoPanel::indexOf(InfoPane *pane) const
+{
+    return panes.indexOf(pane);
+}
+
+void InfoPanel::closePane(InfoPane *pane)
+{
+    int currentIx = getCurrentIndex();
+    if(currentIx==-1){
+        return;
+    }
+
+    if(currentIx == indexOf(pane)){
+        closePanel();
+    }
 }
 
 void InfoPanel::buttonToggled(bool checked)

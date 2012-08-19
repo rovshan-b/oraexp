@@ -15,7 +15,7 @@ QList<QAction *> ProcedureContextMenuUtil::getActionsForObject(const QString &sc
 
     if(itemType==DbTreeModel::Procedure){
         //alter
-        QAction *alterProcedureAction=new DbItemAction(IconUtil::getIcon("procedure"), QObject::tr("Alter"),
+        QAction *alterProcedureAction=new DbItemAction(IconUtil::getIcon("procedure_alter"), QObject::tr("Alter"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createEditor()));
         results.append(alterProcedureAction);

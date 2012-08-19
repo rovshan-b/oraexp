@@ -68,6 +68,11 @@ void ConnectionPageTab::beforeEnqueueQuery()
     increaseRefCount();
 }
 
+void ConnectionPageTab::emitInitCompletedSignal()
+{
+    emit initCompleted(this);
+}
+
 void ConnectionPageTab::queryExecTaskCompleted(const QString &/*taskName*/)
 {
     decreaseRefCount();

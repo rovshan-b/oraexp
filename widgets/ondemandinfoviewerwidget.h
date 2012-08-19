@@ -15,7 +15,7 @@ public slots:
     void refreshInfo();
 
 protected:
-    //these method should be implemented by inherited classes
+    //these methods should be implemented by inherited classes
     virtual void doLoadInfo();
     virtual void clearInfo();
     bool isLoading() const;

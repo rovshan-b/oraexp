@@ -43,7 +43,6 @@
         <file>images/details.png</file>
         <file>images/partition.png</file>
         <file>images/ddl.png</file>
-        <file>images/table_add.png</file>
         <file>images/insert_row.png</file>
         <file>images/advanced_options.png</file>
         <file>images/settings.png</file>
@@ -62,7 +61,6 @@
         <file>images/table_temporary.png</file>
         <file>images/table_index_organized_partitioned.png</file>
         <file>images/table_partitioned.png</file>
-        <file>images/table_alter.png</file>
         <file>images/move_down.png</file>
         <file>images/move_up.png</file>
         <file>images/add_small.png</file>
@@ -94,8 +92,6 @@
         <file>images/previous.png</file>
         <file>images/compare_data.png</file>
         <file>images/compare_schemas.png</file>
-        <file>images/view_alter.png</file>
-        <file>images/view_add.png</file>
         <file>images/horizontal.png</file>
         <file>images/vertical.png</file>
         <file>images/compile.png</file>
@@ -103,5 +99,7 @@
         <file>images/debug.png</file>
         <file>images/warning.png</file>
         <file>images/native_compilation.png</file>
+        <file>images/error.png</file>
+        <file>images/alter_small.png</file>
     </qresource>
 </RCC>

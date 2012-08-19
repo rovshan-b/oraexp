@@ -109,7 +109,7 @@ int DbTreeItem::row() const
 
 QString DbTreeItem::iconName() const
 {
-    return "none";
+    return "";
 }
 
 bool DbTreeItem::areChildrenPopulated() const

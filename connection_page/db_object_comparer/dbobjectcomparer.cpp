@@ -103,6 +103,8 @@ void DbObjectComparer::setConnection(DbConnection *db)
     if(compareTab){
         compareTab->setQueryScheduler(this);
     }
+
+    emitInitCompletedSignal();
 }
 
 void DbObjectComparer::createBottomLayout(QBoxLayout *layout)
