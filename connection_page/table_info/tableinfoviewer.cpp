@@ -21,7 +21,7 @@ void TableInfoViewer::setConnection(DbConnection *db)
 {
     ConnectionPageTab::setConnection(db);
 
-    infoTabs->setConnection(db);
+    infoTabs->setQueryScheduler(this);
 
     emitInitCompletedSignal();
 

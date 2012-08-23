@@ -189,6 +189,7 @@ QString DbUtil::getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeTy
         result="PACKAGE";
         break;
     case DbTreeModel::PackageSpecs:
+    case DbTreeModel::PackageSpec:
         result="PACKAGE SPEC";
         break;
     case DbTreeModel::PackageBodies:
@@ -202,15 +203,25 @@ QString DbUtil::getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeTy
     case DbTreeModel::Function:
         result="FUNCTION";
         break;
+    case DbTreeModel::SchemaTriggers:
+    case DbTreeModel::Triggers:
+    case DbTreeModel::Trigger:
+        result="TRIGGER";
+        break;
     case DbTreeModel::Sequences:
     case DbTreeModel::Sequence:
         result="SEQUENCE";
+        break;
+    case DbTreeModel::TypeSpecs:
+    case DbTreeModel::TypeSpec:
+        result="TYPE SPEC";
         break;
     case DbTreeModel::Types:
     case DbTreeModel::Type:
         result="TYPE";
         break;
     case DbTreeModel::TypeBodies:
+    case DbTreeModel::TypeBody:
         result="TYPE BODY";
         break;
     case DbTreeModel::Synonyms:
@@ -218,6 +229,7 @@ QString DbUtil::getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeTy
         result="SYNONYM";
         break;
     default:
+        Q_ASSERT(false);
         result="UNSUPPORTED_TYPE";
         break;
     }
@@ -240,7 +252,9 @@ QString DbUtil::getDbObjectIconNameByParentNodeType(DbTreeModel::DbTreeNodeType 
         break;
     case DbTreeModel::Packages:
     case DbTreeModel::PackageSpecs:
+    case DbTreeModel::PackageSpec:
     case DbTreeModel::PackageBodies:
+    case DbTreeModel::PackageBody:
     case DbTreeModel::Package:
         result="package";
         break;
@@ -251,6 +265,11 @@ QString DbUtil::getDbObjectIconNameByParentNodeType(DbTreeModel::DbTreeNodeType 
     case DbTreeModel::Functions:
     case DbTreeModel::Function:
         result="function";
+        break;
+    case DbTreeModel::SchemaTriggers:
+    case DbTreeModel::Triggers:
+    case DbTreeModel::Trigger:
+        result="trigger";
         break;
     case DbTreeModel::Sequences:
     case DbTreeModel::Sequence:
@@ -390,5 +409,6 @@ bool DbUtil::isPLSQLProgramUnit(DbTreeModel::DbTreeNodeType itemType)
             itemType==DbTreeModel::Procedure ||
             itemType==DbTreeModel::Function ||
             itemType==DbTreeModel::Trigger ||
-            itemType==DbTreeModel::Type;
+            itemType==DbTreeModel::TypeSpec ||
+            itemType==DbTreeModel::TypeBody;
 }

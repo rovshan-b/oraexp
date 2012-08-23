@@ -14,9 +14,9 @@ public:
                                  const QString &tableName,
                                  QWidget *parent);
 
-    void setConnection(DbConnection *);
+    void setQueryScheduler(IQueryScheduler *queryScheduler);
 
-    IQueryScheduler *scheduler() const {return this->queryScheduler;}
+    IQueryScheduler *scheduler() const;
 
 signals:
 

@@ -157,7 +157,7 @@ void SchemaComparerHelper::createParentIndexReplacements()
     parentIndexReplacements[DbTreeModel::Packages]=packageReplacements;
 
     QQueue<DbTreeModel::DbTreeNodeType> typeReplacements;
-    typeReplacements.enqueue(DbTreeModel::Types);
+    typeReplacements.enqueue(DbTreeModel::TypeSpecs);
     typeReplacements.enqueue(DbTreeModel::TypeBodies);
     parentIndexReplacements[DbTreeModel::Types]=typeReplacements;
 }

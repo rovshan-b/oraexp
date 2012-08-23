@@ -11,8 +11,6 @@ class NameEditor : public QLineEdit
 public:
     explicit NameEditor(QWidget *parent = 0);
 
-    //void setConnection(DbConnection *db);
-
 signals:
 
 public slots:

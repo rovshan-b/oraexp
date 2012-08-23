@@ -94,5 +94,5 @@ void AppFileMenu::showCreator()
     DbItemAction *action=static_cast<DbItemAction*>(sender());
     Q_ASSERT(action);
 
-    uiManager()->createCreator(action->getSchemaName(), action->getObjectName(), action->getItemType());
+    uiManager()->createCreator(action);
 }

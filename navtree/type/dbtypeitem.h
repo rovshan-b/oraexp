@@ -13,10 +13,14 @@ public:
 
     virtual QString iconName() const;
 
-    virtual bool hasChildren() const;
+    virtual bool displayChildCount() const;
+
+    virtual QList<DbTreeItem*> populateChildren();
 
     virtual DbTreeModel::DbTreeNodeType getItemType() const {return DbTreeModel::Type;}
 
+protected:
+    virtual DbTreeItem *createNodeFromRecord(Resultset * rs);
 };
 
 #endif // DBTYPEITEM_H

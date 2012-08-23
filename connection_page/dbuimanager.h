@@ -20,6 +20,7 @@ public slots:
     void refreshTreeNodeChildren();
 
     void createCreator();
+    void createCreator(DbItemAction *action);
     void createCreator(const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType);
     void createEditor(bool editMode=true);
     void createEditor(const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType, bool editMode=true);

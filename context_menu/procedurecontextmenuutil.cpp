@@ -13,7 +13,12 @@ QList<QAction *> ProcedureContextMenuUtil::getActionsForObject(const QString &sc
 {
     QList<QAction *> results;
 
-    if(itemType==DbTreeModel::Procedure){
+    if(itemType==DbTreeModel::Procedures){
+        QAction *createProcedureAction=new DbItemAction(IconUtil::getIcon("procedure_add"), QObject::tr("Create procedure"),
+                                                       schemaName, objectName, itemType,
+                                                       uiManager, SLOT(createCreator()));
+        results.append(createProcedureAction);
+    }else if(itemType==DbTreeModel::Procedure){
         //alter
         QAction *alterProcedureAction=new DbItemAction(IconUtil::getIcon("procedure_alter"), QObject::tr("Alter"),
                                                        schemaName, objectName, itemType,

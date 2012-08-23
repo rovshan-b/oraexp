@@ -62,7 +62,6 @@
         <file>queries/get_trigger_list</file>
         <file>queries/get_index_list</file>
         <file>queries/create_object_hash_for_comparison</file>
-        <file>queries/get_package_body_list</file>
         <file>queries/get_object_source_code</file>
         <file>queries/func_clob_replace</file>
         <file>queries/func_comma_split</file>
@@ -89,5 +88,6 @@
         <file>queries/compile_object</file>
         <file>queries/get_plsql_object_settings</file>
         <file>queries/get_compiler_messages</file>
+        <file>queries/get_type_bodies</file>
     </qresource>
 </RCC>

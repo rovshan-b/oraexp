@@ -386,7 +386,7 @@ void WidgetHelper::updateActionTooltips(QWidget *widget)
 
 void WidgetHelper::addDbItemAction(QMenu *menu, const QIcon &icon, const QString &text, const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType, const QObject *receiver, const char *slotName, QKeySequence shortcut)
 {
-    DbItemAction *action = new DbItemAction(icon, text, schemaName, objectName, itemType, receiver, slotName);
+    DbItemAction *action = new DbItemAction(icon, text, schemaName, objectName, itemType, receiver, slotName, menu);
     if(!shortcut.isEmpty()){
         action->setShortcut(shortcut);
     }

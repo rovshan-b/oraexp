@@ -6,6 +6,7 @@
 #include "util/widgethelper.h"
 #include "info_panel/infopanel.h"
 #include "info_panel/panes/compilermessagespane.h"
+#include "connectivity/dbconnection.h"
 #include "connectivity/statement.h"
 #include <QtGui>
 
@@ -61,6 +62,17 @@ void CodeCreatorWidget::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
     this->queryScheduler=queryScheduler;
 
+    if(DbUtil::isPLSQLProgramUnit(this->objectType)){
+        if(!this->queryScheduler->getDb()->supportsCompileTimeWarnings()){
+            enableWarningsAction->setEnabled(false);
+            enableWarningsAction->setToolTip(tr("Compile time warnings not supported by current version of database."));
+        }
+        if(!this->queryScheduler->getDb()->supportsNativeCompilation()){
+            enableNativeCodeAction->setEnabled(false);
+            enableNativeCodeAction->setToolTip(tr("Native compilation not supported by current version of database."));
+        }
+    }
+
     if(editMode){
         if(DbUtil::isPLSQLProgramUnit(this->objectType)){
             loadCompilationParams();
@@ -101,10 +113,10 @@ void CodeCreatorWidget::createToolbar()
     toolbar=new QToolBar();
     toolbar->setIconSize(QSize(16, 16));
     if(isPLSQLProgramUnit){
-        toolbar->addAction(IconUtil::getIcon("compile_for_debug"), tr("Compile for debug"), this, SLOT(compileObjectForDebug()))->setShortcut(QKeySequence("F8"));
+        toolbar->addAction(IconUtil::getIcon("compile_for_debug"), tr("Compile for debug"), this, SLOT(compileObjectForDebug()))->setShortcut(QKeySequence(tr("Ctrl+F9","CodeCreator|Compile for debug")));
     }
 
-    toolbar->addAction(IconUtil::getIcon("compile"), tr("Compile"), this, SLOT(compileObjectForProduction()))->setShortcut(QKeySequence("F9"));
+    toolbar->addAction(IconUtil::getIcon("compile"), tr("Compile"), this, SLOT(compileObjectForProduction()))->setShortcut(QKeySequence(tr("F9","CodeCreator|Compile")));
 
     if(isPLSQLProgramUnit){
         toolbar->addSeparator();
@@ -334,7 +346,7 @@ QString CodeCreatorWidget::getObjectTypeName() const
 
 int CodeCreatorWidget::getEnableWarnings()
 {
-    if(!DbUtil::isPLSQLProgramUnit(this->objectType)){
+    if(!this->queryScheduler->getDb()->supportsCompileTimeWarnings() || !DbUtil::isPLSQLProgramUnit(this->objectType)){
         return 2;
     }else if(enableWarningsAction->isChecked()){
         return 1;
@@ -345,7 +357,7 @@ int CodeCreatorWidget::getEnableWarnings()
 
 int CodeCreatorWidget::getEnableNativeCode()
 {
-    if(!DbUtil::isPLSQLProgramUnit(this->objectType)){
+    if(!this->queryScheduler->getDb()->supportsNativeCompilation() || !DbUtil::isPLSQLProgramUnit(this->objectType)){
         return 2;
     }else if(enableNativeCodeAction->isChecked()){
         return 1;

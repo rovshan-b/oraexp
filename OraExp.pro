@@ -311,7 +311,11 @@ SOURCES += main.cpp\
     info_panel/panes/compilermessagespane.cpp \
     info_panel/infopane.cpp \
     connection_page/code_creator/codecreatorwidget.cpp \
-    connection_page/code_creator/codecreator.cpp
+    connection_page/code_creator/codecreator.cpp \
+    context_menu/functioncontextmenuutil.cpp \
+    context_menu/triggercontextmenuutil.cpp \
+    navtree/type/dbtypespecitem.cpp \
+    navtree/type/dbtypebodyitem.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -616,7 +620,11 @@ HEADERS  += mainwindow.h \
     info_panel/panes/compilermessagespane.h \
     info_panel/infopane.h \
     connection_page/code_creator/codecreatorwidget.h \
-    connection_page/code_creator/codecreator.h
+    connection_page/code_creator/codecreator.h \
+    context_menu/functioncontextmenuutil.h \
+    context_menu/triggercontextmenuutil.h \
+    navtree/type/dbtypespecitem.h \
+    navtree/type/dbtypebodyitem.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

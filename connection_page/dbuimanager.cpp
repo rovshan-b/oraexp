@@ -33,6 +33,13 @@ void DbUiManager::createCreator()
     createEditor(false);
 }
 
+//called by top level menu items
+void DbUiManager::createCreator(DbItemAction *action)
+{
+    QString actionSchema=action->getSchemaName();
+    createEditor(actionSchema.isEmpty() ? db->getSchemaName() : actionSchema, action->getObjectName(), action->getItemType(), false);
+}
+
 void DbUiManager::createCreator(const QString &schemaName,
                                const QString &objectName,
                                const DbTreeModel::DbTreeNodeType itemType)

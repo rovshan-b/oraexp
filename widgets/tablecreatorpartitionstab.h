@@ -94,8 +94,6 @@ private:
 
     IStringListRetriever *foreignKeyRetriever;
 
-    //DbConnection *db;
-
     QComboBox *partitioningStrategy;
     QComboBox *partitionType;
     LineEditWithButton *columnSelector;

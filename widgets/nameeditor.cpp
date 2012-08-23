@@ -7,8 +7,3 @@ NameEditor::NameEditor(QWidget *parent) :
 {
     setMaxLength(MAX_IDENTIFIER_LENGTH);
 }
-/*
-void NameEditor::setConnection(DbConnection *db)
-{
-    setMaxLength(db->getMaxIdentifierLength());
-}*/

@@ -32,6 +32,7 @@ public:
         SchemaIndexes,
         Sequences,
         Types,
+        TypeSpecs,
         TypeBodies,
         Synonyms,
         PublicSynonyms,
@@ -58,6 +59,8 @@ public:
         Triggers,
         PackageSpec,
         PackageBody,
+        TypeSpec,
+        TypeBody,
 
         //fourth level
         Column,

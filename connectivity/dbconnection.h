@@ -88,6 +88,8 @@ public:
     bool supportsHashPartitioningOnIndexes() const {return this->serverMajorVersion>=10;}
     bool supportsDbmsWrap() const {return this->serverMajorVersion>=10;}
     bool supportsTriggerOrdering() const {return this->serverMajorVersion>=11;}
+    bool supportsCompileTimeWarnings() const {return true;}
+    bool supportsNativeCompilation() const {return true;}
 
     int compareVersion(unsigned int major, int minor);
     int compareVersion(DbConnection *other);

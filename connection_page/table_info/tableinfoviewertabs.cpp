@@ -26,10 +26,10 @@ TableInfoViewerTabs::TableInfoViewerTabs(const QString &schemaName,
     schemaName(schemaName),
     tableName(tableName)
 {
-    TableInfoViewer* tableInfoViewer=static_cast<TableInfoViewer*>(parent);
-    queryScheduler=tableInfoViewer;
+    //TableInfoViewer* tableInfoViewer=static_cast<TableInfoViewer*>(parent);
+    //queryScheduler=tableInfoViewer;
 
-    Q_ASSERT(queryScheduler);
+    //Q_ASSERT(queryScheduler);
 
     TableColumnsViewer *columnInfo=new TableColumnsViewer(this);
     addTab(columnInfo, IconUtil::getIcon("column"), tr("Columns"));
@@ -84,9 +84,17 @@ void TableInfoViewerTabs::loadTabData(int index)
     }
 }
 
-void TableInfoViewerTabs::setConnection(DbConnection *)
+void TableInfoViewerTabs::setQueryScheduler(IQueryScheduler *)
 {
+    this->queryScheduler=queryScheduler;
+
     connectionAvailable=true;
 
     loadTabData(currentIndex());
+}
+
+IQueryScheduler *TableInfoViewerTabs::scheduler() const
+{
+    Q_ASSERT(this->queryScheduler);
+    return this->queryScheduler;
 }
