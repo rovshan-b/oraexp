@@ -22,7 +22,7 @@ public:
     explicit TableCreatorPartitions(TableCreatorTabs* tableCreator, bool editMode, bool configureForIndex=false, QWidget *parent = 0);
     virtual ~TableCreatorPartitions();
 
-    virtual void setConnection(DbConnection *db);
+    virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
 
     void setTableInfo(TableInfo *tableInfo);
 

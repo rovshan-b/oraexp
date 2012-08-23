@@ -9,13 +9,13 @@ class QComboBox;
 class QLineEdit;
 class QCheckBox;
 class ComboBoxAndLineEditWidget;
-class DbConnection;
+class IQueryScheduler;
 
 class TableAdditionalAttributesWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TableAdditionalAttributesWidget(DbConnection *db, OraExp::TableType tableType, bool isEditMode, QWidget *parent = 0);
+    explicit TableAdditionalAttributesWidget(IQueryScheduler *queryScheduler, OraExp::TableType tableType, bool isEditMode, QWidget *parent = 0);
 
     TableAdditionalAttributes getAttributes() const;
     void setAttributes(const TableAdditionalAttributes &attributes) const;

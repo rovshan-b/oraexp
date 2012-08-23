@@ -1,8 +1,7 @@
 #include "indexnameeditordelegate.h"
 
-IndexNameEditorDelegate::IndexNameEditorDelegate(const QString &defaultSchemaName,
-                                                 DbConnection *db, QObject *parent) :
-    IdentifierNameDelegate(db, parent),
+IndexNameEditorDelegate::IndexNameEditorDelegate(const QString &defaultSchemaName, QObject *parent) :
+    IdentifierNameDelegate(parent),
     defaultSchemaName(defaultSchemaName)
 {
 }

@@ -1,10 +1,10 @@
 #include "identifiernamedelegate.h"
 #include "connectivity/dbconnection.h"
+#include "defines.h"
 #include <QtGui>
 
-IdentifierNameDelegate::IdentifierNameDelegate(DbConnection *db,
-                                               QObject *parent) :
-    QStyledItemDelegate(parent), db(db)
+IdentifierNameDelegate::IdentifierNameDelegate(QObject *parent) :
+    QStyledItemDelegate(parent)
 {
 }
 
@@ -16,9 +16,7 @@ QWidget *IdentifierNameDelegate::createEditor(QWidget *parent,
      //editor->setContentsMargins(0, 0, 0, 0);
      editor->setFrame(false);
 
-     if(db!=0){
-        editor->setMaxLength(db->getMaxIdentifierLength());
-     }
+     editor->setMaxLength(MAX_IDENTIFIER_LENGTH);
 
      return editor;
 }
@@ -52,9 +50,4 @@ void IdentifierNameDelegate::updateEditorGeometry(QWidget *editor,
      const QStyleOptionViewItem &option, const QModelIndex &/* index */) const
 {
      editor->setGeometry(option.rect);
-}
-
-void IdentifierNameDelegate::setConnection(DbConnection *db)
-{
-    this->db=db;
 }

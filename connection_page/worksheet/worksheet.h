@@ -15,8 +15,6 @@ public:
     explicit Worksheet(DbUiManager *uiManager, QWidget *parent = 0);
     virtual ~Worksheet();
 
-    virtual void initialize();
-
     virtual void setConnection(DbConnection *db);
 
     void setContents(const QString &contents);

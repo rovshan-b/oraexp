@@ -30,6 +30,7 @@ public:
     void resizeColumnAccountingForEditor(int column);
     void resizeColumnsAccountingForEditor();
 
+public slots:
     void resizeColumnsToFitContents();
 
 signals:

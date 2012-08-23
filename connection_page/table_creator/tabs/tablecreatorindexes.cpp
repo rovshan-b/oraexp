@@ -24,9 +24,9 @@ TableCreatorIndexes::TableCreatorIndexes(TableCreatorTabs* tableCreator, bool ed
 {
 }
 
-void TableCreatorIndexes::setConnection(DbConnection *db)
+void TableCreatorIndexes::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
-    TableCreatorTabWithTableView::setConnection(db);
+    TableCreatorTabWithTableView::setQueryScheduler(queryScheduler);
 
     customizeTableWidget(tableCreator->getSchemaName());
 
@@ -61,10 +61,10 @@ void TableCreatorIndexes::customizeTableWidget(const QString &schemaName)
     table->setColumnWidth(TableIndexesModel::IndexParallel, 80);
     table->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
-    SchemaSelectorDelegate *schemaListDelegate=new SchemaSelectorDelegate(schemaName, tableCreator->scheduler(), this);
+    SchemaSelectorDelegate *schemaListDelegate=new SchemaSelectorDelegate(schemaName, this->queryScheduler, this);
     table->setItemDelegateForColumn(TableIndexesModel::IndexOwner, schemaListDelegate);
 
-    IndexNameEditorDelegate *indexNameDelegate=new IndexNameEditorDelegate(schemaName, db, this);
+    IndexNameEditorDelegate *indexNameDelegate=new IndexNameEditorDelegate(schemaName, this);
     table->setItemDelegateForColumn(TableIndexesModel::IndexName, indexNameDelegate);
 
     QIcon indexIcon=IconUtil::getIcon("index");
@@ -97,7 +97,7 @@ void TableCreatorIndexes::customizeTableWidget(const QString &schemaName)
     BooleanDelegate *reverseDelegate=new BooleanDelegate(this, false);
     table->setItemDelegateForColumn(TableIndexesModel::IndexReverse, reverseDelegate);
 
-    IndexStorageParamsDelegate *storageDelegate=new IndexStorageParamsDelegate(tableCreator->scheduler(), this);
+    IndexStorageParamsDelegate *storageDelegate=new IndexStorageParamsDelegate(this->queryScheduler, this);
     table->setItemDelegateForColumn(TableIndexesModel::IndexStorage, storageDelegate);
 
     QStringList partitioningTypes;
@@ -107,7 +107,7 @@ void TableCreatorIndexes::customizeTableWidget(const QString &schemaName)
     ComboBoxDelegate *partitioningTypeDelegate=new ComboBoxDelegate(this, false, QIcon(), partitioningTypes, false);
     table->setItemDelegateForColumn(TableIndexesModel::IndexPartitioningType, partitioningTypeDelegate);
 
-    PartitioningParamsDelegate *partititionDefinitionDelegate=new PartitioningParamsDelegate(tableCreator->scheduler(), true, tableCreator, this);
+    PartitioningParamsDelegate *partititionDefinitionDelegate=new PartitioningParamsDelegate(this->queryScheduler, true, tableCreator, this);
     table->setItemDelegateForColumn(TableIndexesModel::IndexPartitionDefinition, partititionDefinitionDelegate);
 
     //table->verticalHeader()->setVisible(false);

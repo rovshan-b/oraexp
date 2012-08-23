@@ -59,7 +59,7 @@ void TableCreator::setConnection(DbConnection *db)
 {
     ConnectionPageTab::setConnection(db);
 
-    tableCreatorTabs->setConnection(db);
+    tableCreatorTabs->setQueryScheduler(this);
 }
 
 void TableCreator::updateDdlText(bool force)

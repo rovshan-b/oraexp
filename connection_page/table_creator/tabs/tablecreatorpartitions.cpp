@@ -3,6 +3,7 @@
 #include "../tablecreatortabs.h"
 #include "tablecreatorgeneralinfo.h"
 #include "connectivity/dbconnection.h"
+#include "interfaces/iqueryscheduler.h"
 #include <QtGui>
 
 TableCreatorPartitions::TableCreatorPartitions(TableCreatorTabs* tableCreator,
@@ -62,11 +63,11 @@ TableCreatorPartitions::~TableCreatorPartitions()
     }
 }
 
-void TableCreatorPartitions::setConnection(DbConnection *db)
+void TableCreatorPartitions::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
-    TableCreatorTab::setConnection(db);
+    TableCreatorTab::setQueryScheduler(queryScheduler);
 
-    tableCreator->scheduler()->enqueueQuery("get_tablespace_list",
+    this->queryScheduler->enqueueQuery("get_tablespace_list",
                                             QList<Param*>(),
                                             this,
                                             "get_tablespace_list",
@@ -75,9 +76,9 @@ void TableCreatorPartitions::setConnection(DbConnection *db)
                                             "tablespaceListFetchCompleted");
 
 
-    partitionsTab->setConnection(db);
-    subpartitionsTab->setConnection(db);
-    subpartitionTemplateTab->setConnection(db);
+    partitionsTab->setQueryScheduler(queryScheduler);
+    subpartitionsTab->setQueryScheduler(queryScheduler);
+    subpartitionTemplateTab->setQueryScheduler(queryScheduler);
 
     //if(isEditMode() && !configureForIndex){
     //    loadPartitioningInfo();

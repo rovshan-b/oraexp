@@ -10,7 +10,7 @@
 #include "widgets/datatable.h"
 #include "datatableandtoolbarwidget.h"
 
-class DbConnection;
+class IQueryScheduler;
 class QComboBox;
 class LineEditWithButton;
 class DataTableAndToolBarWidget;
@@ -37,7 +37,7 @@ public:
 
     void setPartitionColumns(const QString &columns);
 
-    void setConnection(DbConnection *db);
+    void setQueryScheduler(IQueryScheduler *queryScheduler);
 
     void tablespaceListAvailable();
 

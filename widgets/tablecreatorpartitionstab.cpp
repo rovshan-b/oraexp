@@ -16,6 +16,7 @@
 #include "util/itemcreatorhelper.h"
 #include "connectivity/dbconnection.h"
 #include "connectivity/ociexception.h"
+#include "interfaces/iqueryscheduler.h"
 #include <QtGui>
 #include <QDebug>
 
@@ -139,7 +140,7 @@ TableCreatorPartitionsTab::TableCreatorPartitionsTab(TableCreatorTabs* tableCrea
     table->table()->setEditTriggers(QAbstractItemView::AllEditTriggers);
     table->table()->horizontalHeader()->setDefaultSectionSize(200);
 
-    partitionNameDelegate=new IdentifierNameDelegate(NULL, this);
+    partitionNameDelegate=new IdentifierNameDelegate(this);
     table->table()->setItemDelegateForColumn(configureFor==OraExp::PartitionPartPartition ?
                                                  model->PartitionNameColIx : model->SubpartitionNameColIx, partitionNameDelegate);
 
@@ -170,19 +171,17 @@ TableCreatorPartitionsTab::TableCreatorPartitionsTab(TableCreatorTabs* tableCrea
     }
 }
 
-void TableCreatorPartitionsTab::setConnection(DbConnection *db)
+void TableCreatorPartitionsTab::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
     //this->db=db;
 
-    partitionNameDelegate->setConnection(db);
-
     if(configureFor==OraExp::PartitionPartPartition){
 
-        supportsIntervalAndReferencePartitioning=db->supportsIntervalAndReferencePartitioning();
+        supportsIntervalAndReferencePartitioning=queryScheduler->getDb()->supportsIntervalAndReferencePartitioning();
 
         if(!configureForIndex){
             partitionType->addItem(tr("Hash"), (int)OraExp::PartitionTypeHash);
-        }else if(db->supportsHashPartitioningOnIndexes()){
+        }else if(queryScheduler->getDb()->supportsHashPartitioningOnIndexes()){
             partitionType->addItem(tr("Hash"), (int)OraExp::PartitionTypeHash);
         }
 

@@ -7,7 +7,7 @@ class IndexNameEditorDelegate : public IdentifierNameDelegate
 {
     Q_OBJECT
 public:
-    explicit IndexNameEditorDelegate(const QString &defaultSchemaName, DbConnection *db, QObject *parent);
+    explicit IndexNameEditorDelegate(const QString &defaultSchemaName, QObject *parent);
 
     void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
 

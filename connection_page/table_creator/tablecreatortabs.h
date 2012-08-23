@@ -5,10 +5,9 @@
 #include "enums.h"
 #include "util/param.h"
 #include "beans/querylistitem.h"
-#include "interfaces/iqueryscheduler.h"
 #include "beans/tableinfo.h"
 
-class DbConnection;
+class IQueryScheduler;
 class TableCreatorGeneralInfo;
 class TableCreatorColumns;
 class TableCreatorConstraints;
@@ -47,9 +46,8 @@ public:
 
     OraExp::TableType getTableType() const;
 
-    void setConnection(DbConnection *db);
-
-    IQueryScheduler *scheduler() const {return this->queryScheduler;}
+    void setQueryScheduler(IQueryScheduler *queryScheduler);
+    IQueryScheduler *getQueryScheduler() const {return this->queryScheduler;}
 
     //used in edit mode
     //QList<Param*> getBasicQueryParams() const;
@@ -61,7 +59,7 @@ signals:
     void objectInfoLoaded();
 
 private:
-    DbConnection *db;
+    IQueryScheduler *queryScheduler;
     QString schemaName;
     QString originalTableName;
 
@@ -79,8 +77,6 @@ private:
     TableCreatorGrants *grantsTab;
 
     void showTabsBasedOnTableType(OraExp::TableType tableType);
-
-    IQueryScheduler *queryScheduler;
 
     TableInfo *originalTableInfo;
 

@@ -6,12 +6,12 @@
 #include "util/widgethelper.h"
 #include "info_panel/infopanel.h"
 #include "info_panel/panes/compilermessagespane.h"
+#include "connectivity/statement.h"
 #include <QtGui>
 
 CodeCreatorWidget::CodeCreatorWidget(const QString &schemaName,
                          const QString &objectName,
                          DbTreeModel::DbTreeNodeType objectType,
-                         DbUiManager *uiManager,
                          QWidget *parent) :
     QWidget(parent),
     schemaName(schemaName),
@@ -26,7 +26,7 @@ void CodeCreatorWidget::createUi()
 {
     QSplitter *outerSplitter=new QSplitter(Qt::Horizontal);
 
-    infoPanel=new InfoPanel(); //create at top to enable further use
+    infoPanel=new InfoPanel(this); //create at top to enable further use
 
     //create left pane
     //will use this for displaying code structure
@@ -46,15 +46,30 @@ void CodeCreatorWidget::createUi()
     bottomSplitter->addWidget(infoPanel->getPanel());
 
 
-    bottomSplitter->setSizes(QList<int>() << 3 << 2);
+    bottomSplitter->setSizes(QList<int>() << 3 << 1);
 
     QVBoxLayout *layout=new QVBoxLayout();
-    layout->setContentsMargins(0,2,0,0);
+    layout->setContentsMargins(0,0,0,0);
     layout->addWidget(bottomSplitter);
     layout->addWidget(infoPanel->getToolbar());
 
     layout->setSpacing(1);
     setLayout(layout);
+}
+
+void CodeCreatorWidget::setQueryScheduler(IQueryScheduler *queryScheduler)
+{
+    this->queryScheduler=queryScheduler;
+
+    if(editMode){
+        if(DbUtil::isPLSQLProgramUnit(this->objectType)){
+            loadCompilationParams();
+        }else{
+            loadObjectInfo();
+        }
+    }else{
+        emit objectInfoLoaded();
+    }
 }
 
 QWidget *CodeCreatorWidget::createRightPane()
@@ -89,7 +104,7 @@ void CodeCreatorWidget::createToolbar()
         toolbar->addAction(IconUtil::getIcon("compile_for_debug"), tr("Compile for debug"), this, SLOT(compileObjectForDebug()))->setShortcut(QKeySequence("F8"));
     }
 
-    toolbar->addAction(IconUtil::getIcon("compile"), tr("Compile"), this, SLOT(compileObject(bool)))->setShortcut(QKeySequence("F9"));
+    toolbar->addAction(IconUtil::getIcon("compile"), tr("Compile"), this, SLOT(compileObjectForProduction()))->setShortcut(QKeySequence("F9"));
 
     if(isPLSQLProgramUnit){
         toolbar->addSeparator();
@@ -148,26 +163,11 @@ void CodeCreatorWidget::createToolbar()
     WidgetHelper::updateActionTooltips(toolbar);
 }
 
-void CodeCreatorWidget::setConnection(DbConnection *db)
-{
-    ConnectionPageTab::setConnection(db);
-
-    if(editMode){
-        if(DbUtil::isPLSQLProgramUnit(this->objectType)){
-            loadCompilationParams();
-        }else{
-            loadObjectInfo();
-        }
-    }else{
-        //setBusy(false);
-    }
-}
-
 void CodeCreatorWidget::loadObjectInfo()
 {
     startProgress();
 
-    SourceInfoLoader *metadataLoader=new SourceInfoLoader(this, schemaName, objectName,
+    SourceInfoLoader *metadataLoader=new SourceInfoLoader(this->queryScheduler, schemaName, objectName,
                                                           getObjectTypeName(),
                                                           schemaName, false, false, this);
     connect(metadataLoader, SIGNAL(objectInfoReady(DbObjectInfo*,MetadataLoader*)), this, SLOT(objectInfoReady(DbObjectInfo*,MetadataLoader*)));
@@ -180,7 +180,7 @@ void CodeCreatorWidget::keyReleaseEvent(QKeyEvent *event)
     if(event->key()==Qt::Key_Escape && infoPanel->isPanelVisible()){
         infoPanel->closePanel();
     }else{
-        ConnectionPageTab::keyReleaseEvent(event);
+        QWidget::keyReleaseEvent(event);
     }
 }
 
@@ -212,7 +212,7 @@ void CodeCreatorWidget::loadError(const QString &taskName, const OciException &e
 
 void CodeCreatorWidget::loadCompilationParams()
 {
-    this->enqueueQuery("get_plsql_object_settings",
+    queryScheduler->enqueueQuery("get_plsql_object_settings",
                        QList<Param*>() <<
                        new Param(":owner", this->schemaName) <<
                        new Param(":object_name", this->objectName) <<
@@ -356,7 +356,7 @@ int CodeCreatorWidget::getEnableNativeCode()
 
 void CodeCreatorWidget::loadCompilerMessages()
 {
-    this->enqueueQuery("get_compiler_messages", QList<Param*>() <<
+    queryScheduler->enqueueQuery("get_compiler_messages", QList<Param*>() <<
                        new Param(":owner", schemaName) <<
                        new Param(":object_name", objectName) <<
                        new Param(":object_type", getObjectTypeName()),
@@ -364,32 +364,60 @@ void CodeCreatorWidget::loadCompilerMessages()
                        "get_compiler_messages",
                        "compilationCompleted",
                        "compilationErrorFetched",
-                       "compilationErrorFirstTimeFetchCompleted");
+                                 "compilationErrorFirstTimeFetchCompleted");
 }
 
-void CodeCreatorWidget::compileObject(bool forDebug)
+void CodeCreatorWidget::submitObjectCode()
 {
     compilerMessagesPane->clearCompilerMessages();
 
     startProgress();
-    this->enqueueQuery("compile_object", QList<Param*>() <<
+
+    queryScheduler->enqueueQuery(QString("$%1").arg(currentEditor->editor()->toPlainText()), QList<Param*>(),
+                                 this,
+                                 "execute_object_code",
+                                 "objectCodeExecuted");
+}
+
+void CodeCreatorWidget::compileObject()
+{
+    queryScheduler->enqueueQuery("compile_object", QList<Param*>() <<
                        new Param(":object_name", objectName) <<
                        new Param(":owner", schemaName) <<
                        new Param(":object_type", getObjectTypeName()) <<
-                       new Param(":for_debug", forDebug) <<
+                       new Param(":for_debug", this->debugMode) <<
                        new Param(":enable_warnings", getEnableWarnings()) <<
-                       new Param(":native_code", getEnableNativeCode() && !forDebug),
+                       new Param(":native_code", getEnableNativeCode() && !this->debugMode),
                        this,
                        "compile_object",
                        "compilationCompleted",
                        "compilationErrorFetched",
                        "compilationErrorFetchCompleted",
-                       true);
+                                 true);
+}
+
+void CodeCreatorWidget::compileObjectForProduction()
+{
+    this->debugMode=false;
+    submitObjectCode();
 }
 
 void CodeCreatorWidget::compileObjectForDebug()
 {
-    compileObject(true);
+    this->debugMode=true;
+    submitObjectCode();
+}
+
+void CodeCreatorWidget::objectCodeExecuted(const QueryResult &result)
+{
+    delete result.statement;
+
+    if(result.hasError){
+        compilerMessagesPane->addCompilerMessage(result.exception.getErrorRow(), result.exception.getErrorPos(),
+                                                 result.exception.getErrorMessage(), "ERROR");
+    }
+
+    compileObject();
 }
 
 void CodeCreatorWidget::compilationCompleted(const QueryResult &result)
@@ -418,7 +446,7 @@ void CodeCreatorWidget::compilationErrorFetched(const FetchResult &fetchResult)
 
 void CodeCreatorWidget::compilationErrorFirstTimeFetchCompleted(const QString &)
 {
-    emitInitCompletedSignal();
+    emit objectInfoLoaded();
     compilationErrorFetchCompleted("");
 }
 

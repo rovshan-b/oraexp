@@ -29,7 +29,7 @@ public:
                                      bool editMode,
                                      QWidget *parent = 0);
 
-    virtual void setConnection(DbConnection *db);
+    virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
 
     void setColumnListRetriever(IStringListRetriever *columnListRetriever);
 

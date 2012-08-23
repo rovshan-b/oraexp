@@ -10,6 +10,7 @@
 #include "connectivity/dbconnection.h"
 #include "../tablecreatortabs.h"
 #include "util/itemcreatorhelper.h"
+#include "interfaces/iqueryscheduler.h"
 #include <QtGui>
 
 #include <QDebug>
@@ -20,9 +21,9 @@ TableCreatorColumns::TableCreatorColumns(TableCreatorTabs *tableCreator, bool ed
 
 }
 
-void TableCreatorColumns::setConnection(DbConnection *db)
+void TableCreatorColumns::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
-    TableCreatorTabWithTableView::setConnection(db);
+    TableCreatorTabWithTableView::setQueryScheduler(queryScheduler);
 
     customizeTableWidget();
 
@@ -57,7 +58,7 @@ void TableCreatorColumns::customizeTableWidget()
     table->setColumnWidth(TableColumnsModel::ColumnComments, 200);
     table->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
-    IdentifierNameDelegate *colNameDelegate=new IdentifierNameDelegate(db, this);
+    IdentifierNameDelegate *colNameDelegate=new IdentifierNameDelegate(this);
     table->setItemDelegateForColumn(TableColumnsModel::ColumnName, colNameDelegate);
 
     QStringList columnTypes;
@@ -78,7 +79,7 @@ void TableCreatorColumns::customizeTableWidget()
     BooleanDelegate *isUniqueDelegate=new BooleanDelegate(this, false);
     table->setItemDelegateForColumn(TableColumnsModel::ColumnUnique, isUniqueDelegate);
 
-    TemplatedParamsDelegate<LobParams, LobParamsDialog> *lobDelegate=new TemplatedParamsDelegate<LobParams, LobParamsDialog>(tableCreator->scheduler(), this);
+    TemplatedParamsDelegate<LobParams, LobParamsDialog> *lobDelegate=new TemplatedParamsDelegate<LobParams, LobParamsDialog>(this->queryScheduler, this);
     table->setItemDelegateForColumn(TableColumnsModel::ColumnLobProperties, lobDelegate);
 
     PlainTextEditorDelegate *virtualDefinitionDelegate=new PlainTextEditorDelegate(tr("Edit virtual column definition"), this);
@@ -102,9 +103,9 @@ void TableCreatorColumns::customizeTableWidget()
 void TableCreatorColumns::showAdvancedOptions(bool show)
 {
     table->setUpdatesEnabled(false);
-    table->setColumnHidden(TableColumnsModel::ColumnColumnType, db->supportsVirtualColumns() ? !show : true);
+    table->setColumnHidden(TableColumnsModel::ColumnColumnType, this->queryScheduler->getDb()->supportsVirtualColumns() ? !show : true);
     table->setColumnHidden(TableColumnsModel::ColumnLobProperties, !show);
-    table->setColumnHidden(TableColumnsModel::ColumnVirtualDefinition, db->supportsVirtualColumns() ? !show : true);
+    table->setColumnHidden(TableColumnsModel::ColumnVirtualDefinition, this->queryScheduler->getDb()->supportsVirtualColumns() ? !show : true);
     table->setUpdatesEnabled(true);
 }
 

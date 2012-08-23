@@ -13,7 +13,7 @@ class QCheckBox;
 class ExtentSizeEditorWidget;
 class ComboBoxAndLineEditWidget;
 class OracleLoaderDriverPropertiesWidget;
-class DbConnection;
+class IQueryScheduler;
 class TableCreatorTabs;
 class ComboBoxDelegate;
 
@@ -21,7 +21,7 @@ class TableCreatorExternalPropertiesGeneralInfoWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TableCreatorExternalPropertiesGeneralInfoWidget(DbConnection *db,
+    explicit TableCreatorExternalPropertiesGeneralInfoWidget(IQueryScheduler *queryScheduler,
                                                              bool editMode,
                                                              TableCreatorTabs *tableCreator,
                                                              QWidget *parent = 0);
@@ -45,7 +45,6 @@ private slots:
     void parallelEditorChanged();
 
 private:
-    DbConnection *db;
     TableCreatorTabs *tableCreator;
 
     QComboBox *externalTableTypeComboBox;

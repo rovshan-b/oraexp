@@ -16,7 +16,7 @@
 #include "connection_page/table_creator/tabs/tablecreatorcolumns.h"
 #include <QtGui>
 
-OracleLoaderDriverFieldPropertiesWidget::OracleLoaderDriverFieldPropertiesWidget(DbConnection *db, IStringListRetriever *columnListRetriever, QWidget *parent) :
+OracleLoaderDriverFieldPropertiesWidget::OracleLoaderDriverFieldPropertiesWidget(IQueryScheduler *queryScheduler, IStringListRetriever *columnListRetriever, QWidget *parent) :
     QWidget(parent), fieldNameRetriever(this)
 {
     QVBoxLayout *layout=new QVBoxLayout();
@@ -52,7 +52,7 @@ OracleLoaderDriverFieldPropertiesWidget::OracleLoaderDriverFieldPropertiesWidget
 
     fieldsTab=new QTabWidget();
     fieldsTab->setTabPosition(QTabWidget::South);
-    createFieldsTable(db);
+    createFieldsTable(queryScheduler);
     createColumnTransformsTable(columnListRetriever);
     fieldsTab->addTab(fieldList, tr("Fields"));
     fieldsTab->addTab(columnTransformsTable, tr("Column transforms"));
@@ -81,7 +81,7 @@ void OracleLoaderDriverFieldPropertiesWidget::enclosedIsOptionalToggled(bool che
     }
 }
 
-void OracleLoaderDriverFieldPropertiesWidget::createFieldsTable(DbConnection *db)
+void OracleLoaderDriverFieldPropertiesWidget::createFieldsTable(IQueryScheduler *)
 {
     QStringList colNames;
     colNames.append(tr("Name"));
@@ -106,7 +106,7 @@ void OracleLoaderDriverFieldPropertiesWidget::createFieldsTable(DbConnection *db
     table->setColumnWidth(ExternalTableFieldsModel::FieldDateMask, 100);
     table->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
-    IdentifierNameDelegate *nameDelegate=new IdentifierNameDelegate(db, this);
+    IdentifierNameDelegate *nameDelegate=new IdentifierNameDelegate(this);
     table->setItemDelegateForColumn(ExternalTableFieldsModel::FieldName, nameDelegate);
 
     QStringList dataTypeList;

@@ -2,9 +2,10 @@
 #include "widgets/comboboxandlineeditwidget.h"
 #include "util/strutil.h"
 #include "connectivity/dbconnection.h"
+#include "interfaces/iqueryscheduler.h"
 #include <QtGui>
 
-TableAdditionalAttributesWidget::TableAdditionalAttributesWidget(DbConnection *db, OraExp::TableType tableType,
+TableAdditionalAttributesWidget::TableAdditionalAttributesWidget(IQueryScheduler *queryScheduler, OraExp::TableType tableType,
                                                                  bool isEditMode,
                                                                  QWidget *parent) :
     QWidget(parent)
@@ -58,7 +59,7 @@ TableAdditionalAttributesWidget::TableAdditionalAttributesWidget(DbConnection *d
     flashbackArchiveEditor->comboBox()->addItem("");
     flashbackArchiveEditor->comboBox()->addItem(tr("Enable"));
     flashbackArchiveEditor->comboBox()->addItem(tr("Disable"));
-    if(!db->supportsFlashbackArchive()){
+    if(!queryScheduler->getDb()->supportsFlashbackArchive()){
         flashbackArchiveEditor->setEnabled(false);
         flashbackArchiveEditor->setToolTip(tr("Oracle 11g or later"));
     }

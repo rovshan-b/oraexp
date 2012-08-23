@@ -24,7 +24,7 @@ public:
                                      bool editMode,
                                      QWidget *parent = 0);
 
-    virtual void setConnection(DbConnection *db);
+    virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
 
     void currentSchemaChanged(const QString &oldSchemaName, const QString &newSchemaName);
     void setTableType(OraExp::TableType tableType);

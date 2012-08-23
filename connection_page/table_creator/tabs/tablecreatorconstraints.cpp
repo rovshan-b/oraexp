@@ -31,9 +31,9 @@ TableCreatorConstraints::TableCreatorConstraints(const QString &schemaName,
 
 }
 
-void TableCreatorConstraints::setConnection(DbConnection *db)
+void TableCreatorConstraints::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
-    TableCreatorTabWithTableView::setConnection(db);
+    TableCreatorTabWithTableView::setQueryScheduler(queryScheduler);
 
     customizeTableWidget(schemaName);
 
@@ -63,7 +63,7 @@ void TableCreatorConstraints::customizeTableWidget(const QString &schemaName)
 
     table->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
-    IdentifierNameDelegate *constraintNameDelegate=new IdentifierNameDelegate(db, this);
+    IdentifierNameDelegate *constraintNameDelegate=new IdentifierNameDelegate(this);
     table->setItemDelegateForColumn(TableConstraintsModel::ConstraintName, constraintNameDelegate);
 
     ContraintTypeDelegate *constraintTypeDelegate=new ContraintTypeDelegate(this);
@@ -72,17 +72,17 @@ void TableCreatorConstraints::customizeTableWidget(const QString &schemaName)
     ColumnSelectorDelegate *columnsDelegate=new ColumnSelectorDelegate(tableCreator->getColumnsTab(), tr("Select columns"), this);
     table->setItemDelegateForColumn(TableConstraintsModel::ConstraintColumns, columnsDelegate);
 
-    SchemaSelectorDelegate *schemaListDelegate=new SchemaSelectorDelegate(schemaName, tableCreator->scheduler(), this);
+    SchemaSelectorDelegate *schemaListDelegate=new SchemaSelectorDelegate(schemaName, this->queryScheduler, this);
     table->setItemDelegateForColumn(TableConstraintsModel::ConstraintReferencedSchema, schemaListDelegate);
 
-    TableSelectorDelegate *tableListDelegate=new TableSelectorDelegate(schemaName, TableConstraintsModel::ConstraintReferencedSchema, tableCreator->scheduler(), this);
+    TableSelectorDelegate *tableListDelegate=new TableSelectorDelegate(schemaName, TableConstraintsModel::ConstraintReferencedSchema, this->queryScheduler, this);
     table->setItemDelegateForColumn(TableConstraintsModel::ConstraintReferencedTable, tableListDelegate);
 
     ConstraintSelectorDelegate *referencedColumnsDelegate=new ConstraintSelectorDelegate(schemaName,
                                                                                  TableConstraintsModel::ConstraintReferencedSchema,
                                                                                  TableConstraintsModel::ConstraintReferencedTable,
                                                                                  OraExp::PrimaryKey,
-                                                                                 "", tableCreator->scheduler(), this);
+                                                                                 "", this->queryScheduler, this);
     table->setItemDelegateForColumn(TableConstraintsModel::ConstraintReferencedColumn, referencedColumnsDelegate);
 
     OnDeleteActionDelegate *onDeleteDelegate=new OnDeleteActionDelegate(this);

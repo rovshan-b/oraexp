@@ -19,7 +19,7 @@ class TableCreatorExternalProperties : public TableCreatorTab
 {
     Q_OBJECT
 public:
-    explicit TableCreatorExternalProperties(DbConnection *db,
+    explicit TableCreatorExternalProperties(IQueryScheduler *queryScheduler,
                                             IStringListRetriever *columnListRetriever,
                                             TableCreatorTabs *tableCreator,
                                             bool editMode,

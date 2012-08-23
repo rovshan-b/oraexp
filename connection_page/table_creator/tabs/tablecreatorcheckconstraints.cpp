@@ -13,9 +13,9 @@ TableCreatorCheckConstraints::TableCreatorCheckConstraints(TableCreatorTabs *tab
 
 }
 
-void TableCreatorCheckConstraints::setConnection(DbConnection *db)
+void TableCreatorCheckConstraints::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
-    TableCreatorTabWithTableView::setConnection(db);
+    TableCreatorTabWithTableView::setQueryScheduler(queryScheduler);
 
     customizeTableWidget();
 
@@ -41,8 +41,7 @@ void TableCreatorCheckConstraints::customizeTableWidget()
     table->setColumnWidth(3, 80);
     table->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
-    IdentifierNameDelegate *constraintNameDelegate=new IdentifierNameDelegate(db, this);
-    constraintNameDelegate->setConnection(db);
+    IdentifierNameDelegate *constraintNameDelegate=new IdentifierNameDelegate(this);
     table->setItemDelegateForColumn(TableCheckConstraintsModel::ConstraintName, constraintNameDelegate);
 
     PlainTextEditorDelegate *conditionDelegate=new PlainTextEditorDelegate(tr("Edit constraint condition"), this);

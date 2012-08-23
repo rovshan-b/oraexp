@@ -13,7 +13,7 @@ PartitioningParamsDialog::PartitioningParamsDialog(QWidget *parent,
     QVBoxLayout *mainLayout=new QVBoxLayout(this);
 
     partitionsWidget=new TableCreatorPartitions(tableCreator, isEditMode, configureForIndex, this);
-    partitionsWidget->setConnection(tableCreator->scheduler()->getDb());
+    partitionsWidget->setQueryScheduler(tableCreator->getQueryScheduler());
     partitionsWidget->layout()->setContentsMargins(0,0,0,0);
     mainLayout->addWidget(partitionsWidget);
 

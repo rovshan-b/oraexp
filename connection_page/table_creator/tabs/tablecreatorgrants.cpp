@@ -14,9 +14,9 @@ TableCreatorGrants::TableCreatorGrants(const QString &schemaName, TableCreatorTa
 
 }
 
-void TableCreatorGrants::setConnection(DbConnection *db)
+void TableCreatorGrants::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
-    TableCreatorTabWithTableView::setConnection(db);
+    TableCreatorTabWithTableView::setQueryScheduler(queryScheduler);
 
     customizeTableWidget(schemaName);
 
@@ -37,7 +37,7 @@ void TableCreatorGrants::customizeTableWidget(const QString &schemaName)
     table->horizontalHeader()->setDefaultSectionSize(150);
     table->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
-    schemaListDelegate=new SchemaSelectorDelegate(schemaName, tableCreator->scheduler(), this, true);
+    schemaListDelegate=new SchemaSelectorDelegate(schemaName, this->queryScheduler, this, true);
     table->setItemDelegateForColumn(TableGrantsModel::GrantSchema, schemaListDelegate);
 
     QStringList grantTypes;

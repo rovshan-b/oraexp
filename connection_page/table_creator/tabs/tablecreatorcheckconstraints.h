@@ -16,7 +16,7 @@ class TableCreatorCheckConstraints : public TableCreatorTabWithTableView
 public:
     explicit TableCreatorCheckConstraints(TableCreatorTabs *tableCreator, bool editMode, QWidget *parent);
 
-    virtual void setConnection(DbConnection *db);
+    virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
 
     void setTableInfo(TableInfo *tableInfo);
 

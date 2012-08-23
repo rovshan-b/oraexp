@@ -1,9 +1,10 @@
 #include "tableadditionalattributesdialog.h"
 #include "widgets/tableadditionalattributeswidget.h"
 #include "util/dialoghelper.h"
+#include "interfaces/iqueryscheduler.h"
 #include <QtGui>
 
-TableAdditionalAttributesDialog::TableAdditionalAttributesDialog(DbConnection *db,
+TableAdditionalAttributesDialog::TableAdditionalAttributesDialog(IQueryScheduler *queryScheduler,
                                                                  OraExp::TableType tableType,
                                                                  bool isEditMode,
                                                                  QWidget *parent) :
@@ -11,7 +12,7 @@ TableAdditionalAttributesDialog::TableAdditionalAttributesDialog(DbConnection *d
 {
     QVBoxLayout *mainLayout=new QVBoxLayout(this);
 
-    attributesWidget=new TableAdditionalAttributesWidget(db, tableType, isEditMode);
+    attributesWidget=new TableAdditionalAttributesWidget(queryScheduler, tableType, isEditMode);
     mainLayout->addWidget(attributesWidget);
 
     mainLayout->addWidget(DialogHelper::createButtonBox(this));

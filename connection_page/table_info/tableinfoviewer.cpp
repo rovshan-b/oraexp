@@ -23,5 +23,7 @@ void TableInfoViewer::setConnection(DbConnection *db)
 
     infoTabs->setConnection(db);
 
+    emitInitCompletedSignal();
+
     //setBusy(false);
 }

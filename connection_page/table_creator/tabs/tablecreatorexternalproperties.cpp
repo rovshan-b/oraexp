@@ -7,19 +7,20 @@
 #include "connectivity/dbconnection.h"
 #include "../tablecreatortabs.h"
 #include "beans/tableexternalinfo.h"
+#include "interfaces/iqueryscheduler.h"
 #include <QtGui>
 
 #include <iostream>
 using namespace std;
 
-TableCreatorExternalProperties::TableCreatorExternalProperties(DbConnection *db,
+TableCreatorExternalProperties::TableCreatorExternalProperties(IQueryScheduler *queryScheduler,
                                                                IStringListRetriever *columnListRetriever,
                                                                TableCreatorTabs *tableCreator,
                                                                bool editMode,
                                                                QWidget *parent) :
     TableCreatorTab(tableCreator, editMode, parent), accessParamsEditor(0)
 {
-    TableCreatorTab::setConnection(db);
+    TableCreatorTab::setQueryScheduler(queryScheduler);
 
     QVBoxLayout *layout=new QVBoxLayout();
 
@@ -27,13 +28,13 @@ TableCreatorExternalProperties::TableCreatorExternalProperties(DbConnection *db,
     tab->setTabPosition(QTabWidget::West);
     //tab->setDocumentMode(true);
 
-    generalInfo=new TableCreatorExternalPropertiesGeneralInfoWidget(db, editMode, tableCreator);
+    generalInfo=new TableCreatorExternalPropertiesGeneralInfoWidget(queryScheduler, editMode, tableCreator);
 
     if(editMode){
         accessParamsEditor=new TableCreatorExternalAccessParametersEditorWidget();
     }else{
         recordProperties=new OracleLoaderDriverRecordPropertiesWidget();
-        fieldProperties=new OracleLoaderDriverFieldPropertiesWidget(db, columnListRetriever);
+        fieldProperties=new OracleLoaderDriverFieldPropertiesWidget(queryScheduler, columnListRetriever);
         dataPumpProperties=new OracleDataPumpDriverProperties();
     }
 
@@ -101,7 +102,7 @@ void TableCreatorExternalProperties::driverChanged(int selectedIndex)
 
 void TableCreatorExternalProperties::populateDirectoryList()
 {
-    tableCreator->scheduler()->enqueueQuery("get_directory_list",
+    this->queryScheduler->enqueueQuery("get_directory_list",
                                             QList<Param*>(),
                                             this,
                                             "get_directory_list",

@@ -5,7 +5,7 @@
 #include "beans/tableadditionalattributes.h"
 #include "enums.h"
 
-class DbConnection;
+class IQueryScheduler;
 
 class TableAdditionalAttributesWidget;
 
@@ -13,7 +13,7 @@ class TableAdditionalAttributesDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit TableAdditionalAttributesDialog(DbConnection *db, OraExp::TableType tableType, bool isEditMode, QWidget *parent = 0);
+    explicit TableAdditionalAttributesDialog(IQueryScheduler *queryScheduler, OraExp::TableType tableType, bool isEditMode, QWidget *parent = 0);
 
     TableAdditionalAttributes getAttributes() const;
     void setAttributes(const TableAdditionalAttributes &attributes) const;

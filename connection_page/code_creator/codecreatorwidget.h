@@ -23,21 +23,21 @@ public:
     explicit CodeCreatorWidget(const QString &schemaName,
                          const QString &objectName,
                          DbTreeModel::DbTreeNodeType objectType,
-                         DbUiManager *uiManager,
                          QWidget *parent = 0);
 
-    virtual void createUi();
-    virtual void setConnection(DbConnection *db);
-
+    void createUi();
+    void setQueryScheduler(IQueryScheduler *queryScheduler);
 
     virtual bool canFind() const {return true;}
     virtual void showSearchWidget(){currentEditor->showSearchPane();}
     virtual void findNext() {currentEditor->findNext();}
     virtual void findPrevious() {currentEditor->findPrevious();}
 
+signals:
+    void objectInfoLoaded();
+
 protected:
     void keyReleaseEvent (QKeyEvent * event);
-
     
 private slots:
     void loadObjectInfo();
@@ -57,9 +57,11 @@ private slots:
     int getEnableNativeCode();
 
     void loadCompilerMessages();
-    void compileObject(bool forDebug=false);
+    void submitObjectCode();
+    void compileObjectForProduction();
     void compileObjectForDebug();
 
+    void objectCodeExecuted(const QueryResult &result);
     void compilationCompleted(const QueryResult &result);
     void compilationErrorFetched(const FetchResult &fetchResult);
     void compilationErrorFetchCompleted(const QString &);
@@ -79,6 +81,8 @@ private:
 
     bool editMode;
 
+    IQueryScheduler *queryScheduler;
+
     QToolBar *toolbar;
     QAction *progressBarAction;
     QAction *enableWarningsAction;
@@ -93,8 +97,11 @@ private:
 
     QList<CodeEditorAndSearchPaneWidget*> editors;
 
+    void compileObject();
     void startProgress();
     void stopProgress();
+
+    bool debugMode;
     
 };
 

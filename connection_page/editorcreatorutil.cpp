@@ -21,11 +21,11 @@ ConnectionPageTab *EditorCreatorUtil::createEditor(const QString &schemaName,
         break;
     case DbTreeModel::Views:
     case DbTreeModel::View:
-        editor = new CodeCreatorWidget(schemaName, objectName, DbTreeModel::View, uiManager);
+        editor = new CodeCreator(schemaName, objectName, DbTreeModel::View, uiManager);
         break;
     case DbTreeModel::Procedures:
     case DbTreeModel::Procedure:
-        editor = new CodeCreatorWidget(schemaName, objectName, DbTreeModel::Procedure, uiManager);
+        editor = new CodeCreator(schemaName, objectName, DbTreeModel::Procedure, uiManager);
         break;
     default:
         break;

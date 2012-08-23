@@ -13,7 +13,7 @@ class InfoPanel : public QObject
 {
     Q_OBJECT
 public:
-    explicit InfoPanel(QWidget *parent = 0);
+    explicit InfoPanel(QWidget *parent);
 
     void addPane(InfoPane *pane, const QString &title, const QIcon &icon);
     void setCurrentIndex(int index);

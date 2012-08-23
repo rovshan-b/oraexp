@@ -13,13 +13,14 @@
 #include "delegates/comboboxdelegate.h"
 #include "delegates/autoappenddelegate.h"
 #include "connection_page/table_creator/tablecreatortabs.h"
+#include "interfaces/iqueryscheduler.h"
 #include <QtGui>
 
-TableCreatorExternalPropertiesGeneralInfoWidget::TableCreatorExternalPropertiesGeneralInfoWidget(DbConnection *db,
+TableCreatorExternalPropertiesGeneralInfoWidget::TableCreatorExternalPropertiesGeneralInfoWidget(IQueryScheduler *queryScheduler,
                                                                                                  bool editMode,
                                                                                                  TableCreatorTabs *tableCreator,
                                                                                                  QWidget *parent) :
-    QWidget(parent), originalExternalInfo(0), db(db), tableCreator(tableCreator)
+    QWidget(parent), originalExternalInfo(0), tableCreator(tableCreator)
 {
     QFormLayout *layout=new QFormLayout();
 
@@ -48,7 +49,7 @@ TableCreatorExternalPropertiesGeneralInfoWidget::TableCreatorExternalPropertiesG
     projectColumnComboBox->addItem(tr("All"));
     projectColumnComboBox->addItem(tr("Referenced"));
     projectColumnComboBox->setCurrentIndex(0);
-    if(!db->supportsExternalTableProjectColumn()){
+    if(!queryScheduler->getDb()->supportsExternalTableProjectColumn()){
         projectColumnComboBox->setEnabled(false);
         projectColumnComboBox->setToolTip(tr("Oracle 10g or later"));
     }

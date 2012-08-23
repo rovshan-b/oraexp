@@ -3,7 +3,7 @@
 
 #include <QWidget>
 
-class DbConnection;
+class IQueryScheduler;
 class TableCreatorTabs;
 
 class TableCreatorTab : public QWidget
@@ -12,14 +12,14 @@ class TableCreatorTab : public QWidget
 public:
     explicit TableCreatorTab(TableCreatorTabs *tableCreator, bool editMode, QWidget *parent = 0);
 
-    virtual void setConnection(DbConnection *db){this->db=db;}
+    virtual void setQueryScheduler(IQueryScheduler *queryScheduler){this->queryScheduler=queryScheduler;}
 
     bool isEditMode() const {return this->editMode;}
 
     TableCreatorTabs *getTableCreator() const {return tableCreator;}
 
 protected:
-    DbConnection *db;
+    IQueryScheduler *queryScheduler;
     TableCreatorTabs *tableCreator;
 
 private:

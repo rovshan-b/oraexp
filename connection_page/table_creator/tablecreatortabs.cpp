@@ -19,7 +19,7 @@ TableCreatorTabs::TableCreatorTabs(const QString &schemaName,
                                    const QString &tableName,
                                    QWidget *parent) :
             SubTabWidget(parent),
-            db(0),
+            queryScheduler(0),
             schemaName(schemaName),
             originalTableName(tableName),
             originalTableInfo(0)
@@ -76,10 +76,9 @@ TableCreatorTabs::TableCreatorTabs(const QString &schemaName,
     connect(generalInfoTab, SIGNAL(currentSchemaChanged()), this, SLOT(currentSchemaChanged()));
     connect(generalInfoTab, SIGNAL(tableTypeChanged(OraExp::TableType)), this, SLOT(tableTypeChanged(OraExp::TableType)));
 
-    TableCreator* tableCreator=static_cast<TableCreator*>(parent);
-    this->queryScheduler=tableCreator;
-
     if(editMode){
+        TableCreator* tableCreator=static_cast<TableCreator*>(parent);
+        Q_ASSERT(tableCreator);
         connect(tableCreator, SIGNAL(alterQuerySucceeded(QString)), this, SIGNAL(alterQuerySucceeded(QString)));
     }
 
@@ -105,25 +104,33 @@ TableCreatorTabs::~TableCreatorTabs()
 
 }
 
-void TableCreatorTabs::setConnection(DbConnection *db)
+void TableCreatorTabs::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
-    this->db=db;
+    this->queryScheduler=queryScheduler;
 
-    generalInfoTab->setConnection(db);
-    columnsTab->setConnection(db);
-    keyConstraintsTab->setConnection(db);
-    checkConstraintsTab->setConnection(db);
-    indexesTab->setConnection(db);
-    partitionsTab->setConnection(db);
-    grantsTab->setConnection(db);
+    generalInfoTab->setQueryScheduler(queryScheduler);
+    columnsTab->setQueryScheduler(queryScheduler);
+    keyConstraintsTab->setQueryScheduler(queryScheduler);
+    checkConstraintsTab->setQueryScheduler(queryScheduler);
+    indexesTab->setQueryScheduler(queryScheduler);
+    partitionsTab->setQueryScheduler(queryScheduler);
+    grantsTab->setQueryScheduler(queryScheduler);
 
     if(editMode){
-        TableInfoLoader *metadataLoader=new TableInfoLoader(scheduler(), getSchemaName(), getTableName(), this);
+        TableInfoLoader *metadataLoader=new TableInfoLoader(this->queryScheduler, getSchemaName(), getTableName(), this);
         connect(metadataLoader, SIGNAL(objectInfoReady(DbObjectInfo*,MetadataLoader*)), this, SLOT(tableInfoReady(DbObjectInfo*,MetadataLoader*)));
         connect(metadataLoader, SIGNAL(loadError(QString,OciException,MetadataLoader*)), this, SLOT(loadError(QString,OciException,MetadataLoader*)));
         metadataLoader->loadObjectInfo();
+    }else{
+        emit objectInfoLoaded();
     }
 }
+/*
+IQueryScheduler *TableCreatorTabs::scheduler() const
+{
+    Q_ASSERT(this->queryScheduler);
+    return this->queryScheduler;
+}*/
 
 void TableCreatorTabs::tableInfoReady(DbObjectInfo *tableInfo, MetadataLoader *loader)
 {
@@ -300,7 +307,7 @@ void TableCreatorTabs::showTabsBasedOnTableType(OraExp::TableType tableType)
 
     if(tableType==OraExp::TableTypeExternal){
         if(scrollAreaForExternalTableProps==0){
-            externalTableProps=new TableCreatorExternalProperties(db, this->getColumnsTab(), this, this->editMode, this);
+            externalTableProps=new TableCreatorExternalProperties(this->queryScheduler, this->getColumnsTab(), this, this->editMode, this);
             scrollAreaForExternalTableProps=new QScrollArea();
             scrollAreaForExternalTableProps->setWidget(externalTableProps);
             scrollAreaForExternalTableProps->setWidgetResizable(true);

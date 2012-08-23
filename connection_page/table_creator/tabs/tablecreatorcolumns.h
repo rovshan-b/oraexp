@@ -20,7 +20,7 @@ class TableCreatorColumns : public TableCreatorTabWithTableView,
 public:
     explicit TableCreatorColumns(TableCreatorTabs *tableCreator, bool editMode, QWidget *parent);
 
-    virtual void setConnection(DbConnection *db);
+    virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
 
     virtual QStringList getStringList(const QString &type=QString());
 

@@ -84,18 +84,18 @@ TableCreatorGeneralInfo::TableCreatorGeneralInfo(const QString &schemaName,
     }
 }
 
-void TableCreatorGeneralInfo::setConnection(DbConnection *db)
+void TableCreatorGeneralInfo::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
-    TableCreatorTab::setConnection(db);
+    TableCreatorTab::setQueryScheduler(queryScheduler);
 
     if(!isEditMode()){
-        schemaList->loadItems(tableCreator->scheduler(), "get_schema_list");
+        schemaList->loadItems(this->queryScheduler, "get_schema_list");
     }else{
         schemaList->addItem(IconUtil::getIcon("user"), schemaList->currentText());
         schemaList->setCurrentIndex(0);
     }
 
-    tableNameEditor->setConnection(db);
+    //tableNameEditor->setConnection(db);
 
     //if(isEditMode()){
     //    loadTableInfo();
@@ -138,11 +138,11 @@ bool TableCreatorGeneralInfo::eventFilter(QObject *obj, QEvent *event)
 
 void TableCreatorGeneralInfo::storageParamsButtonClicked(LineEditWithButton *lineEditWithButton)
 {
-    if(db==0){
+    if(queryScheduler==0){
         return;
     }
 
-    if(DialogHelper::showStorageParamsDialog(this->window(), tableCreator->scheduler(), isEditMode(), true, this->storageParams)){
+    if(DialogHelper::showStorageParamsDialog(this->window(), queryScheduler, isEditMode(), true, this->storageParams)){
         lineEditWithButton->lineEdit()->setText(
                     isEditMode()
                       ? storageParams.generateDiffDdl(originalGeneralInfo->storageParams)
@@ -156,11 +156,11 @@ void TableCreatorGeneralInfo::storageParamsButtonClicked(LineEditWithButton *lin
 
 void TableCreatorGeneralInfo::additionalAttributesButtonClicked(LineEditWithButton *lineEditWithButton)
 {
-    if(db==0){
+    if(this->queryScheduler==0){
         return;
     }
 
-    TableAdditionalAttributesDialog dialog(db, getTableType(), isEditMode(), this->window());
+    TableAdditionalAttributesDialog dialog(this->queryScheduler, getTableType(), isEditMode(), this->window());
     dialog.setAttributes(additionalAttributes);
 
     if(dialog.exec()){
@@ -178,11 +178,11 @@ void TableCreatorGeneralInfo::additionalAttributesButtonClicked(LineEditWithButt
 
 void TableCreatorGeneralInfo::indexOrganizedPropertiesButtonClicked(LineEditWithButton *lineEditWithButton)
 {
-    if(db==0){
+    if(this->queryScheduler==0){
         return;
     }
 
-    IndexOrganizedTablePropertiesDialog dialog(tableCreator->scheduler(), this->columnListRetriever, isEditMode(), this->window());
+    IndexOrganizedTablePropertiesDialog dialog(this->queryScheduler, this->columnListRetriever, isEditMode(), this->window());
     dialog.setAttributes(indexOrganizedProperties, isEditMode() ? originalGeneralInfo->indexOrganizedProperties : IndexOrganizedTableProperties());
 
     if(dialog.exec()){

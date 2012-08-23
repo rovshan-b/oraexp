@@ -10,7 +10,7 @@ class QCheckBox;
 class QComboBox;
 class DataTableAndToolBarWidget;
 class LineEditAndCheckBoxWidget;
-class DbConnection;
+class IQueryScheduler;
 class QTabWidget;
 
 class OracleLoaderDriverFieldPropertiesWidget : public QWidget, IStringListRetriever
@@ -19,7 +19,7 @@ class OracleLoaderDriverFieldPropertiesWidget : public QWidget, IStringListRetri
 
     friend class FieldNameRetriever;
 public:
-    explicit OracleLoaderDriverFieldPropertiesWidget(DbConnection *db, IStringListRetriever *columnListRetriever, QWidget *parent = 0);
+    explicit OracleLoaderDriverFieldPropertiesWidget(IQueryScheduler *queryScheduler, IStringListRetriever *columnListRetriever, QWidget *parent = 0);
 
     QString generateDdl() const;
     QString generateFieldDefinitionsDdl() const;
@@ -45,7 +45,7 @@ private slots:
     void populateFieldListFromColumnsTab();
 
 private:
-    void createFieldsTable(DbConnection *db);
+    void createFieldsTable(IQueryScheduler *queryScheduler);
     void fillTrimTypes(QStringList &list);
     void createColumnTransformsTable(IStringListRetriever *columnListRetriever);
 
