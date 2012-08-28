@@ -355,22 +355,22 @@ void WidgetHelper::increaseValueAtPos(QStandardItemModel *model, int row, int co
 void WidgetHelper::changeFontSize(QWidget *widget, int changeBy)
 {
     QFont font=widget->font();
-    font.setPointSize(font.pointSize()+changeBy);
+    font.setPointSizeF(font.pointSizeF()+changeBy);
     widget->setFont(font);
 }
 
 void WidgetHelper::changeFontSize(QAction *action, int changeBy)
 {
     QFont font=action->font();
-    font.setPointSize(font.pointSize()+changeBy);
+    font.setPointSizeF(font.pointSizeF()+changeBy);
     action->setFont(font);
 }
 
-void WidgetHelper::addStretchToToolbar(QToolBar *toolbar)
+QAction* WidgetHelper::addStretchToToolbar(QToolBar *toolbar)
 {
     QWidget *widget=new QWidget();
     widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    toolbar->addWidget(widget);
+    return toolbar->addWidget(widget);
 }
 
 void WidgetHelper::updateActionTooltips(QWidget *widget)

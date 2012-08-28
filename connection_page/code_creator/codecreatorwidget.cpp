@@ -8,6 +8,7 @@
 #include "info_panel/panes/compilermessagespane.h"
 #include "connectivity/dbconnection.h"
 #include "connectivity/statement.h"
+#include "errors.h"
 #include <QtGui>
 
 CodeCreatorWidget::CodeCreatorWidget(const QString &schemaName,
@@ -18,9 +19,12 @@ CodeCreatorWidget::CodeCreatorWidget(const QString &schemaName,
     schemaName(schemaName),
     objectName(objectName),
     objectType(objectType),
-    currentEditor(0)
+    currentEditor(0),
+    hasSpecBodySwitcher(false)
 {
     editMode = !objectName.isEmpty();
+
+    infoLabelTextFormat=QString("Line:%1 Pos:%2 (%3)");
 }
 
 void CodeCreatorWidget::createUi()
@@ -43,6 +47,9 @@ void CodeCreatorWidget::createUi()
 
     compilerMessagesPane=new CompilerMessagesPane();
     infoPanel->addPane(compilerMessagesPane, tr("Compiler messages"), IconUtil::getIcon("error"));
+    infoPanel->setInfoLabelMinWidthBasedOnFormat(infoLabelTextFormat);
+    infoPanel->setInfoLabelText(infoLabelTextFormat.arg("0","0","0"));
+    connect(compilerMessagesPane, SIGNAL(activated(int,int,QString)), this, SLOT(compilerMessageActivated(int,int,QString)));
 
     bottomSplitter->addWidget(infoPanel->getPanel());
 
@@ -84,6 +91,12 @@ void CodeCreatorWidget::setQueryScheduler(IQueryScheduler *queryScheduler)
     }
 }
 
+void CodeCreatorWidget::setHasSpecBodySwitcher(bool hasSpecBodySwitcher, bool isSpec)
+{
+    this->hasSpecBodySwitcher=hasSpecBodySwitcher;
+    this->isSpec=isSpec;
+}
+
 QWidget *CodeCreatorWidget::createRightPane()
 {
     QVBoxLayout *rightPaneLayout=new QVBoxLayout();
@@ -112,6 +125,7 @@ void CodeCreatorWidget::createToolbar()
 
     toolbar=new QToolBar();
     toolbar->setIconSize(QSize(16, 16));
+
     if(isPLSQLProgramUnit){
         toolbar->addAction(IconUtil::getIcon("compile_for_debug"), tr("Compile for debug"), this, SLOT(compileObjectForDebug()))->setShortcut(QKeySequence(tr("Ctrl+F9","CodeCreator|Compile for debug")));
     }
@@ -131,6 +145,8 @@ void CodeCreatorWidget::createToolbar()
         enableNativeCodeAction->setCheckable(true);
         enableNativeCodeAction->setChecked(false);
     }
+
+    addSpecBodySwitcher();
 
     progressBarAction = WidgetHelper::addProgressBarAction(toolbar, false);
 
@@ -158,12 +174,12 @@ void CodeCreatorWidget::createToolbar()
 
     splitDirectionGroup=new QActionGroup(this);
 
-    QAction *hoizontal = new QAction(IconUtil::getIcon("vertical"), tr("Align horizontally"), splitDirectionGroup);
+    QAction *hoizontal = new QAction(IconUtil::getIcon("vertical"), tr("Horizontal layout"), splitDirectionGroup);
     hoizontal->setCheckable(true);
     hoizontal->setData(Qt::Horizontal);
     hoizontal->setChecked(true);
 
-    QAction *vertical = new QAction(IconUtil::getIcon("horizontal"), tr("Align vertically"), splitDirectionGroup);
+    QAction *vertical = new QAction(IconUtil::getIcon("horizontal"), tr("Vertical layout"), splitDirectionGroup);
     vertical->setCheckable(true);
     vertical->setData(Qt::Vertical);
 
@@ -173,6 +189,34 @@ void CodeCreatorWidget::createToolbar()
     toolbar->addActions(splitDirectionGroup->actions());
 
     WidgetHelper::updateActionTooltips(toolbar);
+}
+
+void CodeCreatorWidget::addSpecBodySwitcher()
+{
+    if(!hasSpecBodySwitcher){
+        return;
+    }
+
+    toolbar->addSeparator();
+
+    QAction *specButton = toolbar->addAction(tr("Spec"));
+    specButton->setCheckable(true);
+    QAction *bodyButton = toolbar->addAction(tr("Body"));
+    bodyButton->setCheckable(true);
+
+    if(isSpec){
+        specButton->setChecked(true);
+        bodyButton->setShortcut(QKeySequence(tr("F8","CodeCreator|Toggle Spec/Body")));
+    }else{
+        bodyButton->setChecked(true);
+        specButton->setShortcut(QKeySequence(tr("F8","CodeCreator|Toggle Spec/Body")));
+    }
+
+    specBodySwitcherGroup=new QActionGroup(this);
+    specBodySwitcherGroup->addAction(specButton);
+    specBodySwitcherGroup->addAction(bodyButton);
+
+    connect(specBodySwitcherGroup, SIGNAL(triggered(QAction*)), this, SLOT(specBodySwitcherClicked(QAction*)));
 }
 
 void CodeCreatorWidget::loadObjectInfo()
@@ -201,7 +245,7 @@ void CodeCreatorWidget::objectInfoReady(DbObjectInfo *objectInfo, MetadataLoader
     Q_ASSERT(objectInfo);
     Q_ASSERT(currentEditor);
     SourceInfo *sourceInfo = static_cast<SourceInfo*>(objectInfo);
-    currentEditor->editor()->setPlainText(sourceInfo->source);
+    currentEditor->setInitialText(sourceInfo->source);
 
     delete sourceInfo;
 
@@ -214,10 +258,19 @@ void CodeCreatorWidget::objectInfoReady(DbObjectInfo *objectInfo, MetadataLoader
 
 void CodeCreatorWidget::loadError(const QString &taskName, const OciException &ex, MetadataLoader *loader)
 {
-    QMessageBox::critical(this, tr("Failed to load source code"),
+    if(!isSpec && ex.getErrorCode()==ERR_OBJECT_NOT_FOUND){
+
+        currentEditor->setInitialText(tr("--Body does not exist or you do not have permission to view it."));
+        emit objectInfoLoaded();
+
+    }else{
+        QMessageBox::critical(this, tr("Failed to load source code"),
                           tr("Task name: %1\nError: %2").arg(taskName, ex.getErrorMessage()));
+    }
 
     loader->deleteLater();
+
+    stopProgress();
 
     //setBusy(false);
 }
@@ -278,6 +331,7 @@ void CodeCreatorWidget::codeEditorFocusEvent(QWidget *object, bool)
 {
     currentEditor = qobject_cast<CodeEditorAndSearchPaneWidget*>(object);
     Q_ASSERT(currentEditor);
+    cursorPositionChanged();
 }
 
 void CodeCreatorWidget::setEditorCount(int count)
@@ -322,6 +376,7 @@ QWidget *CodeCreatorWidget::createEditor()
     }
 
     connect(editor, SIGNAL(focusEvent(QWidget*,bool)), this, SLOT(codeEditorFocusEvent(QWidget*,bool)));
+    connect(editor->editor(), SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
 
     return editor;
 }
@@ -342,6 +397,13 @@ int CodeCreatorWidget::visibleEditorCount() const
 QString CodeCreatorWidget::getObjectTypeName() const
 {
     return DbUtil::getDbObjectTypeNameByNodeType(this->objectType);
+}
+
+void CodeCreatorWidget::setReadOnly(bool readOnly)
+{
+    foreach(CodeEditorAndSearchPaneWidget *editor, editors){
+        editor->setReadOnly(readOnly);
+    }
 }
 
 int CodeCreatorWidget::getEnableWarnings()
@@ -435,10 +497,16 @@ void CodeCreatorWidget::objectCodeExecuted(const QueryResult &result)
 void CodeCreatorWidget::compilationCompleted(const QueryResult &result)
 {
     if(result.hasError){
-        QMessageBox::critical(this->window(), result.taskName=="compile_object" ? tr("Error compiling object") : tr("Error loading compiler messages"),
-                              result.exception.getErrorMessage());
-
-        stopProgress();
+        if(result.taskName=="compile_object"){
+            compilerMessagesPane->addCompilerMessage(result.exception.getErrorRow(), result.exception.getErrorPos(),
+                                                     QString("%1: %2").arg(tr("Error compiling object"), result.exception.getErrorMessage()),
+                                                     "ERROR");
+            compilationErrorFetchCompleted("");
+        }else{
+            QMessageBox::critical(this->window(), tr("Error loading compiler messages"),
+                                  result.exception.getErrorMessage());
+            stopProgress();
+        }
     }
 }
 
@@ -462,6 +530,33 @@ void CodeCreatorWidget::compilationErrorFirstTimeFetchCompleted(const QString &)
     compilationErrorFetchCompleted("");
 }
 
+void CodeCreatorWidget::specBodySwitcherClicked(QAction *)
+{
+    if(isSpec){
+        specBodySwitcherGroup->actions().at(0)->setChecked(true);
+    }else{
+        specBodySwitcherGroup->actions().at(1)->setChecked(true);
+    }
+
+    emit specBodySwitchRequested();
+}
+
+void CodeCreatorWidget::cursorPositionChanged()
+{
+    QTextCursor cursor=currentEditor->editor()->textCursor();
+    int block=cursor.blockNumber();
+    int posInBlock=cursor.positionInBlock();
+    int pos=cursor.position();
+
+    infoPanel->setInfoLabelText(infoLabelTextFormat.arg(QString::number(block+1), QString::number(posInBlock+1), QString::number(pos+1)));
+}
+
+void CodeCreatorWidget::compilerMessageActivated(int line, int position, const QString &)
+{
+    //oracle reports 1 based positions
+    currentEditor->editor()->showLinePosition(line-1, position-1);
+}
+
 void CodeCreatorWidget::compilationErrorFetchCompleted(const QString &)
 {
     stopProgress();
@@ -477,11 +572,13 @@ void CodeCreatorWidget::compilationErrorFetchCompleted(const QString &)
 void CodeCreatorWidget::startProgress()
 {
     toolbar->setEnabled(false);
+    setReadOnly(true);
     progressBarAction->setVisible(true);
 }
 
 void CodeCreatorWidget::stopProgress()
 {
     progressBarAction->setVisible(false);
+    setReadOnly(false);
     toolbar->setEnabled(true);
 }

@@ -24,7 +24,8 @@ TableInfoViewerTabs::TableInfoViewerTabs(const QString &schemaName,
     SubTabWidget(parent),
     connectionAvailable(false),
     schemaName(schemaName),
-    tableName(tableName)
+    tableName(tableName),
+    queryScheduler(0)
 {
     //TableInfoViewer* tableInfoViewer=static_cast<TableInfoViewer*>(parent);
     //queryScheduler=tableInfoViewer;
@@ -74,6 +75,8 @@ void TableInfoViewerTabs::loadTabData(int index)
         return;
     }
 
+    Q_ASSERT(this->queryScheduler);
+
     TableInfoViewerWidget* selectedWidget=(TableInfoViewerWidget*)widget(index);
 
     if(!selectedWidget->areControlsCreated()){
@@ -84,7 +87,7 @@ void TableInfoViewerTabs::loadTabData(int index)
     }
 }
 
-void TableInfoViewerTabs::setQueryScheduler(IQueryScheduler *)
+void TableInfoViewerTabs::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
     this->queryScheduler=queryScheduler;
 

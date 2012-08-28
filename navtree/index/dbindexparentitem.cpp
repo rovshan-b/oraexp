@@ -45,7 +45,7 @@ DbTreeItem *DbIndexParentItem::createNodeFromRecord(Resultset *rs)
 
     col->setTooltip(tooltip);
     col->setUnique(uniqueness=="UNIQUE");
-    col->setInactive(status!="VALID");
+    col->setInvalid(status!="VALID");
 
     return col;
 }

@@ -52,7 +52,7 @@ public:
     static void changeFontSize(QWidget *widget, int changeBy);
     static void changeFontSize(QAction *action, int changeBy);
 
-    static void addStretchToToolbar(QToolBar *toolbar);
+    static QAction *addStretchToToolbar(QToolBar *toolbar);
 
     static void updateActionTooltips(QWidget *widget);
 

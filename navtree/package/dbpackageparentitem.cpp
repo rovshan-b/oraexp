@@ -23,10 +23,12 @@ DbTreeItem *DbPackageParentItem::createNodeFromRecord(Resultset *rs)
     //package name, status
     QString packageName=rs->getString(1);
     QString status=rs->getString(2);
+    QString bodyStatus=rs->getString(3);
 
     DbPackageItem *col = new DbPackageItem(packageName, packageName, this->getModel(), this);
 
-    col->setInactive(status!="VALID");
+    col->setInvalid(status!="VALID");
+    col->setBodyInvalid(!bodyStatus.isEmpty() && bodyStatus!="VALID");
 
     return col;
 }

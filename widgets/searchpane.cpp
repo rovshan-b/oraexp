@@ -198,6 +198,10 @@ bool SearchPane::findPrevious()
 
 void SearchPane::replace(bool highlightNext)
 {
+    if(isReadOnly()){
+        return;
+    }
+
     QString searchText=findTextBox->text();
     QString textReplaceWith=replaceTextBox->text();
     if(searchText.isEmpty() || textReplaceWith==findTextBox->text()){
@@ -241,6 +245,10 @@ void SearchPane::replaceAndFind()
 
 void SearchPane::replaceAll()
 {
+    if(isReadOnly()){
+        return;
+    }
+
     QString searchText=findTextBox->text();
     QString textReplaceWith=replaceTextBox->text();
     if(searchText.isEmpty() || textReplaceWith==findTextBox->text()){
@@ -294,4 +302,17 @@ bool SearchPane::eventFilter(QObject *obj, QEvent *event)
      }
 
      return QWidget::eventFilter(obj, event);
- }
+}
+
+void SearchPane::setReadOnly(bool readOnly)
+{
+    replaceTextBox->setEnabled(!readOnly);
+    replaceOneButton->setEnabled(!readOnly);
+    replaceAndFindButton->setEnabled(!readOnly);
+    replaceAllButton->setEnabled(!readOnly);
+}
+
+bool SearchPane::isReadOnly() const
+{
+    return replaceTextBox->isEnabled();
+}

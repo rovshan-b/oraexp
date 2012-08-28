@@ -27,7 +27,7 @@ DbTreeItem *DbProcedureParentItem::createNodeFromRecord(Resultset *rs)
     QString status=rs->getString(2);
     DbProcedureItem *col = new DbProcedureItem(procedureName, procedureName, this->getModel(), this);
 
-    col->setInactive(status!="VALID");
+    col->setInvalid(status!="VALID");
 
     return col;
 }

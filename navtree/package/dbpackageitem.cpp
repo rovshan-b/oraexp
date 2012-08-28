@@ -10,7 +10,11 @@ DbPackageItem::DbPackageItem(const QString &itemText, const QString &itemName, D
 
 QString DbPackageItem::iconName() const
 {
-    return "package";
+    if(!isInvalid() && this->m_bodyInvalid){
+        return "package_invalid";
+    }else{
+        return "package";
+    }
 }
 
 bool DbPackageItem::displayChildCount() const
@@ -23,6 +27,7 @@ QList<DbTreeItem*> DbPackageItem::populateChildren()
     QList<DbTreeItem*> children;
     DbPackageSpecItem *specItem=new DbPackageSpecItem(QObject::tr("Spec"), itemName(), this->getModel(), this);
     specItem->setTooltip(this->tooltip());
+    specItem->setInvalid(this->isInvalid());
     children.append(specItem);
 
     children.append(
@@ -34,6 +39,11 @@ QList<DbTreeItem*> DbPackageItem::populateChildren()
     return children;
 }
 
+void DbPackageItem::setBodyInvalid(bool invalid)
+{
+    this->m_bodyInvalid=invalid;
+}
+
 DbTreeItem *DbPackageItem::createNodeFromRecord(Resultset *rs)
 {
     //package name, status
@@ -42,7 +52,7 @@ DbTreeItem *DbPackageItem::createNodeFromRecord(Resultset *rs)
 
     DbPackageBodyItem *col = new DbPackageBodyItem(QObject::tr("Body"), packageName, this->getModel(), this);
 
-    col->setInactive(status!="VALID");
+    col->setInvalid(status!="VALID");
 
     return col;
 }

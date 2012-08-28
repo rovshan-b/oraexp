@@ -25,9 +25,12 @@ DbTreeItem *DbTypeParentItem::createNodeFromRecord(Resultset *rs)
 {
     QString typeName=rs->getString(1);
     QString status=rs->getString(2);
+    QString bodyStatus=rs->getString(3);
+
     DbTypeItem *col = new DbTypeItem(typeName, typeName, this->getModel(), this);
 
-    col->setInactive(status!="VALID");
+    col->setInvalid(status!="VALID");
+    col->setBodyInvalid(!bodyStatus.isEmpty() && bodyStatus!="VALID");
 
     return col;
 }

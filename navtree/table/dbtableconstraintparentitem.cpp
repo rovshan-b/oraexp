@@ -44,7 +44,7 @@ DbTreeItem *DbTableConstraintParentItem::createNodeFromRecord(Resultset *rs)
     DbTableConstraintItem *col=new DbTableConstraintItem(constraintName, constraintName, getModel(), this);
     col->setTooltip(tooltip);
     col->setConstraintType(constraintType);
-    col->setInactive(status!="ENABLED");
+    col->setInvalid(status!="ENABLED");
 
     return col;
 }

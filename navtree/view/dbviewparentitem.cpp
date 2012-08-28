@@ -31,7 +31,7 @@ DbTreeItem *DbViewParentItem::createNodeFromRecord(Resultset *rs)
 
     QString tooltip=QString("Status: %1").arg(status);
     col->setTooltip(tooltip);
-    col->setInactive(status!="VALID");
+    col->setInvalid(status!="VALID");
 
     return col;
 }

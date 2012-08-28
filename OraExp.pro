@@ -315,7 +315,10 @@ SOURCES += main.cpp\
     context_menu/functioncontextmenuutil.cpp \
     context_menu/triggercontextmenuutil.cpp \
     navtree/type/dbtypespecitem.cpp \
-    navtree/type/dbtypebodyitem.cpp
+    navtree/type/dbtypebodyitem.cpp \
+    connection_page/code_creator/paircodecreator.cpp \
+    context_menu/packagecontextmenuutil.cpp \
+    context_menu/typecontextmenuutil.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -624,7 +627,11 @@ HEADERS  += mainwindow.h \
     context_menu/functioncontextmenuutil.h \
     context_menu/triggercontextmenuutil.h \
     navtree/type/dbtypespecitem.h \
-    navtree/type/dbtypebodyitem.h
+    navtree/type/dbtypebodyitem.h \
+    connection_page/code_creator/paircodecreator.h \
+    context_menu/packagecontextmenuutil.h \
+    context_menu/typecontextmenuutil.h \
+    errors.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

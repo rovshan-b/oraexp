@@ -67,8 +67,6 @@ int CodeEditor::lineNumberAreaWidth()
          updateLineNumberAreaWidth(0);
  }
 
-
-
  void CodeEditor::resizeEvent(QResizeEvent *e)
  {
      QPlainTextEdit::resizeEvent(e);
@@ -179,4 +177,14 @@ int CodeEditor::lineNumberAreaWidth()
         this->foundTextPositions.clear();
         highlightCurrentLine();
      }
+ }
+
+ void CodeEditor::showLinePosition(int line, int linePos)
+ {
+     QTextBlock block=this->document()->findBlockByNumber(line);
+     QTextCursor cursor=this->textCursor();
+     cursor.setPosition(block.position()+linePos);
+     setTextCursor(cursor);
+     ensureCursorVisible();
+     setFocus();
  }

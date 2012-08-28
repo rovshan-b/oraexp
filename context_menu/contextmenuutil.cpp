@@ -1,9 +1,11 @@
 #include "contextmenuutil.h"
 #include "tablecontextmenuutil.h"
 #include "viewcontextmenuutil.h"
+#include "packagecontextmenuutil.h"
 #include "procedurecontextmenuutil.h"
 #include "functioncontextmenuutil.h"
 #include "triggercontextmenuutil.h"
+#include "typecontextmenuutil.h"
 
 ContextMenuUtil::ContextMenuUtil()
 {
@@ -25,6 +27,12 @@ QList<QAction *> ContextMenuUtil::getActionsForObject(const QString &schemaName,
     case DbTreeModel::View:
         results = ViewContextMenuUtil::getActionsForObject(schemaName, objectName, itemType, uiManager);
         break;
+    case DbTreeModel::Packages:
+    case DbTreeModel::Package:
+    case DbTreeModel::PackageSpec:
+    case DbTreeModel::PackageBody:
+        results = PackageContextMenuUtil::getActionsForObject(schemaName, objectName, itemType, uiManager);
+        break;
     case DbTreeModel::Procedures:
     case DbTreeModel::Procedure:
         results = ProcedureContextMenuUtil::getActionsForObject(schemaName, objectName, itemType, uiManager);
@@ -37,6 +45,12 @@ QList<QAction *> ContextMenuUtil::getActionsForObject(const QString &schemaName,
     case DbTreeModel::Triggers:
     case DbTreeModel::Trigger:
         results = TriggerContextMenuUtil::getActionsForObject(schemaName, objectName, itemType, uiManager);
+        break;
+    case DbTreeModel::Types:
+    case DbTreeModel::Type:
+    case DbTreeModel::TypeSpec:
+    case DbTreeModel::TypeBody:
+        results = TypeContextMenuUtil::getActionsForObject(schemaName, objectName, itemType, uiManager);
         break;
     default:
         break;

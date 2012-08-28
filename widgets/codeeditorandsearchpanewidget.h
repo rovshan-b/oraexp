@@ -20,6 +20,9 @@ public:
     void findNext(){searchPane->findNext();}
     void findPrevious(){searchPane->findPrevious();}
 
+    void setReadOnly(bool readOnly);
+    void setInitialText(const QString &text);
+
 signals:
     void escapeKeyPressed();
     void focusEvent(QWidget *object, bool focusIn);

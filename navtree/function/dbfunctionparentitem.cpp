@@ -27,7 +27,7 @@ DbTreeItem *DbFunctionParentItem::createNodeFromRecord(Resultset *rs)
     QString status=rs->getString(2);
     DbFunctionItem *col = new DbFunctionItem(functionName, functionName, this->getModel(), this);
 
-    col->setInactive(status!="VALID");
+    col->setInvalid(status!="VALID");
 
     return col;
 }

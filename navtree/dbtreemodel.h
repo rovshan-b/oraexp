@@ -70,7 +70,8 @@ public:
 
         //all
         Loading,
-        All
+        All,
+        Unknown
 
     };
     class DbTreeNodeTypes : public QList<DbTreeModel::DbTreeNodeType>

@@ -40,7 +40,7 @@ DbTreeItem *DbSynonymParentItem::createNodeFromRecord(Resultset *rs)
                     arg(tableName).
                     arg(dbLink));
 
-    col->setInactive(status!="VALID");
+    col->setInvalid(status!="VALID");
 
     return col;
 }

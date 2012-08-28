@@ -49,7 +49,7 @@ Statement::~Statement()
         connection->unlock();
     }
 
-    qDebug("deleted statement");
+    //qDebug("deleted statement");
 
     deref();
 }
@@ -276,7 +276,7 @@ void Statement::freeOciStatement()
         OCI_StatementFree(ociStmt);
         ociStmt=0;
 
-        qDebug("released oci statement");
+        //qDebug("released oci statement");
     }
 }
 

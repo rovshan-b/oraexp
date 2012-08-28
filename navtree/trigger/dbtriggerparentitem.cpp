@@ -47,7 +47,7 @@ DbTreeItem *DbTriggerParentItem::createNodeFromRecord(Resultset *rs)
                       arg(baseObjectType).
                       arg(baseObjectName.isEmpty() ? baseObjectOwner : baseObjectName);
     col->setTooltip(tooltip);
-    col->setInactive(status!="ENABLED");
+    col->setInvalid(status!="ENABLED");
 
     return col;
 }

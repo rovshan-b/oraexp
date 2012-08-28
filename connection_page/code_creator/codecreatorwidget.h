@@ -33,8 +33,11 @@ public:
     virtual void findNext() {currentEditor->findNext();}
     virtual void findPrevious() {currentEditor->findPrevious();}
 
+    void setHasSpecBodySwitcher(bool hasSpecBodySwitcher, bool isSpec);
+
 signals:
     void objectInfoLoaded();
+    void specBodySwitchRequested();
 
 protected:
     void keyReleaseEvent (QKeyEvent * event);
@@ -67,13 +70,21 @@ private slots:
     void compilationErrorFetchCompleted(const QString &);
     void compilationErrorFirstTimeFetchCompleted(const QString &);
 
+    void specBodySwitcherClicked(QAction *);
+
+    void cursorPositionChanged();
+
+    void compilerMessageActivated(int line, int position, const QString &);
+
 private:
     QWidget *createRightPane();
     void createToolbar();
+    void addSpecBodySwitcher();
     void setEditorCount(int count);
     QWidget *createEditor();
     int visibleEditorCount() const;
     QString getObjectTypeName() const;
+    void setReadOnly(bool readOnly);
 
     QString schemaName;
     QString objectName;
@@ -94,6 +105,7 @@ private:
     CompilerMessagesPane *compilerMessagesPane;
 
     QActionGroup *splitDirectionGroup;
+    QActionGroup *specBodySwitcherGroup;
 
     QList<CodeEditorAndSearchPaneWidget*> editors;
 
@@ -102,6 +114,11 @@ private:
     void stopProgress();
 
     bool debugMode;
+
+    bool hasSpecBodySwitcher;
+    bool isSpec;
+
+    QString infoLabelTextFormat;
     
 };
 

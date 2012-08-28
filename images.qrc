@@ -101,5 +101,6 @@
         <file>images/native_compilation.png</file>
         <file>images/error.png</file>
         <file>images/alter_small.png</file>
+        <file>images/invalid_small.png</file>
     </qresource>
 </RCC>

@@ -31,7 +31,7 @@ DbTreeItem::DbTreeItem(const QString &itemText, const QString &itemName, DbTreeM
         m_itemText(itemText),
         m_itemName(itemName),
         m_tooltip(itemText),
-        m_isInactive(false),
+        m_isInvalid(false),
         m_checkState(Qt::Checked),
         m_isTopLevel(true)
 {
@@ -82,7 +82,8 @@ QVariant DbTreeItem::data(int /*column*/, int role) const
         return m_tooltip;
     }else if(role==Qt::DecorationRole){
         //return IconUtil::getIcon(iconName(), isInactive);
-        return IconUtil::getIcon(iconName());
+        QString icon = iconName();
+        return IconUtil::getIcon(m_isInvalid ? QString("%1_invalid").arg(icon) : icon);
     }else if(role==Qt::CheckStateRole && getModel()->checkboxesEnabled() && checkBehavior()!=NotCheckable){
         return m_checkState;
     }else{
@@ -252,9 +253,9 @@ QString DbTreeItem::getQuery(const QString &queryName) const
     return QueryUtil::getQuery(queryName, m_model->getDb());
 }
 
-void DbTreeItem::setInactive(bool inactive)
+void DbTreeItem::setInvalid(bool invalid)
 {
-    this->m_isInactive=inactive;
+    this->m_isInvalid=invalid;
 }
 
 bool DbTreeItem::displayChildCount() const

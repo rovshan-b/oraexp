@@ -193,6 +193,7 @@ QString DbUtil::getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeTy
         result="PACKAGE SPEC";
         break;
     case DbTreeModel::PackageBodies:
+    case DbTreeModel::PackageBody:
         result="PACKAGE BODY";
         break;
     case DbTreeModel::Procedures:
@@ -411,4 +412,75 @@ bool DbUtil::isPLSQLProgramUnit(DbTreeModel::DbTreeNodeType itemType)
             itemType==DbTreeModel::Trigger ||
             itemType==DbTreeModel::TypeSpec ||
             itemType==DbTreeModel::TypeBody;
+}
+
+DbTreeModel::DbTreeNodeType DbUtil::getSpecType(DbTreeModel::DbTreeNodeType itemType)
+{
+    switch(itemType){
+    case DbTreeModel::Packages:
+    case DbTreeModel::Package:
+    case DbTreeModel::PackageSpecs:
+    case DbTreeModel::PackageSpec:
+    case DbTreeModel::PackageBodies:
+    case DbTreeModel::PackageBody:
+        return DbTreeModel::PackageSpec;
+        break;
+    case DbTreeModel::Types:
+    case DbTreeModel::Type:
+    case DbTreeModel::TypeSpecs:
+    case DbTreeModel::TypeSpec:
+    case DbTreeModel::TypeBodies:
+    case DbTreeModel::TypeBody:
+        return DbTreeModel::TypeSpec;
+        break;
+    default:
+        Q_ASSERT(false);
+        return DbTreeModel::Unknown;
+        break;
+    }
+}
+
+DbTreeModel::DbTreeNodeType DbUtil::getBodyType(DbTreeModel::DbTreeNodeType itemType)
+{
+    switch(itemType){
+    case DbTreeModel::Packages:
+    case DbTreeModel::Package:
+    case DbTreeModel::PackageSpecs:
+    case DbTreeModel::PackageSpec:
+    case DbTreeModel::PackageBodies:
+    case DbTreeModel::PackageBody:
+        return DbTreeModel::PackageBody;
+        break;
+    case DbTreeModel::Types:
+    case DbTreeModel::Type:
+    case DbTreeModel::TypeSpecs:
+    case DbTreeModel::TypeSpec:
+    case DbTreeModel::TypeBodies:
+    case DbTreeModel::TypeBody:
+        return DbTreeModel::TypeBody;
+        break;
+    default:
+        Q_ASSERT(false);
+        return DbTreeModel::Unknown;
+        break;
+    }
+}
+
+bool DbUtil::isSpecType(DbTreeModel::DbTreeNodeType itemType)
+{
+    switch(itemType){
+    case DbTreeModel::Packages:
+    case DbTreeModel::Package:
+    case DbTreeModel::PackageSpecs:
+    case DbTreeModel::PackageSpec:
+    case DbTreeModel::Types:
+    case DbTreeModel::Type:
+    case DbTreeModel::TypeSpecs:
+    case DbTreeModel::TypeSpec:
+        return true;
+        break;
+    default:
+        return false;
+        break;
+    }
 }

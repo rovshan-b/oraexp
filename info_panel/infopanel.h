@@ -7,6 +7,8 @@
 class QToolBar;
 class QStackedWidget;
 class QBoxLayout;
+class QLabel;
+class QAction;
 class InfoPane;
 
 class InfoPanel : public QObject
@@ -29,6 +31,9 @@ public:
 
     void closePane(InfoPane *pane);
 
+    void setInfoLabelMinWidthBasedOnFormat(const QString &textFormat);
+    void setInfoLabelText(const QString &info);
+
 public slots:
     void closePanel();
 
@@ -36,7 +41,12 @@ private slots:
     void buttonToggled(bool checked);
 
 private:
+    void createToolbar();
+
     QToolBar *toolbar;
+    QAction *placeholderAction;
+    QLabel *infoLabel;
+
     QStackedWidget *tab;
     QList<InfoPane*> panes;
 

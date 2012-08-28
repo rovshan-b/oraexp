@@ -2,6 +2,7 @@
 #define COMPILERMESSAGESPANE_H
 
 #include "info_panel/infopane.h"
+#include <QModelIndex>
 
 class DataTable;
 class QStandardItemModel;
@@ -18,6 +19,12 @@ public:
     void clearCompilerMessages();
     bool isEmpty() const;
     void resizeToFit();
+
+signals:
+    void activated(int line, int position, const QString &message);
+
+private slots:
+    void tableRowActivated(const QModelIndex &index);
     
 private:
     QStandardItemModel *tableModel;

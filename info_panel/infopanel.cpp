@@ -11,18 +11,15 @@ InfoPanel::InfoPanel(QWidget *parent) :
     WidgetHelper::changeFontSize(tab, -1);
     tab->hide();
 
-    toolbar=new QToolBar();
-    toolbar->setIconSize(QSize(12,12));
-    WidgetHelper::changeFontSize(toolbar, -1);
-    toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    toolbar->setContentsMargins(0,0,0,0);
+    createToolbar();
 }
 
 void InfoPanel::addPane(InfoPane *pane, const QString &title, const QIcon &icon)
 {
     panes.append(pane);
 
-    QAction *action=toolbar->addAction(icon, title);
+    QAction *action=new QAction(icon, title, this);
+    toolbar->insertAction(placeholderAction, action);
     action->setData(tab->count());
     action->setCheckable(true);
     action->setChecked(false);
@@ -104,6 +101,16 @@ void InfoPanel::closePane(InfoPane *pane)
     }
 }
 
+void InfoPanel::setInfoLabelMinWidthBasedOnFormat(const QString &textFormat)
+{
+    infoLabel->setMinimumWidth(qCeil(infoLabel->fontMetrics().width(textFormat)*1.5));
+}
+
+void InfoPanel::setInfoLabelText(const QString &info)
+{
+    infoLabel->setText(info);
+}
+
 void InfoPanel::buttonToggled(bool checked)
 {
     if(!checked){
@@ -116,6 +123,20 @@ void InfoPanel::buttonToggled(bool checked)
 
     int actionIx = action->data().toInt();
     setCurrentIndex(actionIx);
+}
+
+void InfoPanel::createToolbar()
+{
+    toolbar=new QToolBar();
+    toolbar->setIconSize(QSize(12,12));
+    WidgetHelper::changeFontSize(toolbar, -1);
+    toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    toolbar->setContentsMargins(0,0,0,0);
+
+    placeholderAction=WidgetHelper::addStretchToToolbar(toolbar);
+
+    infoLabel=new QLabel("Info label");
+    toolbar->addWidget(infoLabel);
 }
 
 void InfoPanel::closePanel()

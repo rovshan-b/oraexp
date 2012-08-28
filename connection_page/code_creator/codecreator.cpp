@@ -1,5 +1,4 @@
 #include "codecreator.h"
-#include "codecreatorwidget.h"
 #include <QtGui>
 
 CodeCreator::CodeCreator(const QString &schemaName,

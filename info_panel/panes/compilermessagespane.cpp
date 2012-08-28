@@ -22,6 +22,8 @@ CompilerMessagesPane::CompilerMessagesPane(QWidget *parent) :
     table->setModel(tableModel);
 
     setLayout(mainLayout);
+
+    connect(table, SIGNAL(activated(QModelIndex)), this, SLOT(tableRowActivated(QModelIndex)));
 }
 
 void CompilerMessagesPane::addCompilerMessage(int line, int position,
@@ -49,4 +51,18 @@ void CompilerMessagesPane::resizeToFit()
 {
     table->resizeColumnsToFitContents();
     table->horizontalHeader()->setStretchLastSection(true);
+}
+
+void CompilerMessagesPane::tableRowActivated(const QModelIndex &index)
+{
+    QStandardItem *item=tableModel->itemFromIndex(index);
+    if(!item){
+        return;
+    }
+    int line=tableModel->item(item->row(), 0)->text().toInt();
+    int pos=tableModel->item(item->row(), 1)->text().toInt();
+    QString message = tableModel->item(item->row(), 2)->text();
+
+    emit activated(line, pos, message);
+
 }

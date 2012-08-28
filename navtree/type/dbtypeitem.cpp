@@ -11,7 +11,11 @@ DbTypeItem::DbTypeItem(const QString &itemText, const QString &itemName, DbTreeM
 
 QString DbTypeItem::iconName() const
 {
-    return "type";
+    if(!isInvalid() && this->m_bodyInvalid){
+        return "type_invalid";
+    }else{
+        return "type";
+    }
 }
 
 bool DbTypeItem::displayChildCount() const
@@ -35,6 +39,11 @@ QList<DbTreeItem *> DbTypeItem::populateChildren()
     return children;
 }
 
+void DbTypeItem::setBodyInvalid(bool invalid)
+{
+    this->m_bodyInvalid=invalid;
+}
+
 DbTreeItem *DbTypeItem::createNodeFromRecord(Resultset *rs)
 {
     QString packageName=rs->getString(1);
@@ -42,7 +51,7 @@ DbTreeItem *DbTypeItem::createNodeFromRecord(Resultset *rs)
 
     DbTypeBodyItem *col = new DbTypeBodyItem(QObject::tr("Body"), packageName, this->getModel(), this);
 
-    col->setInactive(status!="VALID");
+    col->setInvalid(status!="VALID");
 
     return col;
 }

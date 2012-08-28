@@ -19,8 +19,11 @@ public:
 
     virtual DbTreeModel::DbTreeNodeType getItemType() const {return DbTreeModel::Type;}
 
+    void setBodyInvalid(bool invalid);
+
 protected:
     virtual DbTreeItem *createNodeFromRecord(Resultset * rs);
+    bool m_bodyInvalid;
 };
 
 #endif // DBTYPEITEM_H

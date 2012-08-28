@@ -58,7 +58,9 @@ public:
 
     QString getQuery(const QString &queryName) const;
 
-    void setInactive(bool inactive);
+    void setInvalid(bool invalid);
+    bool isInvalid() const {return this->m_isInvalid;}
+
     virtual bool displayChildCount() const;
 
     void clearChildItems(bool resetPopulatedFlag=true);
@@ -95,7 +97,7 @@ private:
     QString m_itemName;
     QString m_tooltip;
     QString m_dbSchemaName;
-    bool m_isInactive;
+    bool m_isInvalid;
     Qt::CheckState m_checkState;
     bool m_isTopLevel;
 };

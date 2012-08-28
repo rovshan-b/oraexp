@@ -3,8 +3,7 @@
 
 #include "connection_page/connectionpagetab.h"
 #include "navtree/dbtreemodel.h"
-
-class CodeCreatorWidget;
+#include "codecreatorwidget.h"
 
 class CodeCreator : public ConnectionPageTab
 {
@@ -17,6 +16,11 @@ public:
 
     virtual void createUi();
     virtual void setConnection(DbConnection *db);
+
+    virtual bool canFind() const {return true;}
+    virtual void showSearchWidget(){creatorWidget->showSearchWidget();}
+    virtual void findNext() {creatorWidget->findNext();}
+    virtual void findPrevious() {creatorWidget->findPrevious();}
 
 private:
     CodeCreatorWidget *creatorWidget;

@@ -70,3 +70,15 @@ void CodeEditorAndSearchPaneWidget::showSearchPane()
 
     searchPane->activateFindTextBox();
 }
+
+void CodeEditorAndSearchPaneWidget::setReadOnly(bool readOnly)
+{
+    this->codeEditor->setReadOnly(readOnly);
+
+}
+
+void CodeEditorAndSearchPaneWidget::setInitialText(const QString &text)
+{
+    this->codeEditor->setPlainText(text);
+    this->codeEditor->document()->setModified(false);
+}

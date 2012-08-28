@@ -22,6 +22,8 @@ public:
     void setFoundTextPositions(const QList< QTextCursor > &foundTextPositions);
     void clearFoundTextPositions();
 
+    void showLinePosition(int line, int linePos);
+
 signals:
     void escapeKeyPressed();
 

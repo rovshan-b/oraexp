@@ -18,6 +18,9 @@ public:
 
     bool eventFilter(QObject *obj, QEvent *event);
 
+    void setReadOnly(bool readOnly);
+    bool isReadOnly() const;
+
 public slots:
     void searchTextChanged(bool setSelection=true);
     QTextCursor findNextOrPrevious(bool next, const QTextCursor &baseCursor);

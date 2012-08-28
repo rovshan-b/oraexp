@@ -1,6 +1,7 @@
 #include "editorcreatorutil.h"
 #include "connection_page/table_creator/tablecreator.h"
 #include "connection_page/code_creator/codecreator.h"
+#include "connection_page/code_creator/paircodecreator.h"
 #include "connection_page/table_info/tableinfoviewer.h"
 
 EditorCreatorUtil::EditorCreatorUtil()
@@ -23,6 +24,14 @@ ConnectionPageTab *EditorCreatorUtil::createEditor(const QString &schemaName,
     case DbTreeModel::View:
         editor = new CodeCreator(schemaName, objectName, DbTreeModel::View, uiManager);
         break;
+    case DbTreeModel::Packages:
+    case DbTreeModel::Package:
+    case DbTreeModel::PackageSpec:
+        editor = new PairCodeCreator(schemaName, objectName, DbTreeModel::Package, uiManager);
+        break;
+    case DbTreeModel::PackageBody:
+        editor = new PairCodeCreator(schemaName, objectName, DbTreeModel::PackageBody, uiManager);
+        break;
     case DbTreeModel::Procedures:
     case DbTreeModel::Procedure:
         editor = new CodeCreator(schemaName, objectName, DbTreeModel::Procedure, uiManager);
@@ -35,6 +44,14 @@ ConnectionPageTab *EditorCreatorUtil::createEditor(const QString &schemaName,
     case DbTreeModel::Triggers:
     case DbTreeModel::Trigger:
         editor = new CodeCreator(schemaName, objectName, DbTreeModel::Trigger, uiManager);
+        break;
+    case DbTreeModel::Types:
+    case DbTreeModel::Type:
+    case DbTreeModel::TypeSpec:
+        editor = new PairCodeCreator(schemaName, objectName, DbTreeModel::Type, uiManager);
+        break;
+    case DbTreeModel::TypeBody:
+        editor = new PairCodeCreator(schemaName, objectName, DbTreeModel::TypeBody, uiManager);
         break;
     default:
         break;
