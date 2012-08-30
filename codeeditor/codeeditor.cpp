@@ -144,6 +144,81 @@ int CodeEditor::lineNumberAreaWidth()
      }
  }
 
+ void CodeEditor::keyPressEvent ( QKeyEvent * event )
+ {
+     bool handled=false;
+
+     if(!isReadOnly()){
+         if(event->key()==Qt::Key_Return || event->key()==Qt::Key_Enter){
+            handled=true;
+            textCursor().beginEditBlock();
+            QPlainTextEdit::keyPressEvent(event);
+            autoIndentNewBlock();
+            textCursor().endEditBlock();
+         }else if(event->key()==Qt::Key_Tab && textCursor().hasSelection()){
+             handled=true;
+             indentSelection();
+         }
+     }
+
+     if(!handled){
+        QPlainTextEdit::keyPressEvent(event);
+     }
+ }
+
+ void CodeEditor::autoIndentNewBlock()
+ {
+     QTextCursor cur=textCursor();
+     if(!cur.movePosition(QTextCursor::PreviousBlock)){
+         return;
+     }
+     if(!cur.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor)){
+         return;
+     }
+     QString prevLine=cur.selectedText();
+     QString prefix;
+     QChar c;
+     for(int i=0; i<prevLine.size(); ++i){
+         c=prevLine.at(i);
+         if(!c.isSpace()){
+             break;
+         }
+         prefix.append(c);
+     }
+     cur.movePosition(QTextCursor::NextBlock);
+     if(!prefix.isEmpty()){
+        cur.insertText(prefix);
+        setTextCursor(cur);
+     }
+
+ }
+
+ void CodeEditor::indentSelection()
+ {
+     QTextCursor cur=textCursor();
+     if(!cur.hasSelection()){
+         return;
+     }
+     cur.beginEditBlock();
+     int startPos=cur.selectionStart();
+     int endPos=cur.selectionEnd();
+     int startBlock=cur.document()->findBlock(startPos).blockNumber();
+     int endBlock=cur.document()->findBlock(endPos).blockNumber();
+
+     cur.setPosition(startPos);
+     for(int i=0; i<=(endBlock-startBlock); ++i){
+        cur.movePosition(QTextCursor::StartOfBlock);
+        cur.insertText("\t");
+        //--startPos;
+        ++endPos;
+        cur.movePosition(QTextCursor::NextBlock);
+     }
+     cur.endEditBlock();
+     cur.setPosition(startPos);
+     cur.setPosition(endPos, QTextCursor::KeepAnchor);
+     setTextCursor(cur);
+ }
+
  void CodeEditor::addText(const QString &text)
  {
      QTextCursor cur=this->textCursor();

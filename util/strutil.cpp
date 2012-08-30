@@ -184,3 +184,8 @@ void print(const char *msg)
 {
     cout << msg << endl;
 }
+
+bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
+{
+    return s1.toUpper() < s2.toUpper();
+}

@@ -34,6 +34,8 @@ private:
     QTextCharFormat doubleQuotationFormat;
     QTextCharFormat numberFormat;
 
+    static QStringList keywords;
+
 };
 
 #endif // SYNTAXHIGHLIGHER_H

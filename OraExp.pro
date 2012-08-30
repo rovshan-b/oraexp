@@ -318,7 +318,8 @@ SOURCES += main.cpp\
     navtree/type/dbtypebodyitem.cpp \
     connection_page/code_creator/paircodecreator.cpp \
     context_menu/packagecontextmenuutil.cpp \
-    context_menu/typecontextmenuutil.cpp
+    context_menu/typecontextmenuutil.cpp \
+    widgets/multieditorwidget.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -631,7 +632,8 @@ HEADERS  += mainwindow.h \
     connection_page/code_creator/paircodecreator.h \
     context_menu/packagecontextmenuutil.h \
     context_menu/typecontextmenuutil.h \
-    errors.h
+    errors.h \
+    widgets/multieditorwidget.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \
@@ -643,7 +645,8 @@ FORMS    += mainwindow.ui \
 RESOURCES += \
     images.qrc \
     queries.qrc \
-    grammars.qrc
+    grammars.qrc \
+    misc.qrc
 
 #unix:INCLUDEPATH += /home/rovshan/Applications/instantclient_11_2/sdk/include
 

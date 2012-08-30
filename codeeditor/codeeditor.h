@@ -30,6 +30,7 @@ signals:
 protected:
     void resizeEvent(QResizeEvent *event);
     void keyReleaseEvent ( QKeyEvent * event );
+    void keyPressEvent ( QKeyEvent * event );
 
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
@@ -40,6 +41,9 @@ private:
     QWidget *lineNumberArea;
 
     QList< QTextCursor > foundTextPositions;
+
+    void autoIndentNewBlock();
+    void indentSelection();
 };
 
 #endif // CODEEDITOR_H

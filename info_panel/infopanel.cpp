@@ -40,6 +40,11 @@ void InfoPanel::addPane(InfoPane *pane, const QString &title, const QIcon &icon)
     connect(action, SIGNAL(triggered(bool)), this, SLOT(buttonToggled(bool)));
 }
 
+void InfoPanel::addInfoWidget(QWidget *w)
+{
+    toolbar->addWidget(w);
+}
+
 void InfoPanel::setCurrentIndex(int index)
 {
     Q_ASSERT(index>=0 && index<tab->count());
@@ -101,16 +106,6 @@ void InfoPanel::closePane(InfoPane *pane)
     }
 }
 
-void InfoPanel::setInfoLabelMinWidthBasedOnFormat(const QString &textFormat)
-{
-    infoLabel->setMinimumWidth(qCeil(infoLabel->fontMetrics().width(textFormat)*1.5));
-}
-
-void InfoPanel::setInfoLabelText(const QString &info)
-{
-    infoLabel->setText(info);
-}
-
 void InfoPanel::buttonToggled(bool checked)
 {
     if(!checked){
@@ -134,9 +129,6 @@ void InfoPanel::createToolbar()
     toolbar->setContentsMargins(0,0,0,0);
 
     placeholderAction=WidgetHelper::addStretchToToolbar(toolbar);
-
-    infoLabel=new QLabel("Info label");
-    toolbar->addWidget(infoLabel);
 }
 
 void InfoPanel::closePanel()

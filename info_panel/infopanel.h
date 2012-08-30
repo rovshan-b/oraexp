@@ -18,6 +18,8 @@ public:
     explicit InfoPanel(QWidget *parent);
 
     void addPane(InfoPane *pane, const QString &title, const QIcon &icon);
+    void addInfoWidget(QWidget *w);
+
     void setCurrentIndex(int index);
     int getCurrentIndex() const;
 
@@ -31,9 +33,6 @@ public:
 
     void closePane(InfoPane *pane);
 
-    void setInfoLabelMinWidthBasedOnFormat(const QString &textFormat);
-    void setInfoLabelText(const QString &info);
-
 public slots:
     void closePanel();
 
@@ -45,7 +44,6 @@ private:
 
     QToolBar *toolbar;
     QAction *placeholderAction;
-    QLabel *infoLabel;
 
     QStackedWidget *tab;
     QList<InfoPane*> panes;

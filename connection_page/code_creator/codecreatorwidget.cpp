@@ -19,19 +19,18 @@ CodeCreatorWidget::CodeCreatorWidget(const QString &schemaName,
     schemaName(schemaName),
     objectName(objectName),
     objectType(objectType),
-    currentEditor(0),
     hasSpecBodySwitcher(false)
 {
     editMode = !objectName.isEmpty();
-
-    infoLabelTextFormat=QString("Line:%1 Pos:%2 (%3)");
 }
 
 void CodeCreatorWidget::createUi()
 {
     QSplitter *outerSplitter=new QSplitter(Qt::Horizontal);
 
-    infoPanel=new InfoPanel(this); //create at top to enable further use
+    //create at top to enable further use
+    multiEditor=new MultiEditorWidget();
+    infoPanel=new InfoPanel(this);
 
     //create left pane
     //will use this for displaying code structure
@@ -39,6 +38,7 @@ void CodeCreatorWidget::createUi()
 
     //create right pane
     outerSplitter->addWidget(createRightPane());
+    connect(multiEditor, SIGNAL(escapeKeyPressed()), infoPanel, SLOT(closePanel()));
 
     //for splitting tree/editor area and info panel
     QSplitter *bottomSplitter=new QSplitter(Qt::Vertical);
@@ -47,9 +47,8 @@ void CodeCreatorWidget::createUi()
 
     compilerMessagesPane=new CompilerMessagesPane();
     infoPanel->addPane(compilerMessagesPane, tr("Compiler messages"), IconUtil::getIcon("error"));
-    infoPanel->setInfoLabelMinWidthBasedOnFormat(infoLabelTextFormat);
-    infoPanel->setInfoLabelText(infoLabelTextFormat.arg("0","0","0"));
     connect(compilerMessagesPane, SIGNAL(activated(int,int,QString)), this, SLOT(compilerMessageActivated(int,int,QString)));
+    infoPanel->addInfoWidget(multiEditor->createInfoLabel());
 
     bottomSplitter->addWidget(infoPanel->getPanel());
 
@@ -105,12 +104,8 @@ QWidget *CodeCreatorWidget::createRightPane()
     createToolbar();
     rightPaneLayout->addWidget(toolbar);
 
-    //create editor in splitter
-    editorSplitter = new QSplitter(Qt::Horizontal);
-    editorSplitter->setChildrenCollapsible(false);
-    editorSplitter->addWidget(createEditor());
-
-    rightPaneLayout->addWidget(editorSplitter);
+    //add editor to splitter
+    rightPaneLayout->addWidget(multiEditor);
 
     rightPaneLayout->setContentsMargins(0,0,0,0);
     QWidget *rightPaneWidget=new QWidget();
@@ -153,40 +148,7 @@ void CodeCreatorWidget::createToolbar()
     //add buttons for accessing editor splitting functionality
     WidgetHelper::addStretchToToolbar(toolbar);
 
-    QActionGroup *editorCountGroup=new QActionGroup(this);
-    for(int i=1; i<=3; ++i){
-        QAction *action=new QAction(QString::number(i), editorCountGroup);
-        action->setCheckable(true);
-        action->setData(i);
-
-        if(i==1){
-            action->setChecked(true);
-            action->setToolTip(tr("Single editor pane"));
-        }else{
-            action->setToolTip(tr("Split editor to %1 panes").arg(i));
-        }
-
-        connect(action, SIGNAL(triggered(bool)), this, SLOT(editorCountActionSelected(bool)));
-    }
-    toolbar->addActions(editorCountGroup->actions());
-
-    toolbar->addSeparator();
-
-    splitDirectionGroup=new QActionGroup(this);
-
-    QAction *hoizontal = new QAction(IconUtil::getIcon("vertical"), tr("Horizontal layout"), splitDirectionGroup);
-    hoizontal->setCheckable(true);
-    hoizontal->setData(Qt::Horizontal);
-    hoizontal->setChecked(true);
-
-    QAction *vertical = new QAction(IconUtil::getIcon("horizontal"), tr("Vertical layout"), splitDirectionGroup);
-    vertical->setCheckable(true);
-    vertical->setData(Qt::Vertical);
-
-    splitDirectionGroup->setEnabled(false);
-    connect(splitDirectionGroup, SIGNAL(triggered(QAction*)), this, SLOT(editorOrientationActionSelected(QAction*)));
-
-    toolbar->addActions(splitDirectionGroup->actions());
+    multiEditor->addSplittingActions(toolbar);
 
     WidgetHelper::updateActionTooltips(toolbar);
 }
@@ -243,9 +205,10 @@ void CodeCreatorWidget::keyReleaseEvent(QKeyEvent *event)
 void CodeCreatorWidget::objectInfoReady(DbObjectInfo *objectInfo, MetadataLoader *loader)
 {
     Q_ASSERT(objectInfo);
-    Q_ASSERT(currentEditor);
+    Q_ASSERT(currentEditor());
+
     SourceInfo *sourceInfo = static_cast<SourceInfo*>(objectInfo);
-    currentEditor->setInitialText(sourceInfo->source);
+    currentEditor()->setInitialText(sourceInfo->source);
 
     delete sourceInfo;
 
@@ -260,7 +223,7 @@ void CodeCreatorWidget::loadError(const QString &taskName, const OciException &e
 {
     if(!isSpec && ex.getErrorCode()==ERR_OBJECT_NOT_FOUND){
 
-        currentEditor->setInitialText(tr("--Body does not exist or you do not have permission to view it."));
+        currentEditor()->setInitialText(tr("--Body does not exist or you do not have permission to view it."));
         emit objectInfoLoaded();
 
     }else{
@@ -308,92 +271,6 @@ void CodeCreatorWidget::compilationParamsFetchCompleted(const QString &)
     loadObjectInfo();
 }
 
-void CodeCreatorWidget::editorCountActionSelected(bool checked)
-{
-    if(checked){
-        QAction *action=static_cast<QAction*>(sender());
-        Q_ASSERT(action);
-
-        setEditorCount(action->data().toInt());
-    }
-}
-
-void CodeCreatorWidget::editorOrientationActionSelected(QAction *action)
-{
-    if(!action->isChecked()){
-        return;
-    }
-
-    editorSplitter->setOrientation((Qt::Orientation)action->data().toInt());
-}
-
-void CodeCreatorWidget::codeEditorFocusEvent(QWidget *object, bool)
-{
-    currentEditor = qobject_cast<CodeEditorAndSearchPaneWidget*>(object);
-    Q_ASSERT(currentEditor);
-    cursorPositionChanged();
-}
-
-void CodeCreatorWidget::setEditorCount(int count)
-{
-    Q_ASSERT(count>0);
-
-    int currentCount = visibleEditorCount();
-    if(count>currentCount){
-        for(int i=currentCount; i<=count; ++i){
-            if(editors.size()>=i){
-                editors.at(i-1)->show();
-            }else{
-                editorSplitter->addWidget(createEditor());
-            }
-        }
-    }else if(count<currentCount){
-        for(int i=currentCount; i>count; --i){
-            if(editors.at(i-1)==currentEditor){
-                Q_ASSERT(i-2 >= 0);
-                editors.at(i-2)->editor()->setFocus();
-            }
-
-            editors.at(i-1)->hide();
-        }
-    }
-
-    splitDirectionGroup->setEnabled(count>1);
-}
-
-QWidget *CodeCreatorWidget::createEditor()
-{
-    CodeEditorAndSearchPaneWidget *editor=new CodeEditorAndSearchPaneWidget();
-    connect(editor, SIGNAL(escapeKeyPressed()), infoPanel, SLOT(closePanel()));
-    editors.append(editor);
-
-    if(editors.size()>1){
-        editor->editor()->setDocument(editors.at(0)->editor()->document()); //bind all instances to the same document (first created one)
-    }
-
-    if(editors.size()==1){
-        currentEditor=editor;
-    }
-
-    connect(editor, SIGNAL(focusEvent(QWidget*,bool)), this, SLOT(codeEditorFocusEvent(QWidget*,bool)));
-    connect(editor->editor(), SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
-
-    return editor;
-}
-
-int CodeCreatorWidget::visibleEditorCount() const
-{
-    int result=0;
-
-    for(int i=0; i<editors.size(); ++i){
-        if(editors.at(i)->isVisible()){
-            ++result;
-        }
-    }
-
-    return result;
-}
-
 QString CodeCreatorWidget::getObjectTypeName() const
 {
     return DbUtil::getDbObjectTypeNameByNodeType(this->objectType);
@@ -401,9 +278,12 @@ QString CodeCreatorWidget::getObjectTypeName() const
 
 void CodeCreatorWidget::setReadOnly(bool readOnly)
 {
-    foreach(CodeEditorAndSearchPaneWidget *editor, editors){
-        editor->setReadOnly(readOnly);
-    }
+    multiEditor->setReadOnly(readOnly);
+}
+
+CodeEditorAndSearchPaneWidget *CodeCreatorWidget::currentEditor() const
+{
+    return multiEditor->getCurrentEditor();
 }
 
 int CodeCreatorWidget::getEnableWarnings()
@@ -447,7 +327,7 @@ void CodeCreatorWidget::submitObjectCode()
 
     startProgress();
 
-    queryScheduler->enqueueQuery(QString("$%1").arg(currentEditor->editor()->toPlainText()), QList<Param*>(),
+    queryScheduler->enqueueQuery(QString("$%1").arg(currentEditor()->editor()->toPlainText()), QList<Param*>(),
                                  this,
                                  "execute_object_code",
                                  "objectCodeExecuted");
@@ -541,20 +421,10 @@ void CodeCreatorWidget::specBodySwitcherClicked(QAction *)
     emit specBodySwitchRequested();
 }
 
-void CodeCreatorWidget::cursorPositionChanged()
-{
-    QTextCursor cursor=currentEditor->editor()->textCursor();
-    int block=cursor.blockNumber();
-    int posInBlock=cursor.positionInBlock();
-    int pos=cursor.position();
-
-    infoPanel->setInfoLabelText(infoLabelTextFormat.arg(QString::number(block+1), QString::number(posInBlock+1), QString::number(pos+1)));
-}
-
 void CodeCreatorWidget::compilerMessageActivated(int line, int position, const QString &)
 {
     //oracle reports 1 based positions
-    currentEditor->editor()->showLinePosition(line-1, position-1);
+    currentEditor()->editor()->showLinePosition(line-1, position-1);
 }
 
 void CodeCreatorWidget::compilationErrorFetchCompleted(const QString &)

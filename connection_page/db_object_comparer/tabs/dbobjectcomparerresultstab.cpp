@@ -20,6 +20,7 @@ void DbObjectComparerResultsTab::createUi()
     splitter->addWidget(changeListTable);
 
     editor=new CodeEditorAndSearchPaneWidget();
+    editor->editor()->setUndoRedoEnabled(false);
     splitter->addWidget(editor);
 
     //splitter->setStretchFactor(1, 1);

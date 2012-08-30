@@ -3,7 +3,7 @@
 
 #include "../connectionpagetab.h"
 #include "navtree/dbtreemodel.h"
-#include "widgets/codeeditorandsearchpanewidget.h"
+#include "widgets/multieditorwidget.h"
 #include "connectivity/queryresult.h"
 #include "connectivity/fetchresult.h"
 
@@ -15,6 +15,7 @@ class QSplitter;
 class QToolBar;
 class QActionGroup;
 class CompilerMessagesPane;
+class MultiEditorWidget;
 
 class CodeCreatorWidget : public QWidget
 {
@@ -29,9 +30,9 @@ public:
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
     virtual bool canFind() const {return true;}
-    virtual void showSearchWidget(){currentEditor->showSearchPane();}
-    virtual void findNext() {currentEditor->findNext();}
-    virtual void findPrevious() {currentEditor->findPrevious();}
+    virtual void showSearchWidget(){currentEditor()->showSearchPane();}
+    virtual void findNext() {currentEditor()->findNext();}
+    virtual void findPrevious() {currentEditor()->findPrevious();}
 
     void setHasSpecBodySwitcher(bool hasSpecBodySwitcher, bool isSpec);
 
@@ -52,10 +53,6 @@ private slots:
     void compilationParamsFetched(const FetchResult &fetchResult);
     void compilationParamsFetchCompleted(const QString &);
 
-    void editorCountActionSelected(bool checked);
-    void editorOrientationActionSelected(QAction *action);
-    void codeEditorFocusEvent(QWidget *object, bool focusIn);
-
     int getEnableWarnings();
     int getEnableNativeCode();
 
@@ -72,19 +69,16 @@ private slots:
 
     void specBodySwitcherClicked(QAction *);
 
-    void cursorPositionChanged();
-
     void compilerMessageActivated(int line, int position, const QString &);
 
 private:
     QWidget *createRightPane();
     void createToolbar();
     void addSpecBodySwitcher();
-    void setEditorCount(int count);
-    QWidget *createEditor();
-    int visibleEditorCount() const;
     QString getObjectTypeName() const;
     void setReadOnly(bool readOnly);
+
+    CodeEditorAndSearchPaneWidget *currentEditor() const;
 
     QString schemaName;
     QString objectName;
@@ -99,15 +93,10 @@ private:
     QAction *enableWarningsAction;
     QAction *enableNativeCodeAction;
 
-    QSplitter *editorSplitter;
-    CodeEditorAndSearchPaneWidget *currentEditor;
     InfoPanel *infoPanel;
     CompilerMessagesPane *compilerMessagesPane;
 
-    QActionGroup *splitDirectionGroup;
     QActionGroup *specBodySwitcherGroup;
-
-    QList<CodeEditorAndSearchPaneWidget*> editors;
 
     void compileObject();
     void startProgress();
@@ -118,8 +107,8 @@ private:
     bool hasSpecBodySwitcher;
     bool isSpec;
 
-    QString infoLabelTextFormat;
-    
+    MultiEditorWidget *multiEditor;
+
 };
 
 #endif // CODECREATORWIDGET_H
