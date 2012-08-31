@@ -29,3 +29,8 @@ void CodeCreator::setConnection(DbConnection *db)
 
     creatorWidget->setQueryScheduler(this);
 }
+
+void CodeCreator::focusAvailable()
+{
+    creatorWidget->focusAvailable();
+}

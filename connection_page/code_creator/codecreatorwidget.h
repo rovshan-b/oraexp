@@ -36,6 +36,8 @@ public:
 
     void setHasSpecBodySwitcher(bool hasSpecBodySwitcher, bool isSpec);
 
+    void focusAvailable();
+
 signals:
     void objectInfoLoaded();
     void specBodySwitchRequested();

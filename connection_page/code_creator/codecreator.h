@@ -22,6 +22,8 @@ public:
     virtual void findNext() {creatorWidget->findNext();}
     virtual void findPrevious() {creatorWidget->findPrevious();}
 
+    virtual void focusAvailable();
+
 private:
     CodeCreatorWidget *creatorWidget;
 };

@@ -25,6 +25,8 @@ CodeEditor::CodeEditor(QWidget *parent) :
     QPalette p=palette();
     p.setColor(QPalette::Disabled, QPalette::Base, p.color(QPalette::Window));
     setPalette(p);
+
+    strTab=QString("    ");
 }
 
 //use only when sure that there's not lots of text in editor
@@ -149,15 +151,24 @@ int CodeEditor::lineNumberAreaWidth()
      bool handled=false;
 
      if(!isReadOnly()){
-         if(event->key()==Qt::Key_Return || event->key()==Qt::Key_Enter){
+         int key=event->key();
+         if(key==Qt::Key_Return || key==Qt::Key_Enter){
             handled=true;
             textCursor().beginEditBlock();
             QPlainTextEdit::keyPressEvent(event);
             autoIndentNewBlock();
             textCursor().endEditBlock();
-         }else if(event->key()==Qt::Key_Tab && textCursor().hasSelection()){
+         }else if(key==Qt::Key_Tab){
              handled=true;
-             indentSelection();
+
+             if(textCursor().hasSelection()){
+                 indentSelection();
+             }else{
+                 textCursor().insertText(strTab);
+             }
+         }else if(key==Qt::Key_Home && (Qt::ControlModifier & event->modifiers())!=Qt::ControlModifier){
+             handled=true;
+             handleHomeKey(Qt::ShiftModifier & event->modifiers());
          }
      }
 
@@ -172,10 +183,7 @@ int CodeEditor::lineNumberAreaWidth()
      if(!cur.movePosition(QTextCursor::PreviousBlock)){
          return;
      }
-     if(!cur.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor)){
-         return;
-     }
-     QString prevLine=cur.selectedText();
+     QString prevLine=cur.block().text();
      QString prefix;
      QChar c;
      for(int i=0; i<prevLine.size(); ++i){
@@ -202,21 +210,137 @@ int CodeEditor::lineNumberAreaWidth()
      cur.beginEditBlock();
      int startPos=cur.selectionStart();
      int endPos=cur.selectionEnd();
+     if(startPos>endPos){
+         qSwap(startPos, endPos);
+     }
+
      int startBlock=cur.document()->findBlock(startPos).blockNumber();
      int endBlock=cur.document()->findBlock(endPos).blockNumber();
 
      cur.setPosition(startPos);
-     for(int i=0; i<=(endBlock-startBlock); ++i){
-        cur.movePosition(QTextCursor::StartOfBlock);
-        cur.insertText("\t");
-        //--startPos;
-        ++endPos;
+     //cur.movePosition(QTextCursor::StartOfBlock);
+     int blocksToMove=(endBlock-startBlock)+1;
+     for(int i=0; i<blocksToMove; ++i){
+        cur.insertText(strTab);
         cur.movePosition(QTextCursor::NextBlock);
      }
      cur.endEditBlock();
-     cur.setPosition(startPos);
-     cur.setPosition(endPos, QTextCursor::KeepAnchor);
+     cur.setPosition(startPos+strTab.size());
+     cur.setPosition(endPos+(blocksToMove*strTab.size()), QTextCursor::KeepAnchor);
      setTextCursor(cur);
+ }
+
+ void CodeEditor::handleHomeKey(bool keepSelection)
+ {
+     QTextCursor cur=textCursor();
+     bool onlySpaces;
+     int ix=getFirstNonSpaceCharacterIndex(cur, &onlySpaces);
+     if(!cur.atBlockStart() && cur.positionInBlock()<=ix){
+         cur.movePosition(QTextCursor::StartOfBlock, keepSelection ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
+     }else{
+         moveToFirstNonSpaceCharacter(cur, keepSelection ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
+     }
+     setTextCursor(cur);
+ }
+
+ int CodeEditor::getFirstNonSpaceCharacterIndex(QTextCursor &cur, bool *onlySpaces)
+ {
+     QString line=cur.block().text();
+     QChar c;
+     int firstNonSpaceIx=-1;
+     for(int i=0; i<line.size(); ++i){
+         c=line.at(i);
+         if(!c.isSpace()){
+             firstNonSpaceIx=i;
+             break;
+         }
+     }
+
+     if(onlySpaces!=0){
+        *onlySpaces=(firstNonSpaceIx==-1 && line.size()>0);
+         if(*onlySpaces){
+             firstNonSpaceIx=line.size();
+         }
+     }
+     return firstNonSpaceIx;
+ }
+
+ bool CodeEditor::moveToFirstNonSpaceCharacter(QTextCursor &cur, QTextCursor::MoveMode moveMode)
+ {
+    bool onlySpaces;
+    int ix = getFirstNonSpaceCharacterIndex(cur, &onlySpaces);
+    cur.setPosition(cur.block().position()+ix, moveMode);
+    return !onlySpaces;
+ }
+
+ void CodeEditor::removeFromBeginning(QTextCursor &cur, int characterCount){
+     moveToFirstNonSpaceCharacter(cur);
+     for(int k=0; k<characterCount; ++k){
+         cur.deleteChar();
+     }
+ }
+
+ void CodeEditor::commentBlocks()
+ {
+    QString comment="--";
+    QTextCursor cur=textCursor();
+    int startPos=cur.selectionStart();
+    int endPos=cur.selectionEnd();
+    if(startPos>endPos){
+        qSwap(startPos, endPos);
+    }
+    int startBlock=cur.document()->findBlock(startPos).blockNumber();
+    int endBlock=cur.document()->findBlock(endPos).blockNumber();
+
+    cur.setPosition(startPos);
+    int blocksToMove=(endBlock-startBlock)+1;
+    int addComments=-1;
+
+    cur.beginEditBlock();
+
+    int minPosToStart=-1;
+    for(int i=0; i<blocksToMove; ++i){
+        bool onlySpaces;
+        int blockMin=getFirstNonSpaceCharacterIndex(cur, &onlySpaces);
+        if(minPosToStart==-1){
+            minPosToStart=blockMin;
+        }
+        if(!onlySpaces && blockMin<minPosToStart){
+            minPosToStart=blockMin;
+        }
+        cur.movePosition(QTextCursor::NextBlock);
+    }
+
+    cur.setPosition(startPos);
+    for(int i=0; i<blocksToMove; ++i){
+        QString blockText=cur.block().text().trimmed();
+        if(!blockText.isEmpty()){
+            if(addComments==-1){
+                addComments=blockText.startsWith(comment) ? 0 : 1;
+            }
+
+            if(blockText.startsWith(comment)){ //clean existing comments in all cases as we might be recommenting at new position
+                removeFromBeginning(cur, comment.size());
+                endPos-=comment.size();
+            }
+
+            if(addComments==1){
+                cur.setPosition(minPosToStart+cur.block().position());
+                cur.insertText(comment);
+                endPos+=comment.size();
+            }
+        }
+       cur.movePosition(QTextCursor::NextBlock);
+    }
+    if(addComments==1){
+        startPos+=comment.size();
+    }else if(addComments==0){
+        startPos-=comment.size();
+    }
+    cur.endEditBlock();
+    cur.setPosition(startPos);
+    cur.setPosition(endPos, QTextCursor::KeepAnchor);
+    setTextCursor(cur);
  }
 
  void CodeEditor::addText(const QString &text)

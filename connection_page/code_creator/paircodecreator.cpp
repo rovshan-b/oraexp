@@ -49,6 +49,11 @@ void PairCodeCreator::setConnection(DbConnection *db)
     bodyCreatorWidget->setQueryScheduler(this);
 }
 
+void PairCodeCreator::focusAvailable()
+{
+    currentCreator()->focusAvailable();
+}
+
 void PairCodeCreator::creatorInitialized()
 {
     if(++initializedCount==2){

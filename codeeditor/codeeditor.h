@@ -23,6 +23,7 @@ public:
     void clearFoundTextPositions();
 
     void showLinePosition(int line, int linePos);
+    void commentBlocks();
 
 signals:
     void escapeKeyPressed();
@@ -42,8 +43,14 @@ private:
 
     QList< QTextCursor > foundTextPositions;
 
+    QString strTab;
+
     void autoIndentNewBlock();
     void indentSelection();
+    void handleHomeKey(bool keepSelection);
+    int getFirstNonSpaceCharacterIndex(QTextCursor &cur, bool *onlySpaces=0);
+    bool moveToFirstNonSpaceCharacter(QTextCursor &cur, QTextCursor::MoveMode moveMode=QTextCursor::MoveAnchor);
+    void removeFromBeginning(QTextCursor &cur, int characterCount);
 };
 
 #endif // CODEEDITOR_H

@@ -44,6 +44,8 @@ public:
     virtual void findNext() {}
     virtual void findPrevious() {}
 
+    virtual void focusAvailable() {}
+
 signals:
     void tabBusyStateChanged(ConnectionPageTab *tab, bool busy);
     void stateChanged();

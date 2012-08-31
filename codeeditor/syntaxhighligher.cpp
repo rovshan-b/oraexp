@@ -60,16 +60,7 @@ SyntaxHighligher::SyntaxHighligher(QTextDocument * parent) :
 
 void SyntaxHighligher::highlightBlock(const QString &text)
 {
-    foreach (const HighlightingRule &rule, highlightingRules) {
-        QRegExp expression(rule.pattern);
-        int index = expression.indexIn(text);
-        while (index >= 0) {
-            int length = expression.matchedLength();
-            setFormat(index, length, rule.format);
-            index = expression.indexIn(text, index + length);
-        }
-    }
-
+    //highlight keywords
     QSet<QString> allWords = text.split(QRegExp("\\W+")).toSet();
     foreach(const QString &word, allWords){
         QList<QString>::const_iterator it=qBinaryFind(SyntaxHighligher::keywords.begin(),
@@ -85,6 +76,16 @@ void SyntaxHighligher::highlightBlock(const QString &text)
                 setFormat(ix, word.length(), keywordFormat);
                 ix=text.indexOf(rx, ix+1);
             }
+        }
+    }
+
+    foreach (const HighlightingRule &rule, highlightingRules) {
+        QRegExp expression(rule.pattern);
+        int index = expression.indexIn(text);
+        while (index >= 0) {
+            int length = expression.matchedLength();
+            setFormat(index, length, rule.format);
+            index = expression.indexIn(text, index + length);
         }
     }
 

@@ -22,6 +22,8 @@ public:
 
     void setReadOnly(bool readOnly);
 
+    void addEditorActions(QToolBar *toolbar);
+
 signals:
     void escapeKeyPressed();
 
@@ -31,6 +33,9 @@ private slots:
     void codeEditorFocusEvent(QWidget *object, bool focusIn);
 
     void cursorPositionChanged();
+    void commentBlocks();
+    void moveUp();
+    void moveDown();
 
 private:
     void createUi();

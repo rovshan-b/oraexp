@@ -96,6 +96,11 @@ void CodeCreatorWidget::setHasSpecBodySwitcher(bool hasSpecBodySwitcher, bool is
     this->isSpec=isSpec;
 }
 
+void CodeCreatorWidget::focusAvailable()
+{
+    currentEditor()->editor()->setFocus();
+}
+
 QWidget *CodeCreatorWidget::createRightPane()
 {
     QVBoxLayout *rightPaneLayout=new QVBoxLayout();
@@ -144,6 +149,10 @@ void CodeCreatorWidget::createToolbar()
     addSpecBodySwitcher();
 
     progressBarAction = WidgetHelper::addProgressBarAction(toolbar, false);
+
+    toolbar->addSeparator();
+
+    multiEditor->addEditorActions(toolbar);
 
     //add buttons for accessing editor splitting functionality
     WidgetHelper::addStretchToToolbar(toolbar);

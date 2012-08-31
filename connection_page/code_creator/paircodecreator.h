@@ -25,6 +25,8 @@ public:
     virtual void findNext() {currentCreator()->findNext();}
     virtual void findPrevious() {currentCreator()->findPrevious();}
 
+    virtual void focusAvailable();
+
 private slots:
     void creatorInitialized();
     void switchToSpec();

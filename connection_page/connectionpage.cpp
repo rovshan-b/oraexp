@@ -132,6 +132,9 @@ void ConnectionPage::tabBusyStateChanged(ConnectionPageTab *tab, bool busy)
 void ConnectionPage::tabInitializationCompleted(ConnectionPageTab *tab)
 {
     tab->setEnabled(true);
+    if(centralTab->currentWidget()==tab){
+        tab->focusAvailable();
+    }
 }
 
 ConnectionPageTab *ConnectionPage::currentConnectionPage() const
