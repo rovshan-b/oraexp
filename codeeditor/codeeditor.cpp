@@ -26,7 +26,7 @@ CodeEditor::CodeEditor(QWidget *parent) :
     p.setColor(QPalette::Disabled, QPalette::Base, p.color(QPalette::Window));
     setPalette(p);
 
-    strTab=QString("    ");
+    strTab=QString("  ");
 }
 
 //use only when sure that there's not lots of text in editor
@@ -282,22 +282,27 @@ int CodeEditor::lineNumberAreaWidth()
 
  void CodeEditor::commentBlocks()
  {
-    QString comment="--";
-    QTextCursor cur=textCursor();
-    int startPos=cur.selectionStart();
-    int endPos=cur.selectionEnd();
-    if(startPos>endPos){
-        qSwap(startPos, endPos);
-    }
-    int startBlock=cur.document()->findBlock(startPos).blockNumber();
-    int endBlock=cur.document()->findBlock(endPos).blockNumber();
+     if(isReadOnly()){
+         return;
+     }
 
-    cur.setPosition(startPos);
-    int blocksToMove=(endBlock-startBlock)+1;
-    int addComments=-1;
+     QString comment="--";
+     QTextCursor cur=textCursor();
+     int startPos=cur.selectionStart();
+     int endPos=cur.selectionEnd();
+     if(startPos>endPos){
+         qSwap(startPos, endPos);
+     }
+     int startBlock=cur.document()->findBlock(startPos).blockNumber();
+     int endBlock=cur.document()->findBlock(endPos).blockNumber();
 
-    cur.beginEditBlock();
+     cur.setPosition(startPos);
+     int blocksToMove=(endBlock-startBlock)+1;
+     int addComments=-1;
 
+     cur.beginEditBlock();
+
+     /*
     int minPosToStart=-1;
     for(int i=0; i<blocksToMove; ++i){
         bool onlySpaces;
@@ -309,38 +314,36 @@ int CodeEditor::lineNumberAreaWidth()
             minPosToStart=blockMin;
         }
         cur.movePosition(QTextCursor::NextBlock);
-    }
+    }*/
 
-    cur.setPosition(startPos);
-    for(int i=0; i<blocksToMove; ++i){
-        QString blockText=cur.block().text().trimmed();
-        if(!blockText.isEmpty()){
-            if(addComments==-1){
-                addComments=blockText.startsWith(comment) ? 0 : 1;
-            }
+     cur.setPosition(startPos);
+     for(int i=0; i<blocksToMove; ++i){
+         QString blockText=cur.block().text().trimmed();
+         if(!blockText.isEmpty()){
+             if(addComments==-1){
+                 addComments=blockText.startsWith(comment) ? 0 : 1;
+             }
 
-            if(blockText.startsWith(comment)){ //clean existing comments in all cases as we might be recommenting at new position
-                removeFromBeginning(cur, comment.size());
-                endPos-=comment.size();
-            }
-
-            if(addComments==1){
-                cur.setPosition(minPosToStart+cur.block().position());
-                cur.insertText(comment);
-                endPos+=comment.size();
-            }
-        }
-       cur.movePosition(QTextCursor::NextBlock);
-    }
-    if(addComments==1){
-        startPos+=comment.size();
-    }else if(addComments==0){
-        startPos-=comment.size();
-    }
-    cur.endEditBlock();
-    cur.setPosition(startPos);
-    cur.setPosition(endPos, QTextCursor::KeepAnchor);
-    setTextCursor(cur);
+             if(addComments==1){
+                 cur.setPosition(cur.block().position());
+                 cur.insertText(comment);
+                 endPos+=comment.size();
+             }else if(addComments==0 && blockText.startsWith(comment)){
+                 removeFromBeginning(cur, comment.size());
+                 endPos-=comment.size();
+             }
+         }
+         cur.movePosition(QTextCursor::NextBlock);
+     }
+     if(addComments==1){
+         startPos+=comment.size();
+     }else if(addComments==0){
+         startPos-=comment.size();
+     }
+     cur.endEditBlock();
+     cur.setPosition(startPos);
+     cur.setPosition(endPos, QTextCursor::KeepAnchor);
+     setTextCursor(cur);
  }
 
  void CodeEditor::addText(const QString &text)

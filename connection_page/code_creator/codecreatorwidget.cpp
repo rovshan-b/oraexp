@@ -150,10 +150,6 @@ void CodeCreatorWidget::createToolbar()
 
     progressBarAction = WidgetHelper::addProgressBarAction(toolbar, false);
 
-    toolbar->addSeparator();
-
-    multiEditor->addEditorActions(toolbar);
-
     //add buttons for accessing editor splitting functionality
     WidgetHelper::addStretchToToolbar(toolbar);
 

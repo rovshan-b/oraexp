@@ -289,7 +289,7 @@ QList<QAction*> DbTreeItem::getContextMenuItems(const QModelIndex &index) const
                                                                                getModel()->getUiManager());
 
     if(!actions.isEmpty() && !itemSpecificActions.isEmpty()){
-        QAction *separator=new QAction("-",0);
+        QAction *separator=new QAction("",0);
         separator->setSeparator(true);
         actions.append(separator);
     }

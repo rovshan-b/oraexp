@@ -30,7 +30,8 @@ MetadataLoader *MetadataLoaderFactory::createMetadataLoader(DbTreeModel::DbTreeN
     case DbTreeModel::PackageBodies:
     case DbTreeModel::Procedures:
     case DbTreeModel::Functions:
-    case DbTreeModel::Types:
+    case DbTreeModel::TypeSpecs:
+    case DbTreeModel::TypeBodies:
     case DbTreeModel::Synonyms:
         result=new SourceInfoLoader(queryScheduler, schemaName,
                                     objectName, DbUtil::getDbObjectTypeNameByNodeType(objectType),

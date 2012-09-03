@@ -24,7 +24,8 @@ DbObjectCompareHelper *DbObjectComparerFactory::createComparerForObjectsType(DbT
     case DbTreeModel::PackageBodies:
     case DbTreeModel::Procedures:
     case DbTreeModel::Functions:
-    case DbTreeModel::Types:
+    case DbTreeModel::TypeSpecs:
+    case DbTreeModel::TypeBodies:
     case DbTreeModel::Synonyms:
         result=new SourceCompareHelper(compareResult, currentObjectName, dbObjectsType, parent);
         break;

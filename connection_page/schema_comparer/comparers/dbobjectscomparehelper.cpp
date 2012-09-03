@@ -104,12 +104,12 @@ void DbObjectsCompareHelper::fetchNextObject()
                                                                                                    targetCompareResult,
                                                                                                    currentObjectName,
                                                                                                    this);
-
-        if(compareHelper==0){ //unsupported object type
+        Q_ASSERT(compareHelper);
+        /*if(compareHelper==0){ //unsupported object type
             qDebug() << "Unsupported object type" << currentObjectsType;
             emit comparisonCompleted();
             return;
-        }
+        }*/
 
         connect(compareHelper, SIGNAL(changedObjectDetected(QString,DbTreeModel::DbTreeNodeType,QString)), this, SIGNAL(changedObjectDetected(QString,DbTreeModel::DbTreeNodeType,QString)));
         connect(compareHelper, SIGNAL(compareInfoReady(QString,QString,DbObjectCompareHelper*)), this, SLOT(compareInfoReady(QString,QString,DbObjectCompareHelper*)));

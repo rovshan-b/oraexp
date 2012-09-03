@@ -29,6 +29,10 @@ private slots:
     void copy();
     void paste();
 
+    void comment();
+    void moveUp();
+    void moveDown();
+
     void showSearchWidget(){currentConnectionPageTab()->showSearchWidget();}
     void findNext(){currentConnectionPageTab()->findNext();}
     void findPrevious(){currentConnectionPageTab()->findPrevious();}
@@ -41,6 +45,11 @@ private:
     QAction *editCutAction;
     QAction *editCopyAction;
     QAction *editPasteAction;
+
+    QAction *editCommentAction;
+    QAction *editMoveUpAction;
+    QAction *editMoveDownAction;
+
     QAction *editFindAction;
     QAction *editFindNextAction;
     QAction *editFindPreviousAction;

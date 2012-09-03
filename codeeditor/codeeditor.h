@@ -23,6 +23,8 @@ public:
     void clearFoundTextPositions();
 
     void showLinePosition(int line, int linePos);
+
+public slots:
     void commentBlocks();
 
 signals:

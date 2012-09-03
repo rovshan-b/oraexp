@@ -3,6 +3,7 @@ declare
   l_owner varchar2(50) := :owner;
   l_object_type varchar2(50) := :object_type;
   l_compile_object_type varchar2(50) := :object_type;
+  l_errors_object_type varchar2(50) := :object_type;
   
   l_for_debug number := :for_debug;
   
@@ -27,6 +28,7 @@ begin
   
   if l_object_type in ('PACKAGE SPEC', 'TYPE SPEC') then
     l_compile_statement := l_compile_statement || ' specification';
+    l_errors_object_type := substr(l_errors_object_type, 1, instr(l_errors_object_type,' ')-1);
   elsif l_object_type in ('PACKAGE BODY', 'TYPE BODY') then
     l_compile_statement := l_compile_statement || ' body';
   end if;
@@ -47,5 +49,5 @@ begin
 
   execute_clob(l_compile_statement);
   
-  open :rs_out for select * from all_errors where owner=l_owner and name=l_object_name and type=l_object_type order by sequence;
+  open :rs_out for select * from all_errors where owner=l_owner and name=l_object_name and type=l_errors_object_type order by sequence;
 end;

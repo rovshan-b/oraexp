@@ -122,7 +122,7 @@ QList< NameQueryPair > ColumnInfo::generateDiffDdl(const ColumnInfo &other,
     }
 
     if(defaultValue!=other.defaultValue){
-        ddl=QString("ALTER TABLE %1 MODIFY \"%2\" DEFAULT %3").arg(fullTableName, name, defaultValue);
+        ddl=QString("ALTER TABLE %1 MODIFY \"%2\" DEFAULT %3").arg(fullTableName, name, defaultValue.trimmed().isEmpty() ? "NULL" : defaultValue);
         result.append(qMakePair(QString("alter_column_default_value_%1").arg(columnId), ddl));
     }
 

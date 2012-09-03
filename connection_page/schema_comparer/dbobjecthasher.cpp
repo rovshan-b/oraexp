@@ -20,7 +20,7 @@ void DbObjectHasher::createHashForObjects(IQueryScheduler *queryScheduler,
     Q_ASSERT(subList.size());
 
     QString objectNamesStr=subList.join(",");
-    qDebug() << "createHashForObjects=" << objectNamesStr;
+    qDebug() << "createHashForObjects ( " << objectType <<") =" << objectNamesStr;
 
     queryScheduler->enqueueQuery("create_object_hash_for_comparison",
                                  QList<Param*>()

@@ -69,7 +69,7 @@ begin
         
         select count(0) into l_object_exists from dual
         where exists (select 0 from all_objects where owner=g_owner and 
-        object_name=l_table(l_ix) and object_type=DECODE(g_object_type,'PACKAGE SPEC','PACKAGE',g_object_type));
+        object_name=l_table(l_ix) and object_type=DECODE(g_object_type,'PACKAGE SPEC','PACKAGE','TYPE SPEC', 'TYPE', g_object_type));
         
         if l_object_exists > 0 then
         
@@ -79,7 +79,7 @@ begin
               else
                 l_result := l_result || create_table_hash(g_owner, l_table(l_ix)) || ',';
               end if;
-           elsif (g_object_type in ('VIEW','PACKAGE SPEC','PACKAGE BODY','PROCEDURE','FUNCTION','TYPE','SYNONYM')) then
+           elsif (g_object_type in ('VIEW','PACKAGE SPEC','PACKAGE BODY','PROCEDURE','FUNCTION','TYPE SPEC','SYNONYM')) then
               if g_compare_hashes = 1 then
                 l_result := l_result || compare_source_hash(g_object_type, g_owner, l_table(l_ix), g_target_owner, l_hash_table(l_ix), opt_src_ignore_whitespace, opt_src_wrap) || ',';
               else

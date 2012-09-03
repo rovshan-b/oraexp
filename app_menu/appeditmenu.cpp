@@ -2,6 +2,7 @@
 #include "util/iconutil.h"
 #include "connection_page/connectionpage.h"
 #include "connection_page/connectionpagetab.h"
+#include "codeeditor/codeeditor.h"
 #include <QtGui>
 
 AppEditMenu::AppEditMenu(QMenu *editMenu, QToolBar *toolbar, QObject *parent) : AppMainMenu(parent), currentAppWidget(0)
@@ -34,6 +35,21 @@ void AppEditMenu::setupMenu(QMenu *editMenu, QToolBar *toolbar)
     editPasteAction=editMenu->addAction(IconUtil::getIcon("editpaste"), tr("&Paste"), this, SLOT(paste()), QKeySequence(QKeySequence::Paste));
     editPasteAction->setStatusTip(tr("Paste"));
     toolbar->addAction(editPasteAction);
+
+    editMenu->addSeparator();
+    toolbar->addSeparator();
+
+    editCommentAction=editMenu->addAction(IconUtil::getIcon("comment"), tr("Co&mment/Uncomment"), this, SLOT(comment()), QKeySequence("Ctrl+/"));
+    editCommentAction->setStatusTip(tr("Comment/Uncomment line(s)"));
+    toolbar->addAction(editCommentAction);
+
+    editMoveUpAction=editMenu->addAction(IconUtil::getIcon("move_up"), tr("Move &up"), this, SLOT(moveUp()), QKeySequence("Ctrl+Alt+Up"));
+    editMoveUpAction->setStatusTip(tr("Move lines(s) up"));
+    toolbar->addAction(editMoveUpAction);
+
+    editMoveDownAction=editMenu->addAction(IconUtil::getIcon("move_down"), tr("Move &down"), this, SLOT(moveDown()), QKeySequence("Ctrl+Alt+Down"));
+    editMoveDownAction->setStatusTip(tr("Move lines(s) down"));
+    toolbar->addAction(editMoveDownAction);
 
     editMenu->addSeparator();
     toolbar->addSeparator();
@@ -78,6 +94,12 @@ void AppEditMenu::focusWidgetChanged(QWidget * /*old*/, QWidget *now)
     editCutAction->setEnabled(canCut);
     editCopyAction->setEnabled(canCopy);
     editPasteAction->setEnabled(canPaste);
+
+    bool isCodeEditor = qobject_cast<CodeEditor*>(currentAppWidget);
+
+    editCommentAction->setEnabled(isCodeEditor);
+    editMoveUpAction->setEnabled(isCodeEditor);
+    editMoveDownAction->setEnabled(isCodeEditor);
 }
 
 void AppEditMenu::undo()
@@ -123,4 +145,31 @@ void AppEditMenu::paste()
     }
 
     currentAppWidget->metaObject()->invokeMethod(currentAppWidget, "paste", Qt::DirectConnection);
+}
+
+void AppEditMenu::comment()
+{
+    if(!currentAppWidget){
+        return;
+    }
+
+    currentAppWidget->metaObject()->invokeMethod(currentAppWidget, "commentBlocks", Qt::DirectConnection);
+}
+
+void AppEditMenu::moveUp()
+{
+    if(!currentAppWidget){
+        return;
+    }
+
+    currentAppWidget->metaObject()->invokeMethod(currentAppWidget, "moveUp", Qt::DirectConnection);
+}
+
+void AppEditMenu::moveDown()
+{
+    if(!currentAppWidget){
+        return;
+    }
+
+    currentAppWidget->metaObject()->invokeMethod(currentAppWidget, "commentDown", Qt::DirectConnection);
 }

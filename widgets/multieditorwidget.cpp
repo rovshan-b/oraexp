@@ -164,16 +164,6 @@ void MultiEditorWidget::setReadOnly(bool readOnly)
     }
 }
 
-void MultiEditorWidget::addEditorActions(QToolBar *toolbar)
-{
-    toolbar->addAction(IconUtil::getIcon("comment"), tr("Comment/Uncomment line(s)"),
-                       this, SLOT(commentBlocks()))->setShortcut(QKeySequence("Ctrl+/"));
-    toolbar->addAction(IconUtil::getIcon("move_up"), tr("Move line(s) up"),
-                       this, SLOT(moveUp()))->setShortcut(QKeySequence("Ctrl+Alt+Up"));
-    toolbar->addAction(IconUtil::getIcon("move_down"), tr("Move line(s) down"),
-                       this, SLOT(moveDown()))->setShortcut(QKeySequence("Ctrl+Alt+Down"));
-}
-
 int MultiEditorWidget::visibleEditorCount() const
 {
     int result=0;
@@ -197,17 +187,4 @@ void MultiEditorWidget::cursorPositionChanged()
     int pos=cursor.position();
 
     infoLabel->setText(infoLabelTextFormat.arg(QString::number(block+1), QString::number(posInBlock+1), QString::number(pos+1)));
-}
-
-void MultiEditorWidget::commentBlocks()
-{
-    currentEditor->editor()->commentBlocks();
-}
-
-void MultiEditorWidget::moveUp()
-{
-}
-
-void MultiEditorWidget::moveDown()
-{
 }

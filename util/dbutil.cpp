@@ -277,6 +277,7 @@ QString DbUtil::getDbObjectIconNameByParentNodeType(DbTreeModel::DbTreeNodeType 
         result="sequence";
         break;
     case DbTreeModel::Types:
+    case DbTreeModel::TypeSpecs:
     case DbTreeModel::TypeBodies:
     case DbTreeModel::Type:
         result="type";
