@@ -49,12 +49,14 @@ public:
 
     static void increaseValueAtPos(QStandardItemModel *model, int row, int column, int increaseBy);
 
-    static void changeFontSize(QWidget *widget, int changeBy);
-    static void changeFontSize(QAction *action, int changeBy);
+    static void changeFontSize(QWidget *widget, qreal changeBy);
+    static void changeFontSize(QAction *action, qreal changeBy);
 
     static QAction *addStretchToToolbar(QToolBar *toolbar);
 
     static void updateActionTooltips(QWidget *widget);
+
+    static void invokeSlot(QWidget *w, const char *slotName);
 
     static void addDbItemAction(QMenu *menu, const QIcon &icon, const QString &text,
                                 const QString &schemaName,

@@ -45,10 +45,7 @@ bool CodeEditorAndSearchPaneWidget::eventFilter(QObject *obj, QEvent *event)
 
 void CodeEditorAndSearchPaneWidget::hideSearchPane()
 {
-    bool visible = searchPane->isVisible();
-    if(visible){
-        searchPane->closePane();
-    }
+    bool visible = closeSearchPane();
 
     codeEditor->setFocus();
 
@@ -74,11 +71,22 @@ void CodeEditorAndSearchPaneWidget::showSearchPane()
 void CodeEditorAndSearchPaneWidget::setReadOnly(bool readOnly)
 {
     this->codeEditor->setReadOnly(readOnly);
-
+    this->searchPane->setReadOnly(readOnly);
 }
 
 void CodeEditorAndSearchPaneWidget::setInitialText(const QString &text)
 {
     this->codeEditor->setPlainText(text);
     this->codeEditor->document()->setModified(false);
+}
+
+bool CodeEditorAndSearchPaneWidget::closeSearchPane()
+{
+    bool visible = searchPane->isVisible();
+
+    if(visible){
+        searchPane->closePane();
+    }
+
+    return visible;
 }

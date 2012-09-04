@@ -32,10 +32,18 @@ private slots:
     void comment();
     void moveUp();
     void moveDown();
+    void selectBlock();
+    void increaseFont();
+    void decreaseFont();
+
+    void toUpperCase();
+    void toLowerCase();
 
     void showSearchWidget(){currentConnectionPageTab()->showSearchWidget();}
     void findNext(){currentConnectionPageTab()->findNext();}
     void findPrevious(){currentConnectionPageTab()->findPrevious();}
+
+    void goToLine();
 
 private:
     void setupMenu(QMenu *editMenu, QToolBar *toolbar);
@@ -49,10 +57,18 @@ private:
     QAction *editCommentAction;
     QAction *editMoveUpAction;
     QAction *editMoveDownAction;
+    QAction *editSelectBlockAction;
+    QAction *editToUpperCaseAction;
+    QAction *editToLowerCaseAction;
+
+    QAction *editIncreaseFontSize;
+    QAction *editDecreaseFontSize;
 
     QAction *editFindAction;
     QAction *editFindNextAction;
     QAction *editFindPreviousAction;
+
+    QAction *editGoToLineAction;
 
     QWidget *currentAppWidget;
 

@@ -352,14 +352,19 @@ void WidgetHelper::increaseValueAtPos(QStandardItemModel *model, int row, int co
     item->setText(QString::number(item->text().toInt()+increaseBy));
 }
 
-void WidgetHelper::changeFontSize(QWidget *widget, int changeBy)
+void WidgetHelper::changeFontSize(QWidget *widget, qreal changeBy)
 {
     QFont font=widget->font();
-    font.setPointSizeF(font.pointSizeF()+changeBy);
+
+    qreal newFontSize=font.pointSizeF()+changeBy;
+    if(newFontSize<1 || newFontSize>70){
+        return;
+    }
+    font.setPointSizeF(newFontSize);
     widget->setFont(font);
 }
 
-void WidgetHelper::changeFontSize(QAction *action, int changeBy)
+void WidgetHelper::changeFontSize(QAction *action, qreal changeBy)
 {
     QFont font=action->font();
     font.setPointSizeF(font.pointSizeF()+changeBy);
@@ -382,6 +387,15 @@ void WidgetHelper::updateActionTooltips(QWidget *widget)
             action->setToolTip(QString("%1 (%2)").arg(action->toolTip(), shortcut.toString()));
         }
     }
+}
+
+void WidgetHelper::invokeSlot(QWidget *w, const char *slotName)
+{
+    if(!w){
+        return;
+    }
+
+    w->metaObject()->invokeMethod(w, slotName, Qt::DirectConnection);
 }
 
 void WidgetHelper::addDbItemAction(QMenu *menu, const QIcon &icon, const QString &text, const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType, const QObject *receiver, const char *slotName, QKeySequence shortcut)

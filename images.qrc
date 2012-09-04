@@ -103,5 +103,6 @@
         <file>images/alter_small.png</file>
         <file>images/invalid_small.png</file>
         <file>images/comment.png</file>
+        <file>images/right_arrow.png</file>
     </qresource>
 </RCC>

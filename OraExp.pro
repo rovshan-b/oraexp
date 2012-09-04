@@ -319,7 +319,9 @@ SOURCES += main.cpp\
     connection_page/code_creator/paircodecreator.cpp \
     context_menu/packagecontextmenuutil.cpp \
     context_menu/typecontextmenuutil.cpp \
-    widgets/multieditorwidget.cpp
+    widgets/multieditorwidget.cpp \
+    dialogs/gotolinedialog.cpp \
+    codeeditor/cursorpositioninfo.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -633,7 +635,9 @@ HEADERS  += mainwindow.h \
     context_menu/packagecontextmenuutil.h \
     context_menu/typecontextmenuutil.h \
     errors.h \
-    widgets/multieditorwidget.h
+    widgets/multieditorwidget.h \
+    dialogs/gotolinedialog.h \
+    codeeditor/cursorpositioninfo.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

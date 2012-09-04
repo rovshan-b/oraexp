@@ -3,6 +3,7 @@
 #include "connection_page/connectionpage.h"
 #include "connection_page/connectionpagetab.h"
 #include "codeeditor/codeeditor.h"
+#include "util/widgethelper.h"
 #include <QtGui>
 
 AppEditMenu::AppEditMenu(QMenu *editMenu, QToolBar *toolbar, QObject *parent) : AppMainMenu(parent), currentAppWidget(0)
@@ -43,13 +44,33 @@ void AppEditMenu::setupMenu(QMenu *editMenu, QToolBar *toolbar)
     editCommentAction->setStatusTip(tr("Comment/Uncomment line(s)"));
     toolbar->addAction(editCommentAction);
 
-    editMoveUpAction=editMenu->addAction(IconUtil::getIcon("move_up"), tr("Move &up"), this, SLOT(moveUp()), QKeySequence("Ctrl+Alt+Up"));
+    editMoveUpAction=editMenu->addAction(IconUtil::getIcon("move_up"), tr("Move &up"), this, SLOT(moveUp()), QKeySequence("Ctrl+Shift+Up"));
     editMoveUpAction->setStatusTip(tr("Move lines(s) up"));
     toolbar->addAction(editMoveUpAction);
 
-    editMoveDownAction=editMenu->addAction(IconUtil::getIcon("move_down"), tr("Move &down"), this, SLOT(moveDown()), QKeySequence("Ctrl+Alt+Down"));
+    editMoveDownAction=editMenu->addAction(IconUtil::getIcon("move_down"), tr("Move &down"), this, SLOT(moveDown()), QKeySequence("Ctrl+Shift+Down"));
     editMoveDownAction->setStatusTip(tr("Move lines(s) down"));
     toolbar->addAction(editMoveDownAction);
+
+    editSelectBlockAction=editMenu->addAction(tr("Select current block"), this, SLOT(selectBlock()), QKeySequence("Ctrl+B"));
+    editSelectBlockAction->setStatusTip(tr("Select current block"));
+
+    editToUpperCaseAction=editMenu->addAction(tr("To upper case"), this, SLOT(toUpperCase()), QKeySequence("Ctrl+Shift+U"));
+    editToUpperCaseAction->setStatusTip(tr("Change selection or current word text to upper case"));
+
+    editToLowerCaseAction=editMenu->addAction(tr("To lower case"), this, SLOT(toLowerCase()), QKeySequence("Ctrl+Shift+L"));
+    editToLowerCaseAction->setStatusTip(tr("Change selection or current word text to lower case"));
+
+    //toolbar->addAction(editSelectBlockAction);
+
+    editMenu->addSeparator();
+    //toolbar->addSeparator();
+
+    editIncreaseFontSize=editMenu->addAction(tr("Increase font size"), this, SLOT(increaseFont()), QKeySequence("Ctrl++"));
+    editIncreaseFontSize->setStatusTip(tr("Increase font size"));
+
+    editDecreaseFontSize=editMenu->addAction(tr("Decrease font size"), this, SLOT(decreaseFont()), QKeySequence("Ctrl+-"));
+    editDecreaseFontSize->setStatusTip(tr("Decrease font size"));
 
     editMenu->addSeparator();
     toolbar->addSeparator();
@@ -63,6 +84,11 @@ void AppEditMenu::setupMenu(QMenu *editMenu, QToolBar *toolbar)
     editFindNextAction=editMenu->addAction(IconUtil::getIcon("find_next"), tr("Find &next"), this, SLOT(findNext()), QKeySequence(QKeySequence::FindNext));
     editFindNextAction->setStatusTip(tr("Find next occurence of current search text"));
     toolbar->addAction(editFindNextAction);
+
+    editMenu->addSeparator();
+
+    editGoToLineAction=editMenu->addAction(IconUtil::getIcon("right_arrow"), tr("&Go to line..."), this, SLOT(goToLine()), QKeySequence("Ctrl+L"));
+    editGoToLineAction->setStatusTip(tr("Go to line"));
 
 }
 
@@ -95,81 +121,93 @@ void AppEditMenu::focusWidgetChanged(QWidget * /*old*/, QWidget *now)
     editCopyAction->setEnabled(canCopy);
     editPasteAction->setEnabled(canPaste);
 
-    bool isCodeEditor = qobject_cast<CodeEditor*>(currentAppWidget);
+    CodeEditor *editor = qobject_cast<CodeEditor*>(currentAppWidget);
+    bool isCodeEditor=(editor!=0);
+    bool isReadOnly=(editor!=0) && editor->isReadOnly();
 
-    editCommentAction->setEnabled(isCodeEditor);
-    editMoveUpAction->setEnabled(isCodeEditor);
-    editMoveDownAction->setEnabled(isCodeEditor);
+    editCommentAction->setEnabled(isCodeEditor && !isReadOnly);
+    editMoveUpAction->setEnabled(isCodeEditor && !isReadOnly);
+    editMoveDownAction->setEnabled(isCodeEditor && !isReadOnly);
+    editSelectBlockAction->setEnabled(isCodeEditor && !isReadOnly);
+    editToUpperCaseAction->setEnabled(isCodeEditor && !isReadOnly);
+    editToLowerCaseAction->setEnabled(isCodeEditor && !isReadOnly);
+
+    editIncreaseFontSize->setEnabled(isCodeEditor);
+    editDecreaseFontSize->setEnabled(isCodeEditor);
+
+    editGoToLineAction->setEnabled(isCodeEditor);
 }
 
 void AppEditMenu::undo()
 {
-    if(!currentAppWidget){
-        return;
-    }
-
-    currentAppWidget->metaObject()->invokeMethod(currentAppWidget, "undo", Qt::DirectConnection);
+    WidgetHelper::invokeSlot(currentAppWidget, "undo");
 }
 
 void AppEditMenu::redo()
 {
-    if(!currentAppWidget){
-        return;
-    }
-
-    currentAppWidget->metaObject()->invokeMethod(currentAppWidget, "redo", Qt::DirectConnection);
+    WidgetHelper::invokeSlot(currentAppWidget, "redo");
 }
 
 void AppEditMenu::cut()
 {
-    if(!currentAppWidget){
-        return;
-    }
-
-    currentAppWidget->metaObject()->invokeMethod(currentAppWidget, "cut", Qt::DirectConnection);
+    WidgetHelper::invokeSlot(currentAppWidget, "cut");
 }
 
 void AppEditMenu::copy()
 {
-    if(!currentAppWidget){
-        return;
-    }
-
-    currentAppWidget->metaObject()->invokeMethod(currentAppWidget, "copy", Qt::DirectConnection);
+    WidgetHelper::invokeSlot(currentAppWidget, "copy");
 }
 
 void AppEditMenu::paste()
 {
-    if(!currentAppWidget){
-        return;
-    }
-
-    currentAppWidget->metaObject()->invokeMethod(currentAppWidget, "paste", Qt::DirectConnection);
+    WidgetHelper::invokeSlot(currentAppWidget, "paste");
 }
 
 void AppEditMenu::comment()
 {
-    if(!currentAppWidget){
-        return;
-    }
-
-    currentAppWidget->metaObject()->invokeMethod(currentAppWidget, "commentBlocks", Qt::DirectConnection);
+    WidgetHelper::invokeSlot(currentAppWidget, "commentBlocks");
 }
 
 void AppEditMenu::moveUp()
 {
-    if(!currentAppWidget){
-        return;
-    }
-
-    currentAppWidget->metaObject()->invokeMethod(currentAppWidget, "moveUp", Qt::DirectConnection);
+    WidgetHelper::invokeSlot(currentAppWidget, "moveUp");
 }
 
 void AppEditMenu::moveDown()
+{
+    WidgetHelper::invokeSlot(currentAppWidget, "moveDown");
+}
+
+void AppEditMenu::selectBlock()
+{
+    WidgetHelper::invokeSlot(currentAppWidget, "selectCurrentBlock");
+}
+
+void AppEditMenu::increaseFont()
+{
+    WidgetHelper::invokeSlot(currentAppWidget, "increaseFontSize");
+}
+
+void AppEditMenu::decreaseFont()
+{
+    WidgetHelper::invokeSlot(currentAppWidget, "decreaseFontSize");
+}
+
+void AppEditMenu::toUpperCase()
+{
+    WidgetHelper::invokeSlot(currentAppWidget, "toUpperCase");
+}
+
+void AppEditMenu::toLowerCase()
+{
+    WidgetHelper::invokeSlot(currentAppWidget, "toLowerCase");
+}
+
+void AppEditMenu::goToLine()
 {
     if(!currentAppWidget){
         return;
     }
 
-    currentAppWidget->metaObject()->invokeMethod(currentAppWidget, "commentDown", Qt::DirectConnection);
+    currentAppWidget->metaObject()->invokeMethod(currentAppWidget, "goToLine", Qt::DirectConnection);
 }

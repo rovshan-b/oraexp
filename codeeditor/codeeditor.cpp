@@ -1,6 +1,8 @@
 #include "codeeditor.h"
 #include "syntaxhighligher.h"
 #include "linenumberarea.h"
+#include "dialogs/gotolinedialog.h"
+#include "util/widgethelper.h"
 #include <QPainter>
 
 CodeEditor::CodeEditor(QWidget *parent) :
@@ -27,6 +29,8 @@ CodeEditor::CodeEditor(QWidget *parent) :
     setPalette(p);
 
     strTab=QString("  ");
+
+    setFont(QFont("Monospace"));
 }
 
 //use only when sure that there's not lots of text in editor
@@ -162,10 +166,17 @@ int CodeEditor::lineNumberAreaWidth()
              handled=true;
 
              if(textCursor().hasSelection()){
-                 indentSelection();
+                 if(event->modifiers() & Qt::ShiftModifier){
+                     unindentSelection();
+                 }else{
+                     indentSelection();
+                 }
              }else{
                  textCursor().insertText(strTab);
              }
+         }else if(key==Qt::Key_Backtab && textCursor().hasSelection()){
+             handled=true;
+             unindentSelection();
          }else if(key==Qt::Key_Home && (Qt::ControlModifier & event->modifiers())!=Qt::ControlModifier){
              handled=true;
              handleHomeKey(Qt::ShiftModifier & event->modifiers());
@@ -208,25 +219,55 @@ int CodeEditor::lineNumberAreaWidth()
          return;
      }
      cur.beginEditBlock();
-     int startPos=cur.selectionStart();
-     int endPos=cur.selectionEnd();
-     if(startPos>endPos){
-         qSwap(startPos, endPos);
-     }
+     CursorPositionInfo inf=getStartStopPositions(cur);
 
-     int startBlock=cur.document()->findBlock(startPos).blockNumber();
-     int endBlock=cur.document()->findBlock(endPos).blockNumber();
-
-     cur.setPosition(startPos);
+     cur.setPosition(inf.startPos);
      //cur.movePosition(QTextCursor::StartOfBlock);
-     int blocksToMove=(endBlock-startBlock)+1;
+     int blocksToMove=(inf.endBlock-inf.startBlock)+1;
      for(int i=0; i<blocksToMove; ++i){
         cur.insertText(strTab);
         cur.movePosition(QTextCursor::NextBlock);
      }
      cur.endEditBlock();
-     cur.setPosition(startPos+strTab.size());
-     cur.setPosition(endPos+(blocksToMove*strTab.size()), QTextCursor::KeepAnchor);
+
+     inf.startPos+=strTab.size();
+     inf.endPos+=blocksToMove*strTab.size();
+     inf.selectText(cur);
+
+     setTextCursor(cur);
+ }
+
+ void CodeEditor::unindentSelection()
+ {
+     QTextCursor cur=textCursor();
+     if(!cur.hasSelection()){
+         return;
+     }
+     cur.beginEditBlock();
+     CursorPositionInfo inf=getStartStopPositions(cur);
+
+     cur.setPosition(inf.startPos);
+     //cur.movePosition(QTextCursor::StartOfBlock);
+     int blocksToMove=(inf.endBlock-inf.startBlock)+1;
+     for(int i=0; i<blocksToMove; ++i){
+        moveToFirstNonSpaceCharacter(cur);
+        for(int k=0; k<strTab.size(); ++k){
+            if(cur.positionInBlock()>0){
+                cur.deletePreviousChar();
+                if(i==0){
+                    --inf.startPos;
+                }
+
+                --inf.endPos;
+            }else{
+                break;
+            }
+        }
+
+        cur.movePosition(QTextCursor::NextBlock);
+     }
+     cur.endEditBlock();
+     inf.selectText(cur);
      setTextCursor(cur);
  }
 
@@ -280,24 +321,56 @@ int CodeEditor::lineNumberAreaWidth()
      }
  }
 
- void CodeEditor::commentBlocks()
+ void CodeEditor::changeCase(bool toUpper)
  {
-     if(isReadOnly()){
-         return;
-     }
-
-     QString comment="--";
      QTextCursor cur=textCursor();
-     int startPos=cur.selectionStart();
-     int endPos=cur.selectionEnd();
+     int startPos=cur.anchor();
+     if(cur.hasSelection()){
+        int endPos=cur.position();
+        cur.insertText(toUpper ? cur.selectedText().toUpper() : cur.selectedText().toLower());
+        cur.setPosition(startPos);
+        cur.setPosition(endPos, QTextCursor::KeepAnchor);
+     }else{
+         cur.select(QTextCursor::WordUnderCursor);
+         if(cur.hasSelection()){
+             cur.insertText(toUpper ? cur.selectedText().toUpper() : cur.selectedText().toLower());
+         }
+         cur.setPosition(startPos);
+     }
+     setTextCursor(cur);
+ }
+
+ CursorPositionInfo CodeEditor::getStartStopPositions(const QTextCursor cur)
+ {
+     CursorPositionInfo info;
+
+     int startPos=cur.anchor();
+     int endPos=cur.position();
      if(startPos>endPos){
          qSwap(startPos, endPos);
+         info.anchorAtEnd=true;
+     }else{
+         info.anchorAtEnd=false;
      }
      int startBlock=cur.document()->findBlock(startPos).blockNumber();
      int endBlock=cur.document()->findBlock(endPos).blockNumber();
 
-     cur.setPosition(startPos);
-     int blocksToMove=(endBlock-startBlock)+1;
+     info.startPos=startPos;
+     info.endPos=endPos;
+     info.startBlock=startBlock;
+     info.endBlock=endBlock;
+
+     return info;
+ }
+
+ void CodeEditor::commentBlocks()
+ {
+     QString comment="--";
+     QTextCursor cur=textCursor();
+     CursorPositionInfo inf=getStartStopPositions(cur);
+
+     cur.setPosition(inf.startPos);
+     int blocksToMove=(inf.endBlock-inf.startBlock)+1;
      int addComments=-1;
 
      cur.beginEditBlock();
@@ -316,7 +389,7 @@ int CodeEditor::lineNumberAreaWidth()
         cur.movePosition(QTextCursor::NextBlock);
     }*/
 
-     cur.setPosition(startPos);
+     cur.setPosition(inf.startPos);
      for(int i=0; i<blocksToMove; ++i){
          QString blockText=cur.block().text().trimmed();
          if(!blockText.isEmpty()){
@@ -327,23 +400,91 @@ int CodeEditor::lineNumberAreaWidth()
              if(addComments==1){
                  cur.setPosition(cur.block().position());
                  cur.insertText(comment);
-                 endPos+=comment.size();
+                 inf.endPos+=comment.size();
              }else if(addComments==0 && blockText.startsWith(comment)){
                  removeFromBeginning(cur, comment.size());
-                 endPos-=comment.size();
+                 inf.endPos-=comment.size();
              }
          }
          cur.movePosition(QTextCursor::NextBlock);
      }
      if(addComments==1){
-         startPos+=comment.size();
+         inf.startPos+=comment.size();
      }else if(addComments==0){
-         startPos-=comment.size();
+         inf.startPos-=comment.size();
      }
      cur.endEditBlock();
-     cur.setPosition(startPos);
-     cur.setPosition(endPos, QTextCursor::KeepAnchor);
+     inf.selectText(cur);
      setTextCursor(cur);
+ }
+
+ void CodeEditor::goToLine()
+ {
+     QTextCursor cur=textCursor();
+     GoToLineDialog dialog(cur.blockNumber()+1, document()->blockCount(), this);
+     dialog.setWindowModality(Qt::WindowModal);
+     if(dialog.exec()){
+         int line = dialog.getLine()-1;
+         cur.setPosition(document()->findBlockByNumber(line).position());
+         setTextCursor(cur);
+         ensureCursorVisible();
+     }
+ }
+
+ void CodeEditor::increaseFontSize()
+ {
+    WidgetHelper::changeFontSize(this, 0.5);
+ }
+
+ void CodeEditor::decreaseFontSize()
+ {
+     WidgetHelper::changeFontSize(this, -0.5);
+ }
+
+ void CodeEditor::toUpperCase()
+ {
+     changeCase(true);
+ }
+
+ void CodeEditor::toLowerCase()
+ {
+     changeCase(false);
+ }
+
+ void CodeEditor::moveUp()
+ {
+    moveSelection(true);
+ }
+
+ void CodeEditor::moveDown()
+ {
+     moveSelection(false);
+ }
+
+ void CodeEditor::moveSelection(bool up)
+ {
+     QTextCursor cur=textCursor();
+     CursorPositionInfo inf=getStartStopPositions(cur);
+     cur.movePosition(QTextCursor::StartOfBlock);
+     cur.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+     QString text=cur.selectedText();
+
+     cur.beginEditBlock();
+     cur.removeSelectedText();
+     if(up && inf.startBlock>0){
+        int prevBlockPos=document()->findBlockByNumber(inf.startBlock-1).position();
+        cur.setPosition(prevBlockPos);
+        cur.insertText(QString("%1\n").arg(text));
+        cur.setPosition(prevBlockPos);
+        cur.setPosition(prevBlockPos+text.size(), QTextCursor::KeepAnchor);
+     }else if(!up && inf.endBlock<document()->blockCount()-2){
+        int nextBlockPos=document()->findBlockByNumber(inf.endBlock+2).position();
+        cur.setPosition(nextBlockPos);
+        cur.insertText(QString("%1\n").arg(text));
+        cur.setPosition(nextBlockPos);
+        cur.setPosition(nextBlockPos+text.size(), QTextCursor::KeepAnchor);
+     }
+     cur.endEditBlock();
  }
 
  void CodeEditor::addText(const QString &text)

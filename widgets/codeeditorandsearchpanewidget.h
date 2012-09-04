@@ -23,6 +23,7 @@ public:
     void setReadOnly(bool readOnly);
     void setInitialText(const QString &text);
 
+    bool closeSearchPane();
 signals:
     void escapeKeyPressed();
     void focusEvent(QWidget *object, bool focusIn);
