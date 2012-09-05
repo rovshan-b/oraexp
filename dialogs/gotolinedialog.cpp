@@ -10,7 +10,7 @@ GoToLineDialog::GoToLineDialog(int currentLine, int maxLineCount, QWidget *paren
     QFormLayout *form=new QFormLayout();
 
     lineNumberSelector=new QSpinBox();
-    lineNumberSelector->setMaximum(1);
+    lineNumberSelector->setMinimum(1);
     lineNumberSelector->setMaximum(maxLineCount);
     lineNumberSelector->setValue(currentLine);
 

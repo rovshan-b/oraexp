@@ -465,25 +465,64 @@ int CodeEditor::lineNumberAreaWidth()
  {
      QTextCursor cur=textCursor();
      CursorPositionInfo inf=getStartStopPositions(cur);
-     cur.movePosition(QTextCursor::StartOfBlock);
-     cur.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-     QString text=cur.selectedText();
+
+     if((up && inf.startBlock==0) || (!up && inf.endBlock>document()->blockCount()-2)){
+        return;
+     }
 
      cur.beginEditBlock();
-     cur.removeSelectedText();
-     if(up && inf.startBlock>0){
-        int prevBlockPos=document()->findBlockByNumber(inf.startBlock-1).position();
-        cur.setPosition(prevBlockPos);
-        cur.insertText(QString("%1\n").arg(text));
-        cur.setPosition(prevBlockPos);
-        cur.setPosition(prevBlockPos+text.size(), QTextCursor::KeepAnchor);
-     }else if(!up && inf.endBlock<document()->blockCount()-2){
-        int nextBlockPos=document()->findBlockByNumber(inf.endBlock+2).position();
-        cur.setPosition(nextBlockPos);
-        cur.insertText(QString("%1\n").arg(text));
-        cur.setPosition(nextBlockPos);
-        cur.setPosition(nextBlockPos+text.size(), QTextCursor::KeepAnchor);
+
+     if(up){
+        int startBlockPos=document()->findBlockByNumber(inf.startBlock).position();
+        cur.setPosition(startBlockPos);
+        cur.movePosition(QTextCursor::PreviousBlock);
+        cur.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        QString blockText=cur.selectedText();
+        cur.movePosition(QTextCursor::StartOfBlock);
+        cur.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
+        cur.removeSelectedText();
+        --inf.startBlock;
+        --inf.endBlock;
+        int endBlockPos=document()->findBlockByNumber(inf.endBlock).position();
+        cur.setPosition(endBlockPos); //now previous block is deleted and cursor is set to start of last moved block
+        if(inf.endBlock==document()->blockCount()-1){ //if we just deleted last line, we need to create a new empty line
+            cur.movePosition(QTextCursor::End);
+            cur.insertBlock();
+            --inf.startPos;
+            --inf.endPos;
+        }else{
+            blockText.append("\n");
+        }
+        cur.movePosition(QTextCursor::NextBlock);
+        cur.insertText(blockText);
+        inf.startPos-=blockText.size();
+        inf.endPos-=blockText.size();
+     }else{
+         int endBlockPos=document()->findBlockByNumber(inf.endBlock).position();
+         cur.setPosition(endBlockPos);
+         cur.movePosition(QTextCursor::NextBlock);
+         cur.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+         QString blockText=cur.selectedText();
+         if(inf.endBlock==document()->blockCount()-2){
+            cur.movePosition(QTextCursor::PreviousBlock);
+            cur.movePosition(QTextCursor::EndOfBlock);
+            cur.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+         }else{
+            cur.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
+         }
+         cur.removeSelectedText();
+         int startBlockPos=document()->findBlockByNumber(inf.startBlock).position();
+         cur.setPosition(startBlockPos); //now next block is deleted and cursor is set to start of first selected block
+         blockText.append("\n");
+         cur.insertText(blockText);
+         ++inf.startBlock;
+         ++inf.endBlock;
+         inf.startPos+=blockText.size();
+         inf.endPos+=blockText.size();
      }
+
+     inf.selectText(cur);
+     setTextCursor(cur);
      cur.endEditBlock();
  }
 

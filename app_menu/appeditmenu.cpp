@@ -55,10 +55,10 @@ void AppEditMenu::setupMenu(QMenu *editMenu, QToolBar *toolbar)
     editSelectBlockAction=editMenu->addAction(tr("Select current block"), this, SLOT(selectBlock()), QKeySequence("Ctrl+B"));
     editSelectBlockAction->setStatusTip(tr("Select current block"));
 
-    editToUpperCaseAction=editMenu->addAction(tr("To upper case"), this, SLOT(toUpperCase()), QKeySequence("Ctrl+Shift+U"));
+    editToUpperCaseAction=editMenu->addAction(tr("To upper case"), this, SLOT(toUpperCase()), QKeySequence("Ctrl+U"));
     editToUpperCaseAction->setStatusTip(tr("Change selection or current word text to upper case"));
 
-    editToLowerCaseAction=editMenu->addAction(tr("To lower case"), this, SLOT(toLowerCase()), QKeySequence("Ctrl+Shift+L"));
+    editToLowerCaseAction=editMenu->addAction(tr("To lower case"), this, SLOT(toLowerCase()), QKeySequence("Ctrl+L"));
     editToLowerCaseAction->setStatusTip(tr("Change selection or current word text to lower case"));
 
     //toolbar->addAction(editSelectBlockAction);
@@ -75,19 +75,19 @@ void AppEditMenu::setupMenu(QMenu *editMenu, QToolBar *toolbar)
     editMenu->addSeparator();
     toolbar->addSeparator();
 
-    editFindAction=editMenu->addAction(IconUtil::getIcon("find"), tr("&Find..."), this, SLOT(showSearchWidget()), QKeySequence(QKeySequence::Find));
+    editFindAction=editMenu->addAction(IconUtil::getIcon("find"), tr("&Find..."), this, SLOT(showSearchWidget()), QKeySequence("Ctrl+F"));
     editFindAction->setStatusTip(tr("Find text"));
     toolbar->addAction(editFindAction);
-    editFindPreviousAction=editMenu->addAction(IconUtil::getIcon("find_prev"), tr("Find p&revious"), this, SLOT(findPrevious()), QKeySequence(QKeySequence::FindPrevious));
+    editFindPreviousAction=editMenu->addAction(IconUtil::getIcon("find_prev"), tr("Find p&revious"), this, SLOT(findPrevious()), QKeySequence("Shift+F3"));
     editFindPreviousAction->setStatusTip(tr("Find previous occurence of current search text"));
     toolbar->addAction(editFindPreviousAction);
-    editFindNextAction=editMenu->addAction(IconUtil::getIcon("find_next"), tr("Find &next"), this, SLOT(findNext()), QKeySequence(QKeySequence::FindNext));
+    editFindNextAction=editMenu->addAction(IconUtil::getIcon("find_next"), tr("Find &next"), this, SLOT(findNext()), QKeySequence("F3"));
     editFindNextAction->setStatusTip(tr("Find next occurence of current search text"));
     toolbar->addAction(editFindNextAction);
 
     editMenu->addSeparator();
 
-    editGoToLineAction=editMenu->addAction(IconUtil::getIcon("right_arrow"), tr("&Go to line..."), this, SLOT(goToLine()), QKeySequence("Ctrl+L"));
+    editGoToLineAction=editMenu->addAction(IconUtil::getIcon("right_arrow"), tr("&Go to line..."), this, SLOT(goToLine()), QKeySequence("Ctrl+G"));
     editGoToLineAction->setStatusTip(tr("Go to line"));
 
 }
