@@ -21,8 +21,10 @@ public:
     void updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *cnPageTab);
 
     void updateActionStatesForCodeEditor(CodeEditor *editor);
-//    void setUndoEnabled(bool enabled);
-//    void setRedoEnabled(bool enabled);
+
+public slots:
+    void setUndoEnabled(bool enabled);
+    void setRedoEnabled(bool enabled);
 
 private slots:
     void focusWidgetChanged(QWidget *old, QWidget *now);
@@ -51,13 +53,12 @@ private slots:
 
     void goToLine();
 
-private:
-    void setupMenu(QMenu *editMenu, QToolBar *toolbar);
-
+public:
     QAction *editUndoAction;
     QAction *editRedoAction;
     QAction *editCutAction;
     QAction *editCopyAction;
+    QAction *editCopyAsAction;
     QAction *editPasteAction;
 
     QAction *editCommentAction;
@@ -67,6 +68,10 @@ private:
     QAction *editToUpperCaseAction;
     QAction *editToLowerCaseAction;
     QAction *editCreateDuplicateAction;
+
+private:
+    void setupMenu(QMenu *editMenu, QToolBar *toolbar);
+    QMenu *createCopyAsMenu(QWidget *parent);
 
     QAction *editIncreaseFontSize;
     QAction *editDecreaseFontSize;

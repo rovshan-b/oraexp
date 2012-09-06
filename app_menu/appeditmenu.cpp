@@ -33,6 +33,8 @@ void AppEditMenu::setupMenu(QMenu *editMenu, QToolBar *toolbar)
     editCopyAction=editMenu->addAction(IconUtil::getIcon("editcopy"), tr("&Copy"), this, SLOT(copy()), QKeySequence(QKeySequence::Copy));
     editCopyAction->setStatusTip(tr("Copy"));
     toolbar->addAction(editCopyAction);
+    editCopyAsAction=editMenu->addAction(IconUtil::getIcon("editcopy"), tr("Copy as"));
+    editCopyAsAction->setMenu(createCopyAsMenu(editMenu));
     editPasteAction=editMenu->addAction(IconUtil::getIcon("editpaste"), tr("&Paste"), this, SLOT(paste()), QKeySequence(QKeySequence::Paste));
     editPasteAction->setStatusTip(tr("Paste"));
     toolbar->addAction(editPasteAction);
@@ -95,6 +97,18 @@ void AppEditMenu::setupMenu(QMenu *editMenu, QToolBar *toolbar)
 
 }
 
+QMenu *AppEditMenu::createCopyAsMenu(QWidget *parent)
+{
+    QMenu *menu=new QMenu(tr("Copy as"), parent);
+
+    menu->addAction(tr("HTML"));
+    menu->addAction(tr("C++"));
+    menu->addAction(tr("C#"));
+    menu->addAction(tr("Java"));
+
+    return menu;
+}
+
 void AppEditMenu::updateActionStates(ConnectionPage * /*cnPage*/, ConnectionPageTab *cnPageTab)
 {
     editFindAction->setEnabled(cnPageTab!=0 && cnPageTab->canFind());
@@ -107,8 +121,8 @@ void AppEditMenu::updateActionStatesForCodeEditor(CodeEditor *editor)
     Q_ASSERT(editor);
     bool isReadOnly=editor->isReadOnly();
 
-    editUndoAction->setEnabled(!isReadOnly);
-    editRedoAction->setEnabled(!isReadOnly);
+    editUndoAction->setEnabled(!isReadOnly && editor->document()->availableUndoSteps()>0);
+    editRedoAction->setEnabled(!isReadOnly && editor->document()->availableRedoSteps()>0);
     editCutAction->setEnabled(!isReadOnly);
     editCopyAction->setEnabled(true);
     editPasteAction->setEnabled(!isReadOnly);
@@ -126,7 +140,7 @@ void AppEditMenu::updateActionStatesForCodeEditor(CodeEditor *editor)
 
     editGoToLineAction->setEnabled(true);
 }
-/*
+
 void AppEditMenu::setUndoEnabled(bool enabled)
 {
     editUndoAction->setEnabled(enabled);
@@ -135,7 +149,7 @@ void AppEditMenu::setUndoEnabled(bool enabled)
 void AppEditMenu::setRedoEnabled(bool enabled)
 {
     editRedoAction->setEnabled(enabled);
-}*/
+}
 
 void AppEditMenu::focusWidgetChanged(QWidget * /*old*/, QWidget *now)
 {

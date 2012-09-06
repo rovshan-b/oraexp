@@ -33,6 +33,9 @@ CodeEditor::CodeEditor(QWidget *parent) :
     strTab=QString("  ");
 
     setFont(QFont("Monospace"));
+
+    connect(this, SIGNAL(undoAvailable(bool)), this, SLOT(setUndoAvailable(bool)));
+    connect(this, SIGNAL(redoAvailable(bool)), this, SLOT(setRedoAvailable(bool)));
 }
 
 //use only when sure that there's not lots of text in editor
@@ -73,6 +76,20 @@ int CodeEditor::lineNumberAreaWidth()
 
      if (rect.contains(viewport()->rect()))
          updateLineNumberAreaWidth(0);
+ }
+
+ void CodeEditor::setUndoAvailable(bool available)
+ {
+     if(qApp->focusWidget()==this){
+        AppMenu::defaultInstance()->getEditMenu()->setUndoEnabled(available);
+     }
+ }
+
+ void CodeEditor::setRedoAvailable(bool available)
+ {
+     if(qApp->focusWidget()==this){
+         AppMenu::defaultInstance()->getEditMenu()->setRedoEnabled(available);
+     }
  }
 
  void CodeEditor::resizeEvent(QResizeEvent *e)
@@ -205,8 +222,24 @@ int CodeEditor::lineNumberAreaWidth()
 
  void CodeEditor::contextMenuEvent(QContextMenuEvent *event)
  {
-     QMenu *menu = createStandardContextMenu();
-     menu->addAction(tr("My Menu Item"));
+     QMenu *menu = new QMenu();
+
+     AppEditMenu *editMenu=AppMenu::defaultInstance()->getEditMenu();
+     menu->addAction(editMenu->editUndoAction);
+     menu->addAction(editMenu->editRedoAction);
+     menu->addSeparator();
+     menu->addAction(editMenu->editCutAction);
+     menu->addAction(editMenu->editCopyAction);
+     menu->addAction(editMenu->editCopyAsAction);
+     menu->addAction(editMenu->editPasteAction);
+     menu->addSeparator();
+     menu->addAction(editMenu->editCommentAction);
+     menu->addAction(editMenu->editMoveUpAction);
+     menu->addAction(editMenu->editMoveDownAction);
+     menu->addAction(editMenu->editSelectBlockAction);
+     menu->addAction(editMenu->editToUpperCaseAction);
+     menu->addAction(editMenu->editToLowerCaseAction);
+     menu->addAction(editMenu->editCreateDuplicateAction);
 
      menu->exec(event->globalPos());
      delete menu;
@@ -501,14 +534,18 @@ int CodeEditor::lineNumberAreaWidth()
         cur.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
     }
     QString blockText=cur.selectedText();
-    blockText.append("\n");
     cur.setPosition(document()->findBlockByNumber(inf.endBlock).position());
-    if(inf.endBlock==document()->blockCount()-2){
+    if(inf.endBlock==document()->blockCount()-1){
         cur.movePosition(QTextCursor::EndOfBlock);
         cur.insertBlock();
+    }else{
+        blockText.append("\n");
     }
     cur.movePosition(QTextCursor::NextBlock);
     cur.insertText(blockText);
+
+    inf.selectText(cur);
+    setTextCursor(cur);
  }
 
  void CodeEditor::moveUp()
