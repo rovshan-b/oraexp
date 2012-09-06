@@ -10,6 +10,7 @@ class QToolBar;
 class QAction;
 class ConnectionPage;
 class ConnectionPageTab;
+class CodeEditor;
 
 class AppEditMenu : public AppMainMenu
 {
@@ -18,6 +19,10 @@ public:
     explicit AppEditMenu(QMenu *editMenu, QToolBar *toolbar, QObject *parent);
 
     void updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *cnPageTab);
+
+    void updateActionStatesForCodeEditor(CodeEditor *editor);
+//    void setUndoEnabled(bool enabled);
+//    void setRedoEnabled(bool enabled);
 
 private slots:
     void focusWidgetChanged(QWidget *old, QWidget *now);
@@ -38,6 +43,7 @@ private slots:
 
     void toUpperCase();
     void toLowerCase();
+    void makeDuplicate();
 
     void showSearchWidget(){currentConnectionPageTab()->showSearchWidget();}
     void findNext(){currentConnectionPageTab()->findNext();}
@@ -60,6 +66,7 @@ private:
     QAction *editSelectBlockAction;
     QAction *editToUpperCaseAction;
     QAction *editToLowerCaseAction;
+    QAction *editCreateDuplicateAction;
 
     QAction *editIncreaseFontSize;
     QAction *editDecreaseFontSize;

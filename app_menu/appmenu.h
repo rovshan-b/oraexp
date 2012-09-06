@@ -27,6 +27,8 @@ public:
 
     ConnectionsPane *getConnectionsPane() const {return this->connectionsPane;}
 
+    AppEditMenu *getEditMenu() const {return this->appEditMenu;}
+
 private slots:
     void connectionsPaneStateChanged();
 

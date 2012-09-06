@@ -3,6 +3,8 @@
 #include "linenumberarea.h"
 #include "dialogs/gotolinedialog.h"
 #include "util/widgethelper.h"
+#include "app_menu/appmenu.h"
+#include "app_menu/appeditmenu.h"
 #include <QPainter>
 
 CodeEditor::CodeEditor(QWidget *parent) :
@@ -156,7 +158,7 @@ int CodeEditor::lineNumberAreaWidth()
 
      if(!isReadOnly()){
          int key=event->key();
-         if(key==Qt::Key_Return || key==Qt::Key_Enter){
+         if((key==Qt::Key_Return || key==Qt::Key_Enter) && event->modifiers()==0){
             handled=true;
             textCursor().beginEditBlock();
             QPlainTextEdit::keyPressEvent(event);
@@ -180,12 +182,34 @@ int CodeEditor::lineNumberAreaWidth()
          }else if(key==Qt::Key_Home && (Qt::ControlModifier & event->modifiers())!=Qt::ControlModifier){
              handled=true;
              handleHomeKey(Qt::ShiftModifier & event->modifiers());
+         }else if(key==Qt::Key_Up && (event->modifiers()==(Qt::ControlModifier+Qt::ShiftModifier))){
+             handled=true;
+             moveSelectionUp();
+         }else if(key==Qt::Key_Down && (event->modifiers()==(Qt::ControlModifier+Qt::ShiftModifier))){
+             handled=true;
+             moveSelectionDown();
          }
      }
 
      if(!handled){
         QPlainTextEdit::keyPressEvent(event);
      }
+ }
+
+ void CodeEditor::focusInEvent(QFocusEvent *event)
+ {
+     QPlainTextEdit::focusInEvent(event);
+
+     AppMenu::defaultInstance()->getEditMenu()->updateActionStatesForCodeEditor(this);
+ }
+
+ void CodeEditor::contextMenuEvent(QContextMenuEvent *event)
+ {
+     QMenu *menu = createStandardContextMenu();
+     menu->addAction(tr("My Menu Item"));
+
+     menu->exec(event->globalPos());
+     delete menu;
  }
 
  void CodeEditor::autoIndentNewBlock()
@@ -222,7 +246,7 @@ int CodeEditor::lineNumberAreaWidth()
      CursorPositionInfo inf=getStartStopPositions(cur);
 
      cur.setPosition(inf.startPos);
-     //cur.movePosition(QTextCursor::StartOfBlock);
+     cur.movePosition(QTextCursor::StartOfBlock);
      int blocksToMove=(inf.endBlock-inf.startBlock)+1;
      for(int i=0; i<blocksToMove; ++i){
         cur.insertText(strTab);
@@ -363,6 +387,23 @@ int CodeEditor::lineNumberAreaWidth()
      return info;
  }
 
+ void CodeEditor::moveSelectionUp()
+ {
+     QTextCursor cur=textCursor();
+     if(cur.movePosition(QTextCursor::PreviousBlock, QTextCursor::KeepAnchor)){
+         setTextCursor(cur);
+     }
+ }
+
+ void CodeEditor::moveSelectionDown()
+ {
+     QTextCursor cur=textCursor();
+     if(cur.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor)){
+         cur.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+         setTextCursor(cur);
+     }
+ }
+
  void CodeEditor::commentBlocks()
  {
      QString comment="--";
@@ -451,17 +492,36 @@ int CodeEditor::lineNumberAreaWidth()
      changeCase(false);
  }
 
+ void CodeEditor::makeDuplicate()
+ {
+    QTextCursor cur=textCursor();
+    CursorPositionInfo inf=getStartStopPositions(cur);
+    if(!cur.hasSelection()){
+        cur.movePosition(QTextCursor::StartOfBlock);
+        cur.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    }
+    QString blockText=cur.selectedText();
+    blockText.append("\n");
+    cur.setPosition(document()->findBlockByNumber(inf.endBlock).position());
+    if(inf.endBlock==document()->blockCount()-2){
+        cur.movePosition(QTextCursor::EndOfBlock);
+        cur.insertBlock();
+    }
+    cur.movePosition(QTextCursor::NextBlock);
+    cur.insertText(blockText);
+ }
+
  void CodeEditor::moveUp()
  {
-    moveSelection(true);
+    moveSelectedText(true);
  }
 
  void CodeEditor::moveDown()
  {
-     moveSelection(false);
+     moveSelectedText(false);
  }
 
- void CodeEditor::moveSelection(bool up)
+ void CodeEditor::moveSelectedText(bool up)
  {
      QTextCursor cur=textCursor();
      CursorPositionInfo inf=getStartStopPositions(cur);

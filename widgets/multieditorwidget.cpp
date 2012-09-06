@@ -130,8 +130,8 @@ void MultiEditorWidget::setEditorCount(int count)
                 editors.at(i-2)->editor()->setFocus();
             }
 
-            editors.at(i-1)->hide();
             editors.at(i-1)->closeSearchPane();
+            editors.at(i-1)->hide();
         }
     }
 

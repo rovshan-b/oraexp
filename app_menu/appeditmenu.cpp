@@ -44,11 +44,11 @@ void AppEditMenu::setupMenu(QMenu *editMenu, QToolBar *toolbar)
     editCommentAction->setStatusTip(tr("Comment/Uncomment line(s)"));
     toolbar->addAction(editCommentAction);
 
-    editMoveUpAction=editMenu->addAction(IconUtil::getIcon("move_up"), tr("Move &up"), this, SLOT(moveUp()), QKeySequence("Ctrl+Shift+Up"));
+    editMoveUpAction=editMenu->addAction(IconUtil::getIcon("move_up"), tr("Move &up"), this, SLOT(moveUp()), QKeySequence("Ctrl+["));
     editMoveUpAction->setStatusTip(tr("Move lines(s) up"));
     toolbar->addAction(editMoveUpAction);
 
-    editMoveDownAction=editMenu->addAction(IconUtil::getIcon("move_down"), tr("Move &down"), this, SLOT(moveDown()), QKeySequence("Ctrl+Shift+Down"));
+    editMoveDownAction=editMenu->addAction(IconUtil::getIcon("move_down"), tr("Move &down"), this, SLOT(moveDown()), QKeySequence("Ctrl+]"));
     editMoveDownAction->setStatusTip(tr("Move lines(s) down"));
     toolbar->addAction(editMoveDownAction);
 
@@ -61,15 +61,18 @@ void AppEditMenu::setupMenu(QMenu *editMenu, QToolBar *toolbar)
     editToLowerCaseAction=editMenu->addAction(tr("To lower case"), this, SLOT(toLowerCase()), QKeySequence("Ctrl+L"));
     editToLowerCaseAction->setStatusTip(tr("Change selection or current word text to lower case"));
 
+    editCreateDuplicateAction=editMenu->addAction(tr("Make duplicate"), this, SLOT(makeDuplicate()), QKeySequence("Ctrl+D"));
+    editCreateDuplicateAction->setStatusTip(tr("Create duplicate of current line or selection"));
+
     //toolbar->addAction(editSelectBlockAction);
 
     editMenu->addSeparator();
     //toolbar->addSeparator();
 
-    editIncreaseFontSize=editMenu->addAction(tr("Increase font size"), this, SLOT(increaseFont()), QKeySequence("Ctrl++"));
+    editIncreaseFontSize=editMenu->addAction(tr("Increase font size"), this, SLOT(increaseFont()), QKeySequence(QKeySequence::ZoomIn));
     editIncreaseFontSize->setStatusTip(tr("Increase font size"));
 
-    editDecreaseFontSize=editMenu->addAction(tr("Decrease font size"), this, SLOT(decreaseFont()), QKeySequence("Ctrl+-"));
+    editDecreaseFontSize=editMenu->addAction(tr("Decrease font size"), this, SLOT(decreaseFont()), QKeySequence(QKeySequence::ZoomOut));
     editDecreaseFontSize->setStatusTip(tr("Decrease font size"));
 
     editMenu->addSeparator();
@@ -99,6 +102,41 @@ void AppEditMenu::updateActionStates(ConnectionPage * /*cnPage*/, ConnectionPage
     editFindPreviousAction->setEnabled(cnPageTab!=0 && cnPageTab->canFindPrevious());
 }
 
+void AppEditMenu::updateActionStatesForCodeEditor(CodeEditor *editor)
+{
+    Q_ASSERT(editor);
+    bool isReadOnly=editor->isReadOnly();
+
+    editUndoAction->setEnabled(!isReadOnly);
+    editRedoAction->setEnabled(!isReadOnly);
+    editCutAction->setEnabled(!isReadOnly);
+    editCopyAction->setEnabled(true);
+    editPasteAction->setEnabled(!isReadOnly);
+
+    editCommentAction->setEnabled(!isReadOnly);
+    editMoveUpAction->setEnabled(!isReadOnly);
+    editMoveDownAction->setEnabled(!isReadOnly);
+    editSelectBlockAction->setEnabled(!isReadOnly);
+    editToUpperCaseAction->setEnabled(!isReadOnly);
+    editToLowerCaseAction->setEnabled(!isReadOnly);
+    editCreateDuplicateAction->setEnabled(!isReadOnly);
+
+    editIncreaseFontSize->setEnabled(true);
+    editDecreaseFontSize->setEnabled(true);
+
+    editGoToLineAction->setEnabled(true);
+}
+/*
+void AppEditMenu::setUndoEnabled(bool enabled)
+{
+    editUndoAction->setEnabled(enabled);
+}
+
+void AppEditMenu::setRedoEnabled(bool enabled)
+{
+    editRedoAction->setEnabled(enabled);
+}*/
+
 void AppEditMenu::focusWidgetChanged(QWidget * /*old*/, QWidget *now)
 {
     if(now==0){
@@ -106,6 +144,12 @@ void AppEditMenu::focusWidgetChanged(QWidget * /*old*/, QWidget *now)
     }
 
     currentAppWidget=now;
+
+    CodeEditor *editor = qobject_cast<CodeEditor*>(currentAppWidget);
+    bool isCodeEditor=(editor!=0);
+    if(isCodeEditor){ //code editor will update action states by direct calls
+        return;
+    }
 
     bool canUndo=now->metaObject()->indexOfSlot("undo()")>-1;
     bool canRedo=now->metaObject()->indexOfSlot("redo()")>-1;
@@ -121,21 +165,18 @@ void AppEditMenu::focusWidgetChanged(QWidget * /*old*/, QWidget *now)
     editCopyAction->setEnabled(canCopy);
     editPasteAction->setEnabled(canPaste);
 
-    CodeEditor *editor = qobject_cast<CodeEditor*>(currentAppWidget);
-    bool isCodeEditor=(editor!=0);
-    bool isReadOnly=(editor!=0) && editor->isReadOnly();
+    editCommentAction->setEnabled(false);
+    editMoveUpAction->setEnabled(false);
+    editMoveDownAction->setEnabled(false);
+    editSelectBlockAction->setEnabled(false);
+    editToUpperCaseAction->setEnabled(false);
+    editToLowerCaseAction->setEnabled(false);
+    editCreateDuplicateAction->setEnabled(false);
 
-    editCommentAction->setEnabled(isCodeEditor && !isReadOnly);
-    editMoveUpAction->setEnabled(isCodeEditor && !isReadOnly);
-    editMoveDownAction->setEnabled(isCodeEditor && !isReadOnly);
-    editSelectBlockAction->setEnabled(isCodeEditor && !isReadOnly);
-    editToUpperCaseAction->setEnabled(isCodeEditor && !isReadOnly);
-    editToLowerCaseAction->setEnabled(isCodeEditor && !isReadOnly);
+    editIncreaseFontSize->setEnabled(false);
+    editDecreaseFontSize->setEnabled(false);
 
-    editIncreaseFontSize->setEnabled(isCodeEditor);
-    editDecreaseFontSize->setEnabled(isCodeEditor);
-
-    editGoToLineAction->setEnabled(isCodeEditor);
+    editGoToLineAction->setEnabled(false);
 }
 
 void AppEditMenu::undo()
@@ -201,6 +242,11 @@ void AppEditMenu::toUpperCase()
 void AppEditMenu::toLowerCase()
 {
     WidgetHelper::invokeSlot(currentAppWidget, "toLowerCase");
+}
+
+void AppEditMenu::makeDuplicate()
+{
+    WidgetHelper::invokeSlot(currentAppWidget, "makeDuplicate");
 }
 
 void AppEditMenu::goToLine()

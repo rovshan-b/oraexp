@@ -32,9 +32,10 @@ public slots:
     void decreaseFontSize();
     void toUpperCase();
     void toLowerCase();
+    void makeDuplicate();
     void moveUp();
     void moveDown();
-    void moveSelection(bool up);
+    void moveSelectedText(bool up);
 
 signals:
     void escapeKeyPressed();
@@ -43,6 +44,8 @@ protected:
     void resizeEvent(QResizeEvent *event);
     void keyReleaseEvent ( QKeyEvent * event );
     void keyPressEvent ( QKeyEvent * event );
+    void focusInEvent ( QFocusEvent * event);
+    void contextMenuEvent ( QContextMenuEvent * event );
 
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
@@ -65,6 +68,8 @@ private:
     void removeFromBeginning(QTextCursor &cur, int characterCount);
     void changeCase(bool toUpper);
     CursorPositionInfo getStartStopPositions(const QTextCursor cur);
+    void moveSelectionUp();
+    void moveSelectionDown();
 
 };
 
