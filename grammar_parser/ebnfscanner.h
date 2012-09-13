@@ -1,8 +1,9 @@
 #ifndef EBNFSCANNER_H
 #define EBNFSCANNER_H
 
-class QTextStream;
 #include "ebnftoken.h"
+
+class QTextStream;
 
 class EBNFScanner
 {
