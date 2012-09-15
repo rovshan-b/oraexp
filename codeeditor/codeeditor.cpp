@@ -205,6 +205,12 @@ int CodeEditor::lineNumberAreaWidth()
          }else if(key==Qt::Key_Down && (event->modifiers()==(Qt::ControlModifier+Qt::ShiftModifier))){
              handled=true;
              moveSelectionDown();
+         }else if(event->matches(QKeySequence::Cut)){
+             handled=true;
+             customCut();
+         }else if(event->matches(QKeySequence::Copy)){
+             handled=true;
+             customCopy();
          }
      }
 
@@ -212,13 +218,13 @@ int CodeEditor::lineNumberAreaWidth()
         QPlainTextEdit::keyPressEvent(event);
      }
  }
-
+/*
  void CodeEditor::focusInEvent(QFocusEvent *event)
  {
      QPlainTextEdit::focusInEvent(event);
 
      AppMenu::defaultInstance()->getEditMenu()->updateActionStatesForCodeEditor(this);
- }
+ }*/
 
  void CodeEditor::contextMenuEvent(QContextMenuEvent *event)
  {
@@ -437,6 +443,15 @@ int CodeEditor::lineNumberAreaWidth()
      }
  }
 
+ void CodeEditor::ensureHasSelection()
+ {
+     QTextCursor cur=textCursor();
+     if(!cur.hasSelection()){
+         cur.select(QTextCursor::WordUnderCursor);
+         setTextCursor(cur);
+     }
+ }
+
  void CodeEditor::commentBlocks()
  {
      QString comment="--";
@@ -621,6 +636,24 @@ int CodeEditor::lineNumberAreaWidth()
      inf.selectText(cur);
      setTextCursor(cur);
      cur.endEditBlock();
+ }
+
+ void CodeEditor::customCut()
+ {
+     if(isReadOnly()){
+         return;
+     }
+     ensureHasSelection();
+     cut();
+ }
+
+ void CodeEditor::customCopy()
+ {
+     if(isReadOnly()){
+         return;
+     }
+     ensureHasSelection();
+     copy();
  }
 
  void CodeEditor::addText(const QString &text)

@@ -4,7 +4,7 @@
 #include <QtGui>
 
 CompilerMessagesPane::CompilerMessagesPane(QWidget *parent) :
-    InfoPane(parent)
+    QWidget(parent)
 {
     QVBoxLayout *mainLayout=new QVBoxLayout();
     mainLayout->setContentsMargins(0,0,0,0);

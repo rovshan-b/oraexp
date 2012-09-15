@@ -1,9 +1,9 @@
-#include "tablecreatorbottompane.h"
+#include "dbobjectcreatorbottompane.h"
 #include "codeeditor/codeeditor.h"
 #include "util/widgethelper.h"
 #include <QtGui>
 
-TableCreatorBottomPane::TableCreatorBottomPane(QWidget *parent) :
+DbObjectCreatorBottomPane::DbObjectCreatorBottomPane(QWidget *parent) :
     QWidget(parent)
 {
     QVBoxLayout *layout=new QVBoxLayout();
@@ -19,17 +19,18 @@ TableCreatorBottomPane::TableCreatorBottomPane(QWidget *parent) :
     setLayout(layout);
 }
 
-void TableCreatorBottomPane::setEditorText(const QString &text)
+void DbObjectCreatorBottomPane::setEditorText(const QString &text)
 {
     WidgetHelper::appendToPlainTextEdit(codeEditor, text, true);
 }
 
-void TableCreatorBottomPane::appendToEditor(const QString &text)
+void DbObjectCreatorBottomPane::appendToEditor(const QString &text)
 {
     WidgetHelper::appendToPlainTextEdit(codeEditor, text, false);
 }
 
-QStringList TableCreatorBottomPane::getDdl() const
+QStringList DbObjectCreatorBottomPane::getDdl() const
 {
     return codeEditor->getSemicolonSeparated();
 }
+

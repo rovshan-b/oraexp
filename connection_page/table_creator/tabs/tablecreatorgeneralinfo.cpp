@@ -79,8 +79,6 @@ TableCreatorGeneralInfo::TableCreatorGeneralInfo(const QString &schemaName,
 
     if(editMode){
         disableControlsForEditMode();
-
-        connect(tableCreator, SIGNAL(alterQuerySucceeded(QString)), this, SLOT(alterQuerySucceeded(QString)));
     }
 }
 
@@ -259,6 +257,7 @@ void TableCreatorGeneralInfo::alterQuerySucceeded(const QString &taskName)
     Q_ASSERT(originalGeneralInfo);
 
     if(taskName=="rename_table"){
+        originalGeneralInfo->tableName=tableNameEditor->text().trimmed().toUpper();
         tableCreator->setOriginalTableName(tableNameEditor->text().trimmed().toUpper());
     }else if(taskName=="alter_table_comments"){
         originalGeneralInfo->comments=tableCommentEditor->toPlainText().trimmed();

@@ -1,13 +1,13 @@
 #ifndef COMPILERMESSAGESPANE_H
 #define COMPILERMESSAGESPANE_H
 
-#include "info_panel/infopane.h"
+#include <QWidget>
 #include <QModelIndex>
 
 class DataTable;
 class QStandardItemModel;
 
-class CompilerMessagesPane : public InfoPane
+class CompilerMessagesPane : public QWidget
 {
     Q_OBJECT
 public:

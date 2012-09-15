@@ -54,7 +54,6 @@ public:
 
 signals:
     void ddlChanged() const;
-    void alterQuerySucceeded(const QString &taskName);
 
     void objectInfoLoaded();
 

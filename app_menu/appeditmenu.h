@@ -20,8 +20,6 @@ public:
 
     void updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *cnPageTab);
 
-    void updateActionStatesForCodeEditor(CodeEditor *editor);
-
 public slots:
     void setUndoEnabled(bool enabled);
     void setRedoEnabled(bool enabled);
@@ -52,6 +50,8 @@ private slots:
     void findPrevious(){currentConnectionPageTab()->findPrevious();}
 
     void goToLine();
+
+    void updateActionStatesForCodeEditor(CodeEditor *editor);
 
 public:
     QAction *editUndoAction;

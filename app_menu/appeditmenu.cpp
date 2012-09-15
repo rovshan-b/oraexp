@@ -125,6 +125,7 @@ void AppEditMenu::updateActionStatesForCodeEditor(CodeEditor *editor)
     editRedoAction->setEnabled(!isReadOnly && editor->document()->availableRedoSteps()>0);
     editCutAction->setEnabled(!isReadOnly);
     editCopyAction->setEnabled(true);
+    editCopyAsAction->setEnabled(true);
     editPasteAction->setEnabled(!isReadOnly);
 
     editCommentAction->setEnabled(!isReadOnly);
@@ -161,7 +162,8 @@ void AppEditMenu::focusWidgetChanged(QWidget * /*old*/, QWidget *now)
 
     CodeEditor *editor = qobject_cast<CodeEditor*>(currentAppWidget);
     bool isCodeEditor=(editor!=0);
-    if(isCodeEditor){ //code editor will update action states by direct calls
+    if(isCodeEditor){
+        updateActionStatesForCodeEditor(editor);
         return;
     }
 
@@ -177,6 +179,7 @@ void AppEditMenu::focusWidgetChanged(QWidget * /*old*/, QWidget *now)
 
     editCutAction->setEnabled(canCut);
     editCopyAction->setEnabled(canCopy);
+    editCopyAsAction->setEnabled(false);
     editPasteAction->setEnabled(canPaste);
 
     editCommentAction->setEnabled(false);
@@ -205,12 +208,20 @@ void AppEditMenu::redo()
 
 void AppEditMenu::cut()
 {
-    WidgetHelper::invokeSlot(currentAppWidget, "cut");
+    if(qobject_cast<CodeEditor*>(currentAppWidget)){
+        WidgetHelper::invokeSlot(currentAppWidget, "customCut");
+    }else{
+        WidgetHelper::invokeSlot(currentAppWidget, "cut");
+    }
 }
 
 void AppEditMenu::copy()
 {
-    WidgetHelper::invokeSlot(currentAppWidget, "copy");
+    if(qobject_cast<CodeEditor*>(currentAppWidget)){
+        WidgetHelper::invokeSlot(currentAppWidget, "customCopy");
+    }else{
+        WidgetHelper::invokeSlot(currentAppWidget, "copy");
+    }
 }
 
 void AppEditMenu::paste()
@@ -265,9 +276,5 @@ void AppEditMenu::makeDuplicate()
 
 void AppEditMenu::goToLine()
 {
-    if(!currentAppWidget){
-        return;
-    }
-
-    currentAppWidget->metaObject()->invokeMethod(currentAppWidget, "goToLine", Qt::DirectConnection);
+    WidgetHelper::invokeSlot(currentAppWidget, "goToLine");
 }

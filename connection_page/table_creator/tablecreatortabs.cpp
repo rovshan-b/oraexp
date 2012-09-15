@@ -75,13 +75,6 @@ TableCreatorTabs::TableCreatorTabs(const QString &schemaName,
 
     connect(generalInfoTab, SIGNAL(currentSchemaChanged()), this, SLOT(currentSchemaChanged()));
     connect(generalInfoTab, SIGNAL(tableTypeChanged(OraExp::TableType)), this, SLOT(tableTypeChanged(OraExp::TableType)));
-
-    if(editMode){
-        TableCreator* tableCreator=static_cast<TableCreator*>(parent);
-        Q_ASSERT(tableCreator);
-        connect(tableCreator, SIGNAL(alterQuerySucceeded(QString)), this, SIGNAL(alterQuerySucceeded(QString)));
-    }
-
 }
 
 TableCreatorTabs::~TableCreatorTabs()

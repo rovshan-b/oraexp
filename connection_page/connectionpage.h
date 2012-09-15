@@ -1,7 +1,7 @@
 #ifndef CONNECTIONPAGE_H
 #define CONNECTIONPAGE_H
 
-#include <QWidget>
+#include <QMainWindow>
 #include "dbuimanager.h"
 #include "connectivity/ociexception.h"
 #include "connectivity/connectionpool.h"
@@ -11,8 +11,9 @@ class DbConnection;
 class QDockWidget;
 class TreePane;
 class ConnectionPageTab;
+class InfoPanel;
 
-class ConnectionPage : public QWidget
+class ConnectionPage : public QMainWindow
 {
     Q_OBJECT
 public:
@@ -29,6 +30,8 @@ public:
     ConnectionPageTab *currentConnectionPage() const;
     int tabCount() const{return this->centralTab->count();}
 
+    bool isTreePaneVisible() const;
+
 signals:
     void connectionPageStateChanged();
 
@@ -37,6 +40,7 @@ public slots:
     void asyncConnectionReady(DbConnection *db, void *data, bool error, const OciException &ex);
     void tabBusyStateChanged(ConnectionPageTab *tab, bool busy);
     void tabInitializationCompleted(ConnectionPageTab *tab);
+    void toggleTreePane();
 
 private:
     DbConnection *db;

@@ -69,14 +69,14 @@ private:
     //these variables are only used in edit mode
     TableGeneralInfo *originalGeneralInfo;
 
-private slots:
+protected slots:
     void storageParamsButtonClicked(LineEditWithButton *);
     void additionalAttributesButtonClicked(LineEditWithButton *);
     void indexOrganizedPropertiesButtonClicked(LineEditWithButton *);
     void tableTypeComboBoxChanged(int newTableType);
 
     void alterQuerySucceeded(const QString &taskName);
-    void alterQueryError(const QString &/*taskName*/){}
+    //void alterQueryError(const QString &/*taskName*/){}
 
 };
 

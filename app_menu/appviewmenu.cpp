@@ -1,8 +1,10 @@
 #include "appviewmenu.h"
+#include "connectionspane.h"
+#include "connection_page/connectionpage.h"
 #include "util/iconutil.h"
 #include <QtGui>
 
-AppViewMenu::AppViewMenu(QMenu *viewMenu, QToolBar *toolbar, QObject *parent) : QObject(parent)
+AppViewMenu::AppViewMenu(QMenu *viewMenu, QToolBar *toolbar, QObject *parent) : AppMainMenu(parent)
 {
     setupMenu(viewMenu, toolbar);
 }
@@ -12,10 +14,19 @@ AppViewMenu::~AppViewMenu()
     delete viewAppStyleMenu;
 }
 
+void AppViewMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab * /*cnPageTab*/)
+{
+    viewDatabaseObjectsAction->setEnabled(cnPage!=0);
+    viewDatabaseObjectsAction->setChecked(cnPage!=0 && cnPage->isTreePaneVisible());
+}
+
 void AppViewMenu::setupMenu(QMenu *viewMenu, QToolBar */*toolbar*/)
 {
-    viewDatabaseObjectsAction=viewMenu->addAction(IconUtil::getIcon("database"), tr("&Database objects"));
+    viewDatabaseObjectsAction=viewMenu->addAction(IconUtil::getIcon("database"), tr("&Database objects"),
+                                                  this, SLOT(toggleDbObjectsTree()), QKeySequence("F6"));
     viewDatabaseObjectsAction->setStatusTip(tr("Show/Hide database objects pane"));
+    viewDatabaseObjectsAction->setCheckable(true);
+    viewDatabaseObjectsAction->setEnabled(false);
 
     viewApplicationStyleAction=viewMenu->addAction(tr("Style"));
     createAppStyleMenu();
@@ -47,4 +58,12 @@ void AppViewMenu::setApplicationStyle()
     Q_ASSERT(action);
     qApp->setStyle(action->data().toString());
     action->setChecked(true);
+}
+
+void AppViewMenu::toggleDbObjectsTree()
+{
+    ConnectionPage *cnPage=getConnectionsPane()->currentConnectionPage();
+    if(cnPage){
+        cnPage->toggleTreePane();
+    }
 }

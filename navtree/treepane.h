@@ -15,9 +15,8 @@ public:
     explicit TreePane(DbUiManager *uiManager, QWidget *parent = 0);
 
     virtual void setConnection(DbConnection *db);
-signals:
 
-public slots:
+    virtual QSize sizeHint () const;
 
 private:
     DbTreeView *dbTree;

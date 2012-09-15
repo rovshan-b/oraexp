@@ -1,46 +1,21 @@
 #ifndef TABLECREATOR_H
 #define TABLECREATOR_H
 
-#include <QWidget>
-#include "../connectionpagetab.h"
+#include "connection_page/db_object_creator/dbobjectcreator.h"
 
-class DbConnection;
-class TableCreatorTabs;
-class TableCreatorBottomPane;
-class QSplitter;
 class DbUiManager;
 
-class TableCreator : public ConnectionPageTab
+class TableCreator : public DbObjectCreator
 {
     Q_OBJECT
 public:
     explicit TableCreator(const QString &schemaName,
-                          const QString &tableName,
+                          const QString &objectName,
                           DbUiManager *uiManager,
                           QWidget *parent = 0);
 
-    virtual void setConnection(DbConnection *db);
-
-signals:
-    void alterQuerySucceeded(const QString &taskName);
-
-private slots:
-    void updateDdlText(bool force=false);
-    void ddlViewerToggled(bool visible);
-
-    void createOrAlterTable();
-    void createTable();
-    void alterTable();
-    void cancel();
-
-private:
-    TableCreatorTabs *tableCreatorTabs;
-    TableCreatorBottomPane *bottomPane;
-    QSplitter *splitter;
-
-    QString tableName;
-
-    bool editMode;
+protected:
+    virtual DbObjectCreatorPane *createCreatorPane(const QString &schemaName, const QString &objectName);
 };
 
 #endif // TABLECREATOR_H

@@ -1,16 +1,16 @@
-#ifndef TABLECREATORBOTTOMPANE_H
-#define TABLECREATORBOTTOMPANE_H
+#ifndef DBOBJECTCREATORBOTTOMPANE_H
+#define DBOBJECTCREATORBOTTOMPANE_H
 
 #include <QWidget>
 
 class CodeEditor;
 class QGroupBox;
 
-class TableCreatorBottomPane : public QWidget
+class DbObjectCreatorBottomPane : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TableCreatorBottomPane(QWidget *parent = 0);
+    explicit DbObjectCreatorBottomPane(QWidget *parent = 0);
 
     void setEditorText(const QString &text);
     void appendToEditor(const QString &text);
@@ -20,6 +20,7 @@ public:
 private:
     CodeEditor *codeEditor;
     QGroupBox *ddlGroupBox;
+    
 };
 
-#endif // TABLECREATORBOTTOMPANE_H
+#endif // DBOBJECTCREATORBOTTOMPANE_H

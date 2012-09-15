@@ -134,7 +134,6 @@ SOURCES += main.cpp\
     beans/storageparams.cpp \
     connection_page/table_creator/tablecreatortabs.cpp \
     connection_page/table_creator/tablecreator.cpp \
-    connection_page/table_creator/tablecreatorbottompane.cpp \
     codeeditor/syntaxhighligher.cpp \
     codeeditor/linenumberarea.cpp \
     connectivity/queryresult.cpp \
@@ -309,7 +308,6 @@ SOURCES += main.cpp\
     context_menu/viewcontextmenuutil.cpp \
     connection_page/editorcreatorutil.cpp \
     info_panel/panes/compilermessagespane.cpp \
-    info_panel/infopane.cpp \
     connection_page/code_creator/codecreatorwidget.cpp \
     connection_page/code_creator/codecreator.cpp \
     context_menu/functioncontextmenuutil.cpp \
@@ -321,7 +319,11 @@ SOURCES += main.cpp\
     context_menu/typecontextmenuutil.cpp \
     widgets/multieditorwidget.cpp \
     dialogs/gotolinedialog.cpp \
-    codeeditor/cursorpositioninfo.cpp
+    codeeditor/cursorpositioninfo.cpp \
+    connection_page/db_object_creator/dbobjectcreator.cpp \
+    connection_page/db_object_creator/dbobjectcreatorpane.cpp \
+    connection_page/db_object_creator/dbobjectcreatorbottompane.cpp \
+    connection_page/table_creator/tablecreatorpane.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -439,7 +441,6 @@ HEADERS  += mainwindow.h \
     beans/storageparams.h \
     connection_page/table_creator/tablecreatortabs.h \
     connection_page/table_creator/tablecreator.h \
-    connection_page/table_creator/tablecreatorbottompane.h \
     codeeditor/syntaxhighligher.h \
     codeeditor/linenumberarea.h \
     connectivity/queryresult.h \
@@ -624,7 +625,6 @@ HEADERS  += mainwindow.h \
     context_menu/viewcontextmenuutil.h \
     connection_page/editorcreatorutil.h \
     info_panel/panes/compilermessagespane.h \
-    info_panel/infopane.h \
     connection_page/code_creator/codecreatorwidget.h \
     connection_page/code_creator/codecreator.h \
     context_menu/functioncontextmenuutil.h \
@@ -637,7 +637,11 @@ HEADERS  += mainwindow.h \
     errors.h \
     widgets/multieditorwidget.h \
     dialogs/gotolinedialog.h \
-    codeeditor/cursorpositioninfo.h
+    codeeditor/cursorpositioninfo.h \
+    connection_page/db_object_creator/dbobjectcreator.h \
+    connection_page/db_object_creator/dbobjectcreatorpane.h \
+    connection_page/db_object_creator/dbobjectcreatorbottompane.h \
+    connection_page/table_creator/tablecreatorpane.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

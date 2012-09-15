@@ -37,6 +37,9 @@ public slots:
     void moveDown();
     void moveSelectedText(bool up);
 
+    void customCut();
+    void customCopy();
+
 signals:
     void escapeKeyPressed();
 
@@ -44,7 +47,7 @@ protected:
     void resizeEvent(QResizeEvent *event);
     void keyReleaseEvent ( QKeyEvent * event );
     void keyPressEvent ( QKeyEvent * event );
-    void focusInEvent ( QFocusEvent * event);
+    //void focusInEvent ( QFocusEvent * event);
     void contextMenuEvent ( QContextMenuEvent * event );
 
 private slots:
@@ -72,6 +75,7 @@ private:
     CursorPositionInfo getStartStopPositions(const QTextCursor cur);
     void moveSelectionUp();
     void moveSelectionDown();
+    void ensureHasSelection();
 
 };
 

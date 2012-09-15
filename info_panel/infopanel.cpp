@@ -1,11 +1,10 @@
 #include "infopanel.h"
-#include "infopane.h"
 #include "util/widgethelper.h"
 #include "widgets/closebutton.h"
 #include <QtGui>
 
-InfoPanel::InfoPanel(QWidget *parent) :
-    QObject(parent)
+InfoPanel::InfoPanel(QWidget *parent, bool decreaseFontSize) :
+    QObject(parent), decreaseFontSize(decreaseFontSize)
 {
     tab=new QStackedWidget();
     WidgetHelper::changeFontSize(tab, -1);
@@ -14,16 +13,21 @@ InfoPanel::InfoPanel(QWidget *parent) :
     createToolbar();
 }
 
-void InfoPanel::addPane(InfoPane *pane, const QString &title, const QIcon &icon)
+void InfoPanel::addPane(QWidget *pane, const QString &title, const QIcon &icon, const QKeySequence &shortcut)
 {
     panes.append(pane);
 
     QAction *action=new QAction(icon, title, this);
+    if(shortcut.isEmpty()){
+        action->setShortcut(shortcut);
+    }
     toolbar->insertAction(placeholderAction, action);
     action->setData(tab->count());
     action->setCheckable(true);
     action->setChecked(false);
-    WidgetHelper::changeFontSize(action, -1);
+    if(decreaseFontSize){
+        WidgetHelper::changeFontSize(action, -0.5);
+    }
 
     QWidget *containerWidget=new QWidget();
     QVBoxLayout *containerLayout=new QVBoxLayout();
@@ -81,7 +85,7 @@ bool InfoPanel::isPanelVisible() const
     return tab->isVisible();
 }
 
-void InfoPanel::setCurrentPane(InfoPane *pane)
+void InfoPanel::setCurrentPane(QWidget *pane)
 {
     int ix = indexOf(pane);
     Q_ASSERT(ix!=-1);
@@ -89,12 +93,12 @@ void InfoPanel::setCurrentPane(InfoPane *pane)
     setCurrentIndex(ix);
 }
 
-int InfoPanel::indexOf(InfoPane *pane) const
+int InfoPanel::indexOf(QWidget *pane) const
 {
     return panes.indexOf(pane);
 }
 
-void InfoPanel::closePane(InfoPane *pane)
+void InfoPanel::closePane(QWidget *pane)
 {
     int currentIx = getCurrentIndex();
     if(currentIx==-1){
@@ -124,7 +128,7 @@ void InfoPanel::createToolbar()
 {
     toolbar=new QToolBar();
     toolbar->setIconSize(QSize(12,12));
-    WidgetHelper::changeFontSize(toolbar, -1);
+    WidgetHelper::changeFontSize(toolbar, -0.5);
     toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     toolbar->setContentsMargins(0,0,0,0);
 

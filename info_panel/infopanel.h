@@ -3,21 +3,21 @@
 
 #include <QObject>
 #include <QIcon>
+#include <QKeySequence>
 
 class QToolBar;
 class QStackedWidget;
 class QBoxLayout;
 class QLabel;
 class QAction;
-class InfoPane;
 
 class InfoPanel : public QObject
 {
     Q_OBJECT
 public:
-    explicit InfoPanel(QWidget *parent);
+    explicit InfoPanel(QWidget *parent, bool decreaseFontSize=true);
 
-    void addPane(InfoPane *pane, const QString &title, const QIcon &icon);
+    void addPane(QWidget *pane, const QString &title, const QIcon &icon, const QKeySequence &shortcut=QKeySequence());
     void addInfoWidget(QWidget *w);
 
     void setCurrentIndex(int index);
@@ -28,10 +28,10 @@ public:
 
     bool isPanelVisible() const;
 
-    void setCurrentPane(InfoPane *pane);
-    int indexOf(InfoPane *pane) const;
+    void setCurrentPane(QWidget *pane);
+    int indexOf(QWidget *pane) const;
 
-    void closePane(InfoPane *pane);
+    void closePane(QWidget *pane);
 
 public slots:
     void closePanel();
@@ -42,11 +42,13 @@ private slots:
 private:
     void createToolbar();
 
+    bool decreaseFontSize;
+
     QToolBar *toolbar;
     QAction *placeholderAction;
 
     QStackedWidget *tab;
-    QList<InfoPane*> panes;
+    QList<QWidget*> panes;
 
     QBoxLayout *createPanelHeader(const QString &title);
 };

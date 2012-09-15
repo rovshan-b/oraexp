@@ -1,39 +1,55 @@
 #include "connectionpage.h"
 #include "connectionpagetab.h"
 #include "connectivity/dbconnection.h"
+#include "info_panel/infopanel.h"
 #include "navtree/treepane.h"
 #include  "dbuimanager.h"
+#include "util/iconutil.h"
 #include <iostream>
 #include <QtGui>
 
 using namespace std;
 
 ConnectionPage::ConnectionPage(DbConnection *db, QWidget *parent) :
-    QWidget(parent), uiManager(db, this)
+    QMainWindow(parent), uiManager(db, this)
 {
     this->db=db;
 
-    setWindowFlags(Qt::Widget);
+    //setWindowFlags(Qt::Widget);
 
-    treePane=new TreePane(&uiManager);
+    setDockNestingEnabled(true);
+
+    treeDock=new QDockWidget(tr("Database objects"), this);
+    treeDock->setAllowedAreas(Qt::LeftDockWidgetArea |
+                              Qt::RightDockWidgetArea);
+    treeDock->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable);
+
+    treePane=new TreePane(&uiManager, treeDock);
     treePane->setConnection(db);
+
+    treeDock->setWidget(treePane);
+    addDockWidget(Qt::LeftDockWidgetArea, treeDock);
 
     centralTab=new TabWidget();
     centralTab->setTabsClosable(true);
     centralTab->setDocumentMode(true);
     centralTab->setMovable(true);
 
-    QSplitter *splitter=new QSplitter(Qt::Horizontal);
-    splitter->addWidget(treePane);
-    splitter->addWidget(centralTab);
-    splitter->setStretchFactor(1, 2);
+    setCentralWidget(centralTab);
+    //QSplitter *splitter=new QSplitter(Qt::Horizontal);
+    //splitter->addWidget(treePane);
+    //splitter->addWidget(centralTab);
+    //splitter->setStretchFactor(1, 2);
 
-    QHBoxLayout *layout=new QHBoxLayout();
-    layout->addWidget(splitter);
-    setLayout(layout);
+    //QHBoxLayout *layout=new QHBoxLayout();
+    //layout->setContentsMargins(0,0,0,0);
+    //layout->addWidget(splitter);
+    //layout->addWidget(centralTab);
+    //setLayout(layout);
 
     uiManager.addWorksheet();
 
+    connect(treeDock, SIGNAL(visibilityChanged(bool)), this, SIGNAL(connectionPageStateChanged()));
     connect(centralTab, SIGNAL(currentChanged(int)), this, SIGNAL(connectionPageStateChanged()));
     connect(centralTab, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
     connect(&connectionPool, SIGNAL(asyncConnectionReady(DbConnection*,void*,bool,OciException)),
@@ -141,4 +157,14 @@ ConnectionPageTab *ConnectionPage::currentConnectionPage() const
 {
     ConnectionPageTab *cnPageTab=static_cast<ConnectionPageTab*>(centralTab->currentWidget());
     return cnPageTab;
+}
+
+void ConnectionPage::toggleTreePane()
+{
+    treeDock->setVisible(!treeDock->isVisible());
+}
+
+bool ConnectionPage::isTreePaneVisible() const
+{
+    return treeDock->isVisible();
 }

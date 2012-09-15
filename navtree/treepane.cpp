@@ -7,6 +7,8 @@
 TreePane::TreePane(DbUiManager *uiManager, QWidget *parent) :
     ConnectionPageTab(uiManager, parent)
 {
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
+
     dbTree=new DbTreeView();
 
     QVBoxLayout *treeLayout=new QVBoxLayout();
@@ -25,6 +27,11 @@ void TreePane::setConnection(DbConnection *db)
     populateTree();
 
     //decreaseRefCount();
+}
+
+QSize TreePane::sizeHint() const
+{
+    return QSize(200, 200);
 }
 
 void TreePane::populateTree()
