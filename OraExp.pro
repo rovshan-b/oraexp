@@ -641,7 +641,8 @@ HEADERS  += mainwindow.h \
     connection_page/db_object_creator/dbobjectcreator.h \
     connection_page/db_object_creator/dbobjectcreatorpane.h \
     connection_page/db_object_creator/dbobjectcreatorbottompane.h \
-    connection_page/table_creator/tablecreatorpane.h
+    connection_page/table_creator/tablecreatorpane.h \
+    util/triple.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

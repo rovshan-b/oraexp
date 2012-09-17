@@ -5,15 +5,18 @@
 #include "dialogs/descriptiveerrordialog.h"
 #include "dbobjectcreatorpane.h"
 #include "dbobjectcreatorbottompane.h"
+#include "connectivity/statement.h"
+#include "util/dbutil.h"
 #include <QtGui>
 
 DbObjectCreator::DbObjectCreator(const QString &schemaName,
                                  const QString &objectName,
                                  DbUiManager *uiManager,
-                                 QWidget *parent) :
+                                 DbTreeModel::DbTreeNodeType objectType, QWidget *parent) :
     ConnectionPageTab(uiManager, parent),
     schemaName(schemaName),
-    objectName(objectName)
+    objectName(objectName),
+    objectType(objectType)
 {
     editMode=!objectName.isEmpty();
 }
@@ -107,70 +110,83 @@ void DbObjectCreator::createObject()
         return;
     }
 
-    QStringList ddlList=bottomPane->getDdl();
+    createDdlList=bottomPane->getDdl();
 
-    if(ddlList.isEmpty()){
+    if(createDdlList.isEmpty()){
         QMessageBox::information(this->window(),
                                  tr("Definition incomplete"),
-                                 tr("Definition of table is not complete. Please, make sure to enter table name and column list as a minimum."));
+                                 tr("Definition of object is not complete"));
         return;
     }
 
-    QString currentDdl;
-    bool success=false;
-    int openWorksheetWithQueryIndex=-1;
+    alterQueryIx=0;
 
-    for(int i=0; i<ddlList.size(); ++i){
-        currentDdl=ddlList.at(i).trimmed();
-        if(currentDdl.isEmpty()){
-            continue;
-        }
+    startProgress();
 
-        try{
-            db->executeQueryAndCleanup(currentDdl);
-            success=true;
-        }catch(OciException &ex){
+    executeNextCreateQuery();
+}
 
-            QString messageText=tr("Following error occured while creating table:\n%1").arg(ex.getErrorMessage());
+void DbObjectCreator::executeNextCreateQuery()
+{
+    if(alterQueryIx==createDdlList.size()){ //all queries completed successfully
+       updateDdlText();
+       stopProgress();
 
-            if(i!=0){ //other than CREATE TABLE statement failed
-                messageText.append("\n");
-                messageText.append(tr("Remaining queries will now be opened in a new worksheet so that you can manually fix errors and continue."));
-            }
+       uiManager->createViewer(creatorPane->getSchemaName().toUpper(), creatorPane->getObjectName().toUpper(), this->objectType);
+       uiManager->closeTab(this);
 
-            unsigned int errorLine=ex.getErrorRow();
-            messageText.append("\nLine: ").append(QString::number(errorLine));
-            DescriptiveErrorDialog::showMessage(tr("Error while creating table"),
-                                                messageText,
-                                                currentDdl,
-                                                errorLine,
-                                                this->window());
-
-            if(i!=0){ //other than CREATE TABLE statement failed
-                openWorksheetWithQueryIndex=i;
-            }
-
-            break;
-        }
+       return;
     }
 
-    if(success){
-        uiManager->createViewer(creatorPane->getSchemaName().toUpper(), creatorPane->getObjectName().toUpper(),
-                                DbTreeModel::Table);
-        uiManager->closeTab(this);
+    this->enqueueQuery(QString("$%1").arg(createDdlList.at(alterQueryIx)),
+                       QList<Param*>(),
+                       this,
+                       "create_database_object",
+                       "createQueryCompleted");
+}
+
+void DbObjectCreator::createQueryCompleted(const QueryResult &result)
+{
+    if(result.hasError){
+        processCreateError(result.exception);
+    }else{
+        delete result.statement;
+        ++alterQueryIx;
+        executeNextCreateQuery();
+    }
+}
+
+void DbObjectCreator::processCreateError(const OciException &ex)
+{
+    stopProgress();
+
+    QString messageText=tr("Following error occured while creating %1:\n%2").arg(DbUtil::getDbObjectTypeNameByNodeType(this->objectType), ex.getErrorMessage());
+
+    if(alterQueryIx!=0){ //other than first statement failed
+        messageText.append("\n");
+        messageText.append(tr("Remaining queries will now be opened in a new worksheet\n so that you can manually fix errors and continue."));
     }
 
-    if(openWorksheetWithQueryIndex!=-1){
+    unsigned int errorLine=ex.getErrorRow();
+    messageText.append("\nLine: ").append(QString::number(errorLine));
+    DescriptiveErrorDialog::showMessage(tr("Error creating %1").arg(DbUtil::getDbObjectTypeNameByNodeType(this->objectType)),
+                                        messageText,
+                                        createDdlList.at(alterQueryIx),
+                                        errorLine,
+                                        this->window());
+    if(alterQueryIx!=0){
         QString remainingQueries;
-        for(int i=openWorksheetWithQueryIndex; i<ddlList.size(); ++i){
-            remainingQueries.append(ddlList.at(i).trimmed());
+        for(int i=alterQueryIx; i<createDdlList.size(); ++i){
+            remainingQueries.append(createDdlList.at(i).trimmed());
 
-            if(i!=ddlList.size()-1){
+            if(i!=createDdlList.size()-1){
                 remainingQueries.append("\n");
             }
         }
         uiManager->addWorksheet(remainingQueries);
     }
+
+    createDdlList.clear();
 }
 
 void DbObjectCreator::alterObject()
@@ -179,51 +195,86 @@ void DbObjectCreator::alterObject()
         return;
     }
 
-    QList< QueryListItem > ddlList = creatorPane->generateAlterDdl();
+    startProgress();
 
-    QueryListItem item;
-    NameQueryPair pair;
-    try{
-        for(int k=0; k<ddlList.size(); ++k){
-            item = ddlList.at(k);
+    QList<QueryListItem> ddlList = creatorPane->generateAlterDdl();
 
-            for(int i=0; i<item.queries.size(); ++i){
-                pair=item.queries.at(i);
+    alterDdlQueue.clear();
 
-                qDebug() << "executing alter task named" << pair.first;
-                db->executeQueryAndCleanup(pair.second);
+    //normalize
+    for(int i=0; i<ddlList.size(); ++i){
+        const QueryListItem &item=ddlList.at(i);
+        for(int k=0; k<item.queries.size(); ++k){
+            const NameQueryPair &pair=item.queries.at(k);
 
-                bool invokeResult=QMetaObject::invokeMethod(item.requester, "alterQuerySucceeded",
-                                          Qt::DirectConnection, Q_ARG(QString, pair.first));
-                if(!invokeResult){
-                    qDebug() << "Could not invoke alterQuerySucceeded slot on" << item.requester << "for task named"<<pair.first;
-                }
-            }
+            alterDdlQueue.enqueue(makeTriple(QPointer<QObject>(item.requester), pair.first, pair.second));
         }
-    }catch(OciException &ex){
-
-        if(item.requester){
-            bool invokeResult=QMetaObject::invokeMethod(item.requester, "alterQueryError",
-                                      Qt::DirectConnection, Q_ARG(QString, pair.first));
-            if(!invokeResult){
-                qDebug() << "Could not invoke alterQueryError slot on" << item.requester << "for task named"<<pair.first;
-            }
-        }
-
-        unsigned int errorLine=ex.getErrorRow();
-        QString messageText=ex.getErrorMessage();
-        messageText.append("\nLine: ").append(QString::number(errorLine));
-        DescriptiveErrorDialog::showMessage(tr("Error altering table"),
-                                            messageText,
-                                            pair.second,
-                                            errorLine,
-                                            this->window());
     }
 
-    updateDdlText();
-    QMessageBox::information(this->window(),
-                             tr("Table altered successfully"),
-                             tr("Table altered successfully"));
+    alterQueryIx=0;
+
+    executeNextAlterQuery();
+}
+
+void DbObjectCreator::executeNextAlterQuery()
+{
+    if(alterDdlQueue.isEmpty()){
+       updateDdlText();
+       stopProgress();
+       return;
+    }
+
+    currentAlterItem = alterDdlQueue.dequeue();
+
+    this->enqueueQuery(QString("$%1").arg(currentAlterItem.third),
+                       QList<Param*>(),
+                       this,
+                       currentAlterItem.second,
+                       "alterQueryCompleted");
+}
+
+void DbObjectCreator::alterQueryCompleted(const QueryResult &result)
+{
+    if(result.hasError){
+        processAlterError(result.exception);
+    }else{
+        delete result.statement;
+
+        processAlterSuccess();
+    }
+
+    executeNextAlterQuery();
+}
+
+void DbObjectCreator::processAlterSuccess()
+{
+    bool invokeResult=QMetaObject::invokeMethod(currentAlterItem.first, "alterQuerySucceeded",
+                              Qt::DirectConnection, Q_ARG(QString, currentAlterItem.second));
+    if(!invokeResult){
+        qDebug() << "Could not invoke alterQuerySucceeded slot on" << currentAlterItem.first << "for task named"<<currentAlterItem.second;
+    }
+}
+
+void DbObjectCreator::processAlterError(const OciException &ex)
+{
+    if(currentAlterItem.first){
+        bool invokeResult=QMetaObject::invokeMethod(currentAlterItem.first, "alterQueryError",
+                                  Qt::DirectConnection, Q_ARG(QString, currentAlterItem.second));
+        if(!invokeResult){
+            qDebug() << "Could not invoke alterQueryError slot on" << currentAlterItem.first << "for task named"<<currentAlterItem.second;
+        }
+    }
+
+    unsigned int errorLine=ex.getErrorRow();
+    QString messageText=ex.getErrorMessage();
+    messageText.append("\nLine: ").append(QString::number(errorLine));
+    DescriptiveErrorDialog::showMessage(tr("Error altering %1").arg(DbUtil::getDbObjectTypeNameByNodeType(this->objectType)),
+                                        messageText,
+                                        currentAlterItem.third,
+                                        errorLine,
+                                        this->window());
+
+    alterDdlQueue.clear();
 }
 
 void DbObjectCreator::cancel()
@@ -235,5 +286,15 @@ void DbObjectCreator::cancel()
     if(confirmed==QMessageBox::Yes){
         uiManager->closeTab(this);
     }
+}
+
+void DbObjectCreator::startProgress()
+{
+    this->setEnabled(false);
+}
+
+void DbObjectCreator::stopProgress()
+{
+    this->setEnabled(true);
 }
 

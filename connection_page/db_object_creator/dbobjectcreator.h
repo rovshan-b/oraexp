@@ -1,7 +1,12 @@
 #ifndef DBOBJECTCREATOR_H
 #define DBOBJECTCREATOR_H
 
+#include <QQueue>
+
 #include "../connectionpagetab.h"
+#include "util/triple.h"
+#include "connectivity/queryresult.h"
+#include "navtree/dbtreemodel.h"
 
 class DbConnection;
 class DbUiManager;
@@ -16,6 +21,7 @@ public:
     explicit DbObjectCreator(const QString &schemaName,
                              const QString &objectName,
                              DbUiManager *uiManager,
+                             DbTreeModel::DbTreeNodeType objectType,
                              QWidget *parent = 0);
     
     virtual void createUi();
@@ -24,6 +30,10 @@ public:
 
 protected:
     virtual DbObjectCreatorPane *createCreatorPane(const QString &schemaName, const QString &objectName)=0;
+
+public slots:
+    void createQueryCompleted(const QueryResult &result);
+    void alterQueryCompleted(const QueryResult &result);
 
 private slots:
     void updateDdlText(bool force=false);
@@ -37,12 +47,28 @@ private slots:
 private:
     QString schemaName;
     QString objectName;
+    DbTreeModel::DbTreeNodeType objectType;
 
     DbObjectCreatorPane *creatorPane;
     DbObjectCreatorBottomPane *bottomPane;
     QSplitter *splitter;
 
     bool editMode;
+
+    void startProgress();
+    void stopProgress();
+
+    void executeNextCreateQuery();
+    void processCreateError(const OciException &ex);
+    QStringList createDdlList;
+
+    void executeNextAlterQuery();
+    void processAlterSuccess();
+    void processAlterError(const OciException &ex);
+
+    QQueue < Triple<QPointer<QObject>, QString, QString> > alterDdlQueue;
+    Triple<QPointer<QObject>, QString, QString> currentAlterItem;
+    int alterQueryIx;
     
 };
 

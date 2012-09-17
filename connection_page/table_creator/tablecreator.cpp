@@ -7,7 +7,7 @@ TableCreator::TableCreator(const QString &schemaName,
                            const QString &objectName,
                            DbUiManager *uiManager,
                            QWidget *parent) :
-    DbObjectCreator(schemaName, objectName, uiManager, parent)
+    DbObjectCreator(schemaName, objectName, uiManager, DbTreeModel::Table, parent)
 {
 
 }

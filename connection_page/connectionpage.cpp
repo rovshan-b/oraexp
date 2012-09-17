@@ -81,12 +81,11 @@ void ConnectionPage::closeTab(int index)
     if(!tabPage->isBusy()){
         centralTab->removeTab(index);
         if(widgetToDelete!=0){
-            delete widgetToDelete;
+            widgetToDelete->deleteLater();
         }
     }else{
         QMessageBox::information(this->window(), tr("Tab busy"),
-                                 tr("Cannot close this tab at the moment, because it is currently busy performing "
-                                    "an ongoing database operation"));
+                                 tr("Cannot close this tab at the moment, because it is executing a database query"));
     }
 }
 

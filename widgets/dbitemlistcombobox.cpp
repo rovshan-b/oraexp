@@ -65,7 +65,7 @@ void DbItemListComboBox::itemFetched(const FetchResult &fetchResult)
 void DbItemListComboBox::fetchCompleted(const QString &)
 {
     bool hasSelection=lineEdit()->hasSelectedText();
-    QString currentText=lineEdit    ()->text();
+    QString currentText=lineEdit()->text();
     removeItem(0);
     WidgetHelper::setComboBoxText(this, currentText);
     if(hasSelection){
