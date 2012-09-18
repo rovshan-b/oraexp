@@ -3,6 +3,7 @@
 #include "connection_page/code_creator/codecreator.h"
 #include "connection_page/code_creator/paircodecreator.h"
 #include "connection_page/table_info/tableinfoviewer.h"
+#include "connection_page/sequence_creator/sequencecreator.h"
 
 EditorCreatorUtil::EditorCreatorUtil()
 {
@@ -44,6 +45,10 @@ ConnectionPageTab *EditorCreatorUtil::createEditor(const QString &schemaName,
     case DbTreeModel::Triggers:
     case DbTreeModel::Trigger:
         editor = new CodeCreator(schemaName, objectName, DbTreeModel::Trigger, uiManager);
+        break;
+    case DbTreeModel::Sequences:
+    case DbTreeModel::Sequence:
+        editor = new SequenceCreator(schemaName, objectName, uiManager);
         break;
     case DbTreeModel::Types:
     case DbTreeModel::Type:

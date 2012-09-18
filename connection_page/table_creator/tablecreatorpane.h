@@ -9,7 +9,7 @@ class TableCreatorPane : public DbObjectCreatorPane
 {
     Q_OBJECT
 public:
-    explicit TableCreatorPane(const QString &schemaName, const QString &tableName, QWidget *parent = 0);
+    explicit TableCreatorPane(const QString &schemaName, const QString &objectName, QWidget *parent = 0);
     
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
 
@@ -19,8 +19,8 @@ public:
     //virtual bool beforeCreate();
     virtual bool beforeAlter();
 
-    QString getSchemaName() const;
-    QString getObjectName() const;
+    virtual QString getSchemaName() const;
+    virtual QString getObjectName() const;
 
 private:
     TableCreatorTabs *tableCreatorTabs;

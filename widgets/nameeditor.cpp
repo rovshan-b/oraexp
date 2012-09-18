@@ -1,5 +1,4 @@
 #include "nameeditor.h"
-#include "connectivity/dbconnection.h"
 #include "defines.h"
 
 NameEditor::NameEditor(QWidget *parent) :

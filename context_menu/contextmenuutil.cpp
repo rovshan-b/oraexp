@@ -5,6 +5,7 @@
 #include "procedurecontextmenuutil.h"
 #include "functioncontextmenuutil.h"
 #include "triggercontextmenuutil.h"
+#include "sequencecontextmenuutil.h"
 #include "typecontextmenuutil.h"
 
 ContextMenuUtil::ContextMenuUtil()
@@ -45,6 +46,10 @@ QList<QAction *> ContextMenuUtil::getActionsForObject(const QString &schemaName,
     case DbTreeModel::Triggers:
     case DbTreeModel::Trigger:
         results = TriggerContextMenuUtil::getActionsForObject(schemaName, objectName, itemType, uiManager);
+        break;
+    case DbTreeModel::Sequences:
+    case DbTreeModel::Sequence:
+        results = SequenceContextMenuUtil::getActionsForObject(schemaName, objectName, itemType, uiManager);
         break;
     case DbTreeModel::Types:
     case DbTreeModel::Type:

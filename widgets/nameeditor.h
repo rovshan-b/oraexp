@@ -3,8 +3,6 @@
 
 #include <QLineEdit>
 
-class DbConnection;
-
 class NameEditor : public QLineEdit
 {
     Q_OBJECT

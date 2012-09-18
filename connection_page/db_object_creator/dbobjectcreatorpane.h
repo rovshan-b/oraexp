@@ -11,7 +11,7 @@ class DbObjectCreatorPane : public QWidget
 {
     Q_OBJECT
 public:
-    explicit DbObjectCreatorPane(QWidget *parent = 0);
+    explicit DbObjectCreatorPane(const QString &schemaName, const QString &objectName, QWidget *parent = 0);
     
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
 
@@ -30,7 +30,9 @@ signals:
     
 protected:
     IQueryScheduler *queryScheduler;
-    
+
+    QString schemaName;
+    QString objectName;
 };
 
 #endif // DBOBJECTCREATORPANE_H

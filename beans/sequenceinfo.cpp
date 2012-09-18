@@ -11,6 +11,10 @@ SequenceInfo::~SequenceInfo()
 
 QString SequenceInfo::generateDdl(const SequenceCreateDdlOptions &options) const
 {
+    if(owner.trimmed().isEmpty() || name.trimmed().isEmpty()){
+        return QObject::tr("--Definition is not complete. Sequence owner and name must be entered.");
+    }
+
     QString ddl;
 
     ddl.append(QString("CREATE SEQUENCE \"%1\".\"%2\"").arg(owner, name));
@@ -31,10 +35,12 @@ QString SequenceInfo::generateDdl(const SequenceCreateDdlOptions &options) const
         ddl.append(" MAXVALUE ").append(maxValue);
     }
 
-    ddl.append(cycle ? " CYCLE" : " NOCYCLE");
+    if(cycle){
+        ddl.append(" CYCLE");
+    }
 
     if(!cacheSize.isEmpty()){
-        if(cacheSize==0){
+        if(cacheSize=="0"){
             ddl.append(" NOCACHE");
         }else{
             ddl.append(" CACHE ").append(cacheSize);

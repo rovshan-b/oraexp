@@ -1,7 +1,7 @@
 #include "dbobjectcreatorpane.h"
 
-DbObjectCreatorPane::DbObjectCreatorPane(QWidget *parent) :
-    QWidget(parent)
+DbObjectCreatorPane::DbObjectCreatorPane(const QString &schemaName, const QString &objectName, QWidget *parent) :
+    QWidget(parent), schemaName(schemaName), objectName(objectName)
 {
 }
 
