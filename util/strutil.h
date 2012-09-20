@@ -34,7 +34,7 @@ bool allExistInCollection(const QString &commaSeparatedString, const QStringList
 
 bool hasMatch(const QString &str, const QStringList &collection);
 
-void addEOL(QString &str);
+void addEOL(QString &str, const QString &terminator=QString());
 
 QString formatMsecs(int msecs);
 

@@ -1,6 +1,6 @@
 #include "sequenceinfo.h"
 
-SequenceInfo::SequenceInfo()
+SequenceInfo::SequenceInfo() : dropped(false)
 {
 }
 
@@ -59,17 +59,38 @@ QString SequenceInfo::generateDropDdl() const
     return QString("DROP SEQUENCE \"%1\".\"%2\"").arg(owner, name);
 }
 
-QString SequenceInfo::generateDiffDdl(const SequenceInfo &other, const SequenceDiffDdlOptions &options) const
+bool SequenceInfo::needsRecreation(const SequenceInfo &other) const
 {
+    return lastNumber!=other.lastNumber;
+}
+
+
+QList<NameQueryPair> SequenceInfo::generateDiffDdl(const SequenceInfo &other, const SequenceDiffDdlOptions &options) const
+{
+    QList<NameQueryPair> result;
     QString ddl;
 
-    if(options.updateCurrVal && lastNumber!=other.lastNumber){
-        ddl.append(other.generateDropDdl()).append(";\n");
+    if(options.updateCurrVal && needsRecreation(other)){
+        ddl=other.generateDropDdl();
+        result.append(qMakePair(QString("drop_sequence"), ddl));
+
         SequenceCreateDdlOptions createOptions;
         createOptions.setInitialValue=true;
-        ddl.append(generateDdl(createOptions));
+        ddl=generateDdl(createOptions);
+        result.append(qMakePair(QString("create_sequence"), ddl));
     }else{
 
+        if(name!=other.name){
+            ddl=QString().append("RENAME \"")
+                    .append(other.name)
+                    .append("\" TO \"")
+                    .append(name)
+                    .append("\"");
+
+            result.append(qMakePair(QString("rename_sequence"), ddl));
+        }
+
+        ddl="";
         if(incrementBy!=other.incrementBy){
             ddl.append(" INCREMENT BY ").append(incrementBy);
         }
@@ -95,7 +116,7 @@ QString SequenceInfo::generateDiffDdl(const SequenceInfo &other, const SequenceD
         }
 
         if(cacheSize!=other.cacheSize){
-            if(cacheSize==0){
+            if(cacheSize=="0"){
                 ddl.append(" NOCACHE");
             }else{
                 ddl.append(" CACHE ").append(cacheSize);
@@ -108,10 +129,11 @@ QString SequenceInfo::generateDiffDdl(const SequenceInfo &other, const SequenceD
 
         if(!ddl.isEmpty()){
             ddl.prepend(QString("ALTER SEQUENCE \"%1\".\"%2\"").arg(owner, name));
+            result.append(qMakePair(QString("alter_sequence"), ddl));
         }
     }
 
-    return ddl;
+    return result;
 }
 
 SequenceInfo SequenceInfo::fromFetchResult(const FetchResult &result)

@@ -136,9 +136,12 @@ bool hasMatch(const QString &str, const QStringList &collection)
     return false;
 }
 
-void addEOL(QString &str)
+void addEOL(QString &str, const QString &terminator)
 {
     if(!str.isEmpty()){
+        if(terminator.isEmpty()){
+            str.append(terminator);
+        }
         str.append("\n");
     }
 }

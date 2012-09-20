@@ -30,7 +30,7 @@ CodeEditor::CodeEditor(QWidget *parent) :
     p.setColor(QPalette::Disabled, QPalette::Base, p.color(QPalette::Window));
     setPalette(p);
 
-    strTab=QString("  ");
+    strTab=QString("   ");
 
     setFont(QFont("Monospace"));
 

@@ -10,7 +10,7 @@ DbObjectComparer::DbObjectComparer(DbUiManager *uiManager, QWidget *parent) :
     ConnectionPageTab(uiManager, parent), comparer(0), compareTab(0), optionsTab(0), resultsTab(0)
 {
     QVBoxLayout *mainLayout=new QVBoxLayout();
-    mainLayout->setContentsMargins(0,2,0,2);
+    mainLayout->setContentsMargins(2,2,2,2);
 
     tabWidget=new SubTabWidget();
     tabWidget->setTabPosition(QTabWidget::South);

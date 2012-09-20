@@ -3,10 +3,12 @@
 #include "widgets/nameeditor.h"
 #include "util/iconutil.h"
 #include "util/strutil.h"
+#include "metadata_loaders/sequence/sequenceinfoloader.h"
+#include "connectivity/dbconnection.h"
 #include <QtGui>
 
 SequenceCreatorPane::SequenceCreatorPane(const QString &schemaName, const QString &objectName, QWidget *parent) :
-    DbObjectCreatorPane(schemaName, objectName, parent)
+    DbObjectCreatorPane(schemaName, objectName, parent), originalSequenceInfo(0)
 {
     editMode=!objectName.isEmpty();
 
@@ -14,7 +16,10 @@ SequenceCreatorPane::SequenceCreatorPane(const QString &schemaName, const QStrin
     QRegExp digitsRegExp("\\d*", Qt::CaseSensitive, QRegExp::RegExp2);
     QRegExpValidator *intValidator=new QRegExpValidator(digitsRegExp, this);
 
+    QVBoxLayout *mainLayout=new QVBoxLayout();
     QFormLayout *form=new QFormLayout();
+    QWidget *formContainerWidget=new QWidget();
+    formContainerWidget->setMinimumWidth(350);
 
     schemaList=new DbItemListComboBox(schemaName, "user", true);
     form->addRow(tr("Schema"), schemaList);
@@ -56,9 +61,18 @@ SequenceCreatorPane::SequenceCreatorPane(const QString &schemaName, const QStrin
     startWithEditor=new QLineEdit();
     startWithEditor->setPlaceholderText(placeholderText);
     startWithEditor->setValidator(intValidator);
-    form->addRow(tr("Start with"), startWithEditor);
+    form->addRow(editMode ? tr("Current value") : tr("Start with"), startWithEditor);
 
-    setLayout(form);
+    formContainerWidget->setLayout(form);
+
+    QScrollArea *scrollArea=new QScrollArea();
+    scrollArea->setContentsMargins(0,0,0,0);
+    scrollArea->setWidget(formContainerWidget);
+    //scrollArea->setWidgetResizable(true);
+
+    mainLayout->addWidget(scrollArea);
+    mainLayout->setContentsMargins(0,0,0,0);
+    setLayout(mainLayout);
 
     if(editMode){
         disableControlsForEditMode();
@@ -79,13 +93,27 @@ SequenceCreatorPane::SequenceCreatorPane(const QString &schemaName, const QStrin
     connect(startWithEditor, SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
 }
 
+SequenceCreatorPane::~SequenceCreatorPane()
+{
+    delete originalSequenceInfo;
+}
+
 void SequenceCreatorPane::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
     DbObjectCreatorPane::setQueryScheduler(queryScheduler);
 
+    if(queryScheduler->getDb()->getSchemaName()!=schemaList->currentText()){
+        sequenceNameEditor->setEnabled(false);
+    }
+
     if(editMode){
         schemaList->addItem(IconUtil::getIcon("user"), schemaList->currentText());
         schemaList->setCurrentIndex(0);
+
+        SequenceInfoLoader *metadataLoader=new SequenceInfoLoader(this->queryScheduler, this->schemaName, this->objectName, this);
+        connect(metadataLoader, SIGNAL(objectInfoReady(DbObjectInfo*,MetadataLoader*)), this, SLOT(sequenceInfoReady(DbObjectInfo*,MetadataLoader*)));
+        connect(metadataLoader, SIGNAL(loadError(QString,OciException,MetadataLoader*)), this, SLOT(loadError(QString,OciException,MetadataLoader*)));
+        metadataLoader->loadObjectInfo();
     }else{
         schemaList->loadItems(this->queryScheduler, "get_schema_list");
         emit objectInfoLoaded();
@@ -99,7 +127,24 @@ QString SequenceCreatorPane::generateCreateDdl()
 
 QList<QueryListItem> SequenceCreatorPane::generateAlterDdl()
 {
-    return QList<QueryListItem>();
+    QList<QueryListItem> result;
+
+    result.append(QueryListItem(this, getSequenceInfo().generateDiffDdl(*originalSequenceInfo, SequenceDiffDdlOptions())));
+
+    return result;
+}
+
+bool SequenceCreatorPane::beforeAlter()
+{
+    Q_ASSERT(editMode);
+
+    if(getSequenceInfo().needsRecreation(*originalSequenceInfo)){
+        return QMessageBox::question(this->window(), tr("Drop and recreate"),
+                                     tr("Sequence needs to be dropped and recreated in order to set new current value.\nDo you want to proceed?"),
+                                     QMessageBox::Ok | QMessageBox::Cancel)==QMessageBox::Ok;
+    }
+
+    return true;
 }
 
 QString SequenceCreatorPane::getSchemaName() const
@@ -112,9 +157,44 @@ QString SequenceCreatorPane::getObjectName() const
     return sequenceNameEditor->text().trimmed().toUpper();
 }
 
+void SequenceCreatorPane::alterQuerySucceeded(const QString &taskName)
+{
+    Q_ASSERT(originalSequenceInfo);
+
+    if(taskName=="drop_sequence"){
+        originalSequenceInfo->dropped=true;
+    }else if(taskName=="create_sequence"){
+        *originalSequenceInfo=getSequenceInfo();
+    }else if(taskName=="rename_sequence"){
+        originalSequenceInfo->name=sequenceNameEditor->text().trimmed().toUpper();
+    }else if(taskName=="alter_sequence"){
+        *originalSequenceInfo=getSequenceInfo();
+    }
+}
+
 void SequenceCreatorPane::enableControls()
 {
     cacheSizeEditor->setEnabled(cacheComboBox->currentIndex()==1);
+}
+
+void SequenceCreatorPane::sequenceInfoReady(DbObjectInfo *objectInfo, MetadataLoader *loader)
+{
+    Q_ASSERT(originalSequenceInfo==0);
+    originalSequenceInfo=static_cast<SequenceInfo*>(objectInfo);
+
+    setSequenceInfo(originalSequenceInfo);
+
+    loader->deleteLater();
+
+    emit objectInfoLoaded();
+}
+
+void SequenceCreatorPane::loadError(const QString &taskName, const OciException &ex, MetadataLoader *loader)
+{
+    QMessageBox::critical(this, tr("Failed to load sequence information"),
+                          tr("Task name: %1\nError: %2").arg(taskName, ex.getErrorMessage()));
+
+    loader->deleteLater();
 }
 
 SequenceInfo SequenceCreatorPane::getSequenceInfo() const
@@ -131,7 +211,7 @@ SequenceInfo SequenceCreatorPane::getSequenceInfo() const
 
     int cacheIx = cacheComboBox->currentIndex();
     if(cacheIx==0){
-        info.cacheSize="";
+        info.cacheSize= editMode ? "0" : "";
     }else if(cacheIx==1){
         info.cacheSize=cacheSizeEditor->text();
     }else{
@@ -145,6 +225,15 @@ SequenceInfo SequenceCreatorPane::getSequenceInfo() const
 
 void SequenceCreatorPane::setSequenceInfo(SequenceInfo *sequenceInfo)
 {
+    sequenceNameEditor->setText(sequenceInfo->name);
+    minValueEditor->setText(sequenceInfo->minValue);
+    maxValueEditor->setText(sequenceInfo->maxValue);
+    incrementByEditor->setText(sequenceInfo->incrementBy);
+    cycleCheckbox->setChecked(sequenceInfo->cycle);
+    orderedCheckbox->setChecked(sequenceInfo->ordered);
+    cacheComboBox->setCurrentIndex(sequenceInfo->cacheSize=="0" ? 2 : 1);
+    cacheSizeEditor->setText(sequenceInfo->cacheSize);
+    startWithEditor->setText(sequenceInfo->lastNumber);
 }
 
 void SequenceCreatorPane::disableControlsForEditMode()

@@ -1,6 +1,7 @@
 #include "sequencecomparehelper.h"
 #include "metadata_loaders/sequence/sequenceinfoloader.h"
 #include "dbobjectscomparehelper.h"
+#include "util/strutil.h"
 
 SequenceCompareHelper::SequenceCompareHelper(const QString &compareResult, const QString &currentObjectName, QObject *parent) :
     DbObjectCompareHelper(DbTreeModel::Sequences, compareResult, currentObjectName, parent)
@@ -39,8 +40,15 @@ QPair<QString, QString> SequenceCompareHelper::generateDiffDdl(DbObjectInfo *src
     Q_ASSERT(sourceSequenceInfo);
     Q_ASSERT(targetSequenceInfo);
 
-    QPair<QString, QString> result;
-    QString ddl=sourceSequenceInfo->generateDiffDdl(*targetSequenceInfo, options->sequenceDiffOptions);
+    NameQueryPair result;
+
+    QList<NameQueryPair> ddlList=sourceSequenceInfo->generateDiffDdl(*targetSequenceInfo, options->sequenceDiffOptions);
+    QString ddl;
+    foreach(const NameQueryPair &pair, ddlList){
+        addEOL(ddl, ";");
+        ddl.append(pair.second);
+    }
+
     result.first=QString("\n%1;").arg(ddl);
 
     return result;
