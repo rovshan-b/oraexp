@@ -68,8 +68,8 @@ protected slots:
     {
         bool isEditMode=(currentRowIx<=frozenRowIx);
 
-        ParamDialog *dialog=createEditorDialog(isEditMode, senderWidget->window());
-        QScopedPointer<ParamDialog> scopedDialog(dialog);
+        ParamDialog *dlg=createEditorDialog(isEditMode, senderWidget->window());
+        QScopedPointer<ParamDialog> dialog(dlg);
 
         QVariant originalParams=senderWidget->property("original_additional_params");
         bool originalParamsValid=(originalParams.isValid() && originalParams.canConvert<ParamClass>());

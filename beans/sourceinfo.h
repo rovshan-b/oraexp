@@ -15,6 +15,8 @@ public:
     QString objectName;
     QString objectType;
     QString source;
+
+    virtual bool needsRecreation(DbObjectInfo *other) const;
 };
 
 #endif // SOURCEINFO_H

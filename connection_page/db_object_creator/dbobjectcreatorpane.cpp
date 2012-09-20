@@ -1,7 +1,9 @@
 #include "dbobjectcreatorpane.h"
+#include "dbobjectcreator.h"
+#include "interfaces/iqueryscheduler.h"
 
-DbObjectCreatorPane::DbObjectCreatorPane(const QString &schemaName, const QString &objectName, QWidget *parent) :
-    QWidget(parent), schemaName(schemaName), objectName(objectName)
+DbObjectCreatorPane::DbObjectCreatorPane(DbObjectCreator *objectCreator, QWidget *parent) :
+    QWidget(parent), objectCreator(objectCreator)
 {
 }
 

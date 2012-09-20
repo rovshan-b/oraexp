@@ -16,4 +16,6 @@
 typedef QPair<QString,QString> NameQueryPair;
 typedef QPair<QString,QString> StringPair;
 
+#define PLACEHOLDER_DEFAULT QObject::tr("default")
+
 #endif // DEFINES_H

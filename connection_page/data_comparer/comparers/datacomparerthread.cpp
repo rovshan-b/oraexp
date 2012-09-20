@@ -103,9 +103,9 @@ QString DataComparerThread::getUqColumns()
     QueryResult res=sourceDb->executeQuery(query, QList<Param*>() <<
                                   new Param("owner", sourceSchema) <<
                                   new Param("table_name", tableName));
-    QScopedPointer<Statement> scopedStmt(res.statement);
+    QScopedPointer<Statement> stmt(res.statement);
 
-    Resultset *rs=res.statement->rsAt(0);
+    Resultset *rs=stmt->rsAt(0);
 
     rs->beginFetchRows();
 
@@ -129,9 +129,9 @@ void DataComparerThread::prepareBindArrays(const QStringList &uqColumns)
                                   new Param("owner", sourceSchema) <<
                                   new Param("table_name", tableName));
 
-    QScopedPointer<Statement> scopedStmt(res.statement);
+    QScopedPointer<Statement> stmt(res.statement);
 
-    Resultset *rs=res.statement->rsAt(0);
+    Resultset *rs=stmt->rsAt(0);
 
     rs->beginFetchRows();
 
@@ -343,9 +343,9 @@ void DataComparerThread::doComparison()
 
     QueryResult res=sourceDb->executeQuery(selectFromSourceSql);
 
-    QScopedPointer<Statement> scopedStmt(res.statement);
+    QScopedPointer<Statement> stmt(res.statement);
 
-    Resultset *rs=res.statement->rsAt(0);
+    Resultset *rs=stmt->rsAt(0);
 
     targetStmt->lockConnection();
 
@@ -433,7 +433,7 @@ void DataComparerThread::doReverseComparison(const QStringList &uqColumns)
     qDebug() << selectFromTargetSql;
 
     QueryResult res=targetDb->executeQuery(selectFromTargetSql);
-    QScopedPointer<Statement> scopedStmt(res.statement);
+    QScopedPointer<Statement> stmt(res.statement);
 
     sourceDeleteGeneratorStmt->lockConnection();
 
@@ -451,7 +451,7 @@ void DataComparerThread::doReverseComparison(const QStringList &uqColumns)
 
     int offset=0;
 
-    Resultset *rs=res.statement->rsAt(0);
+    Resultset *rs=stmt->rsAt(0);
     rs->beginFetchRows();
 
     int fetchedCount=0;

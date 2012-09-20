@@ -9,7 +9,7 @@ SequenceCreator::SequenceCreator(const QString &schemaName,
 {
 }
 
-DbObjectCreatorPane *SequenceCreator::createCreatorPane(const QString &schemaName, const QString &objectName)
+DbObjectCreatorPane *SequenceCreator::createCreatorPane(DbObjectCreator *objectCreator)
 {
-    return new SequenceCreatorPane(schemaName, objectName);
+    return new SequenceCreatorPane(objectCreator);
 }

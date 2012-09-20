@@ -12,7 +12,7 @@ TableCreator::TableCreator(const QString &schemaName,
 
 }
 
-DbObjectCreatorPane *TableCreator::createCreatorPane(const QString &schemaName, const QString &objectName)
+DbObjectCreatorPane *TableCreator::createCreatorPane(DbObjectCreator *objectCreator)
 {
-    return new TableCreatorPane(schemaName, objectName);
+    return new TableCreatorPane(objectCreator);
 }

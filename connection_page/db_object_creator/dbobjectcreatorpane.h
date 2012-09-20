@@ -6,13 +6,17 @@
 #include "beans/querylistitem.h"
 
 class IQueryScheduler;
+class DbObjectCreator;
 
 class DbObjectCreatorPane : public QWidget
 {
     Q_OBJECT
 public:
-    explicit DbObjectCreatorPane(const QString &schemaName, const QString &objectName, QWidget *parent = 0);
+    explicit DbObjectCreatorPane(DbObjectCreator *objectCreator, QWidget *parent = 0);
     
+    //inheriting classes can override this method to change ui creation logic
+    virtual void createUi(){}
+
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
 
     virtual QString generateCreateDdl()=0;
@@ -29,10 +33,8 @@ signals:
     void objectInfoLoaded();
     
 protected:
+    DbObjectCreator *objectCreator;
     IQueryScheduler *queryScheduler;
-
-    QString schemaName;
-    QString objectName;
 };
 
 #endif // DBOBJECTCREATORPANE_H

@@ -27,7 +27,8 @@ void DbObjectCreator::createUi()
 
     splitter=new QSplitter(Qt::Vertical);
 
-    creatorPane=createCreatorPane(schemaName, objectName);
+    creatorPane=createCreatorPane(this);
+    creatorPane->createUi();
     splitter->addWidget(creatorPane);
 
     bottomPane=new DbObjectCreatorBottomPane();

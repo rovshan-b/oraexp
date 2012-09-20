@@ -38,6 +38,7 @@ MetadataLoader *MetadataLoaderFactory::createMetadataLoader(DbTreeModel::DbTreeN
                                     targetSchemaName, wrapCode, true, parent);
         break;
     case DbTreeModel::Sequences:
+    case DbTreeModel::Sequence:
         result=new SequenceInfoLoader(queryScheduler, schemaName, objectName, parent);
         break;
     default:

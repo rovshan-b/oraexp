@@ -1,14 +1,16 @@
 #include "tablecreatorpane.h"
 #include "tablecreatortabs.h"
+#include "connection_page/db_object_creator/dbobjectcreator.h"
 #include <QtGui>
 
-TableCreatorPane::TableCreatorPane(const QString &schemaName, const QString &objectName, QWidget *parent) :
-    DbObjectCreatorPane(schemaName, objectName, parent)
+TableCreatorPane::TableCreatorPane(DbObjectCreator *objectCreator, QWidget *parent) :
+    DbObjectCreatorPane(objectCreator, parent)
 {
     QVBoxLayout *mainLayout=new QVBoxLayout();
     mainLayout->setContentsMargins(0,0,0,0);
 
-    tableCreatorTabs=new TableCreatorTabs(schemaName, objectName);
+    tableCreatorTabs=new TableCreatorTabs(objectCreator->getOriginalSchemaName(),
+                                          objectCreator->getOriginalObjectName());
 
     mainLayout->addWidget(tableCreatorTabs);
     setLayout(mainLayout);

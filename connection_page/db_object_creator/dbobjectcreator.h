@@ -28,8 +28,12 @@ public:
 
     virtual void setConnection(DbConnection *db);
 
+    QString getOriginalSchemaName() const {return this->schemaName;}
+    QString getOriginalObjectName() const {return this->objectName;}
+    DbTreeModel::DbTreeNodeType getObjectType() const {return this->objectType;}
+
 protected:
-    virtual DbObjectCreatorPane *createCreatorPane(const QString &schemaName, const QString &objectName)=0;
+    virtual DbObjectCreatorPane *createCreatorPane(DbObjectCreator *objectCreator)=0;
 
 public slots:
     void createQueryCompleted(const QueryResult &result);

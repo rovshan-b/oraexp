@@ -53,8 +53,7 @@ void QueryRunner::run()
 
 void QueryRunner::fetchResultset(QueryResult &result, const QueryExecTask &task)
 {
-    Statement *stmt=result.statement;
-    QScopedPointer<Statement> scopedStmt(stmt);
+    QScopedPointer<Statement> stmt(result.statement);
 
     Resultset *rs=stmt->rsAt(0);
     FetchResult fetchResult;

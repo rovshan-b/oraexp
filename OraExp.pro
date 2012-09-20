@@ -326,7 +326,8 @@ SOURCES += main.cpp\
     connection_page/table_creator/tablecreatorpane.cpp \
     context_menu/sequencecontextmenuutil.cpp \
     connection_page/sequence_creator/sequencecreator.cpp \
-    connection_page/sequence_creator/sequencecreatorpane.cpp
+    connection_page/sequence_creator/sequencecreatorpane.cpp \
+    connection_page/db_object_creator/dbobjectcreatorsimplepane.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -648,7 +649,8 @@ HEADERS  += mainwindow.h \
     util/triple.h \
     context_menu/sequencecontextmenuutil.h \
     connection_page/sequence_creator/sequencecreator.h \
-    connection_page/sequence_creator/sequencecreatorpane.h
+    connection_page/sequence_creator/sequencecreatorpane.h \
+    connection_page/db_object_creator/dbobjectcreatorsimplepane.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

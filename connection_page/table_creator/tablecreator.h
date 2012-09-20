@@ -15,7 +15,7 @@ public:
                           QWidget *parent = 0);
 
 protected:
-    virtual DbObjectCreatorPane *createCreatorPane(const QString &schemaName, const QString &objectName);
+    virtual DbObjectCreatorPane *createCreatorPane(DbObjectCreator *objectCreator);
 };
 
 #endif // TABLECREATOR_H

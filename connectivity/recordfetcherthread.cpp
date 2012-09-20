@@ -80,8 +80,7 @@ void RecordFetcherThread::replaceValuesWithDynamicQueries(QList<QString> &oneRow
             stmt->lockConnection();
             QueryResult res=stmt->execute();
             stmt->unlockConnection();
-            Resultset *subRs=res.statement->rsAt(0);
-            QScopedPointer<Resultset> scopedRs(subRs);
+            QScopedPointer<Resultset> subRs(res.statement->rsAt(0));
 
             subRs->beginFetchRows();
 
