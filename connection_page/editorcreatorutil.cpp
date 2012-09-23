@@ -4,6 +4,7 @@
 #include "connection_page/code_creator/paircodecreator.h"
 #include "connection_page/table_info/tableinfoviewer.h"
 #include "connection_page/sequence_creator/sequencecreator.h"
+#include "connection_page/dblink_creator/dblinkcreator.h"
 
 EditorCreatorUtil::EditorCreatorUtil()
 {
@@ -57,6 +58,11 @@ ConnectionPageTab *EditorCreatorUtil::createEditor(const QString &schemaName,
         break;
     case DbTreeModel::TypeBody:
         editor = new PairCodeCreator(schemaName, objectName, DbTreeModel::TypeBody, uiManager);
+        break;
+    case DbTreeModel::DatabaseLinks:
+    case DbTreeModel::PublicDatabaseLinks:
+    case DbTreeModel::DatabaseLink:
+        editor = new DbLinkCreator(schemaName, objectName, uiManager);
         break;
     default:
         break;

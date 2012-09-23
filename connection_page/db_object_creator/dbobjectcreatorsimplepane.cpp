@@ -65,10 +65,17 @@ void DbObjectCreatorSimplePane::setQueryScheduler(IQueryScheduler *querySchedule
 {
     DbObjectCreatorPane::setQueryScheduler(queryScheduler);
 
-    if(editMode){
-        schemaListCombo()->addItem(IconUtil::getIcon("user"), schemaListCombo()->currentText());
-        schemaListCombo()->setCurrentIndex(0);
+    DbItemListComboBox *schemaList=schemaListCombo();
+    if(schemaList){
+        if(!schemaList->isEnabled()){
+            schemaList->addItem(IconUtil::getIcon("user"), schemaList->currentText());
+            schemaList->setCurrentIndex(0);
+        }else{
+            schemaList->loadItems(this->queryScheduler, "get_schema_list");
+        }
+    }
 
+    if(editMode){
         MetadataLoader *metadataLoader=MetadataLoaderFactory::createMetadataLoader(objectCreator->getObjectType(),
                                                     this->queryScheduler,
                                                     objectCreator->getOriginalSchemaName(),
@@ -79,7 +86,6 @@ void DbObjectCreatorSimplePane::setQueryScheduler(IQueryScheduler *querySchedule
         connect(metadataLoader, SIGNAL(loadError(QString,OciException,MetadataLoader*)), this, SLOT(loadError(QString,OciException,MetadataLoader*)));
         metadataLoader->loadObjectInfo();
     }else{
-        schemaListCombo()->loadItems(this->queryScheduler, "get_schema_list");
         emit objectInfoLoaded();
     }
 }

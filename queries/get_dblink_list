@@ -1,3 +1,3 @@
-select db_link, username, host from all_db_links 
+select owner, db_link, username, host from all_db_links 
 where owner=:owner
 order by db_link

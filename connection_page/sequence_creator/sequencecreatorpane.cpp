@@ -37,17 +37,14 @@ QLayout *SequenceCreatorPane::createForm()
     form->addRow(tr("Name"), sequenceNameEditor);
 
     minValueEditor=new QLineEdit();
-    minValueEditor->setPlaceholderText(PLACEHOLDER_DEFAULT);
     minValueEditor->setValidator(intValidator);
     form->addRow(tr("Minimum value"), minValueEditor);
 
     maxValueEditor=new QLineEdit();
-    maxValueEditor->setPlaceholderText(PLACEHOLDER_DEFAULT);
     maxValueEditor->setValidator(intValidator);
     form->addRow(tr("Maximum value"), maxValueEditor);
 
     incrementByEditor=new QLineEdit();
-    incrementByEditor->setPlaceholderText(PLACEHOLDER_DEFAULT);
     incrementByEditor->setValidator(intValidator);
     form->addRow(tr("Increment by"), incrementByEditor);
 
@@ -68,7 +65,6 @@ QLayout *SequenceCreatorPane::createForm()
     form->addRow(tr("Cache size"), cacheSizeEditor);
 
     startWithEditor=new QLineEdit();
-    startWithEditor->setPlaceholderText(PLACEHOLDER_DEFAULT);
     startWithEditor->setValidator(intValidator);
     form->addRow(editMode ? tr("Current value") : tr("Start with"), startWithEditor);
 
@@ -85,6 +81,13 @@ QLayout *SequenceCreatorPane::createForm()
     connect(cacheComboBox, SIGNAL(currentIndexChanged(int)), this, SIGNAL(ddlChanged()));
     connect(cacheSizeEditor, SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
     connect(startWithEditor, SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
+
+    if(!editMode){
+        minValueEditor->setPlaceholderText(PLACEHOLDER_DEFAULT);
+        maxValueEditor->setPlaceholderText(PLACEHOLDER_DEFAULT);
+        incrementByEditor->setPlaceholderText(PLACEHOLDER_DEFAULT);
+        startWithEditor->setPlaceholderText(PLACEHOLDER_DEFAULT);
+    }
 
     return form;
 }

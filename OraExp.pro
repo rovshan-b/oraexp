@@ -327,7 +327,12 @@ SOURCES += main.cpp\
     context_menu/sequencecontextmenuutil.cpp \
     connection_page/sequence_creator/sequencecreator.cpp \
     connection_page/sequence_creator/sequencecreatorpane.cpp \
-    connection_page/db_object_creator/dbobjectcreatorsimplepane.cpp
+    connection_page/db_object_creator/dbobjectcreatorsimplepane.cpp \
+    connection_page/dblink_creator/dblinkcreator.cpp \
+    connection_page/dblink_creator/dblinkcreatorpane.cpp \
+    beans/dblinkinfo.cpp \
+    metadata_loaders/dblink/dblinkinfoloader.cpp \
+    context_menu/dblinkcontextmenuutil.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -650,7 +655,12 @@ HEADERS  += mainwindow.h \
     context_menu/sequencecontextmenuutil.h \
     connection_page/sequence_creator/sequencecreator.h \
     connection_page/sequence_creator/sequencecreatorpane.h \
-    connection_page/db_object_creator/dbobjectcreatorsimplepane.h
+    connection_page/db_object_creator/dbobjectcreatorsimplepane.h \
+    connection_page/dblink_creator/dblinkcreator.h \
+    connection_page/dblink_creator/dblinkcreatorpane.h \
+    beans/dblinkinfo.h \
+    metadata_loaders/dblink/dblinkinfoloader.h \
+    context_menu/dblinkcontextmenuutil.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

@@ -6,6 +6,7 @@
 #include "table/tableinfoloader.h"
 #include "code/sourceinfoloader.h"
 #include "sequence/sequenceinfoloader.h"
+#include "dblink/dblinkinfoloader.h"
 
 MetadataLoaderFactory::MetadataLoaderFactory()
 {
@@ -40,6 +41,11 @@ MetadataLoader *MetadataLoaderFactory::createMetadataLoader(DbTreeModel::DbTreeN
     case DbTreeModel::Sequences:
     case DbTreeModel::Sequence:
         result=new SequenceInfoLoader(queryScheduler, schemaName, objectName, parent);
+        break;
+    case DbTreeModel::DatabaseLinks:
+    case DbTreeModel::PublicDatabaseLinks:
+    case DbTreeModel::DatabaseLink:
+        result=new DbLinkInfoLoader(queryScheduler, schemaName, objectName, parent);
         break;
     default:
         result=0;

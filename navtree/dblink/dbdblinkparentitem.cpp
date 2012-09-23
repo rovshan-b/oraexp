@@ -23,15 +23,17 @@ QList<DbTreeItem*> DbDbLinkParentItem::populateChildren()
 
 DbTreeItem *DbDbLinkParentItem::createNodeFromRecord(Resultset *rs)
 {
-    QString synonymName=rs->getString(1);
-    QString username=rs->getString(2);
-    QString host=rs->getString(3);
+    QString owner=rs->getString(1);
+    QString dbLinkName=rs->getString(2);
+    QString username=rs->getString(3);
+    QString host=rs->getString(4);
 
-    DbDbLinkItem *col = new DbDbLinkItem(synonymName, synonymName, this->getModel(), this);
+    DbDbLinkItem *dbLink = new DbDbLinkItem(dbLinkName, dbLinkName, this->getModel(), this);
+    dbLink->setSchemaName(owner);
 
-    col->setTooltip(QObject::tr("Username: %1\nHost: %2").
+    dbLink->setTooltip(QObject::tr("Username: %1\nHost: %2").
                     arg(username).
                     arg(host));
 
-    return col;
+    return dbLink;
 }

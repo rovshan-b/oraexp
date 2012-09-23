@@ -89,5 +89,6 @@
         <file>queries/get_plsql_object_settings</file>
         <file>queries/get_compiler_messages</file>
         <file>queries/get_type_bodies</file>
+        <file>queries/get_dblink</file>
     </qresource>
 </RCC>
