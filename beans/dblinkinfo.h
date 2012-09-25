@@ -14,6 +14,7 @@ public:
 
     QString owner;
     QString name;
+    bool currentUser;
     QString username;
     QString password;
     QString host;
@@ -22,6 +23,8 @@ public:
     QString sharedAuthenticatedBy;
     QString sharedIdentifiedBy;
 
+    QString generateDdl() const;
+    QStringList validate() const;
     static DbLinkInfo fromFetchResult(const FetchResult &result);
 };
 

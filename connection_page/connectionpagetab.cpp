@@ -36,6 +36,16 @@ bool ConnectionPageTab::isBusy() const
     }
 }
 
+void ConnectionPageTab::setProperties(const QHash<QString, QString> &properties)
+{
+    this->properties=properties;
+}
+
+QString ConnectionPageTab::propertyValue(const QString &propName) const
+{
+    return this->properties.value(propName);
+}
+
 void ConnectionPageTab::setBusy(bool busy)
 {
     this->busy=busy;

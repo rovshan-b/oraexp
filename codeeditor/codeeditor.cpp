@@ -649,9 +649,6 @@ int CodeEditor::lineNumberAreaWidth()
 
  void CodeEditor::customCopy()
  {
-     if(isReadOnly()){
-         return;
-     }
      ensureHasSelection();
      copy();
  }

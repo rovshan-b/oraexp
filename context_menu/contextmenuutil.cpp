@@ -59,7 +59,7 @@ QList<QAction *> ContextMenuUtil::getActionsForObject(const QString &schemaName,
         results = TypeContextMenuUtil::getActionsForObject(schemaName, objectName, itemType, uiManager);
         break;
     case DbTreeModel::DatabaseLinks:
-    case DbTreeModel::PublicDatabaseLinks:
+    //case DbTreeModel::PublicDatabaseLinks:
     case DbTreeModel::DatabaseLink:
         results = DbLinkContextMenuUtil::getActionsForObject(schemaName, objectName, itemType, uiManager);
         break;

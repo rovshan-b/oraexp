@@ -22,13 +22,10 @@ public:
     virtual QString getSchemaName() const;
     virtual QString getObjectName() const;
 
-    virtual bool beforeAlter() const;
-
     virtual QString generateCreateDdl();
     virtual QList< QueryListItem > generateAlterDdl();
 
-public slots:
-    void alterQuerySucceeded(const QString &taskName);
+    virtual bool beforeCreate();
 
 protected:
     virtual QLayout *createForm();

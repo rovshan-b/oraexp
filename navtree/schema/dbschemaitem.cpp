@@ -11,7 +11,6 @@
 #include "../synonym/dbsynonymparentitem.h"
 #include "../synonym/dbpublicsynonymparentitem.h"
 #include "../dblink/dbdblinkparentitem.h"
-#include "../dblink/dbpublicdblinkparentitem.h"
 #include "dballschemasitem.h"
 
 DbSchemaItem::DbSchemaItem(const QString &itemText, const QString &itemName,
@@ -79,7 +78,9 @@ QList<DbTreeItem*> DbSchemaItem::populateChildren()
     }
 
     if(nodeTypesToDisplay.testFlag(DbTreeModel::PublicDatabaseLinks)){
-        children.append(new DbPublicDbLinkParentItem(QObject::tr("Public database links"), "", getModel(), this));
+        DbTreeItem *publicDbLinksItem = new DbDbLinkParentItem(QObject::tr("Public database links"), "", getModel(), this);
+        publicDbLinksItem->setSchemaName("PUBLIC");
+        children.append(publicDbLinksItem);
     }
 
     if(isRootItem && nodeTypesToDisplay.testFlag(DbTreeModel::AllSchemas)){

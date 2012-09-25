@@ -65,6 +65,21 @@ public:
                                 const QObject *receiver=0,
                                 const char *slotName=0,
                                 QKeySequence shortcut = QKeySequence());
+
+    template <class T> static bool validate(T *obj, QWidget *window)
+    {
+        QStringList msgs=obj->validate();
+        if(msgs.size()>0){
+            QString msg=QObject::tr("Following validation error(s) occured:\n");
+            foreach(const QString &m, msgs){
+                msg.append("  - ").append(m).append("\n");
+            }
+            msg.chop(1);
+
+            QMessageBox::critical(window, QObject::tr("Validation error(s) occured"), msg);
+        }
+        return msgs.size()==0;
+    }
 };
 
 #endif // WIDGETHELPER_H

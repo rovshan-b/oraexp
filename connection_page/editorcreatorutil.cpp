@@ -60,7 +60,7 @@ ConnectionPageTab *EditorCreatorUtil::createEditor(const QString &schemaName,
         editor = new PairCodeCreator(schemaName, objectName, DbTreeModel::TypeBody, uiManager);
         break;
     case DbTreeModel::DatabaseLinks:
-    case DbTreeModel::PublicDatabaseLinks:
+    //case DbTreeModel::PublicDatabaseLinks:
     case DbTreeModel::DatabaseLink:
         editor = new DbLinkCreator(schemaName, objectName, uiManager);
         break;

@@ -21,7 +21,9 @@ public:
     QString getSchemaName() const {return this->schemaName;}
     QString getObjectName() const {return this->objectName;}
     DbTreeModel::DbTreeNodeType getItemType() const {return this->itemType;}
-    
+
+    QHash<QString,QString> properties;
+
 private:
     QString schemaName;
     QString objectName;

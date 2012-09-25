@@ -37,7 +37,11 @@ void DbUiManager::createCreator()
 void DbUiManager::createCreator(DbItemAction *action)
 {
     QString actionSchema=action->getSchemaName();
-    createEditor(actionSchema.isEmpty() ? db->getSchemaName() : actionSchema, action->getObjectName(), action->getItemType(), false);
+    createEditor(actionSchema.isEmpty() ? db->getSchemaName() : actionSchema,
+                 action->getObjectName(),
+                 action->getItemType(),
+                 false,
+                 action->properties);
 }
 
 void DbUiManager::createCreator(const QString &schemaName,
@@ -54,18 +58,20 @@ void DbUiManager::createEditor(bool editMode)
     if(schemaName.isEmpty()){
         schemaName=db->getSchemaName();
     }
-    createEditor(schemaName, action->getObjectName(), action->getItemType(), editMode);
+    createEditor(schemaName, action->getObjectName(), action->getItemType(), editMode, action->properties);
 }
 
 void DbUiManager::createEditor(const QString &schemaName,
                                const QString &objectName,
                                const DbTreeModel::DbTreeNodeType itemType,
-                               bool editMode)
+                               bool editMode,
+                               QHash<QString,QString> properties)
 {
     ConnectionPageTab *editor = EditorCreatorUtil::createEditor(schemaName,
                                                       objectName,
                                                       itemType,
                                                       this);
+    editor->setProperties(properties);
 
     QString iconName = DbUtil::getDbObjectIconNameByParentNodeType(itemType);
     if(editMode){

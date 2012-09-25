@@ -43,7 +43,7 @@ MetadataLoader *MetadataLoaderFactory::createMetadataLoader(DbTreeModel::DbTreeN
         result=new SequenceInfoLoader(queryScheduler, schemaName, objectName, parent);
         break;
     case DbTreeModel::DatabaseLinks:
-    case DbTreeModel::PublicDatabaseLinks:
+    //case DbTreeModel::PublicDatabaseLinks:
     case DbTreeModel::DatabaseLink:
         result=new DbLinkInfoLoader(queryScheduler, schemaName, objectName, parent);
         break;

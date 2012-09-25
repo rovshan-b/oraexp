@@ -232,7 +232,7 @@ QString DbUtil::getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeTy
     case DbTreeModel::DatabaseLinks:
     case DbTreeModel::PublicDatabaseLinks:
     case DbTreeModel::DatabaseLink:
-        result="DBLINK";
+        result="DATABASE LINK";
         break;
     default:
         Q_ASSERT(false);

@@ -70,7 +70,6 @@ SOURCES += main.cpp\
     navtree/synonym/dbsynonymparentitem.cpp \
     navtree/synonym/dbsynonymitem.cpp \
     navtree/synonym/dbpublicsynonymparentitem.cpp \
-    navtree/dblink/dbpublidblinkparentitem.cpp \
     navtree/dblink/dbdblinkparentitem.cpp \
     navtree/dblink/dbdblinkitem.cpp \
     navtree/type/dbtypeparentitem.cpp \
@@ -385,7 +384,6 @@ HEADERS  += mainwindow.h \
     navtree/synonym/dbsynonymparentitem.h \
     navtree/synonym/dbsynonymitem.h \
     navtree/synonym/dbpublicsynonymparentitem.h \
-    navtree/dblink/dbpublicdblinkparentitem.h \
     navtree/dblink/dbdblinkparentitem.h \
     navtree/dblink/dbdblinkitem.h \
     navtree/type/dbtypeparentitem.h \

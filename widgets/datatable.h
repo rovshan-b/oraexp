@@ -39,6 +39,9 @@ signals:
     void asyncQueryError(const OciException &ex);
     void firstFetchCompleted();
 
+protected:
+    void keyPressEvent ( QKeyEvent * event );
+
 private slots:
     void queryCompleted(const QueryResult &result);
 
@@ -48,6 +51,8 @@ private:
     QHash<QString, QString> iconColumns;
 
     bool humanizeColumnNames;
+
+    void copyToClipboard();
 };
 
 #endif // DATATABLE_H

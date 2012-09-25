@@ -46,6 +46,9 @@ public:
 
     virtual void focusAvailable() {}
 
+    void setProperties(const QHash<QString,QString> &properties);
+    QString propertyValue(const QString &propName) const;
+
 signals:
     void tabBusyStateChanged(ConnectionPageTab *tab, bool busy);
     void stateChanged();
@@ -63,6 +66,8 @@ protected:
     bool busy;
 
     void beforeEnqueueQuery();
+
+    QHash<QString,QString> properties;
 
 private:
     int activeQueryCount;

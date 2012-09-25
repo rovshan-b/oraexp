@@ -1,6 +1,6 @@
-    FUNCTION md5 (p_str clob) RETURN VARCHAR2
+FUNCTION md5 (p_str clob) RETURN VARCHAR2
       IS
-         l_hash   VARCHAR2 (50);
+         l_hash   VARCHAR2 (50) := ' ';
          l_ix number := 1;
          l_length number;
          c_max_varchar_length constant number := 2000;
@@ -11,10 +11,10 @@
          
          l_length := length(p_str);
          if l_length>c_max_varchar_length then
-            while l_ix<c_max_varchar_length
+            while l_ix<l_length
             loop
-              l_hash := md5(l_hash || md5(substr(p_str, l_ix, c_max_varchar_length)));
-            
+              l_hash := md5(l_hash || md5(substr(p_str, l_ix, c_max_varchar_length)));     
+              
               l_ix := l_ix + c_max_varchar_length;
             end loop;
          else

@@ -19,29 +19,20 @@ DbLinkCreatorPane::DbLinkCreatorPane(DbObjectCreator *objectCreator, QWidget *pa
 void DbLinkCreatorPane::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
     DbObjectCreatorSimplePane::setQueryScheduler(queryScheduler);
-
-    /*if(queryScheduler->getDb()->getSchemaName()!=schemaList->currentText()){
-        dblinkNameEditor->setEnabled(false);
-    }*/
 }
 
 QLayout *DbLinkCreatorPane::createForm()
 {
-    //QRegExp digitsRegExp("\\d*", Qt::CaseSensitive, QRegExp::RegExp2);
-    //QRegExpValidator *intValidator=new QRegExpValidator(digitsRegExp, this);
-
     QVBoxLayout *mainLayout=new QVBoxLayout();
 
     QGroupBox *generalInfoBox=new QGroupBox(tr("General"));
     QFormLayout *form1=new QFormLayout();
 
-    //schemaList=new DbItemListComboBox(objectCreator->getOriginalSchemaName(), "user", true);
-    //form1->addRow(tr("Schema"), schemaList);
-
     dblinkNameEditor=new NameEditor();
     form1->addRow(tr("Name"), dblinkNameEditor);
 
     publicCheckBox=new QCheckBox();
+    publicCheckBox->setChecked(!objectCreator->propertyValue("public").isEmpty());
     form1->addRow(tr("Public"), publicCheckBox);
 
     targetDbComboBox=new QComboBox();
@@ -74,11 +65,11 @@ QLayout *DbLinkCreatorPane::createForm()
     form3->addRow(tr("Shared"), sharedCheckBox);
 
     sharedUsernameEditor=new QLineEdit();
-    form3->addRow(tr("Authenticated by"), sharedUsernameEditor);
+    form3->addRow(tr("Authenticate as"), sharedUsernameEditor);
 
     sharedPasswordEditor=new LineEditAndCheckBoxWidget(tr("Show"));
     sharedPasswordEditor->lineEdit()->setEchoMode(QLineEdit::Password);
-    form3->addRow(tr("Identified by"), sharedPasswordEditor);
+    form3->addRow(tr("Password"), sharedPasswordEditor);
 
     sharedBox->setLayout(form3);
     mainLayout->addWidget(sharedBox);
@@ -114,57 +105,20 @@ QString DbLinkCreatorPane::getObjectName() const
     return dblinkNameEditor->text().trimmed().toUpper();
 }
 
-bool DbLinkCreatorPane::beforeAlter() const
-{
-    /*
-    Q_ASSERT(editMode);
-
-    DbLinkInfo *originalDbLinkInfo=getOriginalObjectInfo<DbLinkInfo>();
-    if(getDbLinkInfo().needsRecreation(*originalDbLinkInfo)){
-        return QMessageBox::question(this->window(), tr("Drop and recreate"),
-                                     tr("DbLink needs to be dropped and recreated in order to set new current value.\nDo you want to proceed?"),
-                                     QMessageBox::Ok | QMessageBox::Cancel)==QMessageBox::Ok;
-    }
-
-    return true;*/
-
-    return true;
-}
-
 QString DbLinkCreatorPane::generateCreateDdl()
 {
-    //return getDbLinkInfo().generateDdl(DbLinkCreateDdlOptions());
-    return "";
+    return getDbLinkInfo().generateDdl();
 }
 
 QList<QueryListItem> DbLinkCreatorPane::generateAlterDdl()
 {
-    /*
-    QList<QueryListItem> result;
-
-    DbLinkInfo *originalDbLinkInfo=getOriginalObjectInfo<DbLinkInfo>();
-    result.append(QueryListItem(this, getDbLinkInfo().generateDiffDdl(*originalDbLinkInfo, DbLinkDiffDdlOptions())));
-
-    return result;*/
-
     return QList<QueryListItem>();
 }
 
-void DbLinkCreatorPane::alterQuerySucceeded(const QString &taskName)
+bool DbLinkCreatorPane::beforeCreate()
 {
-    /*
-    DbLinkInfo *originalDbLinkInfo=getOriginalObjectInfo<DbLinkInfo>();
-    Q_ASSERT(originalDbLinkInfo);
-
-    if(taskName=="drop_dblink"){
-        originalDbLinkInfo->dropped=true;
-    }else if(taskName=="create_dblink"){
-        *originalDbLinkInfo=getDbLinkInfo();
-    }else if(taskName=="rename_dblink"){
-        originalDbLinkInfo->name=dblinkNameEditor->text().trimmed().toUpper();
-    }else if(taskName=="alter_dblink"){
-        *originalDbLinkInfo=getDbLinkInfo();
-    }*/
+    DbLinkInfo info=getDbLinkInfo();
+    return WidgetHelper::validate(&info, this->window());
 }
 
 void DbLinkCreatorPane::enableControls()
@@ -189,6 +143,7 @@ DbLinkInfo DbLinkCreatorPane::getDbLinkInfo() const
     info.owner=publicCheckBox->isChecked() ? "PUBLIC" : objectCreator->getOriginalSchemaName();
     info.name=dblinkNameEditor->text().trimmed().toUpper();
     info.host=targetDbComboBox->lineEdit()->text().trimmed();
+    info.currentUser=currentUserCheckBox->isChecked();
     info.username=usernameEditor->text().trimmed().toUpper();
     info.password=passwordEditor->lineEdit()->text().trimmed();
     info.shared=sharedCheckBox->isChecked();

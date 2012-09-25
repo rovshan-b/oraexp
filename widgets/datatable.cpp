@@ -12,6 +12,7 @@ DataTable::DataTable(QWidget *parent) :
 {
     verticalHeader()->setDefaultSectionSize(fontMetrics().height()+10);
     horizontalHeader()->setDefaultSectionSize(150);
+    setSelectionMode(QAbstractItemView::ContiguousSelection);
 }
 
 void DataTable::setResultset(IQueryScheduler *queryScheduler,
@@ -88,6 +89,28 @@ void DataTable::queryCompleted(const QueryResult &result)
     emit asyncQueryCompleted(result);
 }
 
+void DataTable::copyToClipboard()
+{
+    if(!this->selectionModel()->hasSelection()){
+        return;
+    }
+
+    QModelIndexList indexes = this->selectionModel()->selectedIndexes();
+    QString selectedText;
+
+    const QModelIndex &from = indexes.at(0);
+    const QModelIndex &to = indexes.at(indexes.size()-1);
+
+    for(int i=from.row(); i<=to.row(); ++i){
+        for(int k=from.column(); k<=to.column(); ++k){
+            selectedText.append(this->model()->index(i, k).data().toString()).append("\t");
+        }
+        selectedText.append("\n");
+    }
+
+    QApplication::clipboard()->setText(selectedText);
+}
+
 void DataTable::clear()
 {
     setResultset(0, 0);
@@ -117,5 +140,14 @@ void DataTable::resizeColumnsAccountingForEditor()
         }
 
         resizeColumnAccountingForEditor(i);
+    }
+}
+
+void DataTable::keyPressEvent(QKeyEvent *event)
+{
+    if(event->matches(QKeySequence::Copy)){
+        copyToClipboard();
+    }else{
+        QTableView::keyPressEvent(event);
     }
 }

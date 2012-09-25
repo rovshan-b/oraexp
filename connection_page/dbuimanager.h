@@ -23,7 +23,11 @@ public slots:
     void createCreator(DbItemAction *action);
     void createCreator(const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType);
     void createEditor(bool editMode=true);
-    void createEditor(const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType, bool editMode=true);
+    void createEditor(const QString &schemaName,
+                      const QString &objectName,
+                      const DbTreeModel::DbTreeNodeType itemType,
+                      bool editMode=true,
+                      QHash<QString, QString> properties = QHash<QString, QString>());
     void createViewer();
     void createViewer(const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType);
 
