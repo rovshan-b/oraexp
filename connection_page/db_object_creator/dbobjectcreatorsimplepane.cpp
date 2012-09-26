@@ -67,7 +67,7 @@ void DbObjectCreatorSimplePane::setQueryScheduler(IQueryScheduler *querySchedule
 
     DbItemListComboBox *schemaList=schemaListCombo();
     if(schemaList){
-        if(!schemaList->isEnabled()){
+        if(editMode){
             schemaList->addItem(IconUtil::getIcon("user"), schemaList->currentText());
             schemaList->setCurrentIndex(0);
         }else{

@@ -22,7 +22,8 @@ void DbLinkInfoLoader::loadObjectInfo()
                                  "get_dblink",
                                  "queryCompleted",
                                  "recordFetched",
-                                 "fetchCompleted");
+                                 "fetchCompleted",
+                                 true);
 }
 
 

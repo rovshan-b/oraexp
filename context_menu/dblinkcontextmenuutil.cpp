@@ -18,13 +18,13 @@ QList<QAction *> DbLinkContextMenuUtil::getActionsForObject(const QString &schem
             createDbLinkAction->properties["public"]="yes";
         }
         results.append(createDbLinkAction);
-    }/*else if(itemType==DbTreeModel::DatabaseLink){
+    }else if(itemType==DbTreeModel::DatabaseLink){
         //alter
         QAction *alterDbLinkAction=new DbItemAction(IconUtil::getIcon("dblink_alter"), QObject::tr("Alter"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createEditor()));
         results.append(alterDbLinkAction);
-    }*/
+    }
 
     return results;
 }

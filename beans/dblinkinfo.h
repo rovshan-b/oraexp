@@ -23,6 +23,8 @@ public:
     QString sharedAuthenticatedBy;
     QString sharedIdentifiedBy;
 
+    bool isCompleteInfo;
+
     QString generateDdl() const;
     QStringList validate() const;
     static DbLinkInfo fromFetchResult(const FetchResult &result);

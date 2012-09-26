@@ -74,8 +74,16 @@ DbLinkInfo DbLinkInfo::fromFetchResult(const FetchResult &result)
     i.owner=result.colValue("OWNER");
     i.name=result.colValue("DB_LINK");
     i.username=result.colValue("USERNAME");
-    i.currentUser=i.username.isEmpty();
+    i.password=result.colValue("PASSWORD");
+    if(i.username=="CURRENT_USER"){
+        i.currentUser=true;
+        i.username="";
+    }
     i.host=result.colValue("HOST");
+    i.sharedAuthenticatedBy=result.colValue("AUTHUSR");
+    i.sharedIdentifiedBy=result.colValue("AUTHPWD");
+    i.shared=!i.sharedAuthenticatedBy.isEmpty();
+    i.isCompleteInfo=result.colValue("IS_COMPLETE", 0)==1;
 
     return i;
 }

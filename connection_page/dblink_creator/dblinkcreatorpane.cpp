@@ -46,7 +46,7 @@ QLayout *DbLinkCreatorPane::createForm()
     QFormLayout *form2=new QFormLayout();
 
     currentUserCheckBox=new QCheckBox();
-    form2->addRow(tr("Use current user"), currentUserCheckBox);
+    form2->addRow(tr("Use session user"), currentUserCheckBox);
 
     usernameEditor=new QLineEdit();
     form2->addRow(tr("Username"), usernameEditor);
@@ -65,7 +65,7 @@ QLayout *DbLinkCreatorPane::createForm()
     form3->addRow(tr("Shared"), sharedCheckBox);
 
     sharedUsernameEditor=new QLineEdit();
-    form3->addRow(tr("Authenticate as"), sharedUsernameEditor);
+    form3->addRow(tr("Authenticate as "), sharedUsernameEditor);
 
     sharedPasswordEditor=new LineEditAndCheckBoxWidget(tr("Show"));
     sharedPasswordEditor->lineEdit()->setEchoMode(QLineEdit::Password);
@@ -161,9 +161,17 @@ void DbLinkCreatorPane::setObjectInfo(DbObjectInfo *objectInfo)
     dblinkNameEditor->setText(info->name);
     publicCheckBox->setChecked(info->owner=="PUBLIC");
     WidgetHelper::setComboBoxText(targetDbComboBox, info->host);
+    currentUserCheckBox->setChecked(info->currentUser);
     usernameEditor->setText(info->username);
     passwordEditor->lineEdit()->setText(info->password);
     sharedCheckBox->setChecked(info->shared);
     sharedUsernameEditor->setText(info->sharedAuthenticatedBy);
     sharedPasswordEditor->lineEdit()->setText(info->sharedIdentifiedBy);
+
+    if(!info->isCompleteInfo){
+        QMessageBox::information(this->window(), tr("Incomplete metadata loaded"),
+                                 tr("Please, note that loaded information is not complete, \n"
+                                    "because you do not have SELECT permission on SYS.LINK$ table.\n"
+                                    "You might need to re-enter most of the information to alter database link."));
+    }
 }
