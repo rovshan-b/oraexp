@@ -83,8 +83,8 @@ QLayout *DbLinkCreatorPane::createForm()
     //connect(schemaList, SIGNAL(currentIndexChanged(int)), this, SIGNAL(ddlChanged()));
     connect(dblinkNameEditor, SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
     connect(publicCheckBox, SIGNAL(stateChanged(int)), this, SIGNAL(ddlChanged()));
-    connect(targetDbComboBox, SIGNAL(currentIndexChanged(int)), this, SIGNAL(ddlChanged()));
-    connect(targetDbComboBox, SIGNAL(editTextChanged(QString)), this, SIGNAL(ddlChanged()));
+    //connect(targetDbComboBox, SIGNAL(currentIndexChanged(int)), this, SIGNAL(ddlChanged()));
+    connect(targetDbComboBox->lineEdit(), SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
     connect(currentUserCheckBox, SIGNAL(stateChanged(int)), this, SIGNAL(ddlChanged()));
     connect(usernameEditor, SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
     connect(passwordEditor->lineEdit(), SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
@@ -112,13 +112,55 @@ QString DbLinkCreatorPane::generateCreateDdl()
 
 QList<QueryListItem> DbLinkCreatorPane::generateAlterDdl()
 {
-    return QList<QueryListItem>();
+    QList<QueryListItem> result;
+
+    DbLinkInfo *originalDbLinkInfo=getOriginalObjectInfo<DbLinkInfo>();
+    result.append(QueryListItem(this, getDbLinkInfo().generateDiffDdl(*originalDbLinkInfo, queryScheduler->getDb()->supportsAlteringDatabaseLinks())));
+
+    return result;
 }
 
-bool DbLinkCreatorPane::beforeCreate()
+bool DbLinkCreatorPane::beforeCreate() const
 {
     DbLinkInfo info=getDbLinkInfo();
     return WidgetHelper::validate(&info, this->window());
+}
+
+bool DbLinkCreatorPane::beforeAlter() const
+{
+    Q_ASSERT(editMode);
+
+    DbLinkInfo info=getDbLinkInfo();
+    if(!WidgetHelper::validate(&info, this->window())){
+        return false;
+    }
+
+    DbLinkInfo *originalDbLinkInfo=getOriginalObjectInfo<DbLinkInfo>();
+    if(info.needsRecreation(*originalDbLinkInfo, queryScheduler->getDb()->supportsAlteringDatabaseLinks())){
+        return QMessageBox::question(this->window(), tr("Drop and recreate"),
+                                     tr("Database link needs to be dropped and recreated\n"
+                                        "because you changed a property other than password or\n"
+                                        "current database version does not support ALTER DATABASE LINK clause.\nDo you want to proceed?"),
+                                     QMessageBox::Ok | QMessageBox::Cancel)==QMessageBox::Ok;
+    }
+
+    return true;
+}
+
+void DbLinkCreatorPane::alterQuerySucceeded(const QString &taskName)
+{
+    DbLinkInfo *originalDbLinkInfo=getOriginalObjectInfo<DbLinkInfo>();
+    Q_ASSERT(originalDbLinkInfo);
+
+    if(taskName=="drop_db_link"){
+        originalDbLinkInfo->dropped=true;
+    }else if(taskName=="create_db_link"){
+        *originalDbLinkInfo=getDbLinkInfo();
+    }else if(taskName=="rename_db_link"){
+        originalDbLinkInfo->name=dblinkNameEditor->text().trimmed().toUpper();
+    }else if(taskName=="alter_db_link"){
+        *originalDbLinkInfo=getDbLinkInfo();
+    }
 }
 
 void DbLinkCreatorPane::enableControls()

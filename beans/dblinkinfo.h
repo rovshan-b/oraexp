@@ -3,6 +3,7 @@
 
 #include "dbobjectinfo.h"
 #include "connectivity/fetchresult.h"
+#include "defines.h"
 
 #include <QString>
 
@@ -24,8 +25,12 @@ public:
     QString sharedIdentifiedBy;
 
     bool isCompleteInfo;
+    bool dropped;
 
     QString generateDdl() const;
+    QString generateDropDdl() const;
+    QList<NameQueryPair> generateDiffDdl(const DbLinkInfo &other, bool canAlter) const;
+    bool needsRecreation(const DbLinkInfo &other, bool canAlter) const;
     QStringList validate() const;
     static DbLinkInfo fromFetchResult(const FetchResult &result);
 };

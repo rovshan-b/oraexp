@@ -25,7 +25,11 @@ public:
     virtual QString generateCreateDdl();
     virtual QList< QueryListItem > generateAlterDdl();
 
-    virtual bool beforeCreate();
+    virtual bool beforeCreate() const;
+    virtual bool beforeAlter() const;
+
+public slots:
+    void alterQuerySucceeded(const QString &taskName);
 
 protected:
     virtual QLayout *createForm();

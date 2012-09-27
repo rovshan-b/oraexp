@@ -71,8 +71,10 @@ QList<NameQueryPair> SequenceInfo::generateDiffDdl(const SequenceInfo &other, co
     QString ddl;
 
     if(options.updateCurrVal && needsRecreation(other)){
-        ddl=other.generateDropDdl();
-        result.append(qMakePair(QString("drop_sequence"), ddl));
+        if(!dropped){
+            ddl=other.generateDropDdl();
+            result.append(qMakePair(QString("drop_sequence"), ddl));
+        }
 
         SequenceCreateDdlOptions createOptions;
         createOptions.setInitialValue=true;

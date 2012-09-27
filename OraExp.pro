@@ -69,7 +69,6 @@ SOURCES += main.cpp\
     navtree/sequence/dbsequenceitem.cpp \
     navtree/synonym/dbsynonymparentitem.cpp \
     navtree/synonym/dbsynonymitem.cpp \
-    navtree/synonym/dbpublicsynonymparentitem.cpp \
     navtree/dblink/dbdblinkparentitem.cpp \
     navtree/dblink/dbdblinkitem.cpp \
     navtree/type/dbtypeparentitem.cpp \
@@ -331,7 +330,11 @@ SOURCES += main.cpp\
     connection_page/dblink_creator/dblinkcreatorpane.cpp \
     beans/dblinkinfo.cpp \
     metadata_loaders/dblink/dblinkinfoloader.cpp \
-    context_menu/dblinkcontextmenuutil.cpp
+    context_menu/dblinkcontextmenuutil.cpp \
+    connection_page/synonym_creator/synonymcreator.cpp \
+    connection_page/synonym_creator/synonymcreatorpane.cpp \
+    beans/synonyminfo.cpp \
+    context_menu/synonymcontextmenuutil.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -383,7 +386,6 @@ HEADERS  += mainwindow.h \
     navtree/sequence/dbsequenceitem.h \
     navtree/synonym/dbsynonymparentitem.h \
     navtree/synonym/dbsynonymitem.h \
-    navtree/synonym/dbpublicsynonymparentitem.h \
     navtree/dblink/dbdblinkparentitem.h \
     navtree/dblink/dbdblinkitem.h \
     navtree/type/dbtypeparentitem.h \
@@ -658,7 +660,11 @@ HEADERS  += mainwindow.h \
     connection_page/dblink_creator/dblinkcreatorpane.h \
     beans/dblinkinfo.h \
     metadata_loaders/dblink/dblinkinfoloader.h \
-    context_menu/dblinkcontextmenuutil.h
+    context_menu/dblinkcontextmenuutil.h \
+    connection_page/synonym_creator/synonymcreator.h \
+    connection_page/synonym_creator/synonymcreatorpane.h \
+    beans/synonyminfo.h \
+    context_menu/synonymcontextmenuutil.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

@@ -9,7 +9,6 @@
 #include "../sequence/dbsequenceparentitem.h"
 #include "../type/dbtypeparentitem.h"
 #include "../synonym/dbsynonymparentitem.h"
-#include "../synonym/dbpublicsynonymparentitem.h"
 #include "../dblink/dbdblinkparentitem.h"
 #include "dballschemasitem.h"
 
@@ -70,7 +69,9 @@ QList<DbTreeItem*> DbSchemaItem::populateChildren()
     }
 
     if(nodeTypesToDisplay.testFlag(DbTreeModel::PublicSynonyms)){
-        children.append(new DbPublicSynonymParentItem(QObject::tr("Public synonyms"), "", getModel(), this));
+        DbTreeItem *publicSynonymsItem = new DbSynonymParentItem(QObject::tr("Public synonyms"), "", getModel(), this);
+        publicSynonymsItem->setSchemaName("PUBLIC");
+        children.append(publicSynonymsItem);
     }
 
     if(nodeTypesToDisplay.testFlag(DbTreeModel::DatabaseLinks)){

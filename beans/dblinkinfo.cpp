@@ -1,7 +1,8 @@
 #include "dblinkinfo.h"
 #include <QStringList>
+#include "util/strutil.h"
 
-DbLinkInfo::DbLinkInfo() : currentUser(false), shared(false)
+DbLinkInfo::DbLinkInfo() : currentUser(false), shared(false), dropped(false)
 {
 }
 
@@ -28,7 +29,7 @@ QString DbLinkInfo::generateDdl() const
         ddl.append(" PUBLIC");
     }
 
-    ddl.append(" DATABASE LINK ").append(name.trimmed().toUpper());
+    ddl.append(" DATABASE LINK \"").append(name.trimmed().toUpper()).append("\"");
 
     if(currentUser){
         ddl.append("\nCONNECT TO CURRENT_USER");
@@ -50,6 +51,61 @@ QString DbLinkInfo::generateDdl() const
     }
 
     return ddl;
+}
+
+QString DbLinkInfo::generateDropDdl() const
+{
+    return QString("DROP%1 DATABASE LINK \"%2\"").arg(owner=="PUBLIC" ? " PUBLIC" : "", name);
+}
+
+bool DbLinkInfo::needsRecreation(const DbLinkInfo &other, bool canAlter) const
+{
+    bool hasDifferences = owner!=other.owner ||
+            name!=other.name ||
+            currentUser!=other.currentUser ||
+            username!=other.username ||
+            host!=other.host ||
+            shared!=other.shared ||
+            sharedAuthenticatedBy!=other.sharedAuthenticatedBy;
+
+    bool passwordsChanged = password!=other.password ||
+            sharedIdentifiedBy!=other.sharedIdentifiedBy;
+
+    return (passwordsChanged && !canAlter) || hasDifferences;
+}
+
+
+QList<NameQueryPair> DbLinkInfo::generateDiffDdl(const DbLinkInfo &other, bool canAlter) const
+{
+    QList<NameQueryPair> result;
+    QString ddl;
+
+    if(needsRecreation(other, canAlter)){
+        if(!dropped){
+            ddl=other.generateDropDdl();
+            result.append(qMakePair(QString("drop_db_link"), ddl));
+        }
+
+        ddl=generateDdl();
+        result.append(qMakePair(QString("create_db_link"), ddl));
+    }else{
+
+        if(password!=other.password){
+            ddl.append("CONNECT TO ").append(username).append(" IDENTIFIED BY \"").append(password).append("\"");
+        }
+
+        if(sharedIdentifiedBy!=other.sharedIdentifiedBy){
+            addEOL(ddl);
+            ddl.append("AUTHENTICATED BY ").append(sharedAuthenticatedBy).append(" IDENTIFIED BY ").append(sharedIdentifiedBy);
+        }
+
+        if(!ddl.isEmpty()){
+            ddl.prepend(QString("ALTER%1%2 DATABASE LINK \"%3\"\n").arg(shared ? " SHARED" : "", owner=="PUBLIC" ? " PUBLIC" : ""));
+            result.append(qMakePair(QString("alter_db_link"), ddl));
+        }
+    }
+
+    return result;
 }
 
 QStringList DbLinkInfo::validate() const

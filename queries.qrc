@@ -90,5 +90,6 @@
         <file>queries/get_compiler_messages</file>
         <file>queries/get_type_bodies</file>
         <file>queries/get_dblink</file>
+        <file>queries/get_object_list_for_synonym</file>
     </qresource>
 </RCC>
