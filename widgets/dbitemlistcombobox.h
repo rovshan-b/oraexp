@@ -18,7 +18,10 @@ public:
                                 bool prependEmptyValue=true,
                                 QWidget *parent=0);
 
-    void loadItems(IQueryScheduler *queryScheduler, const QString &queryName, QList<Param*> params=QList<Param*>());
+    void loadItems(IQueryScheduler *queryScheduler, const QString &queryName, QList<Param*> params=QList<Param*>(),
+                   const QString &dbLinkName=QString());
+
+    void setIconColumn(int colNum);
 
 signals:
     void loadingCompelted();
@@ -31,6 +34,7 @@ private slots:
 private:
     QString iconName;
     bool prependEmptyValue;
+    int iconColumn;
 
 };
 

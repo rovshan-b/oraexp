@@ -13,7 +13,7 @@ DbItemListComboBox::DbItemListComboBox(const QString &initialValue,
                                        bool setMaxWidth,
                                        bool prependEmptyValue,
                                        QWidget *parent) :
-    QComboBox(parent), iconName(iconName), prependEmptyValue(prependEmptyValue)
+    QComboBox(parent), iconName(iconName), prependEmptyValue(prependEmptyValue), iconColumn(-1)
 {
     setEditable(true);
     if(setMaxWidth){
@@ -24,17 +24,23 @@ DbItemListComboBox::DbItemListComboBox(const QString &initialValue,
     setCurrentIndex(0);
 }
 
-void DbItemListComboBox::loadItems(IQueryScheduler *queryScheduler, const QString &queryName, QList<Param*> params)
+void DbItemListComboBox::loadItems(IQueryScheduler *queryScheduler, const QString &queryName, QList<Param*> params, const QString &dbLinkName)
 {
     QueryExecTask task;
-    task.query=QueryUtil::getQuery(queryName);
+    task.query=QueryUtil::getQuery(queryName, queryScheduler->getDb());
     task.requester=this;
     task.params=params;
     task.taskName=queryName;
     task.queryCompletedSlotName="queryCompleted";
     task.fetchSlotName="itemFetched";
     task.fetchCompletedSlotName="fetchCompleted";
+    task.dbLinkName=dbLinkName;
     queryScheduler->enqueueQuery(task);
+}
+
+void DbItemListComboBox::setIconColumn(int colNum)
+{
+    this->iconColumn=colNum;
 }
 
 void DbItemListComboBox::queryCompleted(const QueryResult &result)
@@ -46,7 +52,6 @@ void DbItemListComboBox::queryCompleted(const QueryResult &result)
 
         return;
     }
-
     if(prependEmptyValue){
         addItem(IconUtil::getIcon(iconName), "");
     }
@@ -59,7 +64,9 @@ void DbItemListComboBox::itemFetched(const FetchResult &fetchResult)
         return;
     }
 
-    addItem(IconUtil::getIcon(iconName), fetchResult.oneRow.at(0));
+    QString iconNameToAdd = iconColumn!=-1 ? fetchResult.oneRow.at(iconColumn) : iconName;
+
+    addItem(IconUtil::getIcon(iconNameToAdd), fetchResult.oneRow.at(0));
 }
 
 void DbItemListComboBox::fetchCompleted(const QString &)

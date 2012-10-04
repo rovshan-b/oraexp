@@ -6,6 +6,7 @@
 #include "table/tableinfoloader.h"
 #include "code/sourceinfoloader.h"
 #include "sequence/sequenceinfoloader.h"
+#include "synonym/synonyminfoloader.h"
 #include "dblink/dblinkinfoloader.h"
 
 MetadataLoaderFactory::MetadataLoaderFactory()
@@ -41,6 +42,10 @@ MetadataLoader *MetadataLoaderFactory::createMetadataLoader(DbTreeModel::DbTreeN
     case DbTreeModel::Sequences:
     case DbTreeModel::Sequence:
         result=new SequenceInfoLoader(queryScheduler, schemaName, objectName, parent);
+        break;
+    //case DbTreeModel::Synonyms: Synonyms is passed when comparing database schemas in the above code
+    case DbTreeModel::Synonym:
+        result=new SynonymInfoLoader(queryScheduler, schemaName, objectName, parent);
         break;
     case DbTreeModel::DatabaseLinks:
     //case DbTreeModel::PublicDatabaseLinks:

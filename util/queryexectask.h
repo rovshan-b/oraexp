@@ -21,6 +21,8 @@ public:
     bool retrieveResultsetAsBindParameter;
 
     QPointer<QObject> queryEndMonitor;
+
+    QString dbLinkName;
 };
 
 #endif // QUERYEXECTASK_H

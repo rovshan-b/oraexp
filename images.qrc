@@ -104,5 +104,7 @@
         <file>images/invalid_small.png</file>
         <file>images/comment.png</file>
         <file>images/right_arrow.png</file>
+        <file>images/materialized_view.png</file>
+        <file>images/java_class.png</file>
     </qresource>
 </RCC>

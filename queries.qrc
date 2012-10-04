@@ -91,5 +91,7 @@
         <file>queries/get_type_bodies</file>
         <file>queries/get_dblink</file>
         <file>queries/get_object_list_for_synonym</file>
+        <file>queries/get_dblink_list_plain</file>
+        <file>queries/get_synonym</file>
     </qresource>
 </RCC>

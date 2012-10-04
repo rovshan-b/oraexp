@@ -334,7 +334,8 @@ SOURCES += main.cpp\
     connection_page/synonym_creator/synonymcreator.cpp \
     connection_page/synonym_creator/synonymcreatorpane.cpp \
     beans/synonyminfo.cpp \
-    context_menu/synonymcontextmenuutil.cpp
+    context_menu/synonymcontextmenuutil.cpp \
+    metadata_loaders/synonym/synonyminfoloader.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -664,7 +665,8 @@ HEADERS  += mainwindow.h \
     connection_page/synonym_creator/synonymcreator.h \
     connection_page/synonym_creator/synonymcreatorpane.h \
     beans/synonyminfo.h \
-    context_menu/synonymcontextmenuutil.h
+    context_menu/synonymcontextmenuutil.h \
+    metadata_loaders/synonym/synonyminfoloader.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

@@ -1,0 +1,3 @@
+select owner||'.'||db_link as db_link_name from all_db_links 
+where (owner=:owner or owner='PUBLIC')
+order by owner||'.'||db_link

@@ -27,6 +27,12 @@ void QueryRunner::run()
             return;
         }
 
+        if(!task.dbLinkName.isEmpty()){
+            task.query.replace("{db_link}", QString("@\"%1\"").arg(task.dbLinkName));
+        }else{
+            task.query.remove("{db_link}");
+        }
+
         result=db->executeQuery(task.query, task.params, task.retrieveResultsetAsBindParameter);
         if(result.statement!=0 && result.statement->isAnonymousBlock()){
             result.dbmsOutput=db->retrieveDbmsOutput();

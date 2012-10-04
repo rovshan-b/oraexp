@@ -7,7 +7,7 @@ class DbItemListComboBox;
 class NameEditor;
 class QLineEdit;
 class QCheckBox;
-class QComboBox;
+class DbItemListComboBox;
 class SynonymInfo;
 
 class SynonymCreatorPane : public DbObjectCreatorSimplePane
@@ -24,6 +24,9 @@ public:
     virtual QString generateCreateDdl();
     virtual QList< QueryListItem > generateAlterDdl();
 
+    virtual bool beforeCreate() const;
+    virtual bool beforeAlter() const;
+
 public slots:
     void alterQuerySucceeded(const QString &taskName);
 
@@ -34,10 +37,19 @@ protected:
     void setObjectInfo(DbObjectInfo *objectInfo);
     DbItemListComboBox *schemaListCombo() const {return this->schemaList;}
 
+private slots:
+    void enableControls();
+    void loadTargetObjectList();
 
 private:
+    QCheckBox *publicCheckBox;
     DbItemListComboBox *schemaList;
     NameEditor *synonymNameEditor;
+
+    QCheckBox *isOverDbLinkCheckBox;
+    DbItemListComboBox *dbLinkComboBox;
+    DbItemListComboBox *ownerComboBox;
+    DbItemListComboBox *objectComboBox;
 };
 
 #endif // SYNONYMCREATORPANE_H
