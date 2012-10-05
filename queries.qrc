@@ -93,5 +93,6 @@
         <file>queries/get_object_list_for_synonym</file>
         <file>queries/get_dblink_list_plain</file>
         <file>queries/get_synonym</file>
+        <file>queries/get_tablespace_list_all_cols</file>
     </qresource>
 </RCC>

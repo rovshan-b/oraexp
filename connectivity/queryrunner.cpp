@@ -3,6 +3,7 @@
 #include "connection.h"
 #include "statement.h"
 #include "fetchresult.h"
+#include "util/strutil.h"
 #include <QDebug>
 
 QueryRunner::QueryRunner(DbConnection *db, const QueryExecTask &task, QObject *parent) :
@@ -27,11 +28,7 @@ void QueryRunner::run()
             return;
         }
 
-        if(!task.dbLinkName.isEmpty()){
-            task.query.replace("{db_link}", QString("@\"%1\"").arg(task.dbLinkName));
-        }else{
-            task.query.remove("{db_link}");
-        }
+        setDbLinkName(task.query, task.dbLinkName);
 
         result=db->executeQuery(task.query, task.params, task.retrieveResultsetAsBindParameter);
         if(result.statement!=0 && result.statement->isAnonymousBlock()){

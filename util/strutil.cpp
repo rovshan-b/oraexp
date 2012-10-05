@@ -192,3 +192,12 @@ bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
 {
     return s1.toUpper() < s2.toUpper();
 }
+
+void setDbLinkName(QString &str, const QString &dbLinkName)
+{
+    if(!dbLinkName.isEmpty()){
+        str.replace("{db_link}", QString("@\"%1\"").arg(dbLinkName));
+    }else{
+        str.remove("{db_link}");
+    }
+}

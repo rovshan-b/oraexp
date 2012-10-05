@@ -1,3 +1,4 @@
+select object_name, object_type, icon_name from (
 select table_name as object_name, 'TABLE' as object_type, 'table' as icon_name, 1 as sort_col from all_all_tables{db_link} where owner=:owner
 union all
 select object_name, object_type, replace(lower(object_type),' ','_') as icon_name,
@@ -19,3 +20,4 @@ where object_type in ('VIEW','MATERIALIZED VIEW','SEQUENCE','PACKAGE','PROCEDURE
 union all
 select type_name as object_name, 'TYPE' as object_type, 'type' as icon_name, 8 as sort_col from all_types{db_link} where typecode='OBJECT' and owner=:owner
 order by sort_col, object_name
+) t

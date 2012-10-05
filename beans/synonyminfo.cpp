@@ -31,8 +31,6 @@ QString SynonymInfo::generateDdl(bool replace) const
         ddl.append("@\"").append(dbLinkName).append("\"");
     }
 
-    ddl.append(";");
-
     return ddl;
 }
 
@@ -58,7 +56,8 @@ QString SynonymInfo::generateDropDdl() const
 
 bool SynonymInfo::needsRecreation(const SynonymInfo &other) const
 {
-    return owner!=other.owner;
+    //return (owner!=other.owner) || we do not allow to change owner in edit mode
+    return owner=="PUBLIC" && name!=other.name;
 }
 
 QList<NameQueryPair> SynonymInfo::generateDiffDdl(const SynonymInfo &other) const
@@ -86,7 +85,7 @@ QList<NameQueryPair> SynonymInfo::generateDiffDdl(const SynonymInfo &other) cons
         if(targetSchema!=other.targetSchema ||
                 targetObject!=other.targetObject ||
                 dbLinkName!=other.dbLinkName){
-            result.append(qMakePair(QString("recreate_synonym"), ddl));
+            result.append(qMakePair(QString("recreate_synonym"), generateDdl(true)));
         }
     }
 

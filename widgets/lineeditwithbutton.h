@@ -2,8 +2,8 @@
 #define LINEEDITWITHBUTTON_H
 
 #include <QWidget>
+#include "widgets/lineeditwithautocompleter.h"
 
-class LineEditWithAutocompleter;
 class QPushButton;
 
 class LineEditWithButton : public QWidget

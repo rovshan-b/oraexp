@@ -1,5 +1,4 @@
 #include "lineeditwithbutton.h"
-#include "widgets/lineeditwithautocompleter.h"
 #include <QtGui>
 #include <QtDebug>
 

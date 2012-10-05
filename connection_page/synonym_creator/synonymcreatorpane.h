@@ -9,6 +9,7 @@ class QLineEdit;
 class QCheckBox;
 class DbItemListComboBox;
 class SynonymInfo;
+class LineEditWithButton;
 
 class SynonymCreatorPane : public DbObjectCreatorSimplePane
 {
@@ -39,7 +40,7 @@ protected:
 
 private slots:
     void enableControls();
-    void loadTargetObjectList();
+    void showTargetObjectList();
 
 private:
     QCheckBox *publicCheckBox;
@@ -49,7 +50,7 @@ private:
     QCheckBox *isOverDbLinkCheckBox;
     DbItemListComboBox *dbLinkComboBox;
     DbItemListComboBox *ownerComboBox;
-    DbItemListComboBox *objectComboBox;
+    LineEditWithButton *objectNameEditor;
 };
 
 #endif // SYNONYMCREATORPANE_H

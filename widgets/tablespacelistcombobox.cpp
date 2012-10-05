@@ -23,7 +23,11 @@ TablespaceListComboBox::TablespaceListComboBox(IQueryScheduler *queryScheduler,
 
 void TablespaceListComboBox::detailsButtonClicked()
 {
-    GenericResultsetViewerDialog dialog(queryScheduler, this);
+    GenericResultsetViewerDialog dialog(queryScheduler, QueryUtil::getQuery("get_tablespace_list_all_cols", queryScheduler->getDb()),
+                                        QList<Param*>(), "",this,
+                                        qMakePair<QString,QString>("TABLESPACE_NAME", "ICON_NAME"));
     dialog.setWindowTitle(tr("Browse tablespaces"));
-    dialog.exec();
+    if(dialog.exec()){
+        WidgetHelper::setComboBoxText(comboBox(), dialog.selectedText);
+    }
 }

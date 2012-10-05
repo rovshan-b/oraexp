@@ -118,6 +118,10 @@ void DataTable::clear()
 
 void DataTable::setIconColumn(const QString &displayColumnName, const QString &iconColumnName)
 {
+    if(displayColumnName.isEmpty() || iconColumnName.isEmpty()){
+        return;
+    }
+
     iconColumns[displayColumnName]=iconColumnName;
 }
 

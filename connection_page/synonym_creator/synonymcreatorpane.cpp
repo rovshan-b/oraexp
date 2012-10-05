@@ -1,12 +1,15 @@
 #include "synonymcreatorpane.h"
 #include "widgets/dbitemlistcombobox.h"
 #include "widgets/nameeditor.h"
+#include "widgets/lineeditwithbutton.h"
 #include "util/strutil.h"
 #include "util/widgethelper.h"
+#include "util/queryutil.h"
 #include "beans/synonyminfo.h"
 #include "interfaces/iqueryscheduler.h"
 #include "connectivity/dbconnection.h"
 #include "connection_page/db_object_creator/dbobjectcreator.h"
+#include "dialogs/genericresultsetviewerdialog.h"
 #include <QtGui>
 
 SynonymCreatorPane::SynonymCreatorPane(DbObjectCreator *objectCreator, QWidget *parent) :
@@ -20,12 +23,6 @@ void SynonymCreatorPane::setQueryScheduler(IQueryScheduler *queryScheduler)
     DbObjectCreatorSimplePane::setQueryScheduler(queryScheduler);
 
     QString currentDbSchema = queryScheduler->getDb()->getSchemaName();
-    if(currentDbSchema!=schemaList->currentText()
-            //|| is public synonym. either disable here or generate recreate script
-            ){
-        synonymNameEditor->setEnabled(false);
-    }
-
     WidgetHelper::setComboBoxText(schemaList, currentDbSchema);
     WidgetHelper::setComboBoxText(ownerComboBox, currentDbSchema);
     dbLinkComboBox->loadItems(queryScheduler, "get_dblink_list_plain", QList<Param*>() << new Param("owner", currentDbSchema));
@@ -64,9 +61,8 @@ QLayout *SynonymCreatorPane::createForm()
     ownerComboBox=new DbItemListComboBox("", "user", true, false);
     form2->addRow(tr("Owner"), ownerComboBox);
 
-    objectComboBox=new DbItemListComboBox("", "", true, false);
-    objectComboBox->setIconColumn(2);
-    form2->addRow(tr("Object"), objectComboBox);
+    objectNameEditor=new LineEditWithButton(this);
+    form2->addRow(tr("Object"), objectNameEditor);
 
     targetObjectInfoBox->setLayout(form2);
     mainLayout->addWidget(targetObjectInfoBox);
@@ -75,9 +71,19 @@ QLayout *SynonymCreatorPane::createForm()
 
     connect(publicCheckBox, SIGNAL(stateChanged(int)), this, SLOT(enableControls()));
     connect(isOverDbLinkCheckBox, SIGNAL(stateChanged(int)), this, SLOT(enableControls()));
-    connect(isOverDbLinkCheckBox, SIGNAL(stateChanged(int)), this, SLOT(loadTargetObjectList()));
-    connect(dbLinkComboBox->lineEdit(), SIGNAL(editingFinished()), this, SLOT(loadTargetObjectList()));
-    connect(ownerComboBox->lineEdit(), SIGNAL(editingFinished()), this, SLOT(loadTargetObjectList()));
+    connect(objectNameEditor, SIGNAL(buttonClicked(LineEditWithButton*)), this, SLOT(showTargetObjectList()));
+
+    connect(publicCheckBox, SIGNAL(stateChanged(int)), this, SIGNAL(ddlChanged()));
+    connect(schemaList->lineEdit(), SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
+    connect(synonymNameEditor, SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
+    connect(isOverDbLinkCheckBox, SIGNAL(stateChanged(int)), this, SIGNAL(ddlChanged()));
+    connect(dbLinkComboBox->lineEdit(), SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
+    connect(ownerComboBox->lineEdit(), SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
+    connect(objectNameEditor->lineEdit(), SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
+
+    //connect(isOverDbLinkCheckBox, SIGNAL(stateChanged(int)), this, SLOT(loadTargetObjectList()));
+    //connect(dbLinkComboBox->lineEdit(), SIGNAL(editingFinished()), this, SLOT(loadTargetObjectList()));
+    //connect(ownerComboBox->lineEdit(), SIGNAL(editingFinished()), this, SLOT(loadTargetObjectList()));
 
     return mainLayout;
 }
@@ -122,6 +128,16 @@ void SynonymCreatorPane::alterQuerySucceeded(const QString &taskName)
 {
     SynonymInfo *originalSynonymInfo=getOriginalObjectInfo<SynonymInfo>();
     Q_ASSERT(originalSynonymInfo);
+
+    if(taskName=="drop_synonym"){
+        originalSynonymInfo->dropped=true;
+    }else if(taskName=="create_synonym"){
+        *originalSynonymInfo=getSynonymInfo();
+    }else if(taskName=="rename_synonym"){
+        originalSynonymInfo->name=synonymNameEditor->text().trimmed().toUpper();
+    }else if(taskName=="recreate_synonym"){
+        *originalSynonymInfo=getSynonymInfo();
+    }
 }
 
 SynonymInfo SynonymCreatorPane::getSynonymInfo() const
@@ -133,7 +149,7 @@ SynonymInfo SynonymCreatorPane::getSynonymInfo() const
     info.overDbLink=isOverDbLinkCheckBox->isChecked();
     info.dbLinkName=dbLinkComboBox->lineEdit()->text().trimmed().toUpper();
     info.targetSchema=ownerComboBox->lineEdit()->text().trimmed().toUpper();
-    info.targetObject=objectComboBox->lineEdit()->text().trimmed().toUpper();
+    info.targetObject=objectNameEditor->lineEdit()->text().trimmed().toUpper();
 
     return info;
 }
@@ -149,16 +165,22 @@ void SynonymCreatorPane::setObjectInfo(DbObjectInfo *objectInfo)
     isOverDbLinkCheckBox->setChecked(!info->dbLinkName.isEmpty());
     WidgetHelper::setComboBoxText(dbLinkComboBox, info->dbLinkName);
     WidgetHelper::setComboBoxText(ownerComboBox, info->targetSchema);
-    WidgetHelper::setComboBoxText(objectComboBox, info->targetObject);
+    objectNameEditor->lineEdit()->setText(info->targetObject);
+
+
+    QString currentDbSchema = queryScheduler->getDb()->getSchemaName();
+    if(editMode && currentDbSchema!=schemaList->currentText() && !publicCheckBox->isChecked()){
+        synonymNameEditor->setEnabled(false);
+    }
 }
 
 void SynonymCreatorPane::enableControls()
 {
-    schemaList->setEnabled(!publicCheckBox->isChecked());
+    schemaList->setEnabled(!publicCheckBox->isChecked() && !editMode);
     dbLinkComboBox->setEnabled(isOverDbLinkCheckBox->isChecked());
 }
 
-void SynonymCreatorPane::loadTargetObjectList()
+void SynonymCreatorPane::showTargetObjectList()
 {
     Q_ASSERT(this->queryScheduler);
 
@@ -168,13 +190,21 @@ void SynonymCreatorPane::loadTargetObjectList()
         return;
     }
 
-    objectComboBox->loadItems(this->queryScheduler,
-                              "get_object_list_for_synonym",
-                              QList<Param*>() << new Param("owner", owner),
-                              dbLinkName);
+    GenericResultsetViewerDialog dialog(this->queryScheduler,
+                                        QueryUtil::getQuery("get_object_list_for_synonym", this->queryScheduler->getDb()),
+                                        QList<Param*>() << new Param("owner", owner),
+                                        dbLinkName,
+                                        this->window(),
+                                        qMakePair<QString,QString>("OBJECT_NAME", "ICON_NAME"));
+    dialog.setWindowTitle(tr("Select target object"));
+    if(dialog.exec()){
+        objectNameEditor->lineEdit()->setText(dialog.selectedText);
+        emit ddlChanged();
+    }
 }
 
 void SynonymCreatorPane::disableControlsForEditMode()
 {
+    publicCheckBox->setEnabled(false);
     schemaList->setEnabled(false);
 }
