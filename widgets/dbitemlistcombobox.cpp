@@ -45,12 +45,25 @@ void DbItemListComboBox::setIconColumn(int colNum)
 
 void DbItemListComboBox::queryCompleted(const QueryResult &result)
 {
+    hasSelection=lineEdit()->hasSelectedText();
+    currentTxt=lineEdit()->text();
+
     if(result.hasError){
         QMessageBox::critical(this->window(), tr("Error loading item list. Task name: %1").arg(result.taskName), result.exception.getErrorMessage());
+
+        clear();
+        addItem(IconUtil::getIcon(iconName), currentTxt);
+        setCurrentIndex(0);
 
         emit loadingCompelted();
 
         return;
+    }else{
+        setUpdatesEnabled(false);
+        for(int i=count()-1; i>=1; --i){
+            removeItem(i);
+        }
+        setUpdatesEnabled(true);
     }
     if(prependEmptyValue){
         addItem(IconUtil::getIcon(iconName), "");
@@ -71,10 +84,8 @@ void DbItemListComboBox::itemFetched(const FetchResult &fetchResult)
 
 void DbItemListComboBox::fetchCompleted(const QString &)
 {
-    bool hasSelection=lineEdit()->hasSelectedText();
-    QString currentText=lineEdit()->text();
     removeItem(0);
-    WidgetHelper::setComboBoxText(this, currentText);
+    WidgetHelper::setComboBoxText(this, currentTxt);
     if(hasSelection){
         lineEdit()->selectAll();
     }

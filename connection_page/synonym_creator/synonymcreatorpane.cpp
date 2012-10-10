@@ -26,7 +26,7 @@ void SynonymCreatorPane::setQueryScheduler(IQueryScheduler *queryScheduler)
     WidgetHelper::setComboBoxText(schemaList, currentDbSchema);
     WidgetHelper::setComboBoxText(ownerComboBox, currentDbSchema);
     dbLinkComboBox->loadItems(queryScheduler, "get_dblink_list_plain", QList<Param*>() << new Param("owner", currentDbSchema));
-    ownerComboBox->loadItems(queryScheduler, "get_schema_list");
+    loadOwnerList();
 }
 
 QLayout *SynonymCreatorPane::createForm()
@@ -71,6 +71,8 @@ QLayout *SynonymCreatorPane::createForm()
 
     connect(publicCheckBox, SIGNAL(stateChanged(int)), this, SLOT(enableControls()));
     connect(isOverDbLinkCheckBox, SIGNAL(stateChanged(int)), this, SLOT(enableControls()));
+    connect(isOverDbLinkCheckBox, SIGNAL(stateChanged(int)), this, SLOT(loadOwnerList()));
+    connect(dbLinkComboBox->lineEdit(), SIGNAL(editingFinished()), this, SLOT(loadOwnerList()));
     connect(objectNameEditor, SIGNAL(buttonClicked(LineEditWithButton*)), this, SLOT(showTargetObjectList()));
 
     connect(publicCheckBox, SIGNAL(stateChanged(int)), this, SIGNAL(ddlChanged()));
@@ -186,7 +188,13 @@ void SynonymCreatorPane::showTargetObjectList()
 
     QString dbLinkName = isOverDbLinkCheckBox->isChecked() ? dbLinkComboBox->lineEdit()->text().trimmed().toUpper() : "";
     QString owner = ownerComboBox->lineEdit()->text().trimmed().toUpper();
-    if((isOverDbLinkCheckBox->isChecked() && dbLinkName.isEmpty()) || owner.isEmpty()){
+    if((isOverDbLinkCheckBox->isChecked() && dbLinkName.isEmpty())){
+        QMessageBox::information(this->window(), tr("Database link name not entered"), tr("Please, enter database link name and then try again."));
+        return;
+    }
+
+    if(owner.isEmpty()){
+        QMessageBox::information(this->window(), tr("Owner name not entered"), tr("Please, enter owner name and then try again."));
         return;
     }
 
@@ -200,6 +208,15 @@ void SynonymCreatorPane::showTargetObjectList()
     if(dialog.exec()){
         objectNameEditor->lineEdit()->setText(dialog.selectedText);
         emit ddlChanged();
+    }
+}
+
+void SynonymCreatorPane::loadOwnerList()
+{
+    QString dbLinkName = isOverDbLinkCheckBox->isChecked() ? dbLinkComboBox->lineEdit()->text().trimmed().toUpper() : "";
+    if(lastDbLinkName!=dbLinkName){
+        lastDbLinkName=dbLinkName;
+        ownerComboBox->loadItems(queryScheduler, "get_schema_list", QList<Param*>(), dbLinkName);
     }
 }
 

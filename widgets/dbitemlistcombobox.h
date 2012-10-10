@@ -36,6 +36,9 @@ private:
     bool prependEmptyValue;
     int iconColumn;
 
+    QString currentTxt;
+    bool hasSelection;
+
 };
 
 #endif // DBITEMLISTCOMBOBOX_H

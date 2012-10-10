@@ -41,6 +41,7 @@ protected:
 private slots:
     void enableControls();
     void showTargetObjectList();
+    void loadOwnerList();
 
 private:
     QCheckBox *publicCheckBox;
@@ -51,6 +52,8 @@ private:
     DbItemListComboBox *dbLinkComboBox;
     DbItemListComboBox *ownerComboBox;
     LineEditWithButton *objectNameEditor;
+
+    QString lastDbLinkName;
 };
 
 #endif // SYNONYMCREATORPANE_H
