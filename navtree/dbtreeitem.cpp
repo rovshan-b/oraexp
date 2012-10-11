@@ -172,9 +172,13 @@ QList<DbTreeItem*> DbTreeItem::createNodeForEachRecord(const QString &select, QL
     QList<DbTreeItem*> results;
 
     try{
-        QueryResult result=getModel()->getDb()->executeQuery(select, parameters);
-        Resultset * rs=result.statement->rsAt(0);
-        auto_ptr<Statement> autoStmt(result.statement); //for automatically releasing pointer
+        QString finalQuery = select;
+        setDbLinkName(finalQuery, this->m_dbLinkName);
+        QueryResult result=getModel()->getDb()->executeQuery(finalQuery, parameters);
+        //Resultset * rs=result.statement->rsAt(0);
+        //auto_ptr<Statement> autoStmt(result.statement); //for automatically releasing pointer
+        QScopedPointer<Statement> stmt(result.statement);
+        Resultset *rs = stmt->rsAt(0);
 
         DbTreeItem* item;
 
@@ -236,6 +240,16 @@ void DbTreeItem::setSchemaName(const QString &schemaName)
 bool DbTreeItem::isInCurrentUsersSchema() const
 {
     return (getModel()->getDb()->getSchemaName()==schemaName());
+}
+
+QString DbTreeItem::databaseLinkName() const
+{
+    return this->m_dbLinkName;
+}
+
+void DbTreeItem::setDatabaseLinkName(const QString &dbLinkName)
+{
+    this->m_dbLinkName = dbLinkName;
 }
 
 QString DbTreeItem::itemText() const

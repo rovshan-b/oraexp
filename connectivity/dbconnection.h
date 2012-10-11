@@ -78,6 +78,7 @@ public:
                       const QString &fetchCompletedSlotName=QString(),
                       bool retrieveResultsetAsBindParameter=false,
                       const QString &dbLinkName=QString(),
+                      bool isUserQuery = false,
                       QObject *queryEndMonitor=0);
 
     bool supportsFlashbackArchive() const {return this->serverMajorVersion>=11;}

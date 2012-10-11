@@ -6,6 +6,7 @@
 #include "connection_page/sequence_creator/sequencecreator.h"
 #include "connection_page/synonym_creator/synonymcreator.h"
 #include "connection_page/dblink_creator/dblinkcreator.h"
+#include "connection_page/user_creator/usercreator.h"
 
 EditorCreatorUtil::EditorCreatorUtil()
 {
@@ -68,6 +69,10 @@ ConnectionPageTab *EditorCreatorUtil::createEditor(const QString &schemaName,
     //case DbTreeModel::PublicDatabaseLinks:
     case DbTreeModel::DatabaseLink:
         editor = new DbLinkCreator(schemaName, objectName, uiManager);
+        break;
+    case DbTreeModel::AllSchemas:
+    case DbTreeModel::Schema:
+        editor = new UserCreator(schemaName, objectName, uiManager);
         break;
     default:
         break;

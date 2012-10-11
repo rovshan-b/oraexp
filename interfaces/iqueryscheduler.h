@@ -18,7 +18,8 @@ public:
                       const QString &fetchSlotName=QString(),
                       const QString &fetchCompletedSlotName=QString(),
                       bool retrieveResultsetAsBindParameter=false,
-                      const QString &dbLinkName=QString())=0;
+                      const QString &dbLinkName=QString(),
+                      bool isUserQuery=false)=0;
 
     virtual DbConnection *getDb() const=0;
 

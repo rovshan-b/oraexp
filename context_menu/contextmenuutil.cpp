@@ -9,6 +9,7 @@
 #include "typecontextmenuutil.h"
 #include "synonymcontextmenuutil.h"
 #include "dblinkcontextmenuutil.h"
+#include "usercontextmenuutil.h"
 
 ContextMenuUtil::ContextMenuUtil()
 {
@@ -67,6 +68,10 @@ QList<QAction *> ContextMenuUtil::getActionsForObject(const QString &schemaName,
     //case DbTreeModel::PublicDatabaseLinks:
     case DbTreeModel::DatabaseLink:
         results = DbLinkContextMenuUtil::getActionsForObject(schemaName, objectName, itemType, uiManager);
+        break;
+    case DbTreeModel::AllSchemas:
+    case DbTreeModel::Schema:
+        results = UserContextMenuUtil::getActionsForObject(schemaName, objectName, itemType, uiManager);
         break;
     default:
         break;

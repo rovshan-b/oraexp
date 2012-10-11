@@ -160,6 +160,7 @@ void DbConnection::enqueueQuery(const QString &queryName, QList<Param*> params,
                   const QString &fetchCompletedSlotName,
                   bool retrieveResultsetAsBindParameter,
                   const QString &dbLinkName,
+                  bool isUserQuery,
                   QObject *queryEndMonitor)
 {
     QueryExecTask task;
@@ -177,6 +178,7 @@ void DbConnection::enqueueQuery(const QString &queryName, QList<Param*> params,
     task.retrieveResultsetAsBindParameter=retrieveResultsetAsBindParameter;
     task.queryEndMonitor=queryEndMonitor;
     task.dbLinkName=dbLinkName;
+    task.isUserQuery=isUserQuery;
 
     //if(queryName=="create_object_hash_for_comparison"){
     //    cout << task.query.toStdString() << endl;

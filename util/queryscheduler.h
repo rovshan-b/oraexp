@@ -15,7 +15,8 @@ public:
                       const QString &fetchSlotName=QString(),
                       const QString &fetchCompletedSlotName=QString(),
                       bool retrieveResultsetAsBindParameter=false,
-                      const QString &dbLinkName=QString());
+                      const QString &dbLinkName=QString(),
+                      bool isUserQuery=false);
 
     virtual QObject *getQueryEndMonitor() = 0;
 

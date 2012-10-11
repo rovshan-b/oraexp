@@ -66,7 +66,16 @@ void AppFileMenu::createFileNewMenu()
 
     fileNewMenu->addAction(IconUtil::getIcon("worksheet"), tr("&Worksheet"), this, SLOT(addWorksheet()), QKeySequence(tr("Ctrl+N", "File|New worksheet")));
     WidgetHelper::addDbItemAction(fileNewMenu, IconUtil::getIcon("table"), tr("&Table"), "", "", DbTreeModel::Table, this, SLOT(showCreator()), QKeySequence(tr("Ctrl+T", "File|New table")));
-    WidgetHelper::addDbItemAction(fileNewMenu, IconUtil::getIcon("view"), tr("&View"), "", "", DbTreeModel::View, this, SLOT(showCreator()), QKeySequence(tr("Ctrl+T", "File|New table")));
+    WidgetHelper::addDbItemAction(fileNewMenu, IconUtil::getIcon("view"), tr("&View"), "", "", DbTreeModel::View, this, SLOT(showCreator()));
+    WidgetHelper::addDbItemAction(fileNewMenu, IconUtil::getIcon("package"), tr("&Package"), "", "", DbTreeModel::Package, this, SLOT(showCreator()));
+    WidgetHelper::addDbItemAction(fileNewMenu, IconUtil::getIcon("procedure"), tr("P&rocedure"), "", "", DbTreeModel::Procedure, this, SLOT(showCreator()));
+    WidgetHelper::addDbItemAction(fileNewMenu, IconUtil::getIcon("function"), tr("&Function"), "", "", DbTreeModel::Function, this, SLOT(showCreator()));
+    WidgetHelper::addDbItemAction(fileNewMenu, IconUtil::getIcon("trigger"), tr("Tri&gger"), "", "", DbTreeModel::Trigger, this, SLOT(showCreator()));
+    WidgetHelper::addDbItemAction(fileNewMenu, IconUtil::getIcon("sequence"), tr("&Sequence"), "", "", DbTreeModel::Sequence, this, SLOT(showCreator()));
+    WidgetHelper::addDbItemAction(fileNewMenu, IconUtil::getIcon("type"), tr("Typ&e"), "", "", DbTreeModel::Type, this, SLOT(showCreator()));
+    WidgetHelper::addDbItemAction(fileNewMenu, IconUtil::getIcon("synonym"), tr("S&ynonym"), "", "", DbTreeModel::Synonym, this, SLOT(showCreator()));
+    WidgetHelper::addDbItemAction(fileNewMenu, IconUtil::getIcon("dblink"), tr("Database &link"), "", "", DbTreeModel::DatabaseLink, this, SLOT(showCreator()));
+    WidgetHelper::addDbItemAction(fileNewMenu, IconUtil::getIcon("user"), tr("&User"), "", "", DbTreeModel::Schema, this, SLOT(showCreator()));
 }
 
 void AppFileMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *cnPageTab)

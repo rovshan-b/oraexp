@@ -23,6 +23,10 @@ public:
     QPointer<QObject> queryEndMonitor;
 
     QString dbLinkName;
+
+    //true when this query is written by user
+    //false if this query comes from application (resource file or dynamically generated)
+    bool isUserQuery;
 };
 
 #endif // QUERYEXECTASK_H

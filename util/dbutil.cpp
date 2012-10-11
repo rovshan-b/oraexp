@@ -234,6 +234,10 @@ QString DbUtil::getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeTy
     case DbTreeModel::DatabaseLink:
         result="DATABASE LINK";
         break;
+    case DbTreeModel::AllSchemas:
+    case DbTreeModel::Schema:
+        result="USER";
+        break;
     default:
         Q_ASSERT(false);
         result="UNSUPPORTED_TYPE";
@@ -285,6 +289,8 @@ QString DbUtil::getDbObjectIconNameByParentNodeType(DbTreeModel::DbTreeNodeType 
     case DbTreeModel::TypeSpecs:
     case DbTreeModel::TypeBodies:
     case DbTreeModel::Type:
+    case DbTreeModel::TypeSpec:
+    case DbTreeModel::TypeBody:
         result="type";
         break;
     case DbTreeModel::Synonyms:
@@ -295,6 +301,10 @@ QString DbUtil::getDbObjectIconNameByParentNodeType(DbTreeModel::DbTreeNodeType 
     case DbTreeModel::PublicDatabaseLinks:
     case DbTreeModel::DatabaseLink:
         result="dblink";
+        break;
+    case DbTreeModel::AllSchemas:
+    case DbTreeModel::Schema:
+        result="user";
         break;
     default:
         Q_ASSERT(false);

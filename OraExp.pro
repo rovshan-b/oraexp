@@ -335,7 +335,14 @@ SOURCES += main.cpp\
     connection_page/synonym_creator/synonymcreatorpane.cpp \
     beans/synonyminfo.cpp \
     context_menu/synonymcontextmenuutil.cpp \
-    metadata_loaders/synonym/synonyminfoloader.cpp
+    metadata_loaders/synonym/synonyminfoloader.cpp \
+    connection_page/user_creator/usercreator.cpp \
+    connection_page/user_creator/usercreatorpane.cpp \
+    connection_page/user_creator/usercreatortabs.cpp \
+    connection_page/db_object_creator/dbobjectcreatortab.cpp \
+    connection_page/user_creator/usercreatortab.cpp \
+    connection_page/user_creator/tabs/usercreatorgeneralinfo.cpp \
+    context_menu/usercontextmenuutil.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -666,7 +673,14 @@ HEADERS  += mainwindow.h \
     connection_page/synonym_creator/synonymcreatorpane.h \
     beans/synonyminfo.h \
     context_menu/synonymcontextmenuutil.h \
-    metadata_loaders/synonym/synonyminfoloader.h
+    metadata_loaders/synonym/synonyminfoloader.h \
+    connection_page/user_creator/usercreator.h \
+    connection_page/user_creator/usercreatorpane.h \
+    connection_page/user_creator/usercreatortabs.h \
+    connection_page/db_object_creator/dbobjectcreatortab.h \
+    connection_page/user_creator/usercreatortab.h \
+    connection_page/user_creator/tabs/usercreatorgeneralinfo.h \
+    context_menu/usercontextmenuutil.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

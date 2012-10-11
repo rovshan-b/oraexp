@@ -1,7 +1,6 @@
 #include "dbsynonymparentitem.h"
 #include "connectivity/resultset.h"
 #include "dbsynonymitem.h"
-#include "dbpublicsynonymparentitem.h"
 
 #include <QList>
 

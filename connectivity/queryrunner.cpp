@@ -28,9 +28,13 @@ void QueryRunner::run()
             return;
         }
 
-        setDbLinkName(task.query, task.dbLinkName);
+        if(!task.isUserQuery){
+            setDbLinkName(task.query, task.dbLinkName);
+        }
 
-        result=db->executeQuery(task.query, task.params, task.retrieveResultsetAsBindParameter);
+        result=db->executeQuery(task.query,
+                                task.params,
+                                task.retrieveResultsetAsBindParameter);
         if(result.statement!=0 && result.statement->isAnonymousBlock()){
             result.dbmsOutput=db->retrieveDbmsOutput();
         }

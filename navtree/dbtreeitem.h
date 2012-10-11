@@ -56,6 +56,9 @@ public:
     void setSchemaName(const QString &schemaName);
     bool isInCurrentUsersSchema() const;
 
+    QString databaseLinkName() const;
+    void setDatabaseLinkName(const QString &dbLinkName);
+
     QString getQuery(const QString &queryName) const;
 
     void setInvalid(bool invalid);
@@ -97,6 +100,7 @@ private:
     QString m_itemName;
     QString m_tooltip;
     QString m_dbSchemaName;
+    QString m_dbLinkName;
     bool m_isInvalid;
     Qt::CheckState m_checkState;
     bool m_isTopLevel;

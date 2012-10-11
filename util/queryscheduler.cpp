@@ -23,7 +23,8 @@ void QueryScheduler::enqueueQuery(const QString &queryName, QList<Param*> params
                   const QString &fetchSlotName,
                   const QString &fetchCompletedSlotName,
                   bool retrieveResultsetAsBindParameter,
-                  const QString &dbLinkName)
+                  const QString &dbLinkName,
+                  bool isUserQuery)
 {
     beforeEnqueueQuery();
 
@@ -33,5 +34,5 @@ void QueryScheduler::enqueueQuery(const QString &queryName, QList<Param*> params
     Q_ASSERT(database);
 
     database->enqueueQuery(queryName, params, requester, taskName, queryCompletedSlotName, fetchSlotName, fetchCompletedSlotName,
-                     retrieveResultsetAsBindParameter, dbLinkName, queryEndMonitor);
+                     retrieveResultsetAsBindParameter, dbLinkName, isUserQuery, queryEndMonitor);
 }
