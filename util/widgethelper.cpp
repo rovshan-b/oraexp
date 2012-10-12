@@ -328,6 +328,25 @@ void WidgetHelper::removeIncorrectRows(DataTable *table)
     table->closePersistentEditor(table->currentIndex());
 }
 
+QGridLayout *WidgetHelper::createCheckBoxes(const QStringList &texts)
+{
+    QGridLayout *layout=new QGridLayout();
+
+    int columnCount = 3;
+    int rowCount = qCeil(((qreal)texts.size())/columnCount);
+    int currentRow=0;
+    int currentColumn=0;
+    for(int i=0; i<texts.size(); ++i){
+        if(i>0 && i%rowCount==0){
+            currentRow=0;
+            ++currentColumn;
+        }
+        WidgetHelper::createCheckBox(layout, currentRow++, currentColumn, texts.at(i));
+    }
+
+    return layout;
+}
+
 QCheckBox *WidgetHelper::createCheckBox(QLayout *layout, const QString &text, bool checked)
 {
     QCheckBox *chk=new QCheckBox(text);

@@ -44,6 +44,7 @@ public:
 
     static void removeIncorrectRows(DataTable *table);
 
+    static QGridLayout *createCheckBoxes(const QStringList &texts);
     static QCheckBox *createCheckBox(QLayout *layout, const QString &text, bool checked=false);
     static QCheckBox *createCheckBox(QGridLayout *layout, int row, int column, const QString &text, bool checked=false, int rowSpan=1, int colSpan=1);
 

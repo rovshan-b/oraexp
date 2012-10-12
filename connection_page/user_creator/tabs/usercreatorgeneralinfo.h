@@ -3,6 +3,13 @@
 
 #include "../usercreatortab.h"
 
+class NameEditor;
+class PasswordEditor;
+class QComboBox;
+class QLineEdit;
+class DbItemListComboBox;
+class QCheckBox;
+
 class UserCreatorGeneralInfo : public UserCreatorTab
 {
     Q_OBJECT
@@ -12,10 +19,24 @@ public:
                                     bool editMode,
                                     QWidget *parent = 0);
     
-signals:
-    
-public slots:
-    
+private:
+    QLayout *createForm();
+    QWidget *createRolesBox();
+    QWidget *createPrivilegesBox();
+
+    NameEditor *usernameEditor;
+    QComboBox *identifiedByComboBox;
+    PasswordEditor *passwordEditor;
+    QLineEdit *dnEditor;
+    DbItemListComboBox *defaultTablespaceComboBox;
+    DbItemListComboBox *temporaryTablespaceComboBox;
+    DbItemListComboBox *profileComboBox;
+    QCheckBox *passwordExpiredCheckBox;
+    QCheckBox *accountLockedCheckBox;
+    QCheckBox *enableEditionsCheckBox;
+
+    QStringList roleList;
+    QStringList privList;
 };
 
 #endif // USERCREATORGENERALINFO_H

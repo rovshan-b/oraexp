@@ -1,7 +1,7 @@
 #include "dblinkcreatorpane.h"
 #include "widgets/dbitemlistcombobox.h"
 #include "widgets/nameeditor.h"
-#include "widgets/lineeditandcheckboxwidget.h"
+#include "widgets/passwordeditor.h"
 #include "util/strutil.h"
 #include "beans/dblinkinfo.h"
 #include "interfaces/iqueryscheduler.h"
@@ -51,8 +51,7 @@ QLayout *DbLinkCreatorPane::createForm()
     usernameEditor=new QLineEdit();
     form2->addRow(tr("Username"), usernameEditor);
 
-    passwordEditor=new LineEditAndCheckBoxWidget(tr("Show"));
-    passwordEditor->lineEdit()->setEchoMode(QLineEdit::Password);
+    passwordEditor=new PasswordEditor();
     form2->addRow(tr("Password"), passwordEditor);
 
     authenticationBox->setLayout(form2);
@@ -67,8 +66,7 @@ QLayout *DbLinkCreatorPane::createForm()
     sharedUsernameEditor=new QLineEdit();
     form3->addRow(tr("Authenticate as "), sharedUsernameEditor);
 
-    sharedPasswordEditor=new LineEditAndCheckBoxWidget(tr("Show"));
-    sharedPasswordEditor->lineEdit()->setEchoMode(QLineEdit::Password);
+    sharedPasswordEditor=new PasswordEditor();
     form3->addRow(tr("Password"), sharedPasswordEditor);
 
     sharedBox->setLayout(form3);
@@ -77,8 +75,6 @@ QLayout *DbLinkCreatorPane::createForm()
     enableControls();
     connect(currentUserCheckBox, SIGNAL(stateChanged(int)), this, SLOT(enableControls()));
     connect(sharedCheckBox, SIGNAL(stateChanged(int)), this, SLOT(enableControls()));
-    connect(passwordEditor->checkBox(), SIGNAL(stateChanged(int)), this, SLOT(showPassword()));
-    connect(sharedPasswordEditor->checkBox(), SIGNAL(stateChanged(int)), this, SLOT(showPassword()));
 
     //connect(schemaList, SIGNAL(currentIndexChanged(int)), this, SIGNAL(ddlChanged()));
     connect(dblinkNameEditor, SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
@@ -170,12 +166,6 @@ void DbLinkCreatorPane::enableControls()
 
     sharedUsernameEditor->setEnabled(sharedCheckBox->isChecked());
     sharedPasswordEditor->setEnabled(sharedCheckBox->isChecked());
-}
-
-void DbLinkCreatorPane::showPassword()
-{
-    passwordEditor->lineEdit()->setEchoMode(passwordEditor->checkBox()->isChecked() ? QLineEdit::Normal : QLineEdit::Password);
-    sharedPasswordEditor->lineEdit()->setEchoMode(sharedPasswordEditor->checkBox()->isChecked() ? QLineEdit::Normal : QLineEdit::Password);
 }
 
 DbLinkInfo DbLinkCreatorPane::getDbLinkInfo() const

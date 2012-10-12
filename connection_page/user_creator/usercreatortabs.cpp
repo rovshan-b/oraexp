@@ -9,6 +9,7 @@ UserCreatorTabs::UserCreatorTabs(const QString &objectName, QWidget *parent) :
     editMode = !objectName.isEmpty();
 
     generalInfoTab = new UserCreatorGeneralInfo(objectName, this, editMode);
+    //generalInfoTab->setMaximumWidth(350);
     QScrollArea *scrollAreaForGeneralInfoTab=new QScrollArea();
     scrollAreaForGeneralInfoTab->setWidget(generalInfoTab);
     scrollAreaForGeneralInfoTab->setWidgetResizable(true);
@@ -18,4 +19,10 @@ UserCreatorTabs::UserCreatorTabs(const QString &objectName, QWidget *parent) :
 void UserCreatorTabs::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
     generalInfoTab->setQueryScheduler(queryScheduler);
+
+    if(editMode){
+
+    }else{
+        emit objectInfoLoaded();
+    }
 }

@@ -9,7 +9,7 @@ class QLineEdit;
 class QCheckBox;
 class QComboBox;
 class DbLinkInfo;
-class LineEditAndCheckBoxWidget;
+class PasswordEditor;
 
 class DbLinkCreatorPane : public DbObjectCreatorSimplePane
 {
@@ -39,7 +39,6 @@ protected:
 
 private slots:
     void enableControls();
-    void showPassword();
 
 private:
     //DbItemListComboBox *schemaList;
@@ -48,11 +47,11 @@ private:
     QComboBox *targetDbComboBox;
     QCheckBox *currentUserCheckBox;
     QLineEdit *usernameEditor;
-    LineEditAndCheckBoxWidget *passwordEditor;
+    PasswordEditor *passwordEditor;
 
     QCheckBox *sharedCheckBox;
     QLineEdit *sharedUsernameEditor;
-    LineEditAndCheckBoxWidget *sharedPasswordEditor;
+    PasswordEditor *sharedPasswordEditor;
 };
 
 #endif // DBLINKCREATORPANE_H

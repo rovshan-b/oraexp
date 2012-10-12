@@ -14,6 +14,10 @@ public:
     
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
+signals:
+    void objectInfoLoaded();
+    void ddlChanged();
+
 private:
     bool editMode;
 

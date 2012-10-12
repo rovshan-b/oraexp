@@ -10,7 +10,8 @@ class LineEditAndCheckBoxWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LineEditAndCheckBoxWidget(const QString &checkBoxTitle, QWidget *parent = 0);
+    explicit LineEditAndCheckBoxWidget(const QString &checkBoxTitle,
+                                       QWidget *parent = 0);
 
     QLineEdit *lineEdit() const;
     QCheckBox *checkBox() const;
