@@ -10,9 +10,10 @@ class TablespaceListComboBox : public ComboBoxWithButton
 {
     Q_OBJECT
 public:
-    explicit TablespaceListComboBox(IQueryScheduler *queryScheduler,
+    explicit TablespaceListComboBox(IQueryScheduler *queryScheduler=0,
                                     QWidget *parent = 0);
 
+    void setQueryScheduler(IQueryScheduler *queryScheduler);
 
 private:
     IQueryScheduler *queryScheduler;

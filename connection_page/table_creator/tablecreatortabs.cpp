@@ -59,7 +59,7 @@ TableCreatorTabs::TableCreatorTabs(const QString &schemaName,
 
     //grants
     grantsTab=new TableCreatorGrants(schemaName, this, editMode, this);
-    addTab(grantsTab, IconUtil::getIcon("granted"), tr("Grants"));
+    addTab(grantsTab, IconUtil::getIcon("grants"), tr("Grants"));
 
     showTabsBasedOnTableType(OraExp::TableTypeHeap);
 

@@ -14,10 +14,23 @@ TablespaceListComboBox::TablespaceListComboBox(IQueryScheduler *queryScheduler,
     comboBox()->setEditable(true);
     lineEdit()->setMaxLength(MAX_IDENTIFIER_LENGTH);
 
-    comboBox()->loadItems(queryScheduler, "get_tablespace_list");
+    if(queryScheduler){
+        comboBox()->loadItems(queryScheduler, "get_tablespace_list");
+    }else{
+        browseButton()->setEnabled(false);
+    }
 
     browseButton()->setToolTip(tr("Browse tablespaces"));
     connect(this, SIGNAL(buttonClicked(ComboBoxWithButton*)), this, SLOT(detailsButtonClicked()));
+}
+
+void TablespaceListComboBox::setQueryScheduler(IQueryScheduler *queryScheduler)
+{
+    Q_ASSERT(this->queryScheduler==0);
+
+    this->queryScheduler=queryScheduler;
+    comboBox()->loadItems(queryScheduler, "get_tablespace_list");
+    browseButton()->setEnabled(true);
 }
 
 

@@ -7,8 +7,10 @@ class NameEditor;
 class PasswordEditor;
 class QComboBox;
 class QLineEdit;
+class TablespaceListComboBox;
 class DbItemListComboBox;
 class QCheckBox;
+class QGroupBox;
 
 class UserCreatorGeneralInfo : public UserCreatorTab
 {
@@ -18,25 +20,22 @@ public:
                                     UserCreatorTabs *userCreator,
                                     bool editMode,
                                     QWidget *parent = 0);
-    
+
+    virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
+
 private:
-    QLayout *createForm();
-    QWidget *createRolesBox();
-    QWidget *createPrivilegesBox();
+    QLayout *createForm(const QString &objectName);
 
     NameEditor *usernameEditor;
     QComboBox *identifiedByComboBox;
     PasswordEditor *passwordEditor;
     QLineEdit *dnEditor;
-    DbItemListComboBox *defaultTablespaceComboBox;
-    DbItemListComboBox *temporaryTablespaceComboBox;
+    TablespaceListComboBox *defaultTablespaceComboBox;
+    TablespaceListComboBox *temporaryTablespaceComboBox;
     DbItemListComboBox *profileComboBox;
     QCheckBox *passwordExpiredCheckBox;
     QCheckBox *accountLockedCheckBox;
     QCheckBox *enableEditionsCheckBox;
-
-    QStringList roleList;
-    QStringList privList;
 };
 
 #endif // USERCREATORGENERALINFO_H

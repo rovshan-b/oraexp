@@ -44,9 +44,11 @@ public:
 
     static void removeIncorrectRows(DataTable *table);
 
-    static QGridLayout *createCheckBoxes(const QStringList &texts);
+    static QGridLayout *createCheckBoxes(const QStringList &texts, int columnCount, const QStringList &checked=QStringList());
     static QCheckBox *createCheckBox(QLayout *layout, const QString &text, bool checked=false);
     static QCheckBox *createCheckBox(QGridLayout *layout, int row, int column, const QString &text, bool checked=false, int rowSpan=1, int colSpan=1);
+    static QStringList getCheckedBoxes(QWidget *parent);
+    static void setCheckedBoxes(QWidget *parent, const QStringList &checkedList, bool check=true, bool all=false);
 
     static void increaseValueAtPos(QStandardItemModel *model, int row, int column, int increaseBy);
 
@@ -81,6 +83,11 @@ public:
         }
         return msgs.size()==0;
     }
+
+    static void createCheckUncheckButtons(QGridLayout *layout,
+                                       const QObject *receiver,
+                                       const char *checkSlotName,
+                                       const char *uncheckSlotName);
 };
 
 #endif // WIDGETHELPER_H

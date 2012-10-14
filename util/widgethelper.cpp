@@ -328,11 +328,10 @@ void WidgetHelper::removeIncorrectRows(DataTable *table)
     table->closePersistentEditor(table->currentIndex());
 }
 
-QGridLayout *WidgetHelper::createCheckBoxes(const QStringList &texts)
+QGridLayout *WidgetHelper::createCheckBoxes(const QStringList &texts, int columnCount, const QStringList &checked)
 {
     QGridLayout *layout=new QGridLayout();
 
-    int columnCount = 3;
     int rowCount = qCeil(((qreal)texts.size())/columnCount);
     int currentRow=0;
     int currentColumn=0;
@@ -341,7 +340,7 @@ QGridLayout *WidgetHelper::createCheckBoxes(const QStringList &texts)
             currentRow=0;
             ++currentColumn;
         }
-        WidgetHelper::createCheckBox(layout, currentRow++, currentColumn, texts.at(i));
+        WidgetHelper::createCheckBox(layout, currentRow++, currentColumn, texts.at(i), checked.contains(texts.at(i)));
     }
 
     return layout;
@@ -363,6 +362,30 @@ QCheckBox *WidgetHelper::createCheckBox(QGridLayout *layout, int row, int column
     layout->addWidget(chk, row, column, rowSpan, colSpan);
 
     return chk;
+}
+
+QStringList WidgetHelper::getCheckedBoxes(QWidget *parent)
+{
+    QStringList results;
+
+    QList<QCheckBox*> children=parent->findChildren<QCheckBox*>();
+    foreach(const QCheckBox *chk, children){
+        if(chk->isChecked()){
+            results.append(chk->text());
+        }
+    }
+
+    return results;
+}
+
+void WidgetHelper::setCheckedBoxes(QWidget *parent, const QStringList &checkedList, bool check, bool all)
+{
+    QList<QCheckBox*> children=parent->findChildren<QCheckBox*>();
+    foreach(QCheckBox *chk, children){
+        if(chk->isChecked()!=check && (all || checkedList.contains(chk->text()))){
+            chk->setChecked(check);
+        }
+    }
 }
 
 void WidgetHelper::increaseValueAtPos(QStandardItemModel *model, int row, int column, int increaseBy)
@@ -424,5 +447,26 @@ void WidgetHelper::addDbItemAction(QMenu *menu, const QIcon &icon, const QString
         action->setShortcut(shortcut);
     }
     menu->addAction(action);
+}
+
+void WidgetHelper::createCheckUncheckButtons(QGridLayout *layout,
+                                          const QObject *receiver,
+                                          const char *checkSlotName,
+                                          const char *uncheckSlotName)
+{
+    QPushButton *checkButton = new QPushButton(QObject::tr("Select all"));
+    QPushButton *uncheckButton = new QPushButton(QObject::tr("Select none"));
+
+    QObject::connect(checkButton, SIGNAL(clicked()), receiver, checkSlotName);
+    QObject::connect(uncheckButton, SIGNAL(clicked()), receiver, uncheckSlotName);
+
+    QHBoxLayout *buttonsLayout=new QHBoxLayout();
+    buttonsLayout->addWidget(checkButton);
+    buttonsLayout->addWidget(uncheckButton);
+
+    int rowCount=layout->rowCount();
+    int columnCount=layout->columnCount();
+
+    layout->addLayout(buttonsLayout, rowCount, 0, 1, columnCount, Qt::AlignLeft);
 }
 

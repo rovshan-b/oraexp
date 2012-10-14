@@ -5,6 +5,7 @@
 
 class IQueryScheduler;
 class UserCreatorGeneralInfo;
+class UserCreatorGrants;
 
 class UserCreatorTabs : public SubTabWidget
 {
@@ -22,6 +23,7 @@ private:
     bool editMode;
 
     UserCreatorGeneralInfo *generalInfoTab;
+    UserCreatorGrants *grantsTab;
     
 };
 

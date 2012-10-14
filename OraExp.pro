@@ -343,7 +343,8 @@ SOURCES += main.cpp\
     connection_page/user_creator/usercreatortab.cpp \
     connection_page/user_creator/tabs/usercreatorgeneralinfo.cpp \
     context_menu/usercontextmenuutil.cpp \
-    widgets/passwordeditor.cpp
+    widgets/passwordeditor.cpp \
+    connection_page/user_creator/tabs/usercreatorgrants.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -682,7 +683,8 @@ HEADERS  += mainwindow.h \
     connection_page/user_creator/usercreatortab.h \
     connection_page/user_creator/tabs/usercreatorgeneralinfo.h \
     context_menu/usercontextmenuutil.h \
-    widgets/passwordeditor.h
+    widgets/passwordeditor.h \
+    connection_page/user_creator/tabs/usercreatorgrants.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \
