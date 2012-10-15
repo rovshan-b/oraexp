@@ -25,7 +25,7 @@ class TableCreatorGeneralInfo : public TableCreatorTab
 public:
     explicit TableCreatorGeneralInfo(const QString &schemaName,
                                      const QString &tableName,
-                                     TableCreatorTabs *tableCreator,
+                                     TableCreatorTabs *objectCreator,
                                      bool editMode,
                                      QWidget *parent = 0);
 

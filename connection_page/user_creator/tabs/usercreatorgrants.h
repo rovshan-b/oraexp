@@ -6,21 +6,20 @@
 class QGroupBox;
 class QStackedWidget;
 class QRadioButton;
+class UserCreatorGrantsSimpleLayout;
+class UserCreatorGrantsAdvancedLayout;
 
 class UserCreatorGrants : public UserCreatorTab
 {
     Q_OBJECT
 public:
-    explicit UserCreatorGrants(UserCreatorTabs *userCreator,
+    explicit UserCreatorGrants(UserCreatorTabs *objectCreator,
                                bool editMode,
                                QWidget *parent = 0);
+
+    virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
     
 private slots:
-    void checkAllQuickRoles();
-    void uncheckAllQuickRoles();
-    void checkAllQuickPrivs();
-    void uncheckAllQuickPrivs();
-
     void switchMode(bool simpleMode);
     
 private:
@@ -30,16 +29,9 @@ private:
     QRadioButton *simpleModeRadio;
     QRadioButton *advancedModeRadio;
 
-    QWidget *createRolesBox();
-    QWidget *createPrivilegesBox();
-
-    QStringList quickRoleList;
-    QStringList quickPrivList;
-
-    QGroupBox *rolesBox;
-    QGroupBox *privBox;
-
     QStackedWidget *tab;
+    UserCreatorGrantsSimpleLayout *simpleLayout;
+    UserCreatorGrantsAdvancedLayout *advancedLayout;
     
 };
 

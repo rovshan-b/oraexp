@@ -1,19 +1,21 @@
 #include "datatableandtoolbarwidget.h"
-#include "widgets/tabletoolbar.h"
-#include "widgets/datatable.h"
 #include <QtGui>
 
-DataTableAndToolBarWidget::DataTableAndToolBarWidget(QAbstractItemModel *model, Qt::Orientation toolbarOrientation, QWidget *parent) :
+DataTableAndToolBarWidget::DataTableAndToolBarWidget(QAbstractItemModel *model,
+                                                     Qt::Orientation toolbarOrientation,
+                                                     QWidget *parent) :
     QWidget(parent)
 {
     QLayout *layout=0;
 
-    model->insertRows(0, 1);
-
     dataTable=new DataTable();
-    dataTable->setModel(model);
     tableToolBar=new TableToolbar(dataTable);
+    tableToolBar->setEnabled(false);
     tableToolBar->setOrientation(toolbarOrientation);
+
+    if(model){
+        setModel(model);
+    }
 
     if(toolbarOrientation==Qt::Vertical){
         layout=new QHBoxLayout();
@@ -38,4 +40,13 @@ TableToolbar *DataTableAndToolBarWidget::toolBar() const
 DataTable *DataTableAndToolBarWidget::table() const
 {
     return this->dataTable;
+}
+
+void DataTableAndToolBarWidget::setModel(QAbstractItemModel *model)
+{
+    Q_ASSERT(model);
+
+    model->insertRows(0, 1);
+    dataTable->setModel(model);
+    tableToolBar->setEnabled(true);
 }

@@ -28,8 +28,7 @@ void TableCreatorIndexes::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
     TableCreatorTabWithTableView::setQueryScheduler(queryScheduler);
 
-    customizeTableWidget(tableCreator->getSchemaName());
-
+    customizeTableWidget(objectCreator->getSchemaName());
     //if(isEditMode()){
     //    loadIndexList();
     //}
@@ -75,7 +74,7 @@ void TableCreatorIndexes::customizeTableWidget(const QString &schemaName)
     IndexBasedComboBoxDelegate *typeDelegate=new IndexBasedComboBoxDelegate(indexIcon, indexTypes, this);
     table->setItemDelegateForColumn(TableIndexesModel::IndexType, typeDelegate);
 
-    ColumnSelectorDelegate *columnsDelegate=new ColumnSelectorDelegate(tableCreator->getColumnsTab(), tr("Select columns"), this);
+    ColumnSelectorDelegate *columnsDelegate=new ColumnSelectorDelegate(objectCreator->getColumnsTab(), tr("Select columns"), this);
     table->setItemDelegateForColumn(TableIndexesModel::IndexColumns, columnsDelegate);
 
     BooleanDelegate *compressDelegate=new BooleanDelegate(this, false);
@@ -107,7 +106,7 @@ void TableCreatorIndexes::customizeTableWidget(const QString &schemaName)
     ComboBoxDelegate *partitioningTypeDelegate=new ComboBoxDelegate(this, false, QIcon(), partitioningTypes, false);
     table->setItemDelegateForColumn(TableIndexesModel::IndexPartitioningType, partitioningTypeDelegate);
 
-    PartitioningParamsDelegate *partititionDefinitionDelegate=new PartitioningParamsDelegate(this->queryScheduler, true, tableCreator, this);
+    PartitioningParamsDelegate *partititionDefinitionDelegate=new PartitioningParamsDelegate(this->queryScheduler, true, objectCreator, this);
     table->setItemDelegateForColumn(TableIndexesModel::IndexPartitionDefinition, partititionDefinitionDelegate);
 
     //table->verticalHeader()->setVisible(false);
@@ -260,8 +259,8 @@ QList< NameQueryPair > TableCreatorIndexes::generateAlterDdl() const
     TableIndexesModel *model=static_cast<TableIndexesModel*>(table->model());
     int rowCount=model->rowCount();
 
-    QString schema=tableCreator->getSchemaName();
-    QString tableName=tableCreator->getTableName();
+    QString schema=objectCreator->getSchemaName();
+    QString tableName=objectCreator->getTableName();
     QString fullTableName=QString("\"%1\".\"%2\"").arg(schema).arg(tableName);
 
     IndexInfo ixInfo;
@@ -275,14 +274,14 @@ QList< NameQueryPair > TableCreatorIndexes::generateAlterDdl() const
 
         if(model->isRowFrozen(i)){
             originalIxInfo=originalIndexList->at(i);
-            QList< NameQueryPair > alterDdls=ixInfo.generateDiffDdl(originalIxInfo, schema, tableName, tableCreator->getTableType());
+            QList< NameQueryPair > alterDdls=ixInfo.generateDiffDdl(originalIxInfo, schema, tableName, objectCreator->getTableType());
             NameQueryPair ddlPair;
             for(int i=0; i<alterDdls.size(); ++i){
                 ddlPair=alterDdls.at(i);
                 result.append(qMakePair(ddlPair.first, ddlPair.second));
             }
         }else{
-            result.append(qMakePair(QString("add_index_%1").arg(i+1), ixInfo.generateDdl(fullTableName, tableCreator->getTableType())));
+            result.append(qMakePair(QString("add_index_%1").arg(i+1), ixInfo.generateDdl(fullTableName, objectCreator->getTableType())));
         }
     }
 

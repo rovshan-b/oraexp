@@ -1,4 +1,4 @@
-#ifndef TABS_H
+#ifndef TABLECREATORTABS_H
 #define TABLECREATORTABS_H
 
 #include "widgets/subtabwidget.h"

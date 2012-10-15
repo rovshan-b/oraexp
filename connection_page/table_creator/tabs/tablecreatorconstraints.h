@@ -20,7 +20,7 @@ class TableCreatorConstraints : public TableCreatorTabWithTableView,
     Q_OBJECT
 public:
     explicit TableCreatorConstraints(const QString &schemaName,
-                                     TableCreatorTabs *tableCreator,
+                                     TableCreatorTabs *objectCreator,
                                      bool editMode,
                                      QWidget *parent = 0);
 

@@ -13,6 +13,8 @@ public:
 
     QCheckBox *checkBox() const;
 
+    //virtual bool eventFilter ( QObject * watched, QEvent * event );
+
 private:
     QCheckBox *checkbox;
 

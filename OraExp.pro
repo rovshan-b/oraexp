@@ -93,12 +93,10 @@ SOURCES += main.cpp\
     widgets/subtabwidget.cpp \
     widgets/nameeditor.cpp \
     connection_page/table_creator/tabs/tablecreatorgeneralinfo.cpp \
-    connection_page/table_creator/tablecreatortab.cpp \
     connection_page/table_creator/tabs/tablecreatorcolumns.cpp \
     models/genericeditabletablemodel.cpp \
     delegates/datatypecomboboxdelegate.cpp \
     delegates/booleandelegate.cpp \
-    connection_page/table_creator/tablecreatortabwithtableview.cpp \
     connection_page/table_creator/tabs/tablecreatorconstraints.cpp \
     delegates/schemaselectordelegate.cpp \
     delegates/comboboxdelegate.cpp \
@@ -339,12 +337,15 @@ SOURCES += main.cpp\
     connection_page/user_creator/usercreator.cpp \
     connection_page/user_creator/usercreatorpane.cpp \
     connection_page/user_creator/usercreatortabs.cpp \
-    connection_page/db_object_creator/dbobjectcreatortab.cpp \
-    connection_page/user_creator/usercreatortab.cpp \
     connection_page/user_creator/tabs/usercreatorgeneralinfo.cpp \
     context_menu/usercontextmenuutil.cpp \
     widgets/passwordeditor.cpp \
-    connection_page/user_creator/tabs/usercreatorgrants.cpp
+    connection_page/user_creator/tabs/usercreatorgrants.cpp \
+    connection_page/user_creator/tabs/usercreatorgrantssimplelayout.cpp \
+    connection_page/user_creator/tabs/usercreatorgrantsadvancedlayout.cpp \
+    beans/rolegrantinfo.cpp \
+    models/rolegrantsmodel.cpp \
+    delegates/dbitemlistdelegate.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -419,7 +420,6 @@ HEADERS  += mainwindow.h \
     util/datetimewithtimezone.h \
     widgets/subtabwidget.h \
     widgets/nameeditor.h \
-    connection_page/table_creator/tablecreatortab.h \
     connection_page/table_creator/tabs/tablecreatorcolumns.h \
     connection_page/table_creator/tabs/tablecreatorgeneralinfo.h \
     models/genericeditabletablemodel.h \
@@ -684,7 +684,14 @@ HEADERS  += mainwindow.h \
     connection_page/user_creator/tabs/usercreatorgeneralinfo.h \
     context_menu/usercontextmenuutil.h \
     widgets/passwordeditor.h \
-    connection_page/user_creator/tabs/usercreatorgrants.h
+    connection_page/user_creator/tabs/usercreatorgrants.h \
+    connection_page/user_creator/tabs/usercreatorgrantssimplelayout.h \
+    connection_page/user_creator/tabs/usercreatorgrantsadvancedlayout.h \
+    connection_page/table_creator/tablecreatortab.h \
+    connection_page/db_object_creator/dbobjectcreatortabwithtableview.h \
+    beans/rolegrantinfo.h \
+    models/rolegrantsmodel.h \
+    delegates/dbitemlistdelegate.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

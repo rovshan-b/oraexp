@@ -17,7 +17,7 @@ class TableCreatorGrants : public TableCreatorTabWithTableView
     Q_OBJECT
 public:
     explicit TableCreatorGrants(const QString &schemaName,
-                                TableCreatorTabs *tableCreator,
+                                TableCreatorTabs *objectCreator,
                                 bool editMode,
                                 QWidget *parent = 0);
 

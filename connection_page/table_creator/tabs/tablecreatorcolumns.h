@@ -18,7 +18,7 @@ class TableCreatorColumns : public TableCreatorTabWithTableView,
 {
     Q_OBJECT
 public:
-    explicit TableCreatorColumns(TableCreatorTabs *tableCreator, bool editMode, QWidget *parent);
+    explicit TableCreatorColumns(TableCreatorTabs *objectCreator, bool editMode, QWidget *parent);
 
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
 

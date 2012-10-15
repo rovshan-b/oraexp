@@ -19,7 +19,7 @@ class TableCreatorPartitions : public TableCreatorTab
 {
     Q_OBJECT
 public:
-    explicit TableCreatorPartitions(TableCreatorTabs* tableCreator, bool editMode, bool configureForIndex=false, QWidget *parent = 0);
+    explicit TableCreatorPartitions(TableCreatorTabs* objectCreator, bool editMode, bool configureForIndex=false, QWidget *parent = 0);
     virtual ~TableCreatorPartitions();
 
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);

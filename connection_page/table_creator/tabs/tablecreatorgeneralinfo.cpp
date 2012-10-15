@@ -258,7 +258,7 @@ void TableCreatorGeneralInfo::alterQuerySucceeded(const QString &taskName)
 
     if(taskName=="rename_table"){
         originalGeneralInfo->tableName=tableNameEditor->text().trimmed().toUpper();
-        tableCreator->setOriginalTableName(tableNameEditor->text().trimmed().toUpper());
+        objectCreator->setOriginalTableName(tableNameEditor->text().trimmed().toUpper());
     }else if(taskName=="alter_table_comments"){
         originalGeneralInfo->comments=tableCommentEditor->toPlainText().trimmed();
     }else if(taskName=="alter_table_additional_attributes"){

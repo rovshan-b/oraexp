@@ -1,5 +1,6 @@
 #include "centeredcheckboxwidget.h"
 #include <QtGui>
+#include <QDebug>
 
 CenteredCheckBoxWidget::CenteredCheckBoxWidget(QWidget *parent) :
     QWidget(parent)
@@ -17,9 +18,24 @@ CenteredCheckBoxWidget::CenteredCheckBoxWidget(QWidget *parent) :
     setLayout(layout);
 
     setFocusProxy(checkbox);
+    //checkbox->installEventFilter(this);
 }
 
 QCheckBox *CenteredCheckBoxWidget::checkBox() const
 {
     return checkbox;
 }
+/*
+bool CenteredCheckBoxWidget::eventFilter(QObject *watched, QEvent *event)
+{
+    if(event->type()==QEvent::FocusIn && watched==checkbox){
+        QFocusEvent *focusEvent = static_cast<QFocusEvent*>(event);
+        qDebug() << focusEvent->reason();
+        if(focusEvent->reason()==Qt::MouseFocusReason){
+            checkbox->setChecked(!checkbox->isChecked());
+        }
+    }
+
+    return QWidget::eventFilter(watched, event);
+}
+*/

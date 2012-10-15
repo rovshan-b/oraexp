@@ -2,17 +2,10 @@
 #define USERCREATORTAB_H
 
 #include "connection_page/db_object_creator/dbobjectcreatortab.h"
+#include "usercreatortabs.h"
 
 class UserCreatorTabs;
 
-class UserCreatorTab : public DbObjectCreatorTab
-{
-    Q_OBJECT
-public:
-    explicit UserCreatorTab(UserCreatorTabs *userCreator, bool editMode, QWidget *parent = 0);
-    
-protected:
-    UserCreatorTabs *userCreator;
-};
+typedef DbObjectCreatorTab<UserCreatorTabs> UserCreatorTab;
 
 #endif // USERCREATORTAB_H

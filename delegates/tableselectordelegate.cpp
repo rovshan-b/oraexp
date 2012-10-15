@@ -26,6 +26,7 @@ QWidget *TableSelectorDelegate::createEditor(QWidget *parent, const QStyleOption
     }
 
     DbItemListComboBox *editor=new DbItemListComboBox(index.data().toString(), "table", true, true, parent);
+    editor->setInDelegateMode();
     editor->loadItems(queryScheduler, "get_table_list", QList<Param*>() << new Param(":owner", schemaName) << new Param(":table_name", QString("")));
     editor->setFrame(false);
 

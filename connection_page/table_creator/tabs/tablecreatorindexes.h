@@ -18,7 +18,7 @@ class TableCreatorIndexes : public TableCreatorTabWithTableView
 {
     Q_OBJECT
 public:
-    explicit TableCreatorIndexes(TableCreatorTabs* tableCreator,
+    explicit TableCreatorIndexes(TableCreatorTabs* objectCreator,
                                  bool editMode,
                                  QWidget *parent);
 

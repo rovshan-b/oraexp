@@ -21,7 +21,7 @@ class TableCreatorExternalProperties : public TableCreatorTab
 public:
     explicit TableCreatorExternalProperties(IQueryScheduler *queryScheduler,
                                             IStringListRetriever *columnListRetriever,
-                                            TableCreatorTabs *tableCreator,
+                                            TableCreatorTabs *objectCreator,
                                             bool editMode,
                                             QWidget *parent);
     virtual ~TableCreatorExternalProperties();

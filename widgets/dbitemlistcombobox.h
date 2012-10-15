@@ -23,8 +23,10 @@ public:
 
     void setIconColumn(int colNum);
 
+    void setInDelegateMode();
+
 signals:
-    void loadingCompelted();
+    void loadingCompleted();
 
 private slots:
     void queryCompleted(const QueryResult &result);
@@ -38,6 +40,8 @@ private:
 
     QString currentTxt;
     bool hasSelection;
+
+    bool isInDelegate;
 
 };
 

@@ -1,31 +1,21 @@
 #ifndef TABLECREATORTABWITHTABLEVIEW_H
 #define TABLECREATORTABWITHTABLEVIEW_H
 
-#include "tablecreatortab.h"
+#include "connection_page/db_object_creator/dbobjectcreatortabwithtableview.h"
+#include "tablecreatortabs.h"
 
-class DataTable;
-class QToolBar;
-class QAction;
-
-class TableCreatorTabWithTableView : public TableCreatorTab
+class TableCreatorTabWithTableView : public DbObjectCreatorTabWithTableView<TableCreatorTabs>
 {
     Q_OBJECT
-
 public:
-    explicit TableCreatorTabWithTableView(TableCreatorTabs *tableCreator, bool editMode, QWidget *parent = 0);
-
-    virtual void removeIncorrectRows();
+    explicit TableCreatorTabWithTableView(TableCreatorTabs *objectCreator, bool editMode, QWidget *parent = 0) :
+        DbObjectCreatorTabWithTableView<TableCreatorTabs>(objectCreator, editMode, parent)
+    {
+        connect(advancedOptionsAction, SIGNAL(toggled(bool)), this, SLOT(showAdvancedOptions(bool)));
+    }
 
 protected slots:
     virtual void showAdvancedOptions(bool show)=0;
-
-protected:
-    DataTable *table;
-    QToolBar *toolbar;
-
-private:
-    QAction* advancedOptionsAction;
-
 };
 
 #endif // TABLECREATORTABWITHTABLEVIEW_H

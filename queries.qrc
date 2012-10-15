@@ -94,5 +94,6 @@
         <file>queries/get_dblink_list_plain</file>
         <file>queries/get_synonym</file>
         <file>queries/get_tablespace_list_all_cols</file>
+        <file>queries/get_role_list</file>
     </qresource>
 </RCC>

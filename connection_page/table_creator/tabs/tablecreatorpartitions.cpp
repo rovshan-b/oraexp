@@ -134,7 +134,7 @@ void TableCreatorPartitions::setEditMode()
 
 void TableCreatorPartitions::tabIndexChanged(int tabIx)
 {
-    if(tableCreator->tabText(tabIx)==tr("Partitions")){
+    if(objectCreator->tabText(tabIx)==tr("Partitions")){
         emit currentTabActivated();
     }
 }
@@ -160,7 +160,7 @@ void TableCreatorPartitions::partitionTypeChanged(int)
 {
     OraExp::PartitionType partitionType=partitionsTab->getPartitionType();
 
-    bool subpartitions=TablePartitioningInfo::canHaveSubpartitions(partitionsTab->getPartitioningStrategy(), tableCreator->getTableType(), partitionType);
+    bool subpartitions=TablePartitioningInfo::canHaveSubpartitions(partitionsTab->getPartitioningStrategy(), objectCreator->getTableType(), partitionType);
 
     if(subpartitions)
     {

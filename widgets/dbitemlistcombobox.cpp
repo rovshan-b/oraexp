@@ -13,7 +13,7 @@ DbItemListComboBox::DbItemListComboBox(const QString &initialValue,
                                        bool setMaxWidth,
                                        bool prependEmptyValue,
                                        QWidget *parent) :
-    QComboBox(parent), iconName(iconName), prependEmptyValue(prependEmptyValue), iconColumn(-1)
+    QComboBox(parent), iconName(iconName), prependEmptyValue(prependEmptyValue), iconColumn(-1), isInDelegate(false)
 {
     setEditable(true);
     if(setMaxWidth){
@@ -43,20 +43,26 @@ void DbItemListComboBox::setIconColumn(int colNum)
     this->iconColumn=colNum;
 }
 
+void DbItemListComboBox::setInDelegateMode()
+{
+    this->isInDelegate=true;
+}
+
 void DbItemListComboBox::queryCompleted(const QueryResult &result)
 {
     hasSelection=lineEdit()->hasSelectedText();
     currentTxt=lineEdit()->text();
 
     if(result.hasError){
-        QMessageBox::critical(this->window(), tr("Error loading item list. Task name: %1").arg(result.taskName), result.exception.getErrorMessage());
-
         clear();
         addItem(IconUtil::getIcon(iconName), currentTxt);
         setCurrentIndex(0);
 
-        emit loadingCompelted();
+        emit loadingCompleted();
 
+        if(!isInDelegate){
+            QMessageBox::critical(this->window(), tr("Error loading item list. Task name: %1").arg(result.taskName), result.exception.getErrorMessage());
+        }
         return;
     }else{
         setUpdatesEnabled(false);
@@ -90,5 +96,5 @@ void DbItemListComboBox::fetchCompleted(const QString &)
         lineEdit()->selectAll();
     }
 
-    emit loadingCompelted();
+    emit loadingCompleted();
 }

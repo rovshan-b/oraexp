@@ -17,7 +17,7 @@ class UserCreatorGeneralInfo : public UserCreatorTab
     Q_OBJECT
 public:
     explicit UserCreatorGeneralInfo(const QString &objectName,
-                                    UserCreatorTabs *userCreator,
+                                    UserCreatorTabs *objectCreator,
                                     bool editMode,
                                     QWidget *parent = 0);
 

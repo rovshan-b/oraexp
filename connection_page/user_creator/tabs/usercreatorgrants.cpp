@@ -1,5 +1,7 @@
 #include "usercreatorgrants.h"
 #include "util/widgethelper.h"
+#include "usercreatorgrantssimplelayout.h"
+#include "usercreatorgrantsadvancedlayout.h"
 #include <QtGui>
 
 UserCreatorGrants::UserCreatorGrants(UserCreatorTabs *userCreator, bool editMode, QWidget *parent) :
@@ -28,24 +30,11 @@ UserCreatorGrants::UserCreatorGrants(UserCreatorTabs *userCreator, bool editMode
     connect(simpleModeRadio, SIGNAL(toggled(bool)), this, SLOT(switchMode(bool)));
 }
 
-void UserCreatorGrants::checkAllQuickRoles()
+void UserCreatorGrants::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
-    WidgetHelper::setCheckedBoxes(rolesBox, QStringList(), true, true);
-}
+    UserCreatorTab::setQueryScheduler(queryScheduler);
 
-void UserCreatorGrants::uncheckAllQuickRoles()
-{
-    WidgetHelper::setCheckedBoxes(rolesBox, QStringList(), false, true);
-}
-
-void UserCreatorGrants::checkAllQuickPrivs()
-{
-    WidgetHelper::setCheckedBoxes(privBox, QStringList(), true, true);
-}
-
-void UserCreatorGrants::uncheckAllQuickPrivs()
-{
-    WidgetHelper::setCheckedBoxes(privBox, QStringList(), false, true);
+    advancedLayout->setQueryScheduler(queryScheduler);
 }
 
 void UserCreatorGrants::switchMode(bool simpleMode)
@@ -55,53 +44,12 @@ void UserCreatorGrants::switchMode(bool simpleMode)
 
 void UserCreatorGrants::createSimpleLayout()
 {
-    QWidget *simpleLayoutWidget=new QWidget();
-    QVBoxLayout *simpleLayout=new QVBoxLayout();
-
-    QWidget *rolesBox=createRolesBox();
-    simpleLayout->addWidget(rolesBox);
-    simpleLayout->setAlignment(rolesBox, Qt::AlignLeft|Qt::AlignTop);
-
-    QWidget *privBox=createPrivilegesBox();
-    simpleLayout->addWidget(privBox);
-    simpleLayout->setAlignment(privBox, Qt::AlignLeft|Qt::AlignTop);
-
-    simpleLayout->addStretch();
-
-    simpleLayoutWidget->setLayout(simpleLayout);
-
-    tab->addWidget(simpleLayoutWidget);
+    simpleLayout = new UserCreatorGrantsSimpleLayout();
+    tab->addWidget(simpleLayout);
 }
 
 void UserCreatorGrants::createAdvancedLayout()
 {
-    tab->addWidget(new QWidget());
-}
-
-QWidget *UserCreatorGrants::createRolesBox()
-{
-    quickRoleList << "CONNECT" << "RESOURCE" << "DBA";
-
-    rolesBox = new QGroupBox(tr("Roles"));
-    QGridLayout *grid=WidgetHelper::createCheckBoxes(quickRoleList, 3, QStringList() << "CONNECT" << "RESOURCE");
-    WidgetHelper::createCheckUncheckButtons(grid, this, SLOT(checkAllQuickRoles()), SLOT(uncheckAllQuickRoles()));
-    rolesBox->setLayout(grid);
-
-    return rolesBox;
-}
-
-QWidget *UserCreatorGrants::createPrivilegesBox()
-{
-    quickPrivList << "CREATE DATABASE LINK" << "CREATE MATERIALIZED VIEW"
-             << "CREATE PROCEDURE" << "CREATE PUBLIC SYNONYM"
-             << "CREATE ROLE" << "CREATE SEQUENCE" << "CREATE SYNONYM"
-             << "CREATE TABLE" << "CREATE TRIGGER" << "CREATE TYPE"
-             << "CREATE VIEW";
-
-    privBox = new QGroupBox(tr("Privileges"));
-    QGridLayout *grid=WidgetHelper::createCheckBoxes(quickPrivList, 3);
-    WidgetHelper::createCheckUncheckButtons(grid, this, SLOT(checkAllQuickPrivs()), SLOT(uncheckAllQuickPrivs()));
-    privBox->setLayout(grid);
-
-    return privBox;
+    advancedLayout = new UserCreatorGrantsAdvancedLayout();
+    tab->addWidget(advancedLayout);
 }

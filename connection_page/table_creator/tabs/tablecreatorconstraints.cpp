@@ -69,7 +69,7 @@ void TableCreatorConstraints::customizeTableWidget(const QString &schemaName)
     ContraintTypeDelegate *constraintTypeDelegate=new ContraintTypeDelegate(this);
     table->setItemDelegateForColumn(TableConstraintsModel::ConstraintConstraintType, constraintTypeDelegate);
 
-    ColumnSelectorDelegate *columnsDelegate=new ColumnSelectorDelegate(tableCreator->getColumnsTab(), tr("Select columns"), this);
+    ColumnSelectorDelegate *columnsDelegate=new ColumnSelectorDelegate(objectCreator->getColumnsTab(), tr("Select columns"), this);
     table->setItemDelegateForColumn(TableConstraintsModel::ConstraintColumns, columnsDelegate);
 
     SchemaSelectorDelegate *schemaListDelegate=new SchemaSelectorDelegate(schemaName, this->queryScheduler, this);

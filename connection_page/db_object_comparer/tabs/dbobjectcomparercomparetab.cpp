@@ -71,7 +71,7 @@ void DbObjectComparerCompareTab::createConnectionOptionsPane(QBoxLayout *layout)
     connectionOptionsLayout->addRow(tr("Target connection"), targetConnection);
 
     targetSchemaComboBox=new DbItemListComboBox("", "user", true);
-    connect(targetSchemaComboBox, SIGNAL(loadingCompelted()), this, SLOT(targetSchemaListLoaded()));
+    connect(targetSchemaComboBox, SIGNAL(loadingCompleted()), this, SLOT(targetSchemaListLoaded()));
     connectionOptionsLayout->addRow(tr("Target schema"), targetSchemaComboBox);
     //targetConnectionWidget->setLayout(connectionTabLayout);
 
