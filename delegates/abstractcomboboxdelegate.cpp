@@ -73,7 +73,7 @@ void AbstractComboBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel 
 {
      QComboBox *comboBox = static_cast<QComboBox*>(editor);
 
-     QString value = comboBox->currentText();
+     QString value = comboBox->currentText().trimmed();
      if(convertToUpperCase){
          value=value.toUpper();
      }

@@ -1,14 +1,13 @@
 #ifndef WIDGETHELPER_H
 #define WIDGETHELPER_H
 
+#include "navtree/dbtreemodel.h"
 #include <QtGui>
 
 class Resultset;
 class QListWidget;
 class DataTable;
-
-#include <QStandardItemModel>
-#include "navtree/dbtreemodel.h"
+class GenericEditableTableModel;
 
 class WidgetHelper
 {
@@ -88,6 +87,9 @@ public:
                                        const QObject *receiver,
                                        const char *checkSlotName,
                                        const char *uncheckSlotName);
+
+    static void deleteTableRow(DataTable *table, int rowIx=-1, bool selection=true, bool prompt=true);
+    static void selectTableRowAfterDeletion(DataTable *table, GenericEditableTableModel *model, int prevRowIndex, int colIndex);
 };
 
 #endif // WIDGETHELPER_H

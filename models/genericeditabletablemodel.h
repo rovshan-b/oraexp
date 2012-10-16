@@ -5,7 +5,7 @@
 #include <QStringList>
 #include <QVariantList>
 #include <QHash>
-#include <QPixmap>
+#include <QIcon>
 
 class GenericEditableTableModel : public QAbstractTableModel
 {
@@ -61,8 +61,7 @@ public:
     int getTitleColumn()const {return this->titleColumnIx;}
     void setTitleColumn(int column){this->titleColumnIx=column;}
 
-    void setColumnIcon(int colIx, const QPixmap &icon);
-
+    void setColumnIcon(int colIx, const QIcon &icon);
 protected:
     QStringList headerTitles;
 
@@ -79,7 +78,7 @@ private:
 
     int titleColumnIx;
 
-    QHash<int,QPixmap> columnIcons;
+    QHash<int,QIcon> columnIcons;
 
 };
 

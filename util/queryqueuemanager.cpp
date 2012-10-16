@@ -41,6 +41,7 @@ void QueryQueueManager::processQueue()
         if(task.requester==0){
             qDebug() << "Object deleted with query registered in queue (QueryQueueManager::processQueue)";
             notifyQueryEndMonitor(task);
+            isWorking=false;
             mutex.unlock();
             processQueue();
             return;

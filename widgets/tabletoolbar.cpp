@@ -1,6 +1,7 @@
 #include "tabletoolbar.h"
 #include "widgets/datatable.h"
 #include "util/iconutil.h"
+#include "util/widgethelper.h"
 #include "models/genericeditabletablemodel.h"
 #include <QtGui>
 
@@ -83,72 +84,7 @@ void TableToolbar::insertRow()
 
 void TableToolbar::deleteCurrentRow()
 {
-    QModelIndex currentIndex=table->currentIndex();
-    if(currentIndex.isValid()){
-
-        int row=currentIndex.row();
-        int prevRowIndex=row>0 ? row-1 : 0;
-        int colIndex=currentIndex.column();
-
-        QItemSelectionModel *selModel=table->selectionModel();
-        Q_ASSERT(selModel);
-
-        GenericEditableTableModel *model=qobject_cast<GenericEditableTableModel*>(table->model());
-        Q_ASSERT(model);
-
-        bool prompted=false;
-
-        int rowCount=model->rowCount();
-        for(int i=rowCount-1; i>=0; --i){
-            if(selModel->rowIntersectsSelection(i, QModelIndex()) || i==row){
-
-                if(!prompted && QMessageBox::question(this->window(),
-                                                      tr("Confirm deletion"),
-                                                      tr("Delete selected rows?"),
-                                                      QMessageBox::Ok,
-                                                      QMessageBox::Cancel)!=QMessageBox::Ok){
-                    return;
-                }else{
-                    prompted=true;
-                }
-
-                if(model->isRowFrozen(i)){
-                    if(!model->isRowDeleted(i)){
-                        model->markRowAsDeleted(i);
-                    }
-                }else{
-                    model->removeRows(i, 1);
-                }
-            }
-        }
-
-        selectRowAfterDeletion(model, prevRowIndex, colIndex);
-    }
-}
-
-void TableToolbar::selectRowAfterDeletion(GenericEditableTableModel *model, int prevRowIndex, int colIndex)
-{
-    if(model->rowCount()<1){
-        return;
-    }
-
-    bool selectionMade=false;
-    for(int i=prevRowIndex; i>=0; --i){
-        if(!model->isRowDeleted(i)){
-            table->selectionModel()->setCurrentIndex(model->index(i, colIndex), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Current);
-            selectionMade=true;
-            break;
-        }
-    }
-
-    if(!selectionMade){
-        for(int i=prevRowIndex; i<model->rowCount(); ++i){
-            if(!model->isRowDeleted(i)){
-                table->selectionModel()->setCurrentIndex(model->index(i, colIndex), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Current);
-                break;
-            }
-        }
-    }
+    WidgetHelper::deleteTableRow(table);
 }
 
 void TableToolbar::moveRowUp()

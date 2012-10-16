@@ -1,6 +1,7 @@
 #include "dbitemlistdelegate.h"
 #include "connectivity/dbconnection.h"
 #include "widgets/dbitemlistcombobox.h"
+#include "util/iconutil.h"
 #include <QtGui>
 
 DbItemListDelegate::DbItemListDelegate(const QString &initialValue,
@@ -9,7 +10,7 @@ DbItemListDelegate::DbItemListDelegate(const QString &initialValue,
                                        const QString &iconName,
                                        QObject *parent,
                                        bool appendRowIfLast) :
-    ComboBoxDelegate(parent),
+    ComboBoxDelegate(parent, true, IconUtil::getIcon(iconName)),
     initialValue(initialValue),
     queryScheduler(queryScheduler),
     queryName(queryName),

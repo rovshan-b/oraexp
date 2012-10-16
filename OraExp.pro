@@ -345,7 +345,9 @@ SOURCES += main.cpp\
     connection_page/user_creator/tabs/usercreatorgrantsadvancedlayout.cpp \
     beans/rolegrantinfo.cpp \
     models/rolegrantsmodel.cpp \
-    delegates/dbitemlistdelegate.cpp
+    delegates/dbitemlistdelegate.cpp \
+    beans/sysprivgrantinfo.cpp \
+    models/sysprivgrantsmodel.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -691,7 +693,9 @@ HEADERS  += mainwindow.h \
     connection_page/db_object_creator/dbobjectcreatortabwithtableview.h \
     beans/rolegrantinfo.h \
     models/rolegrantsmodel.h \
-    delegates/dbitemlistdelegate.h
+    delegates/dbitemlistdelegate.h \
+    beans/sysprivgrantinfo.h \
+    models/sysprivgrantsmodel.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

@@ -68,7 +68,8 @@ QVariant GenericEditableTableModel::data ( const QModelIndex & index, int role) 
         //if not data exists for DisplayRole, check EditRole as well
         columnDataForRole = getDataWithoutChecks(index, Qt::EditRole, roleDataFound);
     }else if(role==Qt::DecorationRole && !roleDataFound){
-        if(columnIcons.contains(index.column())){
+        QString displayData = data(index, Qt::DisplayRole).toString();
+        if(!displayData.isEmpty() && columnIcons.contains(index.column())){
             columnDataForRole = columnIcons.value(index.column());
         }
     }
@@ -474,7 +475,7 @@ void GenericEditableTableModel::removeIncorrectRows()
     }
 }
 
-void GenericEditableTableModel::setColumnIcon(int colIx, const QPixmap &icon)
+void GenericEditableTableModel::setColumnIcon(int colIx, const QIcon &icon)
 {
     columnIcons[colIx]=icon;
 }

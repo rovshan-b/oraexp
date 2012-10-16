@@ -470,3 +470,73 @@ void WidgetHelper::createCheckUncheckButtons(QGridLayout *layout,
     layout->addLayout(buttonsLayout, rowCount, 0, 1, columnCount, Qt::AlignLeft);
 }
 
+void WidgetHelper::deleteTableRow(DataTable *table, int rowIx, bool selection, bool prompt)
+{
+    QModelIndex currentIndex=selection ? table->currentIndex() : table->model()->index(rowIx,0);
+    if(currentIndex.isValid()){
+
+        int row=currentIndex.row();
+        int prevRowIndex=row>0 ? row-1 : 0;
+        int colIndex=currentIndex.column();
+
+        QItemSelectionModel *selModel=table->selectionModel();
+        Q_ASSERT(selModel);
+
+        GenericEditableTableModel *model=qobject_cast<GenericEditableTableModel*>(table->model());
+        Q_ASSERT(model);
+
+        bool prompted=prompt ? false : true; //if prompting is not required set prompted = true, as if we already prompted user
+
+        int rowCount=model->rowCount();
+        for(int i=rowCount-1; i>=0; --i){
+            if((selection && selModel->rowIntersectsSelection(i, QModelIndex())) || i==row){
+
+                if(!prompted && QMessageBox::question(table->window(),
+                                                      QObject::tr("Confirm deletion"),
+                                                      QObject::tr("Delete selected rows?"),
+                                                      QMessageBox::Ok,
+                                                      QMessageBox::Cancel)!=QMessageBox::Ok){
+                    return;
+                }else{
+                    prompted=true;
+                }
+
+                if(model->isRowFrozen(i)){
+                    if(!model->isRowDeleted(i)){
+                        model->markRowAsDeleted(i);
+                    }
+                }else{
+                    model->removeRows(i, 1);
+                }
+            }
+        }
+
+        WidgetHelper::selectTableRowAfterDeletion(table, model, prevRowIndex, colIndex);
+    }
+}
+
+void WidgetHelper::selectTableRowAfterDeletion(DataTable *table, GenericEditableTableModel *model, int prevRowIndex, int colIndex)
+{
+    if(model->rowCount()<1){
+        return;
+    }
+
+    bool selectionMade=false;
+    for(int i=prevRowIndex; i>=0; --i){
+        if(!model->isRowDeleted(i)){
+            table->selectionModel()->setCurrentIndex(model->index(i, colIndex), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Current);
+            selectionMade=true;
+            break;
+        }
+    }
+
+    if(!selectionMade){
+        for(int i=prevRowIndex; i<model->rowCount(); ++i){
+            if(!model->isRowDeleted(i)){
+                table->selectionModel()->setCurrentIndex(model->index(i, colIndex), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Current);
+                break;
+            }
+        }
+    }
+}
+

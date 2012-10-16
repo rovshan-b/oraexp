@@ -95,5 +95,6 @@
         <file>queries/get_synonym</file>
         <file>queries/get_tablespace_list_all_cols</file>
         <file>queries/get_role_list</file>
+        <file>queries/get_all_priv_list</file>
     </qresource>
 </RCC>

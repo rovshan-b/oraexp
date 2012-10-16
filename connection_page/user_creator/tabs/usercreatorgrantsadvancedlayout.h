@@ -6,6 +6,7 @@
 class IQueryScheduler;
 class QTabWidget;
 class DataTableAndToolBarWidget;
+class DataTable;
 
 class UserCreatorGrantsAdvancedLayout : public QWidget
 {
@@ -14,17 +15,21 @@ public:
     explicit UserCreatorGrantsAdvancedLayout(QWidget *parent = 0);
 
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
+
+    DataTableAndToolBarWidget *getRolesTable() const;
+    DataTableAndToolBarWidget *getSysPrivsTable() const;
     
 private:
     QTabWidget *tab;
     IQueryScheduler *queryScheduler;
 
     DataTableAndToolBarWidget *rolesTable;
-    DataTableAndToolBarWidget *privTable;
+    DataTableAndToolBarWidget *sysPrivTable;
     DataTableAndToolBarWidget *quotasTable;
     DataTableAndToolBarWidget *objectPrivTable;
 
     void customizeRolesTable();
+    void customizeSysPrivTable();
     
 };
 

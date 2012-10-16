@@ -36,7 +36,6 @@ private slots:
     void populateAddActionMenu();
 
 private:
-    void selectRowAfterDeletion(GenericEditableTableModel *model, int prevRowIndex, int colIndex);
     void moveRows(bool moveUp) const;
 
     QMenu *addActionMenu;

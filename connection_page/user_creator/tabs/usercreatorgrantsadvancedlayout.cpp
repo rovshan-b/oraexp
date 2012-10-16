@@ -2,6 +2,7 @@
 #include "interfaces/iqueryscheduler.h"
 #include "widgets/datatableandtoolbarwidget.h"
 #include "models/rolegrantsmodel.h"
+#include "models/sysprivgrantsmodel.h"
 #include "delegates/dbitemlistdelegate.h"
 #include "delegates/booleandelegate.h"
 #include <QtGui>
@@ -14,16 +15,16 @@ UserCreatorGrantsAdvancedLayout::UserCreatorGrantsAdvancedLayout(QWidget *parent
     tab = new QTabWidget();
     tab->setTabPosition(QTabWidget::South);
 
-    rolesTable = new DataTableAndToolBarWidget();
+    rolesTable = new DataTableAndToolBarWidget(0, Qt::Horizontal);
     tab->addTab(rolesTable, tr("Roles"));
 
-    privTable = new DataTableAndToolBarWidget();
-    tab->addTab(privTable, tr("System privileges"));
+    sysPrivTable = new DataTableAndToolBarWidget(0, Qt::Horizontal);
+    tab->addTab(sysPrivTable, tr("System privileges"));
 
-    quotasTable = new DataTableAndToolBarWidget();
+    quotasTable = new DataTableAndToolBarWidget(0, Qt::Horizontal);
     tab->addTab(quotasTable, tr("Quotas"));
 
-    objectPrivTable = new DataTableAndToolBarWidget();
+    objectPrivTable = new DataTableAndToolBarWidget(0, Qt::Horizontal);
     tab->addTab(objectPrivTable, tr("Object privileges"));
 
     mainLayout->addWidget(tab);
@@ -36,6 +37,17 @@ void UserCreatorGrantsAdvancedLayout::setQueryScheduler(IQueryScheduler *querySc
     this->queryScheduler = queryScheduler;
 
     customizeRolesTable();
+    customizeSysPrivTable();
+}
+
+DataTableAndToolBarWidget *UserCreatorGrantsAdvancedLayout::getRolesTable() const
+{
+    return rolesTable;
+}
+
+DataTableAndToolBarWidget *UserCreatorGrantsAdvancedLayout::getSysPrivsTable() const
+{
+    return sysPrivTable;
 }
 
 void UserCreatorGrantsAdvancedLayout::customizeRolesTable()
@@ -66,6 +78,38 @@ void UserCreatorGrantsAdvancedLayout::customizeRolesTable()
     BooleanDelegate *isDefaultDelegate=new BooleanDelegate(this, false);
     table->setItemDelegateForColumn(RoleGrantsModel::IsDefault, isDefaultDelegate);
 
+
+    /*
+    if(isEditMode()){
+        connect(tableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(tableDataChanged(QModelIndex,QModelIndex)));
+    }
+
+    connect(tableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(ddlChanged()));*/
+}
+
+void UserCreatorGrantsAdvancedLayout::customizeSysPrivTable()
+{
+    DataTable *table=sysPrivTable->table();
+
+    QStringList columnNames;
+    columnNames.append(tr("Privilege"));
+    columnNames.append(tr("Grantable"));
+
+    SysPrivGrantsModel *tableModel=new SysPrivGrantsModel(columnNames, this);
+    sysPrivTable->setModel(tableModel);
+
+    table->horizontalHeader()->setDefaultSectionSize(150);
+    table->setColumnWidth(RoleGrantsModel::RoleName, 250);
+    table->setEditTriggers(QAbstractItemView::AllEditTriggers);
+
+    DbItemListDelegate *privListDelegate=new DbItemListDelegate("", this->queryScheduler,
+                                                                "get_all_priv_list", "grants",
+                                                                this, true);
+
+    table->setItemDelegateForColumn(SysPrivGrantsModel::PrivName, privListDelegate);
+
+    BooleanDelegate *isGrantableDelegate=new BooleanDelegate(this, false);
+    table->setItemDelegateForColumn(SysPrivGrantsModel::IsGrantable, isGrantableDelegate);
 
     /*
     if(isEditMode()){

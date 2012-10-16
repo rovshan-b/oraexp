@@ -6,6 +6,8 @@
 class QGroupBox;
 class QStackedWidget;
 class QRadioButton;
+class QCheckBox;
+class DataTableAndToolBarWidget;
 class UserCreatorGrantsSimpleLayout;
 class UserCreatorGrantsAdvancedLayout;
 
@@ -25,6 +27,12 @@ private slots:
 private:
     void createSimpleLayout();
     void createAdvancedLayout();
+
+    void syncSimpleLayout();
+    void syncAdvancedLayout();
+
+    void syncTable(QList<QCheckBox*> checkBoxes, DataTableAndToolBarWidget *table);
+    void syncCheckBoxes(QList<QCheckBox*> checkBoxes, DataTableAndToolBarWidget *table);
 
     QRadioButton *simpleModeRadio;
     QRadioButton *advancedModeRadio;

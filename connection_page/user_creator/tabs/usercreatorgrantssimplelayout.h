@@ -4,12 +4,16 @@
 #include <QWidget>
 
 class QGroupBox;
+class QCheckBox;
 
 class UserCreatorGrantsSimpleLayout : public QWidget
 {
     Q_OBJECT
 public:
     explicit UserCreatorGrantsSimpleLayout(QWidget *parent = 0);
+
+    QList<QCheckBox*> getRoleCheckBoxes() const;
+    QList<QCheckBox*> getPrivCheckBoxes() const;
     
 private slots:
     void checkAllQuickRoles();

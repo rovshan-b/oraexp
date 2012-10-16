@@ -22,6 +22,16 @@ UserCreatorGrantsSimpleLayout::UserCreatorGrantsSimpleLayout(QWidget *parent) :
     setLayout(mainLayout);
 }
 
+QList<QCheckBox *> UserCreatorGrantsSimpleLayout::getRoleCheckBoxes() const
+{
+    return rolesBox->findChildren<QCheckBox*>();
+}
+
+QList<QCheckBox *> UserCreatorGrantsSimpleLayout::getPrivCheckBoxes() const
+{
+    return privBox->findChildren<QCheckBox*>();
+}
+
 QWidget *UserCreatorGrantsSimpleLayout::createRolesBox()
 {
     quickRoleList << "CONNECT" << "RESOURCE" << "DBA";
