@@ -1,1 +1,0 @@
-select username from all_users{db_link} order by username

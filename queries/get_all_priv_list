@@ -1,3 +1,0 @@
-select distinct privilege from dba_sys_privs
-where grantee in ('DBA','SYS')
-order by privilege

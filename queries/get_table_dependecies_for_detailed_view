@@ -1,4 +1,0 @@
-select owner, name, type, dependency_type 
-from all_dependencies where 
-referenced_owner=:owner and referenced_name=:table_name and referenced_type='TABLE'
-order by owner, name

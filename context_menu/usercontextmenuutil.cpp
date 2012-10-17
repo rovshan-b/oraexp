@@ -11,7 +11,7 @@ QList<QAction *> UserContextMenuUtil::getActionsForObject(const QString &schemaN
     QList<QAction *> results;
 
     if(itemType==DbTreeModel::AllSchemas){
-        QAction *createUserAction=new DbItemAction(IconUtil::getIcon("user_add"), QObject::tr("Create schema"),
+        QAction *createUserAction=new DbItemAction(IconUtil::getIcon("user_add"), QObject::tr("Create user"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createCreator()));
         results.append(createUserAction);

@@ -1,1 +1,0 @@
-select '"'||owner||'"."'||directory_name||'"' as directory_name from all_directories order by directory_name

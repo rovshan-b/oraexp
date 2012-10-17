@@ -1,1 +1,0 @@
-select t.*, 'tablespace' as icon_name from user_tablespaces t order by t.tablespace_name

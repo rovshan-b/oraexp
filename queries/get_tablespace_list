@@ -1,1 +1,0 @@
-select tablespace_name from user_tablespaces order by tablespace_name

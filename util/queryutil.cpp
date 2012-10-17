@@ -49,7 +49,7 @@ QString QueryUtil::getQueryFromFile(const QString &queryName, DbConnection *db, 
 QString QueryUtil::getFileNameForQuery(const QString &queryName, DbConnection *db)
 {
     if(db==0){
-        return QString(":/queries/%1").arg(queryName);
+        return QString(":/queries/%1.sql").arg(queryName);
     }
 
     //try to find closest version number
@@ -57,7 +57,7 @@ QString QueryUtil::getFileNameForQuery(const QString &queryName, DbConnection *d
     int serverMajorVersion=db->getServerMajorVersion();
     const int minimumSupportedVersion=9;
     while(serverMajorVersion > minimumSupportedVersion){
-        versionedFileName=QString(":/queries/%1_%2").arg(queryName).arg(serverMajorVersion);
+        versionedFileName=QString(":/queries/%1_%2.sql").arg(queryName).arg(serverMajorVersion);
         if(QFile::exists(versionedFileName)){
             return versionedFileName;
         }
@@ -65,7 +65,7 @@ QString QueryUtil::getFileNameForQuery(const QString &queryName, DbConnection *d
         serverMajorVersion--;
     }
 
-    return QString(":/queries/%1").arg(queryName);
+    return QString(":/queries/%1.sql").arg(queryName);
 }
 
 void QueryUtil::replacePlaceholders(QString &queryText, DbConnection *db, QStringList &replacedIncludes)

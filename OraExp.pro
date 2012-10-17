@@ -347,7 +347,9 @@ SOURCES += main.cpp\
     models/rolegrantsmodel.cpp \
     delegates/dbitemlistdelegate.cpp \
     beans/sysprivgrantinfo.cpp \
-    models/sysprivgrantsmodel.cpp
+    models/sysprivgrantsmodel.cpp \
+    beans/userinfo.cpp \
+    beans/usergeneralinfo.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -695,7 +697,9 @@ HEADERS  += mainwindow.h \
     models/rolegrantsmodel.h \
     delegates/dbitemlistdelegate.h \
     beans/sysprivgrantinfo.h \
-    models/sysprivgrantsmodel.h
+    models/sysprivgrantsmodel.h \
+    beans/userinfo.h \
+    beans/usergeneralinfo.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

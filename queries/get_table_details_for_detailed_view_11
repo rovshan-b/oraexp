@@ -1,6 +1,0 @@
-select all_tables.*, 
-case when exists (select 0 from all_external_tables where owner=all_tables.owner and table_name=all_tables.table_name) then 'YES'
-else 'NO' end as is_external, NVL(fb.status, 'DISABLED') as flashback_status, fb.flashback_archive_name, fb.archive_table_name
-from all_tables left join user_flashback_archive_tables fb
-on all_tables.owner=fb.owner_name and all_tables.table_name=fb.table_name
-where all_tables.owner=:owner and all_tables.table_name=:table_name
