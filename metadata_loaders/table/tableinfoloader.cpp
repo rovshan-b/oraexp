@@ -41,7 +41,7 @@ TableInfoLoader::TableInfoLoader(IQueryScheduler *queryScheduler,
     connect(&triggerListLoader, SIGNAL(infoReady(QList<TriggerInfo>)), this, SLOT(tableTriggerInfoReady(QList<TriggerInfo>)));
     connect(&triggerListLoader, SIGNAL(loadError(QString,OciException)), this, SLOT(subInfoLoadError(QString,OciException)));
 
-    connect(&grantListLoader, SIGNAL(infoReady(QList<GrantInfo>)), this, SLOT(tableGrantInfoReady(QList<GrantInfo>)));
+    connect(&grantListLoader, SIGNAL(infoReady(QList<TableGrantInfo>)), this, SLOT(tableGrantInfoReady(QList<TableGrantInfo>)));
     connect(&grantListLoader, SIGNAL(loadError(QString,OciException)), this, SLOT(subInfoLoadError(QString,OciException)));
 }
 
@@ -196,7 +196,7 @@ void TableInfoLoader::tableTriggerInfoReady(const QList<TriggerInfo> &tableTrigg
     loadTablePartInfo();
 }
 
-void TableInfoLoader::tableGrantInfoReady(const QList<GrantInfo> &tableGrants)
+void TableInfoLoader::tableGrantInfoReady(const QList<TableGrantInfo> &tableGrants)
 {
     qDebug("table grant info loaded");
     tableInfo->grants=tableGrants;

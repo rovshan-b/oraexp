@@ -31,6 +31,10 @@ QString QueryUtil::getQuery(const QString &queryName, DbConnection *db)
 
 QString QueryUtil::getQueryFromFile(const QString &queryName, DbConnection *db, QStringList &replacedIncludes)
 {
+    if(queryName.isEmpty()){
+        return "";
+    }
+
     QString filenameForQuery=getFileNameForQuery(queryName, db);
     QFile queriesFile(filenameForQuery);
     if(!queriesFile.open(QIODevice::ReadOnly | QIODevice::Text)){
@@ -48,6 +52,8 @@ QString QueryUtil::getQueryFromFile(const QString &queryName, DbConnection *db, 
 
 QString QueryUtil::getFileNameForQuery(const QString &queryName, DbConnection *db)
 {
+    Q_ASSERT(!queryName.isEmpty());
+
     if(db==0){
         return QString(":/queries/%1.sql").arg(queryName);
     }

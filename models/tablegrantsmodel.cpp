@@ -68,9 +68,9 @@ QString TableGrantsModel::isRowDataCorrect(int rowIx) const
     return "";
 }
 
-GrantInfo TableGrantsModel::itemInfoFromModelRow(int row) const
+TableGrantInfo TableGrantsModel::itemInfoFromModelRow(int row) const
 {
-    GrantInfo inf;
+    TableGrantInfo inf;
     inf.grantId=-1;
 
     if(!isRowDataCorrect(row).isEmpty()){

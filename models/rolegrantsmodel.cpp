@@ -18,20 +18,20 @@ QString RoleGrantsModel::isRowDataCorrect(int rowIx) const
     return "";
 }
 
-RoleGrantInfo RoleGrantsModel::itemInfoFromModelRow(int row) const
+PrivGrantInfo RoleGrantsModel::itemInfoFromModelRow(int row) const
 {
-    RoleGrantInfo info;
-    info.roleId=-1;
+    PrivGrantInfo info;
+    info.grantId=-1;
 
     if(!isRowDataCorrect(row).isEmpty()){
         return info;
     }
 
-    info.roleName=index(row, RoleName).data().toString().trimmed();
+    info.name=index(row, RoleName).data().toString().trimmed();
     info.isGrantable=index(row, IsGrantable).data(Qt::EditRole).toBool();
     info.isDefault=index(row, IsDefault).data(Qt::EditRole).toBool();
 
-    info.roleId=row+1;
+    info.grantId=row+1;
 
     info.markedForDeletion=isRowDeleted(row);
 

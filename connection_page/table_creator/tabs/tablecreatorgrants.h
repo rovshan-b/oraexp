@@ -27,7 +27,7 @@ public:
 
     void setTableInfo(TableInfo *tableInfo);
 
-    QList<GrantInfo> getGrantsInfo() const;
+    QList<TableGrantInfo> getGrantsInfo() const;
 
 signals:
     void ddlChanged() const;
@@ -43,7 +43,7 @@ private:
     //these functions and variables used in edit mode
     void populateTableWithGrants();
 
-    QList<GrantInfo> *originalGrantList;
+    QList<TableGrantInfo> *originalGrantList;
 
 protected slots:
     virtual void showAdvancedOptions(bool show);

@@ -1,13 +1,13 @@
 #include "grantinfo.h"
 #include "util/dbutil.h"
 
-GrantInfo::GrantInfo() : grantId(-1),
+TableGrantInfo::TableGrantInfo() : grantId(-1),
                          markedForDeletion(false),
                          dropped(false)
 {
 }
 
-bool GrantInfo::operator==(const GrantInfo &other) const
+bool TableGrantInfo::operator==(const TableGrantInfo &other) const
 {
     if(!(grantee==other.grantee)){
         return false;
@@ -31,9 +31,9 @@ bool GrantInfo::operator==(const GrantInfo &other) const
      return true;
 }
 
-GrantInfo GrantInfo::fromFetchResult(const FetchResult &result)
+TableGrantInfo TableGrantInfo::fromFetchResult(const FetchResult &result)
 {
-    GrantInfo inf;
+    TableGrantInfo inf;
 
     QStringList privileges=result.colValue("GRANTED_PRIVILEGES").split(',');
 
@@ -51,7 +51,7 @@ GrantInfo GrantInfo::fromFetchResult(const FetchResult &result)
     return inf;
 }
 
-int GrantInfo::getPrivilegeIndex(const QString &privilegeName, const QStringList &privileges)
+int TableGrantInfo::getPrivilegeIndex(const QString &privilegeName, const QStringList &privileges)
 {
     if(privileges.contains(privilegeName)){
         return 1;
@@ -62,7 +62,7 @@ int GrantInfo::getPrivilegeIndex(const QString &privilegeName, const QStringList
     }
 }
 
-QList< NameQueryPair > GrantInfo::generateDdl(const QString &fullTableName) const
+QList< NameQueryPair > TableGrantInfo::generateDdl(const QString &fullTableName) const
 {
     QList< NameQueryPair > result;
 
@@ -84,12 +84,12 @@ QList< NameQueryPair > GrantInfo::generateDdl(const QString &fullTableName) cons
     return result;
 }
 
-QString GrantInfo::generateRevokeAllDdl(const QString &fullTableName) const
+QString TableGrantInfo::generateRevokeAllDdl(const QString &fullTableName) const
 {
     return QString("REVOKE ALL ON %1 FROM \"%2\"").arg(fullTableName, grantee);
 }
 
-QList< NameQueryPair > GrantInfo::generateDiffDdl(const GrantInfo &other,
+QList< NameQueryPair > TableGrantInfo::generateDiffDdl(const TableGrantInfo &other,
                                                 const QString &schemaName,
                                                 const QString &tableName,
                                                 OraExp::TableType /*tableType*/) const
@@ -121,7 +121,7 @@ QList< NameQueryPair > GrantInfo::generateDiffDdl(const GrantInfo &other,
     return result;
 }
 
-QString GrantInfo::generateGrantStatement(const QString &tableName,
+QString TableGrantInfo::generateGrantStatement(const QString &tableName,
                                           const QString &privilegeName,
                                           const QString &granteeName,
                                           int grantType,

@@ -343,13 +343,12 @@ SOURCES += main.cpp\
     connection_page/user_creator/tabs/usercreatorgrants.cpp \
     connection_page/user_creator/tabs/usercreatorgrantssimplelayout.cpp \
     connection_page/user_creator/tabs/usercreatorgrantsadvancedlayout.cpp \
-    beans/rolegrantinfo.cpp \
     models/rolegrantsmodel.cpp \
     delegates/dbitemlistdelegate.cpp \
-    beans/sysprivgrantinfo.cpp \
     models/sysprivgrantsmodel.cpp \
     beans/userinfo.cpp \
-    beans/usergeneralinfo.cpp
+    beans/usergeneralinfo.cpp \
+    beans/privgrantinfo.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -693,13 +692,12 @@ HEADERS  += mainwindow.h \
     connection_page/user_creator/tabs/usercreatorgrantsadvancedlayout.h \
     connection_page/table_creator/tablecreatortab.h \
     connection_page/db_object_creator/dbobjectcreatortabwithtableview.h \
-    beans/rolegrantinfo.h \
     models/rolegrantsmodel.h \
     delegates/dbitemlistdelegate.h \
-    beans/sysprivgrantinfo.h \
     models/sysprivgrantsmodel.h \
     beans/userinfo.h \
-    beans/usergeneralinfo.h
+    beans/usergeneralinfo.h \
+    beans/privgrantinfo.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

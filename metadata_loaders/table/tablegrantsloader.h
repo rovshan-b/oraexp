@@ -16,7 +16,7 @@ public:
     void loadInfo();
 
 signals:
-    void infoReady(const QList<GrantInfo> &tableGrants);
+    void infoReady(const QList<TableGrantInfo> &tableGrants);
     void loadError(const QString &taskName, const OciException &ex);
 
 private slots:
@@ -27,7 +27,7 @@ private slots:
 private:
     TableInfoLoader *tableInfoLoader;
 
-    QList<GrantInfo> grants;
+    QList<TableGrantInfo> grants;
     
 };
 

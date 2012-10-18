@@ -105,7 +105,7 @@ void TableCreatorGrants::populateTableWithGrants()
     QStringList privilegeNames;
     DbUtil::populatePrivilegeNames(privilegeNames);
 
-    GrantInfo grantInfo;
+    TableGrantInfo grantInfo;
     for(int i=0; i<originalGrantList->count(); ++i){
         grantInfo = originalGrantList->at(i);
 
@@ -136,14 +136,14 @@ void TableCreatorGrants::showAdvancedOptions(bool show)
 
 }
 
-QList<GrantInfo> TableCreatorGrants::getGrantsInfo() const
+QList<TableGrantInfo> TableCreatorGrants::getGrantsInfo() const
 {
-    QList<GrantInfo> results;
+    QList<TableGrantInfo> results;
 
     TableGrantsModel *model=static_cast<TableGrantsModel*>(table->model());
     int rowCount=model->rowCount();
 
-    GrantInfo grantInfo;
+    TableGrantInfo grantInfo;
     for(int i=0; i<rowCount; ++i){
         grantInfo=model->itemInfoFromModelRow(i);
         if(grantInfo.grantId==-1){
@@ -170,7 +170,7 @@ void TableCreatorGrants::alterQuerySucceeded(const QString &taskName)
     //    Q_ASSERT(originalGrantList->size()>rowIx);
     //}
 
-    GrantInfo modifiedGrantInfo=model->itemInfoFromModelRow(rowIx);
+    TableGrantInfo modifiedGrantInfo=model->itemInfoFromModelRow(rowIx);
 
     if(taskName.startsWith("add_table_grant_")){
 

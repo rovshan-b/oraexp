@@ -8,12 +8,12 @@
 #include "defines.h"
 #include <QMetaType>
 
-class GrantInfo
+class TableGrantInfo
 {
 public:
-    GrantInfo();
+    TableGrantInfo();
 
-    bool operator==(const GrantInfo &other) const;
+    bool operator==(const TableGrantInfo &other) const;
 
     int grantId;
     QString grantee;
@@ -22,15 +22,15 @@ public:
     bool markedForDeletion;
     bool dropped;
 
-    static GrantInfo fromFetchResult(const FetchResult &result);
+    static TableGrantInfo fromFetchResult(const FetchResult &result);
 
     QList< NameQueryPair > generateDdl(const QString &fullTableName) const;
     QString generateRevokeAllDdl(const QString &fullTableName) const;
-    QList< NameQueryPair > generateDiffDdl(const GrantInfo &other,
+    QList< NameQueryPair > generateDiffDdl(const TableGrantInfo &other,
                                                     const QString &schemaName,
                                                     const QString &tableName,
                                                     OraExp::TableType tableType) const;
-    bool needsRecreation(const GrantInfo &) const {return false;}
+    bool needsRecreation(const TableGrantInfo &) const {return false;}
 private:
     QString generateGrantStatement(const QString &tableName,
                                    const QString &privilegeName,
@@ -42,8 +42,8 @@ private:
 
 };
 
-Q_DECLARE_METATYPE(GrantInfo)
+Q_DECLARE_METATYPE(TableGrantInfo)
 
-Q_DECLARE_METATYPE(QList<GrantInfo>)
+Q_DECLARE_METATYPE(QList<TableGrantInfo>)
 
 #endif // GRANTINFO_H

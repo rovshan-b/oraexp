@@ -2,6 +2,8 @@
 #define USERGENERALINFO_H
 
 #include <QString>
+#include "defines.h"
+#include "connectivity/fetchresult.h"
 
 class UserGeneralInfo
 {
@@ -25,6 +27,14 @@ public:
     bool expirePassword;
     bool accountLocked;
     bool enableEditions;
+
+    QString generateDdl() const;
+    QString generateDropDdl() const;
+    QList< NameQueryPair > generateDiffDdl(const UserGeneralInfo &other) const;
+    static UserGeneralInfo fromFetchResult(const FetchResult &result);
+
+private:
+    QString getIdentifiedBy() const;
 };
 
 #endif // USERGENERALINFO_H

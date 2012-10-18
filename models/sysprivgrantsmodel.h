@@ -2,7 +2,7 @@
 #define SYSPRIVGRANTSMODEL_H
 
 #include "genericeditabletablemodel.h"
-#include "beans/sysprivgrantinfo.h"
+#include "beans/privgrantinfo.h"
 
 class SysPrivGrantsModel : public GenericEditableTableModel
 {
@@ -17,7 +17,7 @@ public:
     };
 
     virtual QString isRowDataCorrect(int rowIx) const;
-    SysPrivGrantInfo itemInfoFromModelRow(int row) const;
+    PrivGrantInfo itemInfoFromModelRow(int row) const;
     
 };
 

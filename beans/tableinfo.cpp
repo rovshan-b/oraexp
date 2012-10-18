@@ -93,9 +93,9 @@ IndexInfo TableInfo::findIndexByColumns(const QString &indexColumns, bool &found
     return IndexInfo();
 }
 
-GrantInfo TableInfo::findGrantByGrantee(const QString &grantee, bool &found) const
+TableGrantInfo TableInfo::findGrantByGrantee(const QString &grantee, bool &found) const
 {
-    foreach(const GrantInfo &grantInfo, grants){
+    foreach(const TableGrantInfo &grantInfo, grants){
         if(grantInfo.grantee==grantee){
             found=true;
             return grantInfo;
@@ -103,7 +103,7 @@ GrantInfo TableInfo::findGrantByGrantee(const QString &grantee, bool &found) con
     }
 
     found=false;
-    return GrantInfo();
+    return TableGrantInfo();
 }
 
 TriggerInfo TableInfo::findTriggerByName(const QString &triggerName, bool &found) const

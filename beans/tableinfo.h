@@ -27,13 +27,13 @@ public:
     TableExternalInfo externalInfo;
     TablePartitioningInfo partitioningInfo;
     QList<TriggerInfo> triggers;
-    QList<GrantInfo> grants;
+    QList<TableGrantInfo> grants;
 
     void setSchemaName(const QString &newSchemaName);
     ColumnInfo findColumnByName(const QString &columnName, bool &found) const;
     ConstraintInfo findConstraintByColumns(OraExp::ConstraintType constraintType, const QString &constraintColumns, bool &found) const;
     IndexInfo findIndexByColumns(const QString &indexColumns, bool &found) const;
-    GrantInfo findGrantByGrantee(const QString &grantee, bool &found) const;
+    TableGrantInfo findGrantByGrantee(const QString &grantee, bool &found) const;
     TriggerInfo findTriggerByName(const QString &triggerName, bool &found) const;
 
     void setLobTablespace(const QString &lobTablespace);

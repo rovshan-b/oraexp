@@ -32,7 +32,7 @@ void TableGrantsLoader::recordFetched(const FetchResult &result)
         return;
     }
 
-    GrantInfo grantInfo=GrantInfo::fromFetchResult(result);
+    TableGrantInfo grantInfo=TableGrantInfo::fromFetchResult(result);
     grants.append(grantInfo);
 }
 

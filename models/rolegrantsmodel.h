@@ -2,7 +2,7 @@
 #define ROLEGRANTSMODEL_H
 
 #include "genericeditabletablemodel.h"
-#include "beans/rolegrantinfo.h"
+#include "beans/privgrantinfo.h"
 
 class RoleGrantsModel : public GenericEditableTableModel
 {
@@ -18,7 +18,7 @@ public:
     };
 
     virtual QString isRowDataCorrect(int rowIx) const;
-    RoleGrantInfo itemInfoFromModelRow(int row) const;
+    PrivGrantInfo itemInfoFromModelRow(int row) const;
     
 };
 

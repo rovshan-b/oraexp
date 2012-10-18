@@ -15,7 +15,7 @@ QString TableGrantsDdlGenerator::generateDdl(const TableInfo &tableInfo)
     QList< NameQueryPair > ddlList;
     NameQueryPair ddlItem;
     for(int i=0; i<ddlCount; ++i){
-        const GrantInfo &grantInfo=tableInfo.grants.at(i);
+        const TableGrantInfo &grantInfo=tableInfo.grants.at(i);
         ddlList=grantInfo.generateDdl(fullTableName);
         for(int k=0; k<ddlList.size(); ++k){
             ddlItem=ddlList.at(k);
@@ -42,16 +42,16 @@ QList<NameQueryPair> TableGrantsDdlGenerator::generateAlterDdl(const TableInfo &
     QString tableName=generalInfo->tableName;
     QString fullTableName=QString("\"%1\".\"%2\"").arg(schema).arg(tableName);
 
-    QList<GrantInfo> *originalGrantList=&tableInfo.originalInfo()->grants;
+    QList<TableGrantInfo> *originalGrantList=&tableInfo.originalInfo()->grants;
     Q_ASSERT(originalGrantList->size()<=tableInfo.grants.size());
 
     int rowCount=tableInfo.grants.size();
 
     for(int i=0; i<rowCount; ++i){
-        const GrantInfo &grantInfo=tableInfo.grants.at(i);
+        const TableGrantInfo &grantInfo=tableInfo.grants.at(i);
 
         if(i<originalGrantList->size()){
-            const GrantInfo &originalGrantInfo=originalGrantList->at(i);
+            const TableGrantInfo &originalGrantInfo=originalGrantList->at(i);
             QList< NameQueryPair > alterDdls=grantInfo.generateDiffDdl(originalGrantInfo, schema, tableName, tableType);
             NameQueryPair ddlPair;
             for(int i=0; i<alterDdls.size(); ++i){
@@ -76,8 +76,8 @@ QString TableGrantsDdlGenerator::generateDiffDdl(const TableInfo &sourceTableInf
     bool found;
 
     for(int i=0; i<sourceTableInfo.grants.size(); ++i){
-        const GrantInfo &sourceGrant=sourceTableInfo.grants.at(i);
-        const GrantInfo &targetGrant=targetTableInfo.findGrantByGrantee(sourceGrant.grantee, found);
+        const TableGrantInfo &sourceGrant=sourceTableInfo.grants.at(i);
+        const TableGrantInfo &targetGrant=targetTableInfo.findGrantByGrantee(sourceGrant.grantee, found);
 
         if(found){ //check if we need to alter it
             QList<NameQueryPair> ddlList=sourceGrant.generateDiffDdl(targetGrant,
@@ -99,7 +99,7 @@ QString TableGrantsDdlGenerator::generateDiffDdl(const TableInfo &sourceTableInf
     }
 
     for(int i=0; i<targetTableInfo.grants.size(); ++i){
-        const GrantInfo &targetGrant=targetTableInfo.grants.at(i);
+        const TableGrantInfo &targetGrant=targetTableInfo.grants.at(i);
         sourceTableInfo.findGrantByGrantee(targetGrant.grantee, found);
         if(found){
             continue;

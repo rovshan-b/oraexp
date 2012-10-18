@@ -55,7 +55,7 @@ private slots:
     void paritionInfoLoadError(const QString &taskName, const OciException &ex, PartitionInfoLoader *loader);
     void tableExternalInfoReady(const TableExternalInfo &tableExternalInfo);
     void tableTriggerInfoReady(const QList<TriggerInfo> &tableTriggers);
-    void tableGrantInfoReady(const QList<GrantInfo> &tableGrants);
+    void tableGrantInfoReady(const QList<TableGrantInfo> &tableGrants);
 
     void emitReadySignal();
 

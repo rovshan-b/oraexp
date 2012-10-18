@@ -95,6 +95,8 @@
         <file>queries/get_synonym.sql</file>
         <file>queries/get_tablespace_list_all_cols.sql</file>
         <file>queries/get_role_list.sql</file>
-        <file>queries/get_all_priv_list.sql</file>
+        <file>queries/get_priv_list.sql</file>
+        <file>queries/get_user_roles.sql</file>
+        <file>queries/get_user_sys_privs.sql</file>
     </qresource>
 </RCC>

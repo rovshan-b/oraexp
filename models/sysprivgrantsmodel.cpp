@@ -18,19 +18,19 @@ QString SysPrivGrantsModel::isRowDataCorrect(int rowIx) const
     return "";
 }
 
-SysPrivGrantInfo SysPrivGrantsModel::itemInfoFromModelRow(int row) const
+PrivGrantInfo SysPrivGrantsModel::itemInfoFromModelRow(int row) const
 {
-    SysPrivGrantInfo info;
-    info.privId=-1;
+    PrivGrantInfo info;
+    info.grantId=-1;
 
     if(!isRowDataCorrect(row).isEmpty()){
         return info;
     }
 
-    info.privName=index(row, PrivName).data().toString().trimmed();
+    info.name=index(row, PrivName).data().toString().trimmed();
     info.isGrantable=index(row, IsGrantable).data(Qt::EditRole).toBool();
 
-    info.privId=row+1;
+    info.grantId=row+1;
 
     info.markedForDeletion=isRowDeleted(row);
 

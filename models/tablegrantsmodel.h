@@ -27,7 +27,7 @@ public:
 
     virtual QString isRowDataCorrect(int rowIx) const;
 
-    GrantInfo itemInfoFromModelRow(int row) const;
+    TableGrantInfo itemInfoFromModelRow(int row) const;
 
 private:
     QVariant getGrantTypeText(int grantTypeIx) const;

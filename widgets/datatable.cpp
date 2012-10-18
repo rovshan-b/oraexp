@@ -101,11 +101,21 @@ void DataTable::copyToClipboard()
     const QModelIndex &from = indexes.at(0);
     const QModelIndex &to = indexes.at(indexes.size()-1);
 
+    bool isMultiColumn = from.column()!=to.column();
+    bool isMultiRow = from.row()!=to.row();
+
     for(int i=from.row(); i<=to.row(); ++i){
         for(int k=from.column(); k<=to.column(); ++k){
-            selectedText.append(this->model()->index(i, k).data().toString()).append("\t");
+            selectedText.append(this->model()->index(i, k).data().toString());
+
+            if(isMultiColumn && k<to.column()){
+                selectedText.append("\t");
+            }
         }
-        selectedText.append("\n");
+
+        if(isMultiRow && i<to.row()){
+            selectedText.append("\n");
+        }
     }
 
     QApplication::clipboard()->setText(selectedText);

@@ -3,8 +3,7 @@
 
 #include "dbobjectinfo.h"
 #include "usergeneralinfo.h"
-#include "rolegrantinfo.h"
-#include "sysprivgrantinfo.h"
+#include "privgrantinfo.h"
 
 #include <QString>
 #include <QList>
@@ -15,8 +14,13 @@ public:
     UserInfo();
 
     UserGeneralInfo generalInfo;
-    QList<RoleGrantInfo> grants;
-    QList<SysPrivGrantInfo> sysPrivs;
+    QList<PrivGrantInfo> roles;
+    QList<PrivGrantInfo> sysPrivs;
+
+    QString generateDdl() const;
+    QString generateDropDdl() const;
+    QList< NameQueryPair > generateDiffDdl(const UserInfo &other) const;
+    static UserInfo fromFetchResult(const FetchResult &result);
 
 };
 
