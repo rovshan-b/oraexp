@@ -20,7 +20,7 @@ public:
     virtual void loadObjectInfo()=0;
 
     QString getSchemaName() const {return this->schemaName;}
-    QString getTableName() const {return this->objectName;}
+    QString getObjectName() const {return this->objectName;}
     IQueryScheduler *getQueryScheduler() const {return this->queryScheduler;}
     
 signals:

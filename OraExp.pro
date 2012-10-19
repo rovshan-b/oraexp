@@ -348,7 +348,10 @@ SOURCES += main.cpp\
     models/sysprivgrantsmodel.cpp \
     beans/userinfo.cpp \
     beans/usergeneralinfo.cpp \
-    beans/privgrantinfo.cpp
+    beans/privgrantinfo.cpp \
+    metadata_loaders/user/userinfoloader.cpp \
+    metadata_loaders/user/usergeneralinfoloader.cpp \
+    metadata_loaders/user/privgrantinfoloader.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -697,7 +700,10 @@ HEADERS  += mainwindow.h \
     models/sysprivgrantsmodel.h \
     beans/userinfo.h \
     beans/usergeneralinfo.h \
-    beans/privgrantinfo.h
+    beans/privgrantinfo.h \
+    metadata_loaders/user/userinfoloader.h \
+    metadata_loaders/user/usergeneralinfoloader.h \
+    metadata_loaders/user/privgrantinfoloader.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

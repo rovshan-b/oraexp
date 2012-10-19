@@ -29,7 +29,7 @@ QString UserGeneralInfo::generateDdl() const
     }
 
     if(accountLocked){
-        ddl.append("\nACCOUNT LOCKED");
+        ddl.append("\nACCOUNT LOCK");
     }
 
     if(enableEditions){
@@ -46,11 +46,77 @@ QString UserGeneralInfo::generateDropDdl() const
 
 QList<NameQueryPair> UserGeneralInfo::generateDiffDdl(const UserGeneralInfo &other) const
 {
+    QList< NameQueryPair > result;
 
+    QString ddl;
+
+    if((identifiedBy!=other.identifiedBy || dn!=other.dn) ||
+            (identifiedBy==Password && other.identifiedBy==Password && !other.password.isEmpty())){
+        ddl.append(" ").append(getIdentifiedBy());
+    }
+
+    if(defaultTablespace!=other.defaultTablespace){
+        ddl.append("\nDEFAULT TABLESPACE \"").append(defaultTablespace).append("\"");
+    }
+
+    if(temporaryTablespace!=other.temporaryTablespace){
+        ddl.append("\nTEMPORARY TABLESPACE \"").append(temporaryTablespace).append("\"");
+    }
+
+    if(profile!=other.profile){
+        ddl.append("\nPROFILE \"").append(profile).append("\"");
+    }
+
+    if(expirePassword && !other.expirePassword){
+        ddl.append("\nPASSWORD EXPIRE");
+    }
+
+    if(accountLocked!=other.accountLocked){
+        ddl.append(accountLocked ? "\nACCOUNT LOCK" : "\nACCOUNT UNLOCK");
+    }
+
+    if(enableEditions && !other.enableEditions){
+        ddl.append("\nENABLE EDITIONS");
+    }
+
+    if(!ddl.isEmpty()){
+        ddl.prepend("ALTER USER \"").append(username).append("\" ");
+    }
+
+    result.append(qMakePair(QString("alter_user"), ddl));
+
+    return result;
 }
 
 UserGeneralInfo UserGeneralInfo::fromFetchResult(const FetchResult &result)
 {
+    UserGeneralInfo info;
+
+    info.username=result.colValue("USERNAME");
+    QString authType;
+    if(result.columnIndexes.contains("AUTHENTICATION_TYPE")){ //11g or later
+        authType=result.colValue("AUTHENTICATION_TYPE");
+    }else{ //earlier release
+        authType=result.colValue("PASSWORD");
+    }
+
+    if(authType=="EXTERNAL"){
+        info.identifiedBy=Externally;
+    }else if(authType=="GLOBAL"){
+        info.identifiedBy=Globally;
+    }else{
+        info.identifiedBy=Password;
+    }
+
+    info.dn=result.colValue("EXTERNAL_NAME");
+    info.defaultTablespace=result.colValue("DEFAULT_TABLESPACE");
+    info.temporaryTablespace=result.colValue("TEMPORARY_TABLESPACE");
+    info.profile=result.colValue("PROFILE");
+    info.expirePassword=result.colValue("ACCOUNT_STATUS").contains("EXPIRED");
+    info.accountLocked=result.colValue("ACCOUNT_STATUS").contains("LOCKED");
+    info.enableEditions=result.colValue("EDITIONS_ENABLED")=="Y";
+
+    return info;
 }
 
 QString UserGeneralInfo::getIdentifiedBy() const

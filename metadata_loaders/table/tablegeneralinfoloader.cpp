@@ -70,7 +70,7 @@ void TableGeneralInfoLoader::fetchCompleted(const QString &/*taskName*/)
 void TableGeneralInfoLoader::populateTableDetails(const FetchResult &result)
 {
     generalInfo.schema=tableInfoLoader->getSchemaName();
-    generalInfo.tableName=tableInfoLoader->getTableName();
+    generalInfo.tableName=tableInfoLoader->getObjectName();
 
     generalInfo.tableType=DbUtil::getTableType(
                     result.colValue("TEMPORARY"),

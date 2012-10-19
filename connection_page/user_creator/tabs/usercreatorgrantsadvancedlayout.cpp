@@ -103,7 +103,7 @@ void UserCreatorGrantsAdvancedLayout::customizeSysPrivTable()
     table->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
     DbItemListDelegate *privListDelegate=new DbItemListDelegate("", this->queryScheduler,
-                                                                "get_all_priv_list", "grants",
+                                                                "get_priv_list", "grants",
                                                                 this, true);
 
     table->setItemDelegateForColumn(SysPrivGrantsModel::PrivName, privListDelegate);

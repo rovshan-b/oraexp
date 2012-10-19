@@ -1,9 +1,10 @@
 #ifndef USERGENERALINFO_H
 #define USERGENERALINFO_H
 
-#include <QString>
 #include "defines.h"
 #include "connectivity/fetchresult.h"
+#include <QString>
+#include <QMetaType>
 
 class UserGeneralInfo
 {
@@ -36,5 +37,7 @@ public:
 private:
     QString getIdentifiedBy() const;
 };
+
+Q_DECLARE_METATYPE(UserGeneralInfo)
 
 #endif // USERGENERALINFO_H

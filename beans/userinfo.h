@@ -7,6 +7,7 @@
 
 #include <QString>
 #include <QList>
+#include <QMetaType>
 
 class UserInfo : public DbObjectInfo
 {
@@ -20,8 +21,11 @@ public:
     QString generateDdl() const;
     QString generateDropDdl() const;
     QList< NameQueryPair > generateDiffDdl(const UserInfo &other) const;
-    static UserInfo fromFetchResult(const FetchResult &result);
+    QString generateDefaultRolesDdl(const QStringList &defaultRoles) const;
 
 };
+
+Q_DECLARE_METATYPE(UserInfo)
+
 
 #endif // USERINFO_H

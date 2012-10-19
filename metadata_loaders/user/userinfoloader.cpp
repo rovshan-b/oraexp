@@ -1,0 +1,94 @@
+#include "userinfoloader.h"
+
+UserInfoLoader::UserInfoLoader(IQueryScheduler *queryScheduler, const QString &username, QObject *parent) :
+    MetadataLoader(queryScheduler, username, username, parent),
+    generalInfoLoader(this),
+    roleInfoLoader("get_user_roles", this),
+    sysPrivInfoLoader("get_user_sys_privs", this)
+{
+    connect(&generalInfoLoader, SIGNAL(infoReady(UserGeneralInfo)), this, SLOT(userGeneralInfoReady(UserGeneralInfo)));
+    connect(&generalInfoLoader, SIGNAL(loadError(QString,OciException)), this, SLOT(subInfoLoadError(QString,OciException)));
+
+    connect(&roleInfoLoader, SIGNAL(infoReady(QList<PrivGrantInfo>)), this, SLOT(userRoleInfoReady(QList<PrivGrantInfo>)));
+    connect(&roleInfoLoader, SIGNAL(loadError(QString,OciException)), this, SLOT(subInfoLoadError(QString,OciException)));
+
+    connect(&sysPrivInfoLoader, SIGNAL(infoReady(QList<PrivGrantInfo>)), this, SLOT(userSysPrivInfoReady(QList<PrivGrantInfo>)));
+    connect(&sysPrivInfoLoader, SIGNAL(loadError(QString,OciException)), this, SLOT(subInfoLoadError(QString,OciException)));
+}
+
+UserInfoLoader::~UserInfoLoader()
+{
+    qDebug("deleted UserInfoLoader");
+}
+
+void UserInfoLoader::loadObjectInfo()
+{
+    Q_ASSERT(userInfo==0);
+    userInfo=new UserInfo();
+
+    partsToLoad.enqueue(UserInfoPartGeneralInfo);
+    partsToLoad.enqueue(UserInfoPartRoleInfo);
+    partsToLoad.enqueue(UserInfoPartSysPrivInfo);
+
+    loadUserPartInfo();
+}
+
+void UserInfoLoader::loadUserPartInfo()
+{
+    if(partsToLoad.isEmpty()){
+        emitReadySignal();
+        return;
+    }
+
+    UserInfoPart part = partsToLoad.dequeue();
+    switch(part){
+    case UserInfoPartGeneralInfo:
+        generalInfoLoader.loadInfo();
+        break;
+    case UserInfoPartRoleInfo:
+        roleInfoLoader.loadInfo();
+        break;
+    case UserInfoPartSysPrivInfo:
+        sysPrivInfoLoader.loadInfo();
+        break;
+    default:
+        qDebug("Unsupported UserInfoPart");
+        break;
+    }
+}
+
+void UserInfoLoader::userGeneralInfoReady(const UserGeneralInfo &userGeneralInfo)
+{
+    qDebug("user general info loaded");
+    userInfo->generalInfo=userGeneralInfo;
+
+    loadUserPartInfo();
+}
+
+void UserInfoLoader::userRoleInfoReady(const QList<PrivGrantInfo> &roles)
+{
+    qDebug("user role info loaded");
+    userInfo->roles=roles;
+
+    loadUserPartInfo();
+}
+
+void UserInfoLoader::userSysPrivInfoReady(const QList<PrivGrantInfo> &sysPrivs)
+{
+    qDebug("user sys priv info loaded");
+    userInfo->sysPrivs=sysPrivs;
+
+    loadUserPartInfo();
+}
+
+void UserInfoLoader::emitReadySignal()
+{
+    emit objectInfoReady(userInfo, this);
+}
+
+void UserInfoLoader::subInfoLoadError(const QString &taskName, const OciException &ex)
+{
+    delete userInfo;
+
+    emit loadError(taskName, ex, this);
+}
