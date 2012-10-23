@@ -2,10 +2,15 @@
 #define USERCREATORTABS_H
 
 #include "widgets/subtabwidget.h"
+#include "connectivity/ociexception.h"
+#include "beans/querylistitem.h"
 
 class IQueryScheduler;
 class UserCreatorGeneralInfo;
 class UserCreatorGrants;
+class DbObjectInfo;
+class MetadataLoader;
+class UserInfo;
 
 class UserCreatorTabs : public SubTabWidget
 {
@@ -15,16 +20,33 @@ public:
     
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
+    virtual QString generateCreateDdl();
+    virtual QList< QueryListItem > generateAlterDdl();
+
+    UserInfo *getOriginalUserInfo() const {return this->originalUserInfo;}
+
+    bool beforeAlter();
+
+    QString getUserName() const;
+
 signals:
     void objectInfoLoaded();
     void ddlChanged();
 
+private slots:
+    void userInfoReady(DbObjectInfo *userInfo, MetadataLoader *loader);
+    void loadError(const QString &taskName, const OciException &ex, MetadataLoader *loader);
+
 private:
+    QString objectName;
+    UserInfo *originalUserInfo;
     bool editMode;
+    IQueryScheduler *queryScheduler;
 
     UserCreatorGeneralInfo *generalInfoTab;
     UserCreatorGrants *grantsTab;
-    
+
+    UserInfo getUserInfo() const;
 };
 
 #endif // USERCREATORTABS_H

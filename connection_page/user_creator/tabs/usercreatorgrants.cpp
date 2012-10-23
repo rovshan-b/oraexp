@@ -36,7 +36,28 @@ void UserCreatorGrants::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
     UserCreatorTab::setQueryScheduler(queryScheduler);
 
-    advancedLayout->setQueryScheduler(queryScheduler);
+    advancedLayout->setQueryScheduler(queryScheduler, isEditMode());
+}
+
+void UserCreatorGrants::setUserInfo(UserInfo *userInfo)
+{
+    advancedLayout->setUserInfo(userInfo);
+    syncSimpleLayout();
+}
+
+QList<PrivGrantInfo> UserCreatorGrants::getUserRoles() const
+{
+    return advancedLayout->getUserRoles();
+}
+
+QList<PrivGrantInfo> UserCreatorGrants::getUserSysPrivs() const
+{
+    return advancedLayout->getUserSysPrivs();
+}
+
+void UserCreatorGrants::removeIncorrectRows()
+{
+    advancedLayout->removeIncorrectRows();
 }
 
 void UserCreatorGrants::switchMode(bool simpleMode)
@@ -58,6 +79,7 @@ void UserCreatorGrants::createSimpleLayout()
 void UserCreatorGrants::createAdvancedLayout()
 {
     advancedLayout = new UserCreatorGrantsAdvancedLayout();
+    connect(advancedLayout, SIGNAL(ddlChanged()), this, SIGNAL(ddlChanged()));
     tab->addWidget(advancedLayout);
 }
 
@@ -106,4 +128,14 @@ void UserCreatorGrants::syncCheckBoxes(QList<QCheckBox *> checkBoxes, DataTableA
         Q_ASSERT(foundItems.size()<=1);
         chk->setChecked(foundItems.size()>0);
     }
+}
+
+void UserCreatorGrants::alterQuerySucceeded(const QString &taskName)
+{
+    advancedLayout->alterQuerySucceeded(taskName);
+}
+
+void UserCreatorGrants::alterQueryError(const QString &taskName)
+{
+    advancedLayout->alterQueryError(taskName);
 }

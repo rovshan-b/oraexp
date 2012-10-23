@@ -2,6 +2,7 @@
 #define USERCREATORGENERALINFO_H
 
 #include "../usercreatortab.h"
+#include "beans/usergeneralinfo.h"
 
 class NameEditor;
 class PasswordEditor;
@@ -11,6 +12,7 @@ class TablespaceListComboBox;
 class DbItemListComboBox;
 class QCheckBox;
 class QGroupBox;
+class UserInfo;
 
 class UserCreatorGeneralInfo : public UserCreatorTab
 {
@@ -23,8 +25,22 @@ public:
 
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
 
+    void setUserInfo(UserInfo *userInfo);
+    UserGeneralInfo getUserGeneralInfo() const;
+
+    QString getUserName() const;
+
+signals:
+    void ddlChanged();
+
+private slots:
+    void enableControls();
+
+    void alterQuerySucceeded(const QString &taskName);
+
 private:
     QLayout *createForm(const QString &objectName);
+    void disableControlsForEditMode();
 
     NameEditor *usernameEditor;
     QComboBox *identifiedByComboBox;

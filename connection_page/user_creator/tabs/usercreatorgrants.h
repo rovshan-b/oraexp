@@ -2,6 +2,7 @@
 #define USERCREATORGRANTS_H
 
 #include "../usercreatortab.h"
+#include "beans/privgrantinfo.h"
 
 class QGroupBox;
 class QStackedWidget;
@@ -20,9 +21,21 @@ public:
                                QWidget *parent = 0);
 
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
+
+    void setUserInfo(UserInfo *userInfo);
+
+    QList<PrivGrantInfo> getUserRoles() const;
+    QList<PrivGrantInfo> getUserSysPrivs() const;
     
-private slots:
+    void removeIncorrectRows();
+
+signals:
+    void ddlChanged();
+
+protected slots:
     void switchMode(bool simpleMode);
+    void alterQuerySucceeded(const QString &taskName);
+    void alterQueryError(const QString &taskName);
     
 private:
     void createSimpleLayout();

@@ -4,9 +4,11 @@
 #include "dbobjectinfo.h"
 #include "usergeneralinfo.h"
 #include "privgrantinfo.h"
+#include "beans/querylistitem.h"
 
 #include <QString>
 #include <QList>
+#include <QHash>
 #include <QMetaType>
 
 class UserInfo : public DbObjectInfo
@@ -20,7 +22,7 @@ public:
 
     QString generateDdl() const;
     QString generateDropDdl() const;
-    QList< NameQueryPair > generateDiffDdl(const UserInfo &other) const;
+    QList<QueryListItem> generateDiffDdl(const UserInfo &other, const QHash<QString, QObject *> &requesters) const;
     QString generateDefaultRolesDdl(const QStringList &defaultRoles) const;
 
 };

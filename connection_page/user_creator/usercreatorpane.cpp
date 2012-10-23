@@ -27,12 +27,17 @@ void UserCreatorPane::setQueryScheduler(IQueryScheduler *queryScheduler)
 
 QString UserCreatorPane::generateCreateDdl()
 {
-    return "";
+    return userCreatorTabs->generateCreateDdl();
 }
 
 QList<QueryListItem> UserCreatorPane::generateAlterDdl()
 {
-    return QList<QueryListItem>();
+    return userCreatorTabs->generateAlterDdl();
+}
+
+bool UserCreatorPane::beforeAlter()
+{
+    return userCreatorTabs->beforeAlter();
 }
 
 QString UserCreatorPane::getSchemaName() const
@@ -42,5 +47,5 @@ QString UserCreatorPane::getSchemaName() const
 
 QString UserCreatorPane::getObjectName() const
 {
-    return "";
+    return userCreatorTabs->getUserName();
 }

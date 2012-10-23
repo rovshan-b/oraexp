@@ -93,6 +93,7 @@ public:
     bool supportsCompileTimeWarnings() const {return true;}
     bool supportsNativeCompilation() const {return true;}
     bool supportsAlteringDatabaseLinks() const {return this->serverMajorVersion>=11;}
+    bool supportsSchemaEditions() const {return this->serverMajorVersion>=11;}
 
     int compareVersion(unsigned int major, int minor);
     int compareVersion(DbConnection *other);

@@ -4,6 +4,9 @@
 #include "widgets/dbitemlistcombobox.h"
 #include "widgets/tablespacelistcombobox.h"
 #include "util/widgethelper.h"
+#include "interfaces/iqueryscheduler.h"
+#include "connectivity/dbconnection.h"
+#include "beans/userinfo.h"
 #include <QtGui>
 
 UserCreatorGeneralInfo::UserCreatorGeneralInfo(const QString &objectName,
@@ -24,8 +27,53 @@ void UserCreatorGeneralInfo::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
     UserCreatorTab::setQueryScheduler(queryScheduler);
 
+    enableEditionsCheckBox->setEnabled(queryScheduler->getDb()->supportsSchemaEditions() && !isEditMode());
+
     defaultTablespaceComboBox->setQueryScheduler(this->queryScheduler);
     temporaryTablespaceComboBox->setQueryScheduler(this->queryScheduler);
+}
+
+void UserCreatorGeneralInfo::setUserInfo(UserInfo *userInfo)
+{
+    UserGeneralInfo *info=&userInfo->generalInfo;
+
+    usernameEditor->setText(info->username);
+    identifiedByComboBox->setCurrentIndex(info->identifiedBy);
+    passwordEditor->lineEdit()->setText(info->password);
+    dnEditor->setText(info->dn);
+    WidgetHelper::setComboBoxText(defaultTablespaceComboBox->comboBox(), info->defaultTablespace);
+    WidgetHelper::setComboBoxText(temporaryTablespaceComboBox->comboBox(), info->temporaryTablespace);
+    WidgetHelper::setComboBoxText(profileComboBox, info->profile);
+    passwordExpiredCheckBox->setChecked(info->expirePassword);
+    accountLockedCheckBox->setChecked(info->accountLocked);
+    enableEditionsCheckBox->setChecked(info->enableEditions);
+
+    if(info->expirePassword){
+        passwordExpiredCheckBox->setEnabled(false);
+    }
+}
+
+UserGeneralInfo UserCreatorGeneralInfo::getUserGeneralInfo() const
+{
+    UserGeneralInfo info;
+
+    info.username=usernameEditor->text().trimmed().toUpper();
+    info.identifiedBy=(UserGeneralInfo::UserIdentifiedBy)identifiedByComboBox->currentIndex();
+    info.password=passwordEditor->lineEdit()->text();
+    info.dn=dnEditor->text();
+    info.defaultTablespace=defaultTablespaceComboBox->lineEdit()->text().trimmed().toUpper();
+    info.temporaryTablespace=temporaryTablespaceComboBox->lineEdit()->text().trimmed().toUpper();
+    info.profile=profileComboBox->lineEdit()->text().trimmed().toUpper();
+    info.expirePassword=passwordExpiredCheckBox->isChecked();
+    info.accountLocked=accountLockedCheckBox->isChecked();
+    info.enableEditions=enableEditionsCheckBox->isChecked();
+
+    return info;
+}
+
+QString UserCreatorGeneralInfo::getUserName() const
+{
+    return usernameEditor->text().trimmed().toUpper();
 }
 
 QLayout *UserCreatorGeneralInfo::createForm(const QString &objectName)
@@ -47,7 +95,7 @@ QLayout *UserCreatorGeneralInfo::createForm(const QString &objectName)
     form->addRow(tr("Password"), passwordEditor);
 
     dnEditor = new QLineEdit();
-    form->addRow(tr("Distinguished name"), dnEditor);
+    form->addRow(tr("DN/External name"), dnEditor);
 
     defaultTablespaceComboBox = new TablespaceListComboBox();
     form->addRow(tr("Default tablespace"), defaultTablespaceComboBox);
@@ -67,5 +115,44 @@ QLayout *UserCreatorGeneralInfo::createForm(const QString &objectName)
     enableEditionsCheckBox = new QCheckBox();
     form->addRow(tr("Enable editions"), enableEditionsCheckBox);
 
+    enableControls();
+
+    connect(identifiedByComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(enableControls()));
+
+    connect(usernameEditor, SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
+    connect(identifiedByComboBox, SIGNAL(currentIndexChanged(int)), this, SIGNAL(ddlChanged()));
+    connect(passwordEditor, SIGNAL(changed()), this, SIGNAL(ddlChanged()));
+    connect(dnEditor, SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
+    connect(defaultTablespaceComboBox->lineEdit(), SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
+    connect(temporaryTablespaceComboBox->lineEdit(), SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
+    connect(profileComboBox->lineEdit(), SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
+    connect(passwordExpiredCheckBox, SIGNAL(stateChanged(int)), this, SIGNAL(ddlChanged()));
+    connect(accountLockedCheckBox, SIGNAL(stateChanged(int)), this, SIGNAL(ddlChanged()));
+    connect(enableEditionsCheckBox, SIGNAL(stateChanged(int)), this, SIGNAL(ddlChanged()));
+
+    if(isEditMode()){
+        disableControlsForEditMode();
+    }
+
     return form;
+}
+
+void UserCreatorGeneralInfo::disableControlsForEditMode()
+{
+    usernameEditor->setEnabled(false);
+}
+
+void UserCreatorGeneralInfo::enableControls()
+{
+    UserGeneralInfo::UserIdentifiedBy identifiedBy=(UserGeneralInfo::UserIdentifiedBy)identifiedByComboBox->currentIndex();
+
+    passwordEditor->setEnabled(identifiedBy==UserGeneralInfo::Password);
+    dnEditor->setEnabled(identifiedBy!=UserGeneralInfo::Password);
+}
+
+void UserCreatorGeneralInfo::alterQuerySucceeded(const QString &taskName)
+{
+    if(taskName=="alter_user"){
+        objectCreator->getOriginalUserInfo()->generalInfo=getUserGeneralInfo();
+    }
 }

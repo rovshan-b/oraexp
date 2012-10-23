@@ -10,22 +10,25 @@ QString UserInfo::generateDdl() const
 {
     QString ddl;
 
-    ddl.append(generalInfo.generateDdl());
+    ddl.append(generalInfo.generateDdl()).append(";");
 
     QStringList defaultRoles;
     foreach(const PrivGrantInfo &role, roles){
-        ddl.append("\n").append(role.generateDdl(generalInfo.username));
+        addEOL(ddl);
+        ddl.append("\n").append(role.generateDdl(generalInfo.username)).append(";");
         if(role.isDefault){
             defaultRoles.append(role.name);
         }
     }
 
     if(defaultRoles.size()>0){
-        ddl.append("\n").append(generateDefaultRolesDdl(defaultRoles));
+        addEOL(ddl);
+        ddl.append("\n").append(generateDefaultRolesDdl(defaultRoles)).append(";");
     }
 
-    foreach(const PrivGrantInfo &role, sysPrivs){
-        ddl.append("\n").append(role.generateDdl(generalInfo.username));
+    foreach(const PrivGrantInfo &priv, sysPrivs){
+        addEOL(ddl);
+        ddl.append("\n").append(priv.generateDdl(generalInfo.username)).append(";");
     }
 
     return ddl;
@@ -36,21 +39,25 @@ QString UserInfo::generateDropDdl() const
     return generalInfo.generateDropDdl();
 }
 
-QList<NameQueryPair> UserInfo::generateDiffDdl(const UserInfo &other) const
+QList<QueryListItem> UserInfo::generateDiffDdl(const UserInfo &other, const QHash<QString,QObject*> &requesters) const
 {
-    QList<NameQueryPair> results;
+    QList<QueryListItem> results;
 
-    results.append(generalInfo.generateDiffDdl(other.generalInfo));
-    results.append(PrivGrantInfo::generateListDiffDdl(&roles, &other.roles, generalInfo.username, "role"));
+    results.append(QueryListItem(requesters.value("general_info"), generalInfo.generateDiffDdl(other.generalInfo)));
+    results.append(QueryListItem(requesters.value("grants"),
+                                 PrivGrantInfo::generateListDiffDdl(&roles, &other.roles, generalInfo.username, "role")));
 
     QStringList defaults=PrivGrantInfo::getDefaults(&roles);
     QStringList otherDefaults=PrivGrantInfo::getDefaults(&other.roles);
     if(defaults!=otherDefaults){
         QString defaultRolesDdl=QString("\n%1").arg(generateDefaultRolesDdl(defaults));
-        results.append(qMakePair(QString("role_set_default"), defaultRolesDdl));
+
+        results.append(QueryListItem(requesters.value("grants"),
+                                     QList<NameQueryPair>() << qMakePair(QString("role_set_default"), defaultRolesDdl)));
     }
 
-    results.append(PrivGrantInfo::generateListDiffDdl(&sysPrivs, &other.sysPrivs, generalInfo.username, "sys_priv"));
+    results.append(QueryListItem(requesters.value("grants"),
+                                 PrivGrantInfo::generateListDiffDdl(&sysPrivs, &other.sysPrivs, generalInfo.username, "sys_priv")));
 
     return results;
 }

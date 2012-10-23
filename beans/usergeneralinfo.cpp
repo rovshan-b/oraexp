@@ -6,11 +6,14 @@ UserGeneralInfo::UserGeneralInfo()
 
 QString UserGeneralInfo::generateDdl() const
 {
+    if(username.isEmpty()){
+        return "--Definition is not complete.";
+    }
+
     QString ddl;
 
     ddl.append("CREATE USER \"").append(username).append("\"");
     ddl.append(" IDENTIFIED ").append(getIdentifiedBy());
-    ddl.append(getIdentifiedBy());
 
     if(!defaultTablespace.isEmpty()){
         ddl.append("\nDEFAULT TABLESPACE \"").append(defaultTablespace).append("\"");
@@ -80,7 +83,9 @@ QList<NameQueryPair> UserGeneralInfo::generateDiffDdl(const UserGeneralInfo &oth
     }
 
     if(!ddl.isEmpty()){
-        ddl.prepend("ALTER USER \"").append(username).append("\" ");
+        QString strToPrepend;
+        strToPrepend.append("ALTER USER \"").append(username).append("\" ");
+        ddl.prepend(strToPrepend);
     }
 
     result.append(qMakePair(QString("alter_user"), ddl));
@@ -140,7 +145,9 @@ QString UserGeneralInfo::getIdentifiedBy() const
 
     if(identifiedBy!=Password){
         if(!dn.isEmpty()){
-            result.append("AS '").append(dn).append("'");
+            QString escapedDn(dn);
+            escapedDn.replace("'","''");
+            result.append(" AS '").append(escapedDn).append("'");
         }
     }
 

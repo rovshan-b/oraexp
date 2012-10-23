@@ -1,1 +1,1 @@
-select * from dba_users where username=:owner
+select * from sys.dba_users where username=:owner

@@ -19,7 +19,7 @@ QString PrivGrantInfo::generateDdl(const QString &username) const
 {
     QString ddl;
 
-    ddl.append("GRANT \"").append(name).append("\" TO \"").append(username).append("\"");
+    ddl.append("GRANT ").append(name).append(" TO \"").append(username).append("\"");
 
     if(isGrantable){
         ddl.append(" WITH ADMIN OPTION");
@@ -30,7 +30,7 @@ QString PrivGrantInfo::generateDdl(const QString &username) const
 
 QString PrivGrantInfo::generateDropDdl(const QString &username) const
 {
-    return QString("REVOKE \"").append(name).append("\" FROM \"").append(username).append("\"");
+    return QString("REVOKE ").append(name).append(" FROM \"").append(username).append("\"");
 }
 
 QList<NameQueryPair> PrivGrantInfo::generateDiffDdl(const PrivGrantInfo &other, const QString &username, const QString &taskNamePrefix) const
@@ -74,7 +74,7 @@ QList<NameQueryPair> PrivGrantInfo::generateListDiffDdl(const QList<PrivGrantInf
             QList< NameQueryPair > alterDdls=grantInfo.generateDiffDdl(originalGrantInfo, username, taskNamePrefix);
             result.append(alterDdls);
         }else{
-            result.append(qMakePair(QString("%1_add_table_constraint_%2").arg(taskNamePrefix, QString::number(i+1)), grantInfo.generateDdl(username)));
+            result.append(qMakePair(QString("%1_add_priv_grant_%2").arg(taskNamePrefix, QString::number(i+1)), grantInfo.generateDdl(username)));
         }
     }
 

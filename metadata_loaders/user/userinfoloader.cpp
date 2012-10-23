@@ -2,6 +2,7 @@
 
 UserInfoLoader::UserInfoLoader(IQueryScheduler *queryScheduler, const QString &username, QObject *parent) :
     MetadataLoader(queryScheduler, username, username, parent),
+    userInfo(0),
     generalInfoLoader(this),
     roleInfoLoader("get_user_roles", this),
     sysPrivInfoLoader("get_user_sys_privs", this)
