@@ -141,6 +141,8 @@ void UserCreatorGrantsAdvancedLayout::customizeRolesTable(bool editMode)
     if(editMode){
         connect(tableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(rolesTableDataChanged(QModelIndex,QModelIndex)));
 
+        tableModel->setColumnEnabled(0, false);
+
     }
 
     connect(tableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(ddlChanged()));
@@ -172,6 +174,8 @@ void UserCreatorGrantsAdvancedLayout::customizeSysPrivTable(bool editMode)
 
     if(editMode){
         connect(tableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(sysPrivTableDataChanged(QModelIndex,QModelIndex)));
+
+        tableModel->setColumnEnabled(0, false);
     }
 
     connect(tableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(ddlChanged()));
@@ -204,7 +208,7 @@ void UserCreatorGrantsAdvancedLayout::populateTableWithRoles()
     table->setUpdatesEnabled(true);
 
     int lastRowIx=model->rowCount()-1;
-    model->freezeRow(lastRowIx);
+    model->freezeRow(lastRowIx, true);
 }
 
 void UserCreatorGrantsAdvancedLayout::populateTableWithSysPrivs()
@@ -233,7 +237,7 @@ void UserCreatorGrantsAdvancedLayout::populateTableWithSysPrivs()
     table->setUpdatesEnabled(true);
 
     int lastRowIx=model->rowCount()-1;
-    model->freezeRow(lastRowIx);
+    model->freezeRow(lastRowIx, true);
 }
 
 void UserCreatorGrantsAdvancedLayout::rolesTableDataChanged(const QModelIndex &from, const QModelIndex &to)
@@ -273,8 +277,20 @@ void UserCreatorGrantsAdvancedLayout::removeIncorrectRows()
 }
 
 void UserCreatorGrantsAdvancedLayout::roleAlterQuerySucceeded(const QString &taskName)
-{
+{   
     Q_ASSERT(originalRoleList);
+
+    if(taskName=="role_set_default"){
+        QList<PrivGrantInfo> roles=getUserRoles();
+        Q_ASSERT(originalRoleList->size()>=roles.size());
+        for(int i=0; i<roles.size(); ++i){
+            const PrivGrantInfo &role=roles.at(i);
+            if(originalRoleList->at(i).isDefault!=role.isDefault){
+                ((*originalRoleList)[i]).isDefault=role.isDefault;
+            }
+        }
+        return;
+    }
 
     int rowNum=numberAfterLastUnderscore(taskName);
     Q_ASSERT(rowNum>0);
@@ -291,9 +307,9 @@ void UserCreatorGrantsAdvancedLayout::roleAlterQuerySucceeded(const QString &tas
     if(taskName.startsWith("role_add_priv_grant_")){
 
         originalRoleList->append(modifiedGrantInfo);
-        model->freezeRow(rowIx);
+        model->freezeRow(rowIx, true);
 
-    }else if(taskName.startsWith("role_drop_priv_grant__")){
+    }else if(taskName.startsWith("role_drop_priv_grant_")){
 
         (*originalRoleList)[rowIx].dropped=true;
 
@@ -305,16 +321,9 @@ void UserCreatorGrantsAdvancedLayout::roleAlterQuerySucceeded(const QString &tas
 
         (*originalRoleList)[rowIx]=modifiedGrantInfo;
 
-    }else if(taskName=="role_set_default"){
+    }else if(taskName.startsWith("role_make_grantable_")){
 
-        QList<PrivGrantInfo> roles=getUserRoles();
-        Q_ASSERT(originalRoleList->size()>=roles.size());
-        for(int i=0; i<roles.size(); ++i){
-            const PrivGrantInfo &role=roles.at(i);
-            if(originalRoleList->at(i).isDefault!=role.isDefault){
-                ((*originalRoleList)[i]).isDefault=role.isDefault;
-            }
-        }
+        (*originalRoleList)[rowIx].isGrantable=modifiedGrantInfo.isGrantable;
 
     }
 
@@ -349,9 +358,9 @@ void UserCreatorGrantsAdvancedLayout::sysPrivAlterQuerySucceeded(const QString &
     if(taskName.startsWith("sys_priv_add_priv_grant_")){
 
         originalSysPrivList->append(modifiedGrantInfo);
-        model->freezeRow(rowIx);
+        model->freezeRow(rowIx, true);
 
-    }else if(taskName.startsWith("sys_priv_drop_priv_grant__")){
+    }else if(taskName.startsWith("sys_priv_drop_priv_grant_")){
 
         (*originalSysPrivList)[rowIx].dropped=true;
 
@@ -362,6 +371,10 @@ void UserCreatorGrantsAdvancedLayout::sysPrivAlterQuerySucceeded(const QString &
     }else if(taskName.startsWith("sys_priv_create_priv_grant_after_dropping_")){
 
         (*originalSysPrivList)[rowIx]=modifiedGrantInfo;
+
+    }else if(taskName.startsWith("sys_priv_make_grantable_")){
+
+        (*originalSysPrivList)[rowIx].isGrantable=modifiedGrantInfo.isGrantable;
 
     }
 

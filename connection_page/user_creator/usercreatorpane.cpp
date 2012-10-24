@@ -35,6 +35,11 @@ QList<QueryListItem> UserCreatorPane::generateAlterDdl()
     return userCreatorTabs->generateAlterDdl();
 }
 
+bool UserCreatorPane::beforeCreate()
+{
+    return userCreatorTabs->beforeCreate();
+}
+
 bool UserCreatorPane::beforeAlter()
 {
     return userCreatorTabs->beforeAlter();

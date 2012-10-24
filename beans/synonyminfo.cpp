@@ -7,6 +7,10 @@ SynonymInfo::SynonymInfo() : dropped(false)
 
 QString SynonymInfo::generateDdl(bool replace) const
 {
+    if(name.isEmpty() || targetObject.isEmpty()){
+        return "--Definition is not complete. Synonym name and target object name must be entered.";
+    }
+
     QString ddl;
 
     ddl.append("CREATE");
@@ -93,7 +97,7 @@ QList<NameQueryPair> SynonymInfo::generateDiffDdl(const SynonymInfo &other) cons
 }
 
 
-QStringList SynonymInfo::validate() const
+QStringList SynonymInfo::validate(bool) const
 {
     QStringList msgs;
 

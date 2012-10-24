@@ -119,7 +119,7 @@ QList<QueryListItem> DbLinkCreatorPane::generateAlterDdl()
 bool DbLinkCreatorPane::beforeCreate() const
 {
     DbLinkInfo info=getDbLinkInfo();
-    return WidgetHelper::validate(&info, this->window());
+    return WidgetHelper::validate(&info, editMode, this->window());
 }
 
 bool DbLinkCreatorPane::beforeAlter() const
@@ -127,7 +127,7 @@ bool DbLinkCreatorPane::beforeAlter() const
     Q_ASSERT(editMode);
 
     DbLinkInfo info=getDbLinkInfo();
-    if(!WidgetHelper::validate(&info, this->window())){
+    if(!WidgetHelper::validate(&info, editMode, this->window())){
         return false;
     }
 

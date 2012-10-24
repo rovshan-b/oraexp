@@ -118,7 +118,7 @@ QList<QueryListItem> SynonymCreatorPane::generateAlterDdl()
 bool SynonymCreatorPane::beforeCreate() const
 {
     SynonymInfo info=getSynonymInfo();
-    return WidgetHelper::validate(&info, this->window());
+    return WidgetHelper::validate(&info, editMode, this->window());
 }
 
 bool SynonymCreatorPane::beforeAlter() const

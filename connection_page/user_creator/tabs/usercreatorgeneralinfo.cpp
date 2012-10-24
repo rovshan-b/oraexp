@@ -31,6 +31,7 @@ void UserCreatorGeneralInfo::setQueryScheduler(IQueryScheduler *queryScheduler)
 
     defaultTablespaceComboBox->setQueryScheduler(this->queryScheduler);
     temporaryTablespaceComboBox->setQueryScheduler(this->queryScheduler);
+    profileComboBox->loadItems(this->queryScheduler, "get_profile_list");
 }
 
 void UserCreatorGeneralInfo::setUserInfo(UserInfo *userInfo)
@@ -154,5 +155,13 @@ void UserCreatorGeneralInfo::alterQuerySucceeded(const QString &taskName)
 {
     if(taskName=="alter_user"){
         objectCreator->getOriginalUserInfo()->generalInfo=getUserGeneralInfo();
+
+        if(passwordExpiredCheckBox->isEnabledTo(this) && passwordExpiredCheckBox->isChecked()){
+            passwordExpiredCheckBox->setEnabled(false);
+        }
+
+        if(enableEditionsCheckBox->isEnabledTo(this) && enableEditionsCheckBox->isChecked()){
+            enableEditionsCheckBox->setEnabled(false);
+        }
     }
 }

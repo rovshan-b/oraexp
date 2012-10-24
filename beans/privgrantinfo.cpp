@@ -50,6 +50,9 @@ QList<NameQueryPair> PrivGrantInfo::generateDiffDdl(const PrivGrantInfo &other, 
 
         ddl=generateDdl(username);
         result.append(qMakePair(QString("%1_create_priv_grant_after_dropping_%2").arg(taskNamePrefix, QString::number(grantId)), ddl));
+    }else if(isGrantable==true && other.isGrantable==false){
+        ddl=generateDdl(username);
+        result.append(qMakePair(QString("%1_make_grantable_%2").arg(taskNamePrefix, QString::number(grantId)), ddl));
     }
 
     return result;
@@ -97,7 +100,7 @@ QStringList PrivGrantInfo::getDefaults(const QList<PrivGrantInfo> *list)
 
 bool PrivGrantInfo::needsRecreation(const PrivGrantInfo &other) const
 {
-    return (this->isGrantable==true && other.isGrantable==false);
+    return (this->isGrantable==false && other.isGrantable==true);
 }
 
 PrivGrantInfo PrivGrantInfo::fromFetchResult(const FetchResult &result)

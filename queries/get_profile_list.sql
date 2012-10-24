@@ -1,0 +1,1 @@
+select distinct profile from sys.dba_profiles order by profile

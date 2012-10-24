@@ -68,9 +68,9 @@ public:
                                 const char *slotName=0,
                                 QKeySequence shortcut = QKeySequence());
 
-    template <class T> static bool validate(T *obj, QWidget *window)
+    template <class T> static bool validate(T *obj, bool editMode, QWidget *window)
     {
-        QStringList msgs=obj->validate();
+        QStringList msgs=obj->validate(editMode);
         if(msgs.size()>0){
             QString msg=QObject::tr("Following validation error(s) occured:\n");
             foreach(const QString &m, msgs){

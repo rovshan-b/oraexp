@@ -108,7 +108,7 @@ QList<NameQueryPair> DbLinkInfo::generateDiffDdl(const DbLinkInfo &other, bool c
     return result;
 }
 
-QStringList DbLinkInfo::validate() const
+QStringList DbLinkInfo::validate(bool) const
 {
     QStringList msgs;
 

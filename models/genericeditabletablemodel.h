@@ -52,7 +52,7 @@ public:
 
     int getFrozenRow() const {return this->frozenRowIx;}
     bool isRowFrozen(int rowIx) const {return rowIx<=frozenRowIx;}
-    void freezeRow(int row) {this->frozenRowIx=row;}
+    void freezeRow(int row, bool moveDisabledRowIndexes=false);
 
     virtual void addCopyOf(int row);
 

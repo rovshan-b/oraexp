@@ -8,6 +8,10 @@ UserInfo::UserInfo()
 
 QString UserInfo::generateDdl() const
 {
+    if(generalInfo.username.isEmpty()){
+        return "--Definition is not complete. Username must be entered.";
+    }
+
     QString ddl;
 
     ddl.append(generalInfo.generateDdl()).append(";");
@@ -67,4 +71,21 @@ QString UserInfo::generateDefaultRolesDdl(const QStringList &defaultRoles) const
     QString ddl;
     ddl.append("ALTER USER \"").append(generalInfo.username).append("\" DEFAULT ROLE ").append(joinEnclosed(defaultRoles, ",", "\""));
     return ddl;
+}
+
+QStringList UserInfo::validate(bool editMode) const
+{
+    QStringList msgs;
+
+    if(generalInfo.username.isEmpty()){
+        msgs.append(QObject::tr("Username must be entered"));
+    }
+
+    if(!editMode &&
+            generalInfo.identifiedBy==UserGeneralInfo::Password &&
+            generalInfo.password.isEmpty()){
+        msgs.append(QObject::tr("Password must be entered"));
+    }
+
+    return msgs;
 }

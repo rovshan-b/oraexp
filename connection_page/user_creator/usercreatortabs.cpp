@@ -5,6 +5,7 @@
 #include "beans/userinfo.h"
 #include "beans/dbobjectinfo.h"
 #include "metadata_loaders/user/userinfoloader.h"
+#include "util/widgethelper.h"
 #include <QtGui>
 
 UserCreatorTabs::UserCreatorTabs(const QString &objectName, QWidget *parent) :
@@ -62,11 +63,17 @@ QList<QueryListItem> UserCreatorTabs::generateAlterDdl()
     return info.generateDiffDdl(*originalUserInfo, requesters);
 }
 
+bool UserCreatorTabs::beforeCreate()
+{
+    UserInfo info=getUserInfo();
+    return WidgetHelper::validate(&info, editMode, this->window());
+}
+
 bool UserCreatorTabs::beforeAlter()
 {
     grantsTab->removeIncorrectRows();
 
-    return true;
+    return beforeCreate();
 }
 
 QString UserCreatorTabs::getUserName() const

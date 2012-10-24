@@ -393,6 +393,17 @@ void GenericEditableTableModel::markRowAsDeleted(int rowIx, bool deleted)
     }
 }
 
+void GenericEditableTableModel::freezeRow(int row, bool moveDisabledRowIndexes)
+{
+    this->frozenRowIx=row;
+
+    if(moveDisabledRowIndexes){
+        for(int i=0; i<disabledColumns.size(); ++i){
+            disabledColumns[i]=row;
+        }
+    }
+}
+
 bool GenericEditableTableModel::isRowDeleted(int rowIx) const
 {
     if(rowIx<0 || rowIx>=rowCount()){

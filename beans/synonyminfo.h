@@ -24,7 +24,7 @@ public:
     QString generateDdl(bool replace) const;
     QList<NameQueryPair> generateDiffDdl(const SynonymInfo &other) const;
     QString generateDropDdl() const;
-    QStringList validate() const;
+    QStringList validate(bool) const;
     static SynonymInfo fromFetchResult(const FetchResult &result);
 
     bool needsRecreation(const SynonymInfo &other) const;

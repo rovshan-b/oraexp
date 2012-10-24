@@ -25,6 +25,7 @@ public:
 
     UserInfo *getOriginalUserInfo() const {return this->originalUserInfo;}
 
+    bool beforeCreate();
     bool beforeAlter();
 
     QString getUserName() const;

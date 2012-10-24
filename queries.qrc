@@ -99,5 +99,6 @@
         <file>queries/get_user_roles.sql</file>
         <file>queries/get_user_sys_privs.sql</file>
         <file>queries/get_user_general_info_for_editing.sql</file>
+        <file>queries/get_profile_list.sql</file>
     </qresource>
 </RCC>

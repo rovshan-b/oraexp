@@ -31,7 +31,7 @@ public:
     QString generateDropDdl() const;
     QList<NameQueryPair> generateDiffDdl(const DbLinkInfo &other, bool canAlter) const;
     bool needsRecreation(const DbLinkInfo &other, bool canAlter) const;
-    QStringList validate() const;
+    QStringList validate(bool editMode) const;
     static DbLinkInfo fromFetchResult(const FetchResult &result);
 };
 

@@ -7,29 +7,38 @@
 #include <QtGui>
 
 UserCreatorGrants::UserCreatorGrants(UserCreatorTabs *userCreator, bool editMode, QWidget *parent) :
-    UserCreatorTab(userCreator, editMode, parent)
+    UserCreatorTab(userCreator, editMode, parent),
+    simpleModeRadio(0),
+    advancedModeRadio(0),
+    simpleLayout(0)
 {
     QVBoxLayout *mainLayout=new QVBoxLayout();
 
-    QHBoxLayout *modeSelectionLayout=new QHBoxLayout();
-    simpleModeRadio=new QRadioButton(tr("&Simple mode"));
-    simpleModeRadio->setChecked(true);
-    modeSelectionLayout->addWidget(simpleModeRadio);
-    advancedModeRadio=new QRadioButton(tr("&Advanced mode"));
-    modeSelectionLayout->addWidget(advancedModeRadio);
+    if(!editMode){
+        QHBoxLayout *modeSelectionLayout=new QHBoxLayout();
+        simpleModeRadio=new QRadioButton(tr("&Simple mode"));
+        simpleModeRadio->setChecked(true);
+        modeSelectionLayout->addWidget(simpleModeRadio);
+        advancedModeRadio=new QRadioButton(tr("&Advanced mode"));
+        modeSelectionLayout->addWidget(advancedModeRadio);
 
-    mainLayout->addLayout(modeSelectionLayout);
-    mainLayout->setAlignment(modeSelectionLayout, Qt::AlignTop|Qt::AlignLeft);
+        mainLayout->addLayout(modeSelectionLayout);
+        mainLayout->setAlignment(modeSelectionLayout, Qt::AlignTop|Qt::AlignLeft);
+    }
 
     tab = new QStackedWidget();
 
-    createSimpleLayout();
+    if(!editMode){
+        createSimpleLayout();
+    }
     createAdvancedLayout();
 
     mainLayout->addWidget(tab);
     setLayout(mainLayout);
 
-    connect(simpleModeRadio, SIGNAL(toggled(bool)), this, SLOT(switchMode(bool)));
+    if(!editMode){
+        connect(simpleModeRadio, SIGNAL(toggled(bool)), this, SLOT(switchMode(bool)));
+    }
 }
 
 void UserCreatorGrants::setQueryScheduler(IQueryScheduler *queryScheduler)
@@ -42,7 +51,7 @@ void UserCreatorGrants::setQueryScheduler(IQueryScheduler *queryScheduler)
 void UserCreatorGrants::setUserInfo(UserInfo *userInfo)
 {
     advancedLayout->setUserInfo(userInfo);
-    syncSimpleLayout();
+    //syncSimpleLayout();
 }
 
 QList<PrivGrantInfo> UserCreatorGrants::getUserRoles() const

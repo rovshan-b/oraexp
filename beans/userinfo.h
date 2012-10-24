@@ -24,7 +24,7 @@ public:
     QString generateDropDdl() const;
     QList<QueryListItem> generateDiffDdl(const UserInfo &other, const QHash<QString, QObject *> &requesters) const;
     QString generateDefaultRolesDdl(const QStringList &defaultRoles) const;
-
+    QStringList validate(bool editMode) const;
 };
 
 Q_DECLARE_METATYPE(UserInfo)
