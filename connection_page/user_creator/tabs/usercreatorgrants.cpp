@@ -38,6 +38,14 @@ UserCreatorGrants::UserCreatorGrants(UserCreatorTabs *userCreator, bool editMode
 
     if(!editMode){
         connect(simpleModeRadio, SIGNAL(toggled(bool)), this, SLOT(switchMode(bool)));
+
+        foreach(QCheckBox *chk, simpleLayout->getRoleCheckBoxes()){
+            connect(chk, SIGNAL(stateChanged(int)), this, SLOT(syncAdvancedLayout()));
+        }
+
+        foreach(QCheckBox *chk, simpleLayout->getPrivCheckBoxes()){
+            connect(chk, SIGNAL(stateChanged(int)), this, SLOT(syncAdvancedLayout()));
+        }
     }
 }
 
@@ -62,6 +70,11 @@ QList<PrivGrantInfo> UserCreatorGrants::getUserRoles() const
 QList<PrivGrantInfo> UserCreatorGrants::getUserSysPrivs() const
 {
     return advancedLayout->getUserSysPrivs();
+}
+
+QList<TablespaceQuotaInfo> UserCreatorGrants::getUserQuotas() const
+{
+    return advancedLayout->getUserQuotas();
 }
 
 void UserCreatorGrants::removeIncorrectRows()

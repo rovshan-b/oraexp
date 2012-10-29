@@ -16,6 +16,7 @@ public:
 
     QString text() const;
     void setText(const QString &text);
+    void parseText(const QString &text);
 
     OraExp::ExtentUnit unit() const;
     void setUnit(OraExp::ExtentUnit unit);
@@ -23,9 +24,18 @@ public:
     bool isUnlimited() const;
     void setUnlimited(bool unlimited);
 
+    bool isEmpty() const;
+
     QLineEdit *lineEdit() const;
     QComboBox *editorComboBox() const;
     //QCheckBox *checkBox() const;
+
+    void clear();
+
+    void setDelegateMode();
+
+    QString unlimitedText() const {return tr("Unlimited");}
+    QString getExtentSizeClause() const;
 
 signals:
     void changed();

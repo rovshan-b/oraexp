@@ -4,6 +4,7 @@
 #include "dbobjectinfo.h"
 #include "usergeneralinfo.h"
 #include "privgrantinfo.h"
+#include "tablespacequotainfo.h"
 #include "beans/querylistitem.h"
 
 #include <QString>
@@ -19,6 +20,7 @@ public:
     UserGeneralInfo generalInfo;
     QList<PrivGrantInfo> roles;
     QList<PrivGrantInfo> sysPrivs;
+    QList<TablespaceQuotaInfo> quotas;
 
     QString generateDdl() const;
     QString generateDropDdl() const;

@@ -5,7 +5,8 @@ UserInfoLoader::UserInfoLoader(IQueryScheduler *queryScheduler, const QString &u
     userInfo(0),
     generalInfoLoader(this),
     roleInfoLoader("get_user_roles", this),
-    sysPrivInfoLoader("get_user_sys_privs", this)
+    sysPrivInfoLoader("get_user_sys_privs", this),
+    quotaInfoLoader(this)
 {
     connect(&generalInfoLoader, SIGNAL(infoReady(UserGeneralInfo)), this, SLOT(userGeneralInfoReady(UserGeneralInfo)));
     connect(&generalInfoLoader, SIGNAL(loadError(QString,OciException)), this, SLOT(subInfoLoadError(QString,OciException)));
@@ -15,6 +16,9 @@ UserInfoLoader::UserInfoLoader(IQueryScheduler *queryScheduler, const QString &u
 
     connect(&sysPrivInfoLoader, SIGNAL(infoReady(QList<PrivGrantInfo>)), this, SLOT(userSysPrivInfoReady(QList<PrivGrantInfo>)));
     connect(&sysPrivInfoLoader, SIGNAL(loadError(QString,OciException)), this, SLOT(subInfoLoadError(QString,OciException)));
+
+    connect(&quotaInfoLoader, SIGNAL(infoReady(QList<TablespaceQuotaInfo>)), this, SLOT(tablespaceQuotaInfoReady(QList<TablespaceQuotaInfo>)));
+    connect(&quotaInfoLoader, SIGNAL(loadError(QString,OciException)), this, SLOT(subInfoLoadError(QString,OciException)));
 }
 
 UserInfoLoader::~UserInfoLoader()
@@ -30,6 +34,7 @@ void UserInfoLoader::loadObjectInfo()
     partsToLoad.enqueue(UserInfoPartGeneralInfo);
     partsToLoad.enqueue(UserInfoPartRoleInfo);
     partsToLoad.enqueue(UserInfoPartSysPrivInfo);
+    partsToLoad.enqueue(UserInfoPartTablespaceQuotaInfo);
 
     loadUserPartInfo();
 }
@@ -51,6 +56,9 @@ void UserInfoLoader::loadUserPartInfo()
         break;
     case UserInfoPartSysPrivInfo:
         sysPrivInfoLoader.loadInfo();
+        break;
+    case UserInfoPartTablespaceQuotaInfo:
+        quotaInfoLoader.loadInfo();
         break;
     default:
         qDebug("Unsupported UserInfoPart");
@@ -78,6 +86,14 @@ void UserInfoLoader::userSysPrivInfoReady(const QList<PrivGrantInfo> &sysPrivs)
 {
     qDebug("user sys priv info loaded");
     userInfo->sysPrivs=sysPrivs;
+
+    loadUserPartInfo();
+}
+
+void UserInfoLoader::tablespaceQuotaInfoReady(const QList<TablespaceQuotaInfo> &quotas)
+{
+    qDebug("user tablespace quota info loaded");
+    userInfo->quotas=quotas;
 
     loadUserPartInfo();
 }

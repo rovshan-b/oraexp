@@ -13,6 +13,7 @@ namespace OraExp
 
     enum ExtentUnit {
         Bytes,
+        KB,
         MB,
         GB
     };

@@ -28,6 +28,9 @@ public:
     static QString getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeType);
     static QString getDbObjectIconNameByParentNodeType(DbTreeModel::DbTreeNodeType nodeType);
 
+    static QString getSizeUnitText(OraExp::ExtentUnit unit);
+    static OraExp::ExtentUnit getSizeUnitFromText(const QString &unit);
+
     static bool isLob(const QString &dataType);
     static QStringList getComparableDataTypes();
 
@@ -48,6 +51,9 @@ public:
     static DbTreeModel::DbTreeNodeType getBodyType(DbTreeModel::DbTreeNodeType itemType);
 
     static bool isSpecType(DbTreeModel::DbTreeNodeType itemType);
+
+    static QString getExtentSizeClause(bool unlimited, uint size, OraExp::ExtentUnit sizeUnit);
+    static void parseExtentSize(const QString &textToParse, bool *unlimited, qulonglong *quota, OraExp::ExtentUnit *units);
 };
 
 #endif // DBUTIL_H

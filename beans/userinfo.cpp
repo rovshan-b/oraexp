@@ -35,6 +35,11 @@ QString UserInfo::generateDdl() const
         ddl.append("\n").append(priv.generateDdl(generalInfo.username)).append(";");
     }
 
+    QString quotasDdl=TablespaceQuotaInfo::generateListDdl(&this->quotas, generalInfo.username);
+    if(!quotasDdl.isEmpty()){
+        ddl.append("\n").append(quotasDdl);
+    }
+
     return ddl;
 }
 
@@ -62,6 +67,9 @@ QList<QueryListItem> UserInfo::generateDiffDdl(const UserInfo &other, const QHas
 
     results.append(QueryListItem(requesters.value("grants"),
                                  PrivGrantInfo::generateListDiffDdl(&sysPrivs, &other.sysPrivs, generalInfo.username, "sys_priv")));
+
+    results.append(QueryListItem(requesters.value("quotas"),
+                                 TablespaceQuotaInfo::generateListDiffDdl(&quotas, &other.quotas, generalInfo.username)));
 
     return results;
 }

@@ -351,7 +351,11 @@ SOURCES += main.cpp\
     beans/privgrantinfo.cpp \
     metadata_loaders/user/userinfoloader.cpp \
     metadata_loaders/user/usergeneralinfoloader.cpp \
-    metadata_loaders/user/privgrantinfoloader.cpp
+    metadata_loaders/user/privgrantinfoloader.cpp \
+    models/tablespacequotasmodel.cpp \
+    beans/tablespacequotainfo.cpp \
+    delegates/extentsizeeditordelegate.cpp \
+    metadata_loaders/user/tablespacequotainfoloader.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -703,7 +707,11 @@ HEADERS  += mainwindow.h \
     beans/privgrantinfo.h \
     metadata_loaders/user/userinfoloader.h \
     metadata_loaders/user/usergeneralinfoloader.h \
-    metadata_loaders/user/privgrantinfoloader.h
+    metadata_loaders/user/privgrantinfoloader.h \
+    models/tablespacequotasmodel.h \
+    beans/tablespacequotainfo.h \
+    delegates/extentsizeeditordelegate.h \
+    metadata_loaders/user/tablespacequotainfoloader.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

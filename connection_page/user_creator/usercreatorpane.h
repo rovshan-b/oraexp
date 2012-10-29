@@ -16,8 +16,8 @@ public:
     virtual QString generateCreateDdl();
     virtual QList< QueryListItem > generateAlterDdl();
 
-    virtual bool beforeCreate();
-    virtual bool beforeAlter();
+    virtual bool beforeCreate() const;
+    virtual bool beforeAlter() const;
 
     virtual QString getSchemaName() const;
     virtual QString getObjectName() const;

@@ -40,9 +40,6 @@ public:
     QString generateDiffDdl(const StorageParams &other, bool configureForIndex=false) const;
 
     static StorageParams fromFetchResult(const FetchResult &result);
-
-private:
-    QString getSizeUnitText(OraExp::ExtentUnit unit) const;
 };
 
 Q_DECLARE_METATYPE(StorageParams)

@@ -59,17 +59,18 @@ QList<QueryListItem> UserCreatorTabs::generateAlterDdl()
     QHash<QString,QObject*> requesters;
     requesters["general_info"]=generalInfoTab;
     requesters["grants"]=grantsTab;
+    requesters["quotas"]=grantsTab;
 
     return info.generateDiffDdl(*originalUserInfo, requesters);
 }
 
-bool UserCreatorTabs::beforeCreate()
+bool UserCreatorTabs::beforeCreate() const
 {
     UserInfo info=getUserInfo();
     return WidgetHelper::validate(&info, editMode, this->window());
 }
 
-bool UserCreatorTabs::beforeAlter()
+bool UserCreatorTabs::beforeAlter() const
 {
     grantsTab->removeIncorrectRows();
 
@@ -88,6 +89,7 @@ UserInfo UserCreatorTabs::getUserInfo() const
     info.generalInfo=generalInfoTab->getUserGeneralInfo();
     info.roles=grantsTab->getUserRoles();
     info.sysPrivs=grantsTab->getUserSysPrivs();
+    info.quotas=grantsTab->getUserQuotas();
 
     return info;
 }

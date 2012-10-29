@@ -1,5 +1,6 @@
 #include "storageparams.h"
 #include "constants.h"
+#include "util/dbutil.h"
 
 StorageParams::StorageParams() :
     pctFree(-1), pctUsed(-1),
@@ -74,12 +75,12 @@ QString StorageParams::generateDdl(bool configureForLob, bool tablespaceOnly) co
 
         if(initialExtent>0){
             ddl.append("INITIAL ").append(QString::number(initialExtent)).
-                append(getSizeUnitText(initialExtentUnit)).append(" ");
+                append(DbUtil::getSizeUnitText(initialExtentUnit)).append(" ");
         }
 
         if(nextExtent>0){
             ddl.append("NEXT ").append(QString::number(nextExtent)).
-                append(getSizeUnitText(nextExtentUnit)).append(" ");
+                append(DbUtil::getSizeUnitText(nextExtentUnit)).append(" ");
         }
 
         if(pctIncrease>0){
@@ -97,7 +98,7 @@ QString StorageParams::generateDdl(bool configureForLob, bool tablespaceOnly) co
         if(maxSize>0 || unlimitedMaxSize){
             ddl.append("MAXSIZE ").append(unlimitedMaxSize ?
                                               "UNLIMITED" :
-                                              QString::number(maxSize).append(getSizeUnitText(maxSizeUnit))).append(" ");
+                                              QString::number(maxSize).append(DbUtil::getSizeUnitText(maxSizeUnit))).append(" ");
         }
 
         if(freeLists>0){
@@ -144,7 +145,7 @@ QString StorageParams::generateDiffDdl(const StorageParams &other, bool configur
             this->unlimitedMaxSize!=other.unlimitedMaxSize){
         storageDdl.append(" MAXSIZE ").append(unlimitedMaxSize ?
                                           "UNLIMITED" :
-                                          QString::number(maxSize).append(getSizeUnitText(maxSizeUnit)));
+                                          QString::number(maxSize).append(DbUtil::getSizeUnitText(maxSizeUnit)));
     }
 
     if(freeLists!=other.freeLists && freeLists!=-1){
@@ -161,24 +162,6 @@ QString StorageParams::generateDiffDdl(const StorageParams &other, bool configur
     }
 
     return ddl;
-}
-
-QString StorageParams::getSizeUnitText(OraExp::ExtentUnit unit) const
-{
-    QString res;
-    switch(unit){
-      case OraExp::Bytes:
-        res="";
-        break;
-      case OraExp::MB:
-        res="M";
-        break;
-    default:
-        res="G";
-        break;
-    }
-
-    return res;
 }
 
 StorageParams StorageParams::fromFetchResult(const FetchResult &result)

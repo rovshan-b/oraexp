@@ -100,5 +100,6 @@
         <file>queries/get_user_sys_privs.sql</file>
         <file>queries/get_user_general_info_for_editing.sql</file>
         <file>queries/get_profile_list.sql</file>
+        <file>queries/get_user_tablespace_quotas_as_dba.sql</file>
     </qresource>
 </RCC>

@@ -3,8 +3,10 @@
 #include "widgets/datatableandtoolbarwidget.h"
 #include "models/rolegrantsmodel.h"
 #include "models/sysprivgrantsmodel.h"
+#include "models/tablespacequotasmodel.h"
 #include "delegates/dbitemlistdelegate.h"
 #include "delegates/booleandelegate.h"
+#include "delegates/extentsizeeditordelegate.h"
 #include "util/itemcreatorhelper.h"
 #include "util/widgethelper.h"
 #include "beans/userinfo.h"
@@ -41,12 +43,14 @@ void UserCreatorGrantsAdvancedLayout::setQueryScheduler(IQueryScheduler *querySc
 
     customizeRolesTable(editMode);
     customizeSysPrivTable(editMode);
+    customizeQuotasTable(editMode);
 }
 
 void UserCreatorGrantsAdvancedLayout::setUserInfo(UserInfo *userInfo)
 {
     originalRoleList=&userInfo->roles;
     originalSysPrivList=&userInfo->sysPrivs;
+    originalQuotaList=&userInfo->quotas;
 
     if(originalRoleList->size()>0){
         populateTableWithRoles();
@@ -54,6 +58,10 @@ void UserCreatorGrantsAdvancedLayout::setUserInfo(UserInfo *userInfo)
 
     if(originalSysPrivList->size()>0){
         populateTableWithSysPrivs();
+    }
+
+    if(originalQuotaList->size()>0){
+        populateTableWithQuotas();
     }
 }
 
@@ -100,6 +108,27 @@ QList<PrivGrantInfo> UserCreatorGrantsAdvancedLayout::getUserSysPrivs() const
     for(int i=0; i<rowCount; ++i){
         info=model->itemInfoFromModelRow(i);
         if(info.grantId==-1){
+            continue;
+        }
+
+        results.append(info);
+    }
+
+    return results;
+}
+
+QList<TablespaceQuotaInfo> UserCreatorGrantsAdvancedLayout::getUserQuotas() const
+{
+    QList<TablespaceQuotaInfo> results;
+
+    TablespaceQuotasModel *model=static_cast<TablespaceQuotasModel*>(quotasTable->table()->model());
+    int rowCount=model->rowCount();
+
+    TablespaceQuotaInfo info;
+
+    for(int i=0; i<rowCount; ++i){
+        info=model->itemInfoFromModelRow(i);
+        if(info.quotaId==-1){
             continue;
         }
 
@@ -181,6 +210,39 @@ void UserCreatorGrantsAdvancedLayout::customizeSysPrivTable(bool editMode)
     connect(tableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(ddlChanged()));
 }
 
+void UserCreatorGrantsAdvancedLayout::customizeQuotasTable(bool editMode)
+{
+    DataTable *table=quotasTable->table();
+
+    QStringList columnNames;
+    columnNames.append(tr("Tablespace"));
+    columnNames.append(tr("Quota"));
+
+    TablespaceQuotasModel *tableModel=new TablespaceQuotasModel(columnNames, this);
+    quotasTable->setModel(tableModel);
+
+    table->horizontalHeader()->setDefaultSectionSize(250);
+    //table->setColumnWidth(TablespaceQuotasModel::TablespaceName, 250);
+    table->setEditTriggers(QAbstractItemView::AllEditTriggers);
+
+    DbItemListDelegate *tablespaceNameDelegate=new DbItemListDelegate("", this->queryScheduler,
+                                                                      "get_tablespace_list", "tablespace",
+                                                                      this, true);
+    table->setItemDelegateForColumn(TablespaceQuotasModel::TablespaceName, tablespaceNameDelegate);
+
+    ExtentSizeEditorDelegate *quotaDelegate=new ExtentSizeEditorDelegate(this);
+    table->setItemDelegateForColumn(TablespaceQuotasModel::Quota, quotaDelegate);
+
+    if(editMode){
+        connect(tableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(quotasTableDataChanged(QModelIndex,QModelIndex)));
+
+        tableModel->setColumnEnabled(0, false);
+
+    }
+
+    connect(tableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(ddlChanged()));
+}
+
 void UserCreatorGrantsAdvancedLayout::populateTableWithRoles()
 {
     Q_ASSERT(originalRoleList);
@@ -240,6 +302,35 @@ void UserCreatorGrantsAdvancedLayout::populateTableWithSysPrivs()
     model->freezeRow(lastRowIx, true);
 }
 
+void UserCreatorGrantsAdvancedLayout::populateTableWithQuotas()
+{
+    Q_ASSERT(originalQuotaList);
+
+    DataTable *table=quotasTable->table();
+
+    table->setUpdatesEnabled(false);
+
+    int consCount=originalQuotaList->count();
+
+    TablespaceQuotasModel *model=static_cast<TablespaceQuotasModel*>(table->model());
+    model->ensureRowCount(consCount);
+
+    TablespaceQuotaInfo info;
+    for(int i=0; i<originalQuotaList->count(); ++i){
+        info = originalQuotaList->at(i);
+
+        model->setData(model->index(i, TablespaceQuotasModel::TablespaceName), info.tablespaceName);
+        model->setData(model->index(i, TablespaceQuotasModel::Quota), info.toString());
+    }
+
+    table->resizeColumnsAccountingForEditor();
+
+    table->setUpdatesEnabled(true);
+
+    int lastRowIx=model->rowCount()-1;
+    model->freezeRow(lastRowIx, true);
+}
+
 void UserCreatorGrantsAdvancedLayout::rolesTableDataChanged(const QModelIndex &from, const QModelIndex &to)
 {
     RoleGrantsModel *model=static_cast<RoleGrantsModel*>(rolesTable->table()->model());
@@ -252,12 +343,20 @@ void UserCreatorGrantsAdvancedLayout::sysPrivTableDataChanged(const QModelIndex 
     ItemCreatorHelper::handleTableDataChanged(model, originalSysPrivList, from, to);
 }
 
+void UserCreatorGrantsAdvancedLayout::quotasTableDataChanged(const QModelIndex &from, const QModelIndex &to)
+{
+    TablespaceQuotasModel *model=static_cast<TablespaceQuotasModel*>(quotasTable->table()->model());
+    ItemCreatorHelper::handleTableDataChanged(model, originalQuotaList, from, to);
+}
+
 void UserCreatorGrantsAdvancedLayout::alterQuerySucceeded(const QString &taskName)
 {
     if(taskName.startsWith("role")){
         roleAlterQuerySucceeded(taskName);
     }else if(taskName.startsWith("sys_priv")){
         sysPrivAlterQuerySucceeded(taskName);
+    }else if(taskName.startsWith("quota")){
+        quotaAlterQuerySucceeded(taskName);
     }
 }
 
@@ -267,6 +366,8 @@ void UserCreatorGrantsAdvancedLayout::alterQueryError(const QString &taskName)
         roleAlterQueryError(taskName);
     }else if(taskName.startsWith("sys_priv")){
         sysPrivAlterQueryError(taskName);
+    }else if(taskName.startsWith("quota")){
+        quotaAlterQueryError(taskName);
     }
 }
 
@@ -274,6 +375,7 @@ void UserCreatorGrantsAdvancedLayout::removeIncorrectRows()
 {
     WidgetHelper::removeIncorrectRows(rolesTable->table());
     WidgetHelper::removeIncorrectRows(sysPrivTable->table());
+    WidgetHelper::removeIncorrectRows(quotasTable->table());
 }
 
 void UserCreatorGrantsAdvancedLayout::roleAlterQuerySucceeded(const QString &taskName)
@@ -388,4 +490,42 @@ void UserCreatorGrantsAdvancedLayout::sysPrivAlterQueryError(const QString &task
     }
 
     ItemCreatorHelper::moveRowAfterCreationError(sysPrivTable->table(), taskName, originalSysPrivList);
+}
+
+void UserCreatorGrantsAdvancedLayout::quotaAlterQuerySucceeded(const QString &taskName)
+{
+    Q_ASSERT(originalQuotaList);
+
+    int rowNum=numberAfterLastUnderscore(taskName);
+    Q_ASSERT(rowNum>0);
+
+    TablespaceQuotasModel *model=static_cast<TablespaceQuotasModel*>(quotasTable->table()->model());
+    int rowIx=rowNum-1;
+
+    if(!taskName.startsWith("quota_add_")){
+        Q_ASSERT(originalQuotaList->size()>rowIx);
+    }
+
+    TablespaceQuotaInfo modifiedQuotaInfo=model->itemInfoFromModelRow(rowIx);
+
+    if(taskName.startsWith("quota_add_tablespace_quota_")){
+
+        originalQuotaList->append(modifiedQuotaInfo);
+        model->freezeRow(rowIx, true);
+
+    }else if(taskName.startsWith("quota_drop_tablespace_quota_")){
+
+        (*originalQuotaList)[rowIx].dropped=true;
+
+    }else if(taskName.startsWith("quota_alter_tablespace_quota_")){
+
+        (*originalQuotaList)[rowIx]=modifiedQuotaInfo;
+
+    }
+
+    ItemCreatorHelper::markDataChanges(model, rowIx, originalQuotaList);
+}
+
+void UserCreatorGrantsAdvancedLayout::quotaAlterQueryError(const QString &)
+{
 }

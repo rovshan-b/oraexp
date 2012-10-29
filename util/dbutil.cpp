@@ -315,6 +315,44 @@ QString DbUtil::getDbObjectIconNameByParentNodeType(DbTreeModel::DbTreeNodeType 
     return result;
 }
 
+QString DbUtil::getSizeUnitText(OraExp::ExtentUnit unit)
+{
+    QString res;
+    switch(unit){
+    case OraExp::Bytes:
+        res="";
+        break;
+    case OraExp::KB:
+        res="K";
+        break;
+    case OraExp::MB:
+        res="M";
+        break;
+    default:
+        res="G";
+        break;
+    }
+
+    return res;
+}
+
+OraExp::ExtentUnit DbUtil::getSizeUnitFromText(const QString &unit)
+{
+    OraExp::ExtentUnit res;
+
+    if(unit.isEmpty() || unit=="B"){
+        res=OraExp::Bytes;
+    }else if(unit=="K"){
+        res=OraExp::KB;
+    }else if(unit=="M"){
+        res=OraExp::MB;
+    }else{ //unit=="G"
+        res=OraExp::GB;
+    }
+
+    return res;
+}
+
 bool DbUtil::isLob(const QString &dataType)
 {
     if(dataType.compare("BLOB", Qt::CaseInsensitive) == 0 ||
@@ -503,5 +541,39 @@ bool DbUtil::isSpecType(DbTreeModel::DbTreeNodeType itemType)
     default:
         return false;
         break;
+    }
+}
+
+QString DbUtil::getExtentSizeClause(bool unlimited, uint size, OraExp::ExtentUnit sizeUnit)
+{
+    return (unlimited ? "UNLIMITED" : QString("%1%2").arg(QString::number(size), DbUtil::getSizeUnitText(sizeUnit)));
+}
+
+void DbUtil::parseExtentSize(const QString &textToParse, bool *unlimited, qulonglong *quota, OraExp::ExtentUnit *units)
+{
+    if(textToParse.trimmed().isEmpty()){
+        *unlimited=false;
+        *quota=0;
+        *units=OraExp::Bytes;
+        return;
+    }
+
+    if(textToParse.trimmed().compare("UNLIMITED", Qt::CaseInsensitive)==0){
+        *unlimited=true;
+        return;
+    }
+
+    QRegExp sizeRegExp("(\\d+)(\\w?)");
+    bool isExactMatch=sizeRegExp.exactMatch(textToParse);
+    Q_ASSERT(isExactMatch);
+    QStringList matches=sizeRegExp.capturedTexts();
+    Q_ASSERT(matches.size()==2 || matches.size()==3);
+
+    *quota=matches.at(1).toULongLong();
+
+    if(matches.size()==3){
+        *units=DbUtil::getSizeUnitFromText(matches.at(2));
+    }else{
+        *units=OraExp::Bytes;
     }
 }

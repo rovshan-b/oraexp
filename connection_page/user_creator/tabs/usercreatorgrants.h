@@ -3,6 +3,7 @@
 
 #include "../usercreatortab.h"
 #include "beans/privgrantinfo.h"
+#include "beans/tablespacequotainfo.h"
 
 class QGroupBox;
 class QStackedWidget;
@@ -26,6 +27,7 @@ public:
 
     QList<PrivGrantInfo> getUserRoles() const;
     QList<PrivGrantInfo> getUserSysPrivs() const;
+    QList<TablespaceQuotaInfo> getUserQuotas() const;
     
     void removeIncorrectRows();
 
@@ -37,12 +39,13 @@ protected slots:
     void alterQuerySucceeded(const QString &taskName);
     void alterQueryError(const QString &taskName);
     
+private slots:
+    void syncSimpleLayout();
+    void syncAdvancedLayout();
+
 private:
     void createSimpleLayout();
     void createAdvancedLayout();
-
-    void syncSimpleLayout();
-    void syncAdvancedLayout();
 
     void syncTable(QList<QCheckBox*> checkBoxes, DataTableAndToolBarWidget *table);
     void syncCheckBoxes(QList<QCheckBox*> checkBoxes, DataTableAndToolBarWidget *table);
