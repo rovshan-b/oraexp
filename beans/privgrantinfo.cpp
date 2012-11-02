@@ -2,7 +2,7 @@
 #include <QStringList>
 
 PrivGrantInfo::PrivGrantInfo() :
-    grantId(-1),
+    objId(-1),
     isGrantable(false),
     isDefault(false),
     markedForDeletion(false),
@@ -41,18 +41,18 @@ QList<NameQueryPair> PrivGrantInfo::generateDiffDdl(const PrivGrantInfo &other, 
 
     if(markedForDeletion && !other.dropped){
         ddl=other.generateDropDdl(username);
-        result.append(qMakePair(QString("%1_drop_priv_grant_%2").arg(taskNamePrefix, QString::number(grantId)), ddl));
+        result.append(qMakePair(QString("%1_drop_priv_grant_%2").arg(taskNamePrefix, QString::number(objId)), ddl));
 
         return result;
     }else if(needsRecreation(other)){
         ddl=other.generateDropDdl(username);
-        result.append(qMakePair(QString("%1_drop_priv_grant_for_recreation_%2").arg(taskNamePrefix, QString::number(grantId)), ddl));
+        result.append(qMakePair(QString("%1_drop_priv_grant_for_recreation_%2").arg(taskNamePrefix, QString::number(objId)), ddl));
 
         ddl=generateDdl(username);
-        result.append(qMakePair(QString("%1_create_priv_grant_after_dropping_%2").arg(taskNamePrefix, QString::number(grantId)), ddl));
+        result.append(qMakePair(QString("%1_create_priv_grant_after_dropping_%2").arg(taskNamePrefix, QString::number(objId)), ddl));
     }else if(isGrantable==true && other.isGrantable==false){
         ddl=generateDdl(username);
-        result.append(qMakePair(QString("%1_make_grantable_%2").arg(taskNamePrefix, QString::number(grantId)), ddl));
+        result.append(qMakePair(QString("%1_make_grantable_%2").arg(taskNamePrefix, QString::number(objId)), ddl));
     }
 
     return result;

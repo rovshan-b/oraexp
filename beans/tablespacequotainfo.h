@@ -13,7 +13,7 @@ public:
 
     bool operator==(const TablespaceQuotaInfo &other) const;
 
-    int quotaId;
+    int objId;
     QString tablespaceName;
     qulonglong quota;
     OraExp::ExtentUnit quotaUnit;
@@ -36,7 +36,7 @@ public:
 
     static TablespaceQuotaInfo fromFetchResult(const FetchResult &result);
 
-    QString toString() const;
+    //QString toString() const;
 
 private:
     QString getQuotaClause(bool unlimitedQuota, uint quota, OraExp::ExtentUnit quotaUnit) const;

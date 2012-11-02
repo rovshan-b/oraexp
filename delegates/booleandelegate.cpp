@@ -114,7 +114,6 @@ void BooleanDelegate::updateEditorGeometry(QWidget *editor,
 void BooleanDelegate::checkStateChanged()
 {
     QWidget *checkBox=qobject_cast<QWidget*>(sender());
-    if(checkBox){
-        emit commitData(checkBox->parentWidget());
-    }
+    Q_ASSERT(checkBox);
+    emit commitData(checkBox->parentWidget());
 }

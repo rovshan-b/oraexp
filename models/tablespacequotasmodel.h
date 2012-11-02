@@ -13,11 +13,19 @@ public:
     enum ColumnOrder
     {
         TablespaceName,
-        Quota
+        Unlimited,
+        Quota,
+        Unit
     };
+
+    Qt::ItemFlags flags ( const QModelIndex & index ) const;
+    QVariant data ( const QModelIndex & index, int role) const;
 
     virtual QString isRowDataCorrect(int rowIx) const;
     TablespaceQuotaInfo itemInfoFromModelRow(int row) const;
+
+private:
+    bool isUnlimited(int rowIx) const;
     
 };
 

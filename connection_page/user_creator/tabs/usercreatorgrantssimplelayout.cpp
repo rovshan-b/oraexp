@@ -62,20 +62,28 @@ QWidget *UserCreatorGrantsSimpleLayout::createPrivilegesBox()
 
 void UserCreatorGrantsSimpleLayout::checkAllQuickRoles()
 {
+    emit beforeToggleAll();
     WidgetHelper::setCheckedBoxes(rolesBox, QStringList(), true, true);
+    emit afterToggleAll();
 }
 
 void UserCreatorGrantsSimpleLayout::uncheckAllQuickRoles()
 {
+    emit beforeToggleAll();
     WidgetHelper::setCheckedBoxes(rolesBox, QStringList(), false, true);
+    emit afterToggleAll();
 }
 
 void UserCreatorGrantsSimpleLayout::checkAllQuickPrivs()
 {
+    emit beforeToggleAll();
     WidgetHelper::setCheckedBoxes(privBox, QStringList(), true, true);
+    emit afterToggleAll();
 }
 
 void UserCreatorGrantsSimpleLayout::uncheckAllQuickPrivs()
 {
+    emit beforeToggleAll();
     WidgetHelper::setCheckedBoxes(privBox, QStringList(), false, true);
+    emit afterToggleAll();
 }

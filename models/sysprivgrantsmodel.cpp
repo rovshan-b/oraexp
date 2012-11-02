@@ -21,7 +21,7 @@ QString SysPrivGrantsModel::isRowDataCorrect(int rowIx) const
 PrivGrantInfo SysPrivGrantsModel::itemInfoFromModelRow(int row) const
 {
     PrivGrantInfo info;
-    info.grantId=-1;
+    info.objId=-1;
 
     if(!isRowDataCorrect(row).isEmpty()){
         return info;
@@ -30,7 +30,7 @@ PrivGrantInfo SysPrivGrantsModel::itemInfoFromModelRow(int row) const
     info.name=index(row, PrivName).data().toString().trimmed();
     info.isGrantable=index(row, IsGrantable).data(Qt::EditRole).toBool();
 
-    info.grantId=row+1;
+    info.objId=row+1;
 
     info.markedForDeletion=isRowDeleted(row);
 

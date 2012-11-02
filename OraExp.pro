@@ -354,8 +354,10 @@ SOURCES += main.cpp\
     metadata_loaders/user/privgrantinfoloader.cpp \
     models/tablespacequotasmodel.cpp \
     beans/tablespacequotainfo.cpp \
-    delegates/extentsizeeditordelegate.cpp \
-    metadata_loaders/user/tablespacequotainfoloader.cpp
+    metadata_loaders/user/tablespacequotainfoloader.cpp \
+    widgets/userroleseditortable.cpp \
+    widgets/usersysprivseditortable.cpp \
+    widgets/tablespacequotaseditortable.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -710,8 +712,10 @@ HEADERS  += mainwindow.h \
     metadata_loaders/user/privgrantinfoloader.h \
     models/tablespacequotasmodel.h \
     beans/tablespacequotainfo.h \
-    delegates/extentsizeeditordelegate.h \
-    metadata_loaders/user/tablespacequotainfoloader.h
+    metadata_loaders/user/tablespacequotainfoloader.h \
+    widgets/userroleseditortable.h \
+    widgets/usersysprivseditortable.h \
+    widgets/tablespacequotaseditortable.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

@@ -53,19 +53,19 @@ QList<QueryListItem> UserInfo::generateDiffDdl(const UserInfo &other, const QHas
     QList<QueryListItem> results;
 
     results.append(QueryListItem(requesters.value("general_info"), generalInfo.generateDiffDdl(other.generalInfo)));
-    results.append(QueryListItem(requesters.value("grants"),
+    results.append(QueryListItem(requesters.value("role_grants"),
                                  PrivGrantInfo::generateListDiffDdl(&roles, &other.roles, generalInfo.username, "role")));
 
     QStringList defaults=PrivGrantInfo::getDefaults(&roles);
     QStringList otherDefaults=PrivGrantInfo::getDefaults(&other.roles);
     if(defaults!=otherDefaults){
-        QString defaultRolesDdl=QString("\n%1").arg(generateDefaultRolesDdl(defaults));
+        QString defaultRolesDdl=generateDefaultRolesDdl(defaults);
 
-        results.append(QueryListItem(requesters.value("grants"),
+        results.append(QueryListItem(requesters.value("role_grants"),
                                      QList<NameQueryPair>() << qMakePair(QString("role_set_default"), defaultRolesDdl)));
     }
 
-    results.append(QueryListItem(requesters.value("grants"),
+    results.append(QueryListItem(requesters.value("sys_priv_grants"),
                                  PrivGrantInfo::generateListDiffDdl(&sysPrivs, &other.sysPrivs, generalInfo.username, "sys_priv")));
 
     results.append(QueryListItem(requesters.value("quotas"),

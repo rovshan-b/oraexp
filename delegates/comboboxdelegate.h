@@ -10,11 +10,10 @@ public:
     explicit ComboBoxDelegate(QObject *parent, bool isEditable=true, const QIcon &itemIcon=QIcon(), const QStringList &itemList=QStringList(), bool convertToUpperCase=true);
 
     virtual void setList(const QStringList &itemList);
+    virtual QStringList getList() const;
 
 protected:
     QStringList itemList;
-
-    virtual QStringList getList() const;
 
 };
 

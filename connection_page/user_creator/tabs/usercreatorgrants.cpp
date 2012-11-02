@@ -10,7 +10,8 @@ UserCreatorGrants::UserCreatorGrants(UserCreatorTabs *userCreator, bool editMode
     UserCreatorTab(userCreator, editMode, parent),
     simpleModeRadio(0),
     advancedModeRadio(0),
-    simpleLayout(0)
+    simpleLayout(0),
+    doDync(true)
 {
     QVBoxLayout *mainLayout=new QVBoxLayout();
 
@@ -53,7 +54,7 @@ void UserCreatorGrants::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
     UserCreatorTab::setQueryScheduler(queryScheduler);
 
-    advancedLayout->setQueryScheduler(queryScheduler, isEditMode());
+    advancedLayout->setQueryScheduler(queryScheduler);
 }
 
 void UserCreatorGrants::setUserInfo(UserInfo *userInfo)
@@ -95,12 +96,14 @@ void UserCreatorGrants::switchMode(bool simpleMode)
 void UserCreatorGrants::createSimpleLayout()
 {
     simpleLayout = new UserCreatorGrantsSimpleLayout();
+    connect(simpleLayout, SIGNAL(beforeToggleAll()), this, SLOT(disableSync()));
+    connect(simpleLayout, SIGNAL(afterToggleAll()), this, SLOT(enableSync()));
     tab->addWidget(simpleLayout);
 }
 
 void UserCreatorGrants::createAdvancedLayout()
 {
-    advancedLayout = new UserCreatorGrantsAdvancedLayout();
+    advancedLayout = new UserCreatorGrantsAdvancedLayout(isEditMode());
     connect(advancedLayout, SIGNAL(ddlChanged()), this, SIGNAL(ddlChanged()));
     tab->addWidget(advancedLayout);
 }
@@ -113,8 +116,23 @@ void UserCreatorGrants::syncSimpleLayout()
 
 void UserCreatorGrants::syncAdvancedLayout()
 {
+    if(!doDync){
+        return;
+    }
+
     syncTable(simpleLayout->getRoleCheckBoxes(), advancedLayout->getRolesTable());
     syncTable(simpleLayout->getPrivCheckBoxes(), advancedLayout->getSysPrivsTable());
+}
+
+void UserCreatorGrants::disableSync()
+{
+    doDync=false;
+}
+
+void UserCreatorGrants::enableSync()
+{
+    doDync=true;
+    syncAdvancedLayout();
 }
 
 void UserCreatorGrants::syncTable(QList<QCheckBox *> checkBoxes, DataTableAndToolBarWidget *table)
@@ -150,14 +168,4 @@ void UserCreatorGrants::syncCheckBoxes(QList<QCheckBox *> checkBoxes, DataTableA
         Q_ASSERT(foundItems.size()<=1);
         chk->setChecked(foundItems.size()>0);
     }
-}
-
-void UserCreatorGrants::alterQuerySucceeded(const QString &taskName)
-{
-    advancedLayout->alterQuerySucceeded(taskName);
-}
-
-void UserCreatorGrants::alterQueryError(const QString &taskName)
-{
-    advancedLayout->alterQueryError(taskName);
 }

@@ -25,6 +25,8 @@ public:
 
     void setUserInfo(UserInfo *userInfo);
 
+    UserCreatorGrantsAdvancedLayout *getAdvancedLayout() const {return this->advancedLayout;}
+
     QList<PrivGrantInfo> getUserRoles() const;
     QList<PrivGrantInfo> getUserSysPrivs() const;
     QList<TablespaceQuotaInfo> getUserQuotas() const;
@@ -36,12 +38,13 @@ signals:
 
 protected slots:
     void switchMode(bool simpleMode);
-    void alterQuerySucceeded(const QString &taskName);
-    void alterQueryError(const QString &taskName);
     
 private slots:
     void syncSimpleLayout();
     void syncAdvancedLayout();
+
+    void disableSync();
+    void enableSync();
 
 private:
     void createSimpleLayout();
@@ -56,6 +59,8 @@ private:
     QStackedWidget *tab;
     UserCreatorGrantsSimpleLayout *simpleLayout;
     UserCreatorGrantsAdvancedLayout *advancedLayout;
+
+    bool doDync;
     
 };
 

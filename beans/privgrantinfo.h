@@ -13,7 +13,7 @@ public:
 
     bool operator==(const PrivGrantInfo &other) const;
 
-    int grantId;
+    int objId;
     QString name;
     bool isGrantable;
     bool isDefault;

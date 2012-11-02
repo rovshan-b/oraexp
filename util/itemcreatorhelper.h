@@ -70,6 +70,56 @@ public:
             model->setRowNeedsRecreation(rowIx, needsRecreation);
         }
     }
+
+    template <typename ItemType, typename ModelType>
+    static QList<ItemType> getItemList(ModelType *model)
+    {
+        QList<ItemType> results;
+
+        int rowCount=model->rowCount();
+
+        ItemType info;
+
+        for(int i=0; i<rowCount; ++i){
+            info=model->itemInfoFromModelRow(i);
+            if(info.objId==-1){
+                continue;
+            }
+
+            results.append(info);
+        }
+
+        return results;
+    }
+
+    template <typename ItemType, typename ModelType>
+    static void populateTableWithItems(QList<ItemType> *itemList,
+                                       DataTable *table,
+                                       void (*setRowDataFunction) (int,ModelType*,ItemType*))
+    {
+        Q_ASSERT(itemList);
+
+        table->setUpdatesEnabled(false);
+
+        int consCount=itemList->count();
+
+        ModelType *model=static_cast<ModelType*>(table->model());
+        model->ensureRowCount(consCount);
+
+        ItemType info;
+        for(int i=0; i<itemList->count(); ++i){
+            info = itemList->at(i);
+
+            setRowDataFunction(i, model, &info);
+        }
+
+        //table->resizeColumnsAccountingForEditor();
+
+        table->setUpdatesEnabled(true);
+
+        int lastRowIx=model->rowCount()-1;
+        model->freezeRow(lastRowIx, true);
+    }
 };
 
 #endif // ITEMCREATORHELPER_H

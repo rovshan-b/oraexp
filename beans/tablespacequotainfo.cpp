@@ -3,7 +3,7 @@
 #include "util/strutil.h"
 
 TablespaceQuotaInfo::TablespaceQuotaInfo() :
-    quotaId(-1),
+    objId(-1),
     quota(0),
     quotaUnit(OraExp::Bytes),
     markedForDeletion(false),
@@ -51,10 +51,10 @@ QList<NameQueryPair> TablespaceQuotaInfo::generateDiffDdl(const TablespaceQuotaI
 
     if(markedForDeletion){
         ddl=generateDropDdl(username);
-        result.append(qMakePair(QString("quota_drop_tablespace_quota_%1").arg(quotaId), ddl));
+        result.append(qMakePair(QString("quota_drop_tablespace_quota_%1").arg(objId), ddl));
     }else if(! (*this == other)){
         ddl=generateDdl(username);
-        result.append(qMakePair(QString("quota_alter_tablespace_quota_%1").arg(quotaId), ddl));
+        result.append(qMakePair(QString("quota_alter_tablespace_quota_%1").arg(objId), ddl));
     }
 
     return result;
@@ -132,11 +132,11 @@ TablespaceQuotaInfo TablespaceQuotaInfo::fromFetchResult(const FetchResult &resu
 
     return info;
 }
-
+/*
 QString TablespaceQuotaInfo::toString() const
 {
     return DbUtil::getExtentSizeClause(unlimitedQuota, quota, quotaUnit);
-}
+}*/
 
 QString TablespaceQuotaInfo::getQuotaClause(bool unlimitedQuota, uint quota, OraExp::ExtentUnit quotaUnit) const
 {

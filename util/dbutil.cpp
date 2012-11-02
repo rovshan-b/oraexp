@@ -353,6 +353,15 @@ OraExp::ExtentUnit DbUtil::getSizeUnitFromText(const QString &unit)
     return res;
 }
 
+QStringList DbUtil::getSizeUnitTexts()
+{
+    return QStringList() <<
+           QObject::tr("Bytes") <<
+           QObject::tr("KB") <<
+           QObject::tr("MB") <<
+           QObject::tr("GB");
+}
+
 bool DbUtil::isLob(const QString &dataType)
 {
     if(dataType.compare("BLOB", Qt::CaseInsensitive) == 0 ||

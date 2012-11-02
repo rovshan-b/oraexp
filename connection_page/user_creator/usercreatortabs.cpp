@@ -1,11 +1,13 @@
 #include "usercreatortabs.h"
 #include "tabs/usercreatorgeneralinfo.h"
 #include "tabs/usercreatorgrants.h"
+#include "tabs/usercreatorgrantsadvancedlayout.h"
 #include "util/iconutil.h"
 #include "beans/userinfo.h"
 #include "beans/dbobjectinfo.h"
 #include "metadata_loaders/user/userinfoloader.h"
 #include "util/widgethelper.h"
+#include "widgets/datatableandtoolbarwidget.h"
 #include <QtGui>
 
 UserCreatorTabs::UserCreatorTabs(const QString &objectName, QWidget *parent) :
@@ -58,8 +60,9 @@ QList<QueryListItem> UserCreatorTabs::generateAlterDdl()
 
     QHash<QString,QObject*> requesters;
     requesters["general_info"]=generalInfoTab;
-    requesters["grants"]=grantsTab;
-    requesters["quotas"]=grantsTab;
+    requesters["role_grants"]=grantsTab->getAdvancedLayout()->getRolesTable();
+    requesters["sys_priv_grants"]=grantsTab->getAdvancedLayout()->getSysPrivsTable();
+    requesters["quotas"]=grantsTab->getAdvancedLayout()->getQuotasTable();
 
     return info.generateDiffDdl(*originalUserInfo, requesters);
 }

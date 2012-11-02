@@ -14,6 +14,10 @@ public:
 
     QList<QCheckBox*> getRoleCheckBoxes() const;
     QList<QCheckBox*> getPrivCheckBoxes() const;
+
+signals:
+    void beforeToggleAll();
+    void afterToggleAll();
     
 private slots:
     void checkAllQuickRoles();

@@ -30,6 +30,7 @@ public:
 
     static QString getSizeUnitText(OraExp::ExtentUnit unit);
     static OraExp::ExtentUnit getSizeUnitFromText(const QString &unit);
+    static QStringList getSizeUnitTexts();
 
     static bool isLob(const QString &dataType);
     static QStringList getComparableDataTypes();
