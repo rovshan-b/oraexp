@@ -147,7 +147,6 @@ SOURCES += main.cpp\
     dialogs/lobparamsdialog.cpp \
     connection_page/table_creator/tabs/tablecreatorpartitions.cpp \
     connection_page/table_creator/tabs/tablecreatorgrants.cpp \
-    models/tablegrantsmodel.cpp \
     widgets/centeredcheckboxwidget.cpp \
     connection_page/table_creator/tabs/tablecreatorexternalproperties.cpp \
     widgets/comboboxandlineeditwidget.cpp \
@@ -202,7 +201,6 @@ SOURCES += main.cpp\
     beans/columninfo.cpp \
     beans/constraintinfo.cpp \
     beans/indexinfo.cpp \
-    beans/grantinfo.cpp \
     beans/partitioninfo.cpp \
     connectivity/queryrunner.cpp \
     beans/querylistitem.cpp \
@@ -357,7 +355,10 @@ SOURCES += main.cpp\
     metadata_loaders/user/tablespacequotainfoloader.cpp \
     widgets/userroleseditortable.cpp \
     widgets/usersysprivseditortable.cpp \
-    widgets/tablespacequotaseditortable.cpp
+    widgets/tablespacequotaseditortable.cpp \
+    beans/objectgrantinfo.cpp \
+    models/objectgrantsmodel.cpp \
+    widgets/objectgrantseditortable.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -490,7 +491,6 @@ HEADERS  += mainwindow.h \
     dialogs/lobparamsdialog.h \
     connection_page/table_creator/tabs/tablecreatorpartitions.h \
     connection_page/table_creator/tabs/tablecreatorgrants.h \
-    models/tablegrantsmodel.h \
     widgets/centeredcheckboxwidget.h \
     connection_page/table_creator/tabs/tablecreatorexternalproperties.h \
     widgets/comboboxandlineeditwidget.h \
@@ -547,7 +547,6 @@ HEADERS  += mainwindow.h \
     beans/constraintinfo.h \
     beans/indexinfo.h \
     constants.h \
-    beans/grantinfo.h \
     beans/partitioninfo.h \
     connectivity/queryrunner.h \
     beans/querylistitem.h \
@@ -715,7 +714,10 @@ HEADERS  += mainwindow.h \
     metadata_loaders/user/tablespacequotainfoloader.h \
     widgets/userroleseditortable.h \
     widgets/usersysprivseditortable.h \
-    widgets/tablespacequotaseditortable.h
+    widgets/tablespacequotaseditortable.h \
+    beans/objectgrantinfo.h \
+    models/objectgrantsmodel.h \
+    widgets/objectgrantseditortable.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

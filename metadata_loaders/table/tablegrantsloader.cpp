@@ -32,7 +32,7 @@ void TableGrantsLoader::recordFetched(const FetchResult &result)
         return;
     }
 
-    TableGrantInfo grantInfo=TableGrantInfo::fromFetchResult(result);
+    ObjectGrantInfo grantInfo=ObjectGrantInfo::fromFetchResult(result, DbTreeModel::Table);
     grants.append(grantInfo);
 }
 

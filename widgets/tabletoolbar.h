@@ -14,6 +14,7 @@ class TableToolbar : public QToolBar
 public:
     explicit TableToolbar(DataTable *table, QWidget *parent = 0);
 
+    void addAdvancedOptionsButton(QObject *receiver, const char *slotName);
 private:
     DataTable *table;
 

@@ -4,15 +4,15 @@
 #include "../tablecreatortabwithtableview.h"
 #include "connectivity/queryresult.h"
 #include "connectivity/fetchresult.h"
-#include "beans/grantinfo.h"
-#include "models/tablegrantsmodel.h"
 #include "widgets/datatable.h"
 #include "beans/tableinfo.h"
+#include "models/objectgrantsmodel.h"
 
 class DbConnection;
 class SchemaSelectorDelegate;
+class ObjectGrantsEditorTable;
 
-class TableCreatorGrants : public TableCreatorTabWithTableView
+class TableCreatorGrants : public DbObjectCreatorTab<TableCreatorTabs>
 {
     Q_OBJECT
 public:
@@ -27,7 +27,9 @@ public:
 
     void setTableInfo(TableInfo *tableInfo);
 
-    QList<TableGrantInfo> getGrantsInfo() const;
+    void removeIncorrectRows();
+
+    QList<ObjectGrantInfo> getGrantsInfo() const;
 
 signals:
     void ddlChanged() const;
@@ -35,24 +37,11 @@ signals:
 private:
     QString schemaName;
 
-    SchemaSelectorDelegate *schemaListDelegate;
-
-    void customizeTableWidget(const QString &schemaName);
-    QString generateGrantStatement(const QString &tableName, const QString &privilegeName, const QString &granteeName, int grantType) const;
-
-    //these functions and variables used in edit mode
-    void populateTableWithGrants();
-
-    QList<TableGrantInfo> *originalGrantList;
+    ObjectGrantsEditorTable *grantsEditor;
+    DataTable *table;
 
 protected slots:
     virtual void showAdvancedOptions(bool show);
-
-    //for edit mode only
-    void alterQuerySucceeded(const QString &taskName);
-    void alterQueryError(const QString &/*taskName*/){}
-
-    void tableDataChanged(const QModelIndex &from, const QModelIndex &to);
 };
 
 #endif // TABLECREATORGRANTS_H

@@ -67,6 +67,12 @@ namespace OraExp
         PartitionPartSubpartition,
         PartitionPartSubpartitionTemplate
     };
+
+    enum GrantsEditorPerspective
+    {
+        ObjectGrants,
+        UserGrants
+    };
 }
 
 #endif // ENUMS_H

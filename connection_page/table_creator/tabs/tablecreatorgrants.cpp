@@ -1,217 +1,68 @@
 #include "tablecreatorgrants.h"
-#include "delegates/indexbasedcomboboxdelegate.h"
-#include "delegates/schemaselectordelegate.h"
-#include "connectivity/dbconnection.h"
-#include "util/iconutil.h"
-#include "util/dbutil.h"
-#include "util/itemcreatorhelper.h"
 #include "../tablecreatortabs.h"
+#include "widgets/objectgrantseditortable.h"
 #include <QtGui>
 
 TableCreatorGrants::TableCreatorGrants(const QString &schemaName, TableCreatorTabs *tableCreator, bool editMode, QWidget *parent) :
-    TableCreatorTabWithTableView(tableCreator, editMode, parent), schemaName(schemaName), originalGrantList(0)
+    DbObjectCreatorTab<TableCreatorTabs>(tableCreator, editMode, parent),
+    schemaName(schemaName)
 {
+    QVBoxLayout *layout=new QVBoxLayout();
 
+    grantsEditor=new ObjectGrantsEditorTable(editMode,
+                                             OraExp::ObjectGrants,
+                                             DbTreeModel::Table,
+                                             schemaName);
+
+    table=grantsEditor->table();
+
+    grantsEditor->toolBar()->addAdvancedOptionsButton(this, SLOT(showAdvancedOptions(bool)));
+
+    layout->addWidget(grantsEditor);
+
+    layout->setContentsMargins(2, 2, 2, 0);
+
+    this->setLayout(layout);
+
+    connect(grantsEditor, SIGNAL(ddlChanged()), this, SIGNAL(ddlChanged()));
 }
 
 void TableCreatorGrants::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
-    TableCreatorTabWithTableView::setQueryScheduler(queryScheduler);
+    DbObjectCreatorTab<TableCreatorTabs>::setQueryScheduler(queryScheduler);
 
-    customizeTableWidget(schemaName);
-
-    //if(isEditMode()){
-    //    loadGrants();
-    //}
-}
-
-void TableCreatorGrants::customizeTableWidget(const QString &schemaName)
-{
-    QStringList columnNames;
-    columnNames.append(tr("User"));
-    DbUtil::populatePrivilegeNames(columnNames);
-
-    TableGrantsModel *tableModel=new TableGrantsModel(columnNames, this);
-    table->setModel(tableModel);
-
-    table->horizontalHeader()->setDefaultSectionSize(150);
-    table->setEditTriggers(QAbstractItemView::AllEditTriggers);
-
-    schemaListDelegate=new SchemaSelectorDelegate(schemaName, this->queryScheduler, this, true);
-    table->setItemDelegateForColumn(TableGrantsModel::GrantSchema, schemaListDelegate);
-
-    QStringList grantTypes;
-    grantTypes.append("");
-    grantTypes.append(tr("GRANT"));
-    grantTypes.append(tr("WITH GRANT OPTION"));
-
-    QIcon grantIcon=QIcon();
-
-    IndexBasedComboBoxDelegate *selectDelegate=new IndexBasedComboBoxDelegate(grantIcon, grantTypes, this);
-    table->setItemDelegateForColumn(TableGrantsModel::GrantSelect, selectDelegate);
-
-    IndexBasedComboBoxDelegate *insertDelegate=new IndexBasedComboBoxDelegate(grantIcon, grantTypes, this);
-    table->setItemDelegateForColumn(TableGrantsModel::GrantInsert, insertDelegate);
-
-    IndexBasedComboBoxDelegate *updateDelegate=new IndexBasedComboBoxDelegate(grantIcon, grantTypes, this);
-    table->setItemDelegateForColumn(TableGrantsModel::GrantUpdate, updateDelegate);
-
-    IndexBasedComboBoxDelegate *deleteDelegate=new IndexBasedComboBoxDelegate(grantIcon, grantTypes, this);
-    table->setItemDelegateForColumn(TableGrantsModel::GrantDelete, deleteDelegate);
-
-    IndexBasedComboBoxDelegate *alterDelegate=new IndexBasedComboBoxDelegate(grantIcon, grantTypes, this);
-    table->setItemDelegateForColumn(TableGrantsModel::GrantAlter, alterDelegate);
-
-    IndexBasedComboBoxDelegate *indexDelegate=new IndexBasedComboBoxDelegate(grantIcon, grantTypes, this);
-    table->setItemDelegateForColumn(TableGrantsModel::GrantIndex, indexDelegate);
-
-    IndexBasedComboBoxDelegate *referencesDelegate=new IndexBasedComboBoxDelegate(grantIcon, grantTypes, this);
-    table->setItemDelegateForColumn(TableGrantsModel::GrantReferences, referencesDelegate);
-
-    IndexBasedComboBoxDelegate *debugDelegate=new IndexBasedComboBoxDelegate(grantIcon, grantTypes, this);
-    table->setItemDelegateForColumn(TableGrantsModel::GrantDebug, debugDelegate);
-
-    //table->verticalHeader()->setVisible(false);
-    table->model()->insertRows(0, 1);
-
+    grantsEditor->setQueryScheduler(queryScheduler);
     showAdvancedOptions(false);
-
-    if(isEditMode()){
-        connect(tableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(tableDataChanged(QModelIndex,QModelIndex)));
-    }
-
-    connect(tableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(ddlChanged()));
 }
 
 void TableCreatorGrants::setTableInfo(TableInfo *tableInfo)
 {
-    originalGrantList=&tableInfo->grants;
-    if(originalGrantList->size()>0){
-        populateTableWithGrants();
-    }
+    grantsEditor->populateTable(&tableInfo->grants);
 }
 
-void TableCreatorGrants::populateTableWithGrants()
+void TableCreatorGrants::removeIncorrectRows()
 {
-    Q_ASSERT(originalGrantList);
-
-    table->setUpdatesEnabled(false);
-
-    int colCount=originalGrantList->count();
-
-    TableGrantsModel *model=static_cast<TableGrantsModel*>(table->model());
-    model->ensureRowCount(colCount);
-
-    QStringList privilegeNames;
-    DbUtil::populatePrivilegeNames(privilegeNames);
-
-    TableGrantInfo grantInfo;
-    for(int i=0; i<originalGrantList->count(); ++i){
-        grantInfo = originalGrantList->at(i);
-
-        model->setData(model->index(i, TableGrantsModel::GrantSchema), grantInfo.grantee);
-
-        for(int k=0; k<privilegeNames.size(); ++k){
-            model->setData(model->index(i, k+1 /*1st column is schema name*/), grantInfo.privileges.value(privilegeNames.at(k), 0), Qt::EditRole);
-        }
-    }
-
-    table->resizeColumnAccountingForEditor(TableGrantsModel::GrantSchema);
-
-    table->setUpdatesEnabled(true);
-
-    int lastRowIx=model->rowCount()-1;
-    model->freezeRow(lastRowIx);
-    model->setColumnEnabled(TableGrantsModel::GrantSchema, false, lastRowIx);
+    grantsEditor->removeIncorrectRows();
 }
 
 void TableCreatorGrants::showAdvancedOptions(bool show)
 {
     table->setUpdatesEnabled(false);
-    table->setColumnHidden(TableGrantsModel::GrantAlter, !show);
-    table->setColumnHidden(TableGrantsModel::GrantIndex, !show);
-    table->setColumnHidden(TableGrantsModel::GrantReferences, !show);
-    table->setColumnHidden(TableGrantsModel::GrantDebug, !show);
+    //show or hide last 4 columns
+    int columnCount=table->horizontalHeader()->count();
+    for(int i=columnCount-4; i<columnCount; ++i){
+        table->setColumnHidden(i, !show);
+    }
     table->setUpdatesEnabled(true);
 
 }
 
-QList<TableGrantInfo> TableCreatorGrants::getGrantsInfo() const
+QList<ObjectGrantInfo> TableCreatorGrants::getGrantsInfo() const
 {
-    QList<TableGrantInfo> results;
-
-    TableGrantsModel *model=static_cast<TableGrantsModel*>(table->model());
-    int rowCount=model->rowCount();
-
-    TableGrantInfo grantInfo;
-    for(int i=0; i<rowCount; ++i){
-        grantInfo=model->itemInfoFromModelRow(i);
-        if(grantInfo.grantId==-1){
-            continue;
-        }
-
-        results.append(grantInfo);
-    }
-
-    return results;
-}
-
-void TableCreatorGrants::alterQuerySucceeded(const QString &taskName)
-{
-    Q_ASSERT(originalGrantList);
-
-    int rowNum=numberAfterLastUnderscore(taskName);
-    Q_ASSERT(rowNum>0);
-
-    TableGrantsModel *model=static_cast<TableGrantsModel*>(table->model());
-    int rowIx=rowNum-1;
-
-    //if(!taskName.startsWith("add_")){
-    //    Q_ASSERT(originalGrantList->size()>rowIx);
-    //}
-
-    TableGrantInfo modifiedGrantInfo=model->itemInfoFromModelRow(rowIx);
-
-    if(taskName.startsWith("add_table_grant_")){
-
-        if(rowIx>=originalGrantList->size()){
-            originalGrantList->append(modifiedGrantInfo);
-            model->freezeRow(rowIx);
-            model->setColumnEnabled(TableGrantsModel::GrantSchema, false, rowIx);
-        }
-
-        int lastUnderscoreIx=taskName.lastIndexOf('_');
-        int prevUnderscoreIx=taskName.lastIndexOf('_', lastUnderscoreIx-1);
-        QString privilegeName=taskName.mid(prevUnderscoreIx+1, lastUnderscoreIx-prevUnderscoreIx-1);
-        qDebug() << privilegeName;
-
-        QStringList privilegeNames;
-        DbUtil::populatePrivilegeNames(privilegeNames);
-        int colIx=privilegeNames.indexOf(privilegeName)+1;
-        Q_ASSERT(colIx>0);
-
-        (*originalGrantList)[rowIx]=modifiedGrantInfo;
-
-    }else if(taskName.startsWith("revoke_all_privileges_")){
-
-        (*originalGrantList)[rowIx].dropped=true;
-
-    }else if(taskName.startsWith("change_grant_type_")){
-
-        (*originalGrantList)[rowIx]=modifiedGrantInfo;
-
-    }
-
-    ItemCreatorHelper::markDataChanges(model, rowIx, originalGrantList);
-}
-
-void TableCreatorGrants::tableDataChanged(const QModelIndex &from, const QModelIndex &to)
-{
-    TableGrantsModel *model=static_cast<TableGrantsModel*>(table->model());
-    ItemCreatorHelper::handleTableDataChanged(model, originalGrantList, from, to);
+    return grantsEditor->getList();
 }
 
 void TableCreatorGrants::currentSchemaChanged(const QString &/*oldSchemaName*/, const QString &newSchemaName)
 {
-    schemaListDelegate->setDefaultSchemaName(newSchemaName);
+    grantsEditor->setInitialUserOrObjectName(newSchemaName);
 }

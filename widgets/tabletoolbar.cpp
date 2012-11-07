@@ -39,6 +39,16 @@ TableToolbar::TableToolbar(DataTable *table, QWidget *parent) :
     connect(moveDownAction, SIGNAL(triggered()), this, SLOT(moveRowDown()));
 }
 
+void TableToolbar::addAdvancedOptionsButton(QObject *receiver, const char *slotName)
+{
+    addSeparator();
+    QAction *advancedOptionsAction=addAction(IconUtil::getIcon("advanced_options"), tr("Show/Hide advanced options"));
+    advancedOptionsAction->setCheckable(true);
+    //addAction(advancedOptionsAction);
+
+    connect(advancedOptionsAction, SIGNAL(toggled(bool)), receiver, slotName);
+}
+
 void TableToolbar::addMoreRows()
 {
     QAbstractItemModel *model=table->model();

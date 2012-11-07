@@ -133,16 +133,18 @@ QString DbUtil::getIndexPartitioningTypeName(int partitioningType, bool translat
     }
 }
 
-void DbUtil::populatePrivilegeNames(QStringList &list)
+void DbUtil::populatePrivilegeNames(QStringList &list, DbTreeModel::DbTreeNodeType objectType)
 {
-    list.append("SELECT");
-    list.append("INSERT");
-    list.append("UPDATE");
-    list.append("DELETE");
-    list.append("ALTER");
-    list.append("INDEX");
-    list.append("REFERENCES");
-    list.append("DEBUG");
+    if(objectType==DbTreeModel::Table || objectType==DbTreeModel::Schema){
+        list.append("SELECT");
+        list.append("INSERT");
+        list.append("UPDATE");
+        list.append("DELETE");
+        list.append("ALTER");
+        list.append("INDEX");
+        list.append("REFERENCES");
+        list.append("DEBUG");
+    }
 }
 
 QString DbUtil::getPartitionTypeName(OraExp::PartitionType pType)

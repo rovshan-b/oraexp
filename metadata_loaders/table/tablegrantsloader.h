@@ -2,7 +2,7 @@
 #define TABLEGRANTSLOADER_H
 
 #include <QObject>
-#include "beans/grantinfo.h"
+#include "beans/objectgrantinfo.h"
 #include "connectivity/queryresult.h"
 
 class TableInfoLoader;
@@ -16,7 +16,7 @@ public:
     void loadInfo();
 
 signals:
-    void infoReady(const QList<TableGrantInfo> &tableGrants);
+    void infoReady(const QList<ObjectGrantInfo> &tableGrants);
     void loadError(const QString &taskName, const OciException &ex);
 
 private slots:
@@ -27,7 +27,7 @@ private slots:
 private:
     TableInfoLoader *tableInfoLoader;
 
-    QList<TableGrantInfo> grants;
+    QList<ObjectGrantInfo> grants;
     
 };
 

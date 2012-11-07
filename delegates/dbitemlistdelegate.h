@@ -22,6 +22,8 @@ public:
     void setModelData(QWidget *editor, QAbstractItemModel *model,
                            const QModelIndex &index) const;
 
+    void setInitialValue(const QString &initialValue){this->initialValue=initialValue;}
+
 protected:
     QString initialValue;
     IQueryScheduler *queryScheduler;
