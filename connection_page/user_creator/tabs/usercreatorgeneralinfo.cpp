@@ -27,7 +27,7 @@ void UserCreatorGeneralInfo::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
     UserCreatorTab::setQueryScheduler(queryScheduler);
 
-    enableEditionsCheckBox->setEnabled(queryScheduler->getDb()->supportsSchemaEditions() && !isEditMode());
+    enableEditionsCheckBox->setEnabled(queryScheduler->getDb()->supportsSchemaEditions());
 
     defaultTablespaceComboBox->setQueryScheduler(this->queryScheduler);
     temporaryTablespaceComboBox->setQueryScheduler(this->queryScheduler);
@@ -51,6 +51,10 @@ void UserCreatorGeneralInfo::setUserInfo(UserInfo *userInfo)
 
     if(info->expirePassword){
         passwordExpiredCheckBox->setEnabled(false);
+    }
+
+    if(info->enableEditions){
+        enableEditionsCheckBox->setEnabled(false);
     }
 }
 
