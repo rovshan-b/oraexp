@@ -1,6 +1,7 @@
 #include "objectgrantseditortable.h"
 #include "delegates/indexbasedcomboboxdelegate.h"
 #include "delegates/schemaselectordelegate.h"
+#include "delegates/grantobjectlistdelegate.h"
 #include "connectivity/dbconnection.h"
 #include "util/iconutil.h"
 #include "util/dbutil.h"
@@ -16,9 +17,8 @@ ObjectGrantsEditorTable::ObjectGrantsEditorTable(bool editMode,
     editMode(editMode),
     perspective(perspective),
     objectType(objectType),
-    initialUserOrObjectName(initialUserOrObjectName),
-    originalItemList(0),
-    schemaListDelegate(0)
+    initialSchemaName(initialUserOrObjectName),
+    originalItemList(0)
 {
 }
 
@@ -54,7 +54,7 @@ void ObjectGrantsEditorTable::removeIncorrectRows()
 
 void ObjectGrantsEditorTable::setInitialUserOrObjectName(const QString &initialUserOrObjectName)
 {
-    this->initialUserOrObjectName=initialUserOrObjectName;
+    this->initialSchemaName=initialUserOrObjectName;
     if(schemaListDelegate!=0){
         schemaListDelegate->setInitialValue(initialUserOrObjectName);
     }
@@ -82,8 +82,8 @@ void ObjectGrantsEditorTable::alterQuerySucceeded(const QString &taskName)
 
         if(rowIx>=originalItemList->size()){
             originalItemList->append(modifiedGrantInfo);
-            model->freezeRow(rowIx);
-            model->setColumnEnabled(ObjectGrantsModel::GrantSchemaOrObject, false, rowIx);
+            model->freezeRow(rowIx, true);
+            //model->setColumnEnabled(ObjectGrantsModel::GrantSchema, false, rowIx);
         }
 
         int lastUnderscoreIx=taskName.lastIndexOf('_');
@@ -124,7 +124,10 @@ void ObjectGrantsEditorTable::tableDataChanged(const QModelIndex &from, const QM
 void ObjectGrantsEditorTable::customizeTable()
 {
     QStringList columnNames;
-    columnNames.append(this->perspective==OraExp::ObjectGrants ? tr("User") : tr("Object"));
+    columnNames.append(tr("User"));
+    if(this->perspective==OraExp::UserGrants){
+        columnNames.append(tr("Object"));
+    }
 
     QStringList priviligeNames;
     DbUtil::populatePrivilegeNames(priviligeNames, this->objectType);
@@ -132,23 +135,27 @@ void ObjectGrantsEditorTable::customizeTable()
     columnNames.append(priviligeNames);
 
     ObjectGrantsModel *tblModel=new ObjectGrantsModel(columnNames,
-                                                        this->perspective,
-                                                        priviligeNames,
-                                                        this->objectType,
-                                                        this);
+                                                      this->perspective,
+                                                      priviligeNames,
+                                                      this->objectType,
+                                                      this);
     DataTable *tbl=table();
     setModel(tblModel);
 
-    tbl->horizontalHeader()->setDefaultSectionSize(150);
+    tbl->horizontalHeader()->setDefaultSectionSize(100);
+    tbl->setColumnWidth(ObjectGrantsModel::GrantSchema, 170);
     tbl->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
-    if(this->perspective==OraExp::ObjectGrants){
-        schemaListDelegate=new SchemaSelectorDelegate(initialUserOrObjectName, this->queryScheduler, this, true);
-        tbl->setItemDelegateForColumn(ObjectGrantsModel::GrantSchemaOrObject, schemaListDelegate);
-    }else{
-        DbItemListDelegate *objectListDelegate=new DbItemListDelegate(initialUserOrObjectName, this->queryScheduler,
-                                                                      "get_tablespace_list", "tbl", this, true);
-        tbl->setItemDelegateForColumn(ObjectGrantsModel::GrantSchemaOrObject, objectListDelegate);
+
+    schemaListDelegate=new SchemaSelectorDelegate(initialSchemaName, this->queryScheduler, this, true);
+    tbl->setItemDelegateForColumn(ObjectGrantsModel::GrantSchema, schemaListDelegate);
+
+    if(this->perspective==OraExp::UserGrants){
+        GrantObjectListDelegate *objectListDelegate=new GrantObjectListDelegate(this->queryScheduler, ObjectGrantsModel::GrantSchema,
+                                                                                this);
+        tbl->setItemDelegateForColumn(ObjectGrantsModel::GrantObject, objectListDelegate);
+        tbl->setColumnWidth(ObjectGrantsModel::GrantObject, 170);
+        tblModel->setTitleColumn(ObjectGrantsModel::GrantObject);
     }
 
     QStringList grantTypes;
@@ -160,11 +167,17 @@ void ObjectGrantsEditorTable::customizeTable()
 
     for(int i=0; i<priviligeNames.size(); ++i){
         IndexBasedComboBoxDelegate *privDelegate=new IndexBasedComboBoxDelegate(grantIcon, grantTypes, this);
-        tbl->setItemDelegateForColumn(i+1, privDelegate); //first column is user or object name
+        tbl->setItemDelegateForColumn(i+tblModel->offset(), privDelegate);
     }
 
     if(this->editMode){
         connect(tblModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(tableDataChanged(QModelIndex,QModelIndex)));
+
+        tblModel->setColumnEnabled(ObjectGrantsModel::GrantSchema, false);
+
+        if(this->perspective==OraExp::UserGrants){
+            tblModel->setColumnEnabled(ObjectGrantsModel::GrantObject, false);
+        }
     }
 
     connect(tblModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(ddlChanged()));
@@ -172,11 +185,28 @@ void ObjectGrantsEditorTable::customizeTable()
 
 void ObjectGrantsEditorTable::setRowData(int rowIx, ObjectGrantsModel *model, ObjectGrantInfo *info)
 {
-    model->setData(model->index(rowIx, ObjectGrantsModel::GrantSchemaOrObject),
-                   model->getPerspective()==OraExp::ObjectGrants ? info->grantee : info->objectName);
+    if(model->getPerspective()==OraExp::ObjectGrants){
+        model->setData(model->index(rowIx, ObjectGrantsModel::GrantSchema), info->grantee);
+    }else{
+        QStringList parts=info->objectName.split("\".\"");
+        if(parts.size()>=1){
+            QString schema=parts.at(0);
+            if(schema.startsWith("\"")){
+                schema.remove(0,1);
+            }
+            model->setData(model->index(rowIx, ObjectGrantsModel::GrantSchema), schema);
+        }
+        if(parts.size()>=2){
+            QString objectName=parts.at(1);
+            if(objectName.endsWith("\"")){
+                objectName.chop(1);
+            }
+            model->setData(model->index(rowIx, ObjectGrantsModel::GrantObject), objectName);
+        }
+    }
 
     QStringList privNames=model->getPrivilegeNames();
     for(int k=0; k<privNames.size(); ++k){
-        model->setData(model->index(rowIx, k+1 /*1st column is schema name*/), info->privileges.value(privNames.at(k), 0), Qt::EditRole);
+        model->setData(model->index(rowIx, k+model->offset()), info->privileges.value(privNames.at(k), 0), Qt::EditRole);
     }
 }

@@ -6,6 +6,7 @@
 #include "privgrantinfo.h"
 #include "tablespacequotainfo.h"
 #include "beans/querylistitem.h"
+#include "beans/objectgrantinfo.h"
 
 #include <QString>
 #include <QList>
@@ -21,6 +22,7 @@ public:
     QList<PrivGrantInfo> roles;
     QList<PrivGrantInfo> sysPrivs;
     QList<TablespaceQuotaInfo> quotas;
+    QList<ObjectGrantInfo> objectPrivs;
 
     QString generateDdl() const;
     QString generateDropDdl() const;

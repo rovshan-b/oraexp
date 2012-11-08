@@ -106,5 +106,6 @@
         <file>images/right_arrow.png</file>
         <file>images/materialized_view.png</file>
         <file>images/java_class.png</file>
+        <file>images/job.png</file>
     </qresource>
 </RCC>

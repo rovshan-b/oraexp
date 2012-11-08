@@ -78,6 +78,11 @@ QList<TablespaceQuotaInfo> UserCreatorGrants::getUserQuotas() const
     return advancedLayout->getUserQuotas();
 }
 
+QList<ObjectGrantInfo> UserCreatorGrants::getUserObjectPrivs() const
+{
+    return advancedLayout->getUserObjectPrivs(objectCreator->getUserName());
+}
+
 void UserCreatorGrants::removeIncorrectRows()
 {
     advancedLayout->removeIncorrectRows();

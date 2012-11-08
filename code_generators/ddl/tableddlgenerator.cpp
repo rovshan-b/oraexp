@@ -311,7 +311,8 @@ QList< QueryListItem > TableDdlGenerator::generateAlterDdl(const TableInfo &tabl
         result.append(QueryListItem(requesters.value("external_properties"), tableInfo.externalInfo.generateAlterDdl(fullTableName, originalTableInfo->externalInfo)));
     }
 
-    result.append(QueryListItem(requesters.value("grants"), TableGrantsDdlGenerator::generateAlterDdl(tableInfo)));
+    result.append(QueryListItem(requesters.value("grants"), TableGrantsDdlGenerator::generateAlterDdl(&tableInfo.grants,
+                                                                                                      &tableInfo.originalInfo()->grants)));
 
     return result;
 }

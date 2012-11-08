@@ -16,7 +16,7 @@ public:
     explicit ObjectGrantsEditorTable(bool editMode,
                                      OraExp::GrantsEditorPerspective perspective,
                                      DbTreeModel::DbTreeNodeType objectType,
-                                     const QString &initialUserOrObjectName ,
+                                     const QString &initialSchemaName ,
                                      QWidget *parent = 0);
 
     void setQueryScheduler(IQueryScheduler *queryScheduler);
@@ -26,7 +26,9 @@ public:
 
     void removeIncorrectRows();
 
-    void setInitialUserOrObjectName(const QString &initialUserOrObjectName);
+    void setInitialUserOrObjectName(const QString &initialSchemaName);
+
+    ObjectGrantsModel *model() const {return static_cast<ObjectGrantsModel*>(table()->model());}
 
 signals:
     void ddlChanged();
@@ -42,7 +44,7 @@ private:
     bool editMode;
     OraExp::GrantsEditorPerspective perspective;
     DbTreeModel::DbTreeNodeType objectType;
-    QString initialUserOrObjectName;
+    QString initialSchemaName;
 
     QList<ObjectGrantInfo> *originalItemList;
 

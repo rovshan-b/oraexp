@@ -15,7 +15,8 @@ DbItemListDelegate::DbItemListDelegate(const QString &initialValue,
     queryScheduler(queryScheduler),
     queryName(queryName),
     iconName(iconName),
-    appendRowIfLast(appendRowIfLast)
+    appendRowIfLast(appendRowIfLast),
+    iconColumn(-1)
 {
 }
 
@@ -24,6 +25,9 @@ QWidget *DbItemListDelegate::createEditor(QWidget *parent,
      const QModelIndex &/* index */) const
 {
     DbItemListComboBox *editor=new DbItemListComboBox(this->initialValue, iconName, true, true, parent);
+    if(iconColumn!=-1){
+        editor->setIconColumn(iconColumn);
+    }
     editor->setInDelegateMode();
     editor->loadItems(queryScheduler, queryName);
     editor->setFrame(false);
@@ -44,4 +48,9 @@ void DbItemListDelegate::setModelData(QWidget *editor, QAbstractItemModel *model
             model->insertRows(modelRowCount, 1);
         }
     }
+}
+
+void DbItemListDelegate::setIconColumn(int colNum)
+{
+    this->iconColumn=colNum;
 }

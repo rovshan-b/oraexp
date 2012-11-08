@@ -1,6 +1,7 @@
 #include "objectgrantsmodel.h"
 #include "util/iconutil.h"
 #include "util/dbutil.h"
+#include <QDebug>
 
 ObjectGrantsModel::ObjectGrantsModel(const QStringList &headerTitles,
                                      OraExp::GrantsEditorPerspective perspective,
@@ -18,15 +19,15 @@ QVariant ObjectGrantsModel::data ( const QModelIndex & index, int role) const
 {
     int column=index.column();
 
-    if(column>GrantSchemaOrObject && column<=privilegeNames.size() && role==Qt::DisplayRole){
+    if(column>=offset() && column<offset()+privilegeNames.size() && role==Qt::DisplayRole){
         QVariant grantOption=index.data(Qt::EditRole);
         if(grantOption.isValid()){
             return getGrantTypeText(grantOption.toInt());
         }
-    }else if(column==GrantSchemaOrObject && role==Qt::DecorationRole){
+    }else if(column==GrantSchema && role==Qt::DecorationRole){
         bool isDataValid=index.data().isValid();
         if(isDataValid){
-            return perspective==OraExp::ObjectGrants ? IconUtil::getIcon("user") : IconUtil::getIcon("table");
+            return IconUtil::getIcon("user");
         }
     }
 
@@ -55,10 +56,15 @@ QVariant ObjectGrantsModel::getGrantTypeText(int grantTypeIx) const
 
 QString ObjectGrantsModel::isRowDataCorrect(int rowIx) const
 {
-    QString grantSchema=index(rowIx, ObjectGrantsModel::GrantSchemaOrObject).data().toString().trimmed().toUpper();
+    QString grantee=index(rowIx, ObjectGrantsModel::GrantSchema).data().toString().trimmed().toUpper();
 
-    if(grantSchema.isEmpty()){
-        return perspective==OraExp::ObjectGrants ? tr("Grantee must be entered") : tr("Object name must be entered");
+    if(grantee.isEmpty()){
+        return tr("Grantee must be entered");
+    }
+
+    if(perspective==OraExp::UserGrants &&
+            index(rowIx, ObjectGrantsModel::GrantObject).data().toString().trimmed().toUpper().isEmpty()){
+        return tr("Object name must be entered");
     }
 
     //QStringList privilegeNames;
@@ -84,11 +90,12 @@ ObjectGrantInfo ObjectGrantsModel::itemInfoFromModelRow(int row) const
     }
 
     if(perspective==OraExp::ObjectGrants){
-        inf.grantee=index(row, GrantSchemaOrObject).data().toString().trimmed().toUpper();
+        inf.grantee=index(row, GrantSchema).data().toString().trimmed().toUpper();
         inf.objectName=schemaOrObjectName;
     }else{
         inf.grantee=schemaOrObjectName;
-        inf.objectName=index(row, GrantSchemaOrObject).data().toString().trimmed().toUpper();
+        inf.objectName=QString("\"%1\".\"%2\"").arg(index(row, GrantSchema).data().toString().trimmed().toUpper(),
+                                                    index(row, GrantObject).data().toString().trimmed().toUpper());
     }
 
     inf.objectType=this->objectType;
@@ -96,7 +103,7 @@ ObjectGrantInfo ObjectGrantsModel::itemInfoFromModelRow(int row) const
     QString privName;
     for(int i=0; i<privilegeNames.size(); ++i){
         privName=privilegeNames.at(i);
-        inf.privileges[privName]=index(row, i+1 /*1st column is schema name*/).data(Qt::EditRole).toInt();
+        inf.privileges[privName]=index(row, i+offset()).data(Qt::EditRole).toInt();
     }
 
     inf.objId=row+1;
@@ -109,4 +116,9 @@ ObjectGrantInfo ObjectGrantsModel::itemInfoFromModelRow(int row) const
 void ObjectGrantsModel::setSchemaOrObjectName(const QString &schemaOrObjectName)
 {
     this->schemaOrObjectName=schemaOrObjectName;
+}
+
+int ObjectGrantsModel::offset() const
+{
+    return this->perspective==OraExp::ObjectGrants ? 1 : 2;
 }

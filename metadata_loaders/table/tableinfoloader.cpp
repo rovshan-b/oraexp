@@ -119,7 +119,7 @@ void TableInfoLoader::loadTablePartInfo()
         triggerListLoader.loadInfo();
         break;
     case TableInfoPartGrantInfo:
-        grantListLoader.loadInfo();
+        grantListLoader.loadInfo(this->queryScheduler, "get_table_grants_for_editing", getBasicQueryParams());
         break;
     default:
         qDebug("Unsupported TableInfoPart");

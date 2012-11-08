@@ -1,22 +1,22 @@
-#ifndef TABLEGRANTSLOADER_H
-#define TABLEGRANTSLOADER_H
+#ifndef OBJECTGRANTSLOADER_H
+#define OBJECTGRANTSLOADER_H
 
 #include <QObject>
 #include "beans/objectgrantinfo.h"
 #include "connectivity/queryresult.h"
 
-class TableInfoLoader;
+class Param;
 
-class TableGrantsLoader : public QObject
+class ObjectGrantsLoader : public QObject
 {
     Q_OBJECT
 public:
-    explicit TableGrantsLoader(QObject *parent);
+    explicit ObjectGrantsLoader(QObject *parent);
     
-    void loadInfo();
+    void loadInfo(IQueryScheduler *queryScheduler, const QString &queryName, const QList<Param *> &params);
 
 signals:
-    void infoReady(const QList<ObjectGrantInfo> &tableGrants);
+    void infoReady(const QList<ObjectGrantInfo> &objectGrants);
     void loadError(const QString &taskName, const OciException &ex);
 
 private slots:
@@ -25,10 +25,8 @@ private slots:
     void fetchCompleted(const QString &/*taskName*/);
 
 private:
-    TableInfoLoader *tableInfoLoader;
-
     QList<ObjectGrantInfo> grants;
     
 };
 
-#endif // TABLEGRANTSLOADER_H
+#endif // OBJECTGRANTSLOADER_H

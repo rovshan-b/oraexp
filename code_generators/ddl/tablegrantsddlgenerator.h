@@ -9,7 +9,7 @@ public:
     TableGrantsDdlGenerator();
 
     static QString generateDdl(const TableInfo &tableInfo);
-    static QList<NameQueryPair> generateAlterDdl(const TableInfo &tableInfo);
+    static QList<NameQueryPair> generateAlterDdl(const QList<ObjectGrantInfo> *currentGrantList, const QList<ObjectGrantInfo> *originalGrantList);
     static QString generateDiffDdl(const TableInfo &sourceTableInfo, const TableInfo &targetTableInfo);
 };
 

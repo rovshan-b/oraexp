@@ -63,6 +63,7 @@ QList<QueryListItem> UserCreatorTabs::generateAlterDdl()
     requesters["role_grants"]=grantsTab->getAdvancedLayout()->getRolesTable();
     requesters["sys_priv_grants"]=grantsTab->getAdvancedLayout()->getSysPrivsTable();
     requesters["quotas"]=grantsTab->getAdvancedLayout()->getQuotasTable();
+    requesters["object_privs"]=grantsTab->getAdvancedLayout()->getObjectPrivsTable();
 
     return info.generateDiffDdl(*originalUserInfo, requesters);
 }
@@ -93,6 +94,7 @@ UserInfo UserCreatorTabs::getUserInfo() const
     info.roles=grantsTab->getUserRoles();
     info.sysPrivs=grantsTab->getUserSysPrivs();
     info.quotas=grantsTab->getUserQuotas();
+    info.objectPrivs=grantsTab->getUserObjectPrivs();
 
     return info;
 }

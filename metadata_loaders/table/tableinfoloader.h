@@ -16,7 +16,7 @@
 #include "tableexternalinfoloader.h"
 #include "partitioninfoloader.h"
 #include "tabletriggersloader.h"
-#include "tablegrantsloader.h"
+#include "../object_grant/objectgrantsloader.h"
 
 class TableInfoLoader : public MetadataLoader
 {
@@ -76,7 +76,7 @@ private:
     PartitionInfoLoader partitionInfoLoader;
     TableExternalInfoLoader externalInfoLoader;
     TableTriggersLoader triggerListLoader;
-    TableGrantsLoader grantListLoader;
+    ObjectGrantsLoader grantListLoader;
 
     QQueue<TableInfoPart> partsToLoad;
 };

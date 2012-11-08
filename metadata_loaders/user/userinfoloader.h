@@ -10,6 +10,7 @@
 #include "usergeneralinfoloader.h"
 #include "privgrantinfoloader.h"
 #include "tablespacequotainfoloader.h"
+#include "../object_grant/objectgrantsloader.h"
 #include <QQueue>
 
 class UserInfoLoader : public MetadataLoader
@@ -21,7 +22,8 @@ public:
         UserInfoPartGeneralInfo,
         UserInfoPartRoleInfo,
         UserInfoPartSysPrivInfo,
-        UserInfoPartTablespaceQuotaInfo
+        UserInfoPartTablespaceQuotaInfo,
+        UserInfoPartObjectPrivInfo
     };
 
     explicit UserInfoLoader(IQueryScheduler *queryScheduler,
@@ -37,6 +39,7 @@ private slots:
     void userRoleInfoReady(const QList<PrivGrantInfo> &roles);
     void userSysPrivInfoReady(const QList<PrivGrantInfo> &sysPrivs);
     void tablespaceQuotaInfoReady(const QList<TablespaceQuotaInfo> &quotas);
+    void objectGrantInfoReady(const QList<ObjectGrantInfo> &objectGrants);
     
     void emitReadySignal();
 
@@ -51,6 +54,7 @@ private:
     PrivGrantInfoLoader roleInfoLoader;
     PrivGrantInfoLoader sysPrivInfoLoader;
     TablespaceQuotaInfoLoader quotaInfoLoader;
+    ObjectGrantsLoader objectPrivLoader;
 
     QQueue<UserInfoPart> partsToLoad;
 };

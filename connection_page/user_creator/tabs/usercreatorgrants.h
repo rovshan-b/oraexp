@@ -4,6 +4,7 @@
 #include "../usercreatortab.h"
 #include "beans/privgrantinfo.h"
 #include "beans/tablespacequotainfo.h"
+#include "beans/objectgrantinfo.h"
 
 class QGroupBox;
 class QStackedWidget;
@@ -30,6 +31,7 @@ public:
     QList<PrivGrantInfo> getUserRoles() const;
     QList<PrivGrantInfo> getUserSysPrivs() const;
     QList<TablespaceQuotaInfo> getUserQuotas() const;
+    QList<ObjectGrantInfo> getUserObjectPrivs() const;
     
     void removeIncorrectRows();
 

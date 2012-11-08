@@ -269,6 +269,11 @@ QString TableCreatorTabs::getTableName() const
     return generalInfoTab->getTableName();
 }
 
+QString TableCreatorTabs::getFullTableName() const
+{
+    return QString("\"%1\".\"%2\"").arg(getSchemaName(), getTableName());
+}
+
 QString TableCreatorTabs::getOriginalTableName() const
 {
     return this->originalTableName;

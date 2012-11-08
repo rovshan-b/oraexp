@@ -17,7 +17,8 @@ public:
 
     enum ColumnOrder
     {
-        GrantSchemaOrObject
+        GrantSchema,
+        GrantObject
     };
 
     QVariant data ( const QModelIndex & index, int role) const;
@@ -31,6 +32,8 @@ public:
     void setSchemaOrObjectName(const QString &schemaOrObjectName);
 
     OraExp::GrantsEditorPerspective getPerspective() const {return this->perspective;}
+
+    int offset() const;
 
 private:
     QVariant getGrantTypeText(int grantTypeIx) const;

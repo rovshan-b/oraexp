@@ -30,7 +30,8 @@ QString TableGrantsDdlGenerator::generateDdl(const TableInfo &tableInfo)
     return ddl;
 }
 
-QList<NameQueryPair> TableGrantsDdlGenerator::generateAlterDdl(const TableInfo &tableInfo)
+QList<NameQueryPair> TableGrantsDdlGenerator::generateAlterDdl(const QList<ObjectGrantInfo> *currentGrantList,
+                                                               const QList<ObjectGrantInfo> *originalGrantList)
 {
     QList< NameQueryPair > result;
 
@@ -42,13 +43,13 @@ QList<NameQueryPair> TableGrantsDdlGenerator::generateAlterDdl(const TableInfo &
     //QString tableName=generalInfo->tableName;
     //QString fullTableName=QString("\"%1\".\"%2\"").arg(schema).arg(tableName);
 
-    QList<ObjectGrantInfo> *originalGrantList=&tableInfo.originalInfo()->grants;
-    Q_ASSERT(originalGrantList->size()<=tableInfo.grants.size());
+    //QList<ObjectGrantInfo> *originalGrantList=&tableInfo.originalInfo()->grants;
+    Q_ASSERT(originalGrantList->size()<=currentGrantList->size());
 
-    int rowCount=tableInfo.grants.size();
+    int rowCount=currentGrantList->size();
 
     for(int i=0; i<rowCount; ++i){
-        const ObjectGrantInfo &grantInfo=tableInfo.grants.at(i);
+        const ObjectGrantInfo &grantInfo=currentGrantList->at(i);
 
         if(i<originalGrantList->size()){
             const ObjectGrantInfo &originalGrantInfo=originalGrantList->at(i);

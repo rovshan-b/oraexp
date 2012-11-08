@@ -135,6 +135,10 @@ QString DbUtil::getIndexPartitioningTypeName(int partitioningType, bool translat
 
 void DbUtil::populatePrivilegeNames(QStringList &list, DbTreeModel::DbTreeNodeType objectType)
 {
+    if(objectType==DbTreeModel::Schema){
+        list.append("EXECUTE");
+    }
+
     if(objectType==DbTreeModel::Table || objectType==DbTreeModel::Schema){
         list.append("SELECT");
         list.append("INSERT");
@@ -144,6 +148,12 @@ void DbUtil::populatePrivilegeNames(QStringList &list, DbTreeModel::DbTreeNodeTy
         list.append("INDEX");
         list.append("REFERENCES");
         list.append("DEBUG");
+    }
+
+    if(objectType==DbTreeModel::Schema){
+        list.append("UNDER");
+        list.append("READ");
+        list.append("WRITE");
     }
 }
 

@@ -59,6 +59,7 @@ void TableCreatorGrants::showAdvancedOptions(bool show)
 
 QList<ObjectGrantInfo> TableCreatorGrants::getGrantsInfo() const
 {
+    grantsEditor->model()->setSchemaOrObjectName(this->objectCreator->getFullTableName());
     return grantsEditor->getList();
 }
 

@@ -1,5 +1,6 @@
 #include "userinfo.h"
 #include "util/strutil.h"
+#include "code_generators/ddl/tablegrantsddlgenerator.h"
 #include <QStringList>
 
 UserInfo::UserInfo()
@@ -70,6 +71,9 @@ QList<QueryListItem> UserInfo::generateDiffDdl(const UserInfo &other, const QHas
 
     results.append(QueryListItem(requesters.value("quotas"),
                                  TablespaceQuotaInfo::generateListDiffDdl(&quotas, &other.quotas, generalInfo.username)));
+
+    results.append(QueryListItem(requesters.value("object_privs"),
+                                 TableGrantsDdlGenerator::generateAlterDdl(&objectPrivs, &other.objectPrivs)));
 
     return results;
 }

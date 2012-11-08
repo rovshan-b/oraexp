@@ -1,9 +1,9 @@
 #include "usercreatorgrantsadvancedlayout.h"
-#include "widgets/datatableandtoolbarwidget.h"
 #include "beans/userinfo.h"
 #include "widgets/userroleseditortable.h"
 #include "widgets/usersysprivseditortable.h"
 #include "widgets/tablespacequotaseditortable.h"
+#include "widgets/objectgrantseditortable.h"
 #include <QtGui>
 
 UserCreatorGrantsAdvancedLayout::UserCreatorGrantsAdvancedLayout(bool editMode, QWidget *parent) :
@@ -23,8 +23,8 @@ UserCreatorGrantsAdvancedLayout::UserCreatorGrantsAdvancedLayout(bool editMode, 
     quotasTable = new TablespaceQuotasEditorTable(editMode);
     tab->addTab(quotasTable, tr("Quotas"));
 
-    objectPrivTable = new DataTableAndToolBarWidget(0, Qt::Horizontal);
-    tab->addTab(objectPrivTable, tr("Object privileges"));
+    objectPrivsTable = new ObjectGrantsEditorTable(editMode, OraExp::UserGrants, DbTreeModel::Schema, "");
+    tab->addTab(objectPrivsTable, tr("Object privileges"));
 
     mainLayout->addWidget(tab);
     mainLayout->setContentsMargins(0,0,0,0);
@@ -33,6 +33,7 @@ UserCreatorGrantsAdvancedLayout::UserCreatorGrantsAdvancedLayout(bool editMode, 
     connect(rolesTable, SIGNAL(ddlChanged()), this, SIGNAL(ddlChanged()));
     connect(sysPrivsTable, SIGNAL(ddlChanged()), this, SIGNAL(ddlChanged()));
     connect(quotasTable, SIGNAL(ddlChanged()), this, SIGNAL(ddlChanged()));
+    connect(objectPrivsTable, SIGNAL(ddlChanged()), this, SIGNAL(ddlChanged()));
 }
 
 void UserCreatorGrantsAdvancedLayout::setQueryScheduler(IQueryScheduler *queryScheduler)
@@ -42,6 +43,7 @@ void UserCreatorGrantsAdvancedLayout::setQueryScheduler(IQueryScheduler *querySc
     rolesTable->setQueryScheduler(queryScheduler);
     sysPrivsTable->setQueryScheduler(queryScheduler);
     quotasTable->setQueryScheduler(queryScheduler);
+    objectPrivsTable->setQueryScheduler(queryScheduler);
 }
 
 void UserCreatorGrantsAdvancedLayout::setUserInfo(UserInfo *userInfo)
@@ -49,6 +51,7 @@ void UserCreatorGrantsAdvancedLayout::setUserInfo(UserInfo *userInfo)
     rolesTable->populateTable(&userInfo->roles);
     sysPrivsTable->populateTable(&userInfo->sysPrivs);
     quotasTable->populateTable(&userInfo->quotas);
+    objectPrivsTable->populateTable(&userInfo->objectPrivs);
 }
 
 DataTableAndToolBarWidget *UserCreatorGrantsAdvancedLayout::getRolesTable() const
@@ -66,6 +69,11 @@ DataTableAndToolBarWidget *UserCreatorGrantsAdvancedLayout::getQuotasTable() con
     return quotasTable;
 }
 
+DataTableAndToolBarWidget *UserCreatorGrantsAdvancedLayout::getObjectPrivsTable() const
+{
+    return objectPrivsTable;
+}
+
 QList<PrivGrantInfo> UserCreatorGrantsAdvancedLayout::getUserRoles() const
 {
     return rolesTable->getList();
@@ -81,9 +89,16 @@ QList<TablespaceQuotaInfo> UserCreatorGrantsAdvancedLayout::getUserQuotas() cons
     return quotasTable->getList();
 }
 
+QList<ObjectGrantInfo> UserCreatorGrantsAdvancedLayout::getUserObjectPrivs(const QString &username) const
+{
+    objectPrivsTable->model()->setSchemaOrObjectName(username);
+    return objectPrivsTable->getList();
+}
+
 void UserCreatorGrantsAdvancedLayout::removeIncorrectRows()
 {
     rolesTable->removeIncorrectRows();
     sysPrivsTable->removeIncorrectRows();
     quotasTable->removeIncorrectRows();
+    objectPrivsTable->removeIncorrectRows();
 }

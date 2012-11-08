@@ -40,6 +40,7 @@ public:
 
     QString getSchemaName() const;
     QString getTableName() const;
+    QString getFullTableName() const;
     //used in edit mode
     QString getOriginalTableName() const;
     void setOriginalTableName(const QString &originalTableName);

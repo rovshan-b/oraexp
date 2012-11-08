@@ -244,7 +244,7 @@ SOURCES += main.cpp\
     metadata_loaders/table/tableconstraintsloader.cpp \
     metadata_loaders/table/tableindexesloader.cpp \
     metadata_loaders/table/tableexternalinfoloader.cpp \
-    metadata_loaders/table/tablegrantsloader.cpp \
+    metadata_loaders/object_grant/objectgrantsloader.cpp \
     connection_page/schema_comparer/dbobjecthasher.cpp \
     connection_page/schema_comparer/tabs/schemacompareroptionstab.cpp \
     connection_page/schema_comparer/tabs/schemacomparerresultstab.cpp \
@@ -358,7 +358,8 @@ SOURCES += main.cpp\
     widgets/tablespacequotaseditortable.cpp \
     beans/objectgrantinfo.cpp \
     models/objectgrantsmodel.cpp \
-    widgets/objectgrantseditortable.cpp
+    widgets/objectgrantseditortable.cpp \
+    delegates/grantobjectlistdelegate.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -593,7 +594,7 @@ HEADERS  += mainwindow.h \
     metadata_loaders/table/tableconstraintsloader.h \
     metadata_loaders/table/tableindexesloader.h \
     metadata_loaders/table/tableexternalinfoloader.h \
-    metadata_loaders/table/tablegrantsloader.h \
+    metadata_loaders/object_grant/objectgrantsloader.h \
     connection_page/schema_comparer/dbobjecthasher.h \
     connection_page/schema_comparer/tabs/schemacompareroptionstab.h \
     connection_page/schema_comparer/tabs/schemacomparerresultstab.h \
@@ -717,7 +718,8 @@ HEADERS  += mainwindow.h \
     widgets/tablespacequotaseditortable.h \
     beans/objectgrantinfo.h \
     models/objectgrantsmodel.h \
-    widgets/objectgrantseditortable.h
+    widgets/objectgrantseditortable.h \
+    delegates/grantobjectlistdelegate.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

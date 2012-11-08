@@ -24,12 +24,16 @@ public:
 
     void setInitialValue(const QString &initialValue){this->initialValue=initialValue;}
 
+    void setIconColumn(int colNum);
+
 protected:
     QString initialValue;
     IQueryScheduler *queryScheduler;
     QString queryName;
     QString iconName;
     bool appendRowIfLast;
+
+    int iconColumn;
 };
 
 #endif // DBITEMLISTDELEGATE_H

@@ -4,17 +4,20 @@
 #include <QWidget>
 #include <QModelIndex>
 
+#include "beans/objectgrantinfo.h"
+
 class IQueryScheduler;
 class QTabWidget;
-class DataTableAndToolBarWidget;
 class DataTable;
 class PrivGrantInfo;
 class UserInfo;
 class TablespaceQuotaInfo;
 class IndexBasedComboBoxDelegate;
+class DataTableAndToolBarWidget;
 class UserRolesEditorTable;
 class UserSysPrivsEditorTable;
 class TablespaceQuotasEditorTable;
+class ObjectGrantsEditorTable;
 
 class UserCreatorGrantsAdvancedLayout : public QWidget
 {
@@ -29,10 +32,12 @@ public:
     DataTableAndToolBarWidget *getRolesTable() const;
     DataTableAndToolBarWidget *getSysPrivsTable() const;
     DataTableAndToolBarWidget *getQuotasTable() const;
+    DataTableAndToolBarWidget *getObjectPrivsTable() const;
 
     QList<PrivGrantInfo> getUserRoles() const;
     QList<PrivGrantInfo> getUserSysPrivs() const;
     QList<TablespaceQuotaInfo> getUserQuotas() const;
+    QList<ObjectGrantInfo> getUserObjectPrivs(const QString &username) const;
 
     void removeIncorrectRows();
 signals:
@@ -45,7 +50,7 @@ private:
     UserRolesEditorTable *rolesTable;
     UserSysPrivsEditorTable *sysPrivsTable;
     TablespaceQuotasEditorTable *quotasTable;
-    DataTableAndToolBarWidget *objectPrivTable;
+    ObjectGrantsEditorTable *objectPrivsTable;
 };
 
 #endif // USERCREATORGRANTSADVANCEDLAYOUT_H
