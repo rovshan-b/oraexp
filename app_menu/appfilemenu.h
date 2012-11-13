@@ -21,6 +21,8 @@ public:
     void updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *cnPageTab);
 
 private slots:
+    void showConnectDialog();
+
     void addWorksheet(){uiManager()->addWorksheet();}
     void showCreator();
 
@@ -28,6 +30,8 @@ private slots:
 
 private:
     void setupMenu(QMenu *fileMenu, QToolBar *toolbar);
+
+    QAction *fileConnectAction;
 
     QAction *fileNewAction;
     QAction *fileOpenAction;

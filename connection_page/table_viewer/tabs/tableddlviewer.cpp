@@ -1,7 +1,6 @@
 #include "tableddlviewer.h"
 #include "codeeditor/codeeditor.h"
 #include "connectivity/dbconnection.h"
-#include "../tableinfotoolbar.h"
 #include "util/queryexectask.h"
 #include "util/queryutil.h"
 #include "util/iconutil.h"
@@ -9,7 +8,7 @@
 #include <QtGui>
 
 TableDdlViewer::TableDdlViewer(QWidget *parent) :
-    TableInfoGenericTab(parent)
+    DbObjectViewerGenericTab("", parent)
 {
     ddlOptions.sqlTerminators="y";
     ddlOptions.segmentAttributes="n";

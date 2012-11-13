@@ -9,5 +9,5 @@ from all_trigger_ordering where trigger_owner=t.owner and trigger_name=t.trigger
 ) as follows
 from sys.all_triggers t
 where t.base_object_type='TABLE' and 
-t.table_owner=:owner and t.table_name=:table_name
+t.table_owner=:owner and t.table_name=:object_name
 order by t.owner, t.trigger_name

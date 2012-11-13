@@ -56,7 +56,7 @@ QWidget *ConstraintSelectorDelegate::createEditor(QWidget *parent, const QStyleO
                       QList<Param*>()
                       //<< new Param(":constraint_type", DbUtil::getConstraintTypeLetter(constraintType))
                       << new Param(":owner", schemaName)
-                      << new Param(":table_name", tableName));
+                      << new Param(":object_name", tableName));
     editor->setFrame(false);
 
     return editor;

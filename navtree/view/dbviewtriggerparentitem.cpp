@@ -9,5 +9,5 @@ QList<DbTreeItem*> DbViewTriggerParentItem::populateChildren()
 {
     return createNodeForEachRecord(getQuery("get_view_triggers"),
                                    new Param(":owner", schemaName()),
-                                   new Param(":table_name", itemName()));
+                                   new Param(":object_name", itemName()));
 }

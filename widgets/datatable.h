@@ -24,6 +24,7 @@ public:
     void clear();
 
     void setIconColumn(const QString &displayColumnName, const QString &iconColumnName);
+    void setIconColumns(const QHash<QString, QString> &iconColumns);
 
     void setHumanizeColumnNames(bool humanize){this->humanizeColumnNames=humanize;}
 

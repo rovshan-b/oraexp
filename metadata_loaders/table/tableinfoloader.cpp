@@ -18,7 +18,7 @@ TableInfoLoader::TableInfoLoader(IQueryScheduler *queryScheduler,
     partitionInfoLoader(this),
     externalInfoLoader(this),
     triggerListLoader(this),
-    grantListLoader(this)
+    grantListLoader(DbTreeModel::Table, this)
 {
     connect(&generalInfoLoader, SIGNAL(infoReady(TableGeneralInfo)), this, SLOT(tableGeneralInfoReady(TableGeneralInfo)));
     connect(&generalInfoLoader, SIGNAL(loadError(QString,OciException)), this, SLOT(subInfoLoadError(QString,OciException)));
@@ -55,7 +55,7 @@ QList<Param*> TableInfoLoader::getBasicQueryParams() const
     QList<Param*> params;
 
     params.append(new Param(":owner", schemaName));
-    params.append(new Param(":table_name", objectName));
+    params.append(new Param(":object_name", objectName));
 
     return params;
 }

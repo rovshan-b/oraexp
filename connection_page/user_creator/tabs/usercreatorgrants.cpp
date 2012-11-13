@@ -55,6 +55,10 @@ void UserCreatorGrants::setQueryScheduler(IQueryScheduler *queryScheduler)
     UserCreatorTab::setQueryScheduler(queryScheduler);
 
     advancedLayout->setQueryScheduler(queryScheduler);
+
+    if(!isEditMode()){
+        syncAdvancedLayout();
+    }
 }
 
 void UserCreatorGrants::setUserInfo(UserInfo *userInfo)
@@ -145,6 +149,8 @@ void UserCreatorGrants::syncTable(QList<QCheckBox *> checkBoxes, DataTableAndToo
     GenericEditableTableModel *model=static_cast<GenericEditableTableModel*>(table->table()->model());
     model->removeIncorrectRows();
 
+    bool removed=false;
+
     foreach(const QCheckBox *chk, checkBoxes){
         QModelIndexList foundItems=model->match(model->index(0,0), Qt::DisplayRole, chk->text(), 1, Qt::MatchFixedString);
         Q_ASSERT(foundItems.size()<=1);
@@ -156,12 +162,17 @@ void UserCreatorGrants::syncTable(QList<QCheckBox *> checkBoxes, DataTableAndToo
         }else{
             if(foundItems.size()==1){
                 WidgetHelper::deleteTableRow(table->table(), foundItems.at(0).row(), false, false);
+                removed=true;
             }
         }
     }
 
     if(model->rowCount()==0){
         model->insertRow(0);
+    }
+
+    if(removed){
+        emit ddlChanged();
     }
 }
 

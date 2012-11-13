@@ -9,7 +9,6 @@ class QMenu;
 class AppFileMenu;
 class AppEditMenu;
 class AppViewMenu;
-class AppSessionMenu;
 class AppToolsMenu;
 class AppHelpMenu;
 
@@ -42,7 +41,6 @@ private:
     AppFileMenu *appFileMenu;
     AppEditMenu *appEditMenu;
     AppViewMenu *appViewMenu;
-    AppSessionMenu *appSessionMenu;
     AppToolsMenu *appToolsMenu;
     AppHelpMenu *appHelpMenu;
 };

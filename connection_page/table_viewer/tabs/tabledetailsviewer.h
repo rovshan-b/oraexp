@@ -2,13 +2,13 @@
 #define TABLEDETAILSVIEWER_H
 
 #include <QWidget>
-#include "../tableinfogenerictab.h"
+#include "../../db_object_viewer/dbobjectviewergenerictab.h"
 #include "connectivity/fetchresult.h"
 
 class QScrollArea;
 class QLabel;
 
-class TableDetailsViewer : public TableInfoGenericTab
+class TableDetailsViewer : public DbObjectViewerGenericTab
 {
     Q_OBJECT
 public:

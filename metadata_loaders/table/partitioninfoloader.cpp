@@ -27,7 +27,7 @@ void PartitionInfoLoader::loadPartitionInfo(IQueryScheduler *queryScheduler, con
     queryScheduler->enqueueQuery(queryName,
                      QList<Param*>()
                      << new Param(":owner", schemaName)
-                     << new Param(isIndex ? ":index_name" : ":table_name", objectName),
+                     << new Param(isIndex ? ":index_name" : ":object_name", objectName),
                      this,
                      queryName,
                      "partitioningInfoLoaded",
@@ -121,7 +121,7 @@ QList<Param*> PartitionInfoLoader::getQueryParams(const QString &schemaName, con
 {
     return QList<Param*>()
             << new Param(":owner", schemaName)
-            << new Param(isIndex ? ":index_name" : ":table_name", objectName);
+            << new Param(isIndex ? ":index_name" : ":object_name", objectName);
 }
 
 void PartitionInfoLoader::partitionInfoFetchCompleted(const QString &)

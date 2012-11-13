@@ -57,12 +57,6 @@ QVariant TableIndexesModel::data ( const QModelIndex & index, int role) const
 
     if(column==IndexOwner && role==Qt::DecorationRole && dataIsValid){
         return IconUtil::getIcon("user");
-    }else if(column==IndexType && dataIsValid){
-        if(role==Qt::DecorationRole){
-            return IconUtil::getIcon("index");
-        }else if(role==Qt::DisplayRole){
-            return DbUtil::getIndexTypeName(value.toInt());
-        }
     }else if(column==IndexPrefixLength && role==Qt::BackgroundRole){
         int indexType=this->index(index.row(), IndexType).data(Qt::EditRole).toInt();
         bool compressionEnabled=this->index(index.row(), IndexCompress).data(Qt::EditRole).toBool();
@@ -74,8 +68,6 @@ QVariant TableIndexesModel::data ( const QModelIndex & index, int role) const
         if(indexType==OraExp::BitmapIndex){
             return QApplication::palette().background();
         }
-    }else if(column==IndexParallel && role==Qt::DisplayRole){
-        return getParallelEnableText(value.toInt());
     }else if(column==IndexParallelDegree && role==Qt::BackgroundRole){
         int parallelEnabled=this->index(index.row(), IndexParallel).data(Qt::EditRole).toInt();
         if(parallelEnabled!=1){
@@ -88,25 +80,6 @@ QVariant TableIndexesModel::data ( const QModelIndex & index, int role) const
         if(partitioningType!=2){
             return QApplication::palette().background();
         }
-    }
-
-    return value;
-}
-
-QVariant TableIndexesModel::getParallelEnableText(int parallelEnabledIx) const
-{
-    QVariant value;
-    switch(parallelEnabledIx)
-    {
-    case 0:
-        value="";
-        break;
-    case 1:
-        value=tr("Enabled");
-        break;
-    default:
-        value=tr("Disabled");
-        break;
     }
 
     return value;

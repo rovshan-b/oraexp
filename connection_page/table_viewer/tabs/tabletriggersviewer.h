@@ -1,12 +1,12 @@
 #ifndef TABLETRIGGERSVIEWER_H
 #define TABLETRIGGERSVIEWER_H
 
-#include "../tableinfogenerictab.h"
+#include "../../db_object_viewer/dbobjectviewergenerictab.h"
 #include "connectivity/fetchresult.h"
 
 class CodeEditor;
 
-class TableTriggersViewer : public TableInfoGenericTab
+class TableTriggersViewer : public DbObjectViewerGenericTab
 {
     Q_OBJECT
 public:

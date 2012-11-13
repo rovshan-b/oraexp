@@ -16,6 +16,7 @@ public:
     QList<QCheckBox*> getPrivCheckBoxes() const;
 
 signals:
+    void ddlChanged();
     void beforeToggleAll();
     void afterToggleAll();
     

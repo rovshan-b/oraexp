@@ -9,5 +9,5 @@ QList<DbTreeItem*> DbTableIndexParentItem::populateChildren()
 {
     return createNodeForEachRecord(getQuery("get_table_indexes"),
                                    new Param(":owner", schemaName()),
-                                   new Param(":table_name", itemName()));
+                                   new Param(":object_name", itemName()));
 }

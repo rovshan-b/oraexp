@@ -44,13 +44,13 @@ void AbstractComboBoxDelegate::setEditorData(QWidget *editor,
     QComboBox *comboBox = static_cast<QComboBox*>(editor);
     if(!value.isEmpty()){
 
-        if(isEditable){
-            comboBox->setEditText(value);
-        }
-
         int editorItemIndex=comboBox->findText(value, Qt::MatchFixedString);
         if(editorItemIndex!=-1){
             comboBox->setCurrentIndex(editorItemIndex);
+        }else if(editorItemIndex==-1 && isEditable){
+            comboBox->insertItem(0, itemIcon, "");
+            comboBox->insertItem(1, itemIcon, value);
+            comboBox->setCurrentIndex(1);
         }
 
         //else{
@@ -59,7 +59,10 @@ void AbstractComboBoxDelegate::setEditorData(QWidget *editor,
         //        comboBox->setCurrentIndex(0);
         //    }
         //}
-    }else if(comboBox->currentIndex()==-1){
+    }else if(isEditable && value.isEmpty()){
+        comboBox->insertItem(0, "");
+        comboBox->setCurrentIndex(0);
+    }else if(!isEditable && comboBox->currentIndex()==-1){
         comboBox->setCurrentIndex(0);
     }
 

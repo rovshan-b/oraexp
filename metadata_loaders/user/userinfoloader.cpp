@@ -7,7 +7,7 @@ UserInfoLoader::UserInfoLoader(IQueryScheduler *queryScheduler, const QString &u
     roleInfoLoader("get_user_roles", this),
     sysPrivInfoLoader("get_user_sys_privs", this),
     quotaInfoLoader(this),
-    objectPrivLoader(this)
+    objectPrivLoader(DbTreeModel::Schema, this)
 {
     connect(&generalInfoLoader, SIGNAL(infoReady(UserGeneralInfo)), this, SLOT(userGeneralInfoReady(UserGeneralInfo)));
     connect(&generalInfoLoader, SIGNAL(loadError(QString,OciException)), this, SLOT(subInfoLoadError(QString,OciException)));

@@ -31,7 +31,6 @@
         <file>queries/get_table_dependecies_for_detailed_view.sql</file>
         <file>queries/get_program_source.sql</file>
         <file>queries/get_table_details_for_detailed_view.sql</file>
-        <file>queries/get_columns_details_for_detailed_view.sql</file>
         <file>queries/get_table_partitions_for_detailed_view.sql</file>
         <file>queries/get_table_subpartitions_for_detailed_view.sql</file>
         <file>queries/get_table_partitioning_info.sql</file>

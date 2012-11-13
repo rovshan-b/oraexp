@@ -22,7 +22,7 @@ QString DbTableParentTreeItem::iconName() const
 
 QList<DbTreeItem*> DbTableParentTreeItem::populateChildren()
 {
-    return createNodeForEachRecord(getQuery("get_table_list"), new Param(":owner", schemaName()), new Param(":table_name", nameFilter));
+    return createNodeForEachRecord(getQuery("get_table_list"), new Param(":owner", schemaName()), new Param(":object_name", nameFilter));
 }
 
 DbTreeItem *DbTableParentTreeItem::createNodeFromRecord(Resultset *rs)

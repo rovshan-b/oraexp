@@ -11,7 +11,7 @@ ai.pct_threshold,
    else 0 end as has_mapping_table
 from sys.all_indexes ai 
 where (ai.owner, ai.index_name) in 
-(select DECODE(index_owner, NULL, owner, index_owner), index_name from sys.all_constraints where owner=:owner and table_name=:table_name
+(select DECODE(index_owner, NULL, owner, index_owner), index_name from sys.all_constraints where owner=:owner and table_name=:object_name
 and constraint_type='P')
 and index_type='IOT - TOP'
 
@@ -26,6 +26,6 @@ left join sys.all_tab_columns cols on (cols.owner=ai.owner and cols.table_name=a
 left join sys.all_tables atab1 on (atab1.owner=ai.owner and atab1.iot_name=ai.table_name and atab1.iot_type='IOT_OVERFLOW')
 left join sys.all_tables atab3 on (atab3.owner=ai.owner and atab3.iot_name=ai.table_name and atab3.iot_type='IOT_MAPPING')
 where (ai.owner, ai.index_name) in 
-(select DECODE(index_owner, NULL, owner, index_owner), index_name from sys.all_constraints where owner=:owner and table_name=:table_name
+(select DECODE(index_owner, NULL, owner, index_owner), index_name from sys.all_constraints where owner=:owner and table_name=:object_name
 and constraint_type='P')
 and index_type='IOT - TOP'*/

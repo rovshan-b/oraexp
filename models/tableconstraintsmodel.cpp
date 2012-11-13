@@ -85,31 +85,7 @@ QVariant TableConstraintsModel::data ( const QModelIndex & index, int role) cons
         }
     }
 
-    QVariant value = GenericEditableTableModel::data(index, role);
-    if(column==ConstraintConstraintType){ //constrant type
-
-        if(!value.isNull() && role==Qt::DisplayRole)
-        {
-            int constraintType=value.toInt();
-            value=DbUtil::getConstraintTypeName(constraintType);
-
-        }else if(role==Qt::DecorationRole){
-            QVariant displayValue=GenericEditableTableModel::data(index, Qt::DisplayRole);
-            if(!displayValue.isValid()){
-                return value;
-            }
-            int constraintType=displayValue.toInt();
-            value=getKeyTypeIcon(constraintType);
-        }
-
-    }else if(column==ConstraintOnDeleteAction &&
-            !value.isNull() &&
-            role==Qt::DisplayRole){ //delete action
-        int onDeleteAction=value.toInt();
-        value=getOnDeleteActionName(onDeleteAction);
-    }
-
-    return value;
+    return GenericEditableTableModel::data(index, role);
 }
 
 void TableConstraintsModel::setTableType(OraExp::TableType tableType)
@@ -120,42 +96,6 @@ void TableConstraintsModel::setTableType(OraExp::TableType tableType)
 OraExp::TableType TableConstraintsModel::getTableType() const
 {
     return tableType;
-}
-
-QVariant TableConstraintsModel::getKeyTypeIcon(int constraintType) const
-{
-    QVariant value;
-    switch(constraintType)
-    {
-    case 0:
-        value=IconUtil::getIcon("column_pk");
-        break;
-    case 1:
-        value=IconUtil::getIcon("column_fk");
-        break;
-    default:
-        value=IconUtil::getIcon("column_uq");
-        break;
-    }
-    return value;
-}
-
-QVariant TableConstraintsModel::getOnDeleteActionName(int onDeleteAction) const
-{
-    QVariant value;
-    switch(onDeleteAction)
-    {
-    case 0:
-        value=tr("No action");
-        break;
-    case 1:
-        value=tr("Cascade");
-        break;
-    default:
-        value=tr("Set null");
-        break;
-    }
-    return value;
 }
 
 OraExp::ConstraintType TableConstraintsModel::getContraintType(int rowIx) const

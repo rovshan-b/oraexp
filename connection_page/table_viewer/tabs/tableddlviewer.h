@@ -2,13 +2,13 @@
 #define TABLEDDLVIEWER_H
 
 #include <QWidget>
-#include "../tableinfogenerictab.h"
+#include "../../db_object_viewer/dbobjectviewergenerictab.h"
 #include "connectivity/fetchresult.h"
 #include "beans/objectddloptions.h"
 
 class CodeEditor;
 
-class TableDdlViewer : public TableInfoGenericTab
+class TableDdlViewer : public DbObjectViewerGenericTab
 {
     Q_OBJECT
 public:

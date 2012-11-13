@@ -135,6 +135,11 @@ void DataTable::setIconColumn(const QString &displayColumnName, const QString &i
     iconColumns[displayColumnName]=iconColumnName;
 }
 
+void DataTable::setIconColumns(const QHash<QString, QString> &iconColumns)
+{
+    this->iconColumns=iconColumns;
+}
+
 void DataTable::resizeColumnAccountingForEditor(int column)
 {
     this->setColumnWidth(column,

@@ -7,14 +7,14 @@
 #include <QtGui>
 
 TableTriggersViewer::TableTriggersViewer(QWidget *parent) :
-    TableInfoGenericTab(parent), sourceRetrieveError(false)
+    DbObjectViewerGenericTab("get_table_triggers_for_detailed_view", parent), sourceRetrieveError(false)
 {
-    query=QueryUtil::getQuery("get_table_triggers_for_detailed_view");
+
 }
 
 void TableTriggersViewer::createMainWidget(QLayout *layout)
 {
-    TableInfoGenericTab::createMainWidget(layout);
+    DbObjectViewerGenericTab::createMainWidget(layout);
 
     layout->removeWidget(dt);
 
@@ -90,5 +90,5 @@ void TableTriggersViewer::clearInfo()
 {
     editor->clear();
 
-    TableInfoGenericTab::clearInfo();
+    DbObjectViewerGenericTab::clearInfo();
 }

@@ -8,7 +8,7 @@ select owner, table_name from sys.all_constraints where (owner, constraint_name)
                 inner join sys.all_cons_columns col1 on 
                 (const1.table_name=col1.table_name and const1.constraint_name=col1.constraint_name 
                 and const1.owner=col1.owner 
-                and const1.owner=:owner and const1.table_name=:table_name 
+                and const1.owner=:owner and const1.table_name=:object_name 
                 and col1.column_name=:column_name and const1.constraint_type='R'))
                 
 ) order by owner, table_name

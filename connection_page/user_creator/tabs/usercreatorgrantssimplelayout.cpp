@@ -47,7 +47,7 @@ QWidget *UserCreatorGrantsSimpleLayout::createRolesBox()
 QWidget *UserCreatorGrantsSimpleLayout::createPrivilegesBox()
 {
     quickPrivList << "CREATE DATABASE LINK" << "CREATE MATERIALIZED VIEW"
-             << "CREATE PROCEDURE" << "CREATE PUBLIC SYNONYM"
+             << "CREATE PROCEDURE" //<< "CREATE PUBLIC SYNONYM"
              << "CREATE ROLE" << "CREATE SEQUENCE" << "CREATE SYNONYM"
              << "CREATE TABLE" << "CREATE TRIGGER" << "CREATE TYPE"
              << "CREATE VIEW";

@@ -21,7 +21,7 @@ QList<DbTreeItem*> DbTableColumnParentItem::populateChildren()
 {
     return createNodeForEachRecord(getQuery("get_table_columns"),
                                    new Param(":owner", schemaName()),
-                                   new Param(":table_name", itemName()));
+                                   new Param(":object_name", itemName()));
 }
 
 DbTreeItem *DbTableColumnParentItem::createNodeFromRecord(Resultset *rs)

@@ -1,9 +1,9 @@
 #ifndef TABLEDATAVIEWER_H
 #define TABLEDATAVIEWER_H
 
-#include "../tableinfogenerictab.h"
+#include "../../db_object_viewer/dbobjectviewergenerictab.h"
 
-class TableDataViewer : public TableInfoGenericTab
+class TableDataViewer : public DbObjectViewerGenericTab
 {
     Q_OBJECT
 public:
@@ -11,7 +11,7 @@ public:
 
     virtual QList<Param *> getQueryParams();
 
-    virtual void setTableName(const QString &schemaName, const QString &tableName);
+    virtual void setObjectName(const QString &schemaName, const QString &tableName);
 
     virtual void createMainWidget(QLayout *);
 };

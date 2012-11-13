@@ -82,15 +82,17 @@ void TableGeneralInfoLoader::populateTableDetails(const FetchResult &result)
     generalInfo.storageParams = StorageParams::fromFetchResult(result);
     generalInfo.additionalAttributes = TableAdditionalAttributes::fromFetchResult(result);
 
-    QList<Param*> params=tableInfoLoader->getBasicQueryParams();
-
     ++subqueryCount;
-    tableInfoLoader->getQueryScheduler()->enqueueQuery("get_table_comments", params, this, "get_table_comments",
+    tableInfoLoader->getQueryScheduler()->enqueueQuery("get_table_comments",
+                                                       tableInfoLoader->getBasicQueryParams(),
+                                                       this, "get_table_comments",
                                  QUERY_COMPLETED_SLOT_NAME, FETCH_SLOT_NAME, FETCH_COMPLETED_SLOT_NAME);
 
     if(generalInfo.tableType==OraExp::TableTypeIndexOrganized){
         ++subqueryCount;
-        tableInfoLoader->getQueryScheduler()->enqueueQuery("get_table_iot_details", params, this, "get_table_iot_details",
+        tableInfoLoader->getQueryScheduler()->enqueueQuery("get_table_iot_details",
+                                                           tableInfoLoader->getBasicQueryParams(),
+                                                           this, "get_table_iot_details",
                          QUERY_COMPLETED_SLOT_NAME, FETCH_SLOT_NAME, FETCH_COMPLETED_SLOT_NAME);
     }
 }

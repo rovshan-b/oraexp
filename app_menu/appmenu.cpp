@@ -3,7 +3,6 @@
 #include "appfilemenu.h"
 #include "appeditmenu.h"
 #include "appviewmenu.h"
-#include "appsessionmenu.h"
 #include "apptoolsmenu.h"
 #include "apphelpmenu.h"
 #include "connectionspane.h"
@@ -52,14 +51,12 @@ void AppMenu::setupMenu(MainWindow *mainWindow, ConnectionsPane *connectionsPane
     QMenu *fileMenu=menuBar->addMenu(QObject::tr("&File"));
     QMenu *editMenu=menuBar->addMenu(QObject::tr("&Edit"));
     QMenu *viewMenu=menuBar->addMenu(QObject::tr("&View"));
-    QMenu *sessionMenu=menuBar->addMenu(QObject::tr("&Session"));
     QMenu *toolsMenu=menuBar->addMenu(QObject::tr("&Tools"));
     QMenu *helpMenu=menuBar->addMenu(QObject::tr("&Help"));
 
     appFileMenu=new AppFileMenu(fileMenu, toolBar, this);
     appEditMenu=new AppEditMenu(editMenu, toolBar, this);
     appViewMenu=new AppViewMenu(viewMenu, toolBar, this);
-    appSessionMenu=new AppSessionMenu(sessionMenu, toolBar, this);
     appToolsMenu=new AppToolsMenu(toolsMenu, toolBar, this);
     appHelpMenu=new AppHelpMenu(helpMenu, toolBar, this);
 
@@ -76,5 +73,6 @@ void AppMenu::connectionsPaneStateChanged()
     appFileMenu->updateActionStates(cnPage, cnPageTab);
     appEditMenu->updateActionStates(cnPage, cnPageTab);
     appViewMenu->updateActionStates(cnPage, cnPageTab);
+    appToolsMenu->updateActionStates(cnPage, cnPageTab);
 }
 

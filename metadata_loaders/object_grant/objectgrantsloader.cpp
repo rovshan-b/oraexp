@@ -1,12 +1,15 @@
 #include "objectgrantsloader.h"
 #include "interfaces/iqueryscheduler.h"
 
-ObjectGrantsLoader::ObjectGrantsLoader(QObject *parent) :
-    QObject(parent)
+ObjectGrantsLoader::ObjectGrantsLoader(DbTreeModel::DbTreeNodeType objectType, QObject *parent) :
+    QObject(parent),
+    objectType(objectType)
 {
 }
 
-void ObjectGrantsLoader::loadInfo(IQueryScheduler *queryScheduler, const QString &queryName, const QList<Param*> &params)
+void ObjectGrantsLoader::loadInfo(IQueryScheduler *queryScheduler,
+                                  const QString &queryName,
+                                  const QList<Param*> &params)
 {
     queryScheduler->enqueueQuery(queryName, params, this,
                                  queryName,
@@ -29,7 +32,7 @@ void ObjectGrantsLoader::recordFetched(const FetchResult &result)
         return;
     }
 
-    ObjectGrantInfo grantInfo=ObjectGrantInfo::fromFetchResult(result, DbTreeModel::Table);
+    ObjectGrantInfo grantInfo=ObjectGrantInfo::fromFetchResult(result, objectType);
     grants.append(grantInfo);
 }
 

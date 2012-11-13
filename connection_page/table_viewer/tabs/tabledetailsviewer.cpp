@@ -9,7 +9,7 @@
 using namespace std;
 
 TableDetailsViewer::TableDetailsViewer(QWidget *parent) :
-    TableInfoGenericTab(parent)
+    DbObjectViewerGenericTab("", parent)
 {
 
 }
@@ -26,7 +26,7 @@ void TableDetailsViewer::loadData()
 {
     QList<Param*> params;
     params.append(new Param(":owner", schemaName));
-    params.append(new Param(":table_name", tableName));
+    params.append(new Param(":object_name", tableName));
 
     queryScheduler->enqueueQuery("get_table_details_for_detailed_view", params, this, "get_table_details_for_detailed_view",
                      "tableDetailsQueryCompleted", "tableDetailsRecordAvailable", "tableDetailsFetched");

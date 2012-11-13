@@ -21,5 +21,5 @@ from sys.all_tab_cols cols left join sys.all_col_comments on
 (cols.owner=sys.all_col_comments.owner and 
 cols.table_name=sys.all_col_comments.table_name and
 cols.column_name=sys.all_col_comments.column_name)
-where cols.owner=:owner and cols.table_name=:table_name and cols.hidden_column='NO'
+where cols.owner=:owner and cols.table_name=:object_name and cols.hidden_column='NO'
 order by column_id

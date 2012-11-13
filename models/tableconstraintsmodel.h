@@ -37,10 +37,6 @@ public:
     ConstraintInfo itemInfoFromModelRow(int row) const;
 
 private:
-    QVariant getKeyTypeIcon(int constraintType) const;
-
-    QVariant getOnDeleteActionName(int onDeleteAction) const;
-
     OraExp::ConstraintType getContraintType(int rowIx) const;
 
     OraExp::TableType tableType;

@@ -193,7 +193,7 @@ void TableCreatorTabs::currentSchemaChanged()
 
     QList<Param*> params;
     params.append(new Param(":owner", this->schemaName));
-    params.append(new Param(":table_name", tableName));
+    params.append(new Param(":object_name", tableName));
 
     return params;
 }*/

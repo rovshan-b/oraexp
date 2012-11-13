@@ -80,7 +80,7 @@ QString TableDdlGenerator::generateDdl(const TableInfo &tableInfo,
     }
 
     if(includeGrants && options.grants){
-        QString grantsDdl=TableGrantsDdlGenerator::generateDdl(tableInfo);
+        QString grantsDdl=TableGrantsDdlGenerator::generateDdl(&tableInfo.grants);
         if(!grantsDdl.isEmpty()){
             createTableStatement.append("\n").append(grantsDdl);
         }
@@ -150,7 +150,7 @@ QPair<QString, QString> TableDdlGenerator::generateDdlForExporting(const TableIn
     constraintTypes.append(OraExp::ForeignKey);
     QString constraintsDdl = TableDdlGenerator::generateConstraintsDdl(tableInfo, constraintTypes, true);
     QString triggersDdl=options.triggers ? TableTriggersDdlGenerator::generateDdl(tableInfo) : "";
-    QString grantsDdl = options.grants ? TableGrantsDdlGenerator::generateDdl(tableInfo) : "";
+    QString grantsDdl = options.grants ? TableGrantsDdlGenerator::generateDdl(&tableInfo.grants) : "";
 
     QString endDdl;
     if(!constraintsDdl.isEmpty()){

@@ -105,6 +105,7 @@ private:
 
     DataTableAndToolBarWidget *table;
     IdentifierNameDelegate *partitionNameDelegate;
+    ComboBoxDelegate *valuesDelegate;
     ComboBoxDelegate *tablespaceDelegate;
 
     void adjustTable();

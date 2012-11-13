@@ -14,8 +14,16 @@
        --create hash for general info
        for cur_general_info in (select sys.all_tables.*, 
                                 case when exists (select 0 from sys.all_external_tables where owner=sys.all_tables.owner and table_name=sys.all_tables.table_name) then 'YES'
-                                else 'NO' end as is_external
-                                from sys.all_tables where owner=p_owner and table_name=p_table_name)
+                                else 'NO' end as is_external 
+                                {@keep_if:>=11}
+                                    , NVL(fb.status, 'DISABLED') as flashback_status, fb.flashback_archive_name, fb.archive_table_name 
+                                {}
+                                from sys.all_tables 
+                                {@keep_if:>=11} 
+                                    left join sys.user_flashback_archive_tables fb 
+                                    on sys.all_tables.owner=fb.owner_name and sys.all_tables.table_name=fb.table_name 
+                                {}
+                                where sys.all_tables.owner=p_owner and sys.all_tables.table_name=p_table_name)
        loop
           l_tmp_str := cur_general_info.duration||cur_general_info.iot_type||cur_general_info.is_external;
           
@@ -129,8 +137,8 @@
 			  end if;
                                         
               if opt_tbl_lob_props = 1 and cur_tab_columns.data_type in ('CLOB','BLOB','NCLOB') then
-                    for cur_lob_props in (select pctversion, decode(retention,null,0,1) as retention, freepools, 
-                                            cache, logging, s.freelists, buffer_pool {@keep_if:>=11} , s.max_size {}
+                    for cur_lob_props in (select pctversion, decode(sys.all_lobs.retention,null,0,1) as retention, freepools, 
+                                            cache, logging, s.freelists, buffer_pool {@keep_if:>=11} , s.max_size*s.bytes/s.blocks as max_size  {}
                                             from sys.all_lobs left join sys.user_segments s on (sys.all_lobs.segment_name=s.segment_name and s.segment_type='LOBSEGMENT')
                                             where sys.all_lobs.owner=p_owner and sys.all_lobs.table_name=p_table_name
                                             and sys.all_lobs.column_name=cur_tab_columns.column_name)

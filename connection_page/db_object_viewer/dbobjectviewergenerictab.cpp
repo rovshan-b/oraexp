@@ -1,17 +1,16 @@
-#include "tableinfogenerictab.h"
+#include "dbobjectviewergenerictab.h"
 #include "widgets/datatable.h"
 #include "connectivity/dbconnection.h"
 #include "beans/statementdesc.h"
-#include "tableinfotoolbar.h"
+#include "util/queryutil.h"
 #include <QtGui>
 
-TableInfoGenericTab::TableInfoGenericTab(QWidget *parent) :
-    TableInfoViewerWidget(parent), dt(0)
-  //, retrieveResultsetAsBindParameter(false)
+DbObjectViewerGenericTab::DbObjectViewerGenericTab(const QString &queryName, QWidget *parent) :
+    DbObjectViewerWidget(parent), dt(0), queryName(queryName)
 {
 }
 
-TableInfoGenericTab::~TableInfoGenericTab()
+DbObjectViewerGenericTab::~DbObjectViewerGenericTab()
 {
     QHashIterator<int, StatementDesc*> i(dynamicQueries);
     while (i.hasNext()) {
@@ -21,7 +20,7 @@ TableInfoGenericTab::~TableInfoGenericTab()
     }
 }
 
-void TableInfoGenericTab::doLoadInfo()
+void DbObjectViewerGenericTab::doLoadInfo()
 {
     if(isLoading()){
         return;
@@ -31,29 +30,44 @@ void TableInfoGenericTab::doLoadInfo()
     progressBarAction->setVisible(true);
     progressBarAction->setEnabled(true);
 
-    TableInfoViewerWidget::doLoadInfo();
+    DbObjectViewerWidget::doLoadInfo();
 
     loadData();
 }
 
-QList<Param *> TableInfoGenericTab::getQueryParams()
+QList<Param *> DbObjectViewerGenericTab::getQueryParams()
 {
     QList<Param*> queryParams;
 
     queryParams.append(new Param(":owner", schemaName));
-    queryParams.append(new Param(":table_name", tableName));
+    queryParams.append(new Param(":object_name", tableName));
 
     return queryParams;
 }
 
-void TableInfoGenericTab::loadData()
+void DbObjectViewerGenericTab::loadData()
 {
     Q_ASSERT(queryScheduler);
 
+    if(query.isEmpty()){
+        query = QueryUtil::getQuery(queryName, queryScheduler->getDb());
+    }
     dt->displayQueryResults(queryScheduler, query, getQueryParams(), dynamicQueries);
 }
 
-void TableInfoGenericTab::queryCompleted()
+void DbObjectViewerGenericTab::setIconColumn(const QString &displayColumnName, const QString &iconColumnName)
+{
+    iconColumns[displayColumnName]=iconColumnName;
+}
+
+void DbObjectViewerGenericTab::setDynamicQuery(int colNum, StatementDesc *stmtDesc)
+{
+    Q_ASSERT(dynamicQueries.value(colNum, 0)==0);
+
+    dynamicQueries[colNum]=stmtDesc;
+}
+
+void DbObjectViewerGenericTab::queryCompleted()
 {
     setLoadingComplete();
     progressBarAction->setVisible(false);
@@ -61,10 +75,11 @@ void TableInfoGenericTab::queryCompleted()
     toolbar->setEnabled(true);
 }
 
-void TableInfoGenericTab::createMainWidget(QLayout *layout)
+void DbObjectViewerGenericTab::createMainWidget(QLayout *layout)
 {
     dt=new DataTable();
     dt->setHumanizeColumnNames(true);
+    dt->setIconColumns(iconColumns);
     //dt->setSelectionBehavior(QAbstractItemView::SelectRows);
     connect(dt, SIGNAL(firstFetchCompleted()), this, SLOT(queryCompleted()));
     connect(dt, SIGNAL(asyncQueryError(OciException)), this, SLOT(queryCompleted()));

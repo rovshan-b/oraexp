@@ -3,7 +3,8 @@
 
 QueryExecTask::QueryExecTask() :
     retrieveResultsetAsBindParameter(false),
-    queryEndMonitor(0)
+    queryEndMonitor(0),
+    isUserQuery(false)
 {
 
 }

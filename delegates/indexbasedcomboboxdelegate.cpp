@@ -1,5 +1,6 @@
 #include "indexbasedcomboboxdelegate.h"
 #include <QtGui>
+#include <QDebug>
 
 IndexBasedComboBoxDelegate::IndexBasedComboBoxDelegate(const QIcon &itemIcon, const QStringList &itemList, QObject *parent) :
     ComboBoxDelegate(parent, false, itemIcon, itemList)
@@ -26,6 +27,10 @@ void IndexBasedComboBoxDelegate::setModelData(QWidget *editor, QAbstractItemMode
 {
      QComboBox *comboBox = static_cast<QComboBox*>(editor);
 
-     model->setData(index, comboBox->currentIndex(), Qt::EditRole);
-     model->setData(index, comboBox->currentText(), Qt::DisplayRole);
+     int currentIndex=comboBox->currentIndex();
+     QString currentText=comboBox->currentText();
+
+     model->setData(index, currentIndex, Qt::EditRole);
+     model->setData(index, currentText, Qt::DisplayRole);
+     model->setData(index, currentText.isEmpty() ? QVariant() : comboBox->itemIcon(currentIndex), Qt::DecorationRole);
 }

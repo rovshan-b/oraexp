@@ -5,17 +5,17 @@ TableGrantsDdlGenerator::TableGrantsDdlGenerator()
 {
 }
 
-QString TableGrantsDdlGenerator::generateDdl(const TableInfo &tableInfo)
+QString TableGrantsDdlGenerator::generateDdl(const QList<ObjectGrantInfo> *grants)
 {
     QString ddl;
 
     //QString fullTableName=QString("\"%1\".\"%2\"").arg(tableInfo.generalInfo.schema, tableInfo.generalInfo.tableName).toUpper();
 
-    int ddlCount=tableInfo.grants.size();
+    int ddlCount=grants->size();
     QList< NameQueryPair > ddlList;
     NameQueryPair ddlItem;
     for(int i=0; i<ddlCount; ++i){
-        const ObjectGrantInfo &grantInfo=tableInfo.grants.at(i);
+        const ObjectGrantInfo &grantInfo=grants->at(i);
         ddlList=grantInfo.generateDdl();
         for(int k=0; k<ddlList.size(); ++k){
             ddlItem=ddlList.at(k);

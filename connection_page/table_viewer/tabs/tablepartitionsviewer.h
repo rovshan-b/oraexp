@@ -2,14 +2,14 @@
 #define TABLEPARTITIONSVIEWER_H
 
 #include <QWidget>
-#include "../tableinfogenerictab.h"
+#include "../../db_object_viewer/dbobjectviewergenerictab.h"
 #include "connectivity/fetchresult.h"
 
 class DataTable;
 class QLabel;
 class SubTabWidget;
 
-class TablePartitionsViewer : public TableInfoGenericTab
+class TablePartitionsViewer : public DbObjectViewerGenericTab
 {
     Q_OBJECT
 public:

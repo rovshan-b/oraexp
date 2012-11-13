@@ -144,6 +144,9 @@ TableCreatorPartitionsTab::TableCreatorPartitionsTab(TableCreatorTabs* tableCrea
     table->table()->setItemDelegateForColumn(configureFor==OraExp::PartitionPartPartition ?
                                                  model->PartitionNameColIx : model->SubpartitionNameColIx, partitionNameDelegate);
 
+    valuesDelegate=new ComboBoxDelegate(this);
+    table->table()->setItemDelegateForColumn(model->ValuesColIx, valuesDelegate);
+
     QIcon tablespaceIcon=IconUtil::getIcon("tablespace");
     tablespaceDelegate=new ComboBoxDelegate(this, true, tablespaceIcon);
     table->table()->setItemDelegateForColumn(model->TablespaceColIx, tablespaceDelegate);
@@ -425,8 +428,10 @@ void TableCreatorPartitionsTab::adjustTable()
     PartitionsModel *model=static_cast<PartitionsModel*>(table->table()->model());
     if(currentPartitionType==OraExp::PartitionTypeList){
         model->setHeaderData(model->ValuesColIx, Qt::Horizontal, tr("Values"));
+        valuesDelegate->setList(QStringList() << "DEFAULT");
     }else{
         model->setHeaderData(model->ValuesColIx, Qt::Horizontal, tr("Values less than"));
+        valuesDelegate->setList(QStringList() << "MAXVALUE");
     }
 
     table->table()->setColumnHidden(model->ValuesColIx, currentPartitionType==OraExp::PartitionTypeHash);

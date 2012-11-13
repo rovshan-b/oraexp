@@ -11,7 +11,7 @@ QString toQString(const dtext *ociString){
 dtext* toOciString(const QString &qString){
     dtext *data = new dtext[qString.size()+1]; //must be freed by caller
     qString.toWCharArray(data);
-    data[qString.size()]='\0';
+    data[qString.size()]=L'\0';
 
     return data;
 }

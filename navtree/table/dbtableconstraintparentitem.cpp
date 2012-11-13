@@ -19,7 +19,7 @@ QList<DbTreeItem*> DbTableConstraintParentItem::populateChildren()
 {
     return createNodeForEachRecord(getQuery("get_table_constraints"),
                                    new Param(":owner", schemaName()),
-                                   new Param(":table_name", itemName()));
+                                   new Param(":object_name", itemName()));
 }
 
 DbTreeItem *DbTableConstraintParentItem::createNodeFromRecord(Resultset *rs)

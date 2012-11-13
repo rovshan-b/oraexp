@@ -3,14 +3,13 @@
 #include "widgets/subtabwidget.h"
 #include "util/queryutil.h"
 #include "util/queryexectask.h"
-#include "../tableinfotoolbar.h"
 #include "connectivity/dbconnection.h"
 #include <QtGui>
 
 TablePartitionsViewer::TablePartitionsViewer(QWidget *parent) :
-    TableInfoGenericTab(parent), isPartitioned(false), complexPartitioning(false)
+    DbObjectViewerGenericTab("get_table_partitions_for_detailed_view", parent), isPartitioned(false), complexPartitioning(false)
 {
-    query=QueryUtil::getQuery("get_table_partitions_for_detailed_view");
+
 }
 
 void TablePartitionsViewer::createMainWidget(QLayout *layout)
@@ -53,7 +52,7 @@ void TablePartitionsViewer::loadData()
     queryScheduler->enqueueQuery("get_table_partitioning_info",
                      QList<Param*>()
                      << new Param(":owner", schemaName)
-                     << new Param(":table_name", tableName),
+                     << new Param(":object_name", tableName),
                      this,
                      "get_table_partitioning_info",
                      "partitioningInfoLoaded",
@@ -114,7 +113,7 @@ void TablePartitionsViewer::partitionInfoFetchCompleted(const QString &)
     }
 
     if(isPartitioned){
-        TableInfoGenericTab::loadData();
+        DbObjectViewerGenericTab::loadData();
     }else{
         partitioningInfoLabel->setText(tr("This table is not partitioned"));
         queryCompleted();
@@ -155,7 +154,7 @@ void TablePartitionsViewer::clearInfo()
     dtSubpartitions->horizontalHeader()->hide();
     dtSubpartitions->verticalHeader()->hide();
 
-    TableInfoGenericTab::clearInfo();
+    DbObjectViewerGenericTab::clearInfo();
 }
 
 void TablePartitionsViewer::partitionListFirstFetchCompleted()

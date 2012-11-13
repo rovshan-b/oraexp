@@ -5,12 +5,12 @@ begin
 
     for cc in (select column_name, column_position
                from sys.all_ind_columns aic where 
-               index_owner=:index_owner and index_name=:index_name and table_owner=:owner and table_name=:table_name
+               index_owner=:index_owner and index_name=:index_name and table_owner=:owner and table_name=:object_name
                order by column_position)
     loop
         begin
          select column_expression into l_col_expression from sys.all_ind_expressions
-         where index_owner=:index_owner and index_name=:index_name and table_owner=:owner and table_name=:table_name and
+         where index_owner=:index_owner and index_name=:index_name and table_owner=:owner and table_name=:object_name and
          column_position=cc.column_position;
         exception when no_data_found then
          l_col_expression := null;

@@ -41,6 +41,11 @@ QString UserInfo::generateDdl() const
         ddl.append("\n").append(quotasDdl);
     }
 
+    QString objectPrivsDdl=TableGrantsDdlGenerator::generateDdl(&this->objectPrivs);
+    if(!objectPrivsDdl.isEmpty()){
+        ddl.append("\n").append(objectPrivsDdl);
+    }
+
     return ddl;
 }
 

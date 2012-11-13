@@ -72,5 +72,5 @@ select column_name, data_type, data_length, nullable,
       end 
     ) as is_unique 
     from sys.all_tab_columns cols 
-    where owner=:owner and table_name=:table_name 
+    where owner=:owner and table_name=:object_name 
     order by column_id 

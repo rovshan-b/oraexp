@@ -11,7 +11,7 @@ class ObjectGrantsLoader : public QObject
 {
     Q_OBJECT
 public:
-    explicit ObjectGrantsLoader(QObject *parent);
+    explicit ObjectGrantsLoader(DbTreeModel::DbTreeNodeType objectType, QObject *parent);
     
     void loadInfo(IQueryScheduler *queryScheduler, const QString &queryName, const QList<Param *> &params);
 
@@ -26,6 +26,8 @@ private slots:
 
 private:
     QList<ObjectGrantInfo> grants;
+
+    DbTreeModel::DbTreeNodeType objectType;
     
 };
 

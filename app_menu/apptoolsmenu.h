@@ -14,6 +14,8 @@ class AppToolsMenu : public AppMainMenu
 public:
     explicit AppToolsMenu(QMenu *toolsMenu, QToolBar *toolbar, QObject *parent);
 
+    void updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *cnPageTab);
+
 private:
     void setupMenu(QMenu *toolsMenu, QToolBar *toolbar);
 

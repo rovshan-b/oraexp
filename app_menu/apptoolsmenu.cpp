@@ -21,3 +21,9 @@ void AppToolsMenu::setupMenu(QMenu *toolsMenu, QToolBar *toolbar)
     toolsOptionsAction=toolsMenu->addAction(IconUtil::getIcon("settings"), tr("&Options..."));
     toolsOptionsAction->setStatusTip(tr("Application settings"));
 }
+
+void AppToolsMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab * /*cnPageTab*/)
+{
+    toolsCompareSchemasAction->setEnabled(cnPage!=0);
+    toolsCompareDataAction->setEnabled(cnPage!=0);
+}

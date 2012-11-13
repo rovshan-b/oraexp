@@ -1,21 +1,21 @@
-#ifndef TABLEINFOVIEWERWIDGET_H
-#define TABLEINFOVIEWERWIDGET_H
+#ifndef DBOBJECTVIEWERWIDGET_H
+#define DBOBJECTVIEWERWIDGET_H
 
 #include "widgets/ondemandinfoviewerwidget.h"
 #include "interfaces/iqueryscheduler.h"
 
 class DbConnection;
-class TableInfoToolbar;
+class QToolBar;
 
-class TableInfoViewerWidget : public OnDemandInfoViewerWidget
+class DbObjectViewerWidget : public OnDemandInfoViewerWidget
 {
 public:
-    TableInfoViewerWidget(QWidget *parent = 0);
+    DbObjectViewerWidget(QWidget *parent = 0);
 
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
-    virtual void setTableName(const QString &schemaName, const QString &tableName);
+    virtual void setObjectName(const QString &schemaName, const QString &tableName);
 
-    virtual void createMainWidget(QLayout *);
+    virtual void createMainWidget(QLayout *) = 0;
 
     void createChildControls();
     bool areControlsCreated() const {return this->controlsCreated;}
@@ -29,11 +29,11 @@ protected:
     QString schemaName;
     QString tableName;
 
-    TableInfoToolbar *toolbar;
+    QToolBar *toolbar;
     QAction *refreshButton;
     QAction *progressBarAction;
 
     bool controlsCreated;
 };
 
-#endif // TABLEINFOVIEWERWIDGET_H
+#endif // DBOBJECTVIEWERWIDGET_H

@@ -75,18 +75,12 @@ SOURCES += main.cpp\
     navtree/type/dbtypeitem.cpp \
     connection_page/dbuimanager.cpp \
     navtree/nodeaction.cpp \
-    connection_page/table_info/tableinfotoolbar.cpp \
-    connection_page/table_info/tabs/tablecolumnsviewer.cpp \
-    connection_page/table_info/tabs/tabledataviewer.cpp \
-    connection_page/table_info/tabs/tableconstraintsviewer.cpp \
-    connection_page/table_info/tabs/tablegrantsviewer.cpp \
-    connection_page/table_info/tabs/tabletriggersviewer.cpp \
-    connection_page/table_info/tabs/tabledependenciesviewer.cpp \
-    connection_page/table_info/tabs/tabledetailsviewer.cpp \
-    connection_page/table_info/tabs/tablepartitionsviewer.cpp \
-    connection_page/table_info/tabs/tableddlviewer.cpp \
+    connection_page/table_viewer/tabs/tabledataviewer.cpp \
+    connection_page/table_viewer/tabs/tabletriggersviewer.cpp \
+    connection_page/table_viewer/tabs/tabledetailsviewer.cpp \
+    connection_page/table_viewer/tabs/tablepartitionsviewer.cpp \
+    connection_page/table_viewer/tabs/tableddlviewer.cpp \
     widgets/ondemandinfoviewerwidget.cpp \
-    connection_page/table_info/tableinfoviewerwidget.cpp \
     widgets/datatable.cpp \
     models/resultsettablemodel.cpp \
     util/datetimewithtimezone.cpp \
@@ -171,16 +165,12 @@ SOURCES += main.cpp\
     navtree/dbtreeitemresult.cpp \
     navtree/loadingdbtreeitem.cpp \
     connection_page/connectionpagetab.cpp \
-    connection_page/table_info/tableinfoviewertabs.cpp \
-    connection_page/table_info/tableinfoviewer.cpp \
     util/asyncconnect.cpp \
     widgets/tablecreatorpartitionstab.cpp \
     widgets/lineeditwithautocompleter.cpp \
     util/queryexectask.cpp \
     util/queryqueuemanager.cpp \
     connectivity/recordfetcherthread.cpp \
-    connection_page/table_info/tabs/tablereferencingfkviewer.cpp \
-    connection_page/table_info/tableinfogenerictab.cpp \
     connectivity/fetchresult.cpp \
     grammar_parser/codescanner.cpp \
     grammar_parser/ebnfscanner.cpp \
@@ -192,7 +182,6 @@ SOURCES += main.cpp\
     grammar_parser/dfastate.cpp \
     grammar_parser/dfatransition.cpp \
     grammar_parser/dfa.cpp \
-    connection_page/table_info/tabs/tableindexesviewer.cpp \
     beans/objectddloptions.cpp \
     widgets/tableddloptionswidget.cpp \
     dialogs/tableddloptionsdialog.cpp \
@@ -226,7 +215,6 @@ SOURCES += main.cpp\
     widgets/codeeditorandsearchpanewidget.cpp \
     widgets/searchpane.cpp \
     widgets/closebutton.cpp \
-    app_menu/appsessionmenu.cpp \
     connection_page/schema_comparer/schemacomparer.cpp \
     connection_page/schema_comparer/tabs/schemacomparercomparetab.cpp \
     widgets/connectionselectorwidget.cpp \
@@ -359,7 +347,13 @@ SOURCES += main.cpp\
     beans/objectgrantinfo.cpp \
     models/objectgrantsmodel.cpp \
     widgets/objectgrantseditortable.cpp \
-    delegates/grantobjectlistdelegate.cpp
+    delegates/grantobjectlistdelegate.cpp \
+    connection_page/db_object_viewer/dbobjectviewergenerictab.cpp \
+    connection_page/db_object_viewer/dbobjectviewer.cpp \
+    connection_page/db_object_viewer/dbobjectviewertabs.cpp \
+    connection_page/db_object_viewer/dbobjectviewerwidget.cpp \
+    connection_page/table_viewer/tableviewer.cpp \
+    connection_page/table_viewer/tableviewertabs.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -417,18 +411,12 @@ HEADERS  += mainwindow.h \
     navtree/type/dbtypeitem.h \
     connection_page/dbuimanager.h \
     navtree/nodeaction.h \
-    connection_page/table_info/tableinfotoolbar.h \
-    connection_page/table_info/tabs/tablecolumnsviewer.h \
-    connection_page/table_info/tabs/tabledataviewer.h \
-    connection_page/table_info/tabs/tableconstraintsviewer.h \
-    connection_page/table_info/tabs/tablegrantsviewer.h \
-    connection_page/table_info/tabs/tabletriggersviewer.h \
-    connection_page/table_info/tabs/tabledependenciesviewer.h \
-    connection_page/table_info/tabs/tabledetailsviewer.h \
-    connection_page/table_info/tabs/tablepartitionsviewer.h \
-    connection_page/table_info/tabs/tableddlviewer.h \
+    connection_page/table_viewer/tabs/tabledataviewer.h \
+    connection_page/table_viewer/tabs/tabletriggersviewer.h \
+    connection_page/table_viewer/tabs/tabledetailsviewer.h \
+    connection_page/table_viewer/tabs/tablepartitionsviewer.h \
+    connection_page/table_viewer/tabs/tableddlviewer.h \
     widgets/ondemandinfoviewerwidget.h \
-    connection_page/table_info/tableinfoviewerwidget.h \
     widgets/datatable.h \
     models/resultsettablemodel.h \
     util/datetimewithtimezone.h \
@@ -517,16 +505,12 @@ HEADERS  += mainwindow.h \
     navtree/dbtreeitemresult.h \
     navtree/loadingdbtreeitem.h \
     connection_page/connectionpagetab.h \
-    connection_page/table_info/tableinfoviewertabs.h \
-    connection_page/table_info/tableinfoviewer.h \
     util/asyncconnect.h \
     widgets/tablecreatorpartitionstab.h \
     widgets/lineeditwithautocompleter.h \
     util/queryexectask.h \
     util/queryqueuemanager.h \
     connectivity/recordfetcherthread.h \
-    connection_page/table_info/tabs/tablereferencingfkviewer.h \
-    connection_page/table_info/tableinfogenerictab.h \
     connectivity/fetchresult.h \
     grammar_parser/codescanner.h \
     grammar_parser/ebnfscanner.h \
@@ -538,7 +522,6 @@ HEADERS  += mainwindow.h \
     grammar_parser/dfastate.h \
     grammar_parser/dfatransition.h \
     grammar_parser/dfa.h \
-    connection_page/table_info/tabs/tableindexesviewer.h \
     beans/objectddloptions.h \
     widgets/tableddloptionswidget.h \
     dialogs/tableddloptionsdialog.h \
@@ -576,7 +559,6 @@ HEADERS  += mainwindow.h \
     widgets/codeeditorandsearchpanewidget.h \
     widgets/searchpane.h \
     widgets/closebutton.h \
-    app_menu/appsessionmenu.h \
     connection_page/schema_comparer/schemacomparer.h \
     connection_page/schema_comparer/tabs/schemacomparercomparetab.h \
     widgets/connectionselectorwidget.h \
@@ -719,7 +701,13 @@ HEADERS  += mainwindow.h \
     beans/objectgrantinfo.h \
     models/objectgrantsmodel.h \
     widgets/objectgrantseditortable.h \
-    delegates/grantobjectlistdelegate.h
+    delegates/grantobjectlistdelegate.h \
+    connection_page/db_object_viewer/dbobjectviewergenerictab.h \
+    connection_page/db_object_viewer/dbobjectviewertabs.h \
+    connection_page/db_object_viewer/dbobjectviewerwidget.h \
+    connection_page/db_object_viewer/dbobjectviewer.h \
+    connection_page/table_viewer/tableviewer.h \
+    connection_page/table_viewer/tableviewertabs.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

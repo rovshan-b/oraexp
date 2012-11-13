@@ -43,7 +43,7 @@ QList<DbTreeItem*> DbTableColumnItem::populateChildren() //will be called only f
 {
     return createNodeForEachRecord(getQuery("get_column_constraints"),
                                    new Param(":owner", schemaName()),
-                                   new Param(":table_name", this->parent()->itemName()),
+                                   new Param(":object_name", this->parent()->itemName()),
                                    new Param(":column_name", itemName()));
 }
 

@@ -3,6 +3,7 @@
 #include "connection_page/connectionpage.h"
 #include "connection_page/connectionpagetab.h"
 #include "util/widgethelper.h"
+#include "util/dialoghelper.h"
 #include "beans/dbitemaction.h"
 #include <QtGui>
 
@@ -18,6 +19,14 @@ AppFileMenu::~AppFileMenu()
 
 void AppFileMenu::setupMenu(QMenu *fileMenu, QToolBar *toolbar)
 {
+    fileConnectAction=fileMenu->addAction(IconUtil::getIcon("connect"), tr("&Connect"), this, SLOT(showConnectDialog()));
+    fileConnectAction->setStatusTip(tr("Connect to database server"));
+
+    toolbar->addAction(fileConnectAction);
+
+    fileMenu->addSeparator();
+    toolbar->addSeparator();
+
     fileNewAction=fileMenu->addAction(IconUtil::getIcon("filenew"), tr("&New"), this, SLOT(addWorksheet()));
     createFileNewMenu();
     fileNewAction->setMenu(fileNewMenu);
@@ -96,6 +105,11 @@ void AppFileMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *
     filePrintAction->setEnabled(cnPageTab!=0 && cnPageTab->canPrint());
     filePrintPreviewAction->setEnabled(cnPageTab!=0 && cnPageTab->canPrint());
 
+}
+
+void AppFileMenu::showConnectDialog()
+{
+    DialogHelper::showConnectDialog(getConnectionsPane());
 }
 
 void AppFileMenu::showCreator()

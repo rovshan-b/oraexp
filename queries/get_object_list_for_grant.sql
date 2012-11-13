@@ -21,6 +21,6 @@ union all
 select type_name as object_name, 'TYPE' as object_type, 'type' as icon_name, 8 as sort_col from sys.all_types where typecode='OBJECT' and owner=:owner
 union all
 select object_name, object_type, replace(lower(object_type),' ','_') as icon_name, 11 as sort_col from sys.all_objects
-where object_type not in ('TABLE', 'VIEW','MATERIALIZED VIEW','SEQUENCE','PACKAGE', 'PACKAGE BODY','PROCEDURE','FUNCTION','JAVA CLASS','SYNONYM','TYPE', 'TYPE BODY') and owner=:owner
+where object_type not in ('TABLE', 'VIEW','MATERIALIZED VIEW','SEQUENCE','PACKAGE', 'PACKAGE BODY','PROCEDURE','FUNCTION','JAVA CLASS','SYNONYM','TYPE','TYPE BODY','TRIGGER') and owner=:owner
 order by sort_col, object_name
 ) t
