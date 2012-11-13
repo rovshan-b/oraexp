@@ -1,14 +1,16 @@
-#include "tableddlviewer.h"
+#include "dbobjectddlviewer.h"
 #include "codeeditor/codeeditor.h"
 #include "connectivity/dbconnection.h"
 #include "util/queryexectask.h"
 #include "util/queryutil.h"
 #include "util/iconutil.h"
+#include "util/dbutil.h"
 #include "dialogs/tableddloptionsdialog.h"
 #include <QtGui>
 
-TableDdlViewer::TableDdlViewer(QWidget *parent) :
-    DbObjectViewerGenericTab("", parent)
+DbObjectDdlViewer::DbObjectDdlViewer(DbTreeModel::DbTreeNodeType itemType, QWidget *parent) :
+    DbObjectViewerGenericTab("", parent),
+    itemType(itemType)
 {
     ddlOptions.sqlTerminators="y";
     ddlOptions.segmentAttributes="n";
@@ -21,7 +23,7 @@ TableDdlViewer::TableDdlViewer(QWidget *parent) :
     ddlOptions.sizeByteKeyword="n";
 }
 
-void TableDdlViewer::createMainWidget(QLayout *layout)
+void DbObjectDdlViewer::createMainWidget(QLayout *layout)
 {
     editor=new CodeEditor();
     editor->setReadOnly(true);
@@ -29,25 +31,25 @@ void TableDdlViewer::createMainWidget(QLayout *layout)
     layout->addWidget(editor);
 }
 
-void TableDdlViewer::loadData()
+void DbObjectDdlViewer::loadData()
 {
     editor->setPlainText("");
 
     queryScheduler->enqueueQuery("get_object_ddl",
                                  QList<Param*>() <<
                                  new Param(":owner", this->schemaName) <<
-                                 new Param(":object_name", this->tableName) <<
-                                 new Param(":object_type", QString("TABLE")) <<
+                                 new Param(":object_name", this->objectName) <<
+                                 new Param(":object_type", DbUtil::getDbObjectTypeNameByNodeType(this->itemType)) <<
                                  ddlOptions.getQueryParams(),
                                  this,
-                                 "get_table_ddl",
+                                 "get_object_ddl",
                                  "ddlQueryCompleted",
                                  "ddlFetched",
                                  "fetchCompleted",
                                  true);
 }
 
-void TableDdlViewer::ddlQueryCompleted(const QueryResult &result)
+void DbObjectDdlViewer::ddlQueryCompleted(const QueryResult &result)
 {
     if(result.hasError){
         QMessageBox::critical(this->window(), tr("Error retrieving table DDL"), result.exception.getErrorMessage());
@@ -55,7 +57,7 @@ void TableDdlViewer::ddlQueryCompleted(const QueryResult &result)
     }
 }
 
-void TableDdlViewer::ddlFetched(const FetchResult &fetchResult)
+void DbObjectDdlViewer::ddlFetched(const FetchResult &fetchResult)
 {
     if(fetchResult.hasError){
         QMessageBox::critical(this->window(), tr("Error fetching table DDL"), fetchResult.exception.getErrorMessage());
@@ -64,18 +66,18 @@ void TableDdlViewer::ddlFetched(const FetchResult &fetchResult)
     }
 }
 
-void TableDdlViewer::fetchCompleted(const QString &)
+void DbObjectDdlViewer::fetchCompleted(const QString &)
 {
     queryCompleted();
 }
 
-void TableDdlViewer::addSpecificToolbarButtons()
+void DbObjectDdlViewer::addSpecificToolbarButtons()
 {
     toolbar->addSeparator();
     toolbar->addAction(IconUtil::getIcon("settings"), tr("DDL options"), this, SLOT(showDdlOptions()));
 }
 
-void TableDdlViewer::showDdlOptions()
+void DbObjectDdlViewer::showDdlOptions()
 {
     TableDdlOptionsDialog dialog(this);
     dialog.setOptions(ddlOptions);

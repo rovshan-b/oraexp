@@ -4,10 +4,13 @@
 
 DbObjectViewerTabs::DbObjectViewerTabs(const QString &schemaName,
                                  const QString &objectName,
-                                 QWidget *parent) :
+                                 DbTreeModel::DbTreeNodeType itemType,
+                                 DbUiManager *uiManager, QWidget *parent) :
     SubTabWidget(parent),
     schemaName(schemaName),
     objectName(objectName),
+    itemType(itemType),
+    uiManager(uiManager),
     queryScheduler(0)
 {   
 }
@@ -29,9 +32,9 @@ void DbObjectViewerTabs::loadTabData(int index)
     DbObjectViewerWidget* selectedWidget=(DbObjectViewerWidget*)widget(index);
 
     if(!selectedWidget->areControlsCreated()){
-        selectedWidget->createChildControls();
-        selectedWidget->setQueryScheduler(this->queryScheduler);
         selectedWidget->setObjectName(schemaName, objectName);
+        selectedWidget->createChildControls(this->itemType, this->uiManager);
+        selectedWidget->setQueryScheduler(this->queryScheduler);
         selectedWidget->loadInfo();
     }
 }

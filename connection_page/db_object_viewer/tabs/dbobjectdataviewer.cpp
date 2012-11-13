@@ -1,26 +1,26 @@
-#include "tabledataviewer.h"
+#include "dbobjectdataviewer.h"
 #include "widgets/datatable.h"
 
 
-TableDataViewer::TableDataViewer(QWidget *parent) :
+DbObjectDataViewer::DbObjectDataViewer(QWidget *parent) :
     DbObjectViewerGenericTab("", parent)
 {
 
 }
 
-QList<Param *> TableDataViewer::getQueryParams()
+QList<Param *> DbObjectDataViewer::getQueryParams()
 {
     return QList<Param*>();
 }
 
-void TableDataViewer::setObjectName(const QString &schemaName, const QString &tableName)
+void DbObjectDataViewer::setObjectName(const QString &schemaName, const QString &tableName)
 {
     DbObjectViewerWidget::setObjectName(schemaName, tableName);
 
     query=QString("select * from \"%1\".\"%2\"").arg(schemaName).arg(tableName);
 }
 
-void TableDataViewer::createMainWidget(QLayout *layout)
+void DbObjectDataViewer::createMainWidget(QLayout *layout)
 {
     DbObjectViewerGenericTab::createMainWidget(layout);
 

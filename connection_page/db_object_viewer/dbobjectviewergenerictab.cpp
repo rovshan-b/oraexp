@@ -40,7 +40,7 @@ QList<Param *> DbObjectViewerGenericTab::getQueryParams()
     QList<Param*> queryParams;
 
     queryParams.append(new Param(":owner", schemaName));
-    queryParams.append(new Param(":object_name", tableName));
+    queryParams.append(new Param(":object_name", objectName));
 
     return queryParams;
 }

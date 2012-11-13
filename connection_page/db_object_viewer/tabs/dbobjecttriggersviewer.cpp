@@ -1,4 +1,4 @@
-#include "tabletriggersviewer.h"
+#include "dbobjecttriggersviewer.h"
 #include "util/queryutil.h"
 #include "util/queryexectask.h"
 #include "codeeditor/codeeditor.h"
@@ -6,13 +6,13 @@
 #include "connectivity/dbconnection.h"
 #include <QtGui>
 
-TableTriggersViewer::TableTriggersViewer(QWidget *parent) :
+DbObjectTriggersViewer::DbObjectTriggersViewer(QWidget *parent) :
     DbObjectViewerGenericTab("get_table_triggers_for_detailed_view", parent), sourceRetrieveError(false)
 {
 
 }
 
-void TableTriggersViewer::createMainWidget(QLayout *layout)
+void DbObjectTriggersViewer::createMainWidget(QLayout *layout)
 {
     DbObjectViewerGenericTab::createMainWidget(layout);
 
@@ -29,7 +29,7 @@ void TableTriggersViewer::createMainWidget(QLayout *layout)
     connect(dt, SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this, SLOT(currentRowChanged()));
 }
 
-void TableTriggersViewer::currentRowChanged()
+void DbObjectTriggersViewer::currentRowChanged()
 {
     if(sourceRetrieveError){
         return;
@@ -57,7 +57,7 @@ void TableTriggersViewer::currentRowChanged()
     queryScheduler->enqueueQuery(task);
 }
 
-void TableTriggersViewer::sourceFetchQueryCompleted(const QueryResult &result)
+void DbObjectTriggersViewer::sourceFetchQueryCompleted(const QueryResult &result)
 {
     if(result.hasError){
         sourceRetrieveError=true;
@@ -65,7 +65,7 @@ void TableTriggersViewer::sourceFetchQueryCompleted(const QueryResult &result)
     }
 }
 
-void TableTriggersViewer::sourceRecordAvailable(const FetchResult &fetchResult)
+void DbObjectTriggersViewer::sourceRecordAvailable(const FetchResult &fetchResult)
 {
     if(fetchResult.hasError){
         QMessageBox::critical(this->window(), tr("Error fetching trigger source"), fetchResult.exception.getErrorMessage());
@@ -80,13 +80,13 @@ void TableTriggersViewer::sourceRecordAvailable(const FetchResult &fetchResult)
     editor->addText(line);
 }
 
-void TableTriggersViewer::triggerBodyFetched(const QString &)
+void DbObjectTriggersViewer::triggerBodyFetched(const QString &)
 {
     editor->horizontalScrollBar()->setValue(0);
     editor->verticalScrollBar()->setValue(0);
 }
 
-void TableTriggersViewer::clearInfo()
+void DbObjectTriggersViewer::clearInfo()
 {
     editor->clear();
 

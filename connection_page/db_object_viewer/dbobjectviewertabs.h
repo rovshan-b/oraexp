@@ -3,6 +3,7 @@
 
 #include "widgets/subtabwidget.h"
 #include "interfaces/iqueryscheduler.h"
+#include "navtree/dbtreemodel.h"
 
 class DbConnection;
 
@@ -12,6 +13,8 @@ class DbObjectViewerTabs : public SubTabWidget
 public:
     explicit DbObjectViewerTabs(const QString &schemaName,
                                 const QString &objectName,
+                                DbTreeModel::DbTreeNodeType itemType,
+                                DbUiManager *uiManager,
                                 QWidget *parent);
 
     virtual void createUi();
@@ -29,6 +32,8 @@ public slots:
 protected:
     const QString schemaName;
     const QString objectName;
+    DbTreeModel::DbTreeNodeType itemType;
+    DbUiManager *uiManager;
 
     IQueryScheduler *queryScheduler;
 

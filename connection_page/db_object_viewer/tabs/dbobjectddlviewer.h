@@ -1,5 +1,5 @@
-#ifndef TABLEDDLVIEWER_H
-#define TABLEDDLVIEWER_H
+#ifndef DBOBJECTDDLVIEWER_H
+#define DBOBJECTDDLVIEWER_H
 
 #include <QWidget>
 #include "../../db_object_viewer/dbobjectviewergenerictab.h"
@@ -8,11 +8,11 @@
 
 class CodeEditor;
 
-class TableDdlViewer : public DbObjectViewerGenericTab
+class DbObjectDdlViewer : public DbObjectViewerGenericTab
 {
     Q_OBJECT
 public:
-    explicit TableDdlViewer(QWidget *parent = 0);
+    explicit DbObjectDdlViewer(DbTreeModel::DbTreeNodeType itemType, QWidget *parent = 0);
 
     virtual void loadData();
 
@@ -33,6 +33,8 @@ private:
 
     ObjectDdlOptions ddlOptions;
 
+    DbTreeModel::DbTreeNodeType itemType;
+
 };
 
-#endif // TABLEDDLVIEWER_H
+#endif // DBOBJECTDDLVIEWER_H

@@ -1,20 +1,16 @@
-#include "tabledetailsviewer.h"
+#include "dbobjectdetailsviewer.h"
 #include "util/queryutil.h"
 #include "util/strutil.h"
 #include "connectivity/dbconnection.h"
 #include "widgets/datatable.h"
 #include <QtGui>
 
-#include <iostream>
-using namespace std;
-
-TableDetailsViewer::TableDetailsViewer(QWidget *parent) :
-    DbObjectViewerGenericTab("", parent)
+DbObjectDetailsViewer::DbObjectDetailsViewer(const QString &queryName, QWidget *parent) :
+    DbObjectViewerGenericTab(queryName, parent)
 {
-
 }
 
-void TableDetailsViewer::createMainWidget(QLayout *layout)
+void DbObjectDetailsViewer::createMainWidget(QLayout *layout)
 {
     scrollArea=new QScrollArea();
     scrollArea->setWidgetResizable(true);
@@ -22,29 +18,25 @@ void TableDetailsViewer::createMainWidget(QLayout *layout)
     layout->addWidget(scrollArea);
 }
 
-void TableDetailsViewer::loadData()
+void DbObjectDetailsViewer::loadData()
 {
-    QList<Param*> params;
-    params.append(new Param(":owner", schemaName));
-    params.append(new Param(":object_name", tableName));
-
-    queryScheduler->enqueueQuery("get_table_details_for_detailed_view", params, this, "get_table_details_for_detailed_view",
-                     "tableDetailsQueryCompleted", "tableDetailsRecordAvailable", "tableDetailsFetched");
+    queryScheduler->enqueueQuery(this->queryName, getQueryParams(), this, this->queryName,
+                     "objectDetailsQueryCompleted", "objectDetailsRecordAvailable", "objectDetailsFetched");
 }
 
-void TableDetailsViewer::tableDetailsQueryCompleted(const QueryResult &result)
+void DbObjectDetailsViewer::objectDetailsQueryCompleted(const QueryResult &result)
 {
     if(result.hasError){
-        QMessageBox::critical(this->window(), tr("Error retrieving table details"), result.exception.getErrorMessage());
+        QMessageBox::critical(this->window(), tr("Error retrieving object details"), result.exception.getErrorMessage());
         queryCompleted();
         return;
     }
 }
 
-void TableDetailsViewer::tableDetailsRecordAvailable(const FetchResult &fetchResult)
+void DbObjectDetailsViewer::objectDetailsRecordAvailable(const FetchResult &fetchResult)
 {
     if(fetchResult.hasError){
-        QMessageBox::critical(this->window(), tr("Error fetching table details"), fetchResult.exception.getErrorMessage());
+        QMessageBox::critical(this->window(), tr("Error fetching object details"), fetchResult.exception.getErrorMessage());
         queryCompleted();
         return;
     }
@@ -56,12 +48,12 @@ void TableDetailsViewer::tableDetailsRecordAvailable(const FetchResult &fetchRes
     }
 }
 
-void TableDetailsViewer::tableDetailsFetched(const QString &)
+void DbObjectDetailsViewer::objectDetailsFetched(const QString &)
 {
     queryCompleted();
 }
 
-void TableDetailsViewer::createLabels(const FetchResult &result)
+void DbObjectDetailsViewer::createLabels(const FetchResult &result)
 {
     //int columnCount = 3;
     //int itemsPerColumn = qCeil((float)result.oneRow.count() / columnCount);
@@ -95,7 +87,7 @@ void TableDetailsViewer::createLabels(const FetchResult &result)
     scrollArea->setWidget(parentWidget);
 }
 
-void TableDetailsViewer::setLabelTexts(const FetchResult &result)
+void DbObjectDetailsViewer::setLabelTexts(const FetchResult &result)
 {
     scrollArea->setUpdatesEnabled(false);
     for(int i=0; i<result.oneRow.count(); ++i){

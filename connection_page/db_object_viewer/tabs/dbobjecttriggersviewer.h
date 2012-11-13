@@ -1,16 +1,16 @@
-#ifndef TABLETRIGGERSVIEWER_H
-#define TABLETRIGGERSVIEWER_H
+#ifndef DBOBJECTTRIGGERSVIEWER_H
+#define DBOBJECTTRIGGERSVIEWER_H
 
 #include "../../db_object_viewer/dbobjectviewergenerictab.h"
 #include "connectivity/fetchresult.h"
 
 class CodeEditor;
 
-class TableTriggersViewer : public DbObjectViewerGenericTab
+class DbObjectTriggersViewer : public DbObjectViewerGenericTab
 {
     Q_OBJECT
 public:
-    explicit TableTriggersViewer(QWidget *parent = 0);
+    explicit DbObjectTriggersViewer(QWidget *parent = 0);
 
     virtual void createMainWidget(QLayout *layout);
 
@@ -29,4 +29,4 @@ private:
 
 };
 
-#endif // TABLETRIGGERSVIEWER_H
+#endif // DBOBJECTTRIGGERSVIEWER_H

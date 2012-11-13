@@ -75,11 +75,7 @@ SOURCES += main.cpp\
     navtree/type/dbtypeitem.cpp \
     connection_page/dbuimanager.cpp \
     navtree/nodeaction.cpp \
-    connection_page/table_viewer/tabs/tabledataviewer.cpp \
-    connection_page/table_viewer/tabs/tabletriggersviewer.cpp \
-    connection_page/table_viewer/tabs/tabledetailsviewer.cpp \
     connection_page/table_viewer/tabs/tablepartitionsviewer.cpp \
-    connection_page/table_viewer/tabs/tableddlviewer.cpp \
     widgets/ondemandinfoviewerwidget.cpp \
     widgets/datatable.cpp \
     models/resultsettablemodel.cpp \
@@ -353,7 +349,11 @@ SOURCES += main.cpp\
     connection_page/db_object_viewer/dbobjectviewertabs.cpp \
     connection_page/db_object_viewer/dbobjectviewerwidget.cpp \
     connection_page/table_viewer/tableviewer.cpp \
-    connection_page/table_viewer/tableviewertabs.cpp
+    connection_page/table_viewer/tableviewertabs.cpp \
+    connection_page/db_object_viewer/tabs/dbobjecttriggersviewer.cpp \
+    connection_page/db_object_viewer/tabs/dbobjectdetailsviewer.cpp \
+    connection_page/db_object_viewer/tabs/dbobjectddlviewer.cpp \
+    connection_page/db_object_viewer/tabs/dbobjectdataviewer.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -411,11 +411,7 @@ HEADERS  += mainwindow.h \
     navtree/type/dbtypeitem.h \
     connection_page/dbuimanager.h \
     navtree/nodeaction.h \
-    connection_page/table_viewer/tabs/tabledataviewer.h \
-    connection_page/table_viewer/tabs/tabletriggersviewer.h \
-    connection_page/table_viewer/tabs/tabledetailsviewer.h \
     connection_page/table_viewer/tabs/tablepartitionsviewer.h \
-    connection_page/table_viewer/tabs/tableddlviewer.h \
     widgets/ondemandinfoviewerwidget.h \
     widgets/datatable.h \
     models/resultsettablemodel.h \
@@ -707,7 +703,11 @@ HEADERS  += mainwindow.h \
     connection_page/db_object_viewer/dbobjectviewerwidget.h \
     connection_page/db_object_viewer/dbobjectviewer.h \
     connection_page/table_viewer/tableviewer.h \
-    connection_page/table_viewer/tableviewertabs.h
+    connection_page/table_viewer/tableviewertabs.h \
+    connection_page/db_object_viewer/tabs/dbobjecttriggersviewer.h \
+    connection_page/db_object_viewer/tabs/dbobjectdetailsviewer.h \
+    connection_page/db_object_viewer/tabs/dbobjectddlviewer.h \
+    connection_page/db_object_viewer/tabs/dbobjectdataviewer.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

@@ -1,13 +1,13 @@
-#ifndef TABLEDATAVIEWER_H
-#define TABLEDATAVIEWER_H
+#ifndef DBOBJECTDATAVIEWER_H
+#define DBOBJECTDATAVIEWER_H
 
 #include "../../db_object_viewer/dbobjectviewergenerictab.h"
 
-class TableDataViewer : public DbObjectViewerGenericTab
+class DbObjectDataViewer : public DbObjectViewerGenericTab
 {
     Q_OBJECT
 public:
-    explicit TableDataViewer(QWidget *parent = 0);
+    explicit DbObjectDataViewer(QWidget *parent = 0);
 
     virtual QList<Param *> getQueryParams();
 
@@ -16,4 +16,4 @@ public:
     virtual void createMainWidget(QLayout *);
 };
 
-#endif // TABLEDATAVIEWER_H
+#endif // DBOBJECTDATAVIEWER_H

@@ -52,7 +52,7 @@ void TablePartitionsViewer::loadData()
     queryScheduler->enqueueQuery("get_table_partitioning_info",
                      QList<Param*>()
                      << new Param(":owner", schemaName)
-                     << new Param(":object_name", tableName),
+                     << new Param(":object_name", objectName),
                      this,
                      "get_table_partitioning_info",
                      "partitioningInfoLoaded",

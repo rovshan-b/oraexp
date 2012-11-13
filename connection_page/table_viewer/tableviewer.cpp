@@ -8,5 +8,5 @@ TableViewer::TableViewer(const QString &schemaName, const QString &objectName, D
 
 DbObjectViewerTabs *TableViewer::getTabsWidget() const
 {
-    return new TableViewerTabs(schemaName, objectName);
+    return new TableViewerTabs(schemaName, objectName, this->uiManager);
 }

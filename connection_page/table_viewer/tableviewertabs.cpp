@@ -1,18 +1,17 @@
 #include "tableviewertabs.h"
-#include "tabs/tabledataviewer.h"
-#include "tabs/tabletriggersviewer.h"
-#include "tabs/tabledetailsviewer.h"
+#include "../db_object_viewer/tabs/dbobjectdataviewer.h"
+#include "../db_object_viewer/tabs/dbobjecttriggersviewer.h"
+#include "../db_object_viewer/tabs/dbobjectdetailsviewer.h"
 #include "tabs/tablepartitionsviewer.h"
-#include "tabs/tableddlviewer.h"
+#include "../db_object_viewer/tabs/dbobjectddlviewer.h"
 #include "util/iconutil.h"
 #include "util/queryutil.h"
 #include "beans/statementdesc.h"
 #include <iostream>
 
-#include <QTabBar>
-
-TableViewerTabs::TableViewerTabs(const QString &schemaName, const QString &objectName, QWidget *parent) :
-    DbObjectViewerTabs(schemaName, objectName, parent)
+TableViewerTabs::TableViewerTabs(const QString &schemaName, const QString &objectName,
+                                 DbUiManager *uiManager, QWidget *parent) :
+    DbObjectViewerTabs(schemaName, objectName, DbTreeModel::Table, uiManager, parent)
 {
 }
 
@@ -21,7 +20,7 @@ void TableViewerTabs::createTabs()
     DbObjectViewerGenericTab *columnInfo=new DbObjectViewerGenericTab("get_table_columns_for_detailed_view");
     addTab(columnInfo, IconUtil::getIcon("column"), tr("Columns"));
 
-    TableDataViewer *dataViewer=new TableDataViewer(this);
+    DbObjectDataViewer *dataViewer=new DbObjectDataViewer(this);
     addTab(dataViewer, IconUtil::getIcon("data"), tr("Data"));
 
     DbObjectViewerGenericTab *constraintInfo = new DbObjectViewerGenericTab("get_table_constraints_for_detailed_view", this);
@@ -41,15 +40,15 @@ void TableViewerTabs::createTabs()
     addTab(refFkInfo, IconUtil::getIcon("constraint_fk"), tr("Referencing FKs"));
 
     DbObjectViewerGenericTab *grantInfo = new DbObjectViewerGenericTab("get_table_grants_for_detailed_view", this);
-    addTab(grantInfo, IconUtil::getIcon("granted"), tr("Grants"));
+    addTab(grantInfo, IconUtil::getIcon("grants"), tr("Grants"));
 
-    TableTriggersViewer *triggerViewer = new TableTriggersViewer(this);
+    DbObjectTriggersViewer *triggerViewer = new DbObjectTriggersViewer(this);
     addTab(triggerViewer, IconUtil::getIcon("trigger"), tr("Triggers"));
 
     DbObjectViewerGenericTab *dependencyViewer=new DbObjectViewerGenericTab("get_table_dependecies_for_detailed_view", this);
     addTab(dependencyViewer, IconUtil::getIcon("dependency"), tr("Dependencies"));
 
-    TableDetailsViewer *detailsViewer = new TableDetailsViewer(this);
+    DbObjectDetailsViewer *detailsViewer = new DbObjectDetailsViewer("get_table_details_for_detailed_view", this);
     addTab(detailsViewer, IconUtil::getIcon("details"), tr("Details"));
 
     TablePartitionsViewer *partitionInfo = new TablePartitionsViewer(this);
@@ -70,6 +69,6 @@ void TableViewerTabs::createTabs()
     indexInfo->setDynamicQuery(4, desc);
     addTab(indexInfo, IconUtil::getIcon("index"), tr("Indexes"));
 
-    TableDdlViewer *ddlViewer = new TableDdlViewer(this);
+    DbObjectDdlViewer *ddlViewer = new DbObjectDdlViewer(DbTreeModel::Table, this);
     addTab(ddlViewer, IconUtil::getIcon("ddl"), tr("DDL"));
 }

@@ -3,9 +3,9 @@
 #include <QtGui>
 
 DbObjectViewer::DbObjectViewer(const QString &schemaName,
-                                 const QString &objectName,
-                                 DbUiManager *uiManager,
-                                 QWidget *parent) :
+                               const QString &objectName,
+                               DbUiManager *uiManager,
+                               QWidget *parent) :
     ConnectionPageTab(uiManager, parent),
     schemaName(schemaName),
     objectName(objectName)

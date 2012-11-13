@@ -2,6 +2,7 @@
 #define DBOBJECTVIEWER_H
 
 #include "../connectionpagetab.h"
+#include "navtree/dbtreemodel.h"
 
 class DbObjectViewerTabs;
 
@@ -10,9 +11,9 @@ class DbObjectViewer : public ConnectionPageTab
     Q_OBJECT
 public:
     explicit DbObjectViewer(const QString &schemaName,
-                             const QString &objectName,
-                             DbUiManager *uiManager,
-                             QWidget *parent = 0);
+                            const QString &objectName,
+                            DbUiManager *uiManager,
+                            QWidget *parent = 0);
 
     virtual void setConnection(DbConnection *db);
 

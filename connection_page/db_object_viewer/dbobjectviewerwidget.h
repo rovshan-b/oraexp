@@ -3,6 +3,7 @@
 
 #include "widgets/ondemandinfoviewerwidget.h"
 #include "interfaces/iqueryscheduler.h"
+#include "navtree/dbtreemodel.h"
 
 class DbConnection;
 class QToolBar;
@@ -17,17 +18,18 @@ public:
 
     virtual void createMainWidget(QLayout *) = 0;
 
-    void createChildControls();
+    void createChildControls(DbTreeModel::DbTreeNodeType itemType,
+                             DbUiManager *uiManager);
     bool areControlsCreated() const {return this->controlsCreated;}
 
 protected:
-    void createToolbarButtons();
+    void createToolbarButtons(DbTreeModel::DbTreeNodeType itemType, DbUiManager *uiManager);
 
     virtual void addSpecificToolbarButtons();
 
     IQueryScheduler *queryScheduler;
     QString schemaName;
-    QString tableName;
+    QString objectName;
 
     QToolBar *toolbar;
     QAction *refreshButton;
