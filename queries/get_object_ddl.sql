@@ -2,6 +2,7 @@ declare
     h1      NUMBER;         -- handle returned by OPEN
     th      NUMBER;         -- handle returned by ADD_TRANSFORM for DDL
     ddl     CLOB;           -- DDL
+    
 begin
 
  h1 := DBMS_METADATA.OPEN(:object_type);

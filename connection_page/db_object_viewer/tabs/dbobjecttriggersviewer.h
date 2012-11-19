@@ -22,6 +22,7 @@ private slots:
 
 protected:
     virtual void clearInfo();
+    virtual QList<Param*> getQueryParams();
 
 private:
     CodeEditor *editor;

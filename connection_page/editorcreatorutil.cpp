@@ -2,11 +2,12 @@
 #include "connection_page/table_creator/tablecreator.h"
 #include "connection_page/code_creator/codecreator.h"
 #include "connection_page/code_creator/paircodecreator.h"
-#include "connection_page/table_viewer/tableviewer.h"
 #include "connection_page/sequence_creator/sequencecreator.h"
 #include "connection_page/synonym_creator/synonymcreator.h"
 #include "connection_page/dblink_creator/dblinkcreator.h"
 #include "connection_page/user_creator/usercreator.h"
+#include "connection_page/table_viewer/tableviewer.h"
+#include "connection_page/view_viewer/viewviewer.h"
 
 EditorCreatorUtil::EditorCreatorUtil()
 {
@@ -93,6 +94,9 @@ ConnectionPageTab *EditorCreatorUtil::createViewer(const QString &schemaName,
     switch(itemType){
     case DbTreeModel::Table:
         viewer = new TableViewer(schemaName, objectName, uiManager);
+        break;
+    case DbTreeModel::View:
+        viewer = new ViewViewer(schemaName, objectName, uiManager);
         break;
     default:
         break;

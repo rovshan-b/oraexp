@@ -11,8 +11,10 @@ TableTriggersLoader::TableTriggersLoader(QObject *parent) :
 
 void TableTriggersLoader::loadInfo()
 {
-    tableInfoLoader->getQueryScheduler()->enqueueQuery("get_table_triggers_all_columns", tableInfoLoader->getBasicQueryParams(), this,
-                     "get_table_triggers_for_detailed_view",
+    tableInfoLoader->getQueryScheduler()->enqueueQuery("get_table_triggers_all_columns",
+                                                       tableInfoLoader->getBasicQueryParams(),
+                                                       this,
+                     "get_object_triggers_for_detailed_view",
                      "queryCompleted",
                      "recordFetched",
                      "fetchCompleted");

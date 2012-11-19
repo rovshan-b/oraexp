@@ -32,7 +32,7 @@ void DbObjectViewerTabs::loadTabData(int index)
     DbObjectViewerWidget* selectedWidget=(DbObjectViewerWidget*)widget(index);
 
     if(!selectedWidget->areControlsCreated()){
-        selectedWidget->setObjectName(schemaName, objectName);
+        selectedWidget->setObjectName(schemaName, objectName, itemType);
         selectedWidget->createChildControls(this->itemType, this->uiManager);
         selectedWidget->setQueryScheduler(this->queryScheduler);
         selectedWidget->loadInfo();

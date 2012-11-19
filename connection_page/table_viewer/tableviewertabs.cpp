@@ -4,10 +4,10 @@
 #include "../db_object_viewer/tabs/dbobjectdetailsviewer.h"
 #include "tabs/tablepartitionsviewer.h"
 #include "../db_object_viewer/tabs/dbobjectddlviewer.h"
+#include "../db_object_viewer/tabs/dbobjectreferencesviewer.h"
 #include "util/iconutil.h"
 #include "util/queryutil.h"
 #include "beans/statementdesc.h"
-#include <iostream>
 
 TableViewerTabs::TableViewerTabs(const QString &schemaName, const QString &objectName,
                                  DbUiManager *uiManager, QWidget *parent) :
@@ -45,7 +45,7 @@ void TableViewerTabs::createTabs()
     DbObjectTriggersViewer *triggerViewer = new DbObjectTriggersViewer(this);
     addTab(triggerViewer, IconUtil::getIcon("trigger"), tr("Triggers"));
 
-    DbObjectViewerGenericTab *dependencyViewer=new DbObjectViewerGenericTab("get_table_dependecies_for_detailed_view", this);
+    DbObjectReferencesViewer *dependencyViewer=new DbObjectReferencesViewer(false, this);
     addTab(dependencyViewer, IconUtil::getIcon("dependency"), tr("Dependencies"));
 
     DbObjectDetailsViewer *detailsViewer = new DbObjectDetailsViewer("get_table_details_for_detailed_view", this);
@@ -55,6 +55,7 @@ void TableViewerTabs::createTabs()
     addTab(partitionInfo, IconUtil::getIcon("partition"), tr("Partitions"));
 
     DbObjectViewerGenericTab *indexInfo = new DbObjectViewerGenericTab("get_table_indexes_for_detailed_view", this);
+    indexInfo->setIconColumn("COLUMNS", "ICON_COLUMN");
     desc=new StatementDesc();
     desc->query=QueryUtil::getQuery("get_table_index_columns");
     desc->params=QList<Param*>() <<
@@ -69,6 +70,6 @@ void TableViewerTabs::createTabs()
     indexInfo->setDynamicQuery(4, desc);
     addTab(indexInfo, IconUtil::getIcon("index"), tr("Indexes"));
 
-    DbObjectDdlViewer *ddlViewer = new DbObjectDdlViewer(DbTreeModel::Table, this);
+    DbObjectDdlViewer *ddlViewer = new DbObjectDdlViewer(true, this);
     addTab(ddlViewer, IconUtil::getIcon("ddl"), tr("DDL"));
 }

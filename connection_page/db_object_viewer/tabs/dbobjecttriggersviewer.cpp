@@ -4,12 +4,13 @@
 #include "codeeditor/codeeditor.h"
 #include "widgets/datatable.h"
 #include "connectivity/dbconnection.h"
+#include "util/dbutil.h"
 #include <QtGui>
 
 DbObjectTriggersViewer::DbObjectTriggersViewer(QWidget *parent) :
-    DbObjectViewerGenericTab("get_table_triggers_for_detailed_view", parent), sourceRetrieveError(false)
+    DbObjectViewerGenericTab("get_object_triggers_for_detailed_view", parent), sourceRetrieveError(false)
 {
-
+    setIconColumn("TRIGGER_NAME", "ICON_COLUMN");
 }
 
 void DbObjectTriggersViewer::createMainWidget(QLayout *layout)
@@ -91,4 +92,10 @@ void DbObjectTriggersViewer::clearInfo()
     editor->clear();
 
     DbObjectViewerGenericTab::clearInfo();
+}
+
+QList<Param *> DbObjectTriggersViewer::getQueryParams()
+{
+    return DbObjectViewerGenericTab::getQueryParams() <<
+               new Param(":object_type", DbUtil::getDbObjectTypeNameByNodeType(itemType));
 }

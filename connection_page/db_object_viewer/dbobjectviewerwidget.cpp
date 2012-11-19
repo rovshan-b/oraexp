@@ -38,14 +38,17 @@ void DbObjectViewerWidget::setQueryScheduler(IQueryScheduler *queryScheduler)
     this->queryScheduler=queryScheduler;
 }
 
-void DbObjectViewerWidget::setObjectName(const QString &schemaName, const QString &tableName)
+void DbObjectViewerWidget::setObjectName(const QString &schemaName,
+                                         const QString &objectName,
+                                         DbTreeModel::DbTreeNodeType itemType)
 {
     //Q_ASSERT(queryScheduler);
 
     Q_ASSERT(this->schemaName.isEmpty());
 
     this->schemaName=schemaName;
-    this->objectName=tableName;
+    this->objectName=objectName;
+    this->itemType=itemType;
 }
 
 void DbObjectViewerWidget::createToolbarButtons(DbTreeModel::DbTreeNodeType itemType,

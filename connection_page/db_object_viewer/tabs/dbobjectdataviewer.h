@@ -11,7 +11,7 @@ public:
 
     virtual QList<Param *> getQueryParams();
 
-    virtual void setObjectName(const QString &schemaName, const QString &tableName);
+    virtual void setObjectName(const QString &schemaName, const QString &objectName, DbTreeModel::DbTreeNodeType itemType);
 
     virtual void createMainWidget(QLayout *);
 };

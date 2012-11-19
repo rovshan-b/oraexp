@@ -27,8 +27,6 @@
         <file>queries/get_table_constraints_for_detailed_view.sql</file>
         <file>queries/get_table_referencing_fks_for_detailed_view.sql</file>
         <file>queries/get_table_grants_for_detailed_view.sql</file>
-        <file>queries/get_table_triggers_for_detailed_view.sql</file>
-        <file>queries/get_table_dependecies_for_detailed_view.sql</file>
         <file>queries/get_program_source.sql</file>
         <file>queries/get_table_details_for_detailed_view.sql</file>
         <file>queries/get_table_partitions_for_detailed_view.sql</file>
@@ -102,5 +100,10 @@
         <file>queries/get_user_tablespace_quotas_as_dba.sql</file>
         <file>queries/get_user_object_grants.sql</file>
         <file>queries/get_object_list_for_grant.sql</file>
+        <file>queries/get_view_columns_for_detailed_view.sql</file>
+        <file>queries/get_object_references_for_detailed_view.sql</file>
+        <file>queries/get_object_dependecies_for_detailed_view.sql</file>
+        <file>queries/get_view_details_for_detailed_view.sql</file>
+        <file>queries/get_object_triggers_for_detailed_view.sql</file>
     </qresource>
 </RCC>

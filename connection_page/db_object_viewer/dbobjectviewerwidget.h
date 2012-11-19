@@ -14,7 +14,9 @@ public:
     DbObjectViewerWidget(QWidget *parent = 0);
 
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
-    virtual void setObjectName(const QString &schemaName, const QString &tableName);
+    virtual void setObjectName(const QString &schemaName,
+                               const QString &objectName,
+                               DbTreeModel::DbTreeNodeType itemType);
 
     virtual void createMainWidget(QLayout *) = 0;
 
@@ -30,6 +32,7 @@ protected:
     IQueryScheduler *queryScheduler;
     QString schemaName;
     QString objectName;
+    DbTreeModel::DbTreeNodeType itemType;
 
     QToolBar *toolbar;
     QAction *refreshButton;

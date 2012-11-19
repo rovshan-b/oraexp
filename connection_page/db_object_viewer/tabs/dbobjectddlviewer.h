@@ -6,13 +6,13 @@
 #include "connectivity/fetchresult.h"
 #include "beans/objectddloptions.h"
 
-class CodeEditor;
+class CodeEditorAndSearchPaneWidget;
 
 class DbObjectDdlViewer : public DbObjectViewerGenericTab
 {
     Q_OBJECT
 public:
-    explicit DbObjectDdlViewer(DbTreeModel::DbTreeNodeType itemType, QWidget *parent = 0);
+    explicit DbObjectDdlViewer(bool addSettingsButton, QWidget *parent = 0);
 
     virtual void loadData();
 
@@ -29,11 +29,11 @@ private slots:
     void showDdlOptions();
 
 private:
-    CodeEditor *editor;
+    CodeEditorAndSearchPaneWidget *editor;
 
     ObjectDdlOptions ddlOptions;
 
-    DbTreeModel::DbTreeNodeType itemType;
+    bool addSettingsButton;
 
 };
 
