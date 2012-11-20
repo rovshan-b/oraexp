@@ -3,10 +3,11 @@
 #include "connectivity/dbconnection.h"
 #include "beans/statementdesc.h"
 #include "util/queryutil.h"
+#include "util/dbutil.h"
 #include <QtGui>
 
 DbObjectViewerGenericTab::DbObjectViewerGenericTab(const QString &queryName, QWidget *parent) :
-    DbObjectViewerWidget(parent), dt(0), queryName(queryName)
+    DbObjectViewerWidget(parent), setObjectTypeParam(false), dt(0), queryName(queryName)
 {
 }
 
@@ -41,6 +42,10 @@ QList<Param *> DbObjectViewerGenericTab::getQueryParams()
 
     queryParams.append(new Param(":owner", schemaName));
     queryParams.append(new Param(":object_name", objectName));
+
+    if(setObjectTypeParam){
+        queryParams.append(new Param(":object_type", DbUtil::getDbObjectTypeNameByNodeType(itemType)));
+    }
 
     return queryParams;
 }

@@ -18,18 +18,38 @@ QList<QAction *> PackageContextMenuUtil::getActionsForObject(const QString &sche
         results.append(createPackageAction);
     }else if(itemType==DbTreeModel::PackageSpec ||
              itemType==DbTreeModel::PackageBody){
+        //view
+        QAction *viewPackageAction=new DbItemAction(IconUtil::getIcon("view_detailed"), QObject::tr("View"),
+                                                       schemaName, objectName, itemType,
+                                                       uiManager, SLOT(createViewer()));
+
         //alter
         QAction *alterPackageAction=new DbItemAction(IconUtil::getIcon("package_alter"), QObject::tr("Alter"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createEditor()));
+        results.append(viewPackageAction);
         results.append(alterPackageAction);
     }else if(itemType==DbTreeModel::Package){
+        //view
+        QAction *viewSpecAction=new DbItemAction(IconUtil::getIcon("view_detailed"), QObject::tr("View Spec"),
+                                                       schemaName, objectName, DbTreeModel::PackageSpec,
+                                                       uiManager, SLOT(createViewer()));
+
+        QAction *viewBodyAction=new DbItemAction(IconUtil::getIcon("view_detailed"), QObject::tr("View Body"),
+                                                       schemaName, objectName, DbTreeModel::PackageBody,
+                                                       uiManager, SLOT(createViewer()));
+
+
+        //alter
         QAction *alterSpecAction=new DbItemAction(IconUtil::getIcon("package_alter"), QObject::tr("Alter Spec"),
                                                        schemaName, objectName, DbTreeModel::PackageSpec,
                                                        uiManager, SLOT(createEditor()));
         QAction *alterBodyAction=new DbItemAction(IconUtil::getIcon("package_alter"), QObject::tr("Alter Body"),
                                                        schemaName, objectName, DbTreeModel::PackageBody,
                                                        uiManager, SLOT(createEditor()));
+
+        results.append(viewSpecAction);
+        results.append(viewBodyAction);
         results.append(alterSpecAction);
         results.append(alterBodyAction);
     }

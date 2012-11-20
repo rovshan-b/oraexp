@@ -62,7 +62,12 @@ void DbObjectDdlViewer::loadData()
 void DbObjectDdlViewer::ddlQueryCompleted(const QueryResult &result)
 {
     if(result.hasError){
-        QMessageBox::critical(this->window(), tr("Error retrieving table DDL"), result.exception.getErrorMessage());
+        if(result.exception.getErrorCode()==31603){
+            editor->setInitialText(tr("--Body does not exist or you do not have permission to view it."));
+        }else{
+            QMessageBox::critical(this->window(), tr("Error retrieving table DDL"), result.exception.getErrorMessage());
+        }
+
         queryCompleted();
     }
 }

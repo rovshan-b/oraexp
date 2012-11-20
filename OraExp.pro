@@ -356,7 +356,9 @@ SOURCES += main.cpp\
     connection_page/db_object_viewer/tabs/dbobjectdataviewer.cpp \
     connection_page/view_viewer/viewviewer.cpp \
     connection_page/view_viewer/viewviewertabs.cpp \
-    connection_page/db_object_viewer/tabs/dbobjectreferencesviewer.cpp
+    connection_page/db_object_viewer/tabs/dbobjectreferencesviewer.cpp \
+    connection_page/code_viewer/codeviewer.cpp \
+    connection_page/code_viewer/codeviewertabs.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -713,7 +715,9 @@ HEADERS  += mainwindow.h \
     connection_page/db_object_viewer/tabs/dbobjectdataviewer.h \
     connection_page/view_viewer/viewviewer.h \
     connection_page/view_viewer/viewviewertabs.h \
-    connection_page/db_object_viewer/tabs/dbobjectreferencesviewer.h
+    connection_page/db_object_viewer/tabs/dbobjectreferencesviewer.h \
+    connection_page/code_viewer/codeviewer.h \
+    connection_page/code_viewer/codeviewertabs.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

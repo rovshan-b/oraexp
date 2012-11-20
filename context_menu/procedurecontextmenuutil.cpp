@@ -19,10 +19,17 @@ QList<QAction *> ProcedureContextMenuUtil::getActionsForObject(const QString &sc
                                                        uiManager, SLOT(createCreator()));
         results.append(createProcedureAction);
     }else if(itemType==DbTreeModel::Procedure){
+        //view
+        QAction *viewProcedureAction=new DbItemAction(IconUtil::getIcon("view_detailed"), QObject::tr("View"),
+                                                       schemaName, objectName, itemType,
+                                                       uiManager, SLOT(createViewer()));
+
         //alter
         QAction *alterProcedureAction=new DbItemAction(IconUtil::getIcon("procedure_alter"), QObject::tr("Alter"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createEditor()));
+
+        results.append(viewProcedureAction);
         results.append(alterProcedureAction);
     }
 

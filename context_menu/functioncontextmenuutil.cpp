@@ -16,10 +16,17 @@ QList<QAction *> FunctionContextMenuUtil::getActionsForObject(const QString &sch
                                                        uiManager, SLOT(createCreator()));
         results.append(createFunctionAction);
     }else if(itemType==DbTreeModel::Function){
+        //view
+        QAction *viewFunctionAction=new DbItemAction(IconUtil::getIcon("view_detailed"), QObject::tr("View"),
+                                                       schemaName, objectName, itemType,
+                                                       uiManager, SLOT(createViewer()));
+
         //alter
         QAction *alterFunctionAction=new DbItemAction(IconUtil::getIcon("function_alter"), QObject::tr("Alter"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createEditor()));
+
+        results.append(viewFunctionAction);
         results.append(alterFunctionAction);
     }
 

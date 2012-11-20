@@ -16,10 +16,16 @@ QList<QAction *> TriggerContextMenuUtil::getActionsForObject(const QString &sche
                                                        uiManager, SLOT(createCreator()));
         results.append(createTriggerAction);
     }else if(itemType==DbTreeModel::Trigger){
+        //view
+        QAction *viewTriggerAction=new DbItemAction(IconUtil::getIcon("view_detailed"), QObject::tr("View"),
+                                                       schemaName, objectName, itemType,
+                                                       uiManager, SLOT(createViewer()));
+
         //alter
         QAction *alterTriggerAction=new DbItemAction(IconUtil::getIcon("trigger_alter"), QObject::tr("Alter"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createEditor()));
+        results.append(viewTriggerAction);
         results.append(alterTriggerAction);
     }
 

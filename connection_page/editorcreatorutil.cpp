@@ -8,6 +8,7 @@
 #include "connection_page/user_creator/usercreator.h"
 #include "connection_page/table_viewer/tableviewer.h"
 #include "connection_page/view_viewer/viewviewer.h"
+#include "connection_page/code_viewer/codeviewer.h"
 
 EditorCreatorUtil::EditorCreatorUtil()
 {
@@ -97,6 +98,15 @@ ConnectionPageTab *EditorCreatorUtil::createViewer(const QString &schemaName,
         break;
     case DbTreeModel::View:
         viewer = new ViewViewer(schemaName, objectName, uiManager);
+        break;
+    case DbTreeModel::PackageSpec:
+    case DbTreeModel::PackageBody:
+    case DbTreeModel::Procedure:
+    case DbTreeModel::Function:
+    case DbTreeModel::Trigger:
+    case DbTreeModel::TypeSpec:
+    case DbTreeModel::TypeBody:
+        viewer = new CodeViewer(schemaName, objectName, itemType, uiManager);
         break;
     default:
         break;

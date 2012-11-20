@@ -23,12 +23,16 @@ public:
     void setIconColumn(const QString &displayColumnName, const QString &iconColumnName);
     void setDynamicQuery(int colNum, StatementDesc *stmtDesc);
 
+    void setUseObjectTypeParam(){this->setObjectTypeParam=true;}
+
 protected slots:
     void queryCompleted();
 
 protected:
     virtual void doLoadInfo();
     virtual QList<Param*> getQueryParams();
+
+    bool setObjectTypeParam;
 
     DataTable *dt;
     QString queryName;

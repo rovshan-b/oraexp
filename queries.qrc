@@ -105,5 +105,7 @@
         <file>queries/get_object_dependecies_for_detailed_view.sql</file>
         <file>queries/get_view_details_for_detailed_view.sql</file>
         <file>queries/get_object_triggers_for_detailed_view.sql</file>
+        <file>queries/get_code_details_for_detailed_view.sql</file>
+        <file>queries/get_code_errors.sql</file>
     </qresource>
 </RCC>

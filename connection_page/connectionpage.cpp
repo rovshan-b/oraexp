@@ -115,7 +115,8 @@ void ConnectionPage::addTab(ConnectionPageTab *tab, const QPixmap &icon, const Q
 
     tab->createUi();
 
-    int newTabIx=centralTab->addTab(tab, icon, title);
+    int newTabIx=centralTab->insertTab(centralTab->currentIndex()+1, tab, icon, title);
+    //int newTabIx=centralTab->addTab(tab, icon, title);
 
     centralTab->setCurrentIndex(newTabIx);
     //centralTab->setTabBusy(newTabIx, true);
