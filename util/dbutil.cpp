@@ -598,3 +598,23 @@ void DbUtil::parseExtentSize(const QString &textToParse, bool *unlimited, qulong
         *units=OraExp::Bytes;
     }
 }
+
+DbTreeModel::DbTreeNodeType DbUtil::getPairNodeType(DbTreeModel::DbTreeNodeType nodeType)
+{
+    DbTreeModel::DbTreeNodeType result;
+
+    if(nodeType==DbTreeModel::PackageSpec){
+        result = DbTreeModel::PackageBody;
+    }else if(nodeType==DbTreeModel::PackageBody){
+        result = DbTreeModel::PackageSpec;
+    }else if(nodeType==DbTreeModel::TypeSpec){
+        result = DbTreeModel::TypeBody;
+    }else if(nodeType==DbTreeModel::TypeBody){
+        result = DbTreeModel::TypeSpec;
+    }else{
+        result = DbTreeModel::Unknown;
+        Q_ASSERT(false);
+    }
+
+    return result;
+}

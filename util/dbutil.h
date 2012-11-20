@@ -55,6 +55,8 @@ public:
 
     static QString getExtentSizeClause(bool unlimited, uint size, OraExp::ExtentUnit sizeUnit);
     static void parseExtentSize(const QString &textToParse, bool *unlimited, qulonglong *quota, OraExp::ExtentUnit *units);
+
+    static DbTreeModel::DbTreeNodeType getPairNodeType(DbTreeModel::DbTreeNodeType nodeType);
 };
 
 #endif // DBUTIL_H
