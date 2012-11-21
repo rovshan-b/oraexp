@@ -19,6 +19,8 @@ public:
 
     virtual void loadData();
 
+    virtual QList<QAction*> getSpecificToolbarButtons();
+
 protected:
     virtual void clearInfo();
 

@@ -30,6 +30,8 @@ void OnDemandInfoViewerWidget::refreshInfo()
 
 void OnDemandInfoViewerWidget::doLoadInfo()
 {
+    emit beforeLoadInfo();
+
     infoLoaded=true;
     infoLoading=true;
 }
@@ -47,4 +49,6 @@ bool OnDemandInfoViewerWidget::isLoading() const
 void OnDemandInfoViewerWidget::setLoadingComplete()
 {
     infoLoading=false;
+
+    emit afterLoadInfo();
 }

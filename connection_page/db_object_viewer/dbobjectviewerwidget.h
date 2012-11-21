@@ -20,23 +20,18 @@ public:
 
     virtual void createMainWidget(QLayout *) = 0;
 
-    void createChildControls(DbTreeModel::DbTreeNodeType itemType,
-                             DbUiManager *uiManager);
+    void createChildControls();
     bool areControlsCreated() const {return this->controlsCreated;}
+
+    virtual QList<QAction*> getSpecificToolbarButtons();
 
 protected:
     void createToolbarButtons(DbTreeModel::DbTreeNodeType itemType, DbUiManager *uiManager);
-
-    virtual void addSpecificToolbarButtons();
 
     IQueryScheduler *queryScheduler;
     QString schemaName;
     QString objectName;
     DbTreeModel::DbTreeNodeType itemType;
-
-    QToolBar *toolbar;
-    QAction *refreshButton;
-    QAction *progressBarAction;
 
     bool controlsCreated;
 };

@@ -86,12 +86,21 @@ void DbObjectDdlViewer::fetchCompleted(const QString &)
     queryCompleted();
 }
 
-void DbObjectDdlViewer::addSpecificToolbarButtons()
+QList<QAction*> DbObjectDdlViewer::getSpecificToolbarButtons()
 {
+    QList<QAction*> list;
+
     if(addSettingsButton){
-        toolbar->addSeparator();
-        toolbar->addAction(IconUtil::getIcon("settings"), tr("DDL options"), this, SLOT(showDdlOptions()));
+        QAction *separator=new QAction(this);
+        separator->setSeparator(true);
+        list.append(separator);
+
+        QAction *settingsAction=new QAction(IconUtil::getIcon("settings"), tr("DDL options"), this);
+        connect(settingsAction, SIGNAL(triggered()), this, SLOT(showDdlOptions()));
+        list.append(settingsAction);
     }
+
+    return list;
 }
 
 void DbObjectDdlViewer::showDdlOptions()

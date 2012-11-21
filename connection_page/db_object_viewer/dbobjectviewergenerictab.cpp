@@ -26,11 +26,6 @@ void DbObjectViewerGenericTab::doLoadInfo()
     if(isLoading()){
         return;
     }
-    //refreshButton->setEnabled(false);
-    toolbar->setEnabled(false);
-    progressBarAction->setVisible(true);
-    progressBarAction->setEnabled(true);
-
     DbObjectViewerWidget::doLoadInfo();
 
     loadData();
@@ -75,9 +70,6 @@ void DbObjectViewerGenericTab::setDynamicQuery(int colNum, StatementDesc *stmtDe
 void DbObjectViewerGenericTab::queryCompleted()
 {
     setLoadingComplete();
-    progressBarAction->setVisible(false);
-    //refreshButton->setEnabled(true);
-    toolbar->setEnabled(true);
 }
 
 void DbObjectViewerGenericTab::createMainWidget(QLayout *layout)

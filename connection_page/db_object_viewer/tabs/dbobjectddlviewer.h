@@ -18,8 +18,7 @@ public:
 
     virtual void createMainWidget(QLayout *);
 
-protected:
-    virtual void addSpecificToolbarButtons();
+    virtual QList<QAction*> getSpecificToolbarButtons();
 
 private slots:
     void ddlQueryCompleted(const QueryResult &result);

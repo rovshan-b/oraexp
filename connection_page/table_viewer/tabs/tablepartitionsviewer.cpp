@@ -39,12 +39,6 @@ void TablePartitionsViewer::createMainWidget(QLayout *layout)
     layout->addWidget(splitter);
 
     connect(dt, SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this, SLOT(currentRowChanged()));
-
-
-    //create label to show partitioning info
-    partitioningInfoLabel=new QLabel(tr("Loading partitioning info..."));
-    toolbar->insertWidget(progressBarAction, partitioningInfoLabel);
-    toolbar->insertSeparator(progressBarAction);
 }
 
 void TablePartitionsViewer::loadData()
@@ -57,7 +51,24 @@ void TablePartitionsViewer::loadData()
                      "get_table_partitioning_info",
                      "partitioningInfoLoaded",
                      "partitionInfoFetched",
-                     "partitionInfoFetchCompleted");
+                                 "partitionInfoFetchCompleted");
+}
+
+QList<QAction *> TablePartitionsViewer::getSpecificToolbarButtons()
+{
+    partitioningInfoLabel=new QLabel(tr("Loading partitioning info..."));
+
+    QList<QAction*> list;
+
+    QAction *separator=new QAction(this);
+    separator->setSeparator(true);
+    list.append(separator);
+
+    QWidgetAction *labelAction=new QWidgetAction(this);
+    labelAction->setDefaultWidget(partitioningInfoLabel);
+    list.append(labelAction);
+
+    return list;
 }
 
 void TablePartitionsViewer::partitioningInfoLoaded(const QueryResult &result)

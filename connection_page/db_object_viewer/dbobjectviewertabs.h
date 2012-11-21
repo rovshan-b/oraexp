@@ -5,9 +5,11 @@
 #include "interfaces/iqueryscheduler.h"
 #include "navtree/dbtreemodel.h"
 
-class DbConnection;
+class DbObjectViewerToolBar;
+class DbObjectViewerWidget;
+class QTabWidget;
 
-class DbObjectViewerTabs : public SubTabWidget
+class DbObjectViewerTabs : public QWidget
 {
     Q_OBJECT
 public:
@@ -19,6 +21,7 @@ public:
 
     virtual void createUi();
     virtual void createTabs()=0;
+    void addTab(DbObjectViewerWidget *tab, const QIcon &icon, const QString &title);
 
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
@@ -28,6 +31,10 @@ signals:
 
 public slots:
     void loadTabData(int index);
+    void refreshInfo();
+
+    void beforeLoadTabInfo();
+    void afterLoadTabInfo();
 
 protected:
     const QString schemaName;
@@ -36,6 +43,20 @@ protected:
     DbUiManager *uiManager;
 
     IQueryScheduler *queryScheduler;
+
+    DbObjectViewerToolBar *toolbar;
+    QTabWidget *tabWidget;
+
+    QAction *refreshButton;
+    QAction *progressBarAction;
+    QAction *lastSeparatorBeforeProgressBar;
+
+    QHash< QWidget*, QList<QAction*> > tabSpecificActions;
+
+    void createToolbarButtons();
+    void showTabSpecificActions(QWidget *currentTab);
+
+    int currentJobCount;
 
 };
 

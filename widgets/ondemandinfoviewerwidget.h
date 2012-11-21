@@ -14,6 +14,10 @@ public slots:
     bool isInfoLoaded() const;
     void refreshInfo();
 
+signals:
+    void beforeLoadInfo();
+    void afterLoadInfo();
+
 protected:
     //these methods should be implemented by inherited classes
     virtual void doLoadInfo();
