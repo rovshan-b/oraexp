@@ -7,6 +7,7 @@
 class QStandardItemModel;
 class CodeEditorAndSearchPaneWidget;
 class DataTable;
+class DbUiManager;
 
 class DbObjectComparerResultsTab : public QWidget, public ISearchable
 {
@@ -15,7 +16,7 @@ public:
     explicit DbObjectComparerResultsTab(QWidget *parent = 0);
 
     virtual void createUi();
-    virtual DataTable *createChangeListTable();
+    virtual DataTable *createChangeListTable(DbUiManager *uiManager);
 
     void clearText();
     void addText(const QString &text);

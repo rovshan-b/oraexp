@@ -12,7 +12,7 @@ public:
                          DbUiManager *uiManager,
                          QWidget *parent = 0);
 
-    virtual DbObjectViewerTabs *getTabsWidget() const;
+    virtual DbObjectViewerTabs *getViewerWidget() const;
     
 signals:
     

@@ -7,7 +7,7 @@ class DbObjectDataViewer : public DbObjectViewerGenericTab
 {
     Q_OBJECT
 public:
-    explicit DbObjectDataViewer(QWidget *parent = 0);
+    explicit DbObjectDataViewer(DbUiManager *uiManager, QWidget *parent = 0);
 
     virtual QList<Param *> getQueryParams();
 

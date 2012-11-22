@@ -108,5 +108,6 @@
         <file>images/java_class.png</file>
         <file>images/job.png</file>
         <file>images/package_body.png</file>
+        <file>images/reference.png</file>
     </qresource>
 </RCC>

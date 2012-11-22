@@ -12,7 +12,7 @@ class DbObjectDdlViewer : public DbObjectViewerGenericTab
 {
     Q_OBJECT
 public:
-    explicit DbObjectDdlViewer(bool addSettingsButton, QWidget *parent = 0);
+    explicit DbObjectDdlViewer(bool addSettingsButton, DbUiManager *uiManager, QWidget *parent = 0);
 
     virtual void loadData();
 

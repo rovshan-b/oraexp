@@ -13,7 +13,7 @@ class TablePartitionsViewer : public DbObjectViewerGenericTab
 {
     Q_OBJECT
 public:
-    explicit TablePartitionsViewer(QWidget *parent = 0);
+    explicit TablePartitionsViewer(DbUiManager *uiManager, QWidget *parent = 0);
 
     virtual void createMainWidget(QLayout *layout);
 

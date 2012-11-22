@@ -1,11 +1,12 @@
 #include "dbobjectreferencesviewer.h"
 #include "util/dbutil.h"
 
-DbObjectReferencesViewer::DbObjectReferencesViewer(bool references, QWidget *parent) :
+DbObjectReferencesViewer::DbObjectReferencesViewer(bool references, DbUiManager *uiManager, QWidget *parent) :
     DbObjectViewerGenericTab(references ? "get_object_references_for_detailed_view" : "get_object_dependecies_for_detailed_view",
-    parent)
+                             uiManager, parent)
 {
     setIconColumn("NAME", "ICON_NAME");
+    setObjectListMode(0,1,2);
 }
 
 QList<Param *> DbObjectReferencesViewer::getQueryParams()

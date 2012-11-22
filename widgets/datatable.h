@@ -10,6 +10,7 @@ class Resultset;
 class DbConnection;
 class IQueryScheduler;
 class StatementDesc;
+class DbUiManager;
 
 class DataTable : public QTableView
 {
@@ -31,6 +32,13 @@ public:
     void resizeColumnAccountingForEditor(int column);
     void resizeColumnsAccountingForEditor();
 
+    void setUiManager(DbUiManager *uiManager);
+    void setObjectListMode(int schemaNameCol,
+                           int objectNameCol,
+                           int objectTypeCol,
+                           const QString &objectListSchemaName=QString(),
+                           const QString &objectListObjectType=QString());
+
 public slots:
     void resizeColumnsToFitContents();
 
@@ -45,6 +53,7 @@ protected:
 
 private slots:
     void queryCompleted(const QueryResult &result);
+    void showContextMenu(const QPoint &pos);
 
 private:
     IQueryScheduler *queryScheduler;
@@ -54,6 +63,14 @@ private:
     bool humanizeColumnNames;
 
     void copyToClipboard();
+
+    QString objectListSchemaName;
+    QString objectListObjectType;
+    int schemaNameCol;
+    int objectNameCol;
+    int objectTypeCol;
+
+    DbUiManager *uiManager;
 };
 
 #endif // DATATABLE_H

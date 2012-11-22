@@ -8,8 +8,8 @@
 #include "dialogs/tableddloptionsdialog.h"
 #include <QtGui>
 
-DbObjectDdlViewer::DbObjectDdlViewer(bool addSettingsButton, QWidget *parent) :
-    DbObjectViewerGenericTab("", parent),
+DbObjectDdlViewer::DbObjectDdlViewer(bool addSettingsButton, DbUiManager *uiManager, QWidget *parent) :
+    DbObjectViewerGenericTab("", uiManager, parent),
     addSettingsButton(addSettingsButton)
 {
     ddlOptions.sqlTerminators="y";

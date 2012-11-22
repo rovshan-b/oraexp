@@ -26,6 +26,7 @@ public:
     static void populatePrivilegeNames(QStringList &list, DbTreeModel::DbTreeNodeType objectType);
     static QString getPartitionTypeName(OraExp::PartitionType pType);
     static QString getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeType);
+    static DbTreeModel::DbTreeNodeType getDbObjectNodeTypeByTypeName(const QString &typeName);
     static QString getDbObjectIconNameByParentNodeType(DbTreeModel::DbTreeNodeType nodeType);
 
     static QString getSizeUnitText(OraExp::ExtentUnit unit);
@@ -56,7 +57,7 @@ public:
     static QString getExtentSizeClause(bool unlimited, uint size, OraExp::ExtentUnit sizeUnit);
     static void parseExtentSize(const QString &textToParse, bool *unlimited, qulonglong *quota, OraExp::ExtentUnit *units);
 
-    static DbTreeModel::DbTreeNodeType getPairNodeType(DbTreeModel::DbTreeNodeType nodeType);
+    //static DbTreeModel::DbTreeNodeType getPairNodeType(DbTreeModel::DbTreeNodeType nodeType);
 };
 
 #endif // DBUTIL_H

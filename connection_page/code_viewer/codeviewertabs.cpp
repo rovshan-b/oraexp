@@ -16,22 +16,22 @@ CodeViewerTabs::CodeViewerTabs(const QString &schemaName,
 
 void CodeViewerTabs::createTabs()
 {
-    DbObjectDdlViewer *ddlViewer = new DbObjectDdlViewer(false, this);
+    DbObjectDdlViewer *ddlViewer = new DbObjectDdlViewer(false, uiManager, this);
     addTab(ddlViewer, IconUtil::getIcon("ddl"), tr("DDL"));
 
-    DbObjectViewerGenericTab *grantInfo = new DbObjectViewerGenericTab("get_table_grants_for_detailed_view", this);
+    DbObjectViewerGenericTab *grantInfo = new DbObjectViewerGenericTab("get_table_grants_for_detailed_view", uiManager, this);
     addTab(grantInfo, IconUtil::getIcon("grants"), tr("Grants"));
 
-    DbObjectReferencesViewer *dependencyViewer=new DbObjectReferencesViewer(false, this);
+    DbObjectReferencesViewer *dependencyViewer=new DbObjectReferencesViewer(false, uiManager, this);
     addTab(dependencyViewer, IconUtil::getIcon("dependency"), tr("Dependencies"));
 
-    DbObjectReferencesViewer *referenceViewer=new DbObjectReferencesViewer(true, this);
-    addTab(referenceViewer, IconUtil::getIcon("dependency"), tr("References"));
+    DbObjectReferencesViewer *referenceViewer=new DbObjectReferencesViewer(true, uiManager, this);
+    addTab(referenceViewer, IconUtil::getIcon("reference"), tr("References"));
 
-    DbObjectViewerGenericTab *errorInfo = new DbObjectViewerGenericTab("get_code_errors", this);
+    DbObjectViewerGenericTab *errorInfo = new DbObjectViewerGenericTab("get_code_errors", uiManager, this);
     errorInfo->setUseObjectTypeParam();
     addTab(errorInfo, IconUtil::getIcon("error"), tr("Errors"));
 
-    DbObjectDetailsViewer *detailsViewer = new DbObjectDetailsViewer("get_code_details_for_detailed_view", this);
+    DbObjectDetailsViewer *detailsViewer = new DbObjectDetailsViewer("get_code_details_for_detailed_view", uiManager, this);
     addTab(detailsViewer, IconUtil::getIcon("details"), tr("Details"));
 }

@@ -5,8 +5,8 @@
 #include "widgets/datatable.h"
 #include <QtGui>
 
-DbObjectDetailsViewer::DbObjectDetailsViewer(const QString &queryName, QWidget *parent) :
-    DbObjectViewerGenericTab(queryName, parent)
+DbObjectDetailsViewer::DbObjectDetailsViewer(const QString &queryName, DbUiManager *uiManager, QWidget *parent) :
+    DbObjectViewerGenericTab(queryName, uiManager, parent)
 {
 }
 

@@ -9,7 +9,7 @@ ViewViewer::ViewViewer(const QString &schemaName,
 {
 }
 
-DbObjectViewerTabs *ViewViewer::getTabsWidget() const
+DbObjectViewerTabs *ViewViewer::getViewerWidget() const
 {
     return new ViewViewerTabs(schemaName, objectName, uiManager);
 }

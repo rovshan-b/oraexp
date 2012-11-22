@@ -17,17 +17,17 @@ TableViewerTabs::TableViewerTabs(const QString &schemaName, const QString &objec
 
 void TableViewerTabs::createTabs()
 {
-    DbObjectViewerGenericTab *columnInfo=new DbObjectViewerGenericTab("get_table_columns_for_detailed_view");
+    DbObjectViewerGenericTab *columnInfo=new DbObjectViewerGenericTab("get_table_columns_for_detailed_view", uiManager);
     addTab(columnInfo, IconUtil::getIcon("column"), tr("Columns"));
 
-    DbObjectDataViewer *dataViewer=new DbObjectDataViewer(this);
+    DbObjectDataViewer *dataViewer=new DbObjectDataViewer(uiManager, this);
     addTab(dataViewer, IconUtil::getIcon("data"), tr("Data"));
 
-    DbObjectViewerGenericTab *constraintInfo = new DbObjectViewerGenericTab("get_table_constraints_for_detailed_view", this);
+    DbObjectViewerGenericTab *constraintInfo = new DbObjectViewerGenericTab("get_table_constraints_for_detailed_view", uiManager, this);
     constraintInfo->setIconColumn("CONSTRAINT_NAME", "TYPE_ICON");
     addTab(constraintInfo, IconUtil::getIcon("constraint"), tr("Constraints"));
 
-    DbObjectViewerGenericTab *refFkInfo = new DbObjectViewerGenericTab("get_table_referencing_fks_for_detailed_view", this);
+    DbObjectViewerGenericTab *refFkInfo = new DbObjectViewerGenericTab("get_table_referencing_fks_for_detailed_view", uiManager, this);
 
     StatementDesc *desc=new StatementDesc();
     desc->query=QueryUtil::getQuery("get_constraint_column_names");
@@ -39,22 +39,22 @@ void TableViewerTabs::createTabs()
     refFkInfo->setDynamicQuery(4, desc);
     addTab(refFkInfo, IconUtil::getIcon("constraint_fk"), tr("Referencing FKs"));
 
-    DbObjectViewerGenericTab *grantInfo = new DbObjectViewerGenericTab("get_table_grants_for_detailed_view", this);
+    DbObjectViewerGenericTab *grantInfo = new DbObjectViewerGenericTab("get_table_grants_for_detailed_view", uiManager, this);
     addTab(grantInfo, IconUtil::getIcon("grants"), tr("Grants"));
 
-    DbObjectTriggersViewer *triggerViewer = new DbObjectTriggersViewer(this);
+    DbObjectTriggersViewer *triggerViewer = new DbObjectTriggersViewer(uiManager, this);
     addTab(triggerViewer, IconUtil::getIcon("trigger"), tr("Triggers"));
 
-    DbObjectReferencesViewer *dependencyViewer=new DbObjectReferencesViewer(false, this);
+    DbObjectReferencesViewer *dependencyViewer=new DbObjectReferencesViewer(false, uiManager, this);
     addTab(dependencyViewer, IconUtil::getIcon("dependency"), tr("Dependencies"));
 
-    DbObjectDetailsViewer *detailsViewer = new DbObjectDetailsViewer("get_table_details_for_detailed_view", this);
+    DbObjectDetailsViewer *detailsViewer = new DbObjectDetailsViewer("get_table_details_for_detailed_view", uiManager, this);
     addTab(detailsViewer, IconUtil::getIcon("details"), tr("Details"));
 
-    TablePartitionsViewer *partitionInfo = new TablePartitionsViewer(this);
+    TablePartitionsViewer *partitionInfo = new TablePartitionsViewer(uiManager, this);
     addTab(partitionInfo, IconUtil::getIcon("partition"), tr("Partitions"));
 
-    DbObjectViewerGenericTab *indexInfo = new DbObjectViewerGenericTab("get_table_indexes_for_detailed_view", this);
+    DbObjectViewerGenericTab *indexInfo = new DbObjectViewerGenericTab("get_table_indexes_for_detailed_view", uiManager, this);
     indexInfo->setIconColumn("COLUMNS", "ICON_COLUMN");
     desc=new StatementDesc();
     desc->query=QueryUtil::getQuery("get_table_index_columns");
@@ -70,6 +70,6 @@ void TableViewerTabs::createTabs()
     indexInfo->setDynamicQuery(4, desc);
     addTab(indexInfo, IconUtil::getIcon("index"), tr("Indexes"));
 
-    DbObjectDdlViewer *ddlViewer = new DbObjectDdlViewer(true, this);
+    DbObjectDdlViewer *ddlViewer = new DbObjectDdlViewer(true, uiManager, this);
     addTab(ddlViewer, IconUtil::getIcon("ddl"), tr("DDL"));
 }

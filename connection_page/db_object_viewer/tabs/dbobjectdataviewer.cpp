@@ -2,8 +2,8 @@
 #include "widgets/datatable.h"
 
 
-DbObjectDataViewer::DbObjectDataViewer(QWidget *parent) :
-    DbObjectViewerGenericTab("", parent)
+DbObjectDataViewer::DbObjectDataViewer(DbUiManager *uiManager, QWidget *parent) :
+    DbObjectViewerGenericTab("", uiManager, parent)
 {
 
 }
@@ -17,7 +17,7 @@ void DbObjectDataViewer::setObjectName(const QString &schemaName,
                                        const QString &objectName,
                                        DbTreeModel::DbTreeNodeType itemType)
 {
-    DbObjectViewerWidget::setObjectName(schemaName, objectName, itemType);
+    DbObjectViewerGenericTab::setObjectName(schemaName, objectName, itemType);
 
     query=QString("select * from \"%1\".\"%2\"").arg(schemaName).arg(objectName);
 }

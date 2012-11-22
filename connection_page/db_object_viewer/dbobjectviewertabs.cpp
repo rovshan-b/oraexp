@@ -1,11 +1,13 @@
 #include "dbobjectviewertabs.h"
-#include "dbobjectviewerwidget.h"
 #include "dbobjectviewer.h"
 #include "dbobjectviewertoolbar.h"
+#include "dbobjectviewergenerictab.h"
 #include "widgets/subtabwidget.h"
 #include "util/widgethelper.h"
 #include "util/iconutil.h"
+#include "util/dbutil.h"
 #include "context_menu/contextmenuutil.h"
+#include "widgets/specbodyswitcherwidget.h"
 #include <QtGui>
 
 DbObjectViewerTabs::DbObjectViewerTabs(const QString &schemaName,
@@ -18,14 +20,15 @@ DbObjectViewerTabs::DbObjectViewerTabs(const QString &schemaName,
     itemType(itemType),
     uiManager(uiManager),
     queryScheduler(0),
-    currentJobCount(0)
+    currentJobCount(0),
+    hasSpecBodySwitcher(false)
 {   
 }
 
 void DbObjectViewerTabs::createUi()
 {
     QVBoxLayout *layout=new QVBoxLayout();
-    layout->setContentsMargins(0,0,0,0);
+    layout->setContentsMargins(0,2,0,0);
 
     toolbar=new DbObjectViewerToolBar();
     createToolbarButtons();
@@ -41,7 +44,7 @@ void DbObjectViewerTabs::createUi()
     connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(loadTabData(int)));
 }
 
-void DbObjectViewerTabs::addTab(DbObjectViewerWidget *tab, const QIcon &icon, const QString &title)
+void DbObjectViewerTabs::addTab(DbObjectViewerGenericTab *tab, const QIcon &icon, const QString &title)
 {
     tabWidget->addTab(tab, icon, title);
     connect(tab, SIGNAL(beforeLoadInfo()), this, SLOT(beforeLoadTabInfo()));
@@ -58,7 +61,7 @@ void DbObjectViewerTabs::loadTabData(int index)
 
     Q_ASSERT(this->queryScheduler);
 
-    DbObjectViewerWidget* selectedWidget=(DbObjectViewerWidget*)tabWidget->widget(index);
+    DbObjectViewerGenericTab* selectedWidget=(DbObjectViewerGenericTab*)tabWidget->widget(index);
 
     if(!selectedWidget->areControlsCreated()){
         selectedWidget->setObjectName(schemaName, objectName, itemType);
@@ -123,11 +126,23 @@ IQueryScheduler *DbObjectViewerTabs::scheduler() const
     return this->queryScheduler;
 }
 
+void DbObjectViewerTabs::setHasSpecBodySwitcher(bool hasSpecBodySwitcher)
+{
+    this->hasSpecBodySwitcher=hasSpecBodySwitcher;
+}
+
 void DbObjectViewerTabs::createToolbarButtons()
 {
     refreshButton=new QAction(IconUtil::getIcon("refresh"), tr("Refresh"), this);
     connect(refreshButton, SIGNAL(triggered()), this, SLOT(refreshInfo()));
     toolbar->addAction(refreshButton);
+
+    if(hasSpecBodySwitcher){
+        toolbar->addSeparator();
+        SpecBodySwitcherWidget *switcher=new SpecBodySwitcherWidget(DbUtil::isSpecType(this->itemType), this);
+        toolbar->addWidget(switcher);
+        connect(switcher, SIGNAL(specBodySwitchRequested()), this, SIGNAL(specBodySwitchRequested()));
+    }
 
     //addSpecificToolbarButtons();
 

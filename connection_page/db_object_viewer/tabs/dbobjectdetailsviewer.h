@@ -12,7 +12,7 @@ class DbObjectDetailsViewer : public DbObjectViewerGenericTab
 {
     Q_OBJECT
 public:
-    explicit DbObjectDetailsViewer(const QString &queryName, QWidget *parent = 0);
+    explicit DbObjectDetailsViewer(const QString &queryName, DbUiManager *uiManager, QWidget *parent = 0);
 
     virtual void createMainWidget(QLayout *layout);
 

@@ -7,10 +7,11 @@
 #include "util/dbutil.h"
 #include <QtGui>
 
-DbObjectTriggersViewer::DbObjectTriggersViewer(QWidget *parent) :
-    DbObjectViewerGenericTab("get_object_triggers_for_detailed_view", parent), sourceRetrieveError(false)
+DbObjectTriggersViewer::DbObjectTriggersViewer(DbUiManager *uiManager, QWidget *parent) :
+    DbObjectViewerGenericTab("get_object_triggers_for_detailed_view", uiManager, parent), sourceRetrieveError(false)
 {
     setIconColumn("TRIGGER_NAME", "ICON_COLUMN");
+    setObjectListMode(0, 1, -1, "", "TRIGGER");
 }
 
 void DbObjectTriggersViewer::createMainWidget(QLayout *layout)

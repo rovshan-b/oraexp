@@ -14,7 +14,8 @@ public:
                             QWidget *parent=0);
     
     virtual void createTabs();
-    
+
+
 };
 
 #endif // CODEVIEWERTABS_H

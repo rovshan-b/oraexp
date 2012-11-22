@@ -8,6 +8,7 @@
 #include "info_panel/panes/compilermessagespane.h"
 #include "connectivity/dbconnection.h"
 #include "connectivity/statement.h"
+#include "widgets/specbodyswitcherwidget.h"
 #include "errors.h"
 #include <QtGui>
 
@@ -165,25 +166,10 @@ void CodeCreatorWidget::addSpecBodySwitcher()
     }
 
     toolbar->addSeparator();
+    SpecBodySwitcherWidget *switcher=new SpecBodySwitcherWidget(isSpec, this);
+    toolbar->addWidget(switcher);
 
-    QAction *specButton = toolbar->addAction(tr("Spec"));
-    specButton->setCheckable(true);
-    QAction *bodyButton = toolbar->addAction(tr("Body"));
-    bodyButton->setCheckable(true);
-
-    if(isSpec){
-        specButton->setChecked(true);
-        bodyButton->setShortcut(QKeySequence(tr("F8","CodeCreator|Toggle Spec/Body")));
-    }else{
-        bodyButton->setChecked(true);
-        specButton->setShortcut(QKeySequence(tr("F8","CodeCreator|Toggle Spec/Body")));
-    }
-
-    specBodySwitcherGroup=new QActionGroup(this);
-    specBodySwitcherGroup->addAction(specButton);
-    specBodySwitcherGroup->addAction(bodyButton);
-
-    connect(specBodySwitcherGroup, SIGNAL(triggered(QAction*)), this, SLOT(specBodySwitcherClicked(QAction*)));
+    connect(switcher, SIGNAL(specBodySwitchRequested()), this, SIGNAL(specBodySwitchRequested()));
 }
 
 void CodeCreatorWidget::loadObjectInfo()
@@ -413,17 +399,6 @@ void CodeCreatorWidget::compilationErrorFirstTimeFetchCompleted(const QString &)
 {
     emit objectInfoLoaded();
     compilationErrorFetchCompleted("");
-}
-
-void CodeCreatorWidget::specBodySwitcherClicked(QAction *)
-{
-    if(isSpec){
-        specBodySwitcherGroup->actions().at(0)->setChecked(true);
-    }else{
-        specBodySwitcherGroup->actions().at(1)->setChecked(true);
-    }
-
-    emit specBodySwitchRequested();
 }
 
 void CodeCreatorWidget::compilerMessageActivated(int line, int position, const QString &)

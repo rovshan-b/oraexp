@@ -259,6 +259,45 @@ QString DbUtil::getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeTy
     return result;
 }
 
+DbTreeModel::DbTreeNodeType DbUtil::getDbObjectNodeTypeByTypeName(const QString &typeName)
+{
+    DbTreeModel::DbTreeNodeType result=DbTreeModel::Unknown;
+
+    if(typeName=="TABLE"){
+        result = DbTreeModel::Table;
+    }else if(typeName=="VIEW"){
+        result = DbTreeModel::View;
+    }else if(typeName=="PACKAGE"){
+        result = DbTreeModel::Package;
+    }else if(typeName=="PACKAGE SPEC"){
+        result = DbTreeModel::PackageSpec;
+    }else if(typeName=="PACKAGE BODY"){
+        result = DbTreeModel::PackageBody;
+    }else if(typeName=="PROCEDURE"){
+        result = DbTreeModel::Procedure;
+    }else if(typeName=="FUNCTION"){
+        result = DbTreeModel::Function;
+    }else if(typeName=="TRIGGER"){
+        result = DbTreeModel::Trigger;
+    }else if(typeName=="SEQUENCE"){
+        result = DbTreeModel::Sequence;
+    }else if(typeName=="TYPE"){
+        result = DbTreeModel::Type;
+    }else if(typeName=="TYPE SPEC"){
+        result = DbTreeModel::TypeSpec;
+    }else if(typeName=="TYPE BODY"){
+        result = DbTreeModel::TypeBody;
+    }else if(typeName=="SYNONYM"){
+        result = DbTreeModel::Synonym;
+    }else if(typeName=="DATABASE LINK"){
+        result = DbTreeModel::DatabaseLink;
+    }else if(typeName=="USER" || typeName=="SCHEMA"){
+        result = DbTreeModel::Schema;
+    }
+
+    return result;
+}
+
 QString DbUtil::getDbObjectIconNameByParentNodeType(DbTreeModel::DbTreeNodeType nodeType)
 {
     QString result;
@@ -599,6 +638,7 @@ void DbUtil::parseExtentSize(const QString &textToParse, bool *unlimited, qulong
     }
 }
 
+/*
 DbTreeModel::DbTreeNodeType DbUtil::getPairNodeType(DbTreeModel::DbTreeNodeType nodeType)
 {
     DbTreeModel::DbTreeNodeType result;
@@ -617,4 +657,4 @@ DbTreeModel::DbTreeNodeType DbUtil::getPairNodeType(DbTreeModel::DbTreeNodeType 
     }
 
     return result;
-}
+}*/

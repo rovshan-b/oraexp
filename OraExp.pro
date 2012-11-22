@@ -347,7 +347,6 @@ SOURCES += main.cpp\
     connection_page/db_object_viewer/dbobjectviewergenerictab.cpp \
     connection_page/db_object_viewer/dbobjectviewer.cpp \
     connection_page/db_object_viewer/dbobjectviewertabs.cpp \
-    connection_page/db_object_viewer/dbobjectviewerwidget.cpp \
     connection_page/table_viewer/tableviewer.cpp \
     connection_page/table_viewer/tableviewertabs.cpp \
     connection_page/db_object_viewer/tabs/dbobjecttriggersviewer.cpp \
@@ -360,7 +359,8 @@ SOURCES += main.cpp\
     connection_page/code_viewer/codeviewer.cpp \
     connection_page/code_viewer/codeviewertabs.cpp \
     connection_page/db_object_viewer/dbobjectviewertoolbar.cpp \
-    connection_page/code_viewer/paircodeviewer.cpp
+    connection_page/code_viewer/paircodeviewer.cpp \
+    widgets/specbodyswitcherwidget.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -707,7 +707,6 @@ HEADERS  += mainwindow.h \
     delegates/grantobjectlistdelegate.h \
     connection_page/db_object_viewer/dbobjectviewergenerictab.h \
     connection_page/db_object_viewer/dbobjectviewertabs.h \
-    connection_page/db_object_viewer/dbobjectviewerwidget.h \
     connection_page/db_object_viewer/dbobjectviewer.h \
     connection_page/table_viewer/tableviewer.h \
     connection_page/table_viewer/tableviewertabs.h \
@@ -721,7 +720,8 @@ HEADERS  += mainwindow.h \
     connection_page/code_viewer/codeviewer.h \
     connection_page/code_viewer/codeviewertabs.h \
     connection_page/db_object_viewer/dbobjectviewertoolbar.h \
-    connection_page/code_viewer/paircodeviewer.h
+    connection_page/code_viewer/paircodeviewer.h \
+    widgets/specbodyswitcherwidget.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

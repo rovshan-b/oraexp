@@ -7,7 +7,7 @@ CodeViewer::CodeViewer(const QString &schemaName, const QString &objectName, DbT
     this->itemType=itemType;
 }
 
-DbObjectViewerTabs *CodeViewer::getTabsWidget() const
+DbObjectViewerTabs *CodeViewer::getViewerWidget() const
 {
     return new CodeViewerTabs(schemaName, objectName, itemType, uiManager);
 }

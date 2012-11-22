@@ -6,8 +6,17 @@
 #include "util/dbutil.h"
 #include <QtGui>
 
-DbObjectViewerGenericTab::DbObjectViewerGenericTab(const QString &queryName, QWidget *parent) :
-    DbObjectViewerWidget(parent), setObjectTypeParam(false), dt(0), queryName(queryName)
+DbObjectViewerGenericTab::DbObjectViewerGenericTab(const QString &queryName, DbUiManager *uiManager, QWidget *parent) :
+    OnDemandInfoViewerWidget(parent),
+    uiManager(uiManager),
+    queryScheduler(0),
+    controlsCreated(false),
+    setObjectTypeParam(false),
+    dt(0),
+    queryName(queryName),
+    schemaNameCol(-1),
+    objectNameCol(-1),
+    objectTypeCol(-1)
 {
 }
 
@@ -21,12 +30,28 @@ DbObjectViewerGenericTab::~DbObjectViewerGenericTab()
     }
 }
 
+void DbObjectViewerGenericTab::setQueryScheduler(IQueryScheduler *queryScheduler)
+{
+    Q_ASSERT(this->queryScheduler==0);
+
+    this->queryScheduler=queryScheduler;
+}
+
+void DbObjectViewerGenericTab::setObjectName(const QString &schemaName, const QString &objectName, DbTreeModel::DbTreeNodeType itemType)
+{
+    Q_ASSERT(this->schemaName.isEmpty());
+
+    this->schemaName=schemaName;
+    this->objectName=objectName;
+    this->itemType=itemType;
+}
+
 void DbObjectViewerGenericTab::doLoadInfo()
 {
     if(isLoading()){
         return;
     }
-    DbObjectViewerWidget::doLoadInfo();
+    OnDemandInfoViewerWidget::doLoadInfo();
 
     loadData();
 }
@@ -67,6 +92,15 @@ void DbObjectViewerGenericTab::setDynamicQuery(int colNum, StatementDesc *stmtDe
     dynamicQueries[colNum]=stmtDesc;
 }
 
+void DbObjectViewerGenericTab::setObjectListMode(int schemaNameCol, int objectNameCol, int objectTypeCol, const QString &objectListSchemaName, const QString &objectListObjectType)
+{
+    this->schemaNameCol=schemaNameCol;
+    this->objectNameCol=objectNameCol;
+    this->objectTypeCol=objectTypeCol;
+    this->objectListSchemaName=objectListSchemaName;
+    this->objectListObjectType=objectListObjectType;
+}
+
 void DbObjectViewerGenericTab::queryCompleted()
 {
     setLoadingComplete();
@@ -75,11 +109,40 @@ void DbObjectViewerGenericTab::queryCompleted()
 void DbObjectViewerGenericTab::createMainWidget(QLayout *layout)
 {
     dt=new DataTable();
+    dt->setUiManager(this->uiManager);
     dt->setHumanizeColumnNames(true);
     dt->setIconColumns(iconColumns);
+
+    if(objectNameCol!=-1){
+        dt->setObjectListMode(schemaNameCol,
+                              objectNameCol,
+                              objectTypeCol,
+                              objectListSchemaName,
+                              objectListObjectType);
+    }
+
     //dt->setSelectionBehavior(QAbstractItemView::SelectRows);
     connect(dt, SIGNAL(firstFetchCompleted()), this, SLOT(queryCompleted()));
     connect(dt, SIGNAL(asyncQueryError(OciException)), this, SLOT(queryCompleted()));
     layout->addWidget(dt);
+}
+
+void DbObjectViewerGenericTab::createChildControls()
+{
+    Q_ASSERT(!controlsCreated);
+
+    this->controlsCreated=true;
+    QVBoxLayout *layout=new QVBoxLayout();
+
+    createMainWidget(layout);
+
+    layout->setContentsMargins(2, 0, 2, 0);
+
+    setLayout(layout);
+}
+
+QList<QAction *> DbObjectViewerGenericTab::getSpecificToolbarButtons()
+{
+    return QList<QAction*>();
 }
 

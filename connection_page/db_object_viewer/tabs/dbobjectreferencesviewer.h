@@ -7,7 +7,7 @@ class DbObjectReferencesViewer : public DbObjectViewerGenericTab
 {
     Q_OBJECT
 public:
-    explicit DbObjectReferencesViewer(bool references, QWidget *parent = 0);
+    explicit DbObjectReferencesViewer(bool references, DbUiManager *uiManager, QWidget *parent = 0);
     
 protected:
     virtual QList<Param*> getQueryParams();

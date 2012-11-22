@@ -6,7 +6,7 @@
 #include "navtree/dbtreemodel.h"
 
 class DbObjectViewerToolBar;
-class DbObjectViewerWidget;
+class DbObjectViewerGenericTab;
 class QTabWidget;
 
 class DbObjectViewerTabs : public QWidget
@@ -21,13 +21,16 @@ public:
 
     virtual void createUi();
     virtual void createTabs()=0;
-    void addTab(DbObjectViewerWidget *tab, const QIcon &icon, const QString &title);
+    void addTab(DbObjectViewerGenericTab *tab, const QIcon &icon, const QString &title);
 
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
     IQueryScheduler *scheduler() const;
 
+    void setHasSpecBodySwitcher(bool hasSpecBodySwitcher);
+
 signals:
+    void specBodySwitchRequested();
 
 public slots:
     void loadTabData(int index);
@@ -58,6 +61,7 @@ protected:
 
     int currentJobCount;
 
+    bool hasSpecBodySwitcher;
 };
 
 #endif // DBOBJECTVIEWERTABS_H

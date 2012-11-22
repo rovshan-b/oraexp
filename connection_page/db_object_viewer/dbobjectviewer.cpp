@@ -17,10 +17,10 @@ void DbObjectViewer::createUi()
     QVBoxLayout *layout=new QVBoxLayout();
     layout->setContentsMargins(0,0,0,0);
 
-    infoTabs=getTabsWidget();
-    infoTabs->createUi();
+    viewerWidget=getViewerWidget();
+    viewerWidget->createUi();
 
-    layout->addWidget(infoTabs);
+    layout->addWidget(viewerWidget);
     setLayout(layout);
 }
 
@@ -28,7 +28,7 @@ void DbObjectViewer::setConnection(DbConnection *db)
 {
     ConnectionPageTab::setConnection(db);
 
-    infoTabs->setQueryScheduler(this);
+    viewerWidget->setQueryScheduler(this);
 
     emitInitCompletedSignal();
 }

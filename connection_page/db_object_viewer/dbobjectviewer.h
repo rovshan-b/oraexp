@@ -3,8 +3,7 @@
 
 #include "../connectionpagetab.h"
 #include "navtree/dbtreemodel.h"
-
-class DbObjectViewerTabs;
+#include "dbobjectviewertabs.h"
 
 class DbObjectViewer : public ConnectionPageTab
 {
@@ -19,10 +18,10 @@ public:
 
     virtual void createUi();
 
-    virtual DbObjectViewerTabs *getTabsWidget() const = 0;
+    virtual DbObjectViewerTabs *getViewerWidget() const = 0;
 
 protected:
-    DbObjectViewerTabs *infoTabs;
+    DbObjectViewerTabs *viewerWidget;
 
     QString schemaName;
     QString objectName;

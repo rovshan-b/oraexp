@@ -4,10 +4,12 @@
 #include "util/queryutil.h"
 #include "util/queryexectask.h"
 #include "connectivity/dbconnection.h"
+#include "interfaces/iqueryscheduler.h"
 #include <QtGui>
 
-TablePartitionsViewer::TablePartitionsViewer(QWidget *parent) :
-    DbObjectViewerGenericTab("get_table_partitions_for_detailed_view", parent), isPartitioned(false), complexPartitioning(false)
+TablePartitionsViewer::TablePartitionsViewer(DbUiManager *uiManager, QWidget *parent) :
+    DbObjectViewerGenericTab("get_table_partitions_for_detailed_view", uiManager, parent),
+    isPartitioned(false), complexPartitioning(false)
 {
 
 }

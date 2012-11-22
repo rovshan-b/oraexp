@@ -69,8 +69,6 @@ private slots:
     void compilationErrorFetchCompleted(const QString &);
     void compilationErrorFirstTimeFetchCompleted(const QString &);
 
-    void specBodySwitcherClicked(QAction *);
-
     void compilerMessageActivated(int line, int position, const QString &);
 
 private:
@@ -97,8 +95,6 @@ private:
 
     InfoPanel *infoPanel;
     CompilerMessagesPane *compilerMessagesPane;
-
-    QActionGroup *specBodySwitcherGroup;
 
     void compileObject();
     void startProgress();

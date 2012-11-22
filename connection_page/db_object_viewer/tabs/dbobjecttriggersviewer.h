@@ -10,7 +10,7 @@ class DbObjectTriggersViewer : public DbObjectViewerGenericTab
 {
     Q_OBJECT
 public:
-    explicit DbObjectTriggersViewer(QWidget *parent = 0);
+    explicit DbObjectTriggersViewer(DbUiManager *uiManager, QWidget *parent = 0);
 
     virtual void createMainWidget(QLayout *layout);
 

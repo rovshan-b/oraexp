@@ -3,24 +3,39 @@
 
 #include "../connectionpagetab.h"
 #include "navtree/dbtreemodel.h"
+#include "codeviewertabs.h"
+
+class QStackedWidget;
 
 class PairCodeViewer : public ConnectionPageTab
 {
     Q_OBJECT
 public:
-    //1 - DbObjectViewer-den DbObjectViewerWidget refactor elemek, hansi ki, tekce QWidget-den inherit etmelidir
-    //ve setConnection yox setQueryScheduler metodu olmalidir (indiki DbObjectViewerWidget-in adini deyishmek lazimdir)
-    //2 - 1-cini edenden sonra ele etmek lazimdir ki, bu class 2 eded DbObjectViewerWidget yaradib onlardan istifade elesin
-
     explicit PairCodeViewer(const QString &schemaName,
                             const QString &objectName,
                             DbTreeModel::DbTreeNodeType itemType,
                             DbUiManager *uiManager,
                             QWidget *parent = 0);
+
+    virtual void createUi();
+
+    virtual void setConnection(DbConnection *db);
+
+private slots:
+    void switchToSpec();
+    void switchToBody();
     
-signals:
-    
-public slots:
+private:
+    QStackedWidget *tab;
+
+    CodeViewerTabs *specViewer;
+    CodeViewerTabs *bodyViewer;
+
+    QString schemaName;
+    QString objectName;
+    DbTreeModel::DbTreeNodeType itemType;
+
+    int initializedCount;
     
 };
 

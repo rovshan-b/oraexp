@@ -2,17 +2,22 @@
 #include "models/resultsettablemodel.h"
 #include "util/queryqueuemanager.h"
 #include "util/queryexectask.h"
+#include "util/dbutil.h"
 #include "connectivity/dbconnection.h"
 #include "connectivity/statement.h"
 #include "interfaces/iqueryscheduler.h"
+#include "context_menu/contextmenuutil.h"
 #include <QtGui>
 
 DataTable::DataTable(QWidget *parent) :
-    QTableView(parent), queryScheduler(0), humanizeColumnNames(false)
+    QTableView(parent), queryScheduler(0), humanizeColumnNames(false),
+    schemaNameCol(-1), objectNameCol(-1), objectTypeCol(-1)
 {
     verticalHeader()->setDefaultSectionSize(fontMetrics().height()+10);
     horizontalHeader()->setDefaultSectionSize(150);
     setSelectionMode(QAbstractItemView::ContiguousSelection);
+
+    connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
 }
 
 void DataTable::setResultset(IQueryScheduler *queryScheduler,
@@ -89,6 +94,41 @@ void DataTable::queryCompleted(const QueryResult &result)
     emit asyncQueryCompleted(result);
 }
 
+void DataTable::showContextMenu(const QPoint &pos)
+{
+    if(objectNameCol==-1){
+        return;
+    }
+
+    if(!model()){
+        return;
+    }
+
+    QModelIndex index=indexAt(pos);
+    if(!index.isValid()){
+        return;
+    }
+
+    int row=index.row();
+    QString schemaName = schemaNameCol!=-1 ? model()->index(row, schemaNameCol).data().toString() : objectListSchemaName;
+    QString objectName = model()->index(row, objectNameCol).data().toString();
+    QString objectType = objectTypeCol!=-1 ? model()->index(row, objectTypeCol).data().toString() : objectListObjectType;
+
+    QList<QAction*> actions=ContextMenuUtil::getActionsForObject(schemaName, objectName,
+                                         DbUtil::getDbObjectNodeTypeByTypeName(objectType),
+                                         this->uiManager);
+
+    if(actions.size()==0){
+        return;
+    }
+
+    QMenu menu;
+    menu.exec(actions, mapToGlobal(pos));
+
+    qDeleteAll(actions);
+
+}
+
 void DataTable::copyToClipboard()
 {
     if(!this->selectionModel()->hasSelection()){
@@ -160,6 +200,23 @@ void DataTable::resizeColumnsAccountingForEditor()
 
         resizeColumnAccountingForEditor(i);
     }
+}
+
+void DataTable::setUiManager(DbUiManager *uiManager)
+{
+    this->uiManager=uiManager;
+}
+
+void DataTable::setObjectListMode(int schemaNameCol, int objectNameCol, int objectTypeCol,
+                                  const QString &objectListSchemaName, const QString &objectListObjectType)
+{
+    this->schemaNameCol=schemaNameCol;
+    this->objectNameCol=objectNameCol;
+    this->objectTypeCol=objectTypeCol;
+    this->objectListSchemaName=objectListSchemaName;
+    this->objectListObjectType=objectListObjectType;
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 void DataTable::keyPressEvent(QKeyEvent *event)
