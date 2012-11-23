@@ -8,10 +8,11 @@ class SchemaComparerResultsTab : public DbObjectComparerResultsTab
 {
     Q_OBJECT
 public:
-    explicit SchemaComparerResultsTab(QWidget *parent);
+    explicit SchemaComparerResultsTab(DbUiManager *uiManager, QWidget *parent);
 
 public slots:
     void changedObjectDetected(const QString &objectName, DbTreeModel::DbTreeNodeType objectType, const QString &compareResult);
+    virtual void setCurrentSchema(const QString &currentSchemaName);
     
 };
 

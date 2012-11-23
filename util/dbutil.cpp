@@ -221,6 +221,11 @@ QString DbUtil::getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeTy
     case DbTreeModel::Trigger:
         result="TRIGGER";
         break;
+    case DbTreeModel::SchemaIndexes:
+    case DbTreeModel::Indexes:
+    case DbTreeModel::Index:
+        result="INDEX";
+        break;
     case DbTreeModel::Sequences:
     case DbTreeModel::Sequence:
         result="SEQUENCE";
@@ -279,6 +284,8 @@ DbTreeModel::DbTreeNodeType DbUtil::getDbObjectNodeTypeByTypeName(const QString 
         result = DbTreeModel::Function;
     }else if(typeName=="TRIGGER"){
         result = DbTreeModel::Trigger;
+    }else if(typeName=="INDEX"){
+        result = DbTreeModel::Index;
     }else if(typeName=="SEQUENCE"){
         result = DbTreeModel::Sequence;
     }else if(typeName=="TYPE"){
@@ -331,6 +338,11 @@ QString DbUtil::getDbObjectIconNameByParentNodeType(DbTreeModel::DbTreeNodeType 
     case DbTreeModel::Triggers:
     case DbTreeModel::Trigger:
         result="trigger";
+        break;
+    case DbTreeModel::SchemaIndexes:
+    case DbTreeModel::Indexes:
+    case DbTreeModel::Index:
+        result="index";
         break;
     case DbTreeModel::Sequences:
     case DbTreeModel::Sequence:

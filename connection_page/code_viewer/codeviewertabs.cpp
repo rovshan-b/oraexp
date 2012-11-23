@@ -2,6 +2,7 @@
 #include "../db_object_viewer/tabs/dbobjectdetailsviewer.h"
 #include "../db_object_viewer/tabs/dbobjectddlviewer.h"
 #include "../db_object_viewer/tabs/dbobjectreferencesviewer.h"
+#include "../db_object_viewer/tabs/dbobjectgrantsviewer.h"
 #include "util/iconutil.h"
 #include "util/queryutil.h"
 
@@ -19,7 +20,7 @@ void CodeViewerTabs::createTabs()
     DbObjectDdlViewer *ddlViewer = new DbObjectDdlViewer(false, uiManager, this);
     addTab(ddlViewer, IconUtil::getIcon("ddl"), tr("DDL"));
 
-    DbObjectViewerGenericTab *grantInfo = new DbObjectViewerGenericTab("get_table_grants_for_detailed_view", uiManager, this);
+    DbObjectGrantsViewer *grantInfo = new DbObjectGrantsViewer(uiManager, this);
     addTab(grantInfo, IconUtil::getIcon("grants"), tr("Grants"));
 
     DbObjectReferencesViewer *dependencyViewer=new DbObjectReferencesViewer(false, uiManager, this);

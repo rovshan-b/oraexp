@@ -101,8 +101,8 @@ QString DataComparerThread::getUqColumns()
 
     QString query=QueryUtil::getQuery("get_table_constraint_columns");
     QueryResult res=sourceDb->executeQuery(query, QList<Param*>() <<
-                                  new Param("owner", sourceSchema) <<
-                                  new Param("table_name", tableName));
+                                  new Param(":owner", sourceSchema) <<
+                                  new Param(":object_name", tableName));
     QScopedPointer<Statement> stmt(res.statement);
 
     Resultset *rs=stmt->rsAt(0);
@@ -126,8 +126,8 @@ void DataComparerThread::prepareBindArrays(const QStringList &uqColumns)
 {
     QString query=QueryUtil::getQuery("get_table_columns_for_buffer_allocation");
     QueryResult res=sourceDb->executeQuery(query, QList<Param*>() <<
-                                  new Param("owner", sourceSchema) <<
-                                  new Param("table_name", tableName));
+                                  new Param(":owner", sourceSchema) <<
+                                  new Param(":object_name", tableName));
 
     QScopedPointer<Statement> stmt(res.statement);
 

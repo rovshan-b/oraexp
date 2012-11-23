@@ -107,5 +107,8 @@
         <file>queries/get_object_triggers_for_detailed_view.sql</file>
         <file>queries/get_code_details_for_detailed_view.sql</file>
         <file>queries/get_code_errors.sql</file>
+        <file>queries/get_index_columns_for_detailed_view.sql</file>
+        <file>queries/get_index_statistics_for_detailed_view.sql</file>
+        <file>queries/get_index_details_for_detailed_view.sql</file>
     </qresource>
 </RCC>

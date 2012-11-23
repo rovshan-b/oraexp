@@ -22,7 +22,7 @@ DbObjectComparerOptionsTab *DataComparer::doCreateOptionsTab()
 
 DbObjectComparerResultsTab *DataComparer::doCreateResultsTab()
 {
-    return new DataComparerResultsTab();
+    return new DataComparerResultsTab(this->uiManager);
 }
 
 IDbObjectCompareHelper *DataComparer::createCompareHelper(const QString &sourceSchema,

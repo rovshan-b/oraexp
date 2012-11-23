@@ -1,12 +1,18 @@
 #include "schemacomparerresultstab.h"
 #include "util/iconutil.h"
 #include "util/dbutil.h"
+#include "widgets/datatable.h"
 #include <QtGui>
 
-SchemaComparerResultsTab::SchemaComparerResultsTab(QWidget *parent) :
-    DbObjectComparerResultsTab(parent)
+SchemaComparerResultsTab::SchemaComparerResultsTab(DbUiManager *uiManager, QWidget *parent) :
+    DbObjectComparerResultsTab(uiManager, parent)
 {
 
+}
+
+void SchemaComparerResultsTab::setCurrentSchema(const QString &currentSchemaName)
+{
+    changeListTable->setObjectListMode(-1, 0, 1, currentSchemaName);
 }
 
 void SchemaComparerResultsTab::changedObjectDetected(const QString &objectName, DbTreeModel::DbTreeNodeType objectType, const QString &compareResult)

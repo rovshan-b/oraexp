@@ -13,10 +13,10 @@ class DbObjectComparerResultsTab : public QWidget, public ISearchable
 {
     Q_OBJECT
 public:
-    explicit DbObjectComparerResultsTab(QWidget *parent = 0);
+    explicit DbObjectComparerResultsTab(DbUiManager *uiManager, QWidget *parent = 0);
 
     virtual void createUi();
-    virtual DataTable *createChangeListTable(DbUiManager *uiManager);
+    virtual DataTable *createChangeListTable();
 
     void clearText();
     void addText(const QString &text);
@@ -25,7 +25,12 @@ public:
     void findNext(){editor->findNext();}
     void findPrevious(){editor->findPrevious();}
 
+public slots:
+    virtual void setCurrentSchema(const QString &currentSchemaName);
+
 protected:
+    DbUiManager *uiManager;
+    DataTable *changeListTable;
     QStandardItemModel *tableModel;
     CodeEditorAndSearchPaneWidget *editor;
 

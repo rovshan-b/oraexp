@@ -37,6 +37,7 @@ public:
 signals:
     void uiCreated();
     void connectionEstablished(DbConnection *db);
+    void sourceSchemaChanged(const QString &newSchemaName);
 
 private slots:
     void loadDbObjects();
@@ -47,6 +48,7 @@ private slots:
     void loadSchemaObjects();
     void selectAll();
     void selectNone();
+    void sourceSchemaNameChanged();
 
 protected:
     virtual void beforeEnqueueQuery();

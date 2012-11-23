@@ -8,7 +8,7 @@ class DataComparerResultsTab : public DbObjectComparerResultsTab
 {
     Q_OBJECT
 public:
-    explicit DataComparerResultsTab(QWidget *parent = 0);
+    explicit DataComparerResultsTab(DbUiManager *uiManager, QWidget *parent = 0);
 
     virtual DataTable *createChangeListTable();
     
@@ -16,6 +16,7 @@ signals:
     
 public slots:
     void compareInfoAvailable(const DataCompareInfo &info);
+    virtual void setCurrentSchema(const QString &currentSchemaName);
     
 };
 

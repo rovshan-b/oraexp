@@ -6,8 +6,8 @@
 #include "util/dbutil.h"
 #include <QtGui>
 
-DataComparerResultsTab::DataComparerResultsTab(QWidget *parent) :
-    DbObjectComparerResultsTab(parent)
+DataComparerResultsTab::DataComparerResultsTab(DbUiManager *uiManager, QWidget *parent) :
+    DbObjectComparerResultsTab(uiManager, parent)
 {
 }
 
@@ -29,8 +29,14 @@ DataTable *DataComparerResultsTab::createChangeListTable()
     changeListTable->horizontalHeader()->setStretchLastSection(true);
     changeListTable->setSortingEnabled(true);
     changeListTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    changeListTable->setUiManager(uiManager);
 
     return changeListTable;
+}
+
+void DataComparerResultsTab::setCurrentSchema(const QString &currentSchemaName)
+{
+    changeListTable->setObjectListMode(-1, 0, -1, currentSchemaName, "TABLE");
 }
 
 void DataComparerResultsTab::compareInfoAvailable(const DataCompareInfo &info)

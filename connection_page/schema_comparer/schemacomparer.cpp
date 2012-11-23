@@ -26,7 +26,7 @@ DbObjectComparerOptionsTab *SchemaComparer::doCreateOptionsTab()
 
 DbObjectComparerResultsTab *SchemaComparer::doCreateResultsTab()
 {
-    return new SchemaComparerResultsTab(this);
+    return new SchemaComparerResultsTab(this->uiManager, this);
 }
 
 IDbObjectCompareHelper *SchemaComparer::createCompareHelper(const QString &sourceSchema, IQueryScheduler *sourceScheduler,

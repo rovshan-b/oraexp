@@ -4,6 +4,7 @@
 #include "../db_object_viewer/tabs/dbobjectdetailsviewer.h"
 #include "../db_object_viewer/tabs/dbobjectddlviewer.h"
 #include "../db_object_viewer/tabs/dbobjectreferencesviewer.h"
+#include "../db_object_viewer/tabs/dbobjectgrantsviewer.h"
 #include "util/iconutil.h"
 #include "util/queryutil.h"
 #include "beans/statementdesc.h"
@@ -21,7 +22,7 @@ void ViewViewerTabs::createTabs()
     DbObjectDataViewer *dataViewer=new DbObjectDataViewer(uiManager, this);
     addTab(dataViewer, IconUtil::getIcon("data"), tr("Data"));
 
-    DbObjectViewerGenericTab *grantInfo = new DbObjectViewerGenericTab("get_table_grants_for_detailed_view", uiManager, this);
+    DbObjectGrantsViewer *grantInfo = new DbObjectGrantsViewer(uiManager, this);
     addTab(grantInfo, IconUtil::getIcon("grants"), tr("Grants"));
 
     DbObjectTriggersViewer *triggerViewer = new DbObjectTriggersViewer(uiManager, this);

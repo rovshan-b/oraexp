@@ -47,6 +47,7 @@ void DbObjectComparer::createTabs()
     tabWidget->addTab(resultsTab, tr("Results"));
 
     connect(tabWidget, SIGNAL(currentChanged(int)), this, SIGNAL(stateChanged()));
+    connect(compareTab, SIGNAL(sourceSchemaChanged(QString)), resultsTab, SLOT(setCurrentSchema(QString)));
 }
 
 DbObjectComparerCompareTab *DbObjectComparer::createCompareTab(DbUiManager *uiManager)

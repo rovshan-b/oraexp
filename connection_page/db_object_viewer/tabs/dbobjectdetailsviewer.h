@@ -2,7 +2,6 @@
 #define DBOBJECTDETAILSVIEWER_H
 
 #include "../dbobjectviewergenerictab.h"
-
 #include "connectivity/fetchresult.h"
 
 class QScrollArea;

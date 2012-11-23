@@ -47,7 +47,9 @@ void DbObjectComparerCompareTab::loadDbObjects()
     sourceSchemaComboBox->loadItems(queryScheduler, "get_schema_list");
 
     connect(sourceSchemaComboBox->lineEdit(), SIGNAL(editingFinished()), this, SLOT(loadSchemaObjects()));
+    connect(sourceSchemaComboBox->lineEdit(), SIGNAL(editingFinished()), this, SLOT(sourceSchemaNameChanged()));
 
+    emit sourceSchemaChanged(queryScheduler->getDb()->getUsername());
     loadSchemaObjects();
 }
 
@@ -215,4 +217,9 @@ void DbObjectComparerCompareTab::selectAll()
 void DbObjectComparerCompareTab::selectNone()
 {
     schemaObjectsTree->checkAll(QModelIndex(), false);
+}
+
+void DbObjectComparerCompareTab::sourceSchemaNameChanged()
+{
+    emit sourceSchemaChanged(sourceSchemaComboBox->lineEdit()->text().trimmed().toUpper());
 }

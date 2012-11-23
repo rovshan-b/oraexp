@@ -2,8 +2,10 @@
 #include "widgets/datatable.h"
 #include <QtGui>
 
-DbObjectComparerResultsTab::DbObjectComparerResultsTab(QWidget *parent) :
-    QWidget(parent), noText(true)
+DbObjectComparerResultsTab::DbObjectComparerResultsTab(DbUiManager *uiManager, QWidget *parent) :
+    QWidget(parent),
+    uiManager(uiManager),
+    noText(true)
 {
 
 }
@@ -15,7 +17,7 @@ void DbObjectComparerResultsTab::createUi()
 
     QSplitter *splitter=new QSplitter(Qt::Vertical);
 
-    DataTable *changeListTable=createChangeListTable();
+    changeListTable=createChangeListTable();
 
     splitter->addWidget(changeListTable);
 
@@ -41,6 +43,7 @@ DataTable *DbObjectComparerResultsTab::createChangeListTable()
     changeListTable->horizontalHeader()->setStretchLastSection(true);
     changeListTable->setSortingEnabled(true);
     changeListTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    changeListTable->setUiManager(uiManager);
 
     return changeListTable;
 }
@@ -60,4 +63,9 @@ void DbObjectComparerResultsTab::addText(const QString &text)
     }else{
         editor->editor()->addText(text);
     }
+}
+
+void DbObjectComparerResultsTab::setCurrentSchema(const QString &)
+{
+
 }

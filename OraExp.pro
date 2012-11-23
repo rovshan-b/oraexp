@@ -360,7 +360,11 @@ SOURCES += main.cpp\
     connection_page/code_viewer/codeviewertabs.cpp \
     connection_page/db_object_viewer/dbobjectviewertoolbar.cpp \
     connection_page/code_viewer/paircodeviewer.cpp \
-    widgets/specbodyswitcherwidget.cpp
+    widgets/specbodyswitcherwidget.cpp \
+    connection_page/db_object_viewer/tabs/dbobjectgrantsviewer.cpp \
+    connection_page/index_viewer/indexviewer.cpp \
+    connection_page/index_viewer/indexviewertabs.cpp \
+    context_menu/indexcontextmenuutil.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -721,7 +725,11 @@ HEADERS  += mainwindow.h \
     connection_page/code_viewer/codeviewertabs.h \
     connection_page/db_object_viewer/dbobjectviewertoolbar.h \
     connection_page/code_viewer/paircodeviewer.h \
-    widgets/specbodyswitcherwidget.h
+    widgets/specbodyswitcherwidget.h \
+    connection_page/db_object_viewer/tabs/dbobjectgrantsviewer.h \
+    connection_page/index_viewer/indexviewer.h \
+    connection_page/index_viewer/indexviewertabs.h \
+    context_menu/indexcontextmenuutil.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \
