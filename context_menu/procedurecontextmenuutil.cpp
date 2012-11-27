@@ -20,7 +20,7 @@ QList<QAction *> ProcedureContextMenuUtil::getActionsForObject(const QString &sc
         results.append(createProcedureAction);
     }else if(itemType==DbTreeModel::Procedure){
         //view
-        QAction *viewProcedureAction=new DbItemAction(IconUtil::getIcon("view_detailed"), QObject::tr("View"),
+        QAction *viewProcedureAction=new DbItemAction(IconUtil::getIcon("procedure_view"), QObject::tr("View"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createViewer()));
 

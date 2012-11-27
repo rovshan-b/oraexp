@@ -28,4 +28,5 @@ GROUP BY name
 CONNECT BY prev = PRIOR curr AND name = PRIOR name
 START WITH curr = 1) t where name=t.table_name
 ) as subpartition_key_columns, (select count(0) from sys.all_tab_partitions where owner=t.owner and table_name=t.table_name) as partition_count
+{@keep_if:>=11} , interval {}
 from sys.all_part_tables t where owner=:owner and table_name=:object_name

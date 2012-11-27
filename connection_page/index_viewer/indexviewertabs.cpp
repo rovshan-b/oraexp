@@ -4,6 +4,7 @@
 #include "../db_object_viewer/tabs/dbobjectdetailsviewer.h"
 #include "../db_object_viewer/tabs/dbobjectddlviewer.h"
 #include "../db_object_viewer/tabs/dbobjectreferencesviewer.h"
+#include "../db_object_viewer/tabs/dbobjectpartitionsviewer.h"
 #include "../db_object_viewer/tabs/dbobjectgrantsviewer.h"
 #include "util/iconutil.h"
 #include "util/queryutil.h"
@@ -30,8 +31,8 @@ void IndexViewerTabs::createTabs()
     DbObjectDetailsViewer *statisticsViewer = new DbObjectDetailsViewer("get_index_statistics_for_detailed_view", uiManager, this);
     addTab(statisticsViewer, IconUtil::getIcon("statistics"), tr("Statistics"));
 
-    DbObjectViewerGenericTab *paritionInfo=new DbObjectViewerGenericTab("get_index_columns_for_detailed_view", uiManager);
-    addTab(paritionInfo, IconUtil::getIcon("partition"), tr("Partitions"));
+    DbObjectPartitionsViewer *partitionInfo = new DbObjectPartitionsViewer(uiManager, this);
+    addTab(partitionInfo, IconUtil::getIcon("partition"), tr("Partitions"));
 
     DbObjectDdlViewer *ddlViewer = new DbObjectDdlViewer(false, uiManager, this);
     addTab(ddlViewer, IconUtil::getIcon("ddl"), tr("DDL"));

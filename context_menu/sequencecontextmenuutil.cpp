@@ -16,10 +16,16 @@ QList<QAction *> SequenceContextMenuUtil::getActionsForObject(const QString &sch
                                                        uiManager, SLOT(createCreator()));
         results.append(createSequenceAction);
     }else if(itemType==DbTreeModel::Sequence){
+        //view
+        QAction *viewSequenceAction=new DbItemAction(IconUtil::getIcon("sequence_view"), QObject::tr("View"),
+                                                       schemaName, objectName, itemType,
+                                                       uiManager, SLOT(createViewer()));
+
         //alter
         QAction *alterSequenceAction=new DbItemAction(IconUtil::getIcon("sequence_alter"), QObject::tr("Alter"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createEditor()));
+        results.append(viewSequenceAction);
         results.append(alterSequenceAction);
     }
 

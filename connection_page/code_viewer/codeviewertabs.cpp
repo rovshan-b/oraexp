@@ -30,6 +30,7 @@ void CodeViewerTabs::createTabs()
     addTab(referenceViewer, IconUtil::getIcon("reference"), tr("References"));
 
     DbObjectViewerGenericTab *errorInfo = new DbObjectViewerGenericTab("get_code_errors", uiManager, this);
+    errorInfo->setIconColumn("TEXT", "ICON_COLUMN");
     errorInfo->setUseObjectTypeParam();
     addTab(errorInfo, IconUtil::getIcon("error"), tr("Errors"));
 

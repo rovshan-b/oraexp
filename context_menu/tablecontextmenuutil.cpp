@@ -22,7 +22,7 @@ QList<QAction *> TableContextMenuUtil::getActionsForObject(const QString &schema
 
     }else if(itemType==DbTreeModel::Table){
         //view
-        QAction *viewDetailsAction=new DbItemAction(IconUtil::getIcon("view_detailed"), QObject::tr("View"),
+        QAction *viewDetailsAction=new DbItemAction(IconUtil::getIcon("table_view"), QObject::tr("View"),
                                                     schemaName, objectName, itemType,
                                                     uiManager, SLOT(createViewer()));
         results.append(viewDetailsAction);

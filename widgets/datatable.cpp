@@ -123,7 +123,7 @@ void DataTable::showContextMenu(const QPoint &pos)
     }
 
     QMenu menu;
-    menu.exec(actions, mapToGlobal(pos));
+    menu.exec(actions, viewport()->mapToGlobal(pos));
 
     qDeleteAll(actions);
 

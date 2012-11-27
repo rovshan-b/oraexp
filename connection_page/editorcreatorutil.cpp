@@ -11,6 +11,7 @@
 #include "connection_page/code_viewer/codeviewer.h"
 #include "connection_page/code_viewer/paircodeviewer.h"
 #include "connection_page/index_viewer/indexviewer.h"
+#include "connection_page/sequence_viewer/sequenceviewer.h"
 
 EditorCreatorUtil::EditorCreatorUtil()
 {
@@ -114,6 +115,9 @@ ConnectionPageTab *EditorCreatorUtil::createViewer(const QString &schemaName,
         break;
     case DbTreeModel::Index:
         viewer = new IndexViewer(schemaName, objectName, uiManager);
+        break;
+    case DbTreeModel::Sequence:
+        viewer = new SequenceViewer(schemaName, objectName, uiManager);
         break;
     default:
         break;

@@ -5,7 +5,8 @@ DbObjectReferencesViewer::DbObjectReferencesViewer(bool references, DbUiManager 
     DbObjectViewerGenericTab(references ? "get_object_references_for_detailed_view" : "get_object_dependecies_for_detailed_view",
                              uiManager, parent)
 {
-    setIconColumn("NAME", "ICON_NAME");
+    setIconColumn("OWNER", "OWNER_ICON_COLUMN");
+    setIconColumn("NAME", "OBJ_ICON_COLUMN");
     setObjectListMode(0,1,2);
 }
 

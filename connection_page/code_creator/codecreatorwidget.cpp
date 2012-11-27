@@ -214,7 +214,7 @@ void CodeCreatorWidget::loadError(const QString &taskName, const OciException &e
 {
     if(!isSpec && ex.getErrorCode()==ERR_OBJECT_NOT_FOUND){
 
-        currentEditor()->setInitialText(tr("--Body does not exist or you do not have permission to view it."));
+        currentEditor()->setInitialText(tr("--Object does not exist or you do not have permission to view it."));
         emit objectInfoLoaded();
 
     }else{

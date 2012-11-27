@@ -17,7 +17,7 @@ QList<QAction *> TriggerContextMenuUtil::getActionsForObject(const QString &sche
         results.append(createTriggerAction);
     }else if(itemType==DbTreeModel::Trigger){
         //view
-        QAction *viewTriggerAction=new DbItemAction(IconUtil::getIcon("view_detailed"), QObject::tr("View"),
+        QAction *viewTriggerAction=new DbItemAction(IconUtil::getIcon("trigger_view"), QObject::tr("View"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createViewer()));
 

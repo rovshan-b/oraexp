@@ -314,5 +314,5 @@ void SearchPane::setReadOnly(bool readOnly)
 
 bool SearchPane::isReadOnly() const
 {
-    return replaceTextBox->isEnabled();
+    return !replaceTextBox->isEnabled();
 }

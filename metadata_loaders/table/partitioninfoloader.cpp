@@ -27,7 +27,7 @@ void PartitionInfoLoader::loadPartitionInfo(IQueryScheduler *queryScheduler, con
     queryScheduler->enqueueQuery(queryName,
                      QList<Param*>()
                      << new Param(":owner", schemaName)
-                     << new Param(isIndex ? ":index_name" : ":object_name", objectName),
+                     << new Param(":object_name", objectName),
                      this,
                      queryName,
                      "partitioningInfoLoaded",
@@ -91,7 +91,7 @@ void PartitionInfoLoader::partitionInfoFetched(const FetchResult &fetchResult)
                      listRecordFetchedSlotName,
                      listFetchCompletedSlotName);
 
-    if(complexPartitioning){
+    if(complexPartitioning && !isIndex /*load subpartition info only for tables*/){
         queryScheduler->enqueueQuery("get_table_subpartitions_for_editing",
                          getQueryParams(schemaName, objectName, isIndex),
                          this,

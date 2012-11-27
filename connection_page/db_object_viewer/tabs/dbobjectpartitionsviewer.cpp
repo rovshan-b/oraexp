@@ -1,4 +1,4 @@
-#include "tablepartitionsviewer.h"
+#include "dbobjectpartitionsviewer.h"
 #include "widgets/datatable.h"
 #include "widgets/subtabwidget.h"
 #include "util/queryutil.h"
@@ -7,14 +7,14 @@
 #include "interfaces/iqueryscheduler.h"
 #include <QtGui>
 
-TablePartitionsViewer::TablePartitionsViewer(DbUiManager *uiManager, QWidget *parent) :
-    DbObjectViewerGenericTab("get_table_partitions_for_detailed_view", uiManager, parent),
-    isPartitioned(false), complexPartitioning(false)
+DbObjectPartitionsViewer::DbObjectPartitionsViewer(DbUiManager *uiManager, QWidget *parent) :
+    DbObjectViewerGenericTab("", uiManager, parent),
+    dtSubpartitionTemplate(0), isPartitioned(false), complexPartitioning(false)
 {
 
 }
 
-void TablePartitionsViewer::createMainWidget(QLayout *layout)
+void DbObjectPartitionsViewer::createMainWidget(QLayout *layout)
 {
     dt=new DataTable();
     connect(dt, SIGNAL(firstFetchCompleted()), this, SLOT(partitionListFirstFetchCompleted()));
@@ -22,16 +22,21 @@ void TablePartitionsViewer::createMainWidget(QLayout *layout)
 
     dtSubpartitions=new DataTable();
 
-    dtSubpartitionTemplate=new DataTable();
-    connect(dtSubpartitionTemplate, SIGNAL(firstFetchCompleted()), this, SLOT(queryCompleted()));
-    connect(dtSubpartitionTemplate, SIGNAL(asyncQueryError(OciException)), this, SLOT(queryCompleted()));
+    if(itemType==DbTreeModel::Table){
+        dtSubpartitionTemplate=new DataTable();
+
+        connect(dtSubpartitionTemplate, SIGNAL(firstFetchCompleted()), this, SLOT(queryCompleted()));
+        connect(dtSubpartitionTemplate, SIGNAL(asyncQueryError(OciException)), this, SLOT(queryCompleted()));
+    }
 
     QSplitter *splitter = new QSplitter(Qt::Vertical);
     splitter->addWidget(dt);
 
     bottomPaneTab=new SubTabWidget();
     bottomPaneTab->addTab(dtSubpartitions, tr("Subpartitions"));
-    bottomPaneTab->addTab(dtSubpartitionTemplate, tr("Subpartition template"));
+    if(itemType==DbTreeModel::Table){
+        bottomPaneTab->addTab(dtSubpartitionTemplate, tr("Subpartition template"));
+    }
     splitter->addWidget(bottomPaneTab);
     bottomPaneTab->hide();
 
@@ -43,9 +48,15 @@ void TablePartitionsViewer::createMainWidget(QLayout *layout)
     connect(dt, SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this, SLOT(currentRowChanged()));
 }
 
-void TablePartitionsViewer::loadData()
+void DbObjectPartitionsViewer::loadData()
 {
-    queryScheduler->enqueueQuery("get_table_partitioning_info",
+    this->queryName=itemType==DbTreeModel::Table ?
+                "get_table_partitions_for_detailed_view" :
+                "get_index_partitions_for_detailed_view";
+
+    queryScheduler->enqueueQuery(itemType==DbTreeModel::Table ?
+                                     "get_table_partitioning_info" :
+                                     "get_index_partitioning_info",
                      QList<Param*>()
                      << new Param(":owner", schemaName)
                      << new Param(":object_name", objectName),
@@ -56,7 +67,7 @@ void TablePartitionsViewer::loadData()
                                  "partitionInfoFetchCompleted");
 }
 
-QList<QAction *> TablePartitionsViewer::getSpecificToolbarButtons()
+QList<QAction *> DbObjectPartitionsViewer::getSpecificToolbarButtons()
 {
     partitioningInfoLabel=new QLabel(tr("Loading partitioning info..."));
 
@@ -73,7 +84,7 @@ QList<QAction *> TablePartitionsViewer::getSpecificToolbarButtons()
     return list;
 }
 
-void TablePartitionsViewer::partitioningInfoLoaded(const QueryResult &result)
+void DbObjectPartitionsViewer::partitioningInfoLoaded(const QueryResult &result)
 {
     if(result.hasError){
         QMessageBox::critical(this->window(), tr("Error retrieving partitioning info"),
@@ -84,7 +95,7 @@ void TablePartitionsViewer::partitioningInfoLoaded(const QueryResult &result)
     }
 }
 
-void TablePartitionsViewer::partitionInfoFetched(const FetchResult &fetchResult)
+void DbObjectPartitionsViewer::partitionInfoFetched(const FetchResult &fetchResult)
 {
     if(fetchResult.hasError){
         QMessageBox::critical(this->window(), tr("Error fetching partitioning info"), fetchResult.exception.getErrorMessage());
@@ -119,7 +130,7 @@ void TablePartitionsViewer::partitionInfoFetched(const FetchResult &fetchResult)
     partitioningInfoLabel->setText(partitioningInfo);
 }
 
-void TablePartitionsViewer::partitionInfoFetchCompleted(const QString &)
+void DbObjectPartitionsViewer::partitionInfoFetchCompleted(const QString &)
 {
     if(complexPartitioning){
         bottomPaneTab->show();
@@ -128,18 +139,18 @@ void TablePartitionsViewer::partitionInfoFetchCompleted(const QString &)
     if(isPartitioned){
         DbObjectViewerGenericTab::loadData();
     }else{
-        partitioningInfoLabel->setText(tr("This table is not partitioned"));
+        partitioningInfoLabel->setText(tr("This %1 is not partitioned").arg(itemType==DbTreeModel::Table ? "table" : "index"));
         queryCompleted();
     }
 
-    if(complexPartitioning){
+    if(complexPartitioning && itemType==DbTreeModel::Table){
         QString subpartitionTemplateQuery=QueryUtil::getQuery("get_table_subpartition_template_for_detailed_view");
         dtSubpartitionTemplate->displayQueryResults(queryScheduler, subpartitionTemplateQuery, getQueryParams());
     }
 }
 
 
-void TablePartitionsViewer::currentRowChanged()
+void DbObjectPartitionsViewer::currentRowChanged()
 {
     if(!complexPartitioning){
         return;
@@ -158,10 +169,14 @@ void TablePartitionsViewer::currentRowChanged()
     params.append(getQueryParams());
     params.append(new Param(":partition_name", dt->model()->index(currentIndex.row(), 0).data().toString()));
 
-    dtSubpartitions->displayQueryResults(queryScheduler, QueryUtil::getQuery("get_table_subpartitions_for_detailed_view"), params);
+    dtSubpartitions->displayQueryResults(queryScheduler,
+                                         QueryUtil::getQuery(itemType==DbTreeModel::Table ?
+                                                                 "get_table_subpartitions_for_detailed_view" :
+                                                                 "get_index_subpartitions_for_detailed_view"),
+                                         params);
 }
 
-void TablePartitionsViewer::clearInfo()
+void DbObjectPartitionsViewer::clearInfo()
 {
     dtSubpartitions->clear();
     dtSubpartitions->horizontalHeader()->hide();
@@ -170,9 +185,9 @@ void TablePartitionsViewer::clearInfo()
     DbObjectViewerGenericTab::clearInfo();
 }
 
-void TablePartitionsViewer::partitionListFirstFetchCompleted()
+void DbObjectPartitionsViewer::partitionListFirstFetchCompleted()
 {
-    if(!complexPartitioning){
+    if(!complexPartitioning || itemType!=DbTreeModel::Table){
         queryCompleted();
     }
 }

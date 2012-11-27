@@ -57,7 +57,7 @@ QPixmap IconUtil::loadIconFromFile(const QString &iconName)
 
     QString suffix = iconName.mid(ix+1);
 
-    if(suffix=="add" || suffix=="alter" || suffix=="invalid"){
+    if(suffix=="add" || suffix=="alter" || suffix=="invalid" || suffix=="view"){
         QString overlayPath = QString(":/images/%1_small.png").arg(suffix);
         return IconUtil::overlayIcons(QPixmap(iconPath), QPixmap(overlayPath));
     }

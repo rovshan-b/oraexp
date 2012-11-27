@@ -2,7 +2,7 @@
 #include "../db_object_viewer/tabs/dbobjectdataviewer.h"
 #include "../db_object_viewer/tabs/dbobjecttriggersviewer.h"
 #include "../db_object_viewer/tabs/dbobjectdetailsviewer.h"
-#include "tabs/tablepartitionsviewer.h"
+#include "../db_object_viewer/tabs/dbobjectpartitionsviewer.h"
 #include "../db_object_viewer/tabs/dbobjectddlviewer.h"
 #include "../db_object_viewer/tabs/dbobjectreferencesviewer.h"
 #include "../db_object_viewer/tabs/dbobjectgrantsviewer.h"
@@ -29,6 +29,7 @@ void TableViewerTabs::createTabs()
     addTab(constraintInfo, IconUtil::getIcon("constraint"), tr("Constraints"));
 
     DbObjectViewerGenericTab *indexInfo = new DbObjectViewerGenericTab("get_table_indexes_for_detailed_view", uiManager, this);
+    indexInfo->setIconColumn("OWNER", "OWNER_ICON_COLUMN");
     indexInfo->setIconColumn("INDEX_NAME", "IND_ICON_COLUMN");
     indexInfo->setIconColumn("COLUMNS", "COL_ICON_COLUMN");
     indexInfo->setObjectListMode(0,1,-1,QString(),"INDEX");
@@ -48,6 +49,7 @@ void TableViewerTabs::createTabs()
     addTab(indexInfo, IconUtil::getIcon("index"), tr("Indexes"));
 
     DbObjectViewerGenericTab *refFkInfo = new DbObjectViewerGenericTab("get_table_referencing_fks_for_detailed_view", uiManager, this);
+    refFkInfo->setIconColumn("OWNER", "OWNER_ICON_COLUMN");
     refFkInfo->setIconColumn("TABLE_NAME", "TAB_ICON_COLUMN");
     refFkInfo->setIconColumn("CONSTRAINT_NAME", "FK_ICON_COLUMN");
     refFkInfo->setObjectListMode(0,1,-1,QString(),"TABLE");
@@ -74,7 +76,7 @@ void TableViewerTabs::createTabs()
     DbObjectDetailsViewer *detailsViewer = new DbObjectDetailsViewer("get_table_details_for_detailed_view", uiManager, this);
     addTab(detailsViewer, IconUtil::getIcon("details"), tr("Details"));
 
-    TablePartitionsViewer *partitionInfo = new TablePartitionsViewer(uiManager, this);
+    DbObjectPartitionsViewer *partitionInfo = new DbObjectPartitionsViewer(uiManager, this);
     addTab(partitionInfo, IconUtil::getIcon("partition"), tr("Partitions"));
 
     DbObjectDdlViewer *ddlViewer = new DbObjectDdlViewer(true, uiManager, this);

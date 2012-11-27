@@ -10,7 +10,8 @@
 DbObjectTriggersViewer::DbObjectTriggersViewer(DbUiManager *uiManager, QWidget *parent) :
     DbObjectViewerGenericTab("get_object_triggers_for_detailed_view", uiManager, parent), sourceRetrieveError(false)
 {
-    setIconColumn("TRIGGER_NAME", "ICON_COLUMN");
+    setIconColumn("OWNER", "OWNER_ICON_COLUMN");
+    setIconColumn("TRIGGER_NAME", "TR_ICON_COLUMN");
     setObjectListMode(0, 1, -1, "", "TRIGGER");
 }
 

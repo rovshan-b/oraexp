@@ -48,7 +48,6 @@
         <file>queries/get_table_indexes_for_editing.sql</file>
         <file>queries/get_table_index_columns.sql</file>
         <file>queries/get_table_grants_for_editing.sql</file>
-        <file>queries/get_table_partitioning_info_11.sql</file>
         <file>queries/get_table_partitions_for_editing.sql</file>
         <file>queries/get_table_subpartitions_for_editing.sql</file>
         <file>queries/get_table_subpartition_template_for_editing.sql</file>
@@ -110,5 +109,8 @@
         <file>queries/get_index_columns_for_detailed_view.sql</file>
         <file>queries/get_index_statistics_for_detailed_view.sql</file>
         <file>queries/get_index_details_for_detailed_view.sql</file>
+        <file>queries/get_index_subpartitions_for_detailed_view.sql</file>
+        <file>queries/get_index_partitions_for_detailed_view.sql</file>
+        <file>queries/get_sequence_details_for_detailed_view.sql</file>
     </qresource>
 </RCC>

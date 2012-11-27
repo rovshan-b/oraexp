@@ -14,10 +14,6 @@ public:
 
     virtual DbObjectViewerTabs *getViewerWidget() const;
     
-signals:
-    
-public slots:
-    
 };
 
 #endif // TABLEVIEWER_H

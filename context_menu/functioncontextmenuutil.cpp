@@ -17,7 +17,7 @@ QList<QAction *> FunctionContextMenuUtil::getActionsForObject(const QString &sch
         results.append(createFunctionAction);
     }else if(itemType==DbTreeModel::Function){
         //view
-        QAction *viewFunctionAction=new DbItemAction(IconUtil::getIcon("view_detailed"), QObject::tr("View"),
+        QAction *viewFunctionAction=new DbItemAction(IconUtil::getIcon("function_view"), QObject::tr("View"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createViewer()));
 

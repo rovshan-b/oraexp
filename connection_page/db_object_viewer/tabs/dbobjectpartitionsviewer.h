@@ -1,5 +1,5 @@
-#ifndef TABLEPARTITIONSVIEWER_H
-#define TABLEPARTITIONSVIEWER_H
+#ifndef DBOBJECTPARTITIONSVIEWER_H
+#define DBOBJECTPARTITIONSVIEWER_H
 
 #include <QWidget>
 #include "../../db_object_viewer/dbobjectviewergenerictab.h"
@@ -9,11 +9,11 @@ class DataTable;
 class QLabel;
 class SubTabWidget;
 
-class TablePartitionsViewer : public DbObjectViewerGenericTab
+class DbObjectPartitionsViewer : public DbObjectViewerGenericTab
 {
     Q_OBJECT
 public:
-    explicit TablePartitionsViewer(DbUiManager *uiManager, QWidget *parent = 0);
+    explicit DbObjectPartitionsViewer(DbUiManager *uiManager, QWidget *parent = 0);
 
     virtual void createMainWidget(QLayout *layout);
 
@@ -41,4 +41,4 @@ private:
 
 };
 
-#endif // TABLEPARTITIONSVIEWER_H
+#endif // DBOBJECTPARTITIONSVIEWER_H

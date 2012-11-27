@@ -19,7 +19,7 @@ QList<QAction *> TypeContextMenuUtil::getActionsForObject(const QString &schemaN
     }else if(itemType==DbTreeModel::TypeSpec ||
              itemType==DbTreeModel::TypeBody){
         //view
-        QAction *viewTypeAction=new DbItemAction(IconUtil::getIcon("view_detailed"), QObject::tr("View"),
+        QAction *viewTypeAction=new DbItemAction(IconUtil::getIcon("type_view"), QObject::tr("View"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createViewer()));
 
@@ -32,11 +32,11 @@ QList<QAction *> TypeContextMenuUtil::getActionsForObject(const QString &schemaN
     }else if(itemType==DbTreeModel::Type){
 
         //view
-        QAction *viewSpecAction=new DbItemAction(IconUtil::getIcon("view_detailed"), QObject::tr("View Spec"),
+        QAction *viewSpecAction=new DbItemAction(IconUtil::getIcon("type_view"), QObject::tr("View Spec"),
                                                        schemaName, objectName, DbTreeModel::TypeSpec,
                                                        uiManager, SLOT(createViewer()));
 
-        QAction *viewBodyAction=new DbItemAction(IconUtil::getIcon("view_detailed"), QObject::tr("View Body"),
+        QAction *viewBodyAction=new DbItemAction(IconUtil::getIcon("type_view"), QObject::tr("View Body"),
                                                        schemaName, objectName, DbTreeModel::TypeBody,
                                                        uiManager, SLOT(createViewer()));
 

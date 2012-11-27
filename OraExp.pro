@@ -75,7 +75,6 @@ SOURCES += main.cpp\
     navtree/type/dbtypeitem.cpp \
     connection_page/dbuimanager.cpp \
     navtree/nodeaction.cpp \
-    connection_page/table_viewer/tabs/tablepartitionsviewer.cpp \
     widgets/ondemandinfoviewerwidget.cpp \
     widgets/datatable.cpp \
     models/resultsettablemodel.cpp \
@@ -364,7 +363,10 @@ SOURCES += main.cpp\
     connection_page/db_object_viewer/tabs/dbobjectgrantsviewer.cpp \
     connection_page/index_viewer/indexviewer.cpp \
     connection_page/index_viewer/indexviewertabs.cpp \
-    context_menu/indexcontextmenuutil.cpp
+    context_menu/indexcontextmenuutil.cpp \
+    connection_page/db_object_viewer/tabs/dbobjectpartitionsviewer.cpp \
+    connection_page/sequence_viewer/sequenceviewer.cpp \
+    connection_page/sequence_viewer/sequenceviewertabs.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -422,7 +424,6 @@ HEADERS  += mainwindow.h \
     navtree/type/dbtypeitem.h \
     connection_page/dbuimanager.h \
     navtree/nodeaction.h \
-    connection_page/table_viewer/tabs/tablepartitionsviewer.h \
     widgets/ondemandinfoviewerwidget.h \
     widgets/datatable.h \
     models/resultsettablemodel.h \
@@ -729,7 +730,10 @@ HEADERS  += mainwindow.h \
     connection_page/db_object_viewer/tabs/dbobjectgrantsviewer.h \
     connection_page/index_viewer/indexviewer.h \
     connection_page/index_viewer/indexviewertabs.h \
-    context_menu/indexcontextmenuutil.h
+    context_menu/indexcontextmenuutil.h \
+    connection_page/db_object_viewer/tabs/dbobjectpartitionsviewer.h \
+    connection_page/sequence_viewer/sequenceviewer.h \
+    connection_page/sequence_viewer/sequenceviewertabs.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

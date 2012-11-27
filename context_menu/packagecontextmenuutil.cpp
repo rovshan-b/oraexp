@@ -19,7 +19,7 @@ QList<QAction *> PackageContextMenuUtil::getActionsForObject(const QString &sche
     }else if(itemType==DbTreeModel::PackageSpec ||
              itemType==DbTreeModel::PackageBody){
         //view
-        QAction *viewPackageAction=new DbItemAction(IconUtil::getIcon("view_detailed"), QObject::tr("View"),
+        QAction *viewPackageAction=new DbItemAction(IconUtil::getIcon("package_view"), QObject::tr("View"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createViewer()));
 
@@ -31,11 +31,11 @@ QList<QAction *> PackageContextMenuUtil::getActionsForObject(const QString &sche
         results.append(alterPackageAction);
     }else if(itemType==DbTreeModel::Package){
         //view
-        QAction *viewSpecAction=new DbItemAction(IconUtil::getIcon("view_detailed"), QObject::tr("View Spec"),
+        QAction *viewSpecAction=new DbItemAction(IconUtil::getIcon("package_view"), QObject::tr("View Spec"),
                                                        schemaName, objectName, DbTreeModel::PackageSpec,
                                                        uiManager, SLOT(createViewer()));
 
-        QAction *viewBodyAction=new DbItemAction(IconUtil::getIcon("view_detailed"), QObject::tr("View Body"),
+        QAction *viewBodyAction=new DbItemAction(IconUtil::getIcon("package_view"), QObject::tr("View Body"),
                                                        schemaName, objectName, DbTreeModel::PackageBody,
                                                        uiManager, SLOT(createViewer()));
 
