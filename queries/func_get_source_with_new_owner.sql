@@ -17,7 +17,11 @@
          end if;
          {}
     
-         l_code := trim_str(DBMS_METADATA.GET_DDL (replace(p_object_type, ' ', '_'), p_object_name, p_owner));
+         if p_object_type = 'USER' then
+             l_code := trim_str(DBMS_METADATA.GET_DDL ('USER', p_object_name));
+         else
+             l_code := trim_str(DBMS_METADATA.GET_DDL (replace(p_object_type, ' ', '_'), p_object_name, p_owner));
+         end if;
                   
          replace_source_owner(p_owner, p_new_owner, p_object_name, p_object_type, l_code);
          

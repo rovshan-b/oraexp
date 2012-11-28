@@ -36,6 +36,7 @@ public:
     void setIconColumn(const QString &displayColumnName, const QString &iconColumnName);
     void setDynamicQuery(int colNum, StatementDesc *stmtDesc);
 
+    void setUseObjectNameParam(bool use){this->setObjectNameParam=use;}
     void setUseObjectTypeParam(){this->setObjectTypeParam=true;}
 
     void setObjectListMode(int schemaNameCol,
@@ -59,6 +60,7 @@ protected:
 
     bool controlsCreated;
 
+    bool setObjectNameParam;
     bool setObjectTypeParam;
 
     DataTable *dt;

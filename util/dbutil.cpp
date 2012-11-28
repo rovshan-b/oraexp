@@ -249,7 +249,7 @@ QString DbUtil::getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeTy
     case DbTreeModel::DatabaseLinks:
     case DbTreeModel::PublicDatabaseLinks:
     case DbTreeModel::DatabaseLink:
-        result="DATABASE LINK";
+        result="DB_LINK";
         break;
     case DbTreeModel::AllSchemas:
     case DbTreeModel::Schema:
@@ -296,7 +296,7 @@ DbTreeModel::DbTreeNodeType DbUtil::getDbObjectNodeTypeByTypeName(const QString 
         result = DbTreeModel::TypeBody;
     }else if(typeName=="SYNONYM"){
         result = DbTreeModel::Synonym;
-    }else if(typeName=="DATABASE LINK"){
+    }else if(typeName=="DB_LINK"){
         result = DbTreeModel::DatabaseLink;
     }else if(typeName=="USER" || typeName=="SCHEMA"){
         result = DbTreeModel::Schema;

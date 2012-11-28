@@ -366,7 +366,13 @@ SOURCES += main.cpp\
     context_menu/indexcontextmenuutil.cpp \
     connection_page/db_object_viewer/tabs/dbobjectpartitionsviewer.cpp \
     connection_page/sequence_viewer/sequenceviewer.cpp \
-    connection_page/sequence_viewer/sequenceviewertabs.cpp
+    connection_page/sequence_viewer/sequenceviewertabs.cpp \
+    connection_page/synonym_viewer/synonymviewer.cpp \
+    connection_page/synonym_viewer/synonymviewertabs.cpp \
+    connection_page/dblink_viewer/dblinkviewer.cpp \
+    connection_page/dblink_viewer/dblinkviewertabs.cpp \
+    connection_page/user_viewer/userviewer.cpp \
+    connection_page/user_viewer/userviewertabs.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -733,7 +739,13 @@ HEADERS  += mainwindow.h \
     context_menu/indexcontextmenuutil.h \
     connection_page/db_object_viewer/tabs/dbobjectpartitionsviewer.h \
     connection_page/sequence_viewer/sequenceviewer.h \
-    connection_page/sequence_viewer/sequenceviewertabs.h
+    connection_page/sequence_viewer/sequenceviewertabs.h \
+    connection_page/synonym_viewer/synonymviewer.h \
+    connection_page/synonym_viewer/synonymviewertabs.h \
+    connection_page/dblink_viewer/dblinkviewer.h \
+    connection_page/dblink_viewer/dblinkviewertabs.h \
+    connection_page/user_viewer/userviewer.h \
+    connection_page/user_viewer/userviewertabs.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

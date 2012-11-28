@@ -136,9 +136,11 @@ void TablespaceQuotasEditorTable::setRowData(int rowIx, TablespaceQuotasModel *m
 {
     model->setData(model->index(rowIx, TablespaceQuotasModel::TablespaceName), info->tablespaceName);
     model->setData(model->index(rowIx, TablespaceQuotasModel::Unlimited), info->unlimitedQuota);
-    model->setData(model->index(rowIx, TablespaceQuotasModel::Quota), info->quota);
-    model->setData(model->index(rowIx, TablespaceQuotasModel::Unit), (int)info->quotaUnit, Qt::EditRole);
-    QStringList sizeUnitTexts=DbUtil::getSizeUnitTexts();
-    Q_ASSERT(sizeUnitTexts.size()>(int)info->quotaUnit);
-    model->setData(model->index(rowIx, TablespaceQuotasModel::Unit), sizeUnitTexts.at((int)info->quotaUnit), Qt::DisplayRole);
+    if(!info->unlimitedQuota){
+        model->setData(model->index(rowIx, TablespaceQuotasModel::Quota), info->quota);
+        model->setData(model->index(rowIx, TablespaceQuotasModel::Unit), (int)info->quotaUnit, Qt::EditRole);
+        QStringList sizeUnitTexts=DbUtil::getSizeUnitTexts();
+        Q_ASSERT(sizeUnitTexts.size()>(int)info->quotaUnit);
+        model->setData(model->index(rowIx, TablespaceQuotasModel::Unit), sizeUnitTexts.at((int)info->quotaUnit), Qt::DisplayRole);
+    }
 }

@@ -1,7 +1,14 @@
 declare
    l_has_access number;
 begin
-   select case when exists (select 0 from sys.all_tables where owner='SYS' and table_name='LINK$') then 1 else 0 end into l_has_access from dual;
+   select case when exists (select 0 from sys.all_tab_privs 
+                               where grantee=user and table_schema='SYS' 
+                               and table_name='LINK$' and privilege='SELECT'
+                               union all
+                               select 0 from sys.role_tab_privs
+                               where owner='SYS' and table_name='LINK$' 
+                               and privilege='SELECT') then 1 
+                 else 0 end into l_has_access from dual;
 
    if l_has_access = 1 then
        open :rs_out for 'select nvl(u.username, ''PUBLIC'') as owner, name as db_link, userid as username, password, host, authusr, 

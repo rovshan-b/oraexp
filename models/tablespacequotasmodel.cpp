@@ -1,10 +1,12 @@
 #include "tablespacequotasmodel.h"
 #include "util/dbutil.h"
+#include "util/iconutil.h"
 #include <QtGui>
 
 TablespaceQuotasModel::TablespaceQuotasModel(const QStringList &headerTitles, QObject *parent) :
     GenericEditableTableModel(headerTitles, parent)
 {
+    setColumnIcon(0, IconUtil::getIcon("tablespace"));
 }
 
 Qt::ItemFlags TablespaceQuotasModel::flags(const QModelIndex &index) const

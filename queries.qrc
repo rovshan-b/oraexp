@@ -112,5 +112,11 @@
         <file>queries/get_index_subpartitions_for_detailed_view.sql</file>
         <file>queries/get_index_partitions_for_detailed_view.sql</file>
         <file>queries/get_sequence_details_for_detailed_view.sql</file>
+        <file>queries/get_synonym_details_for_detailed_view.sql</file>
+        <file>queries/get_dblink_details_for_detailed_view.sql</file>
+        <file>queries/get_user_object_grants_for_detailed_view.sql</file>
+        <file>queries/get_user_roles_for_detailed_view.sql</file>
+        <file>queries/get_user_sys_privs_for_detailed_view.sql</file>
+        <file>queries/get_user_tablespace_quotas_as_dba_for_detailed_view.sql</file>
     </qresource>
 </RCC>

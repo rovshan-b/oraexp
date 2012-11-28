@@ -11,6 +11,7 @@ DbObjectViewerGenericTab::DbObjectViewerGenericTab(const QString &queryName, DbU
     uiManager(uiManager),
     queryScheduler(0),
     controlsCreated(false),
+    setObjectNameParam(true),
     setObjectTypeParam(false),
     dt(0),
     queryName(queryName),
@@ -61,7 +62,10 @@ QList<Param *> DbObjectViewerGenericTab::getQueryParams()
     QList<Param*> queryParams;
 
     queryParams.append(new Param(":owner", schemaName));
-    queryParams.append(new Param(":object_name", objectName));
+
+    if(setObjectNameParam){
+        queryParams.append(new Param(":object_name", objectName));
+    }
 
     if(setObjectTypeParam){
         queryParams.append(new Param(":object_type", DbUtil::getDbObjectTypeNameByNodeType(itemType)));

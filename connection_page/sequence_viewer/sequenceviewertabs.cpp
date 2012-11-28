@@ -1,12 +1,8 @@
 #include "sequenceviewertabs.h"
-#include "../db_object_viewer/tabs/dbobjectdataviewer.h"
-#include "../db_object_viewer/tabs/dbobjecttriggersviewer.h"
 #include "../db_object_viewer/tabs/dbobjectdetailsviewer.h"
 #include "../db_object_viewer/tabs/dbobjectddlviewer.h"
 #include "../db_object_viewer/tabs/dbobjectreferencesviewer.h"
-#include "../db_object_viewer/tabs/dbobjectgrantsviewer.h"
 #include "util/iconutil.h"
-#include "util/queryutil.h"
 
 SequenceViewerTabs::SequenceViewerTabs(const QString &schemaName, const QString &objectName, DbUiManager *uiManager, QWidget *parent) :
     DbObjectViewerTabs(schemaName, objectName, DbTreeModel::Sequence, uiManager, parent)
