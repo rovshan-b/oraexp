@@ -11,6 +11,7 @@
 //#include "beans/columninfo.h"
 
 #include "grammar_parser/ebnfparser.h"
+#include "grammar_parser/firstfollowsetcomputer.h"
 #include "grammar_parser/dfa.h"
 
 void registerMetaTypes()
@@ -36,7 +37,12 @@ int main(int argc, char *argv[])
     if(argc==2 && strcmp(argv[1], "dfa")==0){
         EBNFParser parser;
         parser.parse();
-        DFA(parser.getBNFRules());
+        if(parser.getHasMissingRules()){
+            qDebug("grammar file has missing rule definitions. exiting.");
+        }else{
+            FirstFollowSetComputer(parser.getBNFRules());
+            DFA(parser.getBNFRules());
+        }
         return 0;
     }
 

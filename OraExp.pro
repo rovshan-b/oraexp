@@ -372,7 +372,8 @@ SOURCES += main.cpp\
     connection_page/dblink_viewer/dblinkviewer.cpp \
     connection_page/dblink_viewer/dblinkviewertabs.cpp \
     connection_page/user_viewer/userviewer.cpp \
-    connection_page/user_viewer/userviewertabs.cpp
+    connection_page/user_viewer/userviewertabs.cpp \
+    grammar_parser/firstfollowsetcomputer.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -745,7 +746,8 @@ HEADERS  += mainwindow.h \
     connection_page/dblink_viewer/dblinkviewer.h \
     connection_page/dblink_viewer/dblinkviewertabs.h \
     connection_page/user_viewer/userviewer.h \
-    connection_page/user_viewer/userviewertabs.h
+    connection_page/user_viewer/userviewertabs.h \
+    grammar_parser/firstfollowsetcomputer.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

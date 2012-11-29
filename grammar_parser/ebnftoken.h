@@ -8,6 +8,8 @@ class EBNFToken
 public:
     EBNFToken();
 
+    bool operator==(const EBNFToken &other) const;
+
     QString lexeme;
 
     QString toString() const;

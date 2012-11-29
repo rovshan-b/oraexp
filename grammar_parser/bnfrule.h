@@ -22,6 +22,8 @@ public:
     int subruleCount;
     bool isReachableFromStartSymbol;
 
+    QList<EBNFToken> firstSet;
+
     QString toString() const;
 };
 

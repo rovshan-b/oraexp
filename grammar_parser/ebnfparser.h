@@ -17,6 +17,7 @@ public:
     void parse();
 
     QList<BNFRule*> getBNFRules() const;
+    bool getHasMissingRules() const {return this->hasMissingRules;}
 
 private:
     void doParse();

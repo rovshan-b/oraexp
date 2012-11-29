@@ -4,6 +4,11 @@ EBNFToken::EBNFToken() : tokenType(ERR), startPos(0), endPos(0), lineNo(0), line
 {
 }
 
+bool EBNFToken::operator ==(const EBNFToken &other) const
+{
+    return this->lexeme==other.lexeme && this->tokenType==other.tokenType;
+}
+
 QString EBNFToken::toString() const
 {
     QString str;

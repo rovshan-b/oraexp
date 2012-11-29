@@ -13,6 +13,8 @@ BNFRule::~BNFRule()
         QList <BNFRuleItem*> items = alternatives.at(i);
         qDeleteAll(items);
     }
+
+    //qDeleteAll(firstSet);
 }
 
 void BNFRule::startAlternatives()

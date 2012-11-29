@@ -35,7 +35,6 @@ void EBNFParser::parse()
     qDebug() << "parsed ebnf rules in" << time.elapsed() << "ms";
     qDebug() << "rule count:" << rules.size();
 
-#ifdef DEBUG
     time.restart();
     findMissingRuleDefinitions();
     qDebug() << "checked rules in" << time.elapsed() << "ms";
@@ -43,7 +42,6 @@ void EBNFParser::parse()
     qDebug() << "---------rules----------";
     printoutRules();
     qDebug() << "-------end rules--------";
-#endif
 }
 
 void EBNFParser::doParse()
