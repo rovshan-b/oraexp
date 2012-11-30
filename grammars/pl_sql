@@ -1,3 +1,2 @@
-stmt_seq : stmt stmt_seq2 ;
-stmt_seq2 : ';' stmt_seq | ;
-stmt : 's' ;
+S : I | 'other' ;
+I : 'if' S | 'if' S 'else' S ;

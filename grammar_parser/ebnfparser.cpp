@@ -25,7 +25,7 @@ void EBNFParser::parse()
     QTime time;
     time.start();
 
-    QFile grammarFile(":/grammars/pl_sql");
+    QFile grammarFile("/home/rovshan/Projects/Qt/OraExp/grammars/pl_sql");
     if(grammarFile.open(QFile::ReadOnly)){
         QTextStream strm(&grammarFile);
         scanner=new EBNFScanner(&strm);

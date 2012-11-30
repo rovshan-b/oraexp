@@ -23,6 +23,7 @@ public:
     bool isReachableFromStartSymbol;
 
     QList<EBNFToken> firstSet;
+    QList<EBNFToken> followSet;
 
     QString toString() const;
 };

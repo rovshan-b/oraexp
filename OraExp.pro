@@ -759,7 +759,6 @@ FORMS    += mainwindow.ui \
 RESOURCES += \
     images.qrc \
     queries.qrc \
-    grammars.qrc \
     misc.qrc
 
 #unix:INCLUDEPATH += /home/rovshan/Applications/instantclient_11_2/sdk/include

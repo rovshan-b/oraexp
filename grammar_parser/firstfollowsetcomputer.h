@@ -15,9 +15,14 @@ private:
     bool addFirstSetFrom(BNFRule *target, BNFRuleItem *sourceRuleItem);
     bool addToFirstSet(BNFRule *target, const EBNFToken &token);
 
+    void computeFollowSets();
+    bool addFollowSetFrom(BNFRule *target, BNFRuleItem *sourceRuleItem, bool *hasEpsilonInFirstSet);
+    bool addToFollowSet(BNFRule *target, const EBNFToken &token);
+
     BNFRule *findRuleByName(const QString &ruleName);
 
     void printFirstSets();
+    void printFollowSets();
 };
 
 #endif // FIRSTFOLLOWSETCOMPUTER_H
