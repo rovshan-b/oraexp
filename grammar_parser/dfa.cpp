@@ -108,9 +108,16 @@ void DFA::computeTransitions(DFAState *state)
             continue;
         }
 
+        QList<DFAItem*> targetItems=go_to(state->dfaItems, dfaItem->currentRuleItem());
+        DFAState *targetState=hasStateWithItems(targetItems);
+        Q_ASSERT(targetState);
+        DFATransition *transition=new DFATransition(dfaItem, targetState);
+        state->addTransition(transition);
+
+        /*
         DFAItem *nextItem=findNextDFAItem(dfaItem);
         bool found=false;
-        for(int k=i; k<states.size(); ++k){
+        for(int k=state->stateId; k<states.size(); ++k){
             if(states.at(k)->contains(nextItem)){
                 DFATransition *transition=new DFATransition(dfaItem, states.at(k));
                 state->addTransition(transition);
@@ -120,14 +127,14 @@ void DFA::computeTransitions(DFAState *state)
         }
 
         if(!found){
-            for(int k=0; k<i-1; ++k){
+            for(int k=0; k<state->stateId-1; ++k){
                 if(states.at(k)->contains(nextItem)){
                     DFATransition *transition=new DFATransition(dfaItem, states.at(k));
                     state->addTransition(transition);
                     break;
                 }
             }
-        }
+        }*/
     }
 }
 
@@ -270,15 +277,15 @@ DFAItem *DFA::findNextDFAItem(DFAItem *currItem) const
     return findDFAItem(currItem->rule, currItem->altIx, currItem->position+1);
 }
 
-bool DFA::hasStateWithItems(QList<DFAItem*> items) const
+DFAState* DFA::hasStateWithItems(QList<DFAItem*> items) const
 {
     for(int i=0; i<states.size(); ++i){
         if(states.at(i)->equalsByItems(items)){
-            return true;
+            return states.at(i);
         }
     }
 
-    return false;
+    return 0;
 }
 
 void DFA::printoutDFA()

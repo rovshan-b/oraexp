@@ -56,6 +56,8 @@ QString DFAItem::toString() const
     BNFRuleItem *ruleItem;
     QList <BNFRuleItem *> ruleItems=rule->alternatives.at(item->altIx);
     str.append("\n");
+    //std::size_t address = reinterpret_cast<std::size_t>(this);
+    //str.append("(").append(QString::number(address)).append(") ");
     str.append(rule->ruleName).append(" :");
     for(int k=0; k<ruleItems.size(); ++k){
         ruleItem=ruleItems.at(k);

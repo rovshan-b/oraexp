@@ -35,7 +35,7 @@ private:
     QList<DFAItem*> findAllInitialDFAItemsForRule(const QString &ruleName) const;
     DFAItem *findDFAItem(BNFRule *rule, int altIx, int position) const;
     DFAItem *findNextDFAItem(DFAItem *currItem) const;
-    bool hasStateWithItems(QList<DFAItem*> items) const;
+    DFAState* hasStateWithItems(QList<DFAItem*> items) const;
 
     void printoutDFA();
 
