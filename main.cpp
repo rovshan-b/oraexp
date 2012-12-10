@@ -34,18 +34,6 @@ void registerMetaTypes()
 
 int main(int argc, char *argv[])
 {
-    if(argc==2 && strcmp(argv[1], "dfa")==0){
-        EBNFParser parser;
-        parser.parse();
-        if(parser.getHasMissingRules()){
-            qDebug("grammar file has missing rule definitions. exiting.");
-        }else{
-            FirstFollowSetComputer(parser.getBNFRules());
-            DFA(parser.getBNFRules());
-        }
-        return 0;
-    }
-
     QApplication a(argc, argv);
     a.setStyle(new ProxyStyle());
 

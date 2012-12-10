@@ -33,6 +33,7 @@ public:
     };
 
     EBNFToken::EBNFTokenType tokenType;
+    bool isLiteralTerminal; //only for terminals
 
     int startPos;
     int endPos;

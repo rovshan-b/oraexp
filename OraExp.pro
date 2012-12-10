@@ -167,16 +167,6 @@ SOURCES += main.cpp\
     util/queryqueuemanager.cpp \
     connectivity/recordfetcherthread.cpp \
     connectivity/fetchresult.cpp \
-    grammar_parser/codescanner.cpp \
-    grammar_parser/ebnfscanner.cpp \
-    grammar_parser/ebnftoken.cpp \
-    grammar_parser/ebnfparser.cpp \
-    grammar_parser/bnfrule.cpp \
-    grammar_parser/bnfruleitem.cpp \
-    grammar_parser/dfaitem.cpp \
-    grammar_parser/dfastate.cpp \
-    grammar_parser/dfatransition.cpp \
-    grammar_parser/dfa.cpp \
     beans/objectddloptions.cpp \
     widgets/tableddloptionswidget.cpp \
     dialogs/tableddloptionsdialog.cpp \
@@ -372,8 +362,7 @@ SOURCES += main.cpp\
     connection_page/dblink_viewer/dblinkviewer.cpp \
     connection_page/dblink_viewer/dblinkviewertabs.cpp \
     connection_page/user_viewer/userviewer.cpp \
-    connection_page/user_viewer/userviewertabs.cpp \
-    grammar_parser/firstfollowsetcomputer.cpp
+    connection_page/user_viewer/userviewertabs.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -527,16 +516,6 @@ HEADERS  += mainwindow.h \
     util/queryqueuemanager.h \
     connectivity/recordfetcherthread.h \
     connectivity/fetchresult.h \
-    grammar_parser/codescanner.h \
-    grammar_parser/ebnfscanner.h \
-    grammar_parser/ebnftoken.h \
-    grammar_parser/ebnfparser.h \
-    grammar_parser/bnfrule.h \
-    grammar_parser/bnfruleitem.h \
-    grammar_parser/dfaitem.h \
-    grammar_parser/dfastate.h \
-    grammar_parser/dfatransition.h \
-    grammar_parser/dfa.h \
     beans/objectddloptions.h \
     widgets/tableddloptionswidget.h \
     dialogs/tableddloptionsdialog.h \
@@ -746,8 +725,7 @@ HEADERS  += mainwindow.h \
     connection_page/dblink_viewer/dblinkviewer.h \
     connection_page/dblink_viewer/dblinkviewertabs.h \
     connection_page/user_viewer/userviewer.h \
-    connection_page/user_viewer/userviewertabs.h \
-    grammar_parser/firstfollowsetcomputer.h
+    connection_page/user_viewer/userviewertabs.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

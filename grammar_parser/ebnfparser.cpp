@@ -35,6 +35,8 @@ void EBNFParser::parse()
     qDebug() << "parsed ebnf rules in" << time.elapsed() << "ms";
     qDebug() << "rule count:" << rules.size();
 
+    printTargetScannerTokens();
+
     time.restart();
     findMissingRuleDefinitions();
     qDebug() << "checked rules in" << time.elapsed() << "ms";
@@ -88,6 +90,11 @@ bool EBNFParser::match(EBNFToken::EBNFTokenType tokenType)
         return false;
     }else{
         token=scanner->getToken();
+
+        if(token.tokenType==EBNFToken::TERMINAL && !token.isLiteralTerminal){
+            registerTargetScannerToken(token.lexeme);
+        }
+
         return true;
     }
 }
@@ -353,6 +360,24 @@ void EBNFParser::printoutRules(){
     for(int i=0; i<rules.size(); ++i){
         qDebug() << qPrintable(rules.at(i)->toString());
     }
+}
+
+void EBNFParser::registerTargetScannerToken(const QString &tokenName)
+{
+    targetScannerTokens.insert(tokenName);
+}
+
+void EBNFParser::printTargetScannerTokens()
+{
+    qDebug("---------target scanner tokens------------");
+
+    int i=0;
+
+    foreach(const QString &tokenName, targetScannerTokens){
+        qDebug() << "#define" << qPrintable(tokenName) << ++i;
+    }
+
+    qDebug("-------end target scanner tokens----------");
 }
 
 QList<BNFRule*> EBNFParser::getBNFRules() const

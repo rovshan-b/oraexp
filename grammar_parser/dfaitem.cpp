@@ -64,9 +64,9 @@ QString DFAItem::toString() const
             str.append("_ ");
         }
         if(ruleItem->isTerminal){
-            str.append("'");
+            if(ruleItem->token.isLiteralTerminal){str.append("'");}
             str.append(ruleItem->token.tokenType==EBNFToken::EPSILON ? "Epsilon" : ruleItem->token.lexeme);
-            str.append("'");
+            if(ruleItem->token.isLiteralTerminal){str.append("'");}
         }else{
             str.append(ruleItem->pointsTo);
         }

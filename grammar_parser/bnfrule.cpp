@@ -41,7 +41,10 @@ QString BNFRule::toString() const
             item=items.at(k);
 
             if(item->isTerminal){
-                str.append(" '").append(item->token.tokenType==EBNFToken::EPSILON ? "Epsilon" : item->token.lexeme).append("'");
+                str.append(" ");
+                if(item->token.isLiteralTerminal){str.append("'");}
+                str.append(item->token.tokenType==EBNFToken::EPSILON ? "Epsilon" : item->token.lexeme);
+                if(item->token.isLiteralTerminal){str.append("'");}
             }else{
                 str.append(" ");
                 if(item->isNegated){

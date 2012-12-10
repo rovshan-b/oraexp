@@ -1,12 +1,12 @@
 #include "ebnftoken.h"
 
-EBNFToken::EBNFToken() : tokenType(ERR), startPos(0), endPos(0), lineNo(0), lineStartPos(0), lineEndPos(0)
+EBNFToken::EBNFToken() : tokenType(ERR), isLiteralTerminal(true), startPos(0), endPos(0), lineNo(0), lineStartPos(0), lineEndPos(0)
 {
 }
 
 bool EBNFToken::operator ==(const EBNFToken &other) const
 {
-    return this->lexeme==other.lexeme && this->tokenType==other.tokenType;
+    return this->lexeme==other.lexeme && this->tokenType==other.tokenType && this->isLiteralTerminal==other.isLiteralTerminal;
 }
 
 QString EBNFToken::toString() const
@@ -21,7 +21,11 @@ QString EBNFToken::toString() const
         str.append("Colon");
         break;
     case TERMINAL:
-        str.append("Terminal");
+        if(isLiteralTerminal){
+            str.append("Terminal");
+        }else{
+            str.append("Non literal terminal");
+        }
         break;
     case EPSILON:
         str.append("Epsilon");

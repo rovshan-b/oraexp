@@ -32,6 +32,7 @@ EBNFToken EBNFScanner::getToken()
     EBNFToken token;
     EBNFScannerState state=START;
     bool save;
+    bool isLiteral;
 
     token.startPos=currPos;
     token.lineNo=currLineNo;
@@ -45,8 +46,9 @@ EBNFToken EBNFScanner::getToken()
         case START:
             if(c=='\n') {save=false; currLineNo++;currLinePos=0;}
             else if(c.isSpace()) {save=false; token.startPos++;}
-            else if(c.isLetter()) {state=INID;}
-            else if(c=='\''){save=false; state=INTERMINAL;}
+            else if(c.isLetter() && c.isLower()) {state=INID;}
+            else if(c.isLetter() && c.isUpper()){state=INTERMINAL;isLiteral=false;}
+            else if(c=='\''){save=false; state=INTERMINAL;isLiteral=true;}
             else if(c=='.') state=INRANGE;
             else {
                 state = DONE;
@@ -73,13 +75,20 @@ EBNFToken EBNFScanner::getToken()
             }
             break;
         case INTERMINAL:
-            if(c=='\''){
+            if(c=='\'' && isLiteral){
                 save=false;
                 state=DONE;
                 token.tokenType=EBNFToken::TERMINAL;
-            }else if(c=='\\'){
+                token.isLiteralTerminal=true;
+            }else if(c=='\\' && isLiteral){
                 save=false;
                 state=INESCAPECHAR;
+            }else if(!c.isLetterOrNumber() && c!='_' && !isLiteral){
+                ungetChar();
+                save=false;
+                state=DONE;
+                token.tokenType=EBNFToken::TERMINAL;
+                token.isLiteralTerminal=false;
             }
             break;
         case INESCAPECHAR:

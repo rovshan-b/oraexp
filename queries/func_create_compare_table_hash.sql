@@ -337,7 +337,8 @@
         
         --for triggers
         if opt_tbl_triggers = 1 then
-            for cur_triggers in (select * from sys.all_triggers where table_owner=p_owner and table_name=p_table_name and base_object_type='TABLE' order by owner, trigger_name)
+            for cur_triggers in (select * from sys.all_triggers where
+                                table_owner=p_owner and table_name=p_table_name and base_object_type='TABLE' order by owner, trigger_name)
             loop
               l_tmp_str := cur_triggers.trigger_name||cur_triggers.trigger_type||cur_triggers.triggering_event||cur_triggers.column_name||
                            cur_triggers.referencing_names||cur_triggers.when_clause||cur_triggers.status||

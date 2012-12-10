@@ -1,2 +1,4 @@
-S : I | 'other' ;
-I : 'if' S | 'if' S 'else' S ;
+create_package
+	:	'CREATE' 'OR' 'REPLACE' package_spec;
+	
+package_spec : 'salam' SEMI ;
