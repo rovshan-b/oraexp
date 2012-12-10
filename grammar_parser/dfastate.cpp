@@ -136,7 +136,7 @@ bool DFAState::equalsByItems(QList<DFAItem*> items) const
 
     return true;
 }
-
+/*
 DFATransition *DFAState::findTransitionOnRuleItem(BNFRuleItem *ruleItem)
 {
     DFATransition *t;
@@ -150,7 +150,7 @@ DFATransition *DFAState::findTransitionOnRuleItem(BNFRuleItem *ruleItem)
     }
 
     return 0;
-}
+}*/
 
 QString DFAState::toString() const
 {
@@ -163,6 +163,18 @@ QString DFAState::toString() const
         str.append(item->toString());
         if(isKernelItem(item)){
             str.append(" (kernel item)");
+        }
+    }
+
+    if(transitions.size()>0){
+        str.append("\nTransitions:");
+        for(int k=0; k<transitions.size(); ++k){
+            DFATransition *trans=transitions.at(k);
+            str.append(trans->sourceItem->toString()).
+                    append("          ").
+                    append(trans->sourceItem->currentRuleItem()->token.lexeme).
+                    append(" > ").
+                    append(QString::number(trans->targetState->stateId));
         }
     }
 /*

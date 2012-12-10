@@ -1,4 +1,3 @@
-create_package
-	:	'CREATE' 'OR' 'REPLACE' package_spec;
-	
-package_spec : 'salam' SEMI ;
+e : e '+' t | t ;
+t : t '*' f | f ;
+f : '(' e ')' | ID ;

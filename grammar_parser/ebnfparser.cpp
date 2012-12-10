@@ -92,7 +92,7 @@ bool EBNFParser::match(EBNFToken::EBNFTokenType tokenType)
         token=scanner->getToken();
 
         if(token.tokenType==EBNFToken::TERMINAL && !token.isLiteralTerminal){
-            registerTargetScannerToken(token.lexeme);
+            registerTargetScannerToken(token);
         }
 
         return true;
@@ -125,6 +125,10 @@ BNFRule *EBNFParser::rule()
 
     exp(r);
     match(EBNFToken::SEMICOLON);
+
+    if(r->alternatives.size()>0 && r->alternatives.at(r->alternatives.size()-1).isEmpty()){
+        r->alternatives[r->alternatives.size()-1].append(createEpsilonItem());
+    }
 
     return r;
 }
@@ -362,9 +366,15 @@ void EBNFParser::printoutRules(){
     }
 }
 
-void EBNFParser::registerTargetScannerToken(const QString &tokenName)
+void EBNFParser::registerTargetScannerToken(EBNFToken &token)
 {
-    targetScannerTokens.insert(tokenName);
+    int ix=targetScannerTokens.indexOf(token.lexeme);
+    if(ix!=-1){
+        token.nonLiteralTerminalDefId=ix+1;
+    }else{
+        targetScannerTokens.append(token.lexeme);
+        token.nonLiteralTerminalDefId=targetScannerTokens.size();
+    }
 }
 
 void EBNFParser::printTargetScannerTokens()

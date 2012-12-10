@@ -2,7 +2,8 @@
 #define DFAITEM_H
 
 #include <QtGlobal>
-
+#include <QList>
+#include "ebnftoken.h"
 
 class BNFRule;
 class BNFRuleItem;

@@ -10,13 +10,13 @@ class BNFRuleItem;
 class DFATransition
 {
 public:
-    DFATransition();
+    DFATransition(DFAItem *sourceItem, DFAState *targetState);
 
     //void addSourceDFAItem(DFAItem *item);
 
     //QList<DFAItem*> sourceDFAItems;
-    BNFRuleItem *currentRuleItem;
-    DFAState *state;
+    DFAItem *sourceItem;
+    DFAState *targetState;
 };
 
 #endif // DFATRANSITION_H

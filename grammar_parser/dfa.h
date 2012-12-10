@@ -24,10 +24,13 @@ private:
     void augmentStartRule();
     void generateDFAItems();
     void constructDFAforLR0();
+    void computeTransitions(DFAState *state);
 
     QList<DFAItem*> closure(QList<DFAItem*> items) const;
     QList<DFAItem*> go_to(QList<DFAItem*> items, BNFRuleItem *ruleItem);
     void canonicalCollection();
+
+    void constructDFAforLALR1();
 
     QList<DFAItem*> findAllInitialDFAItemsForRule(const QString &ruleName) const;
     DFAItem *findDFAItem(BNFRule *rule, int altIx, int position) const;

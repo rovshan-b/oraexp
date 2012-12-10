@@ -1,6 +1,13 @@
 #include "ebnftoken.h"
 
-EBNFToken::EBNFToken() : tokenType(ERR), isLiteralTerminal(true), startPos(0), endPos(0), lineNo(0), lineStartPos(0), lineEndPos(0)
+EBNFToken::EBNFToken() : tokenType(ERR),
+    isLiteralTerminal(true),
+    nonLiteralTerminalDefId(-1),
+    startPos(0),
+    endPos(0),
+    lineNo(0),
+    lineStartPos(0),
+    lineEndPos(0)
 {
 }
 

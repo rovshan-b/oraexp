@@ -2,6 +2,8 @@
 #define DFASTATE_H
 
 #include <QList>
+#include <QHash>
+#include "ebnftoken.h"
 
 class DFAItem;
 class DFATransition;
@@ -19,6 +21,8 @@ public:
     int stateId;
     QList<DFAItem*> dfaItems;
     QList<DFATransition*> transitions;
+
+    QHash<DFAItem*, QList<EBNFToken> > lookaheads;
 
     void addItem(DFAItem *item, bool kernelItem);
 

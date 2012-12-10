@@ -1,6 +1,6 @@
 #include "dfatransition.h"
 
-DFATransition::DFATransition() : currentRuleItem(0), state(0)
+DFATransition::DFATransition(DFAItem *sourceItem, DFAState *targetState) : sourceItem(sourceItem), targetState(targetState)
 {
 }
 

@@ -4,6 +4,7 @@
 #include "dfaitem.h"
 #include "dfastate.h"
 #include "dfatransition.h"
+#include "firstfollowsetcomputer.h"
 #include <QtDebug>
 #include <QTime>
 
@@ -11,8 +12,10 @@ DFA::DFA(const QList<BNFRule*> &bnfRules) : bnfRules(bnfRules), stateCounter(0)
 {
     if(!bnfRules.isEmpty()){
         augmentStartRule();
+        FirstFollowSetComputer(this->bnfRules);
         generateDFAItems();
         constructDFAforLR0();
+        constructDFAforLALR1();
         printoutDFA();
     }
 }
@@ -43,6 +46,9 @@ void DFA::augmentStartRule()
 
     BNFRuleItem *item=new BNFRuleItem();
     item->pointsTo=currentStartRule->ruleName;
+    item->token.lexeme=currentStartRule->ruleName;
+    item->token.tokenType=EBNFToken::ID;
+    item->isTerminal=false;
 
     newStartRule->addRuleItem(item);
 
@@ -86,7 +92,43 @@ void DFA::constructDFAforLR0()
 
     canonicalCollection();
 
+    for(int i=0; i<states.size(); ++i){
+        computeTransitions(states.at(i));
+    }
+
     qDebug() << "constructed LR(0) DFA in" << time.elapsed() << "ms";
+}
+
+void DFA::computeTransitions(DFAState *state)
+{
+    //TODO: transitionlar duz hesablanmirlar: dragon book seh 244
+    for(int i=0; i<state->dfaItems.size(); ++i){
+        DFAItem *dfaItem=state->dfaItems.at(i);
+        if(dfaItem->isCompleteItem()){
+            continue;
+        }
+
+        DFAItem *nextItem=findNextDFAItem(dfaItem);
+        bool found=false;
+        for(int k=i; k<states.size(); ++k){
+            if(states.at(k)->contains(nextItem)){
+                DFATransition *transition=new DFATransition(dfaItem, states.at(k));
+                state->addTransition(transition);
+                found=true;
+                break;
+            }
+        }
+
+        if(!found){
+            for(int k=0; k<i-1; ++k){
+                if(states.at(k)->contains(nextItem)){
+                    DFATransition *transition=new DFATransition(dfaItem, states.at(k));
+                    state->addTransition(transition);
+                    break;
+                }
+            }
+        }
+    }
 }
 
 QList<DFAItem*> DFA::closure(QList<DFAItem*> items) const
@@ -191,6 +233,11 @@ void DFA::canonicalCollection()
 
 }
 
+void DFA::constructDFAforLALR1()
+{
+
+}
+
 QList<DFAItem*> DFA::findAllInitialDFAItemsForRule(const QString &ruleName) const
 {
     QList<DFAItem*> results;
@@ -236,9 +283,9 @@ bool DFA::hasStateWithItems(QList<DFAItem*> items) const
 
 void DFA::printoutDFA()
 {
-    qDebug() << "---------DFA states (" << states.size() << ")---------";
+    qDebug() << "------LR(0) DFA states (" << states.size() << ")------";
     for(int i=0; i<states.size(); ++i){
-        qDebug() << "--";
+        qDebug() << "---------";
         qDebug() << qPrintable(states.at(i)->toString());
     }
     qDebug() << "---------------------------------";

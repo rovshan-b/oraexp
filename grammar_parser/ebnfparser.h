@@ -2,7 +2,7 @@
 #define EBNFPARSER_H
 
 #include <QHash>
-#include <QSet>
+#include <QStringList>
 #include "ebnftoken.h"
 
 class BNFRule;
@@ -38,13 +38,13 @@ private:
 
     void findMissingRuleDefinitions();
     void printoutRules();
-    void registerTargetScannerToken(const QString &tokenName);
+    void registerTargetScannerToken(EBNFToken &token);
     void printTargetScannerTokens();
 
     EBNFScanner *scanner;
     EBNFToken token;
     QList<BNFRule*> rules;
-    QSet<QString> targetScannerTokens;
+    QStringList targetScannerTokens;
 
     bool hasMissingRules;
 };
