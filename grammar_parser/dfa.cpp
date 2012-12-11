@@ -14,9 +14,9 @@ DFA::DFA(const QList<BNFRule*> &bnfRules) : bnfRules(bnfRules), stateCounter(0)
         augmentStartRule();
         FirstFollowSetComputer(this->bnfRules);
         generateDFAItems();
-        constructDFAforLR0();
+        constructDFAforLR0();      
         constructDFAforLALR1();
-        printoutDFA();
+        //printoutDFA();
     }
 }
 
@@ -96,12 +96,13 @@ void DFA::constructDFAforLR0()
         computeTransitions(states.at(i));
     }
 
+    checkTransitions();
+
     qDebug() << "constructed LR(0) DFA in" << time.elapsed() << "ms";
 }
 
 void DFA::computeTransitions(DFAState *state)
 {
-    //TODO: transitionlar duz hesablanmirlar: dragon book seh 244
     for(int i=0; i<state->dfaItems.size(); ++i){
         DFAItem *dfaItem=state->dfaItems.at(i);
         if(dfaItem->isCompleteItem()){
@@ -113,28 +114,26 @@ void DFA::computeTransitions(DFAState *state)
         Q_ASSERT(targetState);
         DFATransition *transition=new DFATransition(dfaItem, targetState);
         state->addTransition(transition);
+    }
+}
 
-        /*
-        DFAItem *nextItem=findNextDFAItem(dfaItem);
-        bool found=false;
-        for(int k=state->stateId; k<states.size(); ++k){
-            if(states.at(k)->contains(nextItem)){
-                DFATransition *transition=new DFATransition(dfaItem, states.at(k));
-                state->addTransition(transition);
-                found=true;
-                break;
+void DFA::checkTransitions()
+{
+    for(int i=0; i<states.size(); ++i){
+        DFAState *state=states.at(i);
+        QHash<QString,DFAState*> stateTransitions;
+        for(int k=0; k<state->transitions.size(); ++k){
+            DFATransition *transition=state->transitions.at(k);
+
+            QString currentRuleItemLexeme = transition->sourceItem->currentRuleItem()->token.toString();
+            DFAState *targetState=stateTransitions.value(currentRuleItemLexeme);
+            if(targetState==0){
+                stateTransitions[currentRuleItemLexeme]=transition->targetState;
+            }else if(targetState!=transition->targetState){
+                qDebug() << "State" << state->stateId << "has transitions on same symbol to different states";
+                exit(1);
             }
         }
-
-        if(!found){
-            for(int k=0; k<state->stateId-1; ++k){
-                if(states.at(k)->contains(nextItem)){
-                    DFATransition *transition=new DFATransition(dfaItem, states.at(k));
-                    state->addTransition(transition);
-                    break;
-                }
-            }
-        }*/
     }
 }
 
@@ -242,7 +241,59 @@ void DFA::canonicalCollection()
 
 void DFA::constructDFAforLALR1()
 {
+    for(int i=0; i<states.size(); ++i){
+        DFAState *state=states.at(i);
+        for(int k=0; k<state->dfaItems.size(); ++k){
+            DFAItem *item=state->dfaItems.at(k);
+            if(!item->isKernelItem()){
+                continue;
+            }
 
+            //continue here
+        }
+    }
+}
+
+DFAState* DFA::closure_lalr1(DFAState *state, QList<DFAItem *> items) const
+{
+    return 0;
+}
+
+DFAState* DFA::go_to_lalr1(DFAState *state, QList<DFAItem *> items, BNFRuleItem *ruleItem)
+{
+    DFAState *targetState=0;
+    for(int i=0; i<items.size(); ++i){
+        DFAItem *dfaItem=items.at(i);
+        if(dfaItem->isCompleteItem()){
+            continue;
+        }
+
+        if(!(*ruleItem==*dfaItem->currentRuleItem())){
+            continue;
+        }
+
+        DFATransition *transition=state->findTransitionOnDFAItem(dfaItem);
+        Q_ASSERT(transition);
+        if(targetState==0){
+            targetState=transition->targetState;
+        }else{
+            Q_ASSERT(targetState==transition->targetState);
+        }
+
+        DFAItem *nextDfaItem=findNextDFAItem(dfaItem);
+        Q_ASSERT(nextDfaItem);
+        Q_ASSERT(targetState->dfaItems.contains(nextDfaItem));
+        QList<EBNFToken> lookaheads=state->lookaheads.value(dfaItem);
+        for(int k=0; k<lookaheads.size(); ++k){
+            targetState->addLookahead(nextDfaItem, lookaheads.at(k));
+        }
+    }
+
+    if(targetState==0){ //no out transitions exist from source state on ruleItem
+        return 0;
+    }
+
+    return closure_lr1(targetState, targetState->dfaItems);
 }
 
 QList<DFAItem*> DFA::findAllInitialDFAItemsForRule(const QString &ruleName) const

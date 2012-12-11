@@ -35,7 +35,10 @@ public:
     bool equalsByKernelItems(DFAState *otherState) const;
 
     void addTransition(DFATransition *transition);
-    DFATransition *findTransitionOnRuleItem(BNFRuleItem *ruleItem);
+    DFATransition *findTransitionOnDFAItem(DFAItem *dfaItem);
+
+    bool addLookahead(DFAItem *item, const EBNFToken &lookahead);
+
     QString toString() const;
 
 private:

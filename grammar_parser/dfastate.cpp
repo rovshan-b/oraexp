@@ -136,21 +136,32 @@ bool DFAState::equalsByItems(QList<DFAItem*> items) const
 
     return true;
 }
-/*
-DFATransition *DFAState::findTransitionOnRuleItem(BNFRuleItem *ruleItem)
+
+DFATransition *DFAState::findTransitionOnDFAItem(DFAItem *dfaItem)
 {
-    DFATransition *t;
     for(int i=0; i<transitions.size(); ++i){
-        t=transitions.at(i);
-
-        if(*ruleItem == *t->currentRuleItem){
-            return t;
+        DFATransition *transition=transitions.at(i);
+        if(transition->sourceItem==dfaItem){
+            return transition;
         }
-
     }
 
     return 0;
-}*/
+}
+
+bool DFAState::addLookahead(DFAItem *item, const EBNFToken &lookahead)
+{
+    QList<EBNFToken> itemLookaheads=lookaheads.value(item);
+
+    for(int i=0; i<itemLookaheads.size(); ++i){
+        if(itemLookaheads.at(i)==lookahead){
+            return false;
+        }
+    }
+
+    lookaheads[item].append(lookahead);
+    return true;
+}
 
 QString DFAState::toString() const
 {
@@ -170,26 +181,14 @@ QString DFAState::toString() const
         str.append("\nTransitions:");
         for(int k=0; k<transitions.size(); ++k){
             DFATransition *trans=transitions.at(k);
-            str.append(trans->sourceItem->toString()).
-                    append("          ").
+            QString sourceItemDesc = trans->sourceItem->toString();
+            str.append(sourceItemDesc).
+                    append(QString(50-sourceItemDesc.size(), ' ')).
                     append(trans->sourceItem->currentRuleItem()->token.lexeme).
                     append(" > ").
                     append(QString::number(trans->targetState->stateId));
         }
     }
-/*
-    if(transitions.size()>0){
-        str.append("\nTransitions:\n");
-        DFATransition *transition;
-        for(int i=0; i<transitions.size(); ++i){
-            transition=transitions.at(i);
-            str.append("On ").append(transition->currentRuleItem->isTerminal ?
-                                         transition->currentRuleItem->token.lexeme :
-                                         transition->currentRuleItem->pointsTo);
-            str.append(transition->currentRuleItem->isTerminal ? " shift" : " go");
-            //str.append(" to state ").append(QString::number(transition->state->stateId)).append("\n");
-        }
-    }
-*/
+
     return str;
 }
