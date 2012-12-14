@@ -70,6 +70,9 @@ QString EBNFToken::toString() const
     case ERR:
         str.append("Error");
         break;
+    case NON_GRAMMAR:
+        str.append(lexeme);
+        break;
     default:
         str.append("Unknown");
         break;

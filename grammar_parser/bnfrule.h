@@ -16,6 +16,8 @@ public:
     QString ruleName;
     QList< QList < BNFRuleItem * >  > alternatives;
 
+    bool isStartRule;
+
     void startAlternatives();
     void addRuleItem(BNFRuleItem *item);
 

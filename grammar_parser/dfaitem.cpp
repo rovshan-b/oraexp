@@ -2,7 +2,7 @@
 #include "bnfrule.h"
 #include "bnfruleitem.h"
 
-DFAItem::DFAItem()
+DFAItem::DFAItem() : rule(0)
 {
 }
 
@@ -29,7 +29,7 @@ bool DFAItem::isCompleteItem() const
 
 bool DFAItem::isKernelItem() const
 {
-    return position>0;
+    return position>0 || rule->isStartRule;
 }
 
 BNFRuleItem *DFAItem::currentRuleItem() const
@@ -47,7 +47,7 @@ bool DFAItem::pointsTo(const QString &bnfRuleName) const
     return  this->rule->ruleName==bnfRuleName;
 }
 
-QString DFAItem::toString() const
+QString DFAItem::toString(bool prependNewLine) const
 {
     QString str;
 
@@ -55,7 +55,9 @@ QString DFAItem::toString() const
     BNFRule *rule=item->rule;
     BNFRuleItem *ruleItem;
     QList <BNFRuleItem *> ruleItems=rule->alternatives.at(item->altIx);
-    str.append("\n");
+    if(prependNewLine){
+        str.append("\n");
+    }
     //std::size_t address = reinterpret_cast<std::size_t>(this);
     //str.append("(").append(QString::number(address)).append(") ");
     str.append(rule->ruleName).append(" :");

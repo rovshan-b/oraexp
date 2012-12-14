@@ -2,6 +2,9 @@
 #define DFA_H
 
 #include <QList>
+#include <QHash>
+#include <QPair>
+#include "ebnftoken.h"
 
 class BNFRule;
 class BNFRuleItem;
@@ -32,17 +35,29 @@ private:
     void canonicalCollection();
 
     void constructDFAforLALR1();
-    DFAState *closure_lalr1(DFAState *state, QList<DFAItem *> items) const;
-    DFAState *go_to_lalr1(DFAState *state, QList<DFAItem *> items, BNFRuleItem *ruleItem);
+    void computeLookaheadPropagations();
+    void setLookaheadPropagations(DFAState *state, DFAState *tmpState, DFAItem *keyItem);
+    void propagateLookaheads();
+    void closeItems();
+    DFAState *createTmpStateWithNonGrammarSymbol(DFAItem *item) const;
+    void closure_lalr1(DFAState *state) const;
 
     QList<DFAItem*> findAllInitialDFAItemsForRule(const QString &ruleName) const;
     DFAItem *findDFAItem(BNFRule *rule, int altIx, int position) const;
     DFAItem *findNextDFAItem(DFAItem *currItem) const;
     DFAState* hasStateWithItems(QList<DFAItem*> items) const;
+    QList<DFAState*> findAllStatesWithDFAItem(DFAItem *dfaItem) const;
 
+    EBNFToken createNonGrammarToken() const;
+
+    void printoutLookaheadsPropagationTable();
     void printoutDFA();
+    void printoutState(DFAState *state);
 
     int stateCounter;
+
+    QHash< QPair<DFAState*, DFAItem*>,
+           QList< QPair<DFAState*, DFAItem* > > > lookaheadsPropagationTable;
 };
 
 #endif // DFA_H

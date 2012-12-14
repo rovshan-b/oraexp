@@ -16,7 +16,7 @@ DFA::DFA(const QList<BNFRule*> &bnfRules) : bnfRules(bnfRules), stateCounter(0)
         generateDFAItems();
         constructDFAforLR0();      
         constructDFAforLALR1();
-        //printoutDFA();
+        printoutDFA();
     }
 }
 
@@ -41,6 +41,7 @@ void DFA::augmentStartRule()
     BNFRule *currentStartRule=bnfRules.at(0);
 
     BNFRule *newStartRule=new BNFRule();
+    newStartRule->isStartRule=true;
     newStartRule->ruleName=QString("%1_aug").arg(currentStartRule->ruleName);
     newStartRule->startAlternatives();
 
@@ -241,59 +242,186 @@ void DFA::canonicalCollection()
 
 void DFA::constructDFAforLALR1()
 {
+    computeLookaheadPropagations();
+    propagateLookaheads();
+    closeItems();
+}
+
+void DFA::computeLookaheadPropagations()
+{
+    int stateCount=states.size();
+    for(int i=0; i<stateCount; ++i){
+        DFAState *state=states.at(i);
+        for(int k=0; k<state->dfaItems.size(); ++k){
+            DFAItem *item=state->dfaItems.at(k);
+            if(!item->isKernelItem() || item->isCompleteItem()){
+                continue;
+            }
+
+            DFAState *tmpState=createTmpStateWithNonGrammarSymbol(item);
+            closure_lalr1(tmpState);
+
+            setLookaheadPropagations(state, tmpState, item);
+
+            delete tmpState;
+        }
+    }
+
+    printoutLookaheadsPropagationTable();
+}
+
+void DFA::setLookaheadPropagations(DFAState *state, DFAState *tmpState, DFAItem *keyItem)
+{
+    for(int i=0; i<tmpState->dfaItems.size(); ++i){
+        DFAItem *item=tmpState->dfaItems.at(i);
+        DFATransition *transition=state->findTransitionOnDFAItem(item);
+        DFAState *targetState=transition->targetState;
+        DFAItem *nextItem=findNextDFAItem(item);
+        Q_ASSERT(nextItem);
+
+        QList<EBNFToken> itemLookaheads = tmpState->lookaheads.value(item);
+        for(int k=0; k<itemLookaheads.size(); ++k){
+            const EBNFToken &lookahead = itemLookaheads.at(k);
+            if(lookahead.tokenType==EBNFToken::NON_GRAMMAR){
+                lookaheadsPropagationTable[qMakePair(state, keyItem)].append(qMakePair(targetState, nextItem));
+            }else{
+                targetState->addLookahead(nextItem, lookahead);
+            }
+        }
+    }
+}
+
+void DFA::propagateLookaheads()
+{
+    EBNFToken eofToken;
+    eofToken.tokenType=EBNFToken::E_O_F;
+    eofToken.lexeme="$";
+    states.at(0)->addLookahead(dfaItems.at(0), eofToken);
+
+    bool hasChanges;
+
+    do{
+        hasChanges=false;
+
+        QHashIterator<QPair<DFAState*, DFAItem*>,
+                      QList< QPair<DFAState*, DFAItem* > > > i(lookaheadsPropagationTable);
+
+        while (i.hasNext()) {
+            i.next();
+
+            QList<EBNFToken> sourceLookaheads = i.key().first->lookaheads.value(i.key().second);
+
+            QList< QPair<DFAState*, DFAItem* > > targets = i.value();
+            for(int j=0; j<targets.size(); ++j){
+                QPair<DFAState*, DFAItem* > target=targets.at(j);
+                DFAState *targetState=target.first;
+                DFAItem *targetItem=target.second;
+
+                for(int k=0; k<sourceLookaheads.size(); ++k){
+                    bool added = targetState->addLookahead(targetItem, sourceLookaheads.at(k));
+                    if(!hasChanges && added){hasChanges=true;}
+                }
+            }
+        }
+    }while(hasChanges);
+}
+
+void DFA::closeItems()
+{
     for(int i=0; i<states.size(); ++i){
         DFAState *state=states.at(i);
         for(int k=0; k<state->dfaItems.size(); ++k){
             DFAItem *item=state->dfaItems.at(k);
-            if(!item->isKernelItem()){
+            if(!item->isKernelItem() || item->isCompleteItem()){
                 continue;
             }
 
-            //continue here
+            DFAState *tmpState=new DFAState();
+            tmpState->addItem(item, true);
+            tmpState->lookaheads[item]=state->lookaheads.value(item);
+            closure_lalr1(tmpState);
+
+            for(int l=0; l<tmpState->dfaItems.size(); ++l){
+                DFAItem *tmpItem=tmpState->dfaItems.at(l);
+                if(!tmpItem->isInitialItem()){
+                    continue;
+                }
+
+                Q_ASSERT(state->contains(tmpItem));
+                QList<EBNFToken> lookaheads=tmpState->lookaheads.value(tmpItem);
+                //for(int m=0; m<lookaheads.size(); ++m){
+                //    const EBNFToken &lookahead=lookaheads.at(m);
+                //    state->addLookahead()
+                //}
+                state->lookaheads[tmpItem]=lookaheads;
+            }
+
+            delete tmpState;
         }
     }
 }
 
-DFAState* DFA::closure_lalr1(DFAState *state, QList<DFAItem *> items) const
+DFAState *DFA::createTmpStateWithNonGrammarSymbol(DFAItem *item) const
 {
-    return 0;
+    DFAState *state=new DFAState();
+    state->addItem(item, true);
+    state->addLookahead(item, createNonGrammarToken());
+
+    return state;
 }
 
-DFAState* DFA::go_to_lalr1(DFAState *state, QList<DFAItem *> items, BNFRuleItem *ruleItem)
+void DFA::closure_lalr1(DFAState *state) const
 {
-    DFAState *targetState=0;
-    for(int i=0; i<items.size(); ++i){
-        DFAItem *dfaItem=items.at(i);
-        if(dfaItem->isCompleteItem()){
-            continue;
+    bool hasChanges;
+    do{
+        hasChanges=false;
+
+        for(int i=0; i<state->dfaItems.size(); ++i){
+            DFAItem *dfaItem=state->dfaItems.at(i);
+            if(dfaItem->isCompleteItem() || dfaItem->currentRuleItem()->isTerminal){
+                continue;
+            }
+
+            DFAItem *nextDFAItem=findNextDFAItem(dfaItem);
+            BNFRuleItem *nextRuleItem=nextDFAItem->currentRuleItem();
+
+            QString lookFor = dfaItem->currentRuleItem()->pointsTo;
+            QList<DFAItem*> initItems=findAllInitialDFAItemsForRule(lookFor);
+            for(int k=0; k<initItems.size(); ++k){
+                DFAItem *initItem=initItems.at(k);
+                if(!state->contains(initItem)){
+                    state->addItem(initItem, false);
+                    hasChanges=true;
+                }
+
+                bool nextDfaItemHasEpsilonInFirstSet=false;
+                if(!nextDFAItem->isCompleteItem()){
+                    if(nextRuleItem->isTerminal && !nextRuleItem->isEpsilon()){
+                        bool added=state->addLookahead(initItem, nextRuleItem->token);
+                        if(!hasChanges && added){hasChanges=true;}
+                    }else if(!nextRuleItem->isTerminal && !nextRuleItem->isEpsilon()){
+                        for(int m=0; m<nextDFAItem->rule->firstSet.size(); ++m){
+                            const EBNFToken &firstSetToken=nextDFAItem->rule->firstSet.at(m);
+                            if(firstSetToken.tokenType!=EBNFToken::EPSILON){
+                                bool added=state->addLookahead(initItem, firstSetToken);
+                                if(!hasChanges && added){hasChanges=true;}
+                            }else{
+                                nextDfaItemHasEpsilonInFirstSet=true;
+                            }
+                        }
+                    }
+                }else if(nextDFAItem->isCompleteItem() || nextDfaItemHasEpsilonInFirstSet){
+                    QList<EBNFToken> currentLookaheads=state->lookaheads.value(dfaItem);
+                    for(int m=0; m<currentLookaheads.size(); ++m){
+                        const EBNFToken &currentLookahead=currentLookaheads.at(m);
+                        Q_ASSERT(currentLookahead.tokenType!=EBNFToken::EPSILON);
+                        bool added=state->addLookahead(initItem, currentLookahead);
+                        if(!hasChanges && added){hasChanges=true;}
+                    }
+                }
+            }
         }
-
-        if(!(*ruleItem==*dfaItem->currentRuleItem())){
-            continue;
-        }
-
-        DFATransition *transition=state->findTransitionOnDFAItem(dfaItem);
-        Q_ASSERT(transition);
-        if(targetState==0){
-            targetState=transition->targetState;
-        }else{
-            Q_ASSERT(targetState==transition->targetState);
-        }
-
-        DFAItem *nextDfaItem=findNextDFAItem(dfaItem);
-        Q_ASSERT(nextDfaItem);
-        Q_ASSERT(targetState->dfaItems.contains(nextDfaItem));
-        QList<EBNFToken> lookaheads=state->lookaheads.value(dfaItem);
-        for(int k=0; k<lookaheads.size(); ++k){
-            targetState->addLookahead(nextDfaItem, lookaheads.at(k));
-        }
-    }
-
-    if(targetState==0){ //no out transitions exist from source state on ruleItem
-        return 0;
-    }
-
-    return closure_lr1(targetState, targetState->dfaItems);
+    }while(hasChanges);
 }
 
 QList<DFAItem*> DFA::findAllInitialDFAItemsForRule(const QString &ruleName) const
@@ -339,12 +467,60 @@ DFAState* DFA::hasStateWithItems(QList<DFAItem*> items) const
     return 0;
 }
 
+QList<DFAState *> DFA::findAllStatesWithDFAItem(DFAItem *dfaItem) const
+{
+    QList<DFAState *> results;
+
+    for(int i=0; i<states.size(); ++i){
+        DFAState *state=states.at(i);
+        if(state->contains(dfaItem)){
+            results.append(state);
+        }
+    }
+
+    return results;
+}
+
+EBNFToken DFA::createNonGrammarToken() const
+{
+    EBNFToken token;
+    token.lexeme="#";
+    token.tokenType=EBNFToken::NON_GRAMMAR;
+
+    return token;
+}
+
+void DFA::printoutLookaheadsPropagationTable()
+{
+    qDebug() << "----Lookaheads propagation table----";
+
+    QHashIterator<QPair<DFAState*, DFAItem*>,
+                  QList< QPair<DFAState*, DFAItem* > > > i(lookaheadsPropagationTable);
+    while (i.hasNext()) {
+        i.next();
+
+        qDebug() << "S -" << i.key().first->stateId << " => " << i.key().second->toString(false) << ":";
+        QList< QPair<DFAState*, DFAItem* > > targets = i.value();
+        for(int i=0; i<targets.size(); ++i){
+            QPair<DFAState*, DFAItem* > target=targets.at(i);
+            qDebug() << "    S -" << target.first->stateId << " => " << target.second->toString(false);
+        }
+    }
+
+    qDebug() << "--End lookaheads propagation table--";
+}
+
 void DFA::printoutDFA()
 {
     qDebug() << "------LR(0) DFA states (" << states.size() << ")------";
     for(int i=0; i<states.size(); ++i){
-        qDebug() << "---------";
-        qDebug() << qPrintable(states.at(i)->toString());
+        printoutState(states.at(i));
     }
     qDebug() << "---------------------------------";
+}
+
+void DFA::printoutState(DFAState *state)
+{
+    qDebug() << "---------";
+    qDebug() << qPrintable(state->toString());
 }

@@ -15,7 +15,7 @@ public:
 
     bool operator==(const DFAItem &other) const;
 
-    QString toString() const;
+    QString toString(bool prependNewLine=true) const;
 
     BNFRule *rule;
 

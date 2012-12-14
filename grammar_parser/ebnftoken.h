@@ -29,7 +29,8 @@ public:
         QUESTION,
         RANGE,
         E_O_F,
-        ERR
+        ERR,
+        NON_GRAMMAR
     };
 
     EBNFToken::EBNFTokenType tokenType;

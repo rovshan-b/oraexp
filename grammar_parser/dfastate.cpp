@@ -6,7 +6,7 @@
 
 #include <QString>
 
-DFAState::DFAState()
+DFAState::DFAState() : stateId(-1)
 {
 }
 
@@ -171,10 +171,20 @@ QString DFAState::toString() const
     DFAItem *item;
     for(int i=0; i<dfaItems.size(); ++i){
         item=dfaItems.at(i);
-        str.append(item->toString());
-        if(isKernelItem(item)){
-            str.append(" (kernel item)");
+        QString itemDesc = item->toString();
+        str.append(itemDesc);
+        QList<EBNFToken> itemLookaheads=lookaheads.value(item);
+        str.append(QString(qMax(10, 50-itemDesc.size()), ' '));
+        for(int k=0; k<itemLookaheads.size(); ++k){
+            str.append(itemLookaheads.at(k).lexeme);
+
+            if(k!=itemLookaheads.size()-1){
+                str.append(" / ");
+            }
         }
+        //if(item->isKernelItem()){
+        //    str.append(" (kernel item)");
+        //}
     }
 
     if(transitions.size()>0){
@@ -183,7 +193,7 @@ QString DFAState::toString() const
             DFATransition *trans=transitions.at(k);
             QString sourceItemDesc = trans->sourceItem->toString();
             str.append(sourceItemDesc).
-                    append(QString(50-sourceItemDesc.size(), ' ')).
+                    append(QString(qMax(10, 50-sourceItemDesc.size()), ' ')).
                     append(trans->sourceItem->currentRuleItem()->token.lexeme).
                     append(" > ").
                     append(QString::number(trans->targetState->stateId));
