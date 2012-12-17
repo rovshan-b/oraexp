@@ -5,19 +5,27 @@
 #include "dfastate.h"
 #include "dfatransition.h"
 #include "firstfollowsetcomputer.h"
+#include "ebnfscanner.h"
 #include <QtDebug>
 #include <QTime>
 
 DFA::DFA(const QList<BNFRule*> &bnfRules) : bnfRules(bnfRules), stateCounter(0)
 {
+    QTime time;
+    time.start();
+
     if(!bnfRules.isEmpty()){
         augmentStartRule();
+        printoutTargetParserRules();
         FirstFollowSetComputer(this->bnfRules);
         generateDFAItems();
         constructDFAforLR0();      
         constructDFAforLALR1();
         printoutDFA();
+        checkForConflicts();
     }
+
+    qDebug() << "constructed LALR(1) DFA in" << time.elapsed() << "ms";
 }
 
 DFA::~DFA()
@@ -88,9 +96,6 @@ void DFA::generateDFAItems()
 
 void DFA::constructDFAforLR0()
 {
-    QTime time;
-    time.start();
-
     canonicalCollection();
 
     for(int i=0; i<states.size(); ++i){
@@ -98,8 +103,6 @@ void DFA::constructDFAforLR0()
     }
 
     checkTransitions();
-
-    qDebug() << "constructed LR(0) DFA in" << time.elapsed() << "ms";
 }
 
 void DFA::computeTransitions(DFAState *state)
@@ -293,10 +296,7 @@ void DFA::setLookaheadPropagations(DFAState *state, DFAState *tmpState, DFAItem 
 
 void DFA::propagateLookaheads()
 {
-    EBNFToken eofToken;
-    eofToken.tokenType=EBNFToken::E_O_F;
-    eofToken.lexeme="$";
-    states.at(0)->addLookahead(dfaItems.at(0), eofToken);
+    states.at(0)->addLookahead(dfaItems.at(0), EBNFScanner::createEOFToken());
 
     bool hasChanges;
 
@@ -424,6 +424,61 @@ void DFA::closure_lalr1(DFAState *state) const
     }while(hasChanges);
 }
 
+void DFA::checkForConflicts()
+{
+    qDebug("-------------Conflicts---------------");
+
+    for(int i=0; i<states.size(); ++i){
+        DFAState *state=states.at(i);
+
+        for(int k=0; k<state->dfaItems.size(); ++k){
+            DFAItem *dfaItem=state->dfaItems.at(k);
+            BNFRuleItem *ruleItem=dfaItem->currentRuleItem();
+
+            for(int j=k+1; j<state->dfaItems.size(); ++j){
+                DFAItem *dfaItemToCheck=state->dfaItems.at(j);
+                BNFRuleItem *ruleItemToCheck=dfaItemToCheck->currentRuleItem();
+
+                bool conflictPossible = (hasIntersectingLookaheads(state, dfaItem, dfaItemToCheck));
+                if(!conflictPossible){
+                    continue;
+                }
+
+                //check for shift shift conflict
+                if(!dfaItem->isCompleteItem() && !dfaItemToCheck->isCompleteItem() &&
+                        ruleItem->isTerminal && ruleItemToCheck->isTerminal &&
+                        ruleItem->token==ruleItemToCheck->token){
+                    qDebug() << "State -" << state->stateId << "has shift shift conflict on items"
+                             << dfaItem->toString(false) << "and" << dfaItemToCheck->toString(false);
+                }else if(dfaItem->isCompleteItem() && dfaItemToCheck->isCompleteItem()){ //check for reduce reduce conflict
+                    qDebug() << "State -" << state->stateId << "has reduce reduce conflict on items"
+                             << dfaItem->toString(false) << "and" << dfaItemToCheck->toString(false);
+                }else if((dfaItem->isCompleteItem() && !dfaItemToCheck->isCompleteItem()) ||
+                         (!dfaItem->isCompleteItem() && dfaItemToCheck->isCompleteItem())){ //shift reduce conflict
+                    qDebug() << "State -" << state->stateId << "has shift reduce conflict on items"
+                             << dfaItem->toString(false) << "and" << dfaItemToCheck->toString(false);
+                }
+            }
+        }
+    }
+
+    qDebug("-----------End conflicts-------------");
+}
+
+bool DFA::hasIntersectingLookaheads(DFAState *state, DFAItem *first, DFAItem *second) const
+{
+    QList<EBNFToken> firstLookaheads=state->lookaheads.value(first);
+    QList<EBNFToken> secondLookaheads=state->lookaheads.value(second);
+
+    for(int i=0; i<firstLookaheads.size(); ++i){
+        if(secondLookaheads.contains(firstLookaheads.at(i))){
+            return true;
+        }
+    }
+
+    return false;
+}
+
 QList<DFAItem*> DFA::findAllInitialDFAItemsForRule(const QString &ruleName) const
 {
     QList<DFAItem*> results;
@@ -490,6 +545,17 @@ EBNFToken DFA::createNonGrammarToken() const
     return token;
 }
 
+void DFA::printoutTargetParserRules()
+{
+    for(int i=0; i<bnfRules.size(); ++i){
+        BNFRule *rule=bnfRules.at(i);
+        rule->ruleDefId=i+1;
+
+        QString define=QString("#define R_%1 %2").arg(rule->ruleName.toUpper()).arg(i+1);
+        qDebug() << qPrintable(define);
+    }
+}
+
 void DFA::printoutLookaheadsPropagationTable()
 {
     qDebug() << "----Lookaheads propagation table----";
@@ -512,11 +578,11 @@ void DFA::printoutLookaheadsPropagationTable()
 
 void DFA::printoutDFA()
 {
-    qDebug() << "------LR(0) DFA states (" << states.size() << ")------";
+    qDebug() << "------LALR(1) DFA states (" << states.size() << ")------";
     for(int i=0; i<states.size(); ++i){
         printoutState(states.at(i));
     }
-    qDebug() << "---------------------------------";
+    qDebug() << "-------------------------------------";
 }
 
 void DFA::printoutState(DFAState *state)

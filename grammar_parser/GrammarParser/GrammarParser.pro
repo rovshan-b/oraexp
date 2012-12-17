@@ -26,7 +26,10 @@ SOURCES += main.cpp \
     ../ebnfparser.cpp \
     ../ebnfscanner.cpp \
     ../ebnftoken.cpp \
-    ../firstfollowsetcomputer.cpp
+    ../firstfollowsetcomputer.cpp \
+    ../parsingtablebuilder.cpp \
+    ../parsingtablerow.cpp \
+    ../parsingtableaction.cpp
 
 HEADERS += \
     ../bnfrule.h \
@@ -39,4 +42,7 @@ HEADERS += \
     ../ebnfparser.h \
     ../ebnfscanner.h \
     ../ebnftoken.h \
-    ../firstfollowsetcomputer.h
+    ../firstfollowsetcomputer.h \
+    ../parsingtablebuilder.h \
+    ../parsingtablerow.h \
+    ../parsingtableaction.h

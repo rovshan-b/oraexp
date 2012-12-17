@@ -192,10 +192,13 @@ QString DFAState::toString() const
         for(int k=0; k<transitions.size(); ++k){
             DFATransition *trans=transitions.at(k);
             QString sourceItemDesc = trans->sourceItem->toString();
+            BNFRuleItem *currentRuleItem=trans->sourceItem->currentRuleItem();
             str.append(sourceItemDesc).
-                    append(QString(qMax(10, 50-sourceItemDesc.size()), ' ')).
-                    append(trans->sourceItem->currentRuleItem()->token.lexeme).
-                    append(" > ").
+                    append(QString(qMax(10, 50-sourceItemDesc.size()), ' '));
+                    if(currentRuleItem->isTerminal){str.append("'");}
+                    str.append(currentRuleItem->token.lexeme);
+                    if(currentRuleItem->isTerminal){str.append("'");}
+                    str.append(" > ").
                     append(QString::number(trans->targetState->stateId));
         }
     }

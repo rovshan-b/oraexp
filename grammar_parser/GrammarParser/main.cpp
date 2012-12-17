@@ -1,6 +1,7 @@
 #include <QtCore/QCoreApplication>
 #include "../ebnfparser.h"
 #include "../dfa.h"
+#include "../parsingtablebuilder.h"
 
 int main(int argc, char *argv[])
 {
@@ -9,7 +10,8 @@ int main(int argc, char *argv[])
     if(parser.getHasMissingRules()){
         qDebug("grammar file has missing rule definitions. exiting.");
     }else{
-        DFA(parser.getBNFRules());
+        DFA dfa(parser.getBNFRules());
+        ParsingTableBuilder(&dfa, parser.getTargetScannerKeywords());
     }
     return 0;
 

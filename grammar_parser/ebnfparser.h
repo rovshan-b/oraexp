@@ -19,6 +19,9 @@ public:
 
     QList<BNFRule*> getBNFRules() const;
     bool getHasMissingRules() const {return this->hasMissingRules;}
+    QStringList getTargetScannerKeywords() const {return this->targetScannerKeywords;}
+
+    static BNFRule *findRuleByName(const QList<BNFRule*> &bnfRules, const QString &ruleName);
 
 private:
     void doParse();
@@ -39,12 +42,16 @@ private:
     void findMissingRuleDefinitions();
     void printoutRules();
     void registerTargetScannerToken(EBNFToken &token);
+    void registerTargetScannerKeyword(EBNFToken &token);
+    void registerTargetScannerKeywordsFromFile();
     void printTargetScannerTokens();
+    void printTargetScannerKeywords();
 
     EBNFScanner *scanner;
     EBNFToken token;
     QList<BNFRule*> rules;
     QStringList targetScannerTokens;
+    QStringList targetScannerKeywords;
 
     bool hasMissingRules;
 };

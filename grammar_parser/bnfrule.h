@@ -27,6 +27,8 @@ public:
     QList<EBNFToken> firstSet;
     QList<EBNFToken> followSet;
 
+    int ruleDefId; //to be used in target parser
+
     QString toString() const;
 };
 

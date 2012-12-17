@@ -1,5 +1,7 @@
 #include "firstfollowsetcomputer.h"
 #include "bnfruleitem.h"
+#include "ebnfscanner.h"
+#include "ebnfparser.h"
 #include <QDebug>
 
 FirstFollowSetComputer::FirstFollowSetComputer(const QList<BNFRule*> &bnfRules) :
@@ -106,9 +108,7 @@ bool FirstFollowSetComputer::addToFirstSet(BNFRule *target, const EBNFToken &tok
 
 void FirstFollowSetComputer::computeFollowSets()
 {
-    EBNFToken eofToken;
-    eofToken.tokenType=EBNFToken::E_O_F;
-    eofToken.lexeme="$";
+    EBNFToken eofToken=EBNFScanner::createEOFToken();
 
     bnfRules.at(0)->followSet.append(eofToken);
 
@@ -231,15 +231,7 @@ bool FirstFollowSetComputer::addToFollowSet(BNFRule *target, const EBNFToken &to
 
 BNFRule *FirstFollowSetComputer::findRuleByName(const QString &ruleName)
 {
-    for(int i=0; i<bnfRules.size(); ++i){
-        if(ruleName==bnfRules.at(i)->ruleName){
-            return bnfRules.at(i);
-        }
-    }
-
-    Q_ASSERT(false);
-
-    return 0;
+    return EBNFParser::findRuleByName(this->bnfRules, ruleName);
 }
 
 void FirstFollowSetComputer::printFirstSets()

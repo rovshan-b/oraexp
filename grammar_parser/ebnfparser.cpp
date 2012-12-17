@@ -37,6 +37,12 @@ void EBNFParser::parse()
 
     printTargetScannerTokens();
 
+    //registerTargetScannerKeywordsFromFile();
+    EBNFToken eofToken=EBNFScanner::createEOFToken();
+    registerTargetScannerKeyword(eofToken);
+    targetScannerKeywords.sort();
+    printTargetScannerKeywords();
+
     time.restart();
     findMissingRuleDefinitions();
     qDebug() << "checked rules in" << time.elapsed() << "ms";
@@ -91,8 +97,12 @@ bool EBNFParser::match(EBNFToken::EBNFTokenType tokenType)
     }else{
         token=scanner->getToken();
 
-        if(token.tokenType==EBNFToken::TERMINAL && !token.isLiteralTerminal){
-            registerTargetScannerToken(token);
+        if(token.tokenType==EBNFToken::TERMINAL){
+            if(!token.isLiteralTerminal){
+                registerTargetScannerToken(token);
+            }else{
+                registerTargetScannerKeyword(token);
+            }
         }
 
         return true;
@@ -370,10 +380,33 @@ void EBNFParser::registerTargetScannerToken(EBNFToken &token)
 {
     int ix=targetScannerTokens.indexOf(token.lexeme);
     if(ix!=-1){
-        token.nonLiteralTerminalDefId=ix+1;
+        token.nonLiteralTerminalDefId=ix+100000;
     }else{
         targetScannerTokens.append(token.lexeme);
         token.nonLiteralTerminalDefId=targetScannerTokens.size();
+    }
+}
+
+void EBNFParser::registerTargetScannerKeyword(EBNFToken &token)
+{
+    if(!targetScannerKeywords.contains(token.lexeme)){
+        targetScannerKeywords.append(token.lexeme);
+    }
+}
+
+void EBNFParser::registerTargetScannerKeywordsFromFile()
+{
+    QFile keywordsFile("/home/rovshan/Projects/Qt/OraExp/misc/keywords");
+    bool opened=keywordsFile.open(QIODevice::ReadOnly);
+    Q_ASSERT(opened);
+    QTextStream in(&keywordsFile);
+    while (!in.atEnd()) {
+        QString line = in.readLine().trimmed();
+        if(!line.isEmpty()){
+            if(!targetScannerKeywords.contains(line)){
+                targetScannerKeywords.append(line);
+            }
+        }
     }
 }
 
@@ -386,11 +419,42 @@ void EBNFParser::printTargetScannerTokens()
     foreach(const QString &tokenName, targetScannerTokens){
         qDebug() << "#define" << qPrintable(tokenName) << ++i;
     }
+    qDebug() << "#define E_O_F" << ++i;
 
     qDebug("-------end target scanner tokens----------");
+}
+
+void EBNFParser::printTargetScannerKeywords()
+{
+    qDebug("---------target scanner keywords------------");
+
+    if(targetScannerKeywords.size()>0){
+        qDebug("QStringList keywords;");
+    }
+    QString line;
+
+    foreach(const QString &keyword, targetScannerKeywords){
+        line = QString("keywords.append(\"%1\");").arg(keyword);
+        qDebug() << qPrintable(line);
+    }
+
+    qDebug("-------end target scanner keywords----------");
 }
 
 QList<BNFRule*> EBNFParser::getBNFRules() const
 {
     return this->rules;
+}
+
+BNFRule *EBNFParser::findRuleByName(const QList<BNFRule *> &bnfRules, const QString &ruleName)
+{
+    for(int i=0; i<bnfRules.size(); ++i){
+        if(ruleName==bnfRules.at(i)->ruleName){
+            return bnfRules.at(i);
+        }
+    }
+
+    Q_ASSERT(false);
+
+    return 0;
 }

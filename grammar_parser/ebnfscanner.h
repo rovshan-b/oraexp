@@ -25,6 +25,8 @@ public:
     int getCurrLineNo(){return currLineNo;}
     int getCurrLinePos(){return currLinePos;}
 
+    static EBNFToken createEOFToken();
+
 private:
     QChar getNextChar();
     void ungetChar();

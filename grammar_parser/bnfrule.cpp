@@ -2,7 +2,7 @@
 #include "ebnftoken.h"
 #include "bnfruleitem.h"
 
-BNFRule::BNFRule() : isStartRule(false), subruleCount(0), isReachableFromStartSymbol(false)
+BNFRule::BNFRule() : isStartRule(false), subruleCount(0), isReachableFromStartSymbol(false), ruleDefId(-1)
 {
 
 }

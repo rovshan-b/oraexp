@@ -18,11 +18,11 @@ public:
     DFA(const QList<BNFRule*> &bnfRules);
     ~DFA();
 
-private:
     QList<BNFRule*> bnfRules;
     QList<DFAItem*> dfaItems;
     QList<DFAState*> states;
 
+private:
     DFAState *createDFAState();
     void augmentStartRule();
     void generateDFAItems();
@@ -41,6 +41,8 @@ private:
     void closeItems();
     DFAState *createTmpStateWithNonGrammarSymbol(DFAItem *item) const;
     void closure_lalr1(DFAState *state) const;
+    void checkForConflicts();
+    bool hasIntersectingLookaheads(DFAState *state, DFAItem *first, DFAItem *second) const;
 
     QList<DFAItem*> findAllInitialDFAItemsForRule(const QString &ruleName) const;
     DFAItem *findDFAItem(BNFRule *rule, int altIx, int position) const;
@@ -50,6 +52,7 @@ private:
 
     EBNFToken createNonGrammarToken() const;
 
+    void printoutTargetParserRules();
     void printoutLookaheadsPropagationTable();
     void printoutDFA();
     void printoutState(DFAState *state);

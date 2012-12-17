@@ -130,3 +130,13 @@ EBNFToken EBNFScanner::getToken()
 
     return token;
 }
+
+EBNFToken EBNFScanner::createEOFToken()
+{
+    EBNFToken eofToken;
+    eofToken.tokenType=EBNFToken::E_O_F;
+    //eofToken.isLiteralTerminal=false;
+    eofToken.lexeme="$";
+
+    return eofToken;
+}
