@@ -174,7 +174,7 @@ QString DFAState::toString() const
         QString itemDesc = item->toString();
         str.append(itemDesc);
         QList<EBNFToken> itemLookaheads=lookaheads.value(item);
-        str.append(QString(qMax(10, 50-itemDesc.size()), ' '));
+        str.append(QString(qMax(10, 80-itemDesc.size()), ' '));
         for(int k=0; k<itemLookaheads.size(); ++k){
             str.append(itemLookaheads.at(k).lexeme);
 
@@ -194,7 +194,7 @@ QString DFAState::toString() const
             QString sourceItemDesc = trans->sourceItem->toString();
             BNFRuleItem *currentRuleItem=trans->sourceItem->currentRuleItem();
             str.append(sourceItemDesc).
-                    append(QString(qMax(10, 50-sourceItemDesc.size()), ' '));
+                    append(QString(qMax(10, 80-sourceItemDesc.size()), ' '));
                     if(currentRuleItem->isTerminal){str.append("'");}
                     str.append(currentRuleItem->token.lexeme);
                     if(currentRuleItem->isTerminal){str.append("'");}

@@ -11,7 +11,9 @@ int main(int argc, char *argv[])
         qDebug("grammar file has missing rule definitions. exiting.");
     }else{
         DFA dfa(parser.getBNFRules());
-        ParsingTableBuilder(&dfa, parser.getTargetScannerKeywords());
+        if(!dfa.hasConflicts){
+            ParsingTableBuilder(&dfa, parser.getTargetScannerKeywords());
+        }
     }
     return 0;
 

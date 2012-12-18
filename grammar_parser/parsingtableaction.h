@@ -20,6 +20,8 @@ public:
     ActionType actionType;
     int stateOrRuleId;
 
+    int symbolCount; //only for reduce actions for rolling back to correct state
+
     QString getActionTypeAsString() const;
 };
 

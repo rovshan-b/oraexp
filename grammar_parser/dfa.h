@@ -22,6 +22,8 @@ public:
     QList<DFAItem*> dfaItems;
     QList<DFAState*> states;
 
+    bool hasConflicts;
+
 private:
     DFAState *createDFAState();
     void augmentStartRule();
@@ -61,6 +63,7 @@ private:
 
     QHash< QPair<DFAState*, DFAItem*>,
            QList< QPair<DFAState*, DFAItem* > > > lookaheadsPropagationTable;
+
 };
 
 #endif // DFA_H

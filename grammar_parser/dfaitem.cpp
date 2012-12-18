@@ -32,6 +32,15 @@ bool DFAItem::isKernelItem() const
     return position>0 || rule->isStartRule;
 }
 
+int DFAItem::getSymbolCount() const
+{
+    QList < BNFRuleItem * > items=rule->alternatives.at(altIx);
+    /*if(items.size()==1 && items.at(0)->isEpsilon()){
+        return 0;
+    }*/
+    return items.size();
+}
+
 BNFRuleItem *DFAItem::currentRuleItem() const
 {
     QList < BNFRuleItem * > items = rule->alternatives.at(altIx);

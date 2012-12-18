@@ -9,7 +9,7 @@
 #include <QtDebug>
 #include <QTime>
 
-DFA::DFA(const QList<BNFRule*> &bnfRules) : bnfRules(bnfRules), stateCounter(0)
+DFA::DFA(const QList<BNFRule*> &bnfRules) : bnfRules(bnfRules), hasConflicts(false), stateCounter(0)
 {
     QTime time;
     time.start();
@@ -19,7 +19,12 @@ DFA::DFA(const QList<BNFRule*> &bnfRules) : bnfRules(bnfRules), stateCounter(0)
         printoutTargetParserRules();
         FirstFollowSetComputer(this->bnfRules);
         generateDFAItems();
-        constructDFAforLR0();      
+        constructDFAforLR0();
+        //printoutDFA();
+        //hasConflicts=true;
+        if(hasConflicts){
+            return;
+        }
         constructDFAforLALR1();
         printoutDFA();
         checkForConflicts();
@@ -135,7 +140,8 @@ void DFA::checkTransitions()
                 stateTransitions[currentRuleItemLexeme]=transition->targetState;
             }else if(targetState!=transition->targetState){
                 qDebug() << "State" << state->stateId << "has transitions on same symbol to different states";
-                exit(1);
+                printoutState(state);
+                if(!hasConflicts){hasConflicts=true;}
             }
         }
     }
@@ -278,6 +284,9 @@ void DFA::setLookaheadPropagations(DFAState *state, DFAState *tmpState, DFAItem 
     for(int i=0; i<tmpState->dfaItems.size(); ++i){
         DFAItem *item=tmpState->dfaItems.at(i);
         DFATransition *transition=state->findTransitionOnDFAItem(item);
+        if(transition==0){ //complete epsilon item
+            continue;
+        }
         DFAState *targetState=transition->targetState;
         DFAItem *nextItem=findNextDFAItem(item);
         Q_ASSERT(nextItem);
@@ -324,6 +333,33 @@ void DFA::propagateLookaheads()
             }
         }
     }while(hasChanges);
+
+    //copy lookaheads to complete epsilon items
+    for(int i=0; i<states.size(); ++i){
+        DFAState *state=states.at(i);
+        for(int k=0; k<state->dfaItems.size(); ++k){
+            DFAItem *dfaItem=state->dfaItems.at(k);
+            if(dfaItem->isCompleteItem() || dfaItem->currentRuleItem()->isTerminal){
+                continue;
+            }
+
+            QList<DFAItem*> initItems = findAllInitialDFAItemsForRule(dfaItem->currentRuleItem()->pointsTo);
+            for(int l=0; l<initItems.size(); ++l){
+                DFAItem *initItem = initItems.at(l);
+                if(!initItem->currentRuleItem()->isEpsilon()){
+                    continue;
+                }
+
+                DFAItem *completeEpsilonItem=findNextDFAItem(initItem);
+                Q_ASSERT(state->contains(completeEpsilonItem));
+
+                QList<EBNFToken> currentLookaheads=state->lookaheads.value(dfaItem);
+                for(int m=0; m<currentLookaheads.size(); ++m){
+                    state->addLookahead(completeEpsilonItem, currentLookaheads.at(m));
+                }
+            }
+        }
+    }
 }
 
 void DFA::closeItems()
@@ -389,6 +425,10 @@ void DFA::closure_lalr1(DFAState *state) const
             QList<DFAItem*> initItems=findAllInitialDFAItemsForRule(lookFor);
             for(int k=0; k<initItems.size(); ++k){
                 DFAItem *initItem=initItems.at(k);
+                if(initItem->currentRuleItem()->isEpsilon()){
+                    initItem=findNextDFAItem(initItem);
+                }
+
                 if(!state->contains(initItem)){
                     state->addItem(initItem, false);
                     hasChanges=true;
@@ -422,6 +462,20 @@ void DFA::closure_lalr1(DFAState *state) const
             }
         }
     }while(hasChanges);
+
+    /*
+    //slide all epsilon items to complete items
+    for(int i=0; i<state->dfaItems.size(); ++i){
+        DFAItem *dfaItem=state->dfaItems.at(i);
+        if(!(dfaItem->isInitialItem() && dfaItem->currentRuleItem()->isEpsilon())){
+            continue;
+        }
+        DFAItem *slidedEpsilonItem=findNextDFAItem(dfaItem);
+        state->dfaItems.removeOne(dfaItem);
+        state->dfaItems.append(slidedEpsilonItem);
+        state->lookaheads[slidedEpsilonItem]=state->lookaheads[dfaItem];
+        state->lookaheads.remove(dfaItem);
+    }*/
 }
 
 void DFA::checkForConflicts()
@@ -433,26 +487,21 @@ void DFA::checkForConflicts()
 
         for(int k=0; k<state->dfaItems.size(); ++k){
             DFAItem *dfaItem=state->dfaItems.at(k);
-            BNFRuleItem *ruleItem=dfaItem->currentRuleItem();
+            //BNFRuleItem *ruleItem=dfaItem->currentRuleItem();
 
             for(int j=k+1; j<state->dfaItems.size(); ++j){
                 DFAItem *dfaItemToCheck=state->dfaItems.at(j);
-                BNFRuleItem *ruleItemToCheck=dfaItemToCheck->currentRuleItem();
+                //BNFRuleItem *ruleItemToCheck=dfaItemToCheck->currentRuleItem();
 
                 bool conflictPossible = (hasIntersectingLookaheads(state, dfaItem, dfaItemToCheck));
                 if(!conflictPossible){
                     continue;
                 }
 
-                //check for shift shift conflict
-                if(!dfaItem->isCompleteItem() && !dfaItemToCheck->isCompleteItem() &&
-                        ruleItem->isTerminal && ruleItemToCheck->isTerminal &&
-                        ruleItem->token==ruleItemToCheck->token){
-                    qDebug() << "State -" << state->stateId << "has shift shift conflict on items"
-                             << dfaItem->toString(false) << "and" << dfaItemToCheck->toString(false);
-                }else if(dfaItem->isCompleteItem() && dfaItemToCheck->isCompleteItem()){ //check for reduce reduce conflict
+                if(dfaItem->isCompleteItem() && dfaItemToCheck->isCompleteItem()){ //check for reduce reduce conflict
                     qDebug() << "State -" << state->stateId << "has reduce reduce conflict on items"
                              << dfaItem->toString(false) << "and" << dfaItemToCheck->toString(false);
+                    if(!hasConflicts){hasConflicts=true;}
                 }else if((dfaItem->isCompleteItem() && !dfaItemToCheck->isCompleteItem()) ||
                          (!dfaItem->isCompleteItem() && dfaItemToCheck->isCompleteItem())){ //shift reduce conflict
                     qDebug() << "State -" << state->stateId << "has shift reduce conflict on items"

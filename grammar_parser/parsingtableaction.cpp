@@ -1,12 +1,12 @@
 #include "parsingtableaction.h"
 
-ParsingTableAction::ParsingTableAction() : stateOrRuleId(-1)
+ParsingTableAction::ParsingTableAction() : stateOrRuleId(-1), symbolCount(-1)
 {
 }
 
 bool ParsingTableAction::operator ==(const ParsingTableAction &other) const
 {
-    if(actionType==other.actionType && stateOrRuleId==other.stateOrRuleId){
+    if(actionType==other.actionType && stateOrRuleId==other.stateOrRuleId && symbolCount==other.symbolCount){
         return true;
     }
 

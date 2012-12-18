@@ -46,30 +46,18 @@ void ParsingTableBuilder::createParsingTable()
             BNFRuleItem *ruleItem=transition->sourceItem->currentRuleItem();
 
             if(ruleItem->isTerminal){
-                ParsingTableAction *action=new ParsingTableAction();
-                action->actionType=ParsingTableAction::Shift;
-                action->stateOrRuleId=transition->targetState->stateId;
-
                 if(ruleItem->token.isLiteralTerminal){
                     int keywordIx=getKeywordIx(ruleItem->token.lexeme);
-                    if(!row->actions->contains(keywordIx)){ //met transition to same state on same terminal from different dfa items
-                        (*row->actions)[keywordIx]=action;
-                    }else{
-                        delete action;
-                    }
+                    row->addAction(keywordIx, ParsingTableAction::Shift, transition->targetState->stateId);
                 }else{
                     int termDefId=ruleItem->token.nonLiteralTerminalDefId;
-                    if(!row->actions->contains(termDefId)){
-                        (*row->actions)[termDefId]=action;
-                    }else{
-                        delete action;
-                    }
+                    row->addAction(termDefId, ParsingTableAction::Shift, transition->targetState->stateId);
 
                 }
             }else{
                 int ruleDefId=EBNFParser::findRuleByName(dfa->bnfRules, ruleItem->pointsTo)->ruleDefId;
                 Q_ASSERT(ruleDefId<=dfa->bnfRules.size());
-                row->gotos[ruleDefId]=transition->targetState->stateId;
+                row->addGoto(ruleDefId, transition->targetState->stateId);
             }
         }
 
@@ -81,11 +69,8 @@ void ParsingTableBuilder::createParsingTable()
 
             if(dfaItem->rule->ruleDefId==1 &&
                     state->lookaheads.value(dfaItem).contains(eofToken)){ //there can be only one complete item with start rule (accepting rule)
-                ParsingTableAction *action=new ParsingTableAction();
-                action->actionType=ParsingTableAction::Accept;
                 int keywordIx=getKeywordIx(eofToken.lexeme);
-                Q_ASSERT(!(*row->actions).contains(keywordIx));
-                (*row->actions)[keywordIx]=action;
+                row->addAction(keywordIx, ParsingTableAction::Accept, -1);
 
                 continue;
             }
@@ -93,17 +78,12 @@ void ParsingTableBuilder::createParsingTable()
             QList<EBNFToken> lookaheads=state->lookaheads.value(dfaItem);
             Q_ASSERT(lookaheads.size()>0);
             for(int l=0; l<lookaheads.size(); ++l){
-                ParsingTableAction *action=new ParsingTableAction();
-                action->actionType=ParsingTableAction::Reduce;
-                action->stateOrRuleId=dfaItem->rule->ruleDefId;
                 int keywordIx=getKeywordIx(lookaheads.at(l).lexeme);
-                if(!row->actions->contains(keywordIx)){
-                    (*row->actions)[keywordIx]=action;
-                }else{
-                    delete action;
-                }
+                row->addAction(keywordIx, ParsingTableAction::Reduce, dfaItem->rule->ruleDefId, dfaItem->getSymbolCount());
             }
         }
+
+        row->sortActions();
     }
 }
 
@@ -120,10 +100,7 @@ void ParsingTableBuilder::compactParsingTable()
             if(rowToCompare->ownsActions && row->hasEqualActions(rowToCompare)){
                 qDebug() << "replacing actions of state" << rowToCompare->stateId << "to actions of state" << row->stateId;
 
-                qDeleteAll(rowToCompare->actions->values());
-                delete rowToCompare->actions;
-                rowToCompare->actions=row->actions;
-                rowToCompare->ownsActions=false;
+                rowToCompare->replaceActionsWith(row);
 
                 ++deletedActionRows;
             }
@@ -154,23 +131,6 @@ void ParsingTableBuilder::printoutParsingTable() const
     qDebug("------------Parsing table-------------");
 
     for(int i=0; i<tableRows.size(); ++i){
-        ParsingTableRow *row=tableRows.at(i);
-        qDebug() << "State" << row->stateId;
-        qDebug() << "   Actions:";
-        QList<int> actionKeys=row->actions->keys();
-        for(int k=0; k<actionKeys.size(); ++k){
-            ParsingTableAction *action=row->actions->value(actionKeys.at(k));
-            qDebug() << "      on " << keywords.at(actionKeys.at(k)) << action->getActionTypeAsString()
-                     << action->stateOrRuleId;
-        }
-
-        qDebug() << "   Gotos:";
-        QList<int> gotoKeys=row->gotos.keys();
-        for(int l=0; l<gotoKeys.size(); ++l){
-            int ruleDefId=gotoKeys.at(l);
-            int stateId=row->gotos.value(ruleDefId);
-            Q_ASSERT(ruleDefId!=-1);
-            qDebug() << "      on " << dfa->bnfRules.at(ruleDefId-1)->ruleName << stateId;
-        }
+        tableRows.at(i)->printout(dfa, &keywords);
     }
 }

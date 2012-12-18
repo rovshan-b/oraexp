@@ -25,6 +25,7 @@ public:
     bool isInitialItem() const;
     bool isCompleteItem() const;
     bool isKernelItem() const;
+    int getSymbolCount() const;
 
     BNFRuleItem *currentRuleItem() const;
     bool pointsTo(const QString &bnfRuleName) const;
