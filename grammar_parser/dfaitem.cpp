@@ -35,9 +35,9 @@ bool DFAItem::isKernelItem() const
 int DFAItem::getSymbolCount() const
 {
     QList < BNFRuleItem * > items=rule->alternatives.at(altIx);
-    /*if(items.size()==1 && items.at(0)->isEpsilon()){
+    if(items.size()==1 && items.at(0)->isEpsilon()){
         return 0;
-    }*/
+    }
     return items.size();
 }
 

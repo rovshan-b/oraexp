@@ -35,11 +35,21 @@ void EBNFParser::parse()
     qDebug() << "parsed ebnf rules in" << time.elapsed() << "ms";
     qDebug() << "rule count:" << rules.size();
 
+    EBNFToken errToken;
+    errToken.tokenType=EBNFToken::ERR;
+    errToken.lexeme="ERR";
+    errToken.isLiteralTerminal=false;
+    registerTargetScannerToken(errToken);
+
+    EBNFToken eofToken=EBNFScanner::createEOFToken();
+    eofToken.lexeme="E_O_F";
+    registerTargetScannerToken(eofToken);
+
     printTargetScannerTokens();
 
     //registerTargetScannerKeywordsFromFile();
-    EBNFToken eofToken=EBNFScanner::createEOFToken();
-    registerTargetScannerKeyword(eofToken);
+    //EBNFToken eofToken=EBNFScanner::createEOFToken();
+    //registerTargetScannerKeyword(eofToken);
     targetScannerKeywords.sort();
     printTargetScannerKeywords();
 
@@ -267,6 +277,7 @@ BNFRuleItem *EBNFParser::convertToKleeneItem(const QString &newRuleName, BNFRule
     //add pointer to X
     r->addRuleItem(createRulePointerItem(r));
     //add pointer to E
+    item->token.lexeme=item->pointsTo;
     r->addRuleItem(item);
 
     //return item to point to X
@@ -283,6 +294,7 @@ BNFRuleItem *EBNFParser::convertToOneOrMoreItem(const QString &newRuleName, BNFR
     r->startAlternatives();
 
     //add pointer to copy of E
+    item->token.lexeme=item->pointsTo;
     r->addRuleItem(new BNFRuleItem(*item));
 
     //start new alternatives section
@@ -314,6 +326,7 @@ BNFRuleItem *EBNFParser::convertToZeroOrOneItem(const QString &newRuleName, BNFR
     r->startAlternatives();
 
     //add pointer to E
+    item->token.lexeme=item->pointsTo;
     r->addRuleItem(item);
 
     //return item to point to X
@@ -378,12 +391,14 @@ void EBNFParser::printoutRules(){
 
 void EBNFParser::registerTargetScannerToken(EBNFToken &token)
 {
-    int ix=targetScannerTokens.indexOf(token.lexeme);
-    if(ix!=-1){
-        token.nonLiteralTerminalDefId=ix+100000;
-    }else{
-        targetScannerTokens.append(token.lexeme);
-        token.nonLiteralTerminalDefId=targetScannerTokens.size();
+    int ix=targetScannerTokens.indexOf(token);
+    if(ix==-1){
+        token.nonLiteralTerminalDefId=NON_LITERAL_START_IX+targetScannerTokens.size();
+        targetScannerTokens.append(token);
+
+        if(token.tokenType==EBNFToken::E_O_F){
+            this->eofTokenId=token.nonLiteralTerminalDefId;
+        }
     }
 }
 
@@ -414,12 +429,9 @@ void EBNFParser::printTargetScannerTokens()
 {
     qDebug("---------target scanner tokens------------");
 
-    int i=0;
-
-    foreach(const QString &tokenName, targetScannerTokens){
-        qDebug() << "#define" << qPrintable(tokenName) << ++i;
+    foreach(const EBNFToken &token, targetScannerTokens){
+        qDebug() << "#define" << qPrintable(token.lexeme) << token.nonLiteralTerminalDefId;
     }
-    qDebug() << "#define E_O_F" << ++i;
 
     qDebug("-------end target scanner tokens----------");
 }
@@ -430,6 +442,7 @@ void EBNFParser::printTargetScannerKeywords()
 
     if(targetScannerKeywords.size()>0){
         qDebug("QStringList keywords;");
+        qDebug() << qPrintable(QString("keywords.reserve(%1);").arg(targetScannerKeywords.size()));
     }
     QString line;
 

@@ -10,9 +10,12 @@ int main(int argc, char *argv[])
     if(parser.getHasMissingRules()){
         qDebug("grammar file has missing rule definitions. exiting.");
     }else{
-        DFA dfa(parser.getBNFRules());
+        DFA dfa(parser.getBNFRules(), parser.eofTokenId);
         if(!dfa.hasConflicts){
-            ParsingTableBuilder(&dfa, parser.getTargetScannerKeywords());
+            ParsingTableBuilder(&dfa,
+                                parser.getTargetScannerKeywords(),
+                                parser.getTargetScannerTokens(),
+                                parser.eofTokenId);
         }
     }
     return 0;

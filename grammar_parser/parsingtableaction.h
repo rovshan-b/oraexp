@@ -13,7 +13,7 @@ public:
         Accept
     };
 
-    ParsingTableAction();
+    explicit ParsingTableAction();
 
     bool operator==(const ParsingTableAction &other) const;
 

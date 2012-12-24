@@ -23,18 +23,14 @@ public:
 
     void replaceActionsWith(ParsingTableRow *replaceWithRow);
 
-    void printout(const DFA *dfa, const QStringList *keywords);
 
-    void sortActions();
-
-private:
     //terminal,action
-    QHash<int, QList<ParsingTableAction*> > *actions;
+    QHash<int, ParsingTableAction* > *actions;
     //rule,target state id
     QHash<int,int> gotos;
 
-    bool hasAction(int terminalOrKeywordId, ParsingTableAction::ActionType actionType, int stateOrRuleId, int symbolCount) const;
-    void clearActions();
+    //bool hasAction(int terminalOrKeywordId, ParsingTableAction::ActionType actionType, int stateOrRuleId, int symbolCount) const;
+    void removeAction();
 
 };
 

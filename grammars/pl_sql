@@ -1,1 +1,2 @@
-s : 'i' s 'e' s | 'i' s | 'a' ;
+create_code : ( create_package ) + ;
+create_package : 'CREATE' ('OR' 'REPLACE') ? 'PACKAGE' ;

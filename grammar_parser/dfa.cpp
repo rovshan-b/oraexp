@@ -9,7 +9,7 @@
 #include <QtDebug>
 #include <QTime>
 
-DFA::DFA(const QList<BNFRule*> &bnfRules) : bnfRules(bnfRules), hasConflicts(false), stateCounter(0)
+DFA::DFA(const QList<BNFRule*> &bnfRules, int eofTokenId) : bnfRules(bnfRules), hasConflicts(false), stateCounter(0), eofTokenId(eofTokenId)
 {
     QTime time;
     time.start();
@@ -126,24 +126,31 @@ void DFA::computeTransitions(DFAState *state)
     }
 }
 
+int qHash(const EBNFToken &token)
+{
+    return qHash(token.lexeme)+token.tokenType+token.isLiteralTerminal+token.nonLiteralTerminalDefId;
+}
+
 void DFA::checkTransitions()
 {
     for(int i=0; i<states.size(); ++i){
         DFAState *state=states.at(i);
-        QHash<QString,DFAState*> stateTransitions;
+        QHash<EBNFToken,DFAState*> stateTransitions;
         for(int k=0; k<state->transitions.size(); ++k){
             DFATransition *transition=state->transitions.at(k);
 
-            QString currentRuleItemLexeme = transition->sourceItem->currentRuleItem()->token.toString();
-            DFAState *targetState=stateTransitions.value(currentRuleItemLexeme);
+            EBNFToken currentRuleItemToken = transition->sourceItem->currentRuleItem()->token;
+            DFAState *targetState=stateTransitions.value(currentRuleItemToken);
             if(targetState==0){
-                stateTransitions[currentRuleItemLexeme]=transition->targetState;
+                stateTransitions[currentRuleItemToken]=transition->targetState;
             }else if(targetState!=transition->targetState){
-                qDebug() << "State" << state->stateId << "has transitions on same symbol to different states";
-                printoutState(state);
+                qDebug() << "State" << state->stateId << "has transitions on" << currentRuleItemToken.toString() << "to different states";
                 if(!hasConflicts){hasConflicts=true;}
             }
         }
+    }
+    if(hasConflicts){
+        printoutDFA();
     }
 }
 
@@ -253,6 +260,23 @@ void DFA::constructDFAforLALR1()
 {
     computeLookaheadPropagations();
     propagateLookaheads();
+
+    for(int i=0; i<states.size(); ++i){
+        DFAState *state=states.at(i);
+        QList<DFAItem*> keys=state->lookaheads.keys();
+        for(int k=0; k<keys.size(); ++k){
+            DFAItem *dfaItem=keys.at(k);
+            QList<EBNFToken> &itemLookaheads=state->lookaheads[dfaItem];
+            for(int j=0; j<itemLookaheads.size(); ++j){
+                const EBNFToken &la=itemLookaheads.at(j);
+                if(la.tokenType==EBNFToken::E_O_F){
+                    itemLookaheads[j].isLiteralTerminal=false;
+                    itemLookaheads[j].nonLiteralTerminalDefId=this->eofTokenId;
+                }
+            }
+        }
+    }
+
     closeItems();
 }
 
@@ -502,8 +526,8 @@ void DFA::checkForConflicts()
                     qDebug() << "State -" << state->stateId << "has reduce reduce conflict on items"
                              << dfaItem->toString(false) << "and" << dfaItemToCheck->toString(false);
                     if(!hasConflicts){hasConflicts=true;}
-                }else if((dfaItem->isCompleteItem() && !dfaItemToCheck->isCompleteItem()) ||
-                         (!dfaItem->isCompleteItem() && dfaItemToCheck->isCompleteItem())){ //shift reduce conflict
+                }else if((dfaItem->isCompleteItem() && !dfaItemToCheck->isCompleteItem() && dfaItemToCheck->currentRuleItem()->isTerminal) ||
+                         (!dfaItem->isCompleteItem() && dfaItemToCheck->isCompleteItem()  && dfaItem->currentRuleItem()->isTerminal)){ //shift reduce conflict
                     qDebug() << "State -" << state->stateId << "has shift reduce conflict on items"
                              << dfaItem->toString(false) << "and" << dfaItemToCheck->toString(false);
                 }

@@ -12,6 +12,14 @@ DbObjectReferencesViewer::DbObjectReferencesViewer(bool references, DbUiManager 
 
 QList<Param *> DbObjectReferencesViewer::getQueryParams()
 {
+    DbTreeModel::DbTreeNodeType type=itemType;
+
+    if(type==DbTreeModel::PackageSpec){
+        type=DbTreeModel::Package;
+    }else if(type==DbTreeModel::TypeSpec){
+        type=DbTreeModel::Type;
+    }
+
     return DbObjectViewerGenericTab::getQueryParams() <<
-           new Param(":object_type", DbUtil::getDbObjectTypeNameByNodeType(itemType));
+           new Param(":object_type", DbUtil::getDbObjectTypeNameByNodeType(type));
 }

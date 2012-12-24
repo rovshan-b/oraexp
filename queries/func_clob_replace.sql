@@ -1,37 +1,42 @@
+    procedure lob_replace( p_lob in out clob,
+                       p_what in varchar2,
+                       p_with in varchar2 )
+    as
+        n        number;
+        l_offset number := 1;
+    begin
+       loop
+           n := dbms_lob.instr( p_lob, p_what, l_offset );
+           if ( nvl(n,0) > 0 )
+           then
+               if ( (n+length(p_what)) < dbms_lob.getlength(p_lob) )
+               then
+                  dbms_lob.copy( p_lob,
+                                 p_lob,
+                                 dbms_lob.getlength(p_lob),
+                                 n+length(p_with),
+                                 n+length(p_what) );
+               end if;
+                                                                                          
+               dbms_lob.write( p_lob, length(p_with), n, p_with );
+               if ( length(p_what) > length(p_with) )
+               then
+                   dbms_lob.trim( p_lob,
+                      dbms_lob.getlength(p_lob)-(length(p_what)-length(p_with)) );
+               end if;
+               l_offset := l_offset + length(p_with);
+           else
+               exit;
+           end if;
+       end loop;
+    end;
+
     FUNCTION clob_replace
     ( p_clob          IN CLOB,
       p_what          IN VARCHAR2,
-      p_with          IN VARCHAR2 := NULL ) RETURN CLOB IS
-
-      c_whatLen       CONSTANT PLS_INTEGER := LENGTH(p_what);
-      c_withLen       PLS_INTEGER := LENGTH(p_with);
-
-      l_return        CLOB;
-      l_segment       CLOB;
-      l_pos           PLS_INTEGER := 1-c_withLen;
-      l_offset        PLS_INTEGER := 1;
-
+      p_with          IN VARCHAR2 ) RETURN CLOB IS
+      l_result clob := p_clob;
     BEGIN
-      if c_withLen is null then
-        c_withLen := 0;
-        l_pos := 1-c_withLen;
-      end if;
-
-      IF p_what IS NOT NULL THEN
-        WHILE l_offset < DBMS_LOB.GETLENGTH(p_clob) LOOP
-          l_segment := DBMS_LOB.SUBSTR(p_clob,32767,l_offset);
-          LOOP
-            l_pos := DBMS_LOB.INSTR(l_segment,p_what,l_pos+c_withLen);
-            EXIT WHEN (NVL(l_pos,0) = 0) OR (l_pos = 32767-c_withLen);
-            l_segment := TO_CLOB( DBMS_LOB.SUBSTR(l_segment,l_pos-1)
-                                ||p_with
-                                ||DBMS_LOB.SUBSTR(l_segment,32767-c_whatLen-l_pos-c_whatLen+1,l_pos+c_whatLen));
-          END LOOP;
-          l_return := l_return||l_segment;
-          l_offset := l_offset + 32767 - c_whatLen;
-        END LOOP;
-      END IF;
-
-      RETURN(l_return);
-
+      lob_replace(l_result, p_what, p_with);
+      return l_result;
     END;

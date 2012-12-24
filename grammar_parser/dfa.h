@@ -15,7 +15,7 @@ class DFATransition;
 class DFA
 {
 public:
-    DFA(const QList<BNFRule*> &bnfRules);
+    DFA(const QList<BNFRule*> &bnfRules, int eofTokenId);
     ~DFA();
 
     QList<BNFRule*> bnfRules;
@@ -63,6 +63,8 @@ private:
 
     QHash< QPair<DFAState*, DFAItem*>,
            QList< QPair<DFAState*, DFAItem* > > > lookaheadsPropagationTable;
+
+    int eofTokenId;
 
 };
 

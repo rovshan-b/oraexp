@@ -3,6 +3,8 @@
 
 #include <QString>
 
+#define NON_LITERAL_START_IX 100000
+
 class EBNFToken
 {
 public:

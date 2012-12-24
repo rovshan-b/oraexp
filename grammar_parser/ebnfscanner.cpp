@@ -62,7 +62,7 @@ EBNFToken EBNFScanner::getToken()
                 else if(c=='+') token.tokenType=EBNFToken::PLUS;
                 else if(c=='*') token.tokenType=EBNFToken::STAR;
                 else if(c=='?') token.tokenType=EBNFToken::QUESTION;
-                else if(c.isNull()) token.tokenType=EBNFToken::E_O_F;
+                else if(c.isNull()) {token.tokenType=EBNFToken::E_O_F;token.isLiteralTerminal=false;}
                 else token.tokenType=EBNFToken::ERR;
             }
             break;
@@ -135,7 +135,7 @@ EBNFToken EBNFScanner::createEOFToken()
 {
     EBNFToken eofToken;
     eofToken.tokenType=EBNFToken::E_O_F;
-    //eofToken.isLiteralTerminal=false;
+    eofToken.isLiteralTerminal=false;
     eofToken.lexeme="$";
 
     return eofToken;
