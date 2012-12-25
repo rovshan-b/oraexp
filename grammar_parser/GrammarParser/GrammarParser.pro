@@ -18,7 +18,6 @@ TEMPLATE = app
 SOURCES += main.cpp \
     ../bnfrule.cpp \
     ../bnfruleitem.cpp \
-    ../codescanner.cpp \
     ../dfa.cpp \
     ../dfaitem.cpp \
     ../dfastate.cpp \
@@ -34,7 +33,6 @@ SOURCES += main.cpp \
 HEADERS += \
     ../bnfrule.h \
     ../bnfruleitem.h \
-    ../codescanner.h \
     ../dfa.h \
     ../dfaitem.h \
     ../dfastate.h \
