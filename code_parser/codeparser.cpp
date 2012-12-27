@@ -1,6 +1,6 @@
 #include "codeparser.h"
 
-CodeParser::CodeParser() : scanner(scanner)
+CodeParser::CodeParser(CodeScanner *scanner) : scanner(scanner)
 {
 }
 

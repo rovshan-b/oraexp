@@ -6,7 +6,7 @@ CodeParserFactory::CodeParserFactory()
 {
 }
 
-CodeParser *CodeParserFactory::createParser(const QString &language, ITextReader *textReader)
+CodeParser *CodeParserFactory::createParser(const QString &language, TextReaderBase *textReader)
 {
     CodeParser *parser=0;
 

@@ -1,29 +1,33 @@
 #include "textcursorreader.h"
 
-TextCursorReader::TextCursorReader(const QTextCursor &cursor) : cursor(cursor)
+TextCursorReader::TextCursorReader(const QTextCursor &cursor) : cursor(cursor), started(false)
 {
 }
 
-QChar TextCursorReader::getNextCharacter()
+QString TextCursorReader::getNextLine()
 {
     Q_ASSERT(!isEOF());
 
-    cursor.clearSelection();
-    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-    QString str=cursor.selectedText();
-    Q_ASSERT(str.size()==1);
+    if(started){
+        cursor.movePosition(QTextCursor::NextBlock);
+    }else{
+        cursor.movePosition(QTextCursor::StartOfLine);
+        started=true;
+    }
+    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
 
-    return str.at(0);
-}
+    QString line = cursor.selectedText();
+    line.append("\n");
 
-void TextCursorReader::ungetCharacter()
-{
-    Q_ASSERT(!cursor.atStart());
-
-    cursor.movePosition(QTextCursor::PreviousCharacter);
+    return line;
 }
 
 bool TextCursorReader::isEOF() const
 {
     return cursor.atEnd();
+}
+
+bool TextCursorReader::atStart() const
+{
+    return cursor.atStart();
 }

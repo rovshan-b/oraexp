@@ -187,7 +187,7 @@ void ParsingTableBuilder::printoutForTargetParser()
                 continue;
             }
 
-            QString varName=QString("action_%1_%2").arg(row->stateId).arg(key);
+            QString varName=QString("action_%1_%2").arg(row->stateId).arg(getTokenName(key));
             actionVarNames[action]=varName;
             printoutActionCode(varName, action);
         }
@@ -231,7 +231,7 @@ void ParsingTableBuilder::printoutRowCode(ParsingTableRow *row) const
         QString actionVarName=actionVarNames.value(action);
         Q_ASSERT(!actionVarName.isEmpty());
 
-        decl.append(QString("%1.actions[%2] = %3;\n").arg(varName).arg(key).arg(actionVarName));
+        decl.append(QString("%1.actions[%2] = %3;\n").arg(varName).arg(getTokenName(key)).arg(actionVarName));
     }
 
     QList<int> gotoKeys=row->gotos.keys();
@@ -244,4 +244,17 @@ void ParsingTableBuilder::printoutRowCode(ParsingTableRow *row) const
     decl.append(QString("rows.append(%1);\n").arg(varName));
 
     qDebug() << qPrintable(decl);
+}
+
+QString ParsingTableBuilder::getTokenName(int tokenId) const
+{
+    if(tokenId<NON_LITERAL_START_IX){ //it is keyword
+        return QString::number(tokenId);
+    }
+
+    int listIx = tokenId - NON_LITERAL_START_IX;
+
+    Q_ASSERT(listIx>=0 && listIx<tokens.size());
+
+    return tokens.at(listIx).lexeme;
 }

@@ -1,15 +1,15 @@
-#ifndef PLSQLDEFINES_H
-#define PLSQLDEFINES_H
+#ifndef PLSQLTOKENS_H
+#define PLSQLTOKENS_H
 
 #define PLS_QUOTED_STRING 1
 #define PLS_ID 2
 #define PLS_SEMI 3
 #define PLS_COLON 4
-#define PLS_DOUBLE_DOT 5
-#define PLS_DOT 6
+#define PLS_DOT 5
+#define PLS_DOUBLE_DOT 6
 #define PLS_COMMA 7
-#define PLS_EXPONENT 8
-#define PLS_ASTERISK 9
+#define PLS_ASTERISK 8
+#define PLS_EXPONENT 9
 #define PLS_AT_SIGN 10
 #define PLS_LPAREN 11
 #define PLS_RPAREN 12
@@ -26,15 +26,16 @@
 #define PLS_ARROW 23
 #define PLS_VERTBAR 24
 #define PLS_DOUBLEVERTBAR 25
-#define PLS_NOTEQ 26
+#define PLS_NOT_EQ 26
 #define PLS_LESS_THAN 27
 #define PLS_LESS_THAN_EQUAL 28
 #define PLS_GREATER_THAN 29
 #define PLS_GREATER_THAN_EQUAL 30
 #define PLS_NUMBER 31
-#define PLS_QUOTE 32
-#define PLS_DOUBLEQUOTED_STRING 33
-#define PLS_SL_COMMENT 34
-#define PLS_ML_COMMENT 35
+#define PLS_DOUBLEQUOTED_STRING 32
+#define PLS_SL_COMMENT 33
+#define PLS_ML_COMMENT 34
+#define PLS_E_O_F 35
+#define PLS_ERROR 36
 
-#endif // PLSQLDEFINES_H
+#endif // PLSQLTOKENS_H

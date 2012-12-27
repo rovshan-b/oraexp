@@ -1,33 +1,38 @@
 #ifndef CODESCANNER_H
 #define CODESCANNER_H
 
-class ITextReader;
+class TextReaderBase;
 
 #include <QChar>
 
 class CodeScanner
 {
 public:
-    CodeScanner(ITextReader *textReader);
+    CodeScanner(TextReaderBase *textReader);
     virtual ~CodeScanner();
 
     virtual int getNextToken()=0;
 
-    int getCurrPos(){return currPos;}
-    int getCurrLineNo(){return currLineNo;}
-    int getCurrLinePos(){return currLinePos;}
+    int getTokenStartPos(){return tokenStartPos;}
+    int getTokenEndPos(){return tokenEndPos;}
+    int getTokenStartLine(){return tokenStartLine;}
+    int getTokenEndLine(){return tokenEndLine;}
+    int getTokenStartLinePos(){return tokenStartLinePos;}
+    int getTokenEndLinePos(){return tokenEndLinePos;}
 
-private:
-    ITextReader *textReader;
+    bool isNewline() const {return c=='\n' || c==0x2029;}
 
 protected:
-    int currPos;
-    int currLineNo;
-    int currLinePos;
+    TextReaderBase *textReader;
 
-    int tokenPos;
-    int tokenLineNo;
-    int tokenLinePos;
+    int tokenStartPos;
+    int tokenEndPos;
+    int tokenStartLine;
+    int tokenEndLine;
+    int tokenStartLinePos;
+    int tokenEndLinePos;
+
+    QChar c;
 
     QChar getNextChar();
     void ungetChar();

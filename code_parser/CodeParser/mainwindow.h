@@ -14,7 +14,13 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+protected:
+    void closeEvent ( QCloseEvent * event );
     
+private slots:
+    void on_actionScan_triggered();
+
 private:
     Ui::MainWindow *ui;
 };

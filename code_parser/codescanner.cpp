@@ -1,11 +1,14 @@
 #include "codescanner.h"
-#include "itextreader.h"
+#include "textreaderbase.h"
 
-CodeScanner::CodeScanner(ITextReader *textReader) :
+CodeScanner::CodeScanner(TextReaderBase *textReader) :
     textReader(textReader),
-    currPos(0),
-    currLineNo(0),
-    currLinePos(0)
+    tokenStartPos(0),
+    tokenEndPos(0),
+    tokenStartLine(0),
+    tokenEndLine(0),
+    tokenStartLinePos(0),
+    tokenEndLinePos(0)
 {
 }
 
@@ -16,11 +19,17 @@ CodeScanner::~CodeScanner()
 
 QChar CodeScanner::getNextChar()
 {
-    return textReader->getNextCharacter();
+    QChar c = textReader->getNextCharacter();
+
+    return c;
 }
 
 void CodeScanner::ungetChar()
 {
+    if(c.isNull()){
+        return;
+    }
+
     textReader->ungetCharacter();
 }
 

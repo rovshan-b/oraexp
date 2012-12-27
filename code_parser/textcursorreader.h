@@ -1,20 +1,23 @@
 #ifndef TEXTCURSORREADER_H
 #define TEXTCURSORREADER_H
 
-#include "itextreader.h"
+#include "textreaderbase.h"
 #include <QTextCursor>
 
-class TextCursorReader : public ITextReader
+class TextCursorReader : public TextReaderBase
 {
 public:
     TextCursorReader(const QTextCursor &cursor);
 
-    virtual QChar getNextCharacter();
-    virtual void ungetCharacter();
     virtual bool isEOF() const;
+    virtual bool atStart() const;
+
+protected:
+    virtual QString getNextLine();
 
 private:
     QTextCursor cursor;
+    bool started;
 };
 
 #endif // TEXTCURSORREADER_H

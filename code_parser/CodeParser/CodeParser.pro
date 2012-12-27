@@ -16,15 +16,18 @@ SOURCES += main.cpp\
     ../codescanner.cpp \
     ../codeparserfactory.cpp \
     ../plsql/plsqlparser.cpp \
-    ../textcursorreader.cpp
+    ../textcursorreader.cpp \
+    ../plsql/plsqlscanner.cpp \
+    ../textreaderbase.cpp
 
 HEADERS  += mainwindow.h \
     ../codeparser.h \
     ../codescanner.h \
     ../codeparserfactory.h \
     ../plsql/plsqlparser.h \
-    ../itextreader.h \
     ../textcursorreader.h \
-    ../plsql/plsqldefines.h
+    ../plsql/plsqltokens.h \
+    ../plsql/plsqlscanner.h \
+    ../textreaderbase.h
 
 FORMS    += mainwindow.ui

@@ -3,13 +3,13 @@
 
 class CodeParser;
 
-#include "itextreader.h"
+#include "textreaderbase.h"
 #include <QString>
 
 class CodeParserFactory
 {
 public:
-    static CodeParser *createParser(const QString &language, ITextReader *textReader);
+    static CodeParser *createParser(const QString &language, TextReaderBase *textReader);
 
 private:
     CodeParserFactory();

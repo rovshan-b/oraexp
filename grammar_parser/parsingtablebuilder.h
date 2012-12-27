@@ -36,6 +36,8 @@ private:
     void printoutActionCode(const QString &varName, ParsingTableAction *action) const;
     void printoutRowCode(ParsingTableRow *row) const;
 
+    QString getTokenName(int tokenId) const;
+
     //action,var name
     QHash<ParsingTableAction*, QString> actionVarNames;
 
