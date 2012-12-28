@@ -25,8 +25,8 @@ int PlSqlScanner::getNextToken()
 
         switch(state){
         case START:
-            if(isNewline()) {save=false; ++tokenStartPos;}
-            else if(c.isSpace()) {save=false; ++tokenStartPos;}
+            if(isNewline()) {save=false; ++tokenStartPos;++tokenStartLine;tokenStartLinePos=0;}
+            else if(c.isSpace()) {save=false; ++tokenStartPos;++tokenStartLinePos;}
             else if(c.isLetter()) {state=IN_ID;}
             else {
                 state = DONE;
@@ -39,7 +39,6 @@ int PlSqlScanner::getNextToken()
                 else if(c=='[') token=PLS_LBRACK;
                 else if(c == ']') token=PLS_RBRACK;
                 else if(c=='%') token=PLS_PERCENTAGE;
-                else if(c == '|') token=PLS_VERTBAR;
                 else if(c=='+') token=PLS_PLUS;
 
                 else if(c=='.') state=IN_DOUBLE_DOT;

@@ -9,7 +9,7 @@ QChar TextReaderBase::getNextCharacter()
     bool couldRead=true;
     if(buffer.isEmpty()){
         couldRead=readIntoBuffer();
-    }else if(bufferPos==buffer.size()-1){
+    }else if(bufferPos==buffer.size()){
         couldRead=readIntoBuffer();
         if(couldRead){
             ++lineNo;
@@ -23,6 +23,7 @@ QChar TextReaderBase::getNextCharacter()
     QChar nextChar=buffer.at(bufferPos);
     ++bufferPos;
     ++pos;
+    ++linePos;
 
     return nextChar;
 }
@@ -34,8 +35,9 @@ void TextReaderBase::ungetCharacter()
 
     --bufferPos;
     --pos;
+    --linePos;
 
-    if(buffer.at(bufferPos)=='\n'){
+    if(bufferPos-2>0 && buffer.at(bufferPos-2)=='\n'){
         --lineNo;
         int lastNewlineIx=buffer.lastIndexOf('\n', bufferPos-1);
         if(lastNewlineIx==-1){
@@ -57,6 +59,14 @@ bool TextReaderBase::readIntoBuffer()
 
     buffer.append(line);
     ++lineCountInBuffer;
+
+    if(lineCountInBuffer>5){
+        int newLineIx=buffer.indexOf('\n');
+        buffer.remove(0, newLineIx+1);
+        bufferPos-=newLineIx+1;
+
+        --lineCountInBuffer;
+    }
 
     return true;
 }
