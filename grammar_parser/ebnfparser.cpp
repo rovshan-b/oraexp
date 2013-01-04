@@ -37,12 +37,12 @@ void EBNFParser::parse()
 
     EBNFToken errToken;
     errToken.tokenType=EBNFToken::ERR;
-    errToken.lexeme="ERR";
+    errToken.lexeme="PLS_ERR";
     errToken.isLiteralTerminal=false;
     registerTargetScannerToken(errToken);
 
     EBNFToken eofToken=EBNFScanner::createEOFToken();
-    eofToken.lexeme="E_O_F";
+    eofToken.lexeme="PLS_E_O_F";
     registerTargetScannerToken(eofToken);
 
     printTargetScannerTokens();
@@ -399,6 +399,8 @@ void EBNFParser::registerTargetScannerToken(EBNFToken &token)
         if(token.tokenType==EBNFToken::E_O_F){
             this->eofTokenId=token.nonLiteralTerminalDefId;
         }
+    }else{
+        token.nonLiteralTerminalDefId=targetScannerTokens.at(ix).nonLiteralTerminalDefId;
     }
 }
 

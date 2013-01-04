@@ -30,7 +30,7 @@ private:
     int lineNo;
     int linePos;
 
-    int lineCountInBuffer;
+    //int lineCountInBuffer;
     int bufferPos;
 
     bool readIntoBuffer();

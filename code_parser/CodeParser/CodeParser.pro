@@ -18,7 +18,11 @@ SOURCES += main.cpp\
     ../plsql/plsqlparser.cpp \
     ../textcursorreader.cpp \
     ../plsql/plsqlscanner.cpp \
-    ../textreaderbase.cpp
+    ../textreaderbase.cpp \
+    ../parsingtable.cpp \
+    ../../grammar_parser/parsingtableaction.cpp \
+    ../../grammar_parser/parsingtablerow.cpp \
+    ../plsql/plsqlparsingtable.cpp
 
 HEADERS  += mainwindow.h \
     ../codeparser.h \
@@ -28,6 +32,10 @@ HEADERS  += mainwindow.h \
     ../textcursorreader.h \
     ../plsql/plsqltokens.h \
     ../plsql/plsqlscanner.h \
-    ../textreaderbase.h
+    ../textreaderbase.h \
+    ../parsingtable.h \
+    ../../grammar_parser/parsingtableaction.h \
+    ../../grammar_parser/parsingtablerow.h \
+    ../plsql/plsqlparsingtable.h
 
 FORMS    += mainwindow.ui

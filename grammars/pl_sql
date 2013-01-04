@@ -1,2 +1,2 @@
-create_code : ( create_package ) + ;
-create_package : 'CREATE' ('OR' 'REPLACE') ? 'PACKAGE' ;
+create_code : create_package ;
+create_package : 'CREATE' 'OR' 'REPLACE' 'PACKAGE' PLS_ID | 'CREATE' 'PACKAGE' PLS_ID;

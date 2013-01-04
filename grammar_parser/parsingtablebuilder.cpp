@@ -59,6 +59,7 @@ void ParsingTableBuilder::createParsingTable()
                     row->addAction(keywordIx, ParsingTableAction::Shift, transition->targetState->stateId);
                 }else{
                     int termDefId=ruleItem->token.nonLiteralTerminalDefId;
+                    Q_ASSERT(termDefId>=NON_LITERAL_START_IX);
                     row->addAction(termDefId, ParsingTableAction::Shift, transition->targetState->stateId);
                 }
             }else{
@@ -87,6 +88,7 @@ void ParsingTableBuilder::createParsingTable()
             for(int l=0; l<lookaheads.size(); ++l){
                 const EBNFToken &lookahead=lookaheads.at(l);
                 int keywordIx=lookahead.isLiteralTerminal ? getKeywordIx(lookahead.lexeme) : lookahead.nonLiteralTerminalDefId;
+                Q_ASSERT(keywordIx>=0);
                 row->addAction(keywordIx, ParsingTableAction::Reduce, dfaItem->rule->ruleDefId, dfaItem->getSymbolCount());
             }
         }
@@ -131,7 +133,11 @@ int ParsingTableBuilder::getKeywordIx(const QString &keyword) const
                                                caseInsensitiveLessThan);
     Q_ASSERT(it!=keywords.end());
 
-    return it-keywords.begin();
+    int ix = it-keywords.begin();
+
+    Q_ASSERT(ix>=0);
+
+    return ix;
 }
 
 void ParsingTableBuilder::printoutParsingTable() const
@@ -209,9 +215,9 @@ void ParsingTableBuilder::printoutForTargetParser()
 void ParsingTableBuilder::printoutActionCode(const QString &varName, ParsingTableAction *action) const
 {
     QString decl=QString("ParsingTableAction * %1 = new ParsingTableAction();\n").arg(varName);
-    decl.append(QString("%1.actionType = ParsingTableAction::%2;\n").arg(varName).arg(action->getActionTypeAsString()));
-    decl.append(QString("%1.stateOrRuleId = %2;\n").arg(varName).arg(QString::number(action->stateOrRuleId)));
-    decl.append(QString("%1.symbolCount = %2;\n").arg(varName).arg(QString::number(action->symbolCount)));
+    decl.append(QString("%1->actionType = ParsingTableAction::%2;\n").arg(varName).arg(action->getActionTypeAsString()));
+    decl.append(QString("%1->stateOrRuleId = %2;\n").arg(varName).arg(QString::number(action->stateOrRuleId)));
+    decl.append(QString("%1->symbolCount = %2;\n").arg(varName).arg(QString::number(action->symbolCount)));
 
     qDebug() << qPrintable(decl);
 }
@@ -220,8 +226,8 @@ void ParsingTableBuilder::printoutRowCode(ParsingTableRow *row) const
 {
     QString varName=QString("row_%1").arg(row->stateId);
     QString decl=QString("ParsingTableRow *%1 = new ParsingTableRow();\n").arg(varName);
-    decl.append(QString("%1.stateId = %2;\n").arg(varName).arg(row->stateId));
-    decl.append(QString("%1.ownsActions = %2;\n").arg(varName).arg(row->ownsActions ? "true" : "false"));
+    decl.append(QString("%1->stateId = %2;\n").arg(varName).arg(row->stateId));
+    decl.append(QString("%1->ownsActions = %2;\n").arg(varName).arg(row->ownsActions ? "true" : "false"));
     QList<int> actionKeys=row->actions->keys();
     for(int k=0; k<actionKeys.size(); ++k){
         int key=actionKeys.at(k);
@@ -231,14 +237,14 @@ void ParsingTableBuilder::printoutRowCode(ParsingTableRow *row) const
         QString actionVarName=actionVarNames.value(action);
         Q_ASSERT(!actionVarName.isEmpty());
 
-        decl.append(QString("%1.actions[%2] = %3;\n").arg(varName).arg(getTokenName(key)).arg(actionVarName));
+        decl.append(QString("(*%1->actions)[%2] = %3;\n").arg(varName).arg(getTokenName(key)).arg(actionVarName));
     }
 
     QList<int> gotoKeys=row->gotos.keys();
     for(int m=0; m<gotoKeys.size(); ++m){
         int key=gotoKeys.at(m);
 
-        decl.append(QString("%1.gotos[%2] = %3;\n").arg(varName).arg(key).arg(row->gotos.value(key)));
+        decl.append(QString("%1->gotos[%2] = %3;\n").arg(varName).arg(key).arg(row->gotos.value(key)));
     }
 
     decl.append(QString("rows.append(%1);\n").arg(varName));
