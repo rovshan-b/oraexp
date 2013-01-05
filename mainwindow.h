@@ -19,6 +19,9 @@ public:
 
     void showConnectDialog();
 
+protected:
+    void closeEvent(QCloseEvent *event);
+
 private:
     Ui::MainWindow *ui;
     void createMenu();

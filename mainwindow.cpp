@@ -5,6 +5,7 @@
 #include "connectivity/dbconnection.h"
 #include "util/iconutil.h"
 #include "util/dialoghelper.h"
+#include "util/settingshelper.h"
 #include "connection_page/connectionpage.h"
 #include "app_menu/appmenu.h"
 #include <QtGui>
@@ -30,8 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowIcon(IconUtil::getIcon("database"));
     setWindowTitle("Oracle Explorer");
 
-    resize(1024, 700);
-    //setWindowState(Qt::WindowMaximized);
+    SettingsHelper::restoreWindowPosition(this, "MainWindow");
 }
 
 MainWindow::~MainWindow()
@@ -52,4 +52,10 @@ void MainWindow::createMenu()
 void MainWindow::showConnectDialog()
 {
     DialogHelper::showConnectDialog(this->connectionsPane);
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    SettingsHelper::saveWindowPosition(this, "MainWindow");
+    event->accept();
 }

@@ -200,7 +200,7 @@ void ParsingTableBuilder::printoutForTargetParser()
     }
 
     //now print out declarations for table rows
-    qDebug("QList<ParsingTableRow*> rows;");
+    //qDebug("QList<ParsingTableRow*> rows;");
     qDebug() << "rows.reserve(" << tableRows.size() << ");\n";
 
     for(int i=0; i<tableRows.size(); ++i){

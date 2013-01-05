@@ -5,13 +5,14 @@
 #include "navtree/treepane.h"
 #include  "dbuimanager.h"
 #include "util/iconutil.h"
+#include "util/settingshelper.h"
 #include <iostream>
 #include <QtGui>
 
 using namespace std;
 
 ConnectionPage::ConnectionPage(DbConnection *db, QWidget *parent) :
-    QMainWindow(parent), uiManager(db, this)
+    QMainWindow(parent), uiManager(db, this), stateChanged(false)
 {
     this->db=db;
 
@@ -20,6 +21,7 @@ ConnectionPage::ConnectionPage(DbConnection *db, QWidget *parent) :
     setDockNestingEnabled(true);
 
     treeDock=new QDockWidget(tr("Database objects"), this);
+    treeDock->setObjectName("TreeViewDock");
     treeDock->setAllowedAreas(Qt::LeftDockWidgetArea |
                               Qt::RightDockWidgetArea);
     treeDock->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable);
@@ -47,6 +49,8 @@ ConnectionPage::ConnectionPage(DbConnection *db, QWidget *parent) :
     //layout->addWidget(centralTab);
     //setLayout(layout);
 
+    SettingsHelper::restoreMainWindowState(this, "ConnectionPage");
+
     uiManager.addWorksheet();
 
     connect(treeDock, SIGNAL(visibilityChanged(bool)), this, SIGNAL(connectionPageStateChanged()));
@@ -54,6 +58,8 @@ ConnectionPage::ConnectionPage(DbConnection *db, QWidget *parent) :
     connect(centralTab, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
     connect(&connectionPool, SIGNAL(asyncConnectionReady(DbConnection*,void*,bool,OciException)),
             this, SLOT(asyncConnectionReady(DbConnection*,void*,bool,OciException)));
+
+    connectDockSignals(treeDock);
 }
 
 ConnectionPage::~ConnectionPage()
@@ -164,7 +170,27 @@ void ConnectionPage::toggleTreePane()
     treeDock->setVisible(!treeDock->isVisible());
 }
 
+void ConnectionPage::windowStateChanged()
+{
+    if(!this->stateChanged){
+        this->stateChanged=true;
+    }
+}
+
+void ConnectionPage::connectDockSignals(QDockWidget *dockWidget)
+{
+    connect(dockWidget, SIGNAL(dockLocationChanged(Qt::DockWidgetArea)), this, SLOT(windowStateChanged()));
+    connect(dockWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(windowStateChanged()));
+}
+
 bool ConnectionPage::isTreePaneVisible() const
 {
     return treeDock->isVisible();
+}
+
+void ConnectionPage::beforeClose()
+{
+    if(this->stateChanged){
+        SettingsHelper::saveMainWindowState(this, "ConnectionPage");
+    }
 }

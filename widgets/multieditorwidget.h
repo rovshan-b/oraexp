@@ -21,9 +21,6 @@ public:
     QLabel *createInfoLabel();
 
     void setReadOnly(bool readOnly);
-
-    void addEditorActions(QToolBar *toolbar);
-
 signals:
     void escapeKeyPressed();
 

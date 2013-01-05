@@ -2,11 +2,9 @@
 #define WORKSHEET_H
 
 #include <QWidget>
-#include "connectivity/queryresult.h"
-#include "../connectionpagetab.h"
-#include "worksheetquerypane.h"
+#include "worksheetwidget.h"
 
-class WorksheetResultPane;
+class DbUiManager;
 
 class Worksheet : public ConnectionPageTab
 {
@@ -23,16 +21,14 @@ public:
     virtual bool canPrint() const {return true;}
     virtual bool canFind() const {return true;}
 
-    virtual void showSearchWidget(){queryPane->showSearchWidget();}
-    virtual void findNext() {queryPane->findNext();}
-    virtual void findPrevious() {queryPane->findPrevious();}
+    virtual void showSearchWidget(){worksheetWidget->showSearchWidget();}
+    virtual void findNext() {worksheetWidget->findNext();}
+    virtual void findPrevious() {worksheetWidget->findPrevious();}
 
-public slots:
-    void queryCompleted(const QueryResult &result);
+    virtual void focusAvailable();
 
 private:
-    WorksheetQueryPane *queryPane;
-    WorksheetResultPane *resultPane;
+    WorksheetWidget *worksheetWidget;
 
 };
 

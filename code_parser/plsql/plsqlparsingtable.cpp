@@ -81,7 +81,6 @@ void PlSqlParsingTable::populateTable()
     action_9_PLS_E_O_F->stateOrRuleId = 3;
     action_9_PLS_E_O_F->symbolCount = 5;
 
-    QList<ParsingTableRow*> rows;
     rows.reserve( 10 );
 
     ParsingTableRow *row_0 = new ParsingTableRow();

@@ -79,7 +79,7 @@ QLabel *MultiEditorWidget::createInfoLabel()
     infoLabelTextFormat=QString("Line:%1 Pos:%2 (%3)");
     infoLabel=new QLabel();
     infoLabel->setText(infoLabelTextFormat);
-    infoLabel->setMinimumWidth(infoLabel->fontMetrics().width(infoLabelTextFormat)*1.5);
+    //infoLabel->setMinimumWidth(infoLabel->fontMetrics().width(infoLabelTextFormat)*1.5);
 
     return infoLabel;
 }
@@ -180,12 +180,12 @@ int MultiEditorWidget::visibleEditorCount() const
 
 void MultiEditorWidget::cursorPositionChanged()
 {
-    Q_ASSERT(infoLabel);
-
     QTextCursor cursor=currentEditor->editor()->textCursor();
     int block=cursor.blockNumber();
     int posInBlock=cursor.positionInBlock();
     int pos=cursor.position();
 
-    infoLabel->setText(infoLabelTextFormat.arg(QString::number(block+1), QString::number(posInBlock+1), QString::number(pos+1)));
+    if(infoLabel){
+        infoLabel->setText(infoLabelTextFormat.arg(QString::number(block+1), QString::number(posInBlock+1), QString::number(pos+1)));
+    }
 }

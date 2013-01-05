@@ -4,14 +4,14 @@
 #include "../codescanner.h"
 #include <QString>
 
+class ParsingTable;
+
 class PlSqlScanner : public CodeScanner
 {
 public:
     PlSqlScanner(TextReaderBase *textReader);
 
     int getNextToken();
-
-    QString currentLexeme;
 
 private:
     enum ScannerState {
@@ -39,6 +39,8 @@ private:
         IN_NUMBER_END,
         DONE
     };
+
+    ParsingTable *parsingTable;
 };
 
 #endif // PLSQLSCANNER_H

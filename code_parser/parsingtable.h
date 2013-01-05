@@ -13,6 +13,8 @@ public:
 
     virtual ~ParsingTable();
 
+    int getKeywordIx(const QString &possibleKeyword) const;
+
 protected:
     ParsingTable();
 };

@@ -11,7 +11,8 @@ class WorksheetCodeEditor;
 class QToolButton;
 class DbConnection;
 class QToolBar;
-class CodeEditor;
+class IQueryScheduler;
+class MultiEditorWidget;
 
 class WorksheetQueryPane : public QWidget
 {
@@ -21,21 +22,24 @@ public:
 
     void setContents(const QString &contents);
 
-    void setConnection(DbConnection *db);
+    void setQueryScheduler(IQueryScheduler *queryScheduler);
 
-    void showSearchWidget(){codeEditorAndSearchPaneWidget->showSearchPane();}
-    void findNext(){codeEditorAndSearchPaneWidget->findNext();}
-    void findPrevious(){codeEditorAndSearchPaneWidget->findPrevious();}
+    void showSearchWidget();
+    void findNext();
+    void findPrevious();
 
+    CodeEditorAndSearchPaneWidget *currentEditor() const;
+
+    void focusAvailable();
 signals:
     void queryDone(const QueryResult &result);
 
 private:
-    DbConnection *db;
-    CodeEditor *codeEditor;
-    CodeEditorAndSearchPaneWidget *codeEditorAndSearchPaneWidget;
+    IQueryScheduler *queryScheduler;
     QToolBar *toolbar;
     QAction *progressBarAction;
+
+    MultiEditorWidget *multiEditor;
 
 private slots:
     void executeQuery();

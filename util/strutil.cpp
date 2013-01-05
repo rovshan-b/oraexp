@@ -190,7 +190,7 @@ void print(const char *msg)
 
 bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
 {
-    return s1.toUpper() < s2.toUpper();
+    return (QString::compare(s1, s2, Qt::CaseInsensitive) < 0);
 }
 
 void setDbLinkName(QString &str, const QString &dbLinkName)

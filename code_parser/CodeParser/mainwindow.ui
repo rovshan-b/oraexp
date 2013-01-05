@@ -37,6 +37,7 @@
      <string>Actions</string>
     </property>
     <addaction name="actionScan"/>
+    <addaction name="actionParse"/>
    </widget>
    <addaction name="menuActions"/>
   </widget>
@@ -54,7 +55,15 @@
     <string>Scan</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+N</string>
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionParse">
+   <property name="text">
+    <string>Parse</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
    </property>
   </action>
  </widget>

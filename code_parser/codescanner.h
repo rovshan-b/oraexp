@@ -1,9 +1,11 @@
 #ifndef CODESCANNER_H
 #define CODESCANNER_H
 
+#define NON_LITERAL_START_IX 100000
+
 class TextReaderBase;
 
-#include <QChar>
+#include <QString>
 
 class CodeScanner
 {
@@ -13,12 +15,14 @@ public:
 
     virtual int getNextToken()=0;
 
-    int getTokenStartPos(){return tokenStartPos;}
-    int getTokenEndPos(){return tokenEndPos;}
-    int getTokenStartLine(){return tokenStartLine;}
-    int getTokenEndLine(){return tokenEndLine;}
-    int getTokenStartLinePos(){return tokenStartLinePos;}
-    int getTokenEndLinePos(){return tokenEndLinePos;}
+    int getTokenStartPos() const {return tokenStartPos;}
+    int getTokenEndPos() const {return tokenEndPos;}
+    int getTokenStartLine() const {return tokenStartLine;}
+    int getTokenEndLine() const {return tokenEndLine;}
+    int getTokenStartLinePos() const {return tokenStartLinePos;}
+    int getTokenEndLinePos() const {return tokenEndLinePos;}
+
+    QString getTokenLexeme() const {return currentLexeme;}
 
     bool isNewline() const {return c=='\n' || c==0x2029;}
 
@@ -33,6 +37,8 @@ protected:
     int tokenEndLinePos;
 
     QChar c;
+
+    QString currentLexeme;
 
     QChar getNextChar();
     void ungetChar();

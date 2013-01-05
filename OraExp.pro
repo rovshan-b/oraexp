@@ -362,7 +362,22 @@ SOURCES += main.cpp\
     connection_page/dblink_viewer/dblinkviewer.cpp \
     connection_page/dblink_viewer/dblinkviewertabs.cpp \
     connection_page/user_viewer/userviewer.cpp \
-    connection_page/user_viewer/userviewertabs.cpp
+    connection_page/user_viewer/userviewertabs.cpp \
+    code_parser/codeparser.cpp \
+    code_parser/codeparserfactory.cpp \
+    code_parser/codescanner.cpp \
+    code_parser/parsingtable.cpp \
+    code_parser/textcursorreader.cpp \
+    code_parser/textreaderbase.cpp \
+    code_parser/plsql/plsqlparser.cpp \
+    code_parser/plsql/plsqlparsingtable.cpp \
+    code_parser/plsql/plsqlscanner.cpp \
+    grammar_parser/parsingtableaction.cpp \
+    grammar_parser/parsingtablerow.cpp \
+    codeeditor/autocompletehelper.cpp \
+    connection_page/worksheet/worksheetwidget.cpp \
+    util/settings.cpp \
+    util/settingshelper.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -725,7 +740,24 @@ HEADERS  += mainwindow.h \
     connection_page/dblink_viewer/dblinkviewer.h \
     connection_page/dblink_viewer/dblinkviewertabs.h \
     connection_page/user_viewer/userviewer.h \
-    connection_page/user_viewer/userviewertabs.h
+    connection_page/user_viewer/userviewertabs.h \
+    code_parser/codeparser.h \
+    code_parser/codeparserfactory.h \
+    code_parser/codescanner.h \
+    code_parser/ireducelistener.h \
+    code_parser/parsingtable.h \
+    code_parser/textcursorreader.h \
+    code_parser/textreaderbase.h \
+    code_parser/plsql/plsqlparser.h \
+    code_parser/plsql/plsqlparsingtable.h \
+    code_parser/plsql/plsqlscanner.h \
+    code_parser/plsql/plsqltokens.h \
+    grammar_parser/parsingtableaction.h \
+    grammar_parser/parsingtablerow.h \
+    codeeditor/autocompletehelper.h \
+    connection_page/worksheet/worksheetwidget.h \
+    util/settings.h \
+    util/settingshelper.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

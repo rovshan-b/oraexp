@@ -11,7 +11,7 @@ QString TextCursorReader::getNextLine()
     if(started){
         cursor.movePosition(QTextCursor::NextBlock);
     }else{
-        cursor.movePosition(QTextCursor::StartOfLine);
+        //cursor.movePosition(QTextCursor::StartOfLine);
         started=true;
     }
     cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);

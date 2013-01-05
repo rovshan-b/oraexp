@@ -218,13 +218,20 @@ int CodeEditor::lineNumberAreaWidth()
         QPlainTextEdit::keyPressEvent(event);
      }
  }
-/*
+
  void CodeEditor::focusInEvent(QFocusEvent *event)
  {
      QPlainTextEdit::focusInEvent(event);
 
-     AppMenu::defaultInstance()->getEditMenu()->updateActionStatesForCodeEditor(this);
- }*/
+     emit gotFocus();
+ }
+
+ void CodeEditor::focusOutEvent(QFocusEvent *event)
+ {
+     QPlainTextEdit::focusOutEvent(event);
+
+     emit lostFocus();
+ }
 
  void CodeEditor::contextMenuEvent(QContextMenuEvent *event)
  {
@@ -250,6 +257,17 @@ int CodeEditor::lineNumberAreaWidth()
      menu->exec(event->globalPos());
      delete menu;
  }
+
+ bool CodeEditor::event(QEvent *e)
+ {
+     /*
+     if(e->type()==QEvent::FontChange){
+        lineNumberArea->setFont(this->font());
+     }*/
+
+     return QPlainTextEdit::event(e);
+ }
+
 
  void CodeEditor::autoIndentNewBlock()
  {

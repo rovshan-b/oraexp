@@ -1,10 +1,13 @@
 #include "plsqlscanner.h"
 #include "plsqltokens.h"
 #include "../textreaderbase.h"
+#include "../plsql/plsqlparsingtable.h"
 #include <QDebug>
 
 PlSqlScanner::PlSqlScanner(TextReaderBase *textReader) : CodeScanner(textReader)
 {
+    parsingTable=PlSqlParsingTable::getInstance();
+    Q_ASSERT(parsingTable);
 }
 
 int PlSqlScanner::getNextToken()
@@ -310,6 +313,12 @@ int PlSqlScanner::getNextToken()
     tokenEndPos=textReader->getCurrPos();
     tokenEndLine=textReader->getCurrLineNo();
     tokenEndLinePos=textReader->getCurrLinePos();
+
+    //if we scanned a PLS_ID, check if it is a keyword
+    int keywordIx=parsingTable->getKeywordIx(currentLexeme);
+    if(keywordIx!=-1){ //it is a keyword
+        token = keywordIx;
+    }
 
     return token;
 }

@@ -36,6 +36,7 @@ HEADERS  += mainwindow.h \
     ../parsingtable.h \
     ../../grammar_parser/parsingtableaction.h \
     ../../grammar_parser/parsingtablerow.h \
-    ../plsql/plsqlparsingtable.h
+    ../plsql/plsqlparsingtable.h \
+    ../ireducelistener.h
 
 FORMS    += mainwindow.ui

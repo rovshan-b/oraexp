@@ -42,13 +42,17 @@ public slots:
 
 signals:
     void escapeKeyPressed();
+    void gotFocus();
+    void lostFocus();
 
 protected:
     void resizeEvent(QResizeEvent *event);
     void keyReleaseEvent ( QKeyEvent * event );
     void keyPressEvent ( QKeyEvent * event );
-    //void focusInEvent ( QFocusEvent * event);
+    void focusInEvent ( QFocusEvent * event);
+    void focusOutEvent ( QFocusEvent * event);
     void contextMenuEvent ( QContextMenuEvent * event );
+    bool event ( QEvent * e );
 
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);

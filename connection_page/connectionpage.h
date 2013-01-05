@@ -32,6 +32,8 @@ public:
 
     bool isTreePaneVisible() const;
 
+    virtual void beforeClose();
+
 signals:
     void connectionPageStateChanged();
 
@@ -42,6 +44,8 @@ public slots:
     void tabInitializationCompleted(ConnectionPageTab *tab);
     void toggleTreePane();
 
+    void windowStateChanged();
+
 private:
     DbConnection *db;
     QDockWidget *treeDock;
@@ -50,6 +54,11 @@ private:
     DbUiManager uiManager;
 
     ConnectionPool connectionPool;
+
+    bool stateChanged;
+
+
+    void connectDockSignals(QDockWidget *dockWidget);
 };
 
 #endif // CONNECTIONPAGE_H

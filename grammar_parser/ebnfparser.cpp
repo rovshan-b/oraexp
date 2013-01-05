@@ -443,7 +443,7 @@ void EBNFParser::printTargetScannerKeywords()
     qDebug("---------target scanner keywords------------");
 
     if(targetScannerKeywords.size()>0){
-        qDebug("QStringList keywords;");
+        //qDebug("QStringList keywords;");
         qDebug() << qPrintable(QString("keywords.reserve(%1);").arg(targetScannerKeywords.size()));
     }
     QString line;

@@ -8,6 +8,8 @@ class PlSqlParser : public CodeParser
 {
 public:
     PlSqlParser(CodeScanner *scanner);
+
+    virtual ParsingTable *getParsingTable();
 };
 
 #endif // PLSQLPARSER_H
