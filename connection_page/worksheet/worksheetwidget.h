@@ -8,6 +8,7 @@
 #include "worksheetquerypane.h"
 
 class WorksheetResultPane;
+class QSplitter;
 
 class WorksheetWidget : public QWidget
 {
@@ -24,12 +25,16 @@ public:
     void findPrevious() {queryPane->findPrevious();}
 
     void focusAvailable();
+
+    static QByteArray splitterSizes;
 signals:
     
 public slots:
     void queryCompleted(const QueryResult &result);
+    void splitterMoved();
 
 private:
+    QSplitter *splitter;
     WorksheetQueryPane *queryPane;
     WorksheetResultPane *resultPane;
 

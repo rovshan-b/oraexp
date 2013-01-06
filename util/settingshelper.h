@@ -12,8 +12,11 @@ public:
     static void saveWindowPosition(QWidget *window, const QString &title);
     static void restoreWindowPosition(QWidget *window, const QString &title);
 
-    static void saveMainWindowState(QMainWindow *window, const QString &title);
-    static void restoreMainWindowState(QMainWindow *window, const QString &title);
+    //static void saveMainWindowState(QMainWindow *window, const QString &title);
+    //static void restoreMainWindowState(QMainWindow *window, const QString &title);
+
+    static void saveStaticApplicationSettings();
+    static void loadStaticApplicationSettings();
 private:
     SettingsHelper();
 };

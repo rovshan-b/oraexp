@@ -38,6 +38,8 @@ public:
 
     void focusAvailable();
 
+    static QByteArray bottomSplitterSizes;
+
 signals:
     void objectInfoLoaded();
     void specBodySwitchRequested();
@@ -71,6 +73,8 @@ private slots:
 
     void compilerMessageActivated(int line, int position, const QString &);
 
+    void bottomSplitterMoved();
+
 private:
     QWidget *createRightPane();
     void createToolbar();
@@ -93,6 +97,8 @@ private:
     QAction *enableWarningsAction;
     QAction *enableNativeCodeAction;
 
+    QSplitter *bottomSplitter;
+
     InfoPanel *infoPanel;
     CompilerMessagesPane *compilerMessagesPane;
 
@@ -104,6 +110,8 @@ private:
 
     bool hasSpecBodySwitcher;
     bool isSpec;
+
+    bool stateRestored;
 
     MultiEditorWidget *multiEditor;
 

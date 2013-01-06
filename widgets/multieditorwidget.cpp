@@ -180,12 +180,14 @@ int MultiEditorWidget::visibleEditorCount() const
 
 void MultiEditorWidget::cursorPositionChanged()
 {
+    if(infoLabel==0){
+        return;
+    }
+
     QTextCursor cursor=currentEditor->editor()->textCursor();
     int block=cursor.blockNumber();
     int posInBlock=cursor.positionInBlock();
     int pos=cursor.position();
 
-    if(infoLabel){
-        infoLabel->setText(infoLabelTextFormat.arg(QString::number(block+1), QString::number(posInBlock+1), QString::number(pos+1)));
-    }
+    infoLabel->setText(infoLabelTextFormat.arg(QString::number(block+1), QString::number(posInBlock+1), QString::number(pos+1)));
 }

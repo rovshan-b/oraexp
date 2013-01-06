@@ -2,16 +2,22 @@
 #include "worksheetresultpane.h"
 #include <QtGui>
 
+extern QByteArray WorksheetWidget::splitterSizes;
+
 WorksheetWidget::WorksheetWidget(QWidget *parent) :
     QWidget(parent),
     queryScheduler(0)
 {
-    QSplitter *splitter=new QSplitter(Qt::Vertical);
+    splitter=new QSplitter(Qt::Vertical);
+    splitter->setChildrenCollapsible(false);
     queryPane = new WorksheetQueryPane();
     resultPane = new WorksheetResultPane();
     splitter->addWidget(queryPane);
     splitter->addWidget(resultPane);
     resultPane->setVisible(false);
+
+    queryPane->setMinimumHeight(80);
+    resultPane->setMinimumHeight(80);
 
     QHBoxLayout *layout=new QHBoxLayout();
     layout->addWidget(splitter);
@@ -43,7 +49,19 @@ void WorksheetWidget::focusAvailable()
 void WorksheetWidget::queryCompleted(const QueryResult &result)
 {
     if(!resultPane->isVisible()){
+        setUpdatesEnabled(false);
+
         resultPane->setVisible(true);
+        splitter->restoreState(WorksheetWidget::splitterSizes);
+
+        setUpdatesEnabled(true);
+
+        connect(splitter, SIGNAL(splitterMoved(int,int)), this, SLOT(splitterMoved()));
     }
     resultPane->displayQueryResults(this->queryScheduler, result);
+}
+
+void WorksheetWidget::splitterMoved()
+{
+    WorksheetWidget::splitterSizes = splitter->saveState();
 }

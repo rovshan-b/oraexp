@@ -1,5 +1,9 @@
 #include "settingshelper.h"
 #include "util/settings.h"
+#include "connection_page/connectionpage.h"
+#include "connection_page/worksheet/worksheetwidget.h"
+#include "connection_page/code_creator/codecreatorwidget.h"
+#include "codeeditor/codeeditor.h"
 #include <QtGui>
 
 SettingsHelper::SettingsHelper()
@@ -30,7 +34,7 @@ void SettingsHelper::restoreWindowPosition(QWidget *window, const QString &title
     }
     Settings::endGroup();
 }
-
+/*
 void SettingsHelper::saveMainWindowState(QMainWindow *window, const QString &title)
 {
     Settings::beginGroup(title);
@@ -43,4 +47,20 @@ void SettingsHelper::restoreMainWindowState(QMainWindow *window, const QString &
     Settings::beginGroup(title);
     window->restoreState(Settings::value("windowState").toByteArray());
     Settings::endGroup();
+}*/
+
+void SettingsHelper::saveStaticApplicationSettings()
+{
+    Settings::setValue("ConnectionPage/windowState", ConnectionPage::currentState);
+    Settings::setValue("WorksheetWidget/splitterSizes", WorksheetWidget::splitterSizes);
+    Settings::setValue("CodeCreatorWidget/bottomSplitterSizes", CodeCreatorWidget::bottomSplitterSizes);
+    Settings::setValue("CodeEditor/currentFont", CodeEditor::currentFont.toString());
+}
+
+void SettingsHelper::loadStaticApplicationSettings()
+{
+    ConnectionPage::currentState = Settings::value("ConnectionPage/windowState").toByteArray();
+    WorksheetWidget::splitterSizes = Settings::value("WorksheetWidget/splitterSizes").toByteArray();
+    CodeCreatorWidget::bottomSplitterSizes = Settings::value("CodeCreatorWidget/bottomSplitterSizes").toByteArray();
+    CodeEditor::currentFont.fromString(Settings::value("CodeEditor/currentFont", QFont("Monospace")).toString());
 }

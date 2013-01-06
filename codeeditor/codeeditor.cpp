@@ -7,8 +7,10 @@
 #include "app_menu/appeditmenu.h"
 #include <QPainter>
 
+extern QFont CodeEditor::currentFont;
+
 CodeEditor::CodeEditor(QWidget *parent) :
-    QPlainTextEdit(parent)
+    QPlainTextEdit(parent), lineNumberArea(0)
 {
     QFont monospaceFont("Monospace");
     setFont(monospaceFont);
@@ -30,9 +32,9 @@ CodeEditor::CodeEditor(QWidget *parent) :
     p.setColor(QPalette::Disabled, QPalette::Base, p.color(QPalette::Window));
     setPalette(p);
 
-    strTab=QString("   ");
+    setFont(CodeEditor::currentFont);
 
-    setFont(QFont("Monospace"));
+    strTab=QString("   ");
 
     connect(this, SIGNAL(undoAvailable(bool)), this, SLOT(setUndoAvailable(bool)));
     connect(this, SIGNAL(redoAvailable(bool)), this, SLOT(setRedoAvailable(bool)));
@@ -260,10 +262,13 @@ int CodeEditor::lineNumberAreaWidth()
 
  bool CodeEditor::event(QEvent *e)
  {
-     /*
-     if(e->type()==QEvent::FontChange){
-        lineNumberArea->setFont(this->font());
-     }*/
+     if(e->type()==QEvent::FontChange && lineNumberArea){
+         QFont newFont=this->font();
+
+         lineNumberArea->setFont(newFont);
+
+         CodeEditor::currentFont = newFont;
+     }
 
      return QPlainTextEdit::event(e);
  }

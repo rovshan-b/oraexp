@@ -25,6 +25,8 @@ public:
 
     void showLinePosition(int line, int linePos);
 
+    static QFont currentFont;
+
 public slots:
     void commentBlocks();
     void goToLine();

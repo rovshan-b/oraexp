@@ -11,8 +11,10 @@
 
 using namespace std;
 
+extern QByteArray ConnectionPage::currentState;
+
 ConnectionPage::ConnectionPage(DbConnection *db, QWidget *parent) :
-    QMainWindow(parent), uiManager(db, this), stateChanged(false)
+    QMainWindow(parent), uiManager(db, this)
 {
     this->db=db;
 
@@ -49,17 +51,13 @@ ConnectionPage::ConnectionPage(DbConnection *db, QWidget *parent) :
     //layout->addWidget(centralTab);
     //setLayout(layout);
 
-    SettingsHelper::restoreMainWindowState(this, "ConnectionPage");
-
-    uiManager.addWorksheet();
-
     connect(treeDock, SIGNAL(visibilityChanged(bool)), this, SIGNAL(connectionPageStateChanged()));
     connect(centralTab, SIGNAL(currentChanged(int)), this, SIGNAL(connectionPageStateChanged()));
     connect(centralTab, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
     connect(&connectionPool, SIGNAL(asyncConnectionReady(DbConnection*,void*,bool,OciException)),
             this, SLOT(asyncConnectionReady(DbConnection*,void*,bool,OciException)));
 
-    connectDockSignals(treeDock);
+    QTimer::singleShot(0, this, SLOT(restoreWindowState()));
 }
 
 ConnectionPage::~ConnectionPage()
@@ -172,9 +170,18 @@ void ConnectionPage::toggleTreePane()
 
 void ConnectionPage::windowStateChanged()
 {
-    if(!this->stateChanged){
-        this->stateChanged=true;
-    }
+    ConnectionPage::currentState=saveState();
+}
+
+void ConnectionPage::restoreWindowState()
+{
+    restoreState(ConnectionPage::currentState);
+
+    connectDockSignals(treeDock);
+
+    //also add an empty worksheet
+    //setting focus works correctly when adding from this slot
+    uiManager.addWorksheet();
 }
 
 void ConnectionPage::connectDockSignals(QDockWidget *dockWidget)
@@ -186,11 +193,4 @@ void ConnectionPage::connectDockSignals(QDockWidget *dockWidget)
 bool ConnectionPage::isTreePaneVisible() const
 {
     return treeDock->isVisible();
-}
-
-void ConnectionPage::beforeClose()
-{
-    if(this->stateChanged){
-        SettingsHelper::saveMainWindowState(this, "ConnectionPage");
-    }
 }

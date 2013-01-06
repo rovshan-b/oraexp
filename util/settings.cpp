@@ -1,6 +1,6 @@
 #include "settings.h"
 
-extern QSettings Settings::settings;
+QSettings Settings::settings("OraExp", "Oracle Explorer");
 
 void Settings::setValue(const QString &key, const QVariant &value)
 {

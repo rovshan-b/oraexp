@@ -12,6 +12,8 @@
 #include "errors.h"
 #include <QtGui>
 
+extern QByteArray CodeCreatorWidget::bottomSplitterSizes;
+
 CodeCreatorWidget::CodeCreatorWidget(const QString &schemaName,
                          const QString &objectName,
                          DbTreeModel::DbTreeNodeType objectType,
@@ -42,7 +44,7 @@ void CodeCreatorWidget::createUi()
     connect(multiEditor, SIGNAL(escapeKeyPressed()), infoPanel, SLOT(closePanel()));
 
     //for splitting tree/editor area and info panel
-    QSplitter *bottomSplitter=new QSplitter(Qt::Vertical);
+    bottomSplitter=new QSplitter(Qt::Vertical);
     bottomSplitter->setChildrenCollapsible(false);
     bottomSplitter->addWidget(outerSplitter);
 
@@ -54,7 +56,8 @@ void CodeCreatorWidget::createUi()
     bottomSplitter->addWidget(infoPanel->getPanel());
 
 
-    bottomSplitter->setSizes(QList<int>() << 3 << 1);
+    //bottomSplitter->setSizes(QList<int>() << 3 << 1);
+    bottomSplitter->restoreState(CodeCreatorWidget::bottomSplitterSizes);
 
     QVBoxLayout *layout=new QVBoxLayout();
     layout->setContentsMargins(0,0,0,0);
@@ -63,6 +66,8 @@ void CodeCreatorWidget::createUi()
 
     layout->setSpacing(1);
     setLayout(layout);
+
+    connect(bottomSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(bottomSplitterMoved()));
 }
 
 void CodeCreatorWidget::setQueryScheduler(IQueryScheduler *queryScheduler)
@@ -405,6 +410,11 @@ void CodeCreatorWidget::compilerMessageActivated(int line, int position, const Q
 {
     //oracle reports 1 based positions
     currentEditor()->editor()->showLinePosition(line-1, position-1);
+}
+
+void CodeCreatorWidget::bottomSplitterMoved()
+{
+    CodeCreatorWidget::bottomSplitterSizes = bottomSplitter->saveState();
 }
 
 void CodeCreatorWidget::compilationErrorFetchCompleted(const QString &)

@@ -46,6 +46,8 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
     setLayout(layout);
 
     WidgetHelper::updateActionTooltips(toolbar);
+
+    multiEditor->getCurrentEditor()->editor()->setPlainText("select * from smpp_incoming");
 }
 
 void WorksheetQueryPane::executeQuery()

@@ -43,11 +43,6 @@ ConnectionPage *ConnectionsPane::currentConnectionPage() const
 void ConnectionsPane::closeTab(int index)
 {
     QWidget *widgetToDelete=widget(index);
-
-    ConnectionPage *cnPage=qobject_cast<ConnectionPage*>(widgetToDelete);
-    Q_ASSERT(cnPage);
-    cnPage->beforeClose();
-
     removeTab(index);
     if(widgetToDelete!=0){
         delete widgetToDelete;

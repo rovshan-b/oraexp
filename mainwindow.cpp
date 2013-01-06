@@ -32,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle("Oracle Explorer");
 
     SettingsHelper::restoreWindowPosition(this, "MainWindow");
+    SettingsHelper::loadStaticApplicationSettings();
 }
 
 MainWindow::~MainWindow()
@@ -57,5 +58,6 @@ void MainWindow::showConnectDialog()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     SettingsHelper::saveWindowPosition(this, "MainWindow");
+    SettingsHelper::saveStaticApplicationSettings();
     event->accept();
 }

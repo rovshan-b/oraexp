@@ -38,8 +38,6 @@ public:
     virtual bool canFindNext() const {return canFind();}
     virtual bool canFindPrevious() const {return canFind();}
 
-    virtual void open() {}
-
     virtual void showSearchWidget() {}
     virtual void findNext() {}
     virtual void findPrevious() {}
