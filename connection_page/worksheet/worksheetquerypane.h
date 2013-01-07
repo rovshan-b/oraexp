@@ -33,6 +33,7 @@ public:
     void focusAvailable();
 signals:
     void queryDone(const QueryResult &result);
+    void message(const QString &msg);
 
 private:
     IQueryScheduler *queryScheduler;
@@ -40,6 +41,8 @@ private:
     QAction *progressBarAction;
 
     MultiEditorWidget *multiEditor;
+
+    void emitMessage(const QString &msg);
 
 private slots:
     void executeQuery();

@@ -2,7 +2,7 @@
 #include "worksheetresultpane.h"
 #include <QtGui>
 
-extern QByteArray WorksheetWidget::splitterSizes;
+QByteArray WorksheetWidget::splitterSizes;
 
 WorksheetWidget::WorksheetWidget(QWidget *parent) :
     QWidget(parent),
@@ -27,6 +27,7 @@ WorksheetWidget::WorksheetWidget(QWidget *parent) :
     setLayout(layout);
 
     connect(queryPane, SIGNAL(queryDone(QueryResult)), this, SLOT(queryCompleted(QueryResult)));
+    connect(queryPane, SIGNAL(message(QString)), this, SLOT(handleQueryPaneMessage(QString)));
 }
 
 void WorksheetWidget::setQueryScheduler(IQueryScheduler *queryScheduler)
@@ -48,6 +49,23 @@ void WorksheetWidget::focusAvailable()
 
 void WorksheetWidget::queryCompleted(const QueryResult &result)
 {
+    showResultPane();
+    resultPane->displayQueryResults(this->queryScheduler, result);
+}
+
+void WorksheetWidget::splitterMoved()
+{
+    WorksheetWidget::splitterSizes = splitter->saveState();
+}
+
+void WorksheetWidget::handleQueryPaneMessage(const QString &msg)
+{
+    showResultPane();
+    resultPane->displayMessage(msg);
+}
+
+void WorksheetWidget::showResultPane()
+{
     if(!resultPane->isVisible()){
         setUpdatesEnabled(false);
 
@@ -58,10 +76,4 @@ void WorksheetWidget::queryCompleted(const QueryResult &result)
 
         connect(splitter, SIGNAL(splitterMoved(int,int)), this, SLOT(splitterMoved()));
     }
-    resultPane->displayQueryResults(this->queryScheduler, result);
-}
-
-void WorksheetWidget::splitterMoved()
-{
-    WorksheetWidget::splitterSizes = splitter->saveState();
 }

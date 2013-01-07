@@ -26,6 +26,17 @@ void WorksheetResultPane::displayQueryResults(IQueryScheduler *queryScheduler, c
     setCurrentWidget(tab);
 }
 
+void WorksheetResultPane::displayMessage(const QString &msg)
+{
+    WorksheetBottomPaneTab *tab=getTabToDisplayResults(InfoTab);
+    WorksheetInfoTab *infoTab = qobject_cast<WorksheetInfoTab*>(tab);
+    Q_ASSERT(infoTab);
+
+    infoTab->showMessage(msg);
+
+    setCurrentWidget(tab);
+}
+
 WorksheetBottomPaneTab *WorksheetResultPane::getTabToDisplayResults(WorksheetBottomPaneTabType tabType)
 {
     WorksheetBottomPaneTab *tab=0;

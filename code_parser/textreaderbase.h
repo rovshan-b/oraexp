@@ -13,9 +13,6 @@ public:
 
     void ungetCharacter();
 
-    virtual bool isEOF() const=0;
-    virtual bool atStart() const=0;
-
     int getCurrPos() const {return this->pos;}
     int getCurrLineNo() const {return this->lineNo;}
     int getCurrLinePos() const {return this->linePos;}
@@ -23,6 +20,11 @@ public:
 protected:
     virtual QString getNextLine()=0;
 
+    //below functions must be implemented in child classes
+    //and are only for use by this base class for determining
+    //if it can get some text for filling its buffer
+    virtual bool isEOF() const=0;
+    virtual bool atStart() const=0;
 private:
     QString buffer;
 

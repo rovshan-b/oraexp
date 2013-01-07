@@ -4,6 +4,7 @@
 #include "util/iconutil.h"
 #include "util/widgethelper.h"
 #include "widgets/multieditorwidget.h"
+#include "code_parser/plsql/plsqlparsehelper.h"
 #include <QtGui>
 
 #include <iostream>
@@ -61,10 +62,19 @@ void WorksheetQueryPane::executeQuery()
         return;
     }
 
+    QString queryText=currentEditor()->editor()->getCurrentText().trimmed();
+
+    if(queryText.isEmpty()){
+        emitMessage(tr("Query text cannot be empty"));
+        return;
+    }
+
+    QStringList bindParams = PlSqlParseHelper::getBindParams(queryText);
+
     QueryExecTask task;
     task.requester=this;
     task.taskName="execute_worksheet_query";
-    task.query=currentEditor()->editor()->getCurrentText();
+    task.query=queryText;
     task.queryCompletedSlotName="queryCompleted";
 
     queryScheduler->enqueueQuery(task);
@@ -114,4 +124,9 @@ CodeEditorAndSearchPaneWidget *WorksheetQueryPane::currentEditor() const
 void WorksheetQueryPane::focusAvailable()
 {
     currentEditor()->editor()->setFocus();
+}
+
+void WorksheetQueryPane::emitMessage(const QString &msg)
+{
+    emit message(msg);
 }

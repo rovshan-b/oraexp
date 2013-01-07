@@ -11,7 +11,7 @@
 
 using namespace std;
 
-extern QByteArray ConnectionPage::currentState;
+QByteArray ConnectionPage::currentState;
 
 ConnectionPage::ConnectionPage(DbConnection *db, QWidget *parent) :
     QMainWindow(parent), uiManager(db, this)

@@ -377,7 +377,9 @@ SOURCES += main.cpp\
     codeeditor/autocompletehelper.cpp \
     connection_page/worksheet/worksheetwidget.cpp \
     util/settings.cpp \
-    util/settingshelper.cpp
+    util/settingshelper.cpp \
+    code_parser/plsql/plsqlparsehelper.cpp \
+    code_parser/stringreader.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -757,7 +759,9 @@ HEADERS  += mainwindow.h \
     codeeditor/autocompletehelper.h \
     connection_page/worksheet/worksheetwidget.h \
     util/settings.h \
-    util/settingshelper.h
+    util/settingshelper.h \
+    code_parser/plsql/plsqlparsehelper.h \
+    code_parser/stringreader.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

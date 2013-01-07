@@ -42,7 +42,7 @@ protected:
 
     QChar getNextChar();
     void ungetChar();
-    bool isEOF() const;
+    //bool isEOF() const;
 };
 
 #endif // CODESCANNER_H

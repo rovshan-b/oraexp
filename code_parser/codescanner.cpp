@@ -33,7 +33,8 @@ void CodeScanner::ungetChar()
     textReader->ungetCharacter();
 }
 
+/*
 bool CodeScanner::isEOF() const
 {
     return textReader->isEOF();
-}
+}*/

@@ -57,3 +57,8 @@ void WorksheetInfoTab::showQueryResults(IQueryScheduler*, const QueryResult &res
         delete result.statement;
     }
 }
+
+void WorksheetInfoTab::showMessage(const QString &msg)
+{
+    WidgetHelper::appendToPlainTextEdit(infoBox, msg, false, defaultBrush);
+}

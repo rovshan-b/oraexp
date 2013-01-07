@@ -22,6 +22,7 @@ public:
     explicit WorksheetResultPane(QWidget *parent=0);
 
     void displayQueryResults(IQueryScheduler *queryScheduler, const QueryResult &result);
+    void displayMessage(const QString &msg);
 
 private:
     WorksheetBottomPaneTab *getTabToDisplayResults(WorksheetBottomPaneTabType tabType);

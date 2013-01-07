@@ -14,6 +14,8 @@ public:
     virtual WorksheetResultPane::WorksheetBottomPaneTabType getTabType() const;
     virtual void showQueryResults(IQueryScheduler *queryScheduler, const QueryResult &result);
 
+    void showMessage(const QString &msg);
+
 private:
     QPlainTextEdit *infoBox;
 

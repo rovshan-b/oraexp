@@ -32,6 +32,7 @@ signals:
 public slots:
     void queryCompleted(const QueryResult &result);
     void splitterMoved();
+    void handleQueryPaneMessage(const QString &msg);
 
 private:
     QSplitter *splitter;
@@ -39,6 +40,8 @@ private:
     WorksheetResultPane *resultPane;
 
     IQueryScheduler *queryScheduler;
+
+    void showResultPane();
     
 };
 

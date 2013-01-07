@@ -19,6 +19,7 @@ public:
 
     void addText(const QString &text);
     QString getCurrentText() const;
+    QString getCurrentTextSurroundedByEmptyLines(QTextCursor &cursor) const;
 
     void setFoundTextPositions(const QList< QTextCursor > &foundTextPositions);
     void clearFoundTextPositions();

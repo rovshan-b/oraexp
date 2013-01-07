@@ -12,7 +12,7 @@
 #include "errors.h"
 #include <QtGui>
 
-extern QByteArray CodeCreatorWidget::bottomSplitterSizes;
+QByteArray CodeCreatorWidget::bottomSplitterSizes;
 
 CodeCreatorWidget::CodeCreatorWidget(const QString &schemaName,
                          const QString &objectName,

@@ -7,7 +7,7 @@
 #include "app_menu/appeditmenu.h"
 #include <QPainter>
 
-extern QFont CodeEditor::currentFont;
+QFont CodeEditor::currentFont;
 
 CodeEditor::CodeEditor(QWidget *parent) :
     QPlainTextEdit(parent), lineNumberArea(0)
@@ -691,8 +691,49 @@ int CodeEditor::lineNumberAreaWidth()
      if(cursor.hasSelection()){
          return cursor.selectedText().replace(QChar(0x2029), QChar('\n'));
      }else{
-         return toPlainText();
+         //return toPlainText();
+         return getCurrentTextSurroundedByEmptyLines(cursor);
      }
+ }
+
+ QString CodeEditor::getCurrentTextSurroundedByEmptyLines(QTextCursor &cursor) const
+ {
+     QString result;
+
+     QString line=cursor.block().text().trimmed();
+
+     if(line.isEmpty()){
+         return result;
+     }
+
+     //move up until we find an empty line
+     while(cursor.movePosition(QTextCursor::PreviousBlock)){
+         line = cursor.block().text();
+
+         if(line.isEmpty()){
+             break;
+         }
+     }
+
+     if(!line.isEmpty()){
+         result.append(line);
+     }
+
+     while(cursor.movePosition(QTextCursor::NextBlock)){
+         line = cursor.block().text().trimmed();
+
+         if(line.isEmpty()){
+             break;
+         }
+
+         if(!result.isEmpty()){
+             result.append("\n");
+         }
+
+         result.append(line);
+     }
+
+     return result.trimmed();
  }
 
  void CodeEditor::setFoundTextPositions(const QList< QTextCursor > &foundTextPositions)
