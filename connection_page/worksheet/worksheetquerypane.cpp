@@ -5,6 +5,7 @@
 #include "util/widgethelper.h"
 #include "widgets/multieditorwidget.h"
 #include "code_parser/plsql/plsqlparsehelper.h"
+#include "dialogs/bindparamsdialog.h"
 #include <QtGui>
 
 #include <iostream>
@@ -48,7 +49,7 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
 
     WidgetHelper::updateActionTooltips(toolbar);
 
-    multiEditor->getCurrentEditor()->editor()->setPlainText("select * from smpp_incoming");
+    multiEditor->getCurrentEditor()->editor()->setPlainText("select * from smpp_incoming where msg_id<:msg_id");
 }
 
 void WorksheetQueryPane::executeQuery()
@@ -70,6 +71,9 @@ void WorksheetQueryPane::executeQuery()
     }
 
     QStringList bindParams = PlSqlParseHelper::getBindParams(queryText);
+    if(bindParams.size()>0){
+        promptForBindParams(bindParams);
+    }
 
     QueryExecTask task;
     task.requester=this;
@@ -129,4 +133,10 @@ void WorksheetQueryPane::focusAvailable()
 void WorksheetQueryPane::emitMessage(const QString &msg)
 {
     emit message(msg);
+}
+
+void WorksheetQueryPane::promptForBindParams(const QStringList &bindParams)
+{
+    BindParamsDialog dialog(bindParams, this);
+    dialog.exec();
 }

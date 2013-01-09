@@ -23,8 +23,8 @@ QString StringReader::getNextLine()
         reachedEOF=true;
         return str.mid(lastSearchPos).append("\n");
     }else{
-        QString newLine=str.mid(lastSearchPos, newlineIx+1);
-        lastSearchPos = newlineIx+1;
+        QString newLine=str.mid(lastSearchPos, newlineIx+1-lastSearchPos);
+        lastSearchPos = newlineIx + 1;
 
         return newLine;
     }

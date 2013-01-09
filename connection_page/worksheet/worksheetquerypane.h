@@ -43,6 +43,7 @@ private:
     MultiEditorWidget *multiEditor;
 
     void emitMessage(const QString &msg);
+    void promptForBindParams(const QStringList &bindParams);
 
 private slots:
     void executeQuery();

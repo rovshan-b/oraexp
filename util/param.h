@@ -18,12 +18,14 @@ public:
     enum ParamType {
         String,
         Integer,
+        Double,
         Stmt
     };
 
     ~Param();
     Param(const QString &paramName, const QString &paramValue, ParamDirection direction=InOut);
     Param(const QString &paramName, int paramValue, ParamDirection direction=InOut);
+    Param(const QString &paramName, double paramValue, ParamDirection direction=InOut);
     Param(const QString &paramName, bool paramValue, ParamDirection direction=InOut);
     Param(const QString &paramName);
 
@@ -34,6 +36,9 @@ public:
 
     int getIntValue() const;
     void setIntValue(int paramValue);
+
+    int getDoubleValue() const;
+    void setDoubleValue(int paramValue);
 
     Statement *getStmtValue() const;
 

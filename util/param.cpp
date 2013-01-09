@@ -46,6 +46,14 @@ Param::Param(const QString &paramName, int paramValue, ParamDirection direction)
     ref();
 }
 
+Param::Param(const QString &paramName, double paramValue, Param::ParamDirection direction) : paramName(paramName), direction(direction)
+{
+    type=Double;
+    data=new double(paramValue);
+
+    ref();
+}
+
 Param::Param(const QString &paramName, bool paramValue, ParamDirection direction) : paramName(paramName), direction(direction)
 {
     type=Integer;
@@ -94,6 +102,20 @@ void Param::setIntValue(int paramValue)
     Q_ASSERT(type==Integer);
 
     *((int*)data)=paramValue;
+}
+
+int Param::getDoubleValue() const
+{
+    Q_ASSERT(type==Double);
+
+    return *((double*)data);
+}
+
+void Param::setDoubleValue(int paramValue)
+{
+    Q_ASSERT(type==Double);
+
+    *((double*)data)=paramValue;
 }
 
 Statement *Param::getStmtValue() const

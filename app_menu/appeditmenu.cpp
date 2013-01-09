@@ -92,7 +92,7 @@ void AppEditMenu::setupMenu(QMenu *editMenu, QToolBar *toolbar)
 
     editMenu->addSeparator();
 
-    editGoToLineAction=editMenu->addAction(IconUtil::getIcon("right_arrow"), tr("&Go to line..."), this, SLOT(goToLine()), QKeySequence("Ctrl+G"));
+    editGoToLineAction=editMenu->addAction(IconUtil::getIcon("goto_line"), tr("&Go to line..."), this, SLOT(goToLine()), QKeySequence("Ctrl+G"));
     editGoToLineAction->setStatusTip(tr("Go to line"));
 
 }

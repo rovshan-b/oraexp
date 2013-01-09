@@ -379,7 +379,9 @@ SOURCES += main.cpp\
     util/settings.cpp \
     util/settingshelper.cpp \
     code_parser/plsql/plsqlparsehelper.cpp \
-    code_parser/stringreader.cpp
+    code_parser/stringreader.cpp \
+    dialogs/bindparamsdialog.cpp \
+    widgets/bindparameditorwidget.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -761,7 +763,9 @@ HEADERS  += mainwindow.h \
     util/settings.h \
     util/settingshelper.h \
     code_parser/plsql/plsqlparsehelper.h \
-    code_parser/stringreader.h
+    code_parser/stringreader.h \
+    dialogs/bindparamsdialog.h \
+    widgets/bindparameditorwidget.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

@@ -110,5 +110,8 @@
         <file>images/package_body.png</file>
         <file>images/reference.png</file>
         <file>images/view_small.png</file>
+        <file>images/goto_line.png</file>
+        <file>images/left_right_arrows.png</file>
+        <file>images/left_arrow.png</file>
     </qresource>
 </RCC>

@@ -91,7 +91,6 @@ void ConnectionsPane::popOutTab()
 
 void ConnectionsPane::showTabBar()
 {
-    /*
     int tabCount=count();
     tabBar()->setVisible(tabCount>1);
     QWidget *window=this->window();
@@ -101,6 +100,5 @@ void ConnectionsPane::showTabBar()
     }else{
         window->setWindowIcon(IconUtil::getIcon("database"));
         window->setWindowTitle("Oracle Explorer");
-    }*/
-
+    }
 }
