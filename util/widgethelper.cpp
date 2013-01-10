@@ -540,3 +540,9 @@ void WidgetHelper::selectTableRowAfterDeletion(DataTable *table, GenericEditable
     }
 }
 
+QRegExp WidgetHelper::createDateTimeRegExp()
+{
+    return QRegExp("[0-9]{4}-(((0[13578]|(10|12))-(0[1-9]|[1-2][0-9]|3[0-1]))|(02-(0[1-9]|[1-2][0-9]))|((0[469]|11)-(0[1-9]|[1-2][0-9]|30)))( ([01]\\d|2[0123]):([0-5]\\d):([0-5]\\d))?",
+                                                     Qt::CaseSensitive, QRegExp::RegExp2);
+}
+

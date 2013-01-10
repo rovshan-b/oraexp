@@ -109,6 +109,8 @@ void Statement::bindParam(Param *parameter)
 {
     Param::ParamType paramType=parameter->getParamType();
 
+    DateTime *paramDT;
+
     switch(paramType){
     case Param::Integer:
         OCI_BindInt(ociStmt,
@@ -120,6 +122,19 @@ void Statement::bindParam(Param *parameter)
                        parameter->getParamName().toStdWString().c_str(),
                        (dtext*)parameter->data,
                        dtslen((dtext*)parameter->data));
+        break;
+    case Param::Double:
+        OCI_BindDouble(ociStmt,
+                       parameter->getParamName().toStdWString().c_str(),
+                       (double*)parameter->data);
+        break;
+    case Param::Datetime:
+        paramDT=parameter->getDateTimeValue();
+        paramDT->setConnection(this->connection);
+        paramDT->copyToOci();
+        OCI_BindDate(ociStmt,
+                     parameter->getParamName().toStdWString().c_str(),
+                     paramDT->ociDate());
         break;
     case Param::Stmt:
     {
@@ -133,6 +148,12 @@ void Statement::bindParam(Param *parameter)
     default:
         Q_ASSERT(false);
         break;
+    }
+
+    DbUtil::checkForOciError(ociStmt);
+
+    if(parameter->isNull()){
+        OCI_BindSetNull(OCI_GetBind2(ociStmt, parameter->getParamName().toStdWString().c_str()));
     }
 
     DbUtil::checkForOciError(ociStmt);

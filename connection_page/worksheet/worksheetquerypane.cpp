@@ -71,14 +71,20 @@ void WorksheetQueryPane::executeQuery()
     }
 
     QStringList bindParams = PlSqlParseHelper::getBindParams(queryText);
+    QList<Param*> params;
     if(bindParams.size()>0){
-        promptForBindParams(bindParams);
+        params=promptForBindParams(bindParams);
+        //param count will be 0 if user pressed cancel
+        if(params.size()==0){
+            return;
+        }
     }
 
     QueryExecTask task;
     task.requester=this;
     task.taskName="execute_worksheet_query";
     task.query=queryText;
+    task.params=params;
     task.queryCompletedSlotName="queryCompleted";
 
     queryScheduler->enqueueQuery(task);
@@ -135,8 +141,14 @@ void WorksheetQueryPane::emitMessage(const QString &msg)
     emit message(msg);
 }
 
-void WorksheetQueryPane::promptForBindParams(const QStringList &bindParams)
+QList<Param*> WorksheetQueryPane::promptForBindParams(const QStringList &bindParams)
 {
+    QList<Param*> params;
+
     BindParamsDialog dialog(bindParams, this);
-    dialog.exec();
+    if(dialog.exec()){
+        params = dialog.getParams();
+    }
+
+    return params;
 }

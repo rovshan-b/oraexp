@@ -23,6 +23,12 @@ void Param::cleanup()
     }else if(type==Integer){
         int *i=(int*)data;
         delete i;
+    }else if(type==Double){
+        double *d=(double*)data;
+        delete d;
+    }else if(type==Datetime){
+        DateTime *dt=(DateTime*)data;
+        delete dt;
     }else if(type==Stmt){
         Statement *stmt=(Statement*)data;
         delete stmt;
@@ -58,6 +64,14 @@ Param::Param(const QString &paramName, bool paramValue, ParamDirection direction
 {
     type=Integer;
     data=new int(paramValue==0 ? false : true);
+
+    ref();
+}
+
+Param::Param(const QString &paramName, const DateTime &paramValue, Param::ParamDirection direction) : paramName(paramName), direction(direction)
+{
+    type=Datetime;
+    data=new DateTime(paramValue);
 
     ref();
 }
@@ -116,6 +130,13 @@ void Param::setDoubleValue(int paramValue)
     Q_ASSERT(type==Double);
 
     *((double*)data)=paramValue;
+}
+
+DateTime *Param::getDateTimeValue() const
+{
+    Q_ASSERT(type==Datetime);
+
+    return (DateTime*)data;
 }
 
 Statement *Param::getStmtValue() const

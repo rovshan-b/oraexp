@@ -13,6 +13,7 @@ class DbConnection;
 class QToolBar;
 class IQueryScheduler;
 class MultiEditorWidget;
+class Param;
 
 class WorksheetQueryPane : public QWidget
 {
@@ -43,7 +44,7 @@ private:
     MultiEditorWidget *multiEditor;
 
     void emitMessage(const QString &msg);
-    void promptForBindParams(const QStringList &bindParams);
+    QList<Param *> promptForBindParams(const QStringList &bindParams);
 
 private slots:
     void executeQuery();

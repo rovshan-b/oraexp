@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QVariant>
+#include "connectivity/datetime.h"
 
 class Statement;
 
@@ -19,6 +20,7 @@ public:
         String,
         Integer,
         Double,
+        Datetime,
         Stmt
     };
 
@@ -27,6 +29,7 @@ public:
     Param(const QString &paramName, int paramValue, ParamDirection direction=InOut);
     Param(const QString &paramName, double paramValue, ParamDirection direction=InOut);
     Param(const QString &paramName, bool paramValue, ParamDirection direction=InOut);
+    Param(const QString &paramName, const DateTime &paramValue, ParamDirection direction=InOut);
     Param(const QString &paramName);
 
     QString getParamName() const;
@@ -40,10 +43,15 @@ public:
     int getDoubleValue() const;
     void setDoubleValue(int paramValue);
 
+    DateTime *getDateTimeValue() const;
+
     Statement *getStmtValue() const;
 
     ParamDirection getParamDirection() const {return this->direction;}
     ParamType getParamType() const {return this->type;}
+
+    void setNull(){this->isNullParam=true;}
+    bool isNull() const {return this->isNullParam;}
 
     void *data;
 
@@ -56,12 +64,15 @@ private:
 
     void cleanup();
 
+    bool isNullParam;
+
 #ifdef DEBUG
     static QAtomicInt objectCount;
 #endif
 
     void ref()
     {
+        isNullParam=false;
 #ifdef DEBUG
         Param::objectCount.ref();
 #endif
