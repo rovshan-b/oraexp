@@ -94,6 +94,12 @@ int CodeEditor::lineNumberAreaWidth()
      }
  }
 
+ void CodeEditor::removePulsatePositions()
+ {
+     pulsatePositions.clear();
+     highlightCurrentLine();
+ }
+
  void CodeEditor::resizeEvent(QResizeEvent *e)
  {
      QPlainTextEdit::resizeEvent(e);
@@ -127,6 +133,14 @@ int CodeEditor::lineNumberAreaWidth()
          searchTextSelection.cursor=foundTextPositions.at(i);
 
          extraSelections.append(searchTextSelection);
+     }
+
+     for(int i=0; i<pulsatePositions.size(); ++i){
+         QTextEdit::ExtraSelection pulsateSelection;
+         pulsateSelection.format.setBackground(QColor(210,255,165));
+         pulsateSelection.cursor=pulsatePositions.at(i);
+
+         extraSelections.append(pulsateSelection);
      }
 
      setExtraSelections(extraSelections);
@@ -685,15 +699,19 @@ int CodeEditor::lineNumberAreaWidth()
      cur.insertText(text);
  }
 
- QString CodeEditor::getCurrentText() const
+ QString CodeEditor::getCurrentText(QTextCursor &txtCursor) const
  {
+     QString result;
+
      QTextCursor cursor=textCursor();
      if(cursor.hasSelection()){
-         return cursor.selectedText().replace(QChar(0x2029), QChar('\n'));
+         result = cursor.selectedText().replace(QChar(0x2029), QChar('\n'));
      }else{
-         //return toPlainText();
-         return getCurrentTextSurroundedByEmptyLines(cursor);
+         result = getCurrentTextSurroundedByEmptyLines(cursor);
      }
+
+     txtCursor=cursor;
+     return result;
  }
 
  QString CodeEditor::getCurrentTextSurroundedByEmptyLines(QTextCursor &cursor) const
@@ -719,7 +737,8 @@ int CodeEditor::lineNumberAreaWidth()
          result.append(line);
      }
 
-     while(cursor.movePosition(QTextCursor::NextBlock)){
+     cursor.movePosition(QTextCursor::StartOfBlock);
+     while(cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor)){
          line = cursor.block().text().trimmed();
 
          if(line.isEmpty()){
@@ -733,7 +752,13 @@ int CodeEditor::lineNumberAreaWidth()
          result.append(line);
      }
 
-     return result.trimmed();
+     result=result.trimmed();
+
+     if(!result.isEmpty()){
+         cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+     }
+
+     return result;
  }
 
  void CodeEditor::setFoundTextPositions(const QList< QTextCursor > &foundTextPositions)
@@ -760,4 +785,12 @@ int CodeEditor::lineNumberAreaWidth()
      setTextCursor(cursor);
      ensureCursorVisible();
      setFocus();
+ }
+
+ void CodeEditor::pulsate(const QTextCursor &cursor)
+ {
+     pulsatePositions.clear();
+     pulsatePositions.append(cursor);
+     highlightCurrentLine();
+     QTimer::singleShot(300, this, SLOT(removePulsatePositions()));
  }

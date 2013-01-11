@@ -146,6 +146,34 @@ Statement *Param::getStmtValue() const
     return (Statement*)data;
 }
 
+QString Param::toString() const
+{
+    QString result;
+
+    switch(type){
+    case String:
+        result = getStrValue();
+        break;
+    case Integer:
+        result = QString::number(getIntValue());
+        break;
+    case Double:
+        result = QString::number(getDoubleValue());
+        break;
+    case Datetime:
+        result = getDateTimeValue()->toString();
+        break;
+    case Stmt:
+        result = "cursor";
+        break;
+    default:
+        Q_ASSERT(false);
+        break;
+    }
+
+    return result;
+}
+
 void Param::printObjectCount()
 {
 #ifdef DEBUG

@@ -53,6 +53,8 @@ public:
     void setNull(){this->isNullParam=true;}
     bool isNull() const {return this->isNullParam;}
 
+    QString toString() const;
+
     void *data;
 
     static void printObjectCount();

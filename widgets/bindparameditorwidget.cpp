@@ -11,7 +11,7 @@ BindParamEditorWidget::BindParamEditorWidget(QWidget *parent) :
 {
     QHBoxLayout *mainLayout=new QHBoxLayout();
 
-    dateValidator = new QRegExpValidator(WidgetHelper::createDateTimeRegExp(), this);
+    //dateValidator = new QRegExpValidator(WidgetHelper::createDateTimeRegExp(), this);
 
     paramTypeCombo=new QComboBox();
     paramTypeCombo->addItem(tr("String/Number"));
@@ -43,28 +43,53 @@ void BindParamEditorWidget::setFocusToEditor()
     valueEditor->setFocus();
 }
 
-void BindParamEditorWidget::setBindParamType(BindParamEditorWidget::BindParamType type)
+void BindParamEditorWidget::setBindParamType(BindParamInfo::BindParamType type)
 {
     Q_ASSERT(type>=0 && type<paramTypeCombo->count());
 
     paramTypeCombo->setCurrentIndex((int)type);
 }
 
+BindParamInfo::BindParamType BindParamEditorWidget::getBindParamType() const
+{
+    return (BindParamInfo::BindParamType)paramTypeCombo->currentIndex();
+}
+
+QString BindParamEditorWidget::getBindParamValue() const
+{
+    return valueEditor->currentText();
+}
+
+void BindParamEditorWidget::setBindParamInfo(BindParamInfo *paramInfo)
+{
+    paramTypeCombo->setCurrentIndex((int)paramInfo->paramType);
+    paramDirectionCombo->setCurrentIndex((int)paramInfo->paramDirection);
+
+    for(int i=paramInfo->paramValueHistory.size()-1; i>=0; --i){
+        valueEditor->addItem(paramInfo->paramValueHistory.at(i));
+    }
+
+    if(valueEditor->count()>0){
+        valueEditor->setCurrentIndex(0);
+    }
+}
+
 Param *BindParamEditorWidget::createParam(const QString &paramName)
 {
     Param *result;
-    BindParamType paramType=(BindParamType)paramTypeCombo->currentIndex();
+    BindParamInfo::BindParamType paramType=(BindParamInfo::BindParamType)paramTypeCombo->currentIndex();
     QString value=valueEditor->lineEdit()->text();
     Param::ParamDirection paramDirection = (Param::ParamDirection)paramDirectionCombo->currentIndex();
 
+    qDebug() << value;
     switch(paramType){
-    case Cursor:
+    case BindParamInfo::Cursor:
         result = new Param(paramName);
         break;
-    case StringOrNumber:
+    case BindParamInfo::StringOrNumber:
         result = new Param(paramName, value, paramDirection);
         break;
-    case Date:
+    case BindParamInfo::Date:
         result = new Param(paramName, DateTime(value), paramDirection);
         if(value.trimmed().isEmpty()){
             result->setNull();
@@ -81,7 +106,7 @@ Param *BindParamEditorWidget::createParam(const QString &paramName)
 
 void BindParamEditorWidget::paramTypeChanged(int newType)
 {
-    if(newType==Cursor){
+    if(newType==BindParamInfo::Cursor){
         valueEditor->setEnabled(false);
         paramDirectionCombo->setEnabled(false);
         paramDirectionCombo->setCurrentIndex(Param::Out);
@@ -95,11 +120,14 @@ void BindParamEditorWidget::paramTypeChanged(int newType)
     }
 
 
-    if(newType==Date){
+    if(newType==BindParamInfo::Date){
         valueEditor->lineEdit()->setPlaceholderText(DB_DATE_FORMAT);
-        valueEditor->lineEdit()->setValidator(dateValidator);
+        valueEditor->lineEdit()->setInputMask("9999-99-99 00:00:00");
+        //valueEditor->setValidator(dateValidator);
+
     }else{
         valueEditor->lineEdit()->setPlaceholderText("NULL");
-        valueEditor->lineEdit()->setValidator(0);
+        valueEditor->lineEdit()->setInputMask("");
+        //valueEditor->setValidator(0);
     }
 }

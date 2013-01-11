@@ -18,13 +18,15 @@ public:
     QStringList getSemicolonSeparated() const;
 
     void addText(const QString &text);
-    QString getCurrentText() const;
+    QString getCurrentText(QTextCursor &txtCursor) const;
     QString getCurrentTextSurroundedByEmptyLines(QTextCursor &cursor) const;
 
     void setFoundTextPositions(const QList< QTextCursor > &foundTextPositions);
     void clearFoundTextPositions();
 
     void showLinePosition(int line, int linePos);
+
+    void pulsate(const QTextCursor &cursor);
 
     static QFont currentFont;
 
@@ -63,11 +65,13 @@ private slots:
     void updateLineNumberArea(const QRect &, int);
     void setUndoAvailable(bool available);
     void setRedoAvailable(bool available);
+    void removePulsatePositions();
 
 private:
     QWidget *lineNumberArea;
 
     QList< QTextCursor > foundTextPositions;
+    QList< QTextCursor > pulsatePositions;
 
     QString strTab;
 

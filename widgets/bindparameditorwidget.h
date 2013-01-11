@@ -2,6 +2,7 @@
 #define BINDPARAMEDITORWIDGET_H
 
 #include <QWidget>
+#include "beans/bindparaminfo.h"
 
 class QComboBox;
 class Param;
@@ -11,17 +12,14 @@ class BindParamEditorWidget : public QWidget
 {
     Q_OBJECT
 public:
-    enum BindParamType
-    {
-        StringOrNumber,
-        Date,
-        Cursor
-    };
-
     explicit BindParamEditorWidget(QWidget *parent = 0);
 
     void setFocusToEditor();
-    void setBindParamType(BindParamType type);
+    void setBindParamType(BindParamInfo::BindParamType type);
+    BindParamInfo::BindParamType getBindParamType() const;
+    QString getBindParamValue() const;
+
+    void setBindParamInfo(BindParamInfo *paramInfo);
 
     Param *createParam(const QString &paramName);
     
@@ -33,7 +31,7 @@ private:
     QComboBox *valueEditor;
     QComboBox *paramDirectionCombo;
 
-    QRegExpValidator *dateValidator;
+    //QRegExpValidator *dateValidator;
     
 };
 

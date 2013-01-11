@@ -10,15 +10,19 @@ class DateTime
 {
 public:
     DateTime();
-    DateTime(const QString &value);
+    DateTime(QString &value);
 
     ~DateTime();
 
     void setConnection(Connection *cn);
     OCI_Date *ociDate() const {return this->ociDt;}
 
+    QString toString() const;
+
     void copyToOci();
     void copyFromOci();
+
+    bool isValid() const;
 
 private:
     QDateTime dt;

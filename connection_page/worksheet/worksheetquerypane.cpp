@@ -6,6 +6,7 @@
 #include "widgets/multieditorwidget.h"
 #include "code_parser/plsql/plsqlparsehelper.h"
 #include "dialogs/bindparamsdialog.h"
+#include "beans/bindparaminfo.h"
 #include <QtGui>
 
 #include <iostream>
@@ -52,6 +53,11 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
     multiEditor->getCurrentEditor()->editor()->setPlainText("select * from smpp_incoming where msg_id<:msg_id");
 }
 
+WorksheetQueryPane::~WorksheetQueryPane()
+{
+    qDeleteAll(paramHistory.values());
+}
+
 void WorksheetQueryPane::executeQuery()
 {
     if(queryScheduler==0){
@@ -63,12 +69,15 @@ void WorksheetQueryPane::executeQuery()
         return;
     }
 
-    QString queryText=currentEditor()->editor()->getCurrentText().trimmed();
+    QTextCursor textCursor;
+    QString queryText=currentEditor()->editor()->getCurrentText(textCursor).trimmed();
 
     if(queryText.isEmpty()){
         emitMessage(tr("Query text cannot be empty"));
         return;
     }
+
+    currentEditor()->editor()->pulsate(textCursor);
 
     QStringList bindParams = PlSqlParseHelper::getBindParams(queryText);
     QList<Param*> params;
@@ -145,10 +154,45 @@ QList<Param*> WorksheetQueryPane::promptForBindParams(const QStringList &bindPar
 {
     QList<Param*> params;
 
-    BindParamsDialog dialog(bindParams, this);
+    BindParamsDialog dialog(bindParams, paramHistory, this);
     if(dialog.exec()){
         params = dialog.getParams();
+        saveBindParams(params);
     }
 
     return params;
+}
+
+void WorksheetQueryPane::saveBindParams(const QList<Param *> &params)
+{
+    foreach(Param* p, params){
+        BindParamInfo *paramInfo=paramHistory.value(p->getParamName());
+        if(paramInfo==0){
+            paramInfo = new BindParamInfo();
+            paramHistory[p->getParamName()]=paramInfo;
+        }
+        BindParamInfo::BindParamType paramType=BindParamInfo::StringOrNumber;
+        switch(p->getParamType()){
+        case Param::Datetime:
+            paramType=BindParamInfo::Date;
+            break;
+        case Param::Stmt:
+            paramType=BindParamInfo::Cursor;
+            break;
+        default:
+            break;
+        }
+        paramInfo->paramType=paramType;
+        paramInfo->paramDirection=p->getParamDirection();
+        if(paramType!=BindParamInfo::Cursor){
+            QString value = p->toString();
+            int valueIx = paramInfo->paramValueHistory.indexOf(value);
+            if(valueIx==-1){
+                paramInfo->paramValueHistory.append(value);
+            }else if(valueIx!=paramInfo->paramValueHistory.size()-1){ //if == then value already on top, do nothing
+                paramInfo->paramValueHistory.removeAt(valueIx);
+                paramInfo->paramValueHistory.append(value);
+            }
+        }
+    }
 }

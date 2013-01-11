@@ -382,7 +382,8 @@ SOURCES += main.cpp\
     code_parser/stringreader.cpp \
     dialogs/bindparamsdialog.cpp \
     widgets/bindparameditorwidget.cpp \
-    connectivity/datetime.cpp
+    connectivity/datetime.cpp \
+    beans/bindparaminfo.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -767,7 +768,8 @@ HEADERS  += mainwindow.h \
     code_parser/stringreader.h \
     dialogs/bindparamsdialog.h \
     widgets/bindparameditorwidget.h \
-    connectivity/datetime.h
+    connectivity/datetime.h \
+    beans/bindparaminfo.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

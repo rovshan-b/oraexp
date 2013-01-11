@@ -14,12 +14,15 @@ class QToolBar;
 class IQueryScheduler;
 class MultiEditorWidget;
 class Param;
+class BindParamInfo;
 
 class WorksheetQueryPane : public QWidget
 {
     Q_OBJECT
 public:
     explicit WorksheetQueryPane(QWidget *parent = 0);
+
+    virtual ~WorksheetQueryPane();
 
     void setContents(const QString &contents);
 
@@ -45,7 +48,9 @@ private:
 
     void emitMessage(const QString &msg);
     QList<Param *> promptForBindParams(const QStringList &bindParams);
+    void saveBindParams(const QList<Param *> &params);
 
+    QHash<QString, BindParamInfo *> paramHistory;
 private slots:
     void executeQuery();
     void queryCompleted(const QueryResult &result);

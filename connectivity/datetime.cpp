@@ -5,8 +5,12 @@ DateTime::DateTime() : ociDt(0)
 {
 }
 
-DateTime::DateTime(const QString &value) : ociDt(0)
+DateTime::DateTime(QString &value) : ociDt(0)
 {
+    while(value.endsWith(':')){
+        value.chop(1);
+    }
+    value=value.trimmed();
     //value will be in following format yyyy-mm-dd hh24:mi:ss. time part is optional
     if(value.size()<10 || value.size()>19){ //value is in invalid format
         return;
@@ -43,6 +47,11 @@ void DateTime::setConnection(Connection *cn)
     ociDt = OCI_DateCreate(cn->getOciConnection());
 }
 
+QString DateTime::toString() const
+{
+    return dt.toString("yyyy-MM-dd HH:mm:ss");
+}
+
 void DateTime::copyToOci()
 {
     QDate date=dt.date();
@@ -69,4 +78,10 @@ void DateTime::copyFromOci()
 
     dt.setDate(date);
     dt.setTime(time);
+}
+
+bool DateTime::isValid() const
+{
+    QTime time=dt.time();
+    return dt.date().isValid() && (time.isValid() || time.isNull());
 }
