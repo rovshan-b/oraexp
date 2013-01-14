@@ -5,6 +5,7 @@
 
 class DbConnection;
 class DataTable;
+class Resultset;
 
 class WorksheetResultsetTab : public WorksheetBottomPaneTab
 {
@@ -14,6 +15,7 @@ public:
 
     virtual WorksheetResultPane::WorksheetBottomPaneTabType getTabType() const;
     virtual void showQueryResults(IQueryScheduler *queryScheduler, const QueryResult &result);
+    void displayResultset(IQueryScheduler *queryScheduler, Resultset *rs);
 
 private slots:
     void firstFetchCompleted();

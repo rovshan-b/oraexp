@@ -67,11 +67,16 @@ void BindParamsDialog::createUi()
 
     mainLayout->addWidget(scrollArea);
 
-    mainLayout->addWidget(DialogHelper::createButtonBox(this));
+    QDialogButtonBox *buttonBox=DialogHelper::createButtonBox(this);
+    mainLayout->addWidget(buttonBox);
 
     setLayout(mainLayout);
 
-    controlToSetFocus->setFocusToEditor();
+    if(controlToSetFocus!=0){
+        controlToSetFocus->setFocusToEditor();
+    }else{
+        buttonBox->button(QDialogButtonBox::Ok)->setFocus();
+    }
 }
 
 QWidget *BindParamsDialog::createForm()
@@ -105,7 +110,7 @@ QWidget *BindParamsDialog::createForm()
 
         form->addRow(paramName, editor);
 
-        if(i==0){
+        if(controlToSetFocus==0 && editor->isEditorEnabled()){
             controlToSetFocus=editor;
         }
     }

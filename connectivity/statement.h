@@ -41,6 +41,7 @@ public:
 
     bool isPrepared(){return this->prepared;}
 
+    int paramCount() const;
     Param *param(int i) const;
     bool isAnonymousBlock();
 

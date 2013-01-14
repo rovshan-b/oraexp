@@ -23,6 +23,8 @@ private:
     QBrush redBrush;
     QBrush defaultBrush;
 
+    void printParamValues(Statement *stmt);
+
 };
 
 #endif // WORKSHEETINFOTAB_H

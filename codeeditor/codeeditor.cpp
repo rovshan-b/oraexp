@@ -726,7 +726,7 @@ int CodeEditor::lineNumberAreaWidth()
 
      //move up until we find an empty line
      while(cursor.movePosition(QTextCursor::PreviousBlock)){
-         line = cursor.block().text();
+         line = cursor.block().text().trimmed();
 
          if(line.isEmpty()){
              break;

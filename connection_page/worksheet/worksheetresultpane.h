@@ -24,8 +24,11 @@ public:
     void displayQueryResults(IQueryScheduler *queryScheduler, const QueryResult &result);
     void displayMessage(const QString &msg);
 
+    void setResultsetTabNamesFromOutParams(Statement *stmt, QList<WorksheetBottomPaneTab *> tabs);
+
 private:
     WorksheetBottomPaneTab *getTabToDisplayResults(WorksheetBottomPaneTabType tabType);
+    QList<WorksheetBottomPaneTab *> getTabsToDisplayResults(WorksheetBottomPaneTabType tabType, int countToReturn);
 };
 
 #endif // WORKSHEETRESULTPANE_H

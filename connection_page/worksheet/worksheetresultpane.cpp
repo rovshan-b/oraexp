@@ -14,16 +14,38 @@ WorksheetResultPane::WorksheetResultPane(QWidget *parent) : SubTabWidget(parent)
 
 void WorksheetResultPane::displayQueryResults(IQueryScheduler *queryScheduler, const QueryResult &result)
 {
-    WorksheetBottomPaneTab *tab=0;
-
-    if(!result.hasError && result.statement!=0 && result.statement->rsCount()>0){
-        tab=getTabToDisplayResults(ResultsetTab);
-    }else{
-        tab=getTabToDisplayResults(InfoTab);
+    int rsCount=0;
+    if(result.statement!=0){
+        rsCount = result.statement->rsCount();
     }
 
-    tab->showQueryResults(queryScheduler, result);
-    setCurrentWidget(tab);
+    OraExp::QueryType statementType = result.hasError ? OraExp::QueryTypeUnknown : result.statement->getStatementType();
+    if((result.hasError) || (result.statement!=0 && statementType!=OraExp::QueryTypeSelect)){
+        WorksheetBottomPaneTab *tab=getTabToDisplayResults(InfoTab);
+
+        if(rsCount!=1){
+            tab->showQueryResults(queryScheduler, result);
+            setCurrentWidget(tab);
+        }
+    }
+
+    if(result.statement!=0 && result.statement->rsCount()>0){
+        QList<WorksheetBottomPaneTab *> tabs = getTabsToDisplayResults(ResultsetTab, rsCount);
+        if(statementType==OraExp::QueryTypeDeclare || statementType==OraExp::QueryTypeBegin){
+            setResultsetTabNamesFromOutParams(result.statement, tabs);
+        }
+        for(int i=0; i<tabs.size(); ++i){
+            WorksheetResultsetTab *rsTab = static_cast<WorksheetResultsetTab *>(tabs.at(i));
+            rsTab->displayResultset(queryScheduler, result.statement->rsAt(i));
+
+            if(rsCount==1){
+                if(statementType!=OraExp::QueryTypeDeclare && statementType!=OraExp::QueryTypeBegin){
+                    setTabText(indexOf(rsTab), tr("Results"));
+                }
+                setCurrentWidget(rsTab);
+            }
+        }
+    }
 }
 
 void WorksheetResultPane::displayMessage(const QString &msg)
@@ -37,42 +59,75 @@ void WorksheetResultPane::displayMessage(const QString &msg)
     setCurrentWidget(tab);
 }
 
+void WorksheetResultPane::setResultsetTabNamesFromOutParams(Statement *stmt, QList<WorksheetBottomPaneTab *> tabs)
+{
+    int rsParamIx=0;
+    for(int i=0; i<stmt->paramCount(); ++i){
+        Param *param=stmt->param(i);
+        if(param->getParamType()==Param::Stmt){
+            setTabText(indexOf(tabs.at(rsParamIx++)), param->getParamName());
+        }
+    }
+}
+
 WorksheetBottomPaneTab *WorksheetResultPane::getTabToDisplayResults(WorksheetBottomPaneTabType tabType)
 {
-    WorksheetBottomPaneTab *tab=0;
+    return getTabsToDisplayResults(tabType, 1).at(0);
+}
+
+QList<WorksheetBottomPaneTab *> WorksheetResultPane::getTabsToDisplayResults(WorksheetResultPane::WorksheetBottomPaneTabType tabType, int countToReturn)
+{
+    QList<WorksheetBottomPaneTab *> tabs;
+    WorksheetBottomPaneTab *tab;
 
     //check whether current tab can be used
     int currentTabIx=currentIndex();
     if(currentTabIx!=-1){
         tab=static_cast<WorksheetBottomPaneTab*>(currentWidget());
         if(tab->getTabType()==tabType && !tab->isPinned()){
-            return tab;
+            tabs.append(tab);
         }
+    }
+
+    if(tabs.size()==countToReturn){
+        return tabs;
     }
 
     //find first tab that can be used
     int tabCount=count();
     for(int i=0; i<tabCount; ++i){
         tab=static_cast<WorksheetBottomPaneTab*>(widget(i));
-        if(tab->getTabType()==tabType && !tab->isPinned()){
-            return tab;
+        if(tab->getTabType()==tabType && !tab->isPinned() && !tabs.contains(tab)){
+            tabs.append(tab);
+        }
+
+        if(tabs.size()==countToReturn){
+            break;
         }
     }
 
-    //no tab found, create new one
-    switch(tabType){
-    case ResultsetTab:
-        tab=new WorksheetResultsetTab();
-        addTab(tab, IconUtil::getIcon("table"), tr("Results"));
-        break;
-    case InfoTab:
-        tab=new WorksheetInfoTab();
-        addTab(tab, IconUtil::getIcon("worksheet"), tr("Info"));
-        break;
-    default: //should not happen
-        tab=0;
-        break;
+    int foundCount = tabs.size();
+
+    for(int i=foundCount; i<countToReturn; ++i){
+        switch(tabType){
+        case ResultsetTab:
+            tab=new WorksheetResultsetTab();
+            addTab(tab, IconUtil::getIcon("table"), tr("Results"));
+            tabs.append(tab);
+            break;
+        case InfoTab:
+            tab=new WorksheetInfoTab();
+            addTab(tab, IconUtil::getIcon("worksheet"), tr("Info"));
+            tabs.append(tab);
+            break;
+        default: //should not happen
+            tab=0;
+            Q_ASSERT(false);
+            break;
+        }
     }
 
-    return tab;
+    Q_ASSERT(tabs.size()==countToReturn);
+
+    return tabs;
 }

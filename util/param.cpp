@@ -164,7 +164,7 @@ QString Param::toString() const
         result = getDateTimeValue()->toString();
         break;
     case Stmt:
-        result = "cursor";
+        result = QObject::tr("Cursor");
         break;
     default:
         Q_ASSERT(false);

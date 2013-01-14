@@ -53,6 +53,10 @@ void WorksheetInfoTab::showQueryResults(IQueryScheduler*, const QueryResult &res
         WidgetHelper::appendToPlainTextEdit(infoBox, QString("\nDBMS_OUTPUT:\n%1").arg(result.dbmsOutput), false, blueBrush);
     }
 
+    if(result.statement!=0){
+        printParamValues(result.statement);
+    }
+
     if(result.statement!=0 && result.statement->rsCount()==0){
         delete result.statement;
     }
@@ -61,4 +65,24 @@ void WorksheetInfoTab::showQueryResults(IQueryScheduler*, const QueryResult &res
 void WorksheetInfoTab::showMessage(const QString &msg)
 {
     WidgetHelper::appendToPlainTextEdit(infoBox, msg, false, defaultBrush);
+}
+
+void WorksheetInfoTab::printParamValues(Statement *stmt)
+{
+    QString output;
+
+    for(int i=0; i<stmt->paramCount(); ++i){
+        Param *param=stmt->param(i);
+        if(param->getParamDirection()==Param::In || param->getParamType()==Param::Stmt){
+            continue;
+        }
+        output.append(QString("%1 : %2\n").arg(param->getParamName(), param->toString()));
+    }
+    if(!output.isEmpty()){
+        output.prepend("Bind parameters:\n");
+    }
+
+    if(!output.isEmpty()){
+        WidgetHelper::appendToPlainTextEdit(infoBox, output, false, blueBrush);
+    }
 }

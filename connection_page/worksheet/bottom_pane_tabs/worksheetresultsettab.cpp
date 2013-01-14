@@ -36,10 +36,15 @@ WorksheetResultPane::WorksheetBottomPaneTabType WorksheetResultsetTab::getTabTyp
     return WorksheetResultPane::ResultsetTab;
 }
 
-void WorksheetResultsetTab::showQueryResults(IQueryScheduler *queryScheduler, const QueryResult &result)
+void WorksheetResultsetTab::showQueryResults(IQueryScheduler *, const QueryResult &)
+{
+    Q_ASSERT(false);
+}
+
+void WorksheetResultsetTab::displayResultset(IQueryScheduler *queryScheduler, Resultset *rs)
 {
     progressBarAction->setVisible(true);
-    resultsTable->setResultset(queryScheduler, result.statement->rsAt(0));
+    resultsTable->setResultset(queryScheduler, rs);
 }
 
 void WorksheetResultsetTab::firstFetchCompleted()

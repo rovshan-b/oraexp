@@ -38,6 +38,11 @@ BindParamEditorWidget::BindParamEditorWidget(QWidget *parent) :
     connect(paramTypeCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(paramTypeChanged(int)));
 }
 
+bool BindParamEditorWidget::isEditorEnabled() const
+{
+    return valueEditor->isEnabled();
+}
+
 void BindParamEditorWidget::setFocusToEditor()
 {
     valueEditor->setFocus();

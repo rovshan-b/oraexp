@@ -14,6 +14,7 @@ class BindParamEditorWidget : public QWidget
 public:
     explicit BindParamEditorWidget(QWidget *parent = 0);
 
+    bool isEditorEnabled() const;
     void setFocusToEditor();
     void setBindParamType(BindParamInfo::BindParamType type);
     BindParamInfo::BindParamType getBindParamType() const;

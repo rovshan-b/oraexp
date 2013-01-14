@@ -264,6 +264,10 @@ OraExp::QueryType Statement::determineStatementType()
         break;
     }
 
+    if(queryType==OraExp::QueryTypeUnknown && this->verb=="EXPLAIN"){
+        queryType=OraExp::QueryTypeExplainPlan;
+    }
+
     return queryType;
 }
 
@@ -351,6 +355,11 @@ Param *Statement::getParamByName(const QString &paramName)
     Q_ASSERT(false);
 
     return 0;
+}
+
+int Statement::paramCount() const
+{
+    return params.size();
 }
 
 Param *Statement::param(int i) const
