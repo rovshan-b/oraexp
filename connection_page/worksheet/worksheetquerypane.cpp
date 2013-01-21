@@ -3,10 +3,11 @@
 #include "interfaces/iqueryscheduler.h"
 #include "util/iconutil.h"
 #include "util/widgethelper.h"
+#include "util/strutil.h"
 #include "widgets/multieditorwidget.h"
 #include "code_parser/plsql/plsqlparsehelper.h"
 #include "dialogs/bindparamsdialog.h"
-#include "beans/bindparaminfo.h"
+#include "connectivity/statement.h"
 #include <QtGui>
 
 #include <iostream>
@@ -23,6 +24,7 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
     toolbar->setEnabled(false);
 
     toolbar->addAction(IconUtil::getIcon("execute"), tr("Execute"), this, SLOT(executeQuery()))->setShortcut(QKeySequence("Ctrl+Return"));
+    toolbar->addAction(IconUtil::getIcon("explain_plan"), tr("Explain plan"), this, SLOT(executeExplainPlan()))->setShortcut(QKeySequence("Ctrl+E"));
 
     toolbar->addSeparator();
 
@@ -39,7 +41,6 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
     WidgetHelper::addStretchToToolbar(toolbar);
     multiEditor->addSplittingActions(toolbar);
 
-    WidgetHelper::updateActionTooltips(toolbar);
     layout->addWidget(toolbar);
     layout->addWidget(multiEditor);
 
@@ -58,7 +59,7 @@ WorksheetQueryPane::~WorksheetQueryPane()
     qDeleteAll(paramHistory.values());
 }
 
-void WorksheetQueryPane::executeQuery()
+void WorksheetQueryPane::executeQuery(ExecuteMode executeMode)
 {
     if(queryScheduler==0){
         return;
@@ -79,14 +80,22 @@ void WorksheetQueryPane::executeQuery()
 
     currentEditor()->editor()->pulsate(textCursor);
 
-    QStringList bindParams = PlSqlParseHelper::getBindParams(queryText);
     QList<Param*> params;
-    if(bindParams.size()>0){
-        params=promptForBindParams(bindParams);
-        //param count will be 0 if user pressed cancel
-        if(params.size()==0){
-            return;
+
+    if(executeMode==ExecuteQuery){
+        lastExpPlanStatementId="";
+        QList<BindParamInfo::BindParamType> suggestedParamTypes;
+        QStringList bindParams = PlSqlParseHelper::getBindParams(queryText, &suggestedParamTypes);
+        if(bindParams.size()>0){
+            params=promptForBindParams(bindParams, suggestedParamTypes);
+            //param count will be 0 if user pressed cancel
+            if(params.size()==0){
+                return;
+            }
         }
+    }else if(executeMode==ExecuteExplainPlan){
+        lastExpPlanStatementId=md5(QUuid::createUuid().toString()).left(30);
+        queryText.prepend(QString("EXPLAIN PLAN SET STATEMENT_ID='%1' FOR ").arg(lastExpPlanStatementId));
     }
 
     QueryExecTask task;
@@ -100,12 +109,26 @@ void WorksheetQueryPane::executeQuery()
     progressBarAction->setVisible(true);
 }
 
+void WorksheetQueryPane::executeExplainPlan()
+{
+    executeQuery(ExecuteExplainPlan);
+}
+
 
 void WorksheetQueryPane::queryCompleted(const QueryResult &result)
 {
-    progressBarAction->setVisible(false);
-
-    emit queryDone(result);
+    if(result.hasError || lastExpPlanStatementId.isEmpty()){
+        progressBarAction->setVisible(false);
+        emit queryDone(result);
+    }else{
+        delete result.statement;
+        queryScheduler->enqueueQuery("get_explain_plan_data",
+                                     QList<Param*>() << new Param("statement_id", lastExpPlanStatementId),
+                                     this,
+                                     "get_explain_plan_data",
+                                     "queryCompleted");
+        lastExpPlanStatementId="";
+    }
 }
 
 void WorksheetQueryPane::setContents(const QString &contents)
@@ -150,11 +173,11 @@ void WorksheetQueryPane::emitMessage(const QString &msg)
     emit message(msg);
 }
 
-QList<Param*> WorksheetQueryPane::promptForBindParams(const QStringList &bindParams)
+QList<Param*> WorksheetQueryPane::promptForBindParams(const QStringList &bindParams, const QList<BindParamInfo::BindParamType> &suggestedParamTypes)
 {
     QList<Param*> params;
 
-    BindParamsDialog dialog(bindParams, paramHistory, this);
+    BindParamsDialog dialog(bindParams, suggestedParamTypes, paramHistory, this);
     if(dialog.exec()){
         params = dialog.getParams();
         saveBindParams(params);

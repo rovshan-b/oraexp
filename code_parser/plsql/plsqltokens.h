@@ -1,6 +1,8 @@
 #ifndef PLSQLTOKENS_H
 #define PLSQLTOKENS_H
 
+#include "plsqlrules.h"
+
 #define PLS_QUOTED_STRING 100000
 #define PLS_ID 100001
 #define PLS_SEMI 100002
@@ -37,11 +39,5 @@
 #define PLS_ML_COMMENT 100033
 #define PLS_E_O_F 100034
 #define PLS_ERROR 100035
-
-
-//rules
-#define R_CREATE_CODE_AUG 1
-#define R_CREATE_CODE 2
-#define R_CREATE_PACKAGE 3
 
 #endif // PLSQLTOKENS_H

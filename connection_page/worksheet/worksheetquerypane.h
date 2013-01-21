@@ -6,6 +6,7 @@
 #include "connectivity/ociexception.h"
 #include "codeeditor/codeeditor.h"
 #include "widgets/codeeditorandsearchpanewidget.h"
+#include "beans/bindparaminfo.h"
 
 class WorksheetCodeEditor;
 class QToolButton;
@@ -20,6 +21,12 @@ class WorksheetQueryPane : public QWidget
 {
     Q_OBJECT
 public:
+    enum ExecuteMode
+    {
+        ExecuteQuery,
+        ExecuteExplainPlan
+    };
+
     explicit WorksheetQueryPane(QWidget *parent = 0);
 
     virtual ~WorksheetQueryPane();
@@ -47,12 +54,15 @@ private:
     MultiEditorWidget *multiEditor;
 
     void emitMessage(const QString &msg);
-    QList<Param *> promptForBindParams(const QStringList &bindParams);
+    QList<Param *> promptForBindParams(const QStringList &bindParams, const QList<BindParamInfo::BindParamType> &suggestedParamTypes);
     void saveBindParams(const QList<Param *> &params);
 
     QHash<QString, BindParamInfo *> paramHistory;
+
+    QString lastExpPlanStatementId;
 private slots:
-    void executeQuery();
+    void executeQuery(ExecuteMode executeMode=ExecuteQuery);
+    void executeExplainPlan();
     void queryCompleted(const QueryResult &result);
 
 };

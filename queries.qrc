@@ -118,5 +118,6 @@
         <file>queries/get_user_roles_for_detailed_view.sql</file>
         <file>queries/get_user_sys_privs_for_detailed_view.sql</file>
         <file>queries/get_user_tablespace_quotas_as_dba_for_detailed_view.sql</file>
+        <file>queries/get_explain_plan_data.sql</file>
     </qresource>
 </RCC>

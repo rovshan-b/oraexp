@@ -113,5 +113,6 @@
         <file>images/goto_line.png</file>
         <file>images/left_right_arrows.png</file>
         <file>images/left_arrow.png</file>
+        <file>images/explain_plan.png</file>
     </qresource>
 </RCC>

@@ -27,7 +27,7 @@ void RecordFetcherThread::run()
         const int chunkSize=20;
         rows.reserve(chunkSize);
 
-        while(fetchedCount++<recordCountToFetch &&
+        while((fetchedCount++<recordCountToFetch || recordCountToFetch==-1 /*-1 to fetch all rows*/) &&
                     rs->moveNext()){
 
             QStringList oneRow;

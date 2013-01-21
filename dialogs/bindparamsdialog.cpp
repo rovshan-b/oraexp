@@ -2,14 +2,14 @@
 #include "widgets/bindparameditorwidget.h"
 #include "util/dialoghelper.h"
 #include "util/param.h"
-#include "beans/bindparaminfo.h"
 #include <QStringList>
 #include <QtGui>
 
 BindParamsDialog::BindParamsDialog(const QStringList &bindParams,
-                                   const QHash<QString, BindParamInfo *> &paramHistory,
-                                   QWidget *parent) :
-    QDialog(parent), bindParams(bindParams), paramHistory(paramHistory), controlToSetFocus(0)
+                                   const QList<BindParamInfo::BindParamType> &suggestedParamTypes,
+                                   const QHash<QString, BindParamInfo *> &paramHistory, QWidget *parent) :
+    QDialog(parent), bindParams(bindParams), suggestedParamTypes(suggestedParamTypes),
+    paramHistory(paramHistory), controlToSetFocus(0)
 {
     setWindowTitle(tr("Bind parameters"));
 
@@ -86,7 +86,6 @@ QWidget *BindParamsDialog::createForm()
     QFormLayout *form=new QFormLayout();
     BindParamEditorWidget *editor;
     QString paramName;
-    QStringList nameParts;
 
     for(int i=0; i<bindParams.size(); ++i){
         paramName=bindParams.at(i);
@@ -96,12 +95,8 @@ QWidget *BindParamsDialog::createForm()
         BindParamInfo *paramInfo = paramHistory.value(paramName);
 
         if(paramInfo==0){
-            nameParts=paramName.split('_');
-            if(nameParts.contains("DATE", Qt::CaseInsensitive) ||
-                    nameParts.contains("TIME", Qt::CaseInsensitive) ||
-                    nameParts.contains("DATETIME", Qt::CaseInsensitive)){
-                editor->setBindParamType(BindParamInfo::Date);
-            }
+            BindParamInfo::BindParamType suggestedType = suggestedParamTypes.at(i);
+            editor->setBindParamType(suggestedType);
         }else{
             editor->setBindParamInfo(paramInfo);
         }

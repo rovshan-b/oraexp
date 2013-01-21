@@ -383,7 +383,10 @@ SOURCES += main.cpp\
     dialogs/bindparamsdialog.cpp \
     widgets/bindparameditorwidget.cpp \
     connectivity/datetime.cpp \
-    beans/bindparaminfo.cpp
+    beans/bindparaminfo.cpp \
+    connection_page/worksheet/bottom_pane_tabs/worksheetexplainplantab.cpp \
+    beans/explainplanrow.cpp \
+    delegates/explainplandelegate.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -769,7 +772,11 @@ HEADERS  += mainwindow.h \
     dialogs/bindparamsdialog.h \
     widgets/bindparameditorwidget.h \
     connectivity/datetime.h \
-    beans/bindparaminfo.h
+    beans/bindparaminfo.h \
+    code_parser/plsql/plsqlrules.h \
+    connection_page/worksheet/bottom_pane_tabs/worksheetexplainplantab.h \
+    beans/explainplanrow.h \
+    delegates/explainplandelegate.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

@@ -48,4 +48,6 @@ bool caseInsensitiveLessThan(const QString &s1, const QString &s2);
 
 void setDbLinkName(QString &str, const QString &dbLinkName);
 
+QString md5(const QString &str);
+
 #endif // STRUTIL_H

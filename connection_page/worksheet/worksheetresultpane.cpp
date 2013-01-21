@@ -1,6 +1,7 @@
 #include "worksheetresultpane.h"
 #include "bottom_pane_tabs/worksheetinfotab.h"
 #include "bottom_pane_tabs/worksheetresultsettab.h"
+#include "bottom_pane_tabs/worksheetexplainplantab.h"
 #include "util/iconutil.h"
 #include "connectivity/statement.h"
 #include <QtGui>
@@ -20,16 +21,18 @@ void WorksheetResultPane::displayQueryResults(IQueryScheduler *queryScheduler, c
     }
 
     OraExp::QueryType statementType = result.hasError ? OraExp::QueryTypeUnknown : result.statement->getStatementType();
-    if((result.hasError) || (result.statement!=0 && statementType!=OraExp::QueryTypeSelect)){
+    bool isExplainPlan = result.taskName=="get_explain_plan_data";
+
+    if((result.hasError) || (result.statement!=0 && statementType!=OraExp::QueryTypeSelect && !isExplainPlan)){
         WorksheetBottomPaneTab *tab=getTabToDisplayResults(InfoTab);
+        tab->showQueryResults(queryScheduler, result);
 
         if(rsCount!=1){
-            tab->showQueryResults(queryScheduler, result);
             setCurrentWidget(tab);
         }
     }
 
-    if(result.statement!=0 && result.statement->rsCount()>0){
+    if(result.statement!=0 && result.statement->rsCount()>0 && !isExplainPlan){
         QList<WorksheetBottomPaneTab *> tabs = getTabsToDisplayResults(ResultsetTab, rsCount);
         if(statementType==OraExp::QueryTypeDeclare || statementType==OraExp::QueryTypeBegin){
             setResultsetTabNamesFromOutParams(result.statement, tabs);
@@ -45,6 +48,12 @@ void WorksheetResultPane::displayQueryResults(IQueryScheduler *queryScheduler, c
                 setCurrentWidget(rsTab);
             }
         }
+    }
+
+    if(isExplainPlan){
+        WorksheetBottomPaneTab *tab=getTabToDisplayResults(ExplainPlanTab);
+        tab->showQueryResults(queryScheduler, result);
+        setCurrentWidget(tab);
     }
 }
 
@@ -118,6 +127,11 @@ QList<WorksheetBottomPaneTab *> WorksheetResultPane::getTabsToDisplayResults(Wor
         case InfoTab:
             tab=new WorksheetInfoTab();
             addTab(tab, IconUtil::getIcon("worksheet"), tr("Info"));
+            tabs.append(tab);
+            break;
+        case ExplainPlanTab:
+            tab=new WorksheetExplainPlanTab();
+            addTab(tab, IconUtil::getIcon("explain_plan"), tr("Explain plan"));
             tabs.append(tab);
             break;
         default: //should not happen

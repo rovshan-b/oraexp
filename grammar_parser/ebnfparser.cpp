@@ -47,7 +47,7 @@ void EBNFParser::parse()
 
     printTargetScannerTokens();
 
-    //registerTargetScannerKeywordsFromFile();
+    registerTargetScannerKeywordsFromFile();
     //EBNFToken eofToken=EBNFScanner::createEOFToken();
     //registerTargetScannerKeyword(eofToken);
     targetScannerKeywords.sort();

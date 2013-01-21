@@ -3,8 +3,7 @@
 #include <QTextStream>
 #include <QSet>
 #include "util/strutil.h"
-
-QStringList SyntaxHighligher::keywords;
+#include "code_parser/plsql/plsqlparsingtable.h"
 
 SyntaxHighligher::SyntaxHighligher(QTextDocument * parent) :
     QSyntaxHighlighter(parent)
@@ -14,21 +13,6 @@ SyntaxHighligher::SyntaxHighligher(QTextDocument * parent) :
     keywordFormat.setForeground(Qt::blue);
     //keywordFormat.setFontWeight(QFont::Bold);
     keywordFormat.setFontCapitalization(QFont::AllUppercase);
-
-    if(SyntaxHighligher::keywords.isEmpty()){
-        Q_ASSERT(QFile::exists(":/misc/keywords"));
-
-        SyntaxHighligher::keywords.reserve(400);
-        QFile keywordsFile(":/misc/keywords");
-        bool opened=keywordsFile.open(QIODevice::ReadOnly);
-        Q_ASSERT(opened);
-        QTextStream in(&keywordsFile);
-        while (!in.atEnd()) {
-            QString line = in.readLine();
-            SyntaxHighligher::keywords.append(line);
-            SyntaxHighligher::keywords.sort();
-        }
-    }
 
     numberFormat.setForeground(Qt::darkGreen);
     rule.pattern = QRegExp("\\b\\d+\\.?\\d*\\b");
@@ -63,11 +47,8 @@ void SyntaxHighligher::highlightBlock(const QString &text)
     //highlight keywords
     QSet<QString> allWords = text.split(QRegExp("\\W+")).toSet();
     foreach(const QString &word, allWords){
-        QList<QString>::const_iterator it=qBinaryFind(SyntaxHighligher::keywords.begin(),
-                                                      SyntaxHighligher::keywords.end(),
-                                                      word,
-                                                      caseInsensitiveLessThan);
-        if(it!=SyntaxHighligher::keywords.end()){
+        bool isKeyword=(PlSqlParsingTable::getInstance()->getKeywordIx(word)>=0);
+        if(isKeyword){
             QRegExp rx(QString("\\b%1\\b").arg(word));
             rx.setCaseSensitivity(Qt::CaseInsensitive);
 

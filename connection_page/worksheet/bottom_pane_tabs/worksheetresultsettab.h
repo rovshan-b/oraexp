@@ -22,8 +22,6 @@ private slots:
 
 private:
     DataTable *resultsTable;
-
-    QAction *progressBarAction;
 };
 
 #endif // WORKSHEETRESULTSETTAB_H

@@ -1,6 +1,7 @@
 #include "strutil.h"
 #include <QRegExp>
 #include <iostream>
+#include <QCryptographicHash>
 
 using namespace std;
 
@@ -200,4 +201,11 @@ void setDbLinkName(QString &str, const QString &dbLinkName)
     }else{
         str.remove("{db_link}");
     }
+}
+
+QString md5(const QString &str)
+{
+    QCryptographicHash hash(QCryptographicHash::Md5);
+    hash.addData(str.toUtf8());
+    return hash.result().toHex();
 }

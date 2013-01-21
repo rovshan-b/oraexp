@@ -6,11 +6,18 @@
 WorksheetInfoTab::WorksheetInfoTab(QWidget *parent) :
     WorksheetBottomPaneTab(parent), blueBrush(Qt::blue), redBrush(Qt::red)
 {
-    QHBoxLayout *layout=new QHBoxLayout();
+    QVBoxLayout *layout=new QVBoxLayout();
+
+    createToolbar();
+    layout->addWidget(toolbar);
+
     infoBox=new QPlainTextEdit();
     infoBox->setReadOnly(true);
     layout->addWidget(infoBox);
 
+
+    layout->setSpacing(2);
+    layout->setContentsMargins(2,0,2,0);
     setLayout(layout);
 }
 

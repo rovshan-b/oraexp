@@ -16,7 +16,8 @@ public:
 
     enum WorksheetBottomPaneTabType{
         InfoTab,
-        ResultsetTab
+        ResultsetTab,
+        ExplainPlanTab
     };
 
     explicit WorksheetResultPane(QWidget *parent=0);

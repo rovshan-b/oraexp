@@ -735,13 +735,21 @@ int CodeEditor::lineNumberAreaWidth()
 
      if(!line.isEmpty()){
          result.append(line);
+         cursor.movePosition(QTextCursor::StartOfBlock);
+         if(!cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor)){ //there is a single line in editor
+             cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+             return result;
+         }
+     }else{
+         cursor.movePosition(QTextCursor::NextBlock);
      }
 
-     cursor.movePosition(QTextCursor::StartOfBlock);
-     while(cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor)){
+     do{
          line = cursor.block().text().trimmed();
 
          if(line.isEmpty()){
+             cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::KeepAnchor);
+             cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
              break;
          }
 
@@ -750,7 +758,7 @@ int CodeEditor::lineNumberAreaWidth()
          }
 
          result.append(line);
-     }
+     }while(cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor));
 
      result=result.trimmed();
 

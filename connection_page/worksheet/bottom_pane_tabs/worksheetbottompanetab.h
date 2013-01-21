@@ -5,6 +5,7 @@
 #include "../worksheetresultpane.h"
 
 class IQueryScheduler;
+class QToolBar;
 
 class WorksheetBottomPaneTab : public QWidget
 {
@@ -19,6 +20,12 @@ public:
 
 public slots:
     void setPinned(bool pinned);
+
+protected:
+    QToolBar *toolbar;
+    QAction *progressBarAction;
+
+    void createToolbar();
 
 private:
     bool pinned;

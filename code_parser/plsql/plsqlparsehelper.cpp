@@ -2,9 +2,10 @@
 #include "plsqlscanner.h"
 #include "../stringreader.h"
 #include "plsqltokens.h"
+#include "code_parser/plsql/plsqlparsingtable.h"
 #include <QDebug>
 
-QStringList PlSqlParseHelper::getBindParams(const QString &query)
+QStringList PlSqlParseHelper::getBindParams(const QString &query, QList<BindParamInfo::BindParamType> *suggestedParamTypes)
 {
     QStringList results;
 
@@ -13,11 +14,16 @@ QStringList PlSqlParseHelper::getBindParams(const QString &query)
 
     int token = PLS_E_O_F;
     bool waitingForName=false;
+    bool isCursor=false;
+    int openKeywordIx=PlSqlParsingTable::getInstance()->getKeywordIx("OPEN");
 
     do{
         token = scanner->getNextToken();
 
-        if(token==PLS_COLON){ //waiting for bind variable name
+        if(token==openKeywordIx){
+            isCursor=true;
+            waitingForName=false;
+        }else if(token==PLS_COLON){ //waiting for bind variable name
             waitingForName=true;
         }else if(waitingForName && (token==PLS_ID || token==PLS_DOUBLEQUOTED_STRING)){
             waitingForName=false;
@@ -31,8 +37,25 @@ QStringList PlSqlParseHelper::getBindParams(const QString &query)
                                         Qt::CaseInsensitive)){
                 results.append(token==PLS_DOUBLEQUOTED_STRING ? paramName : paramName.toUpper());
             }
-        }else if(waitingForName){
+
+            if(suggestedParamTypes!=0){
+                if(isCursor){
+                    suggestedParamTypes->append(BindParamInfo::Cursor);
+                }else {
+                    QStringList nameParts=paramName.split('_');
+                    if(nameParts.contains("DATE", Qt::CaseInsensitive) ||
+                            nameParts.contains("TIME", Qt::CaseInsensitive) ||
+                            nameParts.contains("DATETIME", Qt::CaseInsensitive)){
+                        suggestedParamTypes->append(BindParamInfo::Date);
+                    }else{
+                        suggestedParamTypes->append(BindParamInfo::StringOrNumber);
+                    }
+                }
+            }
+            isCursor=false;
+        }else if(waitingForName || isCursor){
             waitingForName=false;
+            isCursor=false;
         }
 
     }while(token!=PLS_E_O_F && token!=PLS_ERROR);

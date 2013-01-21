@@ -10,14 +10,7 @@ WorksheetResultsetTab::WorksheetResultsetTab(QWidget *parent) :
 {
     QVBoxLayout *layout=new QVBoxLayout();
 
-    QToolBar *toolbar=new QToolBar();
-    toolbar->setIconSize(QSize(16, 16));
-    toolbar->addAction(IconUtil::getIcon("pin"), tr("Pin"), this, SLOT(setPinned(bool)))->setCheckable(true);
-
-    toolbar->addSeparator();
-
-    progressBarAction=WidgetHelper::addProgressBarAction(toolbar);
-    progressBarAction->setVisible(false);
+    createToolbar();
 
     layout->addWidget(toolbar);
 
@@ -25,6 +18,7 @@ WorksheetResultsetTab::WorksheetResultsetTab(QWidget *parent) :
     resultsTable->setAlternatingRowColors(true);
     layout->addWidget(resultsTable);
 
+    layout->setSpacing(2);
     layout->setContentsMargins(2, 0, 2, 0);
     setLayout(layout);
 
