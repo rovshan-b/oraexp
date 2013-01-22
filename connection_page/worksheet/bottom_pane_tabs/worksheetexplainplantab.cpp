@@ -4,7 +4,7 @@
 #include "interfaces/iqueryscheduler.h"
 #include "beans/statementdesc.h"
 #include "beans/explainplanrow.h"
-#include "delegates/explainplandelegate.h"
+#include "util/iconutil.h"
 #include <QtGui>
 
 WorksheetExplainPlanTab::WorksheetExplainPlanTab(QWidget *parent) :
@@ -74,10 +74,26 @@ void WorksheetExplainPlanTab::recordsFetched(const QList<QStringList> &records)
             break;
         }
 
-        QStandardItem *childItem=new QStandardItem(planInfo->operation);
-        childItem->setData(qVariantFromValue((void *) planInfo));
+        QStandardItem *childItem = new QStandardItem(planInfo->operation);
+        childItem->setIcon(IconUtil::getIcon(planInfo->operation.toLower().replace(' ', '_')));
+
+        QStandardItem *optionsItem = new QStandardItem(planInfo->options);
+        if(planInfo->options.contains("FULL")){
+            optionsItem->setData(Qt::red, Qt::ForegroundRole);
+        }
+
+        QList<QStandardItem *> rowItems = QList<QStandardItem *>()
+                                          << childItem
+                                          << new QStandardItem(planInfo->objectName)
+                                          << optionsItem
+                                          << new QStandardItem(planInfo->cost)
+                                          << new QStandardItem(planInfo->bytes)
+                                          << new QStandardItem(planInfo->cardinality)
+                                          << new QStandardItem(planInfo->partitionId)
+                                          << new QStandardItem(planInfo->other);
+        //childItem->setData(qVariantFromValue((void *) planInfo));
         lastItemsForLevels[planInfo->level]=childItem;
-        parentItem->appendRow(childItem);
+        parentItem->appendRow(rowItems);
     }
 }
 
@@ -89,6 +105,9 @@ void WorksheetExplainPlanTab::fetchComplete()
 
     tree->setUpdatesEnabled(false);
     tree->expandAll();
+    for(int i=0; i<tree->header()->count()-1; ++i){
+        tree->resizeColumnToContents(i);
+    }
     tree->setUpdatesEnabled(true);
 }
 
@@ -102,16 +121,22 @@ void WorksheetExplainPlanTab::fetchError(const OciException &ex)
 
 void WorksheetExplainPlanTab::setupTree()
 {
-    tree->setHeaderHidden(true);
-    //tree->setUniformRowHeights(true);
+    //tree->setHeaderHidden(true);
+    tree->setUniformRowHeights(true);
     tree->setRootIsDecorated(true);
     tree->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     QStandardItemModel *model=new QStandardItemModel(this);
+    model->setHorizontalHeaderLabels(QStringList()
+                                     << tr("Operation")
+                                     << tr("Object name")
+                                     << tr("Options")
+                                     << tr("Cost")
+                                     << tr("Bytes")
+                                     << tr("Cardinality")
+                                     << tr("Partition")
+                                     << tr("Other"));
     tree->setModel(model);
-
-    ExplainPlanDelegate *delegate=new ExplainPlanDelegate(this);
-    tree->setItemDelegate(delegate);
 }
 
 void WorksheetExplainPlanTab::startFetcherThread()
@@ -144,7 +169,7 @@ void WorksheetExplainPlanTab::clearModel()
 {
     lastItemsForLevels.clear();
     QStandardItemModel *model=static_cast<QStandardItemModel*>(tree->model());
-    model->clear();
+    model->setRowCount(0);
 
     qDeleteAll(planData);
     planData.clear();

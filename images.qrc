@@ -114,5 +114,10 @@
         <file>images/left_right_arrows.png</file>
         <file>images/left_arrow.png</file>
         <file>images/explain_plan.png</file>
+        <file>images/select_statement.png</file>
+        <file>images/sort.png</file>
+        <file>images/union.png</file>
+        <file>images/mat_view_rewrite_access.png</file>
+        <file>images/table_access.png</file>
     </qresource>
 </RCC>

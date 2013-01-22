@@ -21,7 +21,7 @@ public:
     QString filterPredicates;
     QString accessPredicates;
 
-    static ExplainPlanRow *createFromStringList(const QStringList &list);
+    static ExplainPlanRow* createFromStringList(const QStringList &list);
 };
 
 #endif // EXPLAINPLANROW_H
