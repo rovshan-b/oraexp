@@ -5,6 +5,7 @@
 #include "beans/statementdesc.h"
 #include "beans/explainplanrow.h"
 #include "util/iconutil.h"
+#include "util/strutil.h"
 #include <QtGui>
 
 WorksheetExplainPlanTab::WorksheetExplainPlanTab(QWidget *parent) :
@@ -75,20 +76,44 @@ void WorksheetExplainPlanTab::recordsFetched(const QList<QStringList> &records)
         }
 
         QStandardItem *childItem = new QStandardItem(planInfo->operation);
-        childItem->setIcon(IconUtil::getIcon(planInfo->operation.toLower().replace(' ', '_')));
+        QString iconName=planInfo->operation.toLower().replace(' ', '_').replace('-', '_');
+        QPixmap icon=IconUtil::getIcon(iconName);
+        if(icon.isNull()){
+            icon=IconUtil::getIcon("green_flag");
+        }
+        childItem->setIcon(icon);
 
         QStandardItem *optionsItem = new QStandardItem(planInfo->options);
         if(planInfo->options.contains("FULL")){
             optionsItem->setData(Qt::red, Qt::ForegroundRole);
+        }else if(planInfo->options.contains("INDEX")){
+            optionsItem->setData(Qt::darkGreen, Qt::ForegroundRole);
         }
+
+
+        QStandardItem *costItem=new QStandardItem(planInfo->cost);
+        costItem->setData(Qt::AlignRight, Qt::TextAlignmentRole);
+
+        QString bytesText = planInfo->bytes;
+        bool conversionOk;
+        int bytes=bytesText.toInt(&conversionOk);
+        if(conversionOk){
+            bytesText=humanizeSize(bytes);
+        }
+
+        QStandardItem *bytesItem=new QStandardItem(bytesText);
+        bytesItem->setData(Qt::AlignRight, Qt::TextAlignmentRole);
+
+        QStandardItem *cardinalityItem=new QStandardItem(planInfo->cardinality);
+        cardinalityItem->setData(Qt::AlignRight, Qt::TextAlignmentRole);
 
         QList<QStandardItem *> rowItems = QList<QStandardItem *>()
                                           << childItem
                                           << new QStandardItem(planInfo->objectName)
                                           << optionsItem
-                                          << new QStandardItem(planInfo->cost)
-                                          << new QStandardItem(planInfo->bytes)
-                                          << new QStandardItem(planInfo->cardinality)
+                                          << costItem
+                                          << bytesItem
+                                          << cardinalityItem
                                           << new QStandardItem(planInfo->partitionId)
                                           << new QStandardItem(planInfo->other);
         //childItem->setData(qVariantFromValue((void *) planInfo));
@@ -104,9 +129,10 @@ void WorksheetExplainPlanTab::fetchComplete()
     lastItemsForLevels.clear();
 
     tree->setUpdatesEnabled(false);
-    tree->expandAll();
-    for(int i=0; i<tree->header()->count()-1; ++i){
+    tree->expandToDepth(4);
+    for(int i=0; i<tree->header()->count(); ++i){
         tree->resizeColumnToContents(i);
+        tree->header()->resizeSection(i, tree->header()->sectionSize(i)+(i<=2 ? 30 : 10));
     }
     tree->setUpdatesEnabled(true);
 }
@@ -124,6 +150,7 @@ void WorksheetExplainPlanTab::setupTree()
     //tree->setHeaderHidden(true);
     tree->setUniformRowHeights(true);
     tree->setRootIsDecorated(true);
+    tree->header()->setStretchLastSection(false);
     tree->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     QStandardItemModel *model=new QStandardItemModel(this);

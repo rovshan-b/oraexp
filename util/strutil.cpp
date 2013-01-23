@@ -65,6 +65,23 @@ QString humanize(const QString &input)
     return result;
 }
 
+
+QString humanizeSize(int size)
+{
+    QString result;
+    if(size>=(1024*1024*1024)){ //gb
+        result = QString::number((double)size/1024/1024/1024, 'f', 2).append(QObject::tr(" G"));
+    }else if(size>=(1024*1024)){ //mb
+        result = QString::number((double)size/1024/1024, 'f', 2).append(QObject::tr(" M"));
+    }else if(size>=(1024)){ //kb
+        result = QString::number((double)size/1024, 'f', 2).append(QObject::tr(" K"));
+    }else{
+        result = QString::number(size).append(QObject::tr(" B"));
+    }
+
+    return result;
+}
+
 QString optionText(int option, const QString &option1,
                                const QString &option2)
 {

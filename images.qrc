@@ -119,5 +119,15 @@
         <file>images/union.png</file>
         <file>images/mat_view_rewrite_access.png</file>
         <file>images/table_access.png</file>
+        <file>images/insert_statement.png</file>
+        <file>images/update_statement.png</file>
+        <file>images/delete_statement.png</file>
+        <file>images/bitmap.png</file>
+        <file>images/nested_loops.png</file>
+        <file>images/hash_join.png</file>
+        <file>images/filter.png</file>
+        <file>images/count.png</file>
+        <file>images/connect_by.png</file>
+        <file>images/green_flag.png</file>
     </qresource>
 </RCC>
