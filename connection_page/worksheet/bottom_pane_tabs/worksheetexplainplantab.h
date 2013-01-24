@@ -15,13 +15,19 @@ public:
     explicit WorksheetExplainPlanTab(QWidget *parent = 0);
     virtual ~WorksheetExplainPlanTab();
     
+    virtual void createUi();
+    virtual void addTabSpecificToolbarButtons();
+
     virtual WorksheetResultPane::WorksheetBottomPaneTabType getTabType() const;
     virtual void showQueryResults(IQueryScheduler *queryScheduler, const QueryResult &result);
+
+    static bool advancedOptionsVisible;
 
 private slots:
     void recordsFetched(const QList<QStringList> &records);
     void fetchComplete();
     void fetchError(const OciException &ex);
+    void showAdvancedOptions(bool show);
 
 private:
     QTreeView *tree;
@@ -32,6 +38,8 @@ private:
     QHash<int, QStandardItem*> lastItemsForLevels;
 
     QList<ExplainPlanRow*> planData;
+
+    QAction *advancedOptionsAction;
 
     void setupTree();
 

@@ -24,6 +24,8 @@ void WorksheetBottomPaneTab::createToolbar()
     toolbar->setIconSize(QSize(16, 16));
     toolbar->addAction(IconUtil::getIcon("pin"), tr("Pin"), this, SLOT(setPinned(bool)))->setCheckable(true);
 
+    addTabSpecificToolbarButtons();
+
     toolbar->addSeparator();
 
     progressBarAction=WidgetHelper::addProgressBarAction(toolbar);

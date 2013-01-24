@@ -13,6 +13,9 @@ class WorksheetBottomPaneTab : public QWidget
 public:
     explicit WorksheetBottomPaneTab(QWidget *parent = 0);
 
+    virtual void createUi(){}
+    virtual void addTabSpecificToolbarButtons(){}
+
     virtual WorksheetResultPane::WorksheetBottomPaneTabType getTabType() const = 0;
     virtual void showQueryResults(IQueryScheduler *queryScheduler, const QueryResult &result) = 0;
 

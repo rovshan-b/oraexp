@@ -266,6 +266,8 @@ OraExp::QueryType Statement::determineStatementType()
 
     if(queryType==OraExp::QueryTypeUnknown && this->verb=="EXPLAIN"){
         queryType=OraExp::QueryTypeExplainPlan;
+    }else if(queryType==OraExp::QueryTypeUnknown && this->verb=="MERGE"){
+        queryType=OraExp::QueryTypeMerge;
     }
 
     return queryType;

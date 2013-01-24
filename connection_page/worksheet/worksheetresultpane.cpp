@@ -139,6 +139,10 @@ QList<WorksheetBottomPaneTab *> WorksheetResultPane::getTabsToDisplayResults(Wor
             Q_ASSERT(false);
             break;
         }
+
+        if(tab!=0){
+            tab->createUi();
+        }
     }
 
     Q_ASSERT(tabs.size()==countToReturn);

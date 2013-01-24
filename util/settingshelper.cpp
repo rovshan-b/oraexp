@@ -3,6 +3,7 @@
 #include "connection_page/connectionpage.h"
 #include "connection_page/worksheet/worksheetwidget.h"
 #include "connection_page/code_creator/codecreatorwidget.h"
+#include "connection_page/worksheet/bottom_pane_tabs/worksheetexplainplantab.h"
 #include "codeeditor/codeeditor.h"
 #include <QtGui>
 
@@ -52,7 +53,10 @@ void SettingsHelper::restoreMainWindowState(QMainWindow *window, const QString &
 void SettingsHelper::saveStaticApplicationSettings()
 {
     Settings::setValue("ConnectionPage/windowState", ConnectionPage::currentState);
+
     Settings::setValue("WorksheetWidget/splitterSizes", WorksheetWidget::splitterSizes);
+    Settings::setValue("WorksheetExplainPlanTab/advancedOptionsVisible", WorksheetExplainPlanTab::advancedOptionsVisible);
+
     Settings::setValue("CodeCreatorWidget/bottomSplitterSizes", CodeCreatorWidget::bottomSplitterSizes);
     Settings::setValue("CodeEditor/currentFont", CodeEditor::currentFont.toString());
 }
@@ -60,7 +64,10 @@ void SettingsHelper::saveStaticApplicationSettings()
 void SettingsHelper::loadStaticApplicationSettings()
 {
     ConnectionPage::currentState = Settings::value("ConnectionPage/windowState").toByteArray();
+
     WorksheetWidget::splitterSizes = Settings::value("WorksheetWidget/splitterSizes").toByteArray();
+    WorksheetExplainPlanTab::advancedOptionsVisible = Settings::value("WorksheetExplainPlanTab/advancedOptionsVisible", false).toBool();
+
     CodeCreatorWidget::bottomSplitterSizes = Settings::value("CodeCreatorWidget/bottomSplitterSizes").toByteArray();
     CodeEditor::currentFont.fromString(Settings::value("CodeEditor/currentFont", QFont("Monospace")).toString());
 }

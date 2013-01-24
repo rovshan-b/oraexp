@@ -36,7 +36,8 @@ namespace OraExp
         QueryTypeBegin,
         QueryTypeDeclare,
         QueryTypeUnknown,
-        QueryTypeExplainPlan
+        QueryTypeExplainPlan,
+        QueryTypeMerge
     };
 
     enum TableType {

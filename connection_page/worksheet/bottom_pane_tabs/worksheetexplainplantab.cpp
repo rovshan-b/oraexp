@@ -8,8 +8,23 @@
 #include "util/strutil.h"
 #include <QtGui>
 
+bool WorksheetExplainPlanTab::advancedOptionsVisible;
+
 WorksheetExplainPlanTab::WorksheetExplainPlanTab(QWidget *parent) :
     WorksheetBottomPaneTab(parent), fetcherThread(0), queryScheduler(0), currStatement(0)
+{
+
+}
+
+WorksheetExplainPlanTab::~WorksheetExplainPlanTab()
+{
+    if(fetcherThread!=0){
+        deleteFetcherThread();
+    }
+    clearModel();
+}
+
+void WorksheetExplainPlanTab::createUi()
 {
     QVBoxLayout *layout=new QVBoxLayout();
 
@@ -24,15 +39,19 @@ WorksheetExplainPlanTab::WorksheetExplainPlanTab(QWidget *parent) :
     layout->setContentsMargins(2,0,2,0);
     setLayout(layout);
 
+    advancedOptionsAction->setChecked(WorksheetExplainPlanTab::advancedOptionsVisible);
+    showAdvancedOptions(WorksheetExplainPlanTab::advancedOptionsVisible);
+
     progressBarAction->setVisible(true);
 }
 
-WorksheetExplainPlanTab::~WorksheetExplainPlanTab()
+void WorksheetExplainPlanTab::addTabSpecificToolbarButtons()
 {
-    if(fetcherThread!=0){
-        deleteFetcherThread();
-    }
-    clearModel();
+    advancedOptionsAction=toolbar->addAction(IconUtil::getIcon("advanced_options"),
+                                                      QObject::tr("Show/Hide advanced options"));
+    advancedOptionsAction->setCheckable(true);
+
+    connect(advancedOptionsAction, SIGNAL(toggled(bool)), this, SLOT(showAdvancedOptions(bool)));
 }
 
 WorksheetResultPane::WorksheetBottomPaneTabType WorksheetExplainPlanTab::getTabType() const
@@ -114,6 +133,8 @@ void WorksheetExplainPlanTab::recordsFetched(const QList<QStringList> &records)
                                           << costItem
                                           << bytesItem
                                           << cardinalityItem
+                                          << new QStandardItem(planInfo->accessPredicates)
+                                          << new QStandardItem(planInfo->filterPredicates)
                                           << new QStandardItem(planInfo->partitionId)
                                           << new QStandardItem(planInfo->other);
         //childItem->setData(qVariantFromValue((void *) planInfo));
@@ -145,6 +166,26 @@ void WorksheetExplainPlanTab::fetchError(const OciException &ex)
     QMessageBox::critical(this->window(), tr("Error fetching explain plan"), ex.getErrorMessage());
 }
 
+void WorksheetExplainPlanTab::showAdvancedOptions(bool show)
+{
+    if(tree->header()->count()<10){
+        return;
+    }
+    tree->setColumnHidden(6, !show); //access
+    tree->setColumnHidden(7, !show); //filter
+    tree->setColumnHidden(8, !show); //partition
+    tree->setColumnHidden(9, !show); //other
+
+    if(WorksheetExplainPlanTab::advancedOptionsVisible != show){
+        WorksheetExplainPlanTab::advancedOptionsVisible = show;
+    }
+
+    for(int i=6; i<tree->header()->count(); ++i){
+        tree->resizeColumnToContents(i);
+        tree->header()->resizeSection(i, tree->header()->sectionSize(i)+10);
+    }
+}
+
 void WorksheetExplainPlanTab::setupTree()
 {
     //tree->setHeaderHidden(true);
@@ -161,6 +202,8 @@ void WorksheetExplainPlanTab::setupTree()
                                      << tr("Cost")
                                      << tr("Bytes")
                                      << tr("Cardinality")
+                                     << tr("Access")
+                                     << tr("Filter")
                                      << tr("Partition")
                                      << tr("Other"));
     tree->setModel(model);
