@@ -117,18 +117,8 @@ void WorksheetQueryPane::executeExplainPlan()
 
 void WorksheetQueryPane::queryCompleted(const QueryResult &result)
 {
-    if(result.hasError || lastExpPlanStatementId.isEmpty()){
-        progressBarAction->setVisible(false);
-        emit queryDone(result);
-    }else{
-        delete result.statement;
-        queryScheduler->enqueueQuery("get_explain_plan_data",
-                                     QList<Param*>() << new Param("statement_id", lastExpPlanStatementId),
-                                     this,
-                                     "get_explain_plan_data",
-                                     "queryCompleted");
-        lastExpPlanStatementId="";
-    }
+    progressBarAction->setVisible(false);
+    emit queryDone(result);
 }
 
 void WorksheetQueryPane::setContents(const QString &contents)

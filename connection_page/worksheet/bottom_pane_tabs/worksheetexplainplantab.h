@@ -2,9 +2,9 @@
 #define WORKSHEETEXPLAINPLANTAB_H
 
 #include "worksheetbottompanetab.h"
+#include "connectivity/fetchresult.h"
 
 class QTreeView;
-class RecordFetcherThread;
 class QStandardItem;
 class ExplainPlanRow;
 
@@ -19,22 +19,20 @@ public:
     virtual void addTabSpecificToolbarButtons();
 
     virtual WorksheetResultPane::WorksheetBottomPaneTabType getTabType() const;
+    void setStatementId(const QString &statementId);
     virtual void showQueryResults(IQueryScheduler *queryScheduler, const QueryResult &result);
 
     static bool advancedOptionsVisible;
 
 private slots:
-    void recordsFetched(const QList<QStringList> &records);
-    void fetchComplete();
-    void fetchError(const OciException &ex);
+    void explainPlanQueryCompleted(const QueryResult &result);
+    void explainPlanRecordFetched(const FetchResult &fetchResult);
+    void explainPlanFetchCompleted(const QString &);
     void showAdvancedOptions(bool show);
 
 private:
     QTreeView *tree;
-    RecordFetcherThread *fetcherThread;
-    IQueryScheduler *queryScheduler;
-    Statement *currStatement;
-
+    QString statementId;
     QHash<int, QStandardItem*> lastItemsForLevels;
 
     QList<ExplainPlanRow*> planData;
@@ -42,10 +40,6 @@ private:
     QAction *advancedOptionsAction;
 
     void setupTree();
-
-    void startFetcherThread();
-    void deleteFetcherThread();
-
     void clearModel();
     
 };

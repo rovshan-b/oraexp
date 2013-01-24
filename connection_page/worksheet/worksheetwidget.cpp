@@ -50,7 +50,7 @@ void WorksheetWidget::focusAvailable()
 void WorksheetWidget::queryCompleted(const QueryResult &result)
 {
     showResultPane();
-    resultPane->displayQueryResults(this->queryScheduler, result);
+    resultPane->displayQueryResults(this->queryScheduler, result, queryPane);
 }
 
 void WorksheetWidget::splitterMoved()

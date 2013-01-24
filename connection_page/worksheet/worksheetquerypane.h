@@ -42,6 +42,8 @@ public:
     CodeEditorAndSearchPaneWidget *currentEditor() const;
 
     void focusAvailable();
+
+    QString getLastExplainPlanStatementId() const {return this->lastExpPlanStatementId;}
 signals:
     void queryDone(const QueryResult &result);
     void message(const QString &msg);

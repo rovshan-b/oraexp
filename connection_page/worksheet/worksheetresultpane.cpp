@@ -1,4 +1,5 @@
 #include "worksheetresultpane.h"
+#include "worksheetquerypane.h"
 #include "bottom_pane_tabs/worksheetinfotab.h"
 #include "bottom_pane_tabs/worksheetresultsettab.h"
 #include "bottom_pane_tabs/worksheetexplainplantab.h"
@@ -13,7 +14,7 @@ WorksheetResultPane::WorksheetResultPane(QWidget *parent) : SubTabWidget(parent)
     setMovable(true);
 }
 
-void WorksheetResultPane::displayQueryResults(IQueryScheduler *queryScheduler, const QueryResult &result)
+void WorksheetResultPane::displayQueryResults(IQueryScheduler *queryScheduler, const QueryResult &result, WorksheetQueryPane *queryPane)
 {
     int rsCount=0;
     if(result.statement!=0){
@@ -21,7 +22,7 @@ void WorksheetResultPane::displayQueryResults(IQueryScheduler *queryScheduler, c
     }
 
     OraExp::QueryType statementType = result.hasError ? OraExp::QueryTypeUnknown : result.statement->getStatementType();
-    bool isExplainPlan = result.taskName=="get_explain_plan_data";
+    bool isExplainPlan = statementType == OraExp::QueryTypeExplainPlan;
 
     if((result.hasError) || (result.statement!=0 && statementType!=OraExp::QueryTypeSelect && !isExplainPlan)){
         WorksheetBottomPaneTab *tab=getTabToDisplayResults(InfoTab);
@@ -51,7 +52,8 @@ void WorksheetResultPane::displayQueryResults(IQueryScheduler *queryScheduler, c
     }
 
     if(isExplainPlan){
-        WorksheetBottomPaneTab *tab=getTabToDisplayResults(ExplainPlanTab);
+        WorksheetExplainPlanTab *tab=static_cast<WorksheetExplainPlanTab *>(getTabToDisplayResults(ExplainPlanTab));
+        tab->setStatementId(queryPane->getLastExplainPlanStatementId());
         tab->showQueryResults(queryScheduler, result);
         setCurrentWidget(tab);
     }

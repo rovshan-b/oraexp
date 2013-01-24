@@ -6,6 +6,7 @@
 
 class IQueryScheduler;
 class WorksheetBottomPaneTab;
+class WorksheetQueryPane;
 
 class WorksheetResultPane : public SubTabWidget
 {
@@ -22,7 +23,7 @@ public:
 
     explicit WorksheetResultPane(QWidget *parent=0);
 
-    void displayQueryResults(IQueryScheduler *queryScheduler, const QueryResult &result);
+    void displayQueryResults(IQueryScheduler *queryScheduler, const QueryResult &result, WorksheetQueryPane *queryPane);
     void displayMessage(const QString &msg);
 
     void setResultsetTabNamesFromOutParams(Statement *stmt, QList<WorksheetBottomPaneTab *> tabs);

@@ -1,7 +1,7 @@
 #ifndef EXPLAINPLANROW_H
 #define EXPLAINPLANROW_H
 
-#include <QStringList>
+#include "connectivity/fetchresult.h"
 
 class ExplainPlanRow
 {
@@ -21,7 +21,7 @@ public:
     QString filterPredicates;
     QString accessPredicates;
 
-    static ExplainPlanRow* createFromStringList(const QStringList &list);
+    static ExplainPlanRow* createFromFetchResult(const FetchResult &result);
 };
 
 #endif // EXPLAINPLANROW_H
