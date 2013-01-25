@@ -17,10 +17,12 @@ ExplainPlanRow *ExplainPlanRow::createFromFetchResult(const FetchResult &result)
     row->optimizer=result.colValue("OPTIMIZER");
     row->options=result.colValue("OPTIONS");
     row->cost=result.colValue("COST");
+    row->percentCpu=result.colValue("PERCENT_CPU");
     row->bytes=result.colValue("BYTES");
     row->cardinality=result.colValue("CARDINALITY");
     row->other=result.colValue("OTHER");
-    row->partitionId=result.colValue("PARTITION_ID");
+    row->partitionStart=result.colValue("PARTITION_START");
+    row->partitionStop=result.colValue("PARTITION_STOP");
     row->filterPredicates=result.colValue("ACCESS_PREDICATES");
     row->accessPredicates=result.colValue("FILTER_PREDICATES");
 

@@ -8,6 +8,7 @@
 #include <QtGui>
 
 bool WorksheetExplainPlanTab::advancedOptionsVisible;
+int WorksheetExplainPlanTab::stackedWidgetIndex=0;
 
 WorksheetExplainPlanTab::WorksheetExplainPlanTab(QWidget *parent) :
     WorksheetBottomPaneTab(parent)
@@ -27,9 +28,22 @@ void WorksheetExplainPlanTab::createUi()
     createToolbar();
     layout->addWidget(toolbar);
 
+    stackedWidget = new QStackedWidget();
+
     tree=new QTreeView();
     setupTree();
-    layout->addWidget(tree);
+    stackedWidget->addWidget(tree);
+
+    textViewer=new QPlainTextEdit();
+    textViewer->setReadOnly(true);
+    QFont f("Monospace", textViewer->font().pointSize());
+    f.setStyleHint(QFont::Monospace);
+    textViewer->setFont(f);
+    textViewer->setWordWrapMode(QTextOption::NoWrap);
+    stackedWidget->addWidget(textViewer);
+
+    stackedWidget->setCurrentIndex(WorksheetExplainPlanTab::stackedWidgetIndex);
+    layout->addWidget(stackedWidget);
 
     layout->setSpacing(2);
     layout->setContentsMargins(2,0,2,0);
@@ -46,8 +60,15 @@ void WorksheetExplainPlanTab::addTabSpecificToolbarButtons()
     advancedOptionsAction=toolbar->addAction(IconUtil::getIcon("advanced_options"),
                                                       QObject::tr("Show/Hide advanced options"));
     advancedOptionsAction->setCheckable(true);
-
     connect(advancedOptionsAction, SIGNAL(toggled(bool)), this, SLOT(showAdvancedOptions(bool)));
+
+    QAction *treeTextViewSwitcherAction=toolbar->addAction(IconUtil::getIcon("dbms"),
+                                                           QObject::tr("Display DBMS_XPLAN output"));
+    treeTextViewSwitcherAction->setCheckable(true);
+    treeTextViewSwitcherAction->setChecked(WorksheetExplainPlanTab::stackedWidgetIndex==1);
+    treeTextViewSwitcherAction->setShortcut(QKeySequence("Ctrl+M"));
+    connect(treeTextViewSwitcherAction, SIGNAL(toggled(bool)), this, SLOT(showDbmsXplanOutput(bool)));
+
 }
 
 WorksheetResultPane::WorksheetBottomPaneTabType WorksheetExplainPlanTab::getTabType() const
@@ -66,13 +87,14 @@ void WorksheetExplainPlanTab::showQueryResults(IQueryScheduler *queryScheduler, 
 
     clearModel();
 
-    queryScheduler->enqueueQuery("get_explain_plan_data",
-                                 QList<Param*>() << new Param("statement_id", statementId),
-                                 this,
-                                 "get_explain_plan_data",
-                                 "explainPlanQueryCompleted",
-                                 "explainPlanRecordFetched",
-                                 "explainPlanFetchCompleted");
+    //first fetch data for visible widget
+    if(stackedWidget->currentIndex()==0){
+        getExplainPlanDataForTreeView(queryScheduler);
+        getExplainPlanDataForTextView(queryScheduler);
+    }else{
+        getExplainPlanDataForTextView(queryScheduler);
+        getExplainPlanDataForTreeView(queryScheduler);
+    }
 }
 
 void WorksheetExplainPlanTab::explainPlanQueryCompleted(const QueryResult &result)
@@ -126,7 +148,7 @@ void WorksheetExplainPlanTab::explainPlanRecordFetched(const FetchResult &fetchR
     }
 
 
-    QStandardItem *costItem=new QStandardItem(planInfo->cost);
+    QStandardItem *costItem=new QStandardItem(QString("%1 (%2)").arg(planInfo->cost, planInfo->percentCpu));
     costItem->setData(Qt::AlignRight, Qt::TextAlignmentRole);
 
     QString bytesText = planInfo->bytes;
@@ -151,7 +173,8 @@ void WorksheetExplainPlanTab::explainPlanRecordFetched(const FetchResult &fetchR
                                       << cardinalityItem
                                       << new QStandardItem(planInfo->accessPredicates)
                                       << new QStandardItem(planInfo->filterPredicates)
-                                      << new QStandardItem(planInfo->partitionId)
+                                      << new QStandardItem(planInfo->partitionStart)
+                                      << new QStandardItem(planInfo->partitionStop)
                                       << new QStandardItem(planInfo->other);
     //childItem->setData(qVariantFromValue((void *) planInfo));
     lastItemsForLevels[planInfo->level]=childItem;
@@ -164,7 +187,7 @@ void WorksheetExplainPlanTab::explainPlanFetchCompleted(const QString &)
     lastItemsForLevels.clear();
 
     tree->setUpdatesEnabled(false);
-    tree->expandToDepth(4);
+    tree->expandAll();
     for(int i=0; i<tree->header()->count(); ++i){
         tree->resizeColumnToContents(i);
         tree->header()->resizeSection(i, tree->header()->sectionSize(i)+(i<=2 ? 30 : 10));
@@ -172,15 +195,38 @@ void WorksheetExplainPlanTab::explainPlanFetchCompleted(const QString &)
     tree->setUpdatesEnabled(true);
 }
 
+void WorksheetExplainPlanTab::xplanQueryCompleted(const QueryResult &result)
+{
+    if(result.hasError){
+        textViewer->setPlainText(result.exception.getErrorMessage());
+    }
+}
+
+void WorksheetExplainPlanTab::xplanRecordFetched(const FetchResult &fetchResult)
+{
+    if(fetchResult.hasError){
+        textViewer->setPlainText(fetchResult.exception.getErrorMessage());
+        return;
+    }
+
+    xplanOutput.append("\n").append(fetchResult.oneRow.at(0));
+}
+
+void WorksheetExplainPlanTab::xplanFetchCompleted(const QString &)
+{
+    textViewer->setPlainText(xplanOutput);
+}
+
 void WorksheetExplainPlanTab::showAdvancedOptions(bool show)
 {
-    if(tree->header()->count()<10){
+    if(tree->header()->count()<11){
         return;
     }
     tree->setColumnHidden(6, !show); //access
     tree->setColumnHidden(7, !show); //filter
-    tree->setColumnHidden(8, !show); //partition
-    tree->setColumnHidden(9, !show); //other
+    tree->setColumnHidden(8, !show); //partition start
+    tree->setColumnHidden(9, !show); //partition stop
+    tree->setColumnHidden(10, !show); //other
 
     if(WorksheetExplainPlanTab::advancedOptionsVisible != show){
         WorksheetExplainPlanTab::advancedOptionsVisible = show;
@@ -189,6 +235,17 @@ void WorksheetExplainPlanTab::showAdvancedOptions(bool show)
     for(int i=6; i<tree->header()->count(); ++i){
         tree->resizeColumnToContents(i);
         tree->header()->resizeSection(i, tree->header()->sectionSize(i)+10);
+    }
+}
+
+void WorksheetExplainPlanTab::showDbmsXplanOutput(bool show)
+{
+    int ixToShow=show ? 1 : 0;
+
+    stackedWidget->setCurrentIndex(ixToShow);
+
+    if(WorksheetExplainPlanTab::stackedWidgetIndex!=ixToShow){
+        WorksheetExplainPlanTab::stackedWidgetIndex=ixToShow;
     }
 }
 
@@ -205,12 +262,13 @@ void WorksheetExplainPlanTab::setupTree()
                                      << tr("Operation")
                                      << tr("Object name")
                                      << tr("Options")
-                                     << tr("Cost")
+                                     << tr("Cost  (%CPU)")
                                      << tr("Bytes")
-                                     << tr("Cardinality")
+                                     << tr("Rows")
                                      << tr("Access")
                                      << tr("Filter")
-                                     << tr("Partition")
+                                     << tr("Partition start")
+                                     << tr("Partition stop")
                                      << tr("Other"));
     tree->setModel(model);
 }
@@ -218,9 +276,33 @@ void WorksheetExplainPlanTab::setupTree()
 void WorksheetExplainPlanTab::clearModel()
 {
     lastItemsForLevels.clear();
+    xplanOutput.clear();
     QStandardItemModel *model=static_cast<QStandardItemModel*>(tree->model());
     model->setRowCount(0);
+    textViewer->clear();
 
     qDeleteAll(planData);
     planData.clear();
+}
+
+void WorksheetExplainPlanTab::getExplainPlanDataForTreeView(IQueryScheduler *queryScheduler)
+{
+    queryScheduler->enqueueQuery("get_explain_plan_data",
+                                 QList<Param*>() << new Param("statement_id", statementId),
+                                 this,
+                                 "get_explain_plan_data",
+                                 "explainPlanQueryCompleted",
+                                 "explainPlanRecordFetched",
+                                 "explainPlanFetchCompleted");
+}
+
+void WorksheetExplainPlanTab::getExplainPlanDataForTextView(IQueryScheduler *queryScheduler)
+{
+    queryScheduler->enqueueQuery("get_dbms_xplan_output",
+                                 QList<Param*>() << new Param("statement_id", statementId),
+                                 this,
+                                 "get_dbms_xplan_output",
+                                 "xplanQueryCompleted",
+                                 "xplanRecordFetched",
+                                 "xplanFetchCompleted");
 }

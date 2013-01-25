@@ -1,5 +1,6 @@
 SELECT id, level, operation, object_name, optimizer, options, cost, io_cost, cpu_cost, 
-bytes, cardinality, other, partition_id
+CEIL(DECODE(COST,0,0,(COST-IO_COST)/COST)*100) percent_cpu,
+bytes, cardinality, other, partition_start, partition_stop
 {@keep_if:>=10}
 , filter_predicates, access_predicates
 {}

@@ -30,4 +30,6 @@ void WorksheetBottomPaneTab::createToolbar()
 
     progressBarAction=WidgetHelper::addProgressBarAction(toolbar);
     progressBarAction->setVisible(false);
+
+    WidgetHelper::updateActionTooltips(toolbar);
 }

@@ -7,6 +7,8 @@
 class QTreeView;
 class QStandardItem;
 class ExplainPlanRow;
+class QStackedWidget;
+class QPlainTextEdit;
 
 class WorksheetExplainPlanTab : public WorksheetBottomPaneTab
 {
@@ -23,24 +25,37 @@ public:
     virtual void showQueryResults(IQueryScheduler *queryScheduler, const QueryResult &result);
 
     static bool advancedOptionsVisible;
+    static int stackedWidgetIndex;
 
 private slots:
     void explainPlanQueryCompleted(const QueryResult &result);
     void explainPlanRecordFetched(const FetchResult &fetchResult);
     void explainPlanFetchCompleted(const QString &);
+
+    void xplanQueryCompleted(const QueryResult &result);
+    void xplanRecordFetched(const FetchResult &fetchResult);
+    void xplanFetchCompleted(const QString &);
+
     void showAdvancedOptions(bool show);
+    void showDbmsXplanOutput(bool show);
 
 private:
+    QStackedWidget *stackedWidget;
     QTreeView *tree;
+    QPlainTextEdit *textViewer;
     QString statementId;
     QHash<int, QStandardItem*> lastItemsForLevels;
 
     QList<ExplainPlanRow*> planData;
+    QString xplanOutput;
 
     QAction *advancedOptionsAction;
 
     void setupTree();
     void clearModel();
+
+    void getExplainPlanDataForTreeView(IQueryScheduler *queryScheduler);
+    void getExplainPlanDataForTextView(IQueryScheduler *queryScheduler);
     
 };
 

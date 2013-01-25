@@ -56,6 +56,7 @@ void SettingsHelper::saveStaticApplicationSettings()
 
     Settings::setValue("WorksheetWidget/splitterSizes", WorksheetWidget::splitterSizes);
     Settings::setValue("WorksheetExplainPlanTab/advancedOptionsVisible", WorksheetExplainPlanTab::advancedOptionsVisible);
+    Settings::setValue("WorksheetExplainPlanTab/viewIndex", WorksheetExplainPlanTab::stackedWidgetIndex);
 
     Settings::setValue("CodeCreatorWidget/bottomSplitterSizes", CodeCreatorWidget::bottomSplitterSizes);
     Settings::setValue("CodeEditor/currentFont", CodeEditor::currentFont.toString());
@@ -67,6 +68,7 @@ void SettingsHelper::loadStaticApplicationSettings()
 
     WorksheetWidget::splitterSizes = Settings::value("WorksheetWidget/splitterSizes").toByteArray();
     WorksheetExplainPlanTab::advancedOptionsVisible = Settings::value("WorksheetExplainPlanTab/advancedOptionsVisible", false).toBool();
+    WorksheetExplainPlanTab::stackedWidgetIndex = Settings::value("WorksheetExplainPlanTab/viewIndex", 0).toInt();
 
     CodeCreatorWidget::bottomSplitterSizes = Settings::value("CodeCreatorWidget/bottomSplitterSizes").toByteArray();
     CodeEditor::currentFont.fromString(Settings::value("CodeEditor/currentFont", QFont("Monospace")).toString());

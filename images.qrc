@@ -129,5 +129,6 @@
         <file>images/count.png</file>
         <file>images/connect_by.png</file>
         <file>images/green_flag.png</file>
+        <file>images/dbms.png</file>
     </qresource>
 </RCC>
