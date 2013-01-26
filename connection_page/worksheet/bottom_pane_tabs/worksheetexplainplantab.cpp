@@ -1,11 +1,14 @@
 #include "worksheetexplainplantab.h"
 #include "connectivity/statement.h"
+#include "connectivity/dbconnection.h"
 #include "interfaces/iqueryscheduler.h"
 #include "beans/statementdesc.h"
 #include "beans/explainplanrow.h"
 #include "util/iconutil.h"
 #include "util/strutil.h"
 #include <QtGui>
+
+#define TIME_COL_IX 6
 
 bool WorksheetExplainPlanTab::advancedOptionsVisible;
 int WorksheetExplainPlanTab::stackedWidgetIndex=0;
@@ -87,6 +90,10 @@ void WorksheetExplainPlanTab::showQueryResults(IQueryScheduler *queryScheduler, 
 
     clearModel();
 
+    if(!queryScheduler->getDb()->supportsTimeColumnInExplainPlan()){
+        tree->header()->setSectionHidden(TIME_COL_IX, true);
+    }
+
     //first fetch data for visible widget
     if(stackedWidget->currentIndex()==0){
         getExplainPlanDataForTreeView(queryScheduler);
@@ -147,9 +154,8 @@ void WorksheetExplainPlanTab::explainPlanRecordFetched(const FetchResult &fetchR
         optionsItem->setData(Qt::darkGreen, Qt::ForegroundRole);
     }
 
-
-    QStandardItem *costItem=new QStandardItem(QString("%1 (%2)").arg(planInfo->cost, planInfo->percentCpu));
-    costItem->setData(Qt::AlignRight, Qt::TextAlignmentRole);
+    QStandardItem *cardinalityItem=new QStandardItem(planInfo->cardinality);
+    cardinalityItem->setData(Qt::AlignRight, Qt::TextAlignmentRole);
 
     QString bytesText = planInfo->bytes;
     bool conversionOk;
@@ -157,25 +163,39 @@ void WorksheetExplainPlanTab::explainPlanRecordFetched(const FetchResult &fetchR
     if(conversionOk){
         bytesText=humanizeSize(bytes);
     }
-
     QStandardItem *bytesItem=new QStandardItem(bytesText);
     bytesItem->setData(Qt::AlignRight, Qt::TextAlignmentRole);
 
-    QStandardItem *cardinalityItem=new QStandardItem(planInfo->cardinality);
-    cardinalityItem->setData(Qt::AlignRight, Qt::TextAlignmentRole);
+    QStandardItem *costItem=new QStandardItem(QString("%1 (%2)").arg(planInfo->cost, planInfo->percentCpu));
+    costItem->setData(Qt::AlignRight, Qt::TextAlignmentRole);
+
+    QStandardItem *timeItem=new QStandardItem();
+    timeItem->setData(Qt::AlignRight, Qt::TextAlignmentRole);
+    if(!planInfo->time.isEmpty()){
+        int timeInSecs = planInfo->time.toInt(&conversionOk);
+        if(conversionOk){
+            timeItem->setText(formatSecs(timeInSecs));
+        }
+    }
+
+    QStandardItem*otherItem=new QStandardItem();
+    if(!planInfo->otherTag.isEmpty() || !planInfo->other.isEmpty()){
+        otherItem->setText(QString("%1 - %2").arg(planInfo->otherTag, planInfo->other));
+    }
 
     QList<QStandardItem *> rowItems = QList<QStandardItem *>()
                                       << childItem
                                       << new QStandardItem(planInfo->objectName)
                                       << optionsItem
-                                      << costItem
-                                      << bytesItem
                                       << cardinalityItem
-                                      << new QStandardItem(planInfo->accessPredicates)
-                                      << new QStandardItem(planInfo->filterPredicates)
+                                      << bytesItem
+                                      << costItem
+                                      << timeItem
                                       << new QStandardItem(planInfo->partitionStart)
                                       << new QStandardItem(planInfo->partitionStop)
-                                      << new QStandardItem(planInfo->other);
+                                      << new QStandardItem(planInfo->accessPredicates)
+                                      << new QStandardItem(planInfo->filterPredicates)
+                                      << otherItem;
     //childItem->setData(qVariantFromValue((void *) planInfo));
     lastItemsForLevels[planInfo->level]=childItem;
     parentItem->appendRow(rowItems);
@@ -190,7 +210,7 @@ void WorksheetExplainPlanTab::explainPlanFetchCompleted(const QString &)
     tree->expandAll();
     for(int i=0; i<tree->header()->count(); ++i){
         tree->resizeColumnToContents(i);
-        tree->header()->resizeSection(i, tree->header()->sectionSize(i)+(i<=2 ? 30 : 10));
+        tree->header()->resizeSection(i, tree->header()->sectionSize(i)+(i<=1 ? 30 : 10));
     }
     tree->setUpdatesEnabled(true);
 }
@@ -219,22 +239,19 @@ void WorksheetExplainPlanTab::xplanFetchCompleted(const QString &)
 
 void WorksheetExplainPlanTab::showAdvancedOptions(bool show)
 {
-    if(tree->header()->count()<11){
+    if(tree->header()->count()<12){
         return;
     }
-    tree->setColumnHidden(6, !show); //access
-    tree->setColumnHidden(7, !show); //filter
-    tree->setColumnHidden(8, !show); //partition start
-    tree->setColumnHidden(9, !show); //partition stop
-    tree->setColumnHidden(10, !show); //other
+    for(int i=(TIME_COL_IX+1); i<tree->header()->count(); ++i){
+        tree->setColumnHidden(i, !show);
+        if(show){
+            tree->resizeColumnToContents(i);
+            tree->header()->resizeSection(i, tree->header()->sectionSize(i)+10);
+        }
+    }
 
     if(WorksheetExplainPlanTab::advancedOptionsVisible != show){
         WorksheetExplainPlanTab::advancedOptionsVisible = show;
-    }
-
-    for(int i=6; i<tree->header()->count(); ++i){
-        tree->resizeColumnToContents(i);
-        tree->header()->resizeSection(i, tree->header()->sectionSize(i)+10);
     }
 }
 
@@ -262,13 +279,14 @@ void WorksheetExplainPlanTab::setupTree()
                                      << tr("Operation")
                                      << tr("Object name")
                                      << tr("Options")
-                                     << tr("Cost  (%CPU)")
-                                     << tr("Bytes")
                                      << tr("Rows")
-                                     << tr("Access")
-                                     << tr("Filter")
+                                     << tr("Bytes")
+                                     << tr("Cost  (%CPU)")
+                                     << tr("Time")
                                      << tr("Partition start")
                                      << tr("Partition stop")
+                                     << tr("Access")
+                                     << tr("Filter")
                                      << tr("Other"));
     tree->setModel(model);
 }

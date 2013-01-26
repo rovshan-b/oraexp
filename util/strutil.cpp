@@ -164,6 +164,18 @@ void addEOL(QString &str, const QString &terminator)
     }
 }
 
+QString formatSecs(int secs)
+{
+    int mins = secs / 60;
+    int hours = mins / 3600;
+    int remainingSecs = secs % 60;
+
+    return QString("%1:%2:%3")
+    .arg(hours, 2, 10, QLatin1Char('0'))
+    .arg(mins, 2, 10, QLatin1Char('0'))
+    .arg(remainingSecs, 2, 10, QLatin1Char('0'));
+}
+
 QString formatMsecs(int msecs)
 {
     int secs = msecs / 1000;

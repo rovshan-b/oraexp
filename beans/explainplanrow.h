@@ -17,11 +17,13 @@ public:
     QString percentCpu;
     QString bytes;
     QString cardinality;
+    QString otherTag;
     QString other;
     QString partitionStart;
     QString partitionStop;
     QString filterPredicates;
     QString accessPredicates;
+    QString time;
 
     static ExplainPlanRow* createFromFetchResult(const FetchResult &result);
 };
