@@ -25,6 +25,7 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
 
     toolbar->addAction(IconUtil::getIcon("execute"), tr("Execute"), this, SLOT(executeQuery()))->setShortcut(QKeySequence("Ctrl+Return"));
     toolbar->addAction(IconUtil::getIcon("explain_plan"), tr("Explain plan"), this, SLOT(executeExplainPlan()))->setShortcut(QKeySequence("Ctrl+E"));
+    toolbar->addAction(IconUtil::getIcon("autotrace"), tr("Auto trace"), this, SLOT(executeExplainPlan()))->setShortcut(QKeySequence("Ctrl+Q"));
 
     toolbar->addSeparator();
 

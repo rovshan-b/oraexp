@@ -1,5 +1,6 @@
 #include "settingshelper.h"
 #include "util/settings.h"
+#include "util/widgethelper.h"
 #include "connection_page/connectionpage.h"
 #include "connection_page/worksheet/worksheetwidget.h"
 #include "connection_page/code_creator/codecreatorwidget.h"
@@ -71,5 +72,5 @@ void SettingsHelper::loadStaticApplicationSettings()
     WorksheetExplainPlanTab::stackedWidgetIndex = Settings::value("WorksheetExplainPlanTab/viewIndex", 0).toInt();
 
     CodeCreatorWidget::bottomSplitterSizes = Settings::value("CodeCreatorWidget/bottomSplitterSizes").toByteArray();
-    CodeEditor::currentFont.fromString(Settings::value("CodeEditor/currentFont", QFont("Monospace")).toString());
+    CodeEditor::currentFont.fromString(Settings::value("CodeEditor/currentFont", WidgetHelper::getMonospaceFont()).toString());
 }

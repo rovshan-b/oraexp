@@ -6,6 +6,7 @@
 #include "beans/explainplanrow.h"
 #include "util/iconutil.h"
 #include "util/strutil.h"
+#include "util/widgethelper.h"
 #include <QtGui>
 
 #define TIME_COL_IX 6
@@ -14,7 +15,7 @@ bool WorksheetExplainPlanTab::advancedOptionsVisible;
 int WorksheetExplainPlanTab::stackedWidgetIndex=0;
 
 WorksheetExplainPlanTab::WorksheetExplainPlanTab(QWidget *parent) :
-    WorksheetBottomPaneTab(parent)
+    WorksheetBottomPaneTab(parent), autotraceMode(false)
 {
 
 }
@@ -39,9 +40,7 @@ void WorksheetExplainPlanTab::createUi()
 
     textViewer=new QPlainTextEdit();
     textViewer->setReadOnly(true);
-    QFont f("Monospace", textViewer->font().pointSize());
-    f.setStyleHint(QFont::Monospace);
-    textViewer->setFont(f);
+    textViewer->setFont(WidgetHelper::getMonospaceFont(textViewer->font().pointSize()));
     textViewer->setWordWrapMode(QTextOption::NoWrap);
     stackedWidget->addWidget(textViewer);
 
@@ -102,6 +101,11 @@ void WorksheetExplainPlanTab::showQueryResults(IQueryScheduler *queryScheduler, 
         getExplainPlanDataForTextView(queryScheduler);
         getExplainPlanDataForTreeView(queryScheduler);
     }
+}
+
+void WorksheetExplainPlanTab::setAutotraceMode(bool autotraceMode)
+{
+    this->autotraceMode=autotraceMode;
 }
 
 void WorksheetExplainPlanTab::explainPlanQueryCompleted(const QueryResult &result)
@@ -306,21 +310,23 @@ void WorksheetExplainPlanTab::clearModel()
 void WorksheetExplainPlanTab::getExplainPlanDataForTreeView(IQueryScheduler *queryScheduler)
 {
     queryScheduler->enqueueQuery("get_explain_plan_data",
-                                 QList<Param*>() << new Param("statement_id", statementId),
+                                 QList<Param*>() << new Param("statement_id", statementId) << new Param("autotrace", autotraceMode),
                                  this,
                                  "get_explain_plan_data",
                                  "explainPlanQueryCompleted",
                                  "explainPlanRecordFetched",
-                                 "explainPlanFetchCompleted");
+                                 "explainPlanFetchCompleted",
+                                 true);
 }
 
 void WorksheetExplainPlanTab::getExplainPlanDataForTextView(IQueryScheduler *queryScheduler)
 {
     queryScheduler->enqueueQuery("get_dbms_xplan_output",
-                                 QList<Param*>() << new Param("statement_id", statementId),
+                                 QList<Param*>() << new Param("statement_id", statementId) << new Param("autotrace", autotraceMode),
                                  this,
                                  "get_dbms_xplan_output",
                                  "xplanQueryCompleted",
                                  "xplanRecordFetched",
-                                 "xplanFetchCompleted");
+                                 "xplanFetchCompleted",
+                                 true);
 }

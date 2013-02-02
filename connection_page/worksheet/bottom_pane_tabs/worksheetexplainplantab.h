@@ -24,6 +24,8 @@ public:
     void setStatementId(const QString &statementId);
     virtual void showQueryResults(IQueryScheduler *queryScheduler, const QueryResult &result);
 
+    void setAutotraceMode(bool autotraceMode);
+
     static bool advancedOptionsVisible;
     static int stackedWidgetIndex;
 
@@ -50,6 +52,8 @@ private:
     QString xplanOutput;
 
     QAction *advancedOptionsAction;
+
+    bool autotraceMode;
 
     void setupTree();
     void clearModel();
