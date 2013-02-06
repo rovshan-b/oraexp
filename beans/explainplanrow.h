@@ -24,6 +24,7 @@ public:
     QString filterPredicates;
     QString accessPredicates;
     QString time;
+    QString crBufferGets;
 
     static ExplainPlanRow* createFromFetchResult(const FetchResult &result);
 };

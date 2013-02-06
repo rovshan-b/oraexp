@@ -131,5 +131,6 @@
         <file>images/green_flag.png</file>
         <file>images/dbms.png</file>
         <file>images/autotrace.png</file>
+        <file>images/tree.png</file>
     </qresource>
 </RCC>

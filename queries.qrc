@@ -119,6 +119,8 @@
         <file>queries/get_user_sys_privs_for_detailed_view.sql</file>
         <file>queries/get_user_tablespace_quotas_as_dba_for_detailed_view.sql</file>
         <file>queries/get_explain_plan_data.sql</file>
-        <file>queries/get_dbms_xplan_output.sql</file>
+        <file>queries/enable_autotrace.sql</file>
+        <file>queries/disable_autotrace.sql</file>
+        <file>queries/get_current_session_stats.sql</file>
     </qresource>
 </RCC>

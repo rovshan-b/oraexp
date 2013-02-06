@@ -4,8 +4,9 @@
 
 QByteArray WorksheetWidget::splitterSizes;
 
-WorksheetWidget::WorksheetWidget(QWidget *parent) :
+WorksheetWidget::WorksheetWidget(DbUiManager *uiManager, QWidget *parent) :
     QWidget(parent),
+    uiManager(uiManager),
     queryScheduler(0)
 {
     splitter=new QSplitter(Qt::Vertical);
@@ -28,6 +29,7 @@ WorksheetWidget::WorksheetWidget(QWidget *parent) :
 
     connect(queryPane, SIGNAL(queryDone(QueryResult)), this, SLOT(queryCompleted(QueryResult)));
     connect(queryPane, SIGNAL(message(QString)), this, SLOT(handleQueryPaneMessage(QString)));
+    connect(queryPane, SIGNAL(autotraceTriggered(bool)), this, SIGNAL(autotraceTriggered(bool)));
 }
 
 void WorksheetWidget::setQueryScheduler(IQueryScheduler *queryScheduler)
@@ -45,6 +47,16 @@ void WorksheetWidget::setContents(const QString &contents)
 void WorksheetWidget::focusAvailable()
 {
     queryPane->focusAvailable();
+}
+
+void WorksheetWidget::setAutotraceEnabled(bool enabled)
+{
+    queryPane->setAutotraceEnabled(enabled);
+}
+
+bool WorksheetWidget::isAutotraceEnabled() const
+{
+    return queryPane->isAutotraceEnabled();
 }
 
 void WorksheetWidget::queryCompleted(const QueryResult &result)

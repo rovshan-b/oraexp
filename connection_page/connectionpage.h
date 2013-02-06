@@ -32,6 +32,8 @@ public:
 
     bool isTreePaneVisible() const;
 
+    QList<ConnectionPageTab*> getTabsByConnection(DbConnection *db, const QString &className=QString(), int limit = -1);
+
     static QByteArray currentState;
 signals:
     void connectionPageStateChanged();

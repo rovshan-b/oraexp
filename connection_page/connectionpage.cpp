@@ -194,3 +194,23 @@ bool ConnectionPage::isTreePaneVisible() const
 {
     return treeDock->isVisible();
 }
+
+QList<ConnectionPageTab *> ConnectionPage::getTabsByConnection(DbConnection *db, const QString &className, int limit)
+{
+    QList<ConnectionPageTab *> results;
+
+    for(int i=0; i<centralTab->count(); ++i){
+        QWidget *tab = centralTab->widget(i);
+        ConnectionPageTab *cnPageTab=qobject_cast<ConnectionPageTab*>(tab);
+        Q_ASSERT(cnPageTab);
+        if(cnPageTab->getDb()==db && (className.isEmpty() || cnPageTab->metaObject()->className()==className)){
+            results.append(cnPageTab);
+        }
+
+        if(limit!=-1 && results.size()==limit){
+            break;
+        }
+    }
+
+    return results;
+}

@@ -60,9 +60,32 @@ QStringList PlSqlParseHelper::getBindParams(const QString &query, QList<BindPara
 
     }while(token!=PLS_E_O_F && token!=PLS_ERROR);
 
+    if(token==PLS_ERROR){
+        qDebug("encountered PLS_ERROR, cleaning up results");
+        results.clear();
+    }
+
     qDebug() << results;
 
     return results;
+}
+
+bool PlSqlParseHelper::isDml(const QString &query)
+{
+    QScopedPointer<PlSqlScanner> scanner(new PlSqlScanner(new StringReader(query)));
+    scanner->getNextToken();
+
+    QString firstTokenLexeme = scanner->getTokenLexeme().toUpper();
+
+    if(firstTokenLexeme=="SELECT" ||
+            firstTokenLexeme=="UPDATE" ||
+            firstTokenLexeme=="INSERT" ||
+            firstTokenLexeme=="DELETE" ||
+            firstTokenLexeme=="MERGE"){
+        return true;
+    }else{
+        return false;
+    }
 }
 
 PlSqlParseHelper::PlSqlParseHelper()

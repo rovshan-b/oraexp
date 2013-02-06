@@ -14,7 +14,7 @@ class WorksheetWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit WorksheetWidget(QWidget *parent = 0);
+    explicit WorksheetWidget(DbUiManager *uiManager, QWidget *parent = 0);
     
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
@@ -26,9 +26,13 @@ public:
 
     void focusAvailable();
 
+    void setAutotraceEnabled(bool enabled);
+    bool isAutotraceEnabled() const;
+
     static QByteArray splitterSizes;
 signals:
-    
+    void autotraceTriggered(bool checked);
+
 public slots:
     void queryCompleted(const QueryResult &result);
     void splitterMoved();
@@ -39,6 +43,7 @@ private:
     WorksheetQueryPane *queryPane;
     WorksheetResultPane *resultPane;
 
+    DbUiManager *uiManager;
     IQueryScheduler *queryScheduler;
 
     void showResultPane();

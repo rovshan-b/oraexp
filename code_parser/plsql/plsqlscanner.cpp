@@ -10,7 +10,20 @@ PlSqlScanner::PlSqlScanner(TextReaderBase *textReader) : CodeScanner(textReader)
     Q_ASSERT(parsingTable);
 }
 
-int PlSqlScanner::getNextToken()
+int PlSqlScanner::getNextToken(bool skipWhitespace)
+{
+    int token = doGetNextToken();
+
+    if(skipWhitespace){
+        while(token==PLS_SL_COMMENT || token==PLS_ML_COMMENT){
+            token = doGetNextToken();
+        }
+    }
+
+    return token;
+}
+
+int PlSqlScanner::doGetNextToken()
 {
     int token;
     ScannerState state=START;

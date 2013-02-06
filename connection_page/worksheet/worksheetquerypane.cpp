@@ -25,7 +25,11 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
 
     toolbar->addAction(IconUtil::getIcon("execute"), tr("Execute"), this, SLOT(executeQuery()))->setShortcut(QKeySequence("Ctrl+Return"));
     toolbar->addAction(IconUtil::getIcon("explain_plan"), tr("Explain plan"), this, SLOT(executeExplainPlan()))->setShortcut(QKeySequence("Ctrl+E"));
-    toolbar->addAction(IconUtil::getIcon("autotrace"), tr("Auto trace"), this, SLOT(executeExplainPlan()))->setShortcut(QKeySequence("Ctrl+Q"));
+    autotraceAction=toolbar->addAction(IconUtil::getIcon("autotrace"), tr("Enable auto trace"));
+    autotraceAction->setCheckable(true);
+    autotraceAction->setChecked(false);
+    //autotraceAction->setShortcut(QKeySequence("Ctrl+B"));
+    connect(autotraceAction, SIGNAL(triggered(bool)), this, SLOT(autotraceTriggeredByUser(bool)));
 
     toolbar->addSeparator();
 
@@ -62,12 +66,7 @@ WorksheetQueryPane::~WorksheetQueryPane()
 
 void WorksheetQueryPane::executeQuery(ExecuteMode executeMode)
 {
-    if(queryScheduler==0){
-        return;
-    }
-
-    if(queryScheduler->getDb()->isBusy()){
-        cout << "connection is busy" << endl;
+    if(!canExecute()){
         return;
     }
 
@@ -106,6 +105,8 @@ void WorksheetQueryPane::executeQuery(ExecuteMode executeMode)
     task.params=params;
     task.queryCompletedSlotName="queryCompleted";
 
+    this->currentQuery = queryText;
+
     queryScheduler->enqueueQuery(task);
     progressBarAction->setVisible(true);
 }
@@ -120,6 +121,29 @@ void WorksheetQueryPane::queryCompleted(const QueryResult &result)
 {
     progressBarAction->setVisible(false);
     emit queryDone(result);
+}
+
+void WorksheetQueryPane::autotraceTriggeredByUser(bool checked)
+{
+    if(!canExecute()){
+        return;
+    }
+
+    queryScheduler->enqueueQuery(checked ? "enable_autotrace" : "disable_autotrace",
+                                 QList<Param*>(), this, checked ? "enable_autotrace" : "disable_autotrace", "autotraceQueryCompleted");
+}
+
+void WorksheetQueryPane::autotraceQueryCompleted(const QueryResult &result)
+{
+    if(result.hasError){
+        autotraceAction->setChecked(!autotraceAction->isChecked());
+        emit queryDone(result);
+        return;
+    }
+
+    delete result.statement;
+
+    emit autotraceTriggered(autotraceAction->isChecked());
 }
 
 void WorksheetQueryPane::setContents(const QString &contents)
@@ -157,6 +181,16 @@ CodeEditorAndSearchPaneWidget *WorksheetQueryPane::currentEditor() const
 void WorksheetQueryPane::focusAvailable()
 {
     currentEditor()->editor()->setFocus();
+}
+
+void WorksheetQueryPane::setAutotraceEnabled(bool enabled)
+{
+    autotraceAction->setChecked(enabled);
+}
+
+bool WorksheetQueryPane::isAutotraceEnabled() const
+{
+    return autotraceAction->isChecked();
 }
 
 void WorksheetQueryPane::emitMessage(const QString &msg)
@@ -209,4 +243,18 @@ void WorksheetQueryPane::saveBindParams(const QList<Param *> &params)
             }
         }
     }
+}
+
+bool WorksheetQueryPane::canExecute()
+{
+    if(queryScheduler==0){
+        return false;
+    }
+
+    if(queryScheduler->getDb()->isBusy()){
+        emitMessage(tr("Connection is busy"));
+        return false;
+    }
+
+    return true;
 }

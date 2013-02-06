@@ -7,6 +7,7 @@
 class DbConnection;
 class ConnectionPage;
 class DbItemAction;
+class ConnectionPageTab;
 
 class DbUiManager : public QObject
 {
@@ -38,6 +39,8 @@ public slots:
     DbItemAction *getSenderAction() const;
 
     void closeTab(QWidget *widget);
+
+    QList<ConnectionPageTab*> getTabsByConnection(DbConnection *db, const QString &className = QString(), int limit = -1);
 private:
     DbConnection *db;
     ConnectionPage *cnPage;

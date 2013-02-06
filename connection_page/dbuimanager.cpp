@@ -132,3 +132,8 @@ void DbUiManager::closeTab(QWidget *widget)
 {
     cnPage->closeTab(widget);
 }
+
+QList<ConnectionPageTab *> DbUiManager::getTabsByConnection(DbConnection *db, const QString &className, int limit)
+{
+    return cnPage->getTabsByConnection(db, className, limit);
+}

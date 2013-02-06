@@ -9,6 +9,7 @@ class QStandardItem;
 class ExplainPlanRow;
 class QStackedWidget;
 class QPlainTextEdit;
+class DataTable;
 
 class WorksheetExplainPlanTab : public WorksheetBottomPaneTab
 {
@@ -27,24 +28,32 @@ public:
     void setAutotraceMode(bool autotraceMode);
 
     static bool advancedOptionsVisible;
-    static int stackedWidgetIndex;
+    static int explainPlanViewIndex;
+    static int autotraceViewIndex;
 
 private slots:
     void explainPlanQueryCompleted(const QueryResult &result);
     void explainPlanRecordFetched(const FetchResult &fetchResult);
-    void explainPlanFetchCompleted(const QString &);
+    void explainPlanFetchCompleted(const QString &taskName, int resultsetIx);
 
-    void xplanQueryCompleted(const QueryResult &result);
+    void planTableRecordFetched(const FetchResult &fetchResult);
+    void planTableFetchCompleted(const QString &);
+
     void xplanRecordFetched(const FetchResult &fetchResult);
     void xplanFetchCompleted(const QString &);
 
     void showAdvancedOptions(bool show);
-    void showDbmsXplanOutput(bool show);
+    void viewChangeRequested(QAction *action);
+
+    void setCurrentView(int index);
+
+    void currentViewChanged(int index);
 
 private:
     QStackedWidget *stackedWidget;
     QTreeView *tree;
     QPlainTextEdit *textViewer;
+    DataTable *sessionStatsTable;
     QString statementId;
     QHash<int, QStandardItem*> lastItemsForLevels;
 
@@ -52,14 +61,16 @@ private:
     QString xplanOutput;
 
     QAction *advancedOptionsAction;
+    QAction *treeViewAction;
+    QAction *xplanViewAction;
+    QAction *statsViewAction;
 
     bool autotraceMode;
 
     void setupTree();
     void clearModel();
 
-    void getExplainPlanDataForTreeView(IQueryScheduler *queryScheduler);
-    void getExplainPlanDataForTextView(IQueryScheduler *queryScheduler);
+    void getExplainPlanData(IQueryScheduler *queryScheduler);
     
 };
 

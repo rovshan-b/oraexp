@@ -22,8 +22,9 @@ private:
     QueryExecTask task;
     QObject *parent;
 
-    void fetchResultset(QueryResult &result, const QueryExecTask &task);
-    void invokeFetchCompletedSlot(const QueryResult &result, const QueryExecTask &task);
+    void fetchResultsets(QueryResult &result, const QueryExecTask &task);
+    void fetchResultset(QueryResult &result, const QueryExecTask &task, int rsIx, int rsCount);
+    void invokeFetchCompletedSlot(const QueryResult &result, const QueryExecTask &task, int resultsetIx = -1, int resultsetCount = -1);
     bool checkPointer(QObject *object, const QString &context);
 };
 

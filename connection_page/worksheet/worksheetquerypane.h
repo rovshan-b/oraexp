@@ -43,15 +43,22 @@ public:
 
     void focusAvailable();
 
+    void setAutotraceEnabled(bool enabled);
+    bool isAutotraceEnabled() const;
+
+    QString getCurrentQuery() const {return this->currentQuery;}
+
     QString getLastExplainPlanStatementId() const {return this->lastExpPlanStatementId;}
 signals:
     void queryDone(const QueryResult &result);
     void message(const QString &msg);
+    void autotraceTriggered(bool checked);
 
 private:
     IQueryScheduler *queryScheduler;
     QToolBar *toolbar;
     QAction *progressBarAction;
+    QAction *autotraceAction;
 
     MultiEditorWidget *multiEditor;
 
@@ -59,14 +66,19 @@ private:
     QList<Param *> promptForBindParams(const QStringList &bindParams, const QList<BindParamInfo::BindParamType> &suggestedParamTypes);
     void saveBindParams(const QList<Param *> &params);
 
+    bool canExecute();
+
     QHash<QString, BindParamInfo *> paramHistory;
 
+    QString currentQuery;
     QString lastExpPlanStatementId;
 private slots:
     void executeQuery(ExecuteMode executeMode=ExecuteQuery);
     void executeExplainPlan();
     void queryCompleted(const QueryResult &result);
 
+    void autotraceTriggeredByUser(bool checked);
+    void autotraceQueryCompleted(const QueryResult &result);
 };
 
 #endif // WORKSHEETQUERYPANE_H

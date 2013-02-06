@@ -67,6 +67,9 @@ protected:
 
     QHash<QString,QString> properties;
 
+    //returns all tabs of same type on same connection
+    QList<ConnectionPageTab *> getPeerTabs(int limit = -1) const;
+
 private:
     int activeQueryCount;
 

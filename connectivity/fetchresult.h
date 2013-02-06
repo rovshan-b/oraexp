@@ -14,6 +14,7 @@ public:
 
     QString taskName;
 
+    int resultsetIx;
     QHash<QString, unsigned int> columnIndexes;
     QList<QString> oneRow;
 

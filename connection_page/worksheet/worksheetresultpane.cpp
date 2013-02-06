@@ -5,6 +5,7 @@
 #include "bottom_pane_tabs/worksheetexplainplantab.h"
 #include "util/iconutil.h"
 #include "connectivity/statement.h"
+#include "code_parser/plsql/plsqlparsehelper.h"
 #include <QtGui>
 
 
@@ -14,7 +15,9 @@ WorksheetResultPane::WorksheetResultPane(QWidget *parent) : SubTabWidget(parent)
     setMovable(true);
 }
 
-void WorksheetResultPane::displayQueryResults(IQueryScheduler *queryScheduler, const QueryResult &result, WorksheetQueryPane *queryPane)
+void WorksheetResultPane::displayQueryResults(IQueryScheduler *queryScheduler,
+                                              const QueryResult &result,
+                                              WorksheetQueryPane *queryPane)
 {
     int rsCount=0;
     if(result.statement!=0){
@@ -55,6 +58,12 @@ void WorksheetResultPane::displayQueryResults(IQueryScheduler *queryScheduler, c
         WorksheetExplainPlanTab *tab=static_cast<WorksheetExplainPlanTab *>(getTabToDisplayResults(ExplainPlanTab));
         tab->setStatementId(queryPane->getLastExplainPlanStatementId());
         tab->showQueryResults(queryScheduler, result);
+        setCurrentWidget(tab);
+    }
+
+    if(queryPane->isAutotraceEnabled() && PlSqlParseHelper::isDml(queryPane->getCurrentQuery())){
+        WorksheetExplainPlanTab *tab=static_cast<WorksheetExplainPlanTab *>(getTabToDisplayResults(AutotraceTab));
+        tab->showQueryResults(queryScheduler, QueryResult()); //put empty query result instead of real one, because otherwise statement will be deleted in this function
         setCurrentWidget(tab);
     }
 }
@@ -134,6 +143,12 @@ QList<WorksheetBottomPaneTab *> WorksheetResultPane::getTabsToDisplayResults(Wor
         case ExplainPlanTab:
             tab=new WorksheetExplainPlanTab();
             addTab(tab, IconUtil::getIcon("explain_plan"), tr("Explain plan"));
+            tabs.append(tab);
+            break;
+        case AutotraceTab:
+            tab=new WorksheetExplainPlanTab();
+            (static_cast<WorksheetExplainPlanTab*>(tab))->setAutotraceMode(true);
+            addTab(tab, IconUtil::getIcon("autotrace"), tr("Autotrace"));
             tabs.append(tab);
             break;
         default: //should not happen

@@ -11,7 +11,7 @@ SyntaxHighligher::SyntaxHighligher(QTextDocument * parent) :
     HighlightingRule rule;
 
     keywordFormat.setForeground(Qt::blue);
-    //keywordFormat.setFontWeight(QFont::Bold);
+    //keywordFormat.setFontWeight(QFont::DemiBold);
     keywordFormat.setFontCapitalization(QFont::AllUppercase);
 
     numberFormat.setForeground(Qt::darkGreen);

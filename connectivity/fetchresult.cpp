@@ -1,5 +1,5 @@
 #include "fetchresult.h"
 
-FetchResult::FetchResult() : hasError(false)
+FetchResult::FetchResult() : resultsetIx(0), hasError(false)
 {
 }

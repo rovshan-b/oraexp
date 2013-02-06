@@ -27,8 +27,16 @@ public:
 
     virtual void focusAvailable();
 
+    void setAutotraceEnabled(bool enabled);
+    bool isAutotraceEnabled() const;
+
+private slots:
+    void autotraceTriggered(bool checked);
+
 private:
     WorksheetWidget *worksheetWidget;
+
+    bool shouldCheckAutotraceAction() const;
 
 };
 

@@ -10,7 +10,7 @@
 #include <QtGui>
 
 DataTable::DataTable(QWidget *parent) :
-    QTableView(parent), queryScheduler(0), humanizeColumnNames(false),
+    QTableView(parent), queryScheduler(0), humanizeColumnNames(false), quietMode(true),
     schemaNameCol(-1), objectNameCol(-1), objectTypeCol(-1)
 {
     verticalHeader()->setDefaultSectionSize(fontMetrics().height()+10);
@@ -26,16 +26,7 @@ void DataTable::setResultset(IQueryScheduler *queryScheduler,
 {
     this->queryScheduler=queryScheduler;
 
-    QAbstractItemModel *currentModel=model();
-    QItemSelectionModel *currentSelectionModel=selectionModel();
-
-    if(currentModel!=0){
-        delete currentModel;
-    }
-
-    if(currentSelectionModel!=0){
-        delete currentSelectionModel;
-    }
+    deleteCurrentModel();
 
     if(rs!=0){
         ResultsetTableModel *newModel=new ResultsetTableModel(queryScheduler, rs, this, dynamicQueries, iconColumns, humanizeColumnNames);
@@ -83,8 +74,7 @@ void DataTable::displayQueryResults(IQueryScheduler *queryScheduler, const QStri
 void DataTable::queryCompleted(const QueryResult &result)
 {
     if(result.hasError){
-        QMessageBox::critical(this->window(), tr("Error retrieving data"),
-                              result.exception.getErrorMessage());
+        displayError(tr("Error retrieving data"), result.exception);
 
         emit asyncQueryError(result.exception);
     }else{
@@ -159,6 +149,36 @@ void DataTable::copyToClipboard()
     }
 
     QApplication::clipboard()->setText(selectedText);
+}
+
+void DataTable::deleteCurrentModel()
+{
+    QAbstractItemModel *currentModel=model();
+    QItemSelectionModel *currentSelectionModel=selectionModel();
+
+    if(currentModel!=0){
+        delete currentModel;
+    }
+
+    if(currentSelectionModel!=0){
+        delete currentSelectionModel;
+    }
+}
+
+void DataTable::displayError(const QString &prefix, const OciException &ex)
+{
+    if(quietMode){
+        deleteCurrentModel();
+
+        QStandardItemModel *errModel=new QStandardItemModel(this);
+        errModel->setHorizontalHeaderLabels(QStringList() << tr("Error"));
+        QStandardItem *errItem=new QStandardItem(QString("%1 : %2").arg(prefix, ex.getErrorMessage()));
+        errModel->appendRow(errItem);
+
+        setModel(errModel);
+    }else{
+        QMessageBox::critical(this->window(), prefix, ex.getErrorMessage());
+    }
 }
 
 void DataTable::clear()

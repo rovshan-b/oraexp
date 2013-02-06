@@ -11,9 +11,11 @@ class PlSqlScanner : public CodeScanner
 public:
     PlSqlScanner(TextReaderBase *textReader);
 
-    int getNextToken();
+    virtual int getNextToken(bool skipWhitespace = true);
 
 private:
+    int doGetNextToken();
+
     enum ScannerState {
         START,
         IN_ID,

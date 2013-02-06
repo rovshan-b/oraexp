@@ -19,7 +19,7 @@ QueryRunner::~QueryRunner()
 
 void QueryRunner::run()
 {
-    QueryResult result;
+   QueryResult result;
 
    try{
         if(!checkPointer(task.requester, "before executing query")){
@@ -52,18 +52,31 @@ void QueryRunner::run()
     }
 
     if(!result.hasError && !task.fetchSlotName.isEmpty()){
-        fetchResultset(result, task);
+        fetchResultsets(result, task);
     }else{
         invokeFetchCompletedSlot(result, task);
     }
 }
 
-void QueryRunner::fetchResultset(QueryResult &result, const QueryExecTask &task)
+void QueryRunner::fetchResultsets(QueryResult &result, const QueryExecTask &task)
 {
     QScopedPointer<Statement> stmt(result.statement);
 
-    Resultset *rs=stmt->rsAt(0);
+    int rsCount = stmt->rsCount();
+    Q_ASSERT(rsCount>0);
+
+    for(int i=0; i<rsCount; ++i){
+        fetchResultset(result, task, i, rsCount);
+    }
+
+    result.statement=0;
+}
+
+void QueryRunner::fetchResultset(QueryResult &result, const QueryExecTask &task, int rsIx, int rsCount)
+{
+    Resultset *rs=result.statement->rsAt(rsIx);
     FetchResult fetchResult;
+    fetchResult.resultsetIx=rsIx;
     fetchResult.columnIndexes=rs->getColumnIndexes();
     fetchResult.taskName=task.taskName;
 
@@ -100,10 +113,8 @@ void QueryRunner::fetchResultset(QueryResult &result, const QueryExecTask &task)
         QMetaObject::invokeMethod(task.requester, task.fetchSlotName.toStdString().c_str(), Qt::QueuedConnection, Q_ARG(FetchResult, fetchResult));
     }
 
-    result.statement=0;
-
     checkPointer(task.requester, "completed fetching rows");
-    invokeFetchCompletedSlot(result, task);
+    invokeFetchCompletedSlot(result, task, rsIx, rsCount);
 }
 
 bool QueryRunner::checkPointer(QObject *object, const QString &context)
@@ -115,9 +126,11 @@ bool QueryRunner::checkPointer(QObject *object, const QString &context)
     return object!=0;
 }
 
-void QueryRunner::invokeFetchCompletedSlot(const QueryResult &result, const QueryExecTask &task)
+void QueryRunner::invokeFetchCompletedSlot(const QueryResult &result, const QueryExecTask &task, int resultsetIx, int resultsetCount)
 {
     QMetaObject::invokeMethod(this->parent, "fetchCompleted", Qt::QueuedConnection,
                                   Q_ARG(QueryResult, result),
-                                  Q_ARG(QueryExecTask, task));
+                                  Q_ARG(QueryExecTask, task),
+                                  Q_ARG(int, resultsetIx),
+                                  Q_ARG(int, resultsetCount));
 }

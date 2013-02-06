@@ -7,12 +7,20 @@
 #include "util/iconutil.h"
 #include "util/strutil.h"
 #include "util/widgethelper.h"
+#include "util/queryutil.h"
+#include "widgets/datatable.h"
 #include <QtGui>
 
 #define TIME_COL_IX 6
+#define CR_BUFFER_GETS_COL_IX 7
+
+#define TREE_VIEW_IX 0
+#define XPLAN_VIEW_IX 1
+#define STATS_VIEW_IX 2
 
 bool WorksheetExplainPlanTab::advancedOptionsVisible;
-int WorksheetExplainPlanTab::stackedWidgetIndex=0;
+int WorksheetExplainPlanTab::explainPlanViewIndex=0;
+int WorksheetExplainPlanTab::autotraceViewIndex=0;
 
 WorksheetExplainPlanTab::WorksheetExplainPlanTab(QWidget *parent) :
     WorksheetBottomPaneTab(parent), autotraceMode(false)
@@ -33,6 +41,7 @@ void WorksheetExplainPlanTab::createUi()
     layout->addWidget(toolbar);
 
     stackedWidget = new QStackedWidget();
+    connect(stackedWidget, SIGNAL(currentChanged(int)), this, SLOT(currentViewChanged(int)));
 
     tree=new QTreeView();
     setupTree();
@@ -44,7 +53,15 @@ void WorksheetExplainPlanTab::createUi()
     textViewer->setWordWrapMode(QTextOption::NoWrap);
     stackedWidget->addWidget(textViewer);
 
-    stackedWidget->setCurrentIndex(WorksheetExplainPlanTab::stackedWidgetIndex);
+    if(autotraceMode){
+        sessionStatsTable = new DataTable();
+        stackedWidget->addWidget(sessionStatsTable);
+    }
+
+    setCurrentView(autotraceMode ?
+                       WorksheetExplainPlanTab::autotraceViewIndex
+                     :
+                       WorksheetExplainPlanTab::explainPlanViewIndex);
     layout->addWidget(stackedWidget);
 
     layout->setSpacing(2);
@@ -53,8 +70,6 @@ void WorksheetExplainPlanTab::createUi()
 
     advancedOptionsAction->setChecked(WorksheetExplainPlanTab::advancedOptionsVisible);
     showAdvancedOptions(WorksheetExplainPlanTab::advancedOptionsVisible);
-
-    progressBarAction->setVisible(true);
 }
 
 void WorksheetExplainPlanTab::addTabSpecificToolbarButtons()
@@ -64,18 +79,29 @@ void WorksheetExplainPlanTab::addTabSpecificToolbarButtons()
     advancedOptionsAction->setCheckable(true);
     connect(advancedOptionsAction, SIGNAL(toggled(bool)), this, SLOT(showAdvancedOptions(bool)));
 
-    QAction *treeTextViewSwitcherAction=toolbar->addAction(IconUtil::getIcon("dbms"),
-                                                           QObject::tr("Display DBMS_XPLAN output"));
-    treeTextViewSwitcherAction->setCheckable(true);
-    treeTextViewSwitcherAction->setChecked(WorksheetExplainPlanTab::stackedWidgetIndex==1);
-    treeTextViewSwitcherAction->setShortcut(QKeySequence("Ctrl+M"));
-    connect(treeTextViewSwitcherAction, SIGNAL(toggled(bool)), this, SLOT(showDbmsXplanOutput(bool)));
+    toolbar->addSeparator();
 
+    QActionGroup *viewSwitcherActions = new QActionGroup(this);
+    treeViewAction = viewSwitcherActions->addAction(IconUtil::getIcon("tree"), tr("Tree view"));
+    treeViewAction->setCheckable(true);
+    xplanViewAction = viewSwitcherActions->addAction(IconUtil::getIcon("dbms"), tr("DBMS_XPLAN output"));
+    xplanViewAction->setCheckable(true);
+
+    toolbar->addAction(treeViewAction);
+    toolbar->addAction(xplanViewAction);
+
+    if(autotraceMode){
+        statsViewAction = viewSwitcherActions->addAction(IconUtil::getIcon("statistics"), tr("Session statistics"));
+        statsViewAction->setCheckable(true);
+        toolbar->addAction(statsViewAction);
+    }
+
+    connect(viewSwitcherActions, SIGNAL(triggered(QAction*)), this, SLOT(viewChangeRequested(QAction*)));
 }
 
 WorksheetResultPane::WorksheetBottomPaneTabType WorksheetExplainPlanTab::getTabType() const
 {
-    return WorksheetResultPane::ExplainPlanTab;
+    return this->autotraceMode ? WorksheetResultPane::AutotraceTab : WorksheetResultPane::ExplainPlanTab;
 }
 
 void WorksheetExplainPlanTab::setStatementId(const QString &statementId)
@@ -94,13 +120,7 @@ void WorksheetExplainPlanTab::showQueryResults(IQueryScheduler *queryScheduler, 
     }
 
     //first fetch data for visible widget
-    if(stackedWidget->currentIndex()==0){
-        getExplainPlanDataForTreeView(queryScheduler);
-        getExplainPlanDataForTextView(queryScheduler);
-    }else{
-        getExplainPlanDataForTextView(queryScheduler);
-        getExplainPlanDataForTreeView(queryScheduler);
-    }
+    getExplainPlanData(queryScheduler);
 }
 
 void WorksheetExplainPlanTab::setAutotraceMode(bool autotraceMode)
@@ -120,6 +140,27 @@ void WorksheetExplainPlanTab::explainPlanRecordFetched(const FetchResult &fetchR
 {
     if(fetchResult.hasError){
         progressBarAction->setVisible(false);
+    }
+
+    if(fetchResult.resultsetIx==0){
+        planTableRecordFetched(fetchResult);
+    }else{
+        xplanRecordFetched(fetchResult);
+    }
+}
+
+void WorksheetExplainPlanTab::explainPlanFetchCompleted(const QString & taskName, int resultsetIx)
+{
+    if(resultsetIx==0){
+        planTableFetchCompleted(taskName);
+    }else{
+        xplanFetchCompleted(taskName);
+    }
+}
+
+void WorksheetExplainPlanTab::planTableRecordFetched(const FetchResult &fetchResult)
+{
+    if(fetchResult.hasError){
         QMessageBox::critical(this->window(), tr("Error fetching explain plan"), fetchResult.exception.getErrorMessage());
         return;
     }
@@ -170,7 +211,10 @@ void WorksheetExplainPlanTab::explainPlanRecordFetched(const FetchResult &fetchR
     QStandardItem *bytesItem=new QStandardItem(bytesText);
     bytesItem->setData(Qt::AlignRight, Qt::TextAlignmentRole);
 
-    QStandardItem *costItem=new QStandardItem(QString("%1 (%2)").arg(planInfo->cost, planInfo->percentCpu));
+    QStandardItem *costItem=new QStandardItem(planInfo->percentCpu.isEmpty() ?
+                                                  planInfo->cost
+                                                :
+                                                  QString("%1 (%2)").arg(planInfo->cost, planInfo->percentCpu));
     costItem->setData(Qt::AlignRight, Qt::TextAlignmentRole);
 
     QStandardItem *timeItem=new QStandardItem();
@@ -195,6 +239,7 @@ void WorksheetExplainPlanTab::explainPlanRecordFetched(const FetchResult &fetchR
                                       << bytesItem
                                       << costItem
                                       << timeItem
+                                      << new QStandardItem(planInfo->crBufferGets)
                                       << new QStandardItem(planInfo->partitionStart)
                                       << new QStandardItem(planInfo->partitionStop)
                                       << new QStandardItem(planInfo->accessPredicates)
@@ -205,9 +250,8 @@ void WorksheetExplainPlanTab::explainPlanRecordFetched(const FetchResult &fetchR
     parentItem->appendRow(rowItems);
 }
 
-void WorksheetExplainPlanTab::explainPlanFetchCompleted(const QString &)
+void WorksheetExplainPlanTab::planTableFetchCompleted(const QString &)
 {
-    progressBarAction->setVisible(false);
     lastItemsForLevels.clear();
 
     tree->setUpdatesEnabled(false);
@@ -217,13 +261,6 @@ void WorksheetExplainPlanTab::explainPlanFetchCompleted(const QString &)
         tree->header()->resizeSection(i, tree->header()->sectionSize(i)+(i<=1 ? 30 : 10));
     }
     tree->setUpdatesEnabled(true);
-}
-
-void WorksheetExplainPlanTab::xplanQueryCompleted(const QueryResult &result)
-{
-    if(result.hasError){
-        textViewer->setPlainText(result.exception.getErrorMessage());
-    }
 }
 
 void WorksheetExplainPlanTab::xplanRecordFetched(const FetchResult &fetchResult)
@@ -239,14 +276,16 @@ void WorksheetExplainPlanTab::xplanRecordFetched(const FetchResult &fetchResult)
 void WorksheetExplainPlanTab::xplanFetchCompleted(const QString &)
 {
     textViewer->setPlainText(xplanOutput);
+
+    progressBarAction->setVisible(false);
 }
 
 void WorksheetExplainPlanTab::showAdvancedOptions(bool show)
 {
-    if(tree->header()->count()<12){
-        return;
-    }
-    for(int i=(TIME_COL_IX+1); i<tree->header()->count(); ++i){
+    Q_ASSERT(tree->header()->count()>0);
+
+    int startColIx = CR_BUFFER_GETS_COL_IX + 1;
+    for(int i=startColIx; i<tree->header()->count(); ++i){
         tree->setColumnHidden(i, !show);
         if(show){
             tree->resizeColumnToContents(i);
@@ -259,20 +298,51 @@ void WorksheetExplainPlanTab::showAdvancedOptions(bool show)
     }
 }
 
-void WorksheetExplainPlanTab::showDbmsXplanOutput(bool show)
+void WorksheetExplainPlanTab::viewChangeRequested(QAction *action)
 {
-    int ixToShow=show ? 1 : 0;
-
-    stackedWidget->setCurrentIndex(ixToShow);
-
-    if(WorksheetExplainPlanTab::stackedWidgetIndex!=ixToShow){
-        WorksheetExplainPlanTab::stackedWidgetIndex=ixToShow;
+    int tabIx;
+    if(action==treeViewAction){
+        tabIx=TREE_VIEW_IX;
+    }else if(action==xplanViewAction){
+        tabIx=XPLAN_VIEW_IX;
+    }else{
+        tabIx=STATS_VIEW_IX;
     }
+
+    stackedWidget->setCurrentIndex(tabIx);
+
+    if(autotraceMode && WorksheetExplainPlanTab::autotraceViewIndex!=tabIx){
+        WorksheetExplainPlanTab::autotraceViewIndex=tabIx;
+    }else if(!autotraceMode && WorksheetExplainPlanTab::explainPlanViewIndex!=tabIx){
+        WorksheetExplainPlanTab::explainPlanViewIndex=tabIx;
+    }
+}
+
+void WorksheetExplainPlanTab::setCurrentView(int index)
+{
+    stackedWidget->setCurrentIndex(index);
+    switch(index){
+    case TREE_VIEW_IX:
+        treeViewAction->setChecked(true);
+        break;
+    case XPLAN_VIEW_IX:
+        xplanViewAction->setChecked(true);
+        break;
+    default:
+        statsViewAction->setChecked(true);
+        break;
+    }
+}
+
+void WorksheetExplainPlanTab::currentViewChanged(int index)
+{
+    advancedOptionsAction->setEnabled(index==TREE_VIEW_IX);
 }
 
 void WorksheetExplainPlanTab::setupTree()
 {
     //tree->setHeaderHidden(true);
+    tree->setEditTriggers(QAbstractItemView::NoEditTriggers);
     tree->setUniformRowHeights(true);
     tree->setRootIsDecorated(true);
     tree->header()->setStretchLastSection(false);
@@ -287,12 +357,17 @@ void WorksheetExplainPlanTab::setupTree()
                                      << tr("Bytes")
                                      << tr("Cost  (%CPU)")
                                      << tr("Time")
+                                     << tr("CR buffer gets")
                                      << tr("Partition start")
                                      << tr("Partition stop")
                                      << tr("Access")
                                      << tr("Filter")
                                      << tr("Other"));
     tree->setModel(model);
+
+    if(!autotraceMode){
+        tree->header()->setSectionHidden(CR_BUFFER_GETS_COL_IX, true);
+    }
 }
 
 void WorksheetExplainPlanTab::clearModel()
@@ -307,26 +382,24 @@ void WorksheetExplainPlanTab::clearModel()
     planData.clear();
 }
 
-void WorksheetExplainPlanTab::getExplainPlanDataForTreeView(IQueryScheduler *queryScheduler)
+void WorksheetExplainPlanTab::getExplainPlanData(IQueryScheduler *queryScheduler)
 {
+    progressBarAction->setVisible(true);
     queryScheduler->enqueueQuery("get_explain_plan_data",
-                                 QList<Param*>() << new Param("statement_id", statementId) << new Param("autotrace", autotraceMode),
+                                 QList<Param*>()
+                                 << new Param("statement_id", statementId)
+                                 << new Param("autotrace", autotraceMode)
+                                 << new Param("rs1")
+                                 << new Param("rs2"),
                                  this,
                                  "get_explain_plan_data",
                                  "explainPlanQueryCompleted",
                                  "explainPlanRecordFetched",
-                                 "explainPlanFetchCompleted",
-                                 true);
-}
+                                 "explainPlanFetchCompleted");
 
-void WorksheetExplainPlanTab::getExplainPlanDataForTextView(IQueryScheduler *queryScheduler)
-{
-    queryScheduler->enqueueQuery("get_dbms_xplan_output",
-                                 QList<Param*>() << new Param("statement_id", statementId) << new Param("autotrace", autotraceMode),
-                                 this,
-                                 "get_dbms_xplan_output",
-                                 "xplanQueryCompleted",
-                                 "xplanRecordFetched",
-                                 "xplanFetchCompleted",
-                                 true);
+    if(autotraceMode){
+        sessionStatsTable->displayQueryResults(queryScheduler,
+                                               QueryUtil::getQuery("get_current_session_stats", queryScheduler->getDb()),
+                                               QList<Param*>());
+    }
 }

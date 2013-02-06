@@ -61,6 +61,7 @@ private:
     QHash<QString, QString> iconColumns;
 
     bool humanizeColumnNames;
+    bool quietMode;
 
     void copyToClipboard();
 
@@ -71,6 +72,9 @@ private:
     int objectTypeCol;
 
     DbUiManager *uiManager;
+
+    void deleteCurrentModel();
+    void displayError(const QString &prefix, const OciException &ex);
 };
 
 #endif // DATATABLE_H

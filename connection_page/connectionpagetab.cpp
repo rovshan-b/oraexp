@@ -1,5 +1,6 @@
 #include "connectionpagetab.h"
 #include "connectivity/dbconnection.h"
+#include "connection_page/dbuimanager.h"
 #include <QtGui>
 
 #include <iostream>
@@ -76,6 +77,11 @@ void ConnectionPageTab::beforeEnqueueQuery()
 {
     Q_ASSERT(db); 
     increaseRefCount();
+}
+
+QList<ConnectionPageTab *> ConnectionPageTab::getPeerTabs(int limit) const
+{
+    return uiManager->getTabsByConnection(getDb(), this->metaObject()->className(), limit);
 }
 
 void ConnectionPageTab::emitInitCompletedSignal()

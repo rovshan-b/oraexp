@@ -25,11 +25,12 @@ signals:
 
 private slots:
     void runnerThreadFinished();
-    void fetchCompleted(const QueryResult &result, const QueryExecTask &task);
+    void fetchCompleted(const QueryResult &result, const QueryExecTask &task, int resultsetIx, int resultsetCount);
 
 private:
     void processQueue();
     void notifyQueryEndMonitor(const QueryExecTask &task);
+    void invokeFetchCompletedSlot(const QueryExecTask &task, int resultsetIx);
 
     DbConnection *db;
 

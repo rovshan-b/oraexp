@@ -13,7 +13,7 @@ public:
     CodeScanner(TextReaderBase *textReader);
     virtual ~CodeScanner();
 
-    virtual int getNextToken()=0;
+    virtual int getNextToken(bool skipWhitespace = true)=0;
 
     int getTokenStartPos() const {return tokenStartPos;}
     int getTokenEndPos() const {return tokenEndPos;}

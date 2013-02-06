@@ -7,6 +7,7 @@
 #include "util/queryutil.h"
 #include <memory>
 #include <QMetaObject>
+#include <QMetaMethod>
 #include <QThreadPool>
 #include <QDebug>
 
@@ -60,12 +61,15 @@ void QueryQueueManager::processQueue()
     }
 }
 
-void QueryQueueManager::fetchCompleted(const QueryResult &result, const QueryExecTask &task)
+void QueryQueueManager::fetchCompleted(const QueryResult &result, const QueryExecTask &task, int resultsetIx, int resultsetCount)
 {
+    bool allFetched=true;
     if(!task.fetchCompletedSlotName.isEmpty() && !result.hasError){
         if(task.requester!=0){
-            QMetaObject::invokeMethod(task.requester, task.fetchCompletedSlotName.toStdString().c_str(), Qt::DirectConnection,
-                                  Q_ARG(QString, task.taskName));
+            invokeFetchCompletedSlot(task, resultsetIx);
+            if(resultsetIx!=-1 && resultsetIx<resultsetCount-1){
+                allFetched=false;
+            }
         }else{
             qDebug() << "Object deleted with query registered in queue (QueryQueueManager::fetchCompleted)";
             if(result.statement!=0){
@@ -74,10 +78,31 @@ void QueryQueueManager::fetchCompleted(const QueryResult &result, const QueryExe
         }
     }
 
-    notifyQueryEndMonitor(task);
+    if(allFetched){
+        notifyQueryEndMonitor(task);
 
-    runnerThreadFinished();
+        runnerThreadFinished();
+    }
 }
+
+void QueryQueueManager::invokeFetchCompletedSlot(const QueryExecTask &task, int resultsetIx)
+{
+    bool couldInvoke = QMetaObject::invokeMethod(task.requester,
+                                                 task.fetchCompletedSlotName.toStdString().c_str(),
+                                                 Qt::DirectConnection,
+                                                 Q_ARG(QString, task.taskName),
+                                                 Q_ARG(int, resultsetIx));
+
+    if(!couldInvoke){
+        couldInvoke = QMetaObject::invokeMethod(task.requester,
+                                                task.fetchCompletedSlotName.toStdString().c_str(),
+                                                Qt::DirectConnection,
+                                                Q_ARG(QString, task.taskName));
+    }
+
+    Q_ASSERT(couldInvoke);
+}
+
 
 void QueryQueueManager::runnerThreadFinished()
 {

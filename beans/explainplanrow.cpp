@@ -27,6 +27,7 @@ ExplainPlanRow *ExplainPlanRow::createFromFetchResult(const FetchResult &result)
     row->filterPredicates=result.colValue("ACCESS_PREDICATES");
     row->accessPredicates=result.colValue("FILTER_PREDICATES");
     row->time=result.colValue("TIME");
+    row->crBufferGets=result.colValue("LAST_CR_BUFFER_GETS");
 
     return row;
 }
