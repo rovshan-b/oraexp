@@ -21,6 +21,8 @@ public:
     QLabel *createInfoLabel();
 
     void setReadOnly(bool readOnly);
+
+    void setInfoLabelTextFormat(const QString &format);
 signals:
     void escapeKeyPressed();
 

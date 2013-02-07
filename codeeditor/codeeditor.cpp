@@ -38,6 +38,7 @@ CodeEditor::CodeEditor(QWidget *parent) :
 
     connect(this, SIGNAL(undoAvailable(bool)), this, SLOT(setUndoAvailable(bool)));
     connect(this, SIGNAL(redoAvailable(bool)), this, SLOT(setRedoAvailable(bool)));
+    connect(this, SIGNAL(textChanged()), this, SLOT(removeErrorSelection()));
 }
 
 //use only when sure that there's not lots of text in editor
@@ -100,6 +101,14 @@ int CodeEditor::lineNumberAreaWidth()
      highlightCurrentLine();
  }
 
+ void CodeEditor::removeErrorSelection()
+ {
+     if(!errorPosition.isNull()){
+         errorPosition=QTextCursor();
+         highlightCurrentLine();
+     }
+ }
+
  void CodeEditor::resizeEvent(QResizeEvent *e)
  {
      QPlainTextEdit::resizeEvent(e);
@@ -141,6 +150,17 @@ int CodeEditor::lineNumberAreaWidth()
          pulsateSelection.cursor=pulsatePositions.at(i);
 
          extraSelections.append(pulsateSelection);
+     }
+
+     if(!errorPosition.isNull()){
+         QTextEdit::ExtraSelection errorSelection;
+         errorSelection.format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+         errorSelection.format.setUnderlineColor(Qt::red);
+         errorSelection.format.setBackground(Qt::red);
+         errorSelection.format.setForeground(Qt::white);
+         errorSelection.cursor=errorPosition;
+
+         extraSelections.append(errorSelection);
      }
 
      setExtraSelections(extraSelections);
@@ -718,17 +738,17 @@ int CodeEditor::lineNumberAreaWidth()
  {
      QString result;
 
-     QString line=cursor.block().text().trimmed();
+     QString line=cursor.block().text();
 
-     if(line.isEmpty()){
+     if(line.trimmed().isEmpty()){
          return result;
      }
 
      //move up until we find an empty line
      while(cursor.movePosition(QTextCursor::PreviousBlock)){
-         line = cursor.block().text().trimmed();
+         line = cursor.block().text();
 
-         if(line.isEmpty()){
+         if(line.trimmed().isEmpty()){
              break;
          }
      }
@@ -745,9 +765,9 @@ int CodeEditor::lineNumberAreaWidth()
      }
 
      do{
-         line = cursor.block().text().trimmed();
+         line = cursor.block().text();
 
-         if(line.isEmpty()){
+         if(line.trimmed().isEmpty()){
              cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::KeepAnchor);
              cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
              break;
@@ -759,8 +779,6 @@ int CodeEditor::lineNumberAreaWidth()
 
          result.append(line);
      }while(cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor));
-
-     result=result.trimmed();
 
      if(!result.isEmpty()){
          cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
@@ -801,4 +819,10 @@ int CodeEditor::lineNumberAreaWidth()
      pulsatePositions.append(cursor);
      highlightCurrentLine();
      QTimer::singleShot(300, this, SLOT(removePulsatePositions()));
+ }
+
+ void CodeEditor::setErrorPosition(const QTextCursor &cursor)
+ {
+     this->errorPosition=cursor;
+     highlightCurrentLine();
  }

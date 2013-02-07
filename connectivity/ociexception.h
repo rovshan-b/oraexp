@@ -14,6 +14,7 @@ public:
     int getErrorCode() const;
     unsigned int getErrorRow() const;
     unsigned int getErrorPos() const;
+    void setErrorPos(unsigned int pos);
 
     virtual const char* what() throw();
 

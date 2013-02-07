@@ -165,6 +165,11 @@ void MultiEditorWidget::setReadOnly(bool readOnly)
     }
 }
 
+void MultiEditorWidget::setInfoLabelTextFormat(const QString &format)
+{
+    this->infoLabelTextFormat=format;
+}
+
 int MultiEditorWidget::visibleEditorCount() const
 {
     int result=0;

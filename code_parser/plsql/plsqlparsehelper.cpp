@@ -60,10 +60,10 @@ QStringList PlSqlParseHelper::getBindParams(const QString &query, QList<BindPara
 
     }while(token!=PLS_E_O_F && token!=PLS_ERROR);
 
-    if(token==PLS_ERROR){
-        qDebug("encountered PLS_ERROR, cleaning up results");
-        results.clear();
-    }
+    //if(token==PLS_ERROR){
+    //    qDebug("encountered PLS_ERROR, cleaning up results");
+    //    results.clear();
+    //}
 
     qDebug() << results;
 

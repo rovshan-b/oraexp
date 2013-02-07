@@ -83,13 +83,14 @@ void QueryRunner::fetchResultset(QueryResult &result, const QueryExecTask &task,
     //const char *fetchSlotName=;
     int columnCount=rs->getColumnCount();
 
+    bool couldInvoke;
     try{
         rs->beginFetchRows();
         while(rs->moveNext()){
 
-            if(!checkPointer(task.requester, "fetching rows")){
-                break;
-            }
+            //if(!checkPointer(task.requester, "fetching rows")){
+            //    break;
+            //}
 
             QList<QString> oneRow;
             oneRow.reserve(columnCount);
@@ -101,7 +102,10 @@ void QueryRunner::fetchResultset(QueryResult &result, const QueryExecTask &task,
             fetchResult.hasError=false;
             fetchResult.oneRow=oneRow;
 
-            QMetaObject::invokeMethod(task.requester, task.fetchSlotName.toStdString().c_str(), Qt::QueuedConnection, Q_ARG(FetchResult, fetchResult));
+            couldInvoke=QMetaObject::invokeMethod(task.requester, task.fetchSlotName.toStdString().c_str(), Qt::QueuedConnection, Q_ARG(FetchResult, fetchResult));
+            if(!couldInvoke){
+                break;
+            }
         }
         rs->endFetchRows();
     }catch(OciException &ex){

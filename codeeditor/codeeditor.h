@@ -28,6 +28,8 @@ public:
 
     void pulsate(const QTextCursor &cursor);
 
+    void setErrorPosition(const QTextCursor &cursor);
+
     static QFont currentFont;
 
 public slots:
@@ -66,12 +68,14 @@ private slots:
     void setUndoAvailable(bool available);
     void setRedoAvailable(bool available);
     void removePulsatePositions();
+    void removeErrorSelection();
 
 private:
     QWidget *lineNumberArea;
 
     QList< QTextCursor > foundTextPositions;
     QList< QTextCursor > pulsatePositions;
+    QTextCursor errorPosition;
 
     QString strTab;
 

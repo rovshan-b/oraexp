@@ -9,6 +9,7 @@
 #include "util/widgethelper.h"
 #include "util/queryutil.h"
 #include "widgets/datatable.h"
+#include "errors.h"
 #include <QtGui>
 
 #define TIME_COL_IX 6
@@ -132,7 +133,18 @@ void WorksheetExplainPlanTab::explainPlanQueryCompleted(const QueryResult &resul
 {
     if(result.hasError){
         progressBarAction->setVisible(false);
-        QMessageBox::critical(this->window(), tr("Error retrieving explain plan"), result.exception.getErrorMessage());
+        QString errorMessage;
+        if(autotraceMode && result.exception.getErrorCode()==ERR_TABLE_OR_VIEW_DOES_NOT_EXIST){
+            errorMessage = QString(tr("Please, ask DBA for SELECT access on following views:\n"
+                                   " - V$SQL_PLAN\n"
+                                   " - V$SQL_PLAN_STATISTICS_ALL\n"
+                                   " - V$STATNAME\n"
+                                   " - V$MYSTAT"));
+        }else{
+            errorMessage = result.exception.getErrorMessage();
+        }
+
+        QMessageBox::critical(this->window(), tr("Error retrieving explain plan"), errorMessage);
     }
 }
 

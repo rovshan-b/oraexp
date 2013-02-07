@@ -72,9 +72,6 @@ void QueryQueueManager::fetchCompleted(const QueryResult &result, const QueryExe
             }
         }else{
             qDebug() << "Object deleted with query registered in queue (QueryQueueManager::fetchCompleted)";
-            if(result.statement!=0){
-                delete result.statement;
-            }
         }
     }
 
@@ -101,6 +98,28 @@ void QueryQueueManager::invokeFetchCompletedSlot(const QueryExecTask &task, int 
     }
 
     Q_ASSERT(couldInvoke);
+
+    /*
+    const QMetaObject *mo=task.requester->metaObject();
+    int slotIx = mo->indexOfSlot(task.fetchCompletedSlotName.toStdString().c_str());
+#ifdef DEBUG
+    if(slotIx==-1){
+        qDebug() << "could not find slot named " << task.fetchCompletedSlotName << " in class " << mo->className();
+    }
+#endif
+    Q_ASSERT(slotIx!=-1);
+    QMetaMethod fetchCompletedMethod=mo->method(slotIx);
+    qDebug("found slot");
+    if(fetchCompletedMethod.parameterNames().size()==2){
+        fetchCompletedMethod.invoke(task.requester,
+                                    Qt::DirectConnection,
+                                    Q_ARG(QString, task.taskName),
+                                    Q_ARG(int, resultsetIx));
+    }else{
+        fetchCompletedMethod.invoke(task.requester,
+                                    Qt::DirectConnection,
+                                    Q_ARG(QString, task.taskName));
+    }*/
 }
 
 

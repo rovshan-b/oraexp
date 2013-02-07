@@ -8,6 +8,7 @@
 #include "code_parser/plsql/plsqlparsehelper.h"
 #include "dialogs/bindparamsdialog.h"
 #include "connectivity/statement.h"
+#include "errors.h"
 #include <QtGui>
 
 #include <iostream>
@@ -43,7 +44,14 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
 
     //create code editor
     multiEditor = new MultiEditorWidget();
+
     WidgetHelper::addStretchToToolbar(toolbar);
+
+    QLabel *infoLabel=multiEditor->createInfoLabel();
+    WidgetHelper::changeFontSize(infoLabel, -1);
+    multiEditor->setInfoLabelTextFormat(QString("Line:%1 Pos:%2 (%3)     "));
+    toolbar->addWidget(infoLabel);
+
     multiEditor->addSplittingActions(toolbar);
 
     layout->addWidget(toolbar);
@@ -70,15 +78,14 @@ void WorksheetQueryPane::executeQuery(ExecuteMode executeMode)
         return;
     }
 
-    QTextCursor textCursor;
-    QString queryText=currentEditor()->editor()->getCurrentText(textCursor).trimmed();
+    QString queryText=currentEditor()->editor()->getCurrentText(currentQueryCursor);
 
     if(queryText.isEmpty()){
         emitMessage(tr("Query text cannot be empty"));
         return;
     }
 
-    currentEditor()->editor()->pulsate(textCursor);
+    currentEditor()->editor()->pulsate(currentQueryCursor);
 
     QList<Param*> params;
 
@@ -95,7 +102,7 @@ void WorksheetQueryPane::executeQuery(ExecuteMode executeMode)
         }
     }else if(executeMode==ExecuteExplainPlan){
         lastExpPlanStatementId=md5(QUuid::createUuid().toString()).left(30);
-        queryText.prepend(QString("EXPLAIN PLAN SET STATEMENT_ID='%1' FOR ").arg(lastExpPlanStatementId));
+        queryText.prepend(getExplainPlanPrefix());
     }
 
     QueryExecTask task;
@@ -120,7 +127,17 @@ void WorksheetQueryPane::executeExplainPlan()
 void WorksheetQueryPane::queryCompleted(const QueryResult &result)
 {
     progressBarAction->setVisible(false);
-    emit queryDone(result);
+
+    if(result.hasError){ //reset error position according to editor
+        QueryResult modifiedResult = result;
+        int modifiedPosition = highlightError(result);
+        if(modifiedPosition!=-1){
+            modifiedResult.exception.setErrorPos(modifiedPosition);
+        }
+        emit queryDone(modifiedResult);
+    }else{
+        emit queryDone(result);
+    }
 }
 
 void WorksheetQueryPane::autotraceTriggeredByUser(bool checked)
@@ -137,7 +154,13 @@ void WorksheetQueryPane::autotraceQueryCompleted(const QueryResult &result)
 {
     if(result.hasError){
         autotraceAction->setChecked(!autotraceAction->isChecked());
-        emit queryDone(result);
+
+        QueryResult modifiedResult=result;
+        if(modifiedResult.exception.getErrorCode()==ERR_INSUFFICIENT_PRIVILEGES){
+            modifiedResult.exception.addToErrorMessage(tr("You need ALTER SESSION privilege to use autotrace feature.\n"), false);
+        }
+
+        emit queryDone(modifiedResult);
         return;
     }
 
@@ -257,4 +280,36 @@ bool WorksheetQueryPane::canExecute()
     }
 
     return true;
+}
+
+QString WorksheetQueryPane::getExplainPlanPrefix() const
+{
+    return QString("EXPLAIN PLAN SET STATEMENT_ID='%1' FOR ").arg(lastExpPlanStatementId);
+}
+
+int WorksheetQueryPane::highlightError(const QueryResult &result) //returns modified position
+{
+    int modifiedPosition = -1;
+
+    int errorPos = result.exception.getErrorPos();
+    if(errorPos>0){
+        QTextCursor errorPositionCursor = currentQueryCursor;
+        int editorErrorPos = currentQueryCursor.selectionStart()+errorPos;
+        if(!lastExpPlanStatementId.isEmpty()){ //this is an explain plan query
+            editorErrorPos -= getExplainPlanPrefix().size();
+        }
+        errorPositionCursor.setPosition(editorErrorPos); //errorPos is 1 based
+        errorPositionCursor.movePosition(!errorPositionCursor.atEnd() ?
+                                             QTextCursor::NextCharacter
+                                           :
+                                             QTextCursor::PreviousCharacter,
+                                         QTextCursor::KeepAnchor);
+        currentEditor()->editor()->setErrorPosition(errorPositionCursor);
+
+        modifiedPosition=editorErrorPos;
+
+        qDebug() << "moved error position from" << errorPos << "to" << modifiedPosition;
+    }
+
+    return modifiedPosition;
 }

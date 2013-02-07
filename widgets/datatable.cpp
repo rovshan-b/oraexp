@@ -176,6 +176,8 @@ void DataTable::displayError(const QString &prefix, const OciException &ex)
         errModel->appendRow(errItem);
 
         setModel(errModel);
+        resizeColumnToContents(0);
+        resizeRowToContents(0);
     }else{
         QMessageBox::critical(this->window(), prefix, ex.getErrorMessage());
     }

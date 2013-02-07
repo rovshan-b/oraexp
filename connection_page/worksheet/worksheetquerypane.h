@@ -71,7 +71,11 @@ private:
     QHash<QString, BindParamInfo *> paramHistory;
 
     QString currentQuery;
+    QTextCursor currentQueryCursor;
     QString lastExpPlanStatementId;
+
+    QString getExplainPlanPrefix() const;
+    int highlightError(const QueryResult &result);
 private slots:
     void executeQuery(ExecuteMode executeMode=ExecuteQuery);
     void executeExplainPlan();

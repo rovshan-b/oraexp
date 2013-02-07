@@ -34,6 +34,11 @@ unsigned int OciException::getErrorPos() const
     return errorPos;
 }
 
+void OciException::setErrorPos(unsigned int pos)
+{
+    this->errorPos=pos;
+}
+
 const char* OciException::what() throw()
 {
     return this->errorMessage.toStdString().c_str();

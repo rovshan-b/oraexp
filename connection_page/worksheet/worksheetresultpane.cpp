@@ -61,7 +61,7 @@ void WorksheetResultPane::displayQueryResults(IQueryScheduler *queryScheduler,
         setCurrentWidget(tab);
     }
 
-    if(queryPane->isAutotraceEnabled() && PlSqlParseHelper::isDml(queryPane->getCurrentQuery())){
+    if(!result.hasError && queryPane->isAutotraceEnabled() && PlSqlParseHelper::isDml(queryPane->getCurrentQuery())){
         WorksheetExplainPlanTab *tab=static_cast<WorksheetExplainPlanTab *>(getTabToDisplayResults(AutotraceTab));
         tab->showQueryResults(queryScheduler, QueryResult()); //put empty query result instead of real one, because otherwise statement will be deleted in this function
         setCurrentWidget(tab);
