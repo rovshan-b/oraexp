@@ -75,7 +75,7 @@ private:
     QString lastExpPlanStatementId;
 
     QString getExplainPlanPrefix() const;
-    int highlightError(const QueryResult &result);
+    QueryResult highlightError(const QueryResult &result);
 private slots:
     void executeQuery(ExecuteMode executeMode=ExecuteQuery);
     void executeExplainPlan();

@@ -19,7 +19,7 @@ SyntaxHighligher::SyntaxHighligher(QTextDocument * parent) :
     rule.format=numberFormat;
     highlightingRules.append(rule);
 
-    singleQuotationFormat.setForeground(Qt::red);
+    singleQuotationFormat.setForeground(QColor(104,34,139));
     rule.pattern = QRegExp("'.*'");
     rule.pattern.setMinimal(true);
     rule.format = singleQuotationFormat;

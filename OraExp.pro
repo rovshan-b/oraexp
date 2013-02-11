@@ -385,7 +385,9 @@ SOURCES += main.cpp\
     connectivity/datetime.cpp \
     beans/bindparaminfo.cpp \
     connection_page/worksheet/bottom_pane_tabs/worksheetexplainplantab.cpp \
-    beans/explainplanrow.cpp
+    beans/explainplanrow.cpp \
+    util/codeeditorutil.cpp \
+    codeeditor/linenavigationbar.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -774,7 +776,9 @@ HEADERS  += mainwindow.h \
     beans/bindparaminfo.h \
     code_parser/plsql/plsqlrules.h \
     connection_page/worksheet/bottom_pane_tabs/worksheetexplainplantab.h \
-    beans/explainplanrow.h
+    beans/explainplanrow.h \
+    util/codeeditorutil.h \
+    codeeditor/linenavigationbar.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

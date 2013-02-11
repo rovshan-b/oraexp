@@ -13,6 +13,8 @@ public:
 
     virtual int getNextToken(bool skipWhitespace = true);
 
+    inline static bool isIdCharacter(const QChar &c) {return c.isLetterOrNumber() || c=='_' || c=='$' || c=='#';}
+
 private:
     int doGetNextToken();
 

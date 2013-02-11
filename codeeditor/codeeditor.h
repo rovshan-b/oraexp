@@ -4,6 +4,8 @@
 #include <QPlainTextEdit>
 #include "cursorpositioninfo.h"
 
+class LineNavigationBar;
+
 class CodeEditor : public QPlainTextEdit
 {
     Q_OBJECT
@@ -13,6 +15,9 @@ public:
 
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
+
+    void lineNavBarPaintEvent(QPaintEvent *event);
+    void lineNavBarMouseReleaseEvent(QMouseEvent * event);
 
     //use only when sure that there's not lots of text in editor
     QStringList getSemicolonSeparated() const;
@@ -69,9 +74,11 @@ private slots:
     void setRedoAvailable(bool available);
     void removePulsatePositions();
     void removeErrorSelection();
+    void updateNavBarHighlightColors();
 
 private:
     QWidget *lineNumberArea;
+    LineNavigationBar *lineNavBar;
 
     QList< QTextCursor > foundTextPositions;
     QList< QTextCursor > pulsatePositions;

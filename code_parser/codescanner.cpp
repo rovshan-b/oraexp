@@ -17,6 +17,11 @@ CodeScanner::~CodeScanner()
     delete textReader;
 }
 
+int CodeScanner::getCurrPos() const
+{
+    return textReader->getCurrPos();
+}
+
 QChar CodeScanner::getNextChar()
 {
     QChar c = textReader->getNextCharacter();

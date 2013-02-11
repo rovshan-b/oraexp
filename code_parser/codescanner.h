@@ -22,6 +22,8 @@ public:
     int getTokenStartLinePos() const {return tokenStartLinePos;}
     int getTokenEndLinePos() const {return tokenEndLinePos;}
 
+    int getCurrPos() const;
+
     QString getTokenLexeme() const {return currentLexeme;}
 
     bool isNewline() const {return c=='\n' || c==0x2029;}

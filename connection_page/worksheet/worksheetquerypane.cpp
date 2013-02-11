@@ -4,6 +4,7 @@
 #include "util/iconutil.h"
 #include "util/widgethelper.h"
 #include "util/strutil.h"
+#include "util/codeeditorutil.h"
 #include "widgets/multieditorwidget.h"
 #include "code_parser/plsql/plsqlparsehelper.h"
 #include "dialogs/bindparamsdialog.h"
@@ -129,11 +130,7 @@ void WorksheetQueryPane::queryCompleted(const QueryResult &result)
     progressBarAction->setVisible(false);
 
     if(result.hasError){ //reset error position according to editor
-        QueryResult modifiedResult = result;
-        int modifiedPosition = highlightError(result);
-        if(modifiedPosition!=-1){
-            modifiedResult.exception.setErrorPos(modifiedPosition);
-        }
+        QueryResult modifiedResult = highlightError(result);
         emit queryDone(modifiedResult);
     }else{
         emit queryDone(result);
@@ -287,29 +284,24 @@ QString WorksheetQueryPane::getExplainPlanPrefix() const
     return QString("EXPLAIN PLAN SET STATEMENT_ID='%1' FOR ").arg(lastExpPlanStatementId);
 }
 
-int WorksheetQueryPane::highlightError(const QueryResult &result) //returns modified position
+QueryResult WorksheetQueryPane::highlightError(const QueryResult &result) //returns modified result with correct error position according to editor
 {
+    QueryResult modifiedResult=result;
     int modifiedPosition = -1;
 
     int errorPos = result.exception.getErrorPos();
     if(errorPos>0){
-        QTextCursor errorPositionCursor = currentQueryCursor;
         int editorErrorPos = currentQueryCursor.selectionStart()+errorPos;
         if(!lastExpPlanStatementId.isEmpty()){ //this is an explain plan query
             editorErrorPos -= getExplainPlanPrefix().size();
         }
-        errorPositionCursor.setPosition(editorErrorPos); //errorPos is 1 based
-        errorPositionCursor.movePosition(!errorPositionCursor.atEnd() ?
-                                             QTextCursor::NextCharacter
-                                           :
-                                             QTextCursor::PreviousCharacter,
-                                         QTextCursor::KeepAnchor);
-        currentEditor()->editor()->setErrorPosition(errorPositionCursor);
+        CodeEditorUtil::highlightEditorError(currentEditor()->editor(), editorErrorPos, result.exception);
 
         modifiedPosition=editorErrorPos;
+        modifiedResult.exception.setErrorPos(modifiedPosition);
 
         qDebug() << "moved error position from" << errorPos << "to" << modifiedPosition;
     }
 
-    return modifiedPosition;
+    return modifiedResult;
 }

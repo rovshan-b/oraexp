@@ -5,6 +5,7 @@
 #include "util/iconutil.h"
 #include "models/genericeditabletablemodel.h"
 #include "widgets/datatable.h"
+#include "codeeditor/codeeditor.h"
 #include <QLineEdit>
 #include <QListWidget>
 #include <QStandardItemModel>
@@ -552,4 +553,5 @@ QFont WidgetHelper::getMonospaceFont(int pointSize)
     f.setStyleHint(QFont::TypeWriter);
     return f;
 }
+
 

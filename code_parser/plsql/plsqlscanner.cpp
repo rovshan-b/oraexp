@@ -76,7 +76,7 @@ int PlSqlScanner::doGetNextToken()
             }
             break;
         case IN_ID:
-            if((!c.isLetterOrNumber() && c!='_' && c!='$' && c!='#') || c.isNull()){
+            if((!PlSqlScanner::isIdCharacter(c)) || c.isNull()){
                 ungetChar();
                 save=false;
                 state=DONE;

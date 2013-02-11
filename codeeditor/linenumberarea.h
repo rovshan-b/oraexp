@@ -4,8 +4,6 @@
 #include <QWidget>
 #include "codeeditor.h"
 
-class CodeEditor;
-
 class LineNumberArea : public QWidget
 {
     Q_OBJECT

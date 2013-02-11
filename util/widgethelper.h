@@ -8,6 +8,7 @@ class Resultset;
 class QListWidget;
 class DataTable;
 class GenericEditableTableModel;
+class CodeEditor;
 
 class WidgetHelper
 {
