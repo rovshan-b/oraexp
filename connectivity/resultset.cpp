@@ -22,9 +22,14 @@ Resultset::Resultset(OCI_Resultset *ociResultset, Connection *cn, Statement *stm
 
     unsigned int colCount = OCI_GetColumnCount(ociResultset);
     OCI_Column *column;
+    QString columnName;
     for(unsigned int i=1; i<=colCount; ++i){
         column=OCI_GetColumn(ociResultset, i);
-        columnIndexes.insert(toQString(OCI_GetColumnName(column)), i);
+        columnName=toQString(OCI_GetColumnName(column));
+        if(columnIndexes.contains(columnName)){
+            columnName = addNumericSuffix(columnName, columnIndexes.keys());
+        }
+        columnIndexes.insert(columnName, i);
         columnDataTypes.insert(i, OCI_GetColumnType(column));
     }
 
@@ -90,11 +95,6 @@ bool Resultset::isEOF() const
     return reachedEOF;
 }
 
-QString Resultset::getColumnNameByIndex(unsigned int index) const
-{
-    return columnIndexes.key(index);
-}
-
 unsigned int Resultset::getColumnIndexByName(const QString &colName) const
 {
     if(columnIndexes.contains(colName)){
@@ -118,19 +118,9 @@ QString Resultset::getString(unsigned int colIx) const
     }
 }
 
-QString Resultset::getString(const QString &colName) const
-{
-    return getString(getColumnIndexByName(colName));
-}
-
 int Resultset::getInt(unsigned int colIx) const
 {
     return OCI_GetInt(ociResultset, colIx);
-}
-
-int Resultset::getInt(const QString &colName) const
-{
-    return getInt(getColumnIndexByName(colName));
 }
 
 double Resultset::getDouble(unsigned int colIx) const
@@ -141,11 +131,6 @@ double Resultset::getDouble(unsigned int colIx) const
 bool Resultset::isNull(unsigned int colIx) const
 {
     return OCI_IsNull(ociResultset, colIx);
-}
-
-bool Resultset::isNull(const QString &colName) const
-{
-    return isNull(getColumnIndexByName(colName));
 }
 
 QString Resultset::getNumberAsString(unsigned int colIx) const

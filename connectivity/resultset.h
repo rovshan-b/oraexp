@@ -25,19 +25,15 @@ public:
     int getColumnCount() const;
     bool isEOF() const;
 
-    QString getColumnNameByIndex(unsigned int index) const;
     unsigned int getColumnIndexByName(const QString &colName) const;
 
     QHash<QString, unsigned int> getColumnIndexes() const;
 
     bool isNull(unsigned int colIx) const;
-    bool isNull(const QString &colName) const;
 
     QString getString(unsigned int colIx) const;
-    QString getString(const QString &colName) const;
 
     int getInt(unsigned int colIx) const;
-    int getInt(const QString &colName) const;
 
     double getDouble(unsigned int colIx) const;
 

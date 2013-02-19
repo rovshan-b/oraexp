@@ -238,3 +238,20 @@ QString md5(const QString &str)
     hash.addData(str.toUtf8());
     return hash.result().toHex();
 }
+
+QString addNumericSuffix(const QString &str, const QStringList &excludeList)
+{
+    QString result;
+
+    int suffix=1;
+
+    do{
+        QString check=QString("%1_%2").arg(str).arg(++suffix);
+        if(!excludeList.contains(check)){
+            result = check;
+            break;
+        }
+    }while(true);
+
+    return result;
+}

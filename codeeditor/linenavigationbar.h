@@ -14,15 +14,15 @@ public:
         return QSize(16, 0);
     }
 
-    //line number, colors
-    QHash<int, QList<QColor> > highlightColors;
-
 protected:
     virtual void paintEvent(QPaintEvent *event) {
         codeEditor->lineNavBarPaintEvent(event);
     }
-    virtual void mouseReleaseEvent (QMouseEvent * event){
+    virtual void mouseReleaseEvent(QMouseEvent * event){
         codeEditor->lineNavBarMouseReleaseEvent(event);
+    }
+    virtual void wheelEvent(QWheelEvent * event){
+        codeEditor->lineNavBarWheelEvent(event);
     }
 
 private:

@@ -54,4 +54,6 @@ void setDbLinkName(QString &str, const QString &dbLinkName);
 
 QString md5(const QString &str);
 
+QString addNumericSuffix(const QString &str, const QStringList &excludeList);
+
 #endif // STRUTIL_H

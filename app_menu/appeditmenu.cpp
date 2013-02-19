@@ -46,11 +46,11 @@ void AppEditMenu::setupMenu(QMenu *editMenu, QToolBar *toolbar)
     editCommentAction->setStatusTip(tr("Comment/Uncomment line(s)"));
     toolbar->addAction(editCommentAction);
 
-    editMoveUpAction=editMenu->addAction(IconUtil::getIcon("move_up"), tr("Move &up"), this, SLOT(moveUp()), QKeySequence("Ctrl+["));
+    editMoveUpAction=editMenu->addAction(IconUtil::getIcon("move_up"), tr("Move &up"), this, SLOT(moveUp()), QKeySequence("Ctrl+Up"));
     editMoveUpAction->setStatusTip(tr("Move lines(s) up"));
     toolbar->addAction(editMoveUpAction);
 
-    editMoveDownAction=editMenu->addAction(IconUtil::getIcon("move_down"), tr("Move &down"), this, SLOT(moveDown()), QKeySequence("Ctrl+]"));
+    editMoveDownAction=editMenu->addAction(IconUtil::getIcon("move_down"), tr("Move &down"), this, SLOT(moveDown()), QKeySequence("Ctrl+Down"));
     editMoveDownAction->setStatusTip(tr("Move lines(s) down"));
     toolbar->addAction(editMoveDownAction);
 
@@ -76,6 +76,9 @@ void AppEditMenu::setupMenu(QMenu *editMenu, QToolBar *toolbar)
 
     editDecreaseFontSize=editMenu->addAction(tr("Decrease font size"), this, SLOT(decreaseFont()), QKeySequence(QKeySequence::ZoomOut));
     editDecreaseFontSize->setStatusTip(tr("Decrease font size"));
+
+    editResetFontSize=editMenu->addAction(tr("Reset font size"), this, SLOT(resetFont()), QKeySequence(tr("Ctrl+0", "Edit|Reset font size")));
+    editResetFontSize->setStatusTip(tr("Reset font size"));
 
     editMenu->addSeparator();
     toolbar->addSeparator();
@@ -138,6 +141,7 @@ void AppEditMenu::updateActionStatesForCodeEditor(CodeEditor *editor)
 
     editIncreaseFontSize->setEnabled(true);
     editDecreaseFontSize->setEnabled(true);
+    editResetFontSize->setEnabled(true);
 
     editGoToLineAction->setEnabled(true);
 }
@@ -192,6 +196,7 @@ void AppEditMenu::focusWidgetChanged(QWidget * /*old*/, QWidget *now)
 
     editIncreaseFontSize->setEnabled(false);
     editDecreaseFontSize->setEnabled(false);
+    editResetFontSize->setEnabled(false);
 
     editGoToLineAction->setEnabled(false);
 }
@@ -257,6 +262,11 @@ void AppEditMenu::increaseFont()
 void AppEditMenu::decreaseFont()
 {
     WidgetHelper::invokeSlot(currentAppWidget, "decreaseFontSize");
+}
+
+void AppEditMenu::resetFont()
+{
+    WidgetHelper::invokeSlot(currentAppWidget, "resetFontSize");
 }
 
 void AppEditMenu::toUpperCase()

@@ -18,6 +18,9 @@ protected:
     void paintEvent(QPaintEvent *event) {
         codeEditor->lineNumberAreaPaintEvent(event);
     }
+    virtual void wheelEvent(QWheelEvent * event){
+        codeEditor->lineNavBarWheelEvent(event);
+    }
 
 private:
     CodeEditor *codeEditor;

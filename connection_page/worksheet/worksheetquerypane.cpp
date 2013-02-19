@@ -299,6 +299,12 @@ QueryResult WorksheetQueryPane::highlightError(const QueryResult &result) //retu
 
         modifiedPosition=editorErrorPos;
         modifiedResult.exception.setErrorPos(modifiedPosition);
+        QTextCursor cur=currentEditor()->editor()->textCursor();
+        cur.setPosition(editorErrorPos);
+        modifiedResult.exception.addToErrorMessage(QString("Line: %1 Pos: %2 (%3)").
+                                                   arg(cur.blockNumber()+1).
+                                                   arg(cur.positionInBlock()+1).
+                                                   arg(cur.position()+1), false);
 
         qDebug() << "moved error position from" << errorPos << "to" << modifiedPosition;
     }

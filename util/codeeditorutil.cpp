@@ -70,13 +70,19 @@ void CodeEditorUtil::highlightEditorError(CodeEditor *editor, int errorPos, cons
             }
         }
     }else if(errorCode == ERR_TABLE_OR_VIEW_DOES_NOT_EXIST ||
-             errorCode == ERR_COMPONENT_MUST_BE_DECALRED){
+                errorCode == ERR_COMPONENT_MUST_BE_DECALRED ||
+                errorCode == ERR_AMBIGUOUS_COLUMN_NAME){
         QTextCursor editorReaderCursor = errorPositionCursor;
         QScopedPointer<PlSqlScanner> editorScanner(new PlSqlScanner(new TextCursorReader(editorReaderCursor)));
-        editorScanner->getNextToken(); //move one token forward
-        int endPos=editorScanner->getCurrPos();
-        errorPositionCursor.setPosition(errorPositionCursor.position()+endPos, QTextCursor::KeepAnchor);
-        marked = true;
+        int token=editorScanner->getNextToken(); //move one token forward
+        if(token!=PLS_E_O_F && token!=PLS_ERROR){
+            int endPos=editorScanner->getCurrPos();
+            int newPos=errorPositionCursor.position()+endPos;
+            errorPositionCursor.setPosition(newPos, QTextCursor::KeepAnchor);
+            if(errorPositionCursor.position()==newPos){
+                marked = true;
+            }
+        }
     }
 
     if(!marked){

@@ -31,9 +31,7 @@ void WorksheetInfoTab::showQueryResults(IQueryScheduler*, const QueryResult &res
     //WidgetHelper::appendToPlainTextEdit(infoBox, "\n");
 
     if(result.hasError){
-        WidgetHelper::appendToPlainTextEdit(infoBox, QString("%1Position: %2\n").
-                                            arg(result.exception.getErrorMessage()).
-                                            arg(result.exception.getErrorPos()+1),
+        WidgetHelper::appendToPlainTextEdit(infoBox, result.exception.getErrorMessage(),
                                             false, redBrush);
     }else{
         QString textToAppend;

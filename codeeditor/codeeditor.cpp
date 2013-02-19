@@ -10,6 +10,7 @@
 
 #define EDITOR_SEARCH_BG_COLOR QColor(Qt::yellow)
 #define EDITOR_ERROR_TEXT_COLOR Qt::red
+#define EDITOR_CURR_LINE_NAVBAR_COLOR palette().color(QPalette::Window).darker(130)
 
 QFont CodeEditor::currentFont;
 
@@ -45,6 +46,9 @@ CodeEditor::CodeEditor(QWidget *parent) :
     connect(this, SIGNAL(undoAvailable(bool)), this, SLOT(setUndoAvailable(bool)));
     connect(this, SIGNAL(redoAvailable(bool)), this, SLOT(setRedoAvailable(bool)));
     connect(this, SIGNAL(textChanged()), this, SLOT(removeErrorSelection()));
+
+    new QShortcut(QKeySequence(tr("Ctrl+=", "CodeEditor|Increase font size")),
+                  this, SLOT(increaseFontSize()), 0, Qt::WidgetWithChildrenShortcut);
 }
 
 //use only when sure that there's not lots of text in editor
@@ -67,10 +71,13 @@ int CodeEditor::lineNumberAreaWidth()
      return space;
 }
 
-
  void CodeEditor::updateLineNumberAreaWidth(int /* newBlockCount */)
  {
-     setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
+     bool scrollbarVisible = verticalScrollBar()->isVisibleTo(this);
+     lineNavBar->setVisible(scrollbarVisible);
+     int rightMargin = scrollbarVisible ? lineNavBar->width() : 0;
+
+     setViewportMargins(lineNumberAreaWidth(), 0, rightMargin, 0);
  }
 
 
@@ -111,7 +118,7 @@ int CodeEditor::lineNumberAreaWidth()
      if(!errorPosition.isNull()){
          errorPosition=QTextCursor();
          highlightCurrentLine();
-         updateNavBarHighlightColors();
+         updateNavBar();
      }
  }
 
@@ -122,6 +129,10 @@ int CodeEditor::lineNumberAreaWidth()
      QRect cr = contentsRect();
      lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
      lineNavBar->setGeometry(QRect(cr.right()-lineNavBar->width()+1, cr.top(), lineNavBar->width(), cr.height()));
+
+     if(lineNavBar->isVisible()!=verticalScrollBar()->isVisible()){
+         updateLineNumberAreaWidth(0);
+     }
  }
 
 
@@ -211,45 +222,63 @@ int CodeEditor::lineNumberAreaWidth()
      painter.setPen(Qt::DotLine);
      painter.drawLine(rect.left(), rect.top(), rect.left(), rect.bottom());
 
-     if(blockCount()<1 || lineNavBar->highlightColors.isEmpty()){
+     if(blockCount()<1){
          return;
      }
 
+     drawLineNavBarHighlights(painter);
+ }
+
+ void CodeEditor::drawLineNavBarHighlights(QPainter &painter)
+ {
      qreal blockHeight = blockBoundingRect(document()->findBlockByNumber(0)).height();
      qreal docHeight = blockCount() * blockHeight;
      bool hasScrollbars = docHeight > viewport()->height();
 
-     QList<int> keys = lineNavBar->highlightColors.keys();
-     for(int i=0; i<keys.size(); ++i){
-         int blockNumber = keys.at(i);
+     for(int i=0; i<foundTextPositions.size(); ++i){
+         const QTextCursor &cur=foundTextPositions.at(i);
+         Q_ASSERT(!cur.isNull());
+         drawLineNavBarHighlight(painter, cur.blockNumber(), EDITOR_SEARCH_BG_COLOR, docHeight, blockHeight, hasScrollbars);
+     }
 
-         const QList<QColor> &colors = lineNavBar->highlightColors.value(blockNumber);
-         Q_ASSERT(colors.size()>0);
+     if(!errorPosition.isNull()){
+         drawLineNavBarHighlight(painter, errorPosition.blockNumber(), EDITOR_ERROR_TEXT_COLOR, docHeight, blockHeight, hasScrollbars);
+     }
 
-         qreal colorWidth = lineNavBar->width()/(qreal)colors.size();
-         qreal highlightTop;
-         qreal highlightHeight;
-         if(!hasScrollbars){ //height of text is less than height of editor (scrollbar not visible)
-             QRectF blockRect = this->blockBoundingGeometry(document()->findBlockByNumber(blockNumber)).translated(contentOffset());
-             highlightTop = blockRect.top();
-             highlightHeight = blockRect.height();
-         }else{
-             qreal ratio = viewport()->height() / docHeight;
-             highlightTop = blockNumber * blockHeight * ratio;
-             highlightHeight = blockHeight * ratio;
-             if(highlightHeight<3){
-                 highlightHeight=3;
-             }
+     //highlight current line
+     drawLineNavBarHighlight(painter,
+                             textCursor().blockNumber(),
+                             EDITOR_CURR_LINE_NAVBAR_COLOR,
+                             docHeight, blockHeight, hasScrollbars);
+ }
 
-             if(blockNumber==blockCount()-1){
-                 highlightTop -= 3;
-             }
+ void CodeEditor::drawLineNavBarHighlight(QPainter &painter,
+                                          int blockNumber,
+                                          const QColor &color,
+                                          qreal docHeight,
+                                          qreal blockHeight,
+                                          bool hasScrollbars)
+ {
+     qreal highlightTop;
+     qreal highlightHeight;
+     if(!hasScrollbars){ //height of text is less than height of editor (scrollbar not visible)
+         QRectF blockRect = this->blockBoundingGeometry(document()->findBlockByNumber(blockNumber)).translated(contentOffset());
+         highlightTop = blockRect.top();
+         highlightHeight = blockRect.height();
+     }else{
+         qreal ratio = viewport()->height() / docHeight;
+         highlightTop = blockNumber * blockHeight * ratio;
+         highlightHeight = blockHeight * ratio;
+         if(highlightHeight<3){
+             highlightHeight=3;
          }
 
-         for(int k=0; k<colors.size(); ++k){
-             painter.fillRect(QRectF(k*colorWidth + 1,highlightTop,colorWidth,highlightHeight), colors.at(k));
+         if(blockNumber==blockCount()-1){
+             highlightTop -= 3;
          }
      }
+
+     painter.fillRect(QRect(1,(int)highlightTop,lineNavBar->width()-1,(int)highlightHeight), color);
  }
 
  void CodeEditor::lineNavBarMouseReleaseEvent(QMouseEvent *event)
@@ -270,6 +299,26 @@ int CodeEditor::lineNumberAreaWidth()
      }else{
          qreal ratio = viewport()->height() / docHeight;
          blockToScrollTo = (int) clickYPos / (blockHeight * ratio);
+         //qDebug() << "blockToScrollTo =" << blockToScrollTo;
+
+         int closestBlockNo=-1;
+         if(ratio<0.25){ //user might have difficulties clicking on right position, so try to adjust to closest highlighted block
+             QList<int> keys = getHighlightedBlockNumbers();
+             for(int i=0; i<keys.size(); ++i){
+                 int blockNo = keys.at(i);
+                 qreal blockHighlightPos = blockNo * blockHeight * ratio;
+                 int diff = qAbs(clickYPos-blockHighlightPos);
+                 if(diff<=10 && (qAbs(blockNo-blockToScrollTo)<qAbs(closestBlockNo-blockToScrollTo)
+                                    || closestBlockNo==-1)){
+                     closestBlockNo=blockNo;
+                 }
+             }
+         }
+
+         if(closestBlockNo!=-1){
+             blockToScrollTo=closestBlockNo;
+             //qDebug() << "asjusted to" << blockToScrollTo;
+         }
      }
 
      if(blockToScrollTo > blockCount()-1){
@@ -280,6 +329,33 @@ int CodeEditor::lineNumberAreaWidth()
      cur.setPosition(document()->findBlockByNumber(blockToScrollTo).position());
      setTextCursor(cur);
      centerCursor();
+ }
+
+ QList<int> CodeEditor::getHighlightedBlockNumbers() const
+ {
+     QList<int> results;
+     results.reserve(foundTextPositions.size()+1);
+
+     for(int i=0; i<foundTextPositions.size(); ++i){
+         const QTextCursor &cur=foundTextPositions.at(i);
+         results.append(cur.blockNumber());
+     }
+
+     if(!errorPosition.isNull()){
+         results.append(errorPosition.blockNumber());
+     }
+
+     return results;
+ }
+
+ void CodeEditor::lineNumberAreaWheelEvent(QWheelEvent *event)
+ {
+     this->wheelEvent(event);
+ }
+
+ void CodeEditor::lineNavBarWheelEvent(QWheelEvent *event)
+ {
+     this->wheelEvent(event);
  }
 
  void CodeEditor::keyReleaseEvent ( QKeyEvent * event )
@@ -595,21 +671,9 @@ int CodeEditor::lineNumberAreaWidth()
      }
  }
 
- void CodeEditor::updateNavBarHighlightColors()
+
+ void CodeEditor::updateNavBar()
  {
-     lineNavBar->highlightColors.clear();
-
-     QTextCursor cur;
-     for(int i=0; i<foundTextPositions.size(); ++i){
-         cur=foundTextPositions.at(i);
-         Q_ASSERT(!cur.isNull());
-         lineNavBar->highlightColors[cur.blockNumber()].append(EDITOR_SEARCH_BG_COLOR);
-     }
-
-     if(!errorPosition.isNull()){
-         lineNavBar->highlightColors[errorPosition.blockNumber()].append(EDITOR_ERROR_TEXT_COLOR);
-     }
-
      lineNavBar->update();
  }
 
@@ -677,7 +741,7 @@ int CodeEditor::lineNumberAreaWidth()
          int line = dialog.getLine()-1;
          cur.setPosition(document()->findBlockByNumber(line).position());
          setTextCursor(cur);
-         ensureCursorVisible();
+         centerCursor();
      }
  }
 
@@ -689,6 +753,11 @@ int CodeEditor::lineNumberAreaWidth()
  void CodeEditor::decreaseFontSize()
  {
      WidgetHelper::changeFontSize(this, -0.5);
+ }
+
+ void CodeEditor::resetFontSize()
+ {
+     this->setFont(WidgetHelper::getMonospaceFont(qApp->font(this).pointSize()));
  }
 
  void CodeEditor::toUpperCase()
@@ -897,7 +966,7 @@ int CodeEditor::lineNumberAreaWidth()
         this->foundTextPositions=foundTextPositions;
         highlightCurrentLine();
      }
-     updateNavBarHighlightColors();
+     updateNavBar();
  }
 
  void CodeEditor::clearFoundTextPositions()
@@ -905,7 +974,7 @@ int CodeEditor::lineNumberAreaWidth()
      if(this->foundTextPositions.size()>0){
         this->foundTextPositions.clear();
         highlightCurrentLine();
-        updateNavBarHighlightColors();
+        updateNavBar();
      }
  }
 
@@ -915,16 +984,20 @@ int CodeEditor::lineNumberAreaWidth()
      QTextCursor cursor=this->textCursor();
      cursor.setPosition(block.position()+linePos);
      setTextCursor(cursor);
-     ensureCursorVisible();
+     centerCursor();
      setFocus();
+
+     QTextCursor cursorToPulsate=cursor;
+     cursorToPulsate.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+     pulsate(cursorToPulsate, 700);
  }
 
- void CodeEditor::pulsate(const QTextCursor &cursor)
+ void CodeEditor::pulsate(const QTextCursor &cursor, int duration)
  {
      pulsatePositions.clear();
      pulsatePositions.append(cursor);
      highlightCurrentLine();
-     QTimer::singleShot(300, this, SLOT(removePulsatePositions()));
+     QTimer::singleShot(duration, this, SLOT(removePulsatePositions()));
  }
 
  void CodeEditor::setErrorPosition(const QTextCursor &cursor)
@@ -932,5 +1005,5 @@ int CodeEditor::lineNumberAreaWidth()
      this->errorPosition=cursor;
      highlightCurrentLine();
 
-     updateNavBarHighlightColors();
+     updateNavBar();
  }

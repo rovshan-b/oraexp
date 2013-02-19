@@ -15,9 +15,11 @@ public:
 
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
+    void lineNumberAreaWheelEvent(QWheelEvent * event);
 
     void lineNavBarPaintEvent(QPaintEvent *event);
     void lineNavBarMouseReleaseEvent(QMouseEvent * event);
+    void lineNavBarWheelEvent(QWheelEvent * event);
 
     //use only when sure that there's not lots of text in editor
     QStringList getSemicolonSeparated() const;
@@ -31,7 +33,7 @@ public:
 
     void showLinePosition(int line, int linePos);
 
-    void pulsate(const QTextCursor &cursor);
+    void pulsate(const QTextCursor &cursor, int duration = 300);
 
     void setErrorPosition(const QTextCursor &cursor);
 
@@ -42,6 +44,7 @@ public slots:
     void goToLine();
     void increaseFontSize();
     void decreaseFontSize();
+    void resetFontSize();
     void toUpperCase();
     void toLowerCase();
     void makeDuplicate();
@@ -74,7 +77,7 @@ private slots:
     void setRedoAvailable(bool available);
     void removePulsatePositions();
     void removeErrorSelection();
-    void updateNavBarHighlightColors();
+    void updateNavBar();
 
 private:
     QWidget *lineNumberArea;
@@ -98,6 +101,10 @@ private:
     void moveSelectionUp();
     void moveSelectionDown();
     void ensureHasSelection();
+
+    void drawLineNavBarHighlights(QPainter &painter);
+    void drawLineNavBarHighlight(QPainter &painter, int blockNumber, const QColor &color, qreal docHeight, qreal blockHeight, bool hasScrollbars);
+    QList<int> getHighlightedBlockNumbers() const;
 
 };
 

@@ -40,6 +40,7 @@ private slots:
     void selectBlock();
     void increaseFont();
     void decreaseFont();
+    void resetFont();
 
     void toUpperCase();
     void toLowerCase();
@@ -75,6 +76,7 @@ private:
 
     QAction *editIncreaseFontSize;
     QAction *editDecreaseFontSize;
+    QAction *editResetFontSize;
 
     QAction *editFindAction;
     QAction *editFindNextAction;
