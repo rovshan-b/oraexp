@@ -38,7 +38,7 @@ void WorksheetResultsetTab::showQueryResults(IQueryScheduler *, const QueryResul
 void WorksheetResultsetTab::displayResultset(IQueryScheduler *queryScheduler, Resultset *rs)
 {
     progressBarAction->setVisible(true);
-    resultsTable->setResultset(queryScheduler, rs);
+    resultsTable->setResultset(queryScheduler, rs, QHash<int,StatementDesc*>(), true);
 }
 
 void WorksheetResultsetTab::firstFetchCompleted()

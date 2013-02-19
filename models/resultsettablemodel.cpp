@@ -22,9 +22,10 @@ ResultsetTableModel::ResultsetTableModel(IQueryScheduler *queryScheduler, Result
     humanizeColumnNames(humanizeColumnNames),
     fetchedRowCount(0),
     allDataFetched(false),
-    firstFetchDone(false),
     fetcherThread(0),
-    fetchInProgress(false)
+    fetchInProgress(false),
+    firstFetchDone(false),
+    fetchSize(OCI_PREFETCH_SIZE)
 {
     rsColumnCount=rs->getColumnCount()-iconColumns.size();
     columnIndexes=rs->getColumnIndexes();
@@ -70,11 +71,17 @@ void ResultsetTableModel::startFetcherThread()
 
     queryScheduler->increaseRefCount();
 
-    fetcherThread=new RecordFetcherThread(queryScheduler->getDb(), rs, 50, dynamicQueries, this);
+    createFetcherThread();
     connect(fetcherThread, SIGNAL(recordsFetched(QList<QStringList>)), this, SLOT(recordsFetched(QList<QStringList>)));
     connect(fetcherThread, SIGNAL(fetchComplete()), this, SLOT(fetchComplete()));
     connect(fetcherThread, SIGNAL(fetchError(OciException)), this, SLOT(fetchError(OciException)));
     fetcherThread->start();
+}
+
+void ResultsetTableModel::createFetcherThread()
+{
+    fetcherThread=new RecordFetcherThread(queryScheduler->getDb(), rs, this->fetchSize, dynamicQueries, this);
+    fetcherThread->setFetchInChunks(false);
 }
 
 void ResultsetTableModel::deleteFetcherThread()
@@ -124,7 +131,7 @@ void ResultsetTableModel::recordsFetched(const QList<QStringList> &records)
 
     foreach(const QStringList &record, records){
         modelData.append(record);
-        fetchedRowCount++;
+        ++fetchedRowCount;
     }
 
     endInsertRows();
@@ -145,8 +152,11 @@ void ResultsetTableModel::fetchComplete()
 
     if(rs->isEOF()){
         allDataFetched=true;
-        deleteResultset();
-        rs=0;
+
+        if(deleteResultsetOnFetchComplete()){
+            deleteResultset();
+            rs=0;
+        }
     }
 
     fetchInProgress=false;
@@ -162,28 +172,45 @@ void ResultsetTableModel::fetchError(const OciException &ex)
     QMessageBox::critical(NULL, tr("Error fetching data"), ex.getErrorMessage());
 }
 
-QVariant ResultsetTableModel::data ( const QModelIndex & index, int role) const
+bool ResultsetTableModel::deleteResultsetOnFetchComplete() const
+{
+    return true;
+}
+
+bool ResultsetTableModel::isValidIndex(const QModelIndex &index, int role) const
 {
     if(!index.isValid()){
-        return QVariant();
+        return false;
     }
 
     if(role!=Qt::DisplayRole && role!=Qt::DecorationRole){
-        return QVariant();
+        return false;
     }
 
     if(role==Qt::DecorationRole && iconColumns.size()==0){
-        return QVariant();
-    }
-
-    if(index.row()>=modelData.size() || index.row()<0){
-        return QVariant();
+        return false;
     }
 
     if(index.column()>=columnIndexes.size() || index.column()<0){
+        return false;
+    }
+
+    if(index.row()<0 || index.row()>=fetchedRowCount){
+        return false;
+    }
+
+    return true;
+}
+
+QVariant ResultsetTableModel::data ( const QModelIndex & index, int role) const
+{
+    if(!isValidIndex(index, role)){
         return QVariant();
     }
 
+    if(index.row()>=modelData.size()){
+        return QVariant();
+    }
 
     QList<QString> oneRow=modelData.at(index.row());
 
@@ -212,6 +239,11 @@ QVariant ResultsetTableModel::headerData ( int section, Qt::Orientation orientat
     return humanizeColumnNames ? humanize(columnIndexes.key(section+1)) : columnIndexes.key(section+1);
 }
 
+void ResultsetTableModel::setFetchSize(int fetchSize)
+{
+    this->fetchSize=(fetchSize<OCI_PREFETCH_SIZE ? OCI_PREFETCH_SIZE : fetchSize);
+}
+
 QVariant ResultsetTableModel::getColumnIcon(const QList<QString> &oneRow, unsigned int colIx) const
 {
     if(iconColumns.contains(colIx)){
@@ -221,3 +253,4 @@ QVariant ResultsetTableModel::getColumnIcon(const QList<QString> &oneRow, unsign
 
     return QVariant();
 }
+

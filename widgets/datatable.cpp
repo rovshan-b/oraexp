@@ -1,5 +1,6 @@
 #include "datatable.h"
 #include "models/resultsettablemodel.h"
+#include "models/scrollableresultsettablemodel.h"
 #include "util/queryqueuemanager.h"
 #include "util/queryexectask.h"
 #include "util/dbutil.h"
@@ -22,17 +23,22 @@ DataTable::DataTable(QWidget *parent) :
 
 void DataTable::setResultset(IQueryScheduler *queryScheduler,
                              Resultset *rs,
-                             QHash<int, StatementDesc*> dynamicQueries)
+                             QHash<int, StatementDesc*> dynamicQueries,
+                             bool isScrollableResultset)
 {
     this->queryScheduler=queryScheduler;
 
     deleteCurrentModel();
 
     if(rs!=0){
-        ResultsetTableModel *newModel=new ResultsetTableModel(queryScheduler, rs, this, dynamicQueries, iconColumns, humanizeColumnNames);
+        ResultsetTableModel *newModel=isScrollableResultset ?
+                    new ScrollableResultsetTableModel(queryScheduler, rs, this, dynamicQueries, iconColumns, humanizeColumnNames)
+                  :
+                    new ResultsetTableModel(queryScheduler, rs, this, dynamicQueries, iconColumns, humanizeColumnNames);
         connect(newModel, SIGNAL(firstFetchCompleted()), this, SLOT(resizeColumnsToFitContents()));
         connect(newModel, SIGNAL(firstFetchCompleted()), this, SIGNAL(firstFetchCompleted()));
 
+        calculateFetchSize(newModel);
         setModel(newModel);
 
         //resizeColumnsToContents();
@@ -183,6 +189,13 @@ void DataTable::displayError(const QString &prefix, const OciException &ex)
     }
 }
 
+void DataTable::calculateFetchSize(ResultsetTableModel *currentModel)
+{
+    int defaultRowHeight = verticalHeader()->defaultSectionSize();
+    int visibleRowCount = qCeil(this->height()/(qreal)defaultRowHeight);
+    currentModel->setFetchSize(visibleRowCount+10); //fetch visible count+10 records at a time
+}
+
 void DataTable::clear()
 {
     setResultset(0, 0);
@@ -248,4 +261,14 @@ void DataTable::keyPressEvent(QKeyEvent *event)
     }else{
         QTableView::keyPressEvent(event);
     }
+}
+
+void DataTable::resizeEvent(QResizeEvent *event)
+{
+    ResultsetTableModel *currModel = qobject_cast<ResultsetTableModel*>(this->model());
+    if(currModel!=0){
+        calculateFetchSize(currModel);
+    }
+
+    QTableView::resizeEvent(event);
 }

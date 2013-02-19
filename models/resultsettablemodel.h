@@ -27,15 +27,14 @@ public:
 
     virtual QVariant data ( const QModelIndex & index, int role = Qt::DisplayRole ) const;
     virtual QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
+
+    void setFetchSize(int fetchSize);
 signals:
     void firstFetchCompleted();
 
-private slots:
-    void recordsFetched(const QList<QStringList> &records);
-    void fetchComplete();
-    void fetchError(const OciException &ex);
+protected:
+    bool isValidIndex(const QModelIndex & index, int role) const;
 
-private:
     IQueryScheduler *queryScheduler;
     Resultset *rs;
     QHash<int, StatementDesc*> dynamicQueries;
@@ -43,24 +42,36 @@ private:
 
     bool humanizeColumnNames;
 
-    QList< QList<QString> > modelData;
+    QList< QStringList > modelData;
     int fetchedRowCount;
 
     int rsColumnCount;
     volatile bool allDataFetched;
     QHash<QString, unsigned int> columnIndexes;
 
+    RecordFetcherThread *fetcherThread;
+
+    bool fetchInProgress;
+
+    virtual void createFetcherThread();
+    virtual bool deleteResultsetOnFetchComplete() const;
+
+    QVariant getColumnIcon(const QList<QString> &oneRow, unsigned int colIx) const;
+
+protected slots:
+    virtual void recordsFetched(const QList<QStringList> &records);
+    void fetchComplete();
+    void fetchError(const OciException &ex);
+
+private:
     bool hasIconColumn;
 
     bool firstFetchDone;
 
-    RecordFetcherThread *fetcherThread;
     void startFetcherThread();
     void deleteFetcherThread();
 
-    bool fetchInProgress;
-
-    QVariant getColumnIcon(const QList<QString> &oneRow, unsigned int colIx) const;
+    int fetchSize;
 
     void deleteResultset();
 

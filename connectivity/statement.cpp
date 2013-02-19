@@ -37,6 +37,7 @@ void Statement::init()
     statementType=OraExp::QueryTypeUnknown;
     affectedRecordCount=0;
     acquiredMutex=false;
+    useScrollableResultsets=false;
 }
 
 Statement::~Statement()
@@ -140,6 +141,12 @@ void Statement::bindParam(Param *parameter)
     {
         Statement *paramStmt=parameter->getStmtValue();
         paramStmt->setConnection(this->connection);
+
+        if(useScrollableResultsets){
+            int res=OCI_SetFetchMode(paramStmt->ociStatement(), OCI_SFM_SCROLLABLE);
+            qDebug() << "OCI_SetFetchMode for param returned" << res;
+        }
+
         OCI_BindStatement(ociStmt,
                           parameter->getParamName().toStdWString().c_str(),
                           paramStmt->ociStatement());
@@ -181,6 +188,11 @@ QueryResult Statement::doExecute()
 
     Q_ASSERT(prepared);
     Q_ASSERT(ociStmt);
+
+    if(useScrollableResultsets){
+        OCI_SetFetchMode(ociStmt, OCI_SFM_SCROLLABLE);
+    }
+
     int execResult=OCI_Execute(ociStmt);
 
     if(!execResult){
@@ -214,8 +226,8 @@ QueryResult Statement::doExecute()
         if(ociResultSet==NULL){
             DbUtil::checkForOciError(ociStmt);
         }
-        OCI_SetPrefetchSize(ociStmt, 20);
-        OCI_SetFetchSize(ociStmt, 20);
+        OCI_SetPrefetchSize(ociStmt, OCI_PREFETCH_SIZE);
+        OCI_SetFetchSize(ociStmt, OCI_PREFETCH_SIZE);
 
         Q_ASSERT(this->resultsets.isEmpty());
         this->resultsets.append(new Resultset(ociResultSet, connection, this));
@@ -392,6 +404,11 @@ void Statement::collectParamResultsets()
 void Statement::releaseResultsets()
 {
     qDeleteAll(resultsets);
+}
+
+void Statement::setUseScrollableResultsets(bool useScrollableResultsets)
+{
+    this->useScrollableResultsets=useScrollableResultsets;
 }
 
 bool Statement::isAnonymousBlock()

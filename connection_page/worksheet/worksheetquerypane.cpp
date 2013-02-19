@@ -112,6 +112,7 @@ void WorksheetQueryPane::executeQuery(ExecuteMode executeMode)
     task.query=queryText;
     task.params=params;
     task.queryCompletedSlotName="queryCompleted";
+    task.retrieveScrollableResultsets=true;
 
     this->currentQuery = queryText;
 

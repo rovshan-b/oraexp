@@ -18,6 +18,7 @@ public:
     QString fetchSlotName;
     QString fetchCompletedSlotName;
 
+    bool retrieveScrollableResultsets;
     bool retrieveResultsetAsBindParameter;
 
     QPointer<QObject> queryEndMonitor;

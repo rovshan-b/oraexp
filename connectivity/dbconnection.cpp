@@ -109,13 +109,16 @@ Statement *DbConnection::createStatement()
     return connection.createStatement();
 }
 
-QueryResult DbConnection::executeQuery(const QString &query, QList<Param*> parameters, bool retrieveResultsetAsBindParameter)
+QueryResult DbConnection::executeQuery(const QString &query,
+                                       QList<Param*> parameters,
+                                       bool retrieveResultsetAsBindParameter,
+                                       bool scrollableResultsets)
 {
     if(retrieveResultsetAsBindParameter){
         parameters.append(new Param(":rs_out"));
     }
 
-    return connection.executeQuery(query, parameters);
+    return connection.executeQuery(query, parameters, scrollableResultsets);
 }
 
 QueryResult DbConnection::executeNamedQuery(const QString &queryName, QList<Param*> parameters, bool retrieveResultsetAsBindParameter)

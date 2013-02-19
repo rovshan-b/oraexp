@@ -11,13 +11,17 @@ class DbConnection;
 class IQueryScheduler;
 class StatementDesc;
 class DbUiManager;
+class ResultsetTableModel;
 
 class DataTable : public QTableView
 {
     Q_OBJECT
 public:
     explicit DataTable(QWidget *parent = 0);
-    void setResultset(IQueryScheduler *queryScheduler, Resultset *rs, QHash<int, StatementDesc*> dynamicQueries=QHash<int, StatementDesc*>());
+    void setResultset(IQueryScheduler *queryScheduler,
+                      Resultset *rs,
+                      QHash<int, StatementDesc*> dynamicQueries=QHash<int, StatementDesc*>(),
+                      bool isScrollableResultset=false);
 
     void displayQueryResults(IQueryScheduler *queryScheduler, const QString &query, QList<Param*> params,
                              QHash<int, StatementDesc*> dynamicQueries=QHash<int, StatementDesc*>());
@@ -50,6 +54,7 @@ signals:
 
 protected:
     void keyPressEvent ( QKeyEvent * event );
+    void resizeEvent ( QResizeEvent * event );
 
 private slots:
     void queryCompleted(const QueryResult &result);
@@ -75,6 +80,7 @@ private:
 
     void deleteCurrentModel();
     void displayError(const QString &prefix, const OciException &ex);
+    void calculateFetchSize(ResultsetTableModel *currentModel);
 };
 
 #endif // DATATABLE_H

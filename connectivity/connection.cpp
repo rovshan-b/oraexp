@@ -172,7 +172,9 @@ Statement *Connection::createStatement()
     return new Statement(this);
 }
 
-QueryResult Connection::executeQuery(const QString &query, QList<Param*> parameters)
+QueryResult Connection::executeQuery(const QString &query,
+                                     QList<Param*> parameters,
+                                     bool scrollableResultsets)
 {
     QMutexLocker mutexLocker(&mutex);
 
@@ -189,6 +191,7 @@ QueryResult Connection::executeQuery(const QString &query, QList<Param*> paramet
     try{
 
         stmt=createStatement();
+        stmt->setUseScrollableResultsets(scrollableResultsets);
         stmt->prepare(query);
         stmt->bindParams(parameters);
         result = stmt->execute();

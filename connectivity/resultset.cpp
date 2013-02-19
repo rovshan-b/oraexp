@@ -49,7 +49,7 @@ Resultset::~Resultset()
         endFetchRows();
     }
 
-    //cout << "released resultset" << endl;
+    cout << "released resultset" << endl;
 
     deref();
 }

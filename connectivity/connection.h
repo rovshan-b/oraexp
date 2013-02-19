@@ -40,7 +40,9 @@ public:
     unsigned int getServerMinorVersion() const;
 
     Statement *createStatement();
-    QueryResult executeQuery(const QString &query, QList<Param *> parameters=QList<Param*>());
+    QueryResult executeQuery(const QString &query,
+                             QList<Param *> parameters=QList<Param*>(),
+                             bool scrollableResultsets=false);
 
     QString getSchemaName() const;
 

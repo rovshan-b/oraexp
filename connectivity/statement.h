@@ -64,6 +64,7 @@ public:
     void printBindVars();
 
     void releaseResultsets();
+    void setUseScrollableResultsets(bool useScrollableResultsets);
 private:
     void setConnection(Connection *connection);
     QueryResult doExecute();
@@ -87,6 +88,8 @@ private:
     int affectedRecordCount;
 
     bool acquiredMutex;
+
+    bool useScrollableResultsets;
 
     void init();
     void createOciStatement(Connection *connection);

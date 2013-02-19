@@ -55,7 +55,10 @@ public:
     unsigned int getServerMinorVersion() const {return this->serverMinorVersion;}
 
     Statement *createStatement();
-    QueryResult executeQuery(const QString &query, QList<Param*> parameters=QList<Param*>(), bool retrieveResultsetAsBindParameter=false);
+    QueryResult executeQuery(const QString &query,
+                             QList<Param*> parameters=QList<Param*>(),
+                             bool retrieveResultsetAsBindParameter=false,
+                             bool scrollableResultsets=false);
     QueryResult executeNamedQuery(const QString &queryName, QList<Param*> parameters, bool retrieveResultsetAsBindParameter=false);
     void executeQueryAndCleanup(const QString &query, QList<Param*> parameters=QList<Param*>(), bool retrieveResultsetAsBindParameter=false);
     QString retrieveDbmsOutput();

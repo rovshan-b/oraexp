@@ -11,7 +11,9 @@ using namespace std;
 RecordFetcherThread::RecordFetcherThread(DbConnection *db, Resultset *rs, int recordCountToFetch,
                                          QHash<int, StatementDesc*> dynamicQueries, QObject *parent) :
     QThread(parent), db(db), rs(rs),
+    fetchStartIx(-1),
     recordCountToFetch(recordCountToFetch),
+    fetchInChunks(true),
     dynamicQueries(dynamicQueries)
 {
 }
@@ -24,11 +26,10 @@ void RecordFetcherThread::run()
         int fetchedCount=0;
 
         QList<QStringList> rows;
-        const int chunkSize=20;
+        const int chunkSize=fetchInChunks ? OCI_PREFETCH_SIZE : this->recordCountToFetch;
         rows.reserve(chunkSize);
 
-        while((fetchedCount++<recordCountToFetch || recordCountToFetch==-1 /*-1 to fetch all rows*/) &&
-                    rs->moveNext()){
+        while(fetchedCount++<recordCountToFetch && rs->moveNext()){
 
             QStringList oneRow;
             oneRow.reserve(columnCount);
@@ -58,6 +59,17 @@ void RecordFetcherThread::run()
         emit fetchError(ex);
     }
     emit fetchComplete();
+}
+
+void RecordFetcherThread::setFetchRange(int startIx, int count)
+{
+    this->fetchStartIx=startIx;
+    this->recordCountToFetch=count;
+}
+
+void RecordFetcherThread::setFetchInChunks(bool fetchInChunks)
+{
+    this->fetchInChunks=fetchInChunks;
 }
 
 void RecordFetcherThread::replaceValuesWithDynamicQueries(QList<QString> &oneRow)

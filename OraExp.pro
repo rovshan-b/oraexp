@@ -387,7 +387,8 @@ SOURCES += main.cpp\
     connection_page/worksheet/bottom_pane_tabs/worksheetexplainplantab.cpp \
     beans/explainplanrow.cpp \
     util/codeeditorutil.cpp \
-    codeeditor/linenavigationbar.cpp
+    codeeditor/linenavigationbar.cpp \
+    models/scrollableresultsettablemodel.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -778,7 +779,8 @@ HEADERS  += mainwindow.h \
     connection_page/worksheet/bottom_pane_tabs/worksheetexplainplantab.h \
     beans/explainplanrow.h \
     util/codeeditorutil.h \
-    codeeditor/linenavigationbar.h
+    codeeditor/linenavigationbar.h \
+    models/scrollableresultsettablemodel.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

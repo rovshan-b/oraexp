@@ -20,6 +20,9 @@ public:
 
     void run();
 
+    void setFetchRange(int startIx, int count);
+    void setFetchInChunks(bool fetchInChunks);
+
 signals:
     void recordsFetched(const QList<QStringList> &records);
     void fetchComplete();
@@ -30,7 +33,9 @@ private:
 
     DbConnection *db;
     Resultset *rs;
+    int fetchStartIx;
     int recordCountToFetch;
+    bool fetchInChunks;
     QHash<int, StatementDesc*> dynamicQueries;
 
 };
