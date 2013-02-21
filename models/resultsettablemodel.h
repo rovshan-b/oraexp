@@ -35,6 +35,10 @@ signals:
 protected:
     bool isValidIndex(const QModelIndex & index, int role) const;
 
+    bool readyToFetch() const;
+    void startFetcherThread();
+    virtual void deleteFetcherThread();
+
     IQueryScheduler *queryScheduler;
     Resultset *rs;
     QHash<int, StatementDesc*> dynamicQueries;
@@ -53,23 +57,19 @@ protected:
 
     bool fetchInProgress;
 
-    virtual void createFetcherThread();
     virtual bool deleteResultsetOnFetchComplete() const;
 
     QVariant getColumnIcon(const QList<QString> &oneRow, unsigned int colIx) const;
 
 protected slots:
     virtual void recordsFetched(const QList<QStringList> &records);
-    void fetchComplete();
+    virtual void fetchComplete();
     void fetchError(const OciException &ex);
 
 private:
     bool hasIconColumn;
 
     bool firstFetchDone;
-
-    void startFetcherThread();
-    void deleteFetcherThread();
 
     int fetchSize;
 

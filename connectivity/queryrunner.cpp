@@ -34,7 +34,8 @@ void QueryRunner::run()
 
         result=db->executeQuery(task.query,
                                 task.params,
-                                task.retrieveResultsetAsBindParameter);
+                                task.retrieveResultsetAsBindParameter,
+                                task.retrieveScrollableResultsets);
         if(result.statement!=0 && result.statement->isAnonymousBlock()){
             result.dbmsOutput=db->retrieveDbmsOutput();
         }

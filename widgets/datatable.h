@@ -20,8 +20,7 @@ public:
     explicit DataTable(QWidget *parent = 0);
     void setResultset(IQueryScheduler *queryScheduler,
                       Resultset *rs,
-                      QHash<int, StatementDesc*> dynamicQueries=QHash<int, StatementDesc*>(),
-                      bool isScrollableResultset=false);
+                      QHash<int, StatementDesc*> dynamicQueries=QHash<int, StatementDesc*>());
 
     void displayQueryResults(IQueryScheduler *queryScheduler, const QString &query, QList<Param*> params,
                              QHash<int, StatementDesc*> dynamicQueries=QHash<int, StatementDesc*>());
@@ -59,6 +58,7 @@ protected:
 private slots:
     void queryCompleted(const QueryResult &result);
     void showContextMenu(const QPoint &pos);
+    void handleFirstFetchCompleted();
 
 private:
     IQueryScheduler *queryScheduler;
@@ -80,7 +80,7 @@ private:
 
     void deleteCurrentModel();
     void displayError(const QString &prefix, const OciException &ex);
-    void calculateFetchSize(ResultsetTableModel *currentModel);
+    int getVisibleRecordCount() const;
 };
 
 #endif // DATATABLE_H

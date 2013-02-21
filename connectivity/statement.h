@@ -65,6 +65,7 @@ public:
 
     void releaseResultsets();
     void setUseScrollableResultsets(bool useScrollableResultsets);
+    bool getUseScrollableResultsets() const;
 private:
     void setConnection(Connection *connection);
     QueryResult doExecute();

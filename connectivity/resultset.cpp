@@ -67,16 +67,45 @@ bool Resultset::moveNext()
     int moveResult=OCI_FetchNext(ociResultset);
     if(!moveResult){
         reachedEOF=true;
+        checkForError();
     }
 
+    return (moveResult!=0);
+}
+
+bool Resultset::moveToPosition(unsigned int pos)
+{
+    Q_ASSERT(acquiredMutex);
+
+    int moveResult=OCI_FetchSeek(ociResultset, OCI_SFD_ABSOLUTE, pos);
+
+    if(!moveResult){
+        checkForError();
+    }
+
+    return (moveResult!=0);
+}
+
+bool Resultset::moveToLastFetched()
+{
+    Q_ASSERT(acquiredMutex);
+
+    unsigned int rowCount = OCI_GetRowCount(ociResultset);
+    if(rowCount==0){
+        return false;
+    }else{
+        return moveToPosition(rowCount);
+    }
+}
+
+void Resultset::checkForError()
+{
     try{
         DbUtil::checkForOciError();
     }catch(OciException &ex){
         endFetchRows();
         throw ex;
     }
-
-    return (moveResult!=0);
 }
 
 void Resultset::endFetchRows()
@@ -183,6 +212,11 @@ OCI_Timestamp *Resultset::getTimestamp(unsigned int colIx) const
 OCI_Interval *Resultset::getInterval(unsigned int colIx) const
 {
     return OCI_GetInterval(ociResultset, colIx);
+}
+
+bool Resultset::isScrollable() const
+{
+    return this->stmt->getUseScrollableResultsets();
 }
 
 void Resultset::printObjectCount()

@@ -8,6 +8,7 @@
 #include "connectivity/statement.h"
 #include "interfaces/iqueryscheduler.h"
 #include "context_menu/contextmenuutil.h"
+#include "defines.h"
 #include <QtGui>
 
 DataTable::DataTable(QWidget *parent) :
@@ -23,22 +24,20 @@ DataTable::DataTable(QWidget *parent) :
 
 void DataTable::setResultset(IQueryScheduler *queryScheduler,
                              Resultset *rs,
-                             QHash<int, StatementDesc*> dynamicQueries,
-                             bool isScrollableResultset)
+                             QHash<int, StatementDesc*> dynamicQueries)
 {
     this->queryScheduler=queryScheduler;
 
     deleteCurrentModel();
 
     if(rs!=0){
-        ResultsetTableModel *newModel=isScrollableResultset ?
+        ResultsetTableModel *newModel=rs->isScrollable() ?
                     new ScrollableResultsetTableModel(queryScheduler, rs, this, dynamicQueries, iconColumns, humanizeColumnNames)
                   :
                     new ResultsetTableModel(queryScheduler, rs, this, dynamicQueries, iconColumns, humanizeColumnNames);
-        connect(newModel, SIGNAL(firstFetchCompleted()), this, SLOT(resizeColumnsToFitContents()));
-        connect(newModel, SIGNAL(firstFetchCompleted()), this, SIGNAL(firstFetchCompleted()));
+        connect(newModel, SIGNAL(firstFetchCompleted()), this, SLOT(handleFirstFetchCompleted()));
 
-        calculateFetchSize(newModel);
+        newModel->setFetchSize(getVisibleRecordCount()+10);
         setModel(newModel);
 
         //resizeColumnsToContents();
@@ -52,6 +51,19 @@ void DataTable::setResultset(IQueryScheduler *queryScheduler,
         setModel(0);
     }
 }
+
+void DataTable::handleFirstFetchCompleted()
+{
+    resizeColumnsToFitContents();
+
+    ResultsetTableModel *currModel = qobject_cast<ResultsetTableModel*>(this->model());
+    if(currModel){
+        currModel->setFetchSize(DB_PREFETCH_SIZE);
+    }
+
+    emit firstFetchCompleted();
+}
+
 
 void DataTable::resizeColumnsToFitContents()
 {
@@ -189,11 +201,11 @@ void DataTable::displayError(const QString &prefix, const OciException &ex)
     }
 }
 
-void DataTable::calculateFetchSize(ResultsetTableModel *currentModel)
+int DataTable::getVisibleRecordCount() const
 {
     int defaultRowHeight = verticalHeader()->defaultSectionSize();
     int visibleRowCount = qCeil(this->height()/(qreal)defaultRowHeight);
-    currentModel->setFetchSize(visibleRowCount+10); //fetch visible count+10 records at a time
+    return visibleRowCount;
 }
 
 void DataTable::clear()
@@ -263,11 +275,12 @@ void DataTable::keyPressEvent(QKeyEvent *event)
     }
 }
 
+
 void DataTable::resizeEvent(QResizeEvent *event)
 {
-    ResultsetTableModel *currModel = qobject_cast<ResultsetTableModel*>(this->model());
+    ScrollableResultsetTableModel *currModel = qobject_cast<ScrollableResultsetTableModel*>(this->model());
     if(currModel!=0){
-        calculateFetchSize(currModel);
+        currModel->fetchData();
     }
 
     QTableView::resizeEvent(event);

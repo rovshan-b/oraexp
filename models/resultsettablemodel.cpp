@@ -6,8 +6,10 @@
 #include "util/iconutil.h"
 #include "util/strutil.h"
 #include "interfaces/iqueryscheduler.h"
+#include "defines.h"
 #include <iostream>
 #include <QMessageBox>
+#include <QDebug>
 
 using namespace std;
 
@@ -25,7 +27,7 @@ ResultsetTableModel::ResultsetTableModel(IQueryScheduler *queryScheduler, Result
     fetcherThread(0),
     fetchInProgress(false),
     firstFetchDone(false),
-    fetchSize(OCI_PREFETCH_SIZE)
+    fetchSize(DB_PREFETCH_SIZE)
 {
     rsColumnCount=rs->getColumnCount()-iconColumns.size();
     columnIndexes=rs->getColumnIndexes();
@@ -71,17 +73,15 @@ void ResultsetTableModel::startFetcherThread()
 
     queryScheduler->increaseRefCount();
 
-    createFetcherThread();
+    fetcherThread=new RecordFetcherThread(queryScheduler->getDb(), rs, this->fetchSize, dynamicQueries, this);
+    fetcherThread->setFetchInChunks(false);
+    if(rs->isScrollable()){
+        fetcherThread->setFetchRange(fetchedRowCount, this->fetchSize);
+    }
     connect(fetcherThread, SIGNAL(recordsFetched(QList<QStringList>)), this, SLOT(recordsFetched(QList<QStringList>)));
     connect(fetcherThread, SIGNAL(fetchComplete()), this, SLOT(fetchComplete()));
     connect(fetcherThread, SIGNAL(fetchError(OciException)), this, SLOT(fetchError(OciException)));
     fetcherThread->start();
-}
-
-void ResultsetTableModel::createFetcherThread()
-{
-    fetcherThread=new RecordFetcherThread(queryScheduler->getDb(), rs, this->fetchSize, dynamicQueries, this);
-    fetcherThread->setFetchInChunks(false);
 }
 
 void ResultsetTableModel::deleteFetcherThread()
@@ -109,11 +109,8 @@ bool ResultsetTableModel::canFetchMore ( const QModelIndex & ) const
 
 void ResultsetTableModel::fetchMore ( const QModelIndex & )
 {
-    if(allDataFetched || fetchInProgress){
-        return;
-    }
-
-    if(rs==0){
+    if(!readyToFetch()){
+        qDebug("not ready to fetch");
         return;
     }
 
@@ -123,16 +120,24 @@ void ResultsetTableModel::fetchMore ( const QModelIndex & )
 
 }
 
+bool ResultsetTableModel::readyToFetch() const
+{
+    if(allDataFetched || fetchInProgress || rs==0){
+        return false;
+    }
+
+    return true;
+}
+
+
 void ResultsetTableModel::recordsFetched(const QList<QStringList> &records)
 {
     int recordCount=records.size();
 
     beginInsertRows(QModelIndex(), fetchedRowCount, fetchedRowCount+recordCount-1);
 
-    foreach(const QStringList &record, records){
-        modelData.append(record);
-        ++fetchedRowCount;
-    }
+    modelData.append(records);
+    fetchedRowCount+=records.size();
 
     endInsertRows();
 }
@@ -229,7 +234,8 @@ QVariant ResultsetTableModel::headerData ( int section, Qt::Orientation orientat
     }
 
     if(orientation==Qt::Vertical){
-        return section+1;
+        //return section+1;
+        return section;
     }
 
     if(orientation==Qt::Horizontal && (section>=columnIndexes.size() || section<0)){
@@ -241,7 +247,7 @@ QVariant ResultsetTableModel::headerData ( int section, Qt::Orientation orientat
 
 void ResultsetTableModel::setFetchSize(int fetchSize)
 {
-    this->fetchSize=(fetchSize<OCI_PREFETCH_SIZE ? OCI_PREFETCH_SIZE : fetchSize);
+    this->fetchSize=(fetchSize<DB_PREFETCH_SIZE ? DB_PREFETCH_SIZE : fetchSize);
 }
 
 QVariant ResultsetTableModel::getColumnIcon(const QList<QString> &oneRow, unsigned int colIx) const

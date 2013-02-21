@@ -3,6 +3,7 @@
 #include "resultset.h"
 #include "dbconnection.h"
 #include "beans/statementdesc.h"
+#include "defines.h"
 #include <memory>
 
 #include <iostream>
@@ -10,7 +11,9 @@ using namespace std;
 
 RecordFetcherThread::RecordFetcherThread(DbConnection *db, Resultset *rs, int recordCountToFetch,
                                          QHash<int, StatementDesc*> dynamicQueries, QObject *parent) :
-    QThread(parent), db(db), rs(rs),
+    QThread(parent),
+    data(0),
+    db(db), rs(rs),
     fetchStartIx(-1),
     recordCountToFetch(recordCountToFetch),
     fetchInChunks(true),
@@ -22,27 +25,22 @@ void RecordFetcherThread::run()
 {
     try{
         rs->beginFetchRows();
-        int columnCount=rs->getColumnCount();
         int fetchedCount=0;
 
         QList<QStringList> rows;
-        const int chunkSize=fetchInChunks ? OCI_PREFETCH_SIZE : this->recordCountToFetch;
+        const int chunkSize=fetchInChunks ? DB_PREFETCH_SIZE : this->recordCountToFetch;
         rows.reserve(chunkSize);
+
+        if(this->fetchStartIx!=-1){
+            if(rs->moveToPosition(this->fetchStartIx+1)){
+                rows.append(getOneRow());
+                ++fetchedCount;
+            }
+        }
 
         while(fetchedCount++<recordCountToFetch && rs->moveNext()){
 
-            QStringList oneRow;
-            oneRow.reserve(columnCount);
-
-            for(int i=0; i<columnCount; i++){
-                oneRow.append(rs->getAsString(i+1));
-            }
-
-            if(!dynamicQueries.isEmpty()){
-                replaceValuesWithDynamicQueries(oneRow);
-            }
-
-            rows.append(oneRow);
+            rows.append(getOneRow());
 
             if(rows.count()>=chunkSize){
                 emit recordsFetched(rows);
@@ -61,6 +59,23 @@ void RecordFetcherThread::run()
     emit fetchComplete();
 }
 
+QStringList RecordFetcherThread::getOneRow() const
+{
+    QStringList oneRow;
+    int columnCount=rs->getColumnCount();
+    oneRow.reserve(columnCount);
+
+    for(int i=0; i<columnCount; i++){
+        oneRow.append(rs->getAsString(i+1));
+    }
+
+    if(!dynamicQueries.isEmpty()){
+        replaceValuesWithDynamicQueries(oneRow);
+    }
+
+    return oneRow;
+}
+
 void RecordFetcherThread::setFetchRange(int startIx, int count)
 {
     this->fetchStartIx=startIx;
@@ -72,7 +87,7 @@ void RecordFetcherThread::setFetchInChunks(bool fetchInChunks)
     this->fetchInChunks=fetchInChunks;
 }
 
-void RecordFetcherThread::replaceValuesWithDynamicQueries(QList<QString> &oneRow)
+void RecordFetcherThread::replaceValuesWithDynamicQueries(QList<QString> &oneRow) const
 {
     StatementDesc* desc;
 

@@ -23,13 +23,16 @@ public:
     void setFetchRange(int startIx, int count);
     void setFetchInChunks(bool fetchInChunks);
 
+    void *data;
+
 signals:
     void recordsFetched(const QList<QStringList> &records);
     void fetchComplete();
     void fetchError(const OciException &ex);
 
 private:
-    void replaceValuesWithDynamicQueries(QList<QString> &oneRow);
+    QStringList getOneRow() const;
+    void replaceValuesWithDynamicQueries(QList<QString> &oneRow) const;
 
     DbConnection *db;
     Resultset *rs;

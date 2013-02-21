@@ -20,6 +20,8 @@ public:
 
     void beginFetchRows();
     bool moveNext();
+    bool moveToPosition(unsigned int pos);
+    bool moveToLastFetched();
     void endFetchRows();
 
     int getColumnCount() const;
@@ -47,6 +49,8 @@ public:
     OCI_Timestamp *getTimestamp(unsigned int colIx) const;
     OCI_Interval *getInterval(unsigned int colIx) const;
 
+    bool isScrollable() const;
+
     static void printObjectCount();
 
 private:
@@ -61,6 +65,8 @@ private:
     int fetchedRowCount;
     bool reachedEOF;
     bool acquiredMutex;
+
+    void checkForError();
 
 
 #ifdef DEBUG

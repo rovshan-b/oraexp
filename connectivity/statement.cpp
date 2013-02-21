@@ -4,6 +4,7 @@
 #include "util/dbutil.h"
 #include "util/strutil.h"
 #include "ociexception.h"
+#include "defines.h"
 #include <QDebug>
 
 #ifdef DEBUG
@@ -226,8 +227,8 @@ QueryResult Statement::doExecute()
         if(ociResultSet==NULL){
             DbUtil::checkForOciError(ociStmt);
         }
-        OCI_SetPrefetchSize(ociStmt, OCI_PREFETCH_SIZE);
-        OCI_SetFetchSize(ociStmt, OCI_PREFETCH_SIZE);
+        OCI_SetPrefetchSize(ociStmt, DB_PREFETCH_SIZE);
+        OCI_SetFetchSize(ociStmt, DB_PREFETCH_SIZE);
 
         Q_ASSERT(this->resultsets.isEmpty());
         this->resultsets.append(new Resultset(ociResultSet, connection, this));
@@ -409,6 +410,11 @@ void Statement::releaseResultsets()
 void Statement::setUseScrollableResultsets(bool useScrollableResultsets)
 {
     this->useScrollableResultsets=useScrollableResultsets;
+}
+
+bool Statement::getUseScrollableResultsets() const
+{
+    return this->useScrollableResultsets;
 }
 
 bool Statement::isAnonymousBlock()

@@ -3,8 +3,11 @@
 
 #include "resultsettablemodel.h"
 
+class QAbstractItemView;
+
 class ScrollableResultsetTableModel : public ResultsetTableModel
 {
+    Q_OBJECT
 public:
     ScrollableResultsetTableModel(IQueryScheduler *queryScheduler, Resultset *rs, QObject *parent,
                                   const QHash<int, StatementDesc*> &dynamicQueries=QHash<int, StatementDesc*>(),
@@ -13,23 +16,30 @@ public:
 
     virtual QVariant data ( const QModelIndex & index, int role = Qt::DisplayRole ) const;
 
+public slots:
+    void fetchData();
+
 protected slots:
     virtual void recordsFetched(const QList<QStringList> &records);
+    virtual void fetchComplete();
+    void existingRecordsFetched(const QList<QStringList> &records);
 
 protected:
-    enum FetchMode
-    {
-        FetchMore,
-        FetchCurrent
-    };
+    virtual void deleteFetcherThread();
 
-    virtual void createFetcherThread();
     virtual bool deleteResultsetOnFetchComplete() const;
+
+private slots:
+    void scrolled(int value);
 
 private:
     int currentOffset; //zero based index of first fetched record index currently in memory
-    mutable int currentOffsetInProgress;
-    FetchMode currentFetchMode;
+
+    void shrinkModelData(bool fromTop);
+
+    QAbstractItemView *getParentView();
+    void getFirstLastVisibleIndexes(QModelIndex &first, QModelIndex &last);
+    int getVisibleRowCount();
 };
 
 #endif // SCROLLABLERESULTSETTABLEMODEL_H

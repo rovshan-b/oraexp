@@ -65,7 +65,7 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
 
     WidgetHelper::updateActionTooltips(toolbar);
 
-    multiEditor->getCurrentEditor()->editor()->setPlainText("select * from smpp_incoming where msg_id<:msg_id");
+    multiEditor->getCurrentEditor()->editor()->setPlainText("select * from smpp_incoming where rownum<50");
 }
 
 WorksheetQueryPane::~WorksheetQueryPane()

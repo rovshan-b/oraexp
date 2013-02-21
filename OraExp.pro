@@ -388,7 +388,8 @@ SOURCES += main.cpp\
     beans/explainplanrow.cpp \
     util/codeeditorutil.cpp \
     codeeditor/linenavigationbar.cpp \
-    models/scrollableresultsettablemodel.cpp
+    models/scrollableresultsettablemodel.cpp \
+    beans/fetchrangeinfo.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -780,7 +781,8 @@ HEADERS  += mainwindow.h \
     beans/explainplanrow.h \
     util/codeeditorutil.h \
     codeeditor/linenavigationbar.h \
-    models/scrollableresultsettablemodel.h
+    models/scrollableresultsettablemodel.h \
+    beans/fetchrangeinfo.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \
