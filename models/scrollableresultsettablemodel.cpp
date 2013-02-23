@@ -71,7 +71,10 @@ void ScrollableResultsetTableModel::recordsFetched(const QList<QStringList> &rec
 void ScrollableResultsetTableModel::fetchComplete()
 {
     ResultsetTableModel::fetchComplete();
-    QTimer::singleShot(0, this, SLOT(fetchData()));
+    //QTimer::singleShot(0, this, SLOT(fetchData()));
+    fetchData();
+
+    //TODO: check if cursor is at the bottom and fetchData returned false, call fetchMore
 }
 
 void ScrollableResultsetTableModel::existingRecordsFetched(const QList<QStringList> &records)
@@ -145,14 +148,7 @@ void ScrollableResultsetTableModel::scrolled(int)
 
 void ScrollableResultsetTableModel::shrinkModelData(bool fromTop)
 {
-    int bufferSize=getVisibleRowCount();
-    if(bufferSize==-1){
-        bufferSize=300;
-    }else{
-        bufferSize*=3;
-    }
-
-    bufferSize = qMin(bufferSize, fetchedRowCount);
+    int bufferSize = getCacheSize();
 
     int countToRemove=0;
     if(modelData.size()>bufferSize){
@@ -199,9 +195,10 @@ void ScrollableResultsetTableModel::fetchData()
     int currentFirstIx = currentOffset;
     int currentLastIx = currentOffset + modelData.size() - 1;
 
-    //range to fetch
-    int rangeStart = firstRowIx;
-    int rangeEnd = lastRowIx;
+    //range to fetch. expand in both directions to minimize database
+    //roundtrips during continuous scrolling
+    int rangeStart = firstRowIx - 10;
+    int rangeEnd = lastRowIx + 10;
 
     /*
     if(movingUp){
@@ -223,14 +220,22 @@ void ScrollableResultsetTableModel::fetchData()
         fetchMode=FetchRangeInfo::PrependToCurrentData;
     }
 
-    if(rangeStart<0){
-        rangeStart=0;
-    }
+    rangeStart = qMax(0, rangeStart);
     rangeEnd = qMin(rowCount()-1, rangeEnd);
 
     if(rangeStart > rangeEnd){ //nothing to fetch
         return;
     }
+
+    if(rangeStart>=currentFirstIx && rangeEnd<=currentLastIx){ //already in buffer
+        return;
+    }
+
+    Q_ASSERT_X((rangeEnd - rangeStart + 1) < getCacheSize(),
+               "buffer size calculation",
+               qPrintable(QString("count to fetch (%1) must be less than max buffer size (%2)")
+                          .arg(rangeEnd - rangeStart + 1)
+                          .arg(getCacheSize())));
 
     FetchRangeInfo *rangeInfo = new FetchRangeInfo();
     rangeInfo->rangeStart=rangeStart;
@@ -256,10 +261,10 @@ void ScrollableResultsetTableModel::fetchData()
     fetcherThread->start();
 }
 
-QAbstractItemView *ScrollableResultsetTableModel::getParentView()
+QTableView *ScrollableResultsetTableModel::getParentView()
 {
     QObject* obj=qobject_cast<QObject*>(this);
-    QAbstractItemView *parentView = qobject_cast<QAbstractItemView*>(obj->parent());
+    QTableView *parentView = qobject_cast<QTableView*>(obj->parent());
     Q_ASSERT(parentView);
 
     return parentView;
@@ -267,10 +272,22 @@ QAbstractItemView *ScrollableResultsetTableModel::getParentView()
 
 void ScrollableResultsetTableModel::getFirstLastVisibleIndexes(QModelIndex &first, QModelIndex &last)
 {
-    QAbstractItemView *parentView = getParentView();
+    if(rowCount()==0){
+        return;
+    }
+
+    QTableView *parentView = getParentView();
 
     first=parentView->indexAt(parentView->rect().topLeft());
     last=parentView->indexAt(parentView->rect().bottomRight());
+
+    if(!last.isValid() && first.isValid()){
+        int recordHeight = parentView->verticalHeader()->defaultSectionSize();
+        int visibleRecordCount = qCeil(parentView->height() / (qreal) recordHeight);
+
+        int lastVisibleRowIx = qMin(first.row()+visibleRecordCount+10, rowCount()-1);
+        last=index(lastVisibleRowIx, columnCount()-1);
+    }
 }
 
 int ScrollableResultsetTableModel::getVisibleRowCount()
@@ -285,5 +302,20 @@ int ScrollableResultsetTableModel::getVisibleRowCount()
     int firstRowIx=firstVisibleIndex.row();
     int lastRowIx=lastVisibleIndex.row();
 
-    return lastRowIx - firstRowIx + 2; //must be +1. returning +2 because table sometimes reports last index as real-1
+    int visibleRowCount = lastRowIx - firstRowIx + 2; //must be +1. returning +2 because table sometimes reports last index as real-1
+    Q_ASSERT(visibleRowCount >= 0);
+
+    return visibleRowCount;
+}
+
+int ScrollableResultsetTableModel::getCacheSize()
+{
+    int cacheSize=getVisibleRowCount()*3;
+    if(cacheSize<50){
+        cacheSize=50;
+    }
+
+    cacheSize = qMin(cacheSize, fetchedRowCount);
+
+    return cacheSize;
 }

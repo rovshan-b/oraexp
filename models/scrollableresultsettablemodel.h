@@ -3,7 +3,7 @@
 
 #include "resultsettablemodel.h"
 
-class QAbstractItemView;
+class QTableView;
 
 class ScrollableResultsetTableModel : public ResultsetTableModel
 {
@@ -37,9 +37,10 @@ private:
 
     void shrinkModelData(bool fromTop);
 
-    QAbstractItemView *getParentView();
+    QTableView *getParentView();
     void getFirstLastVisibleIndexes(QModelIndex &first, QModelIndex &last);
     int getVisibleRowCount();
+    int getCacheSize();
 };
 
 #endif // SCROLLABLERESULTSETTABLEMODEL_H
