@@ -17,7 +17,7 @@ public:
     virtual QVariant data ( const QModelIndex & index, int role = Qt::DisplayRole ) const;
 
 public slots:
-    void fetchData();
+    bool fetchData();
 
 protected slots:
     virtual void recordsFetched(const QList<QStringList> &records);
@@ -41,6 +41,7 @@ private:
     void getFirstLastVisibleIndexes(QModelIndex &first, QModelIndex &last);
     int getVisibleRowCount();
     int getCacheSize();
+    bool isInCache(int row) const;
 };
 
 #endif // SCROLLABLERESULTSETTABLEMODEL_H

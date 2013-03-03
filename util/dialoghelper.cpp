@@ -2,6 +2,7 @@
 #include "dialogs/storageparamsdialog.h"
 #include "connectionspane.h"
 #include "connectdialog.h"
+#include "util/settings.h"
 #include <QtGui>
 
 DialogHelper::DialogHelper()
@@ -57,4 +58,25 @@ DbConnection *DialogHelper::getConnection(QWidget *dialogParent)
     }
 
     return 0;
+}
+
+QString DialogHelper::showFileSaveDialog(QWidget *parent, const QString &defaultSuffix, const QString &title, const QString &filter)
+{
+    QFileDialog dialog(parent, title, QDesktopServices::storageLocation(QDesktopServices::DesktopLocation), filter);
+    dialog.setDefaultSuffix(defaultSuffix);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setConfirmOverwrite(true);
+
+    dialog.restoreState(Settings::value("saveFileDialogState").toByteArray());
+
+    QString result;
+
+    if(dialog.exec()){
+        result = dialog.selectedFiles().at(0);
+
+        Settings::setValue("saveFileDialogState", dialog.saveState());
+    }
+
+    return result;
 }

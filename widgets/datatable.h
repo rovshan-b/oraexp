@@ -53,7 +53,7 @@ signals:
 
 protected:
     void keyPressEvent ( QKeyEvent * event );
-    void resizeEvent ( QResizeEvent * event );
+    //void resizeEvent ( QResizeEvent * event );
 
 private slots:
     void queryCompleted(const QueryResult &result);

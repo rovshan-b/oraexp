@@ -94,6 +94,8 @@ public:
     static QRegExp createDateTimeRegExp();
 
     static QFont getMonospaceFont(int pointSize=-1);
+
+    static void fillAvailableTextCodecNames(QComboBox *comboBox, const QString &preselect = "UTF-8");
 };
 
 #endif // WIDGETHELPER_H

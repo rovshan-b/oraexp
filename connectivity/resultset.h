@@ -49,6 +49,8 @@ public:
     OCI_Timestamp *getTimestamp(unsigned int colIx) const;
     OCI_Interval *getInterval(unsigned int colIx) const;
 
+    bool isTextColumn(unsigned int colIx) const;
+
     bool isScrollable() const;
 
     static void printObjectCount();
@@ -61,6 +63,7 @@ private:
 
     QHash<QString, unsigned int> columnIndexes;
     QHash<int, unsigned int> columnDataTypes;
+    QList<int> textColIndexes;
 
     int fetchedRowCount;
     bool reachedEOF;

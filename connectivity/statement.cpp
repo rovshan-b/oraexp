@@ -143,10 +143,10 @@ void Statement::bindParam(Param *parameter)
         Statement *paramStmt=parameter->getStmtValue();
         paramStmt->setConnection(this->connection);
 
-        if(useScrollableResultsets){
+        /*if(useScrollableResultsets){
             int res=OCI_SetFetchMode(paramStmt->ociStatement(), OCI_SFM_SCROLLABLE);
             qDebug() << "OCI_SetFetchMode for param returned" << res;
-        }
+        }*/
 
         OCI_BindStatement(ociStmt,
                           parameter->getParamName().toStdWString().c_str(),
@@ -393,6 +393,7 @@ void Statement::collectParamResultsets()
 
         if(paramType==Param::Stmt){
             Statement *childStmt=parameter->getStmtValue();
+            //OCI_SetFetchMode(childStmt->ociStatement(), OCI_SFM_SCROLLABLE);
             OCI_Resultset *ociResultSet=OCI_GetResultset(childStmt->ociStatement());
             if(!ociResultSet){
                 DbUtil::checkForOciError(ociStmt);

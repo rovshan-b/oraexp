@@ -554,4 +554,14 @@ QFont WidgetHelper::getMonospaceFont(int pointSize)
     return f;
 }
 
+void WidgetHelper::fillAvailableTextCodecNames(QComboBox *comboBox, const QString &preselect)
+{
+    QList<QByteArray> codecs = QTextCodec::availableCodecs();
+    foreach(QByteArray codec, codecs){
+        comboBox->addItem(codec);
+    }
+
+    comboBox->setCurrentIndex(comboBox->findText(preselect));
+}
+
 

@@ -65,6 +65,11 @@ QString BindParamEditorWidget::getBindParamValue() const
     return valueEditor->currentText();
 }
 
+void BindParamEditorWidget::setBindParamValue(const QString &value) const
+{
+    valueEditor->lineEdit()->setText(value);
+}
+
 void BindParamEditorWidget::setBindParamInfo(BindParamInfo *paramInfo)
 {
     paramTypeCombo->setCurrentIndex((int)paramInfo->paramType);
@@ -114,7 +119,7 @@ void BindParamEditorWidget::paramTypeChanged(int newType)
     if(newType==BindParamInfo::Cursor){
         valueEditor->setEnabled(false);
         paramDirectionCombo->setEnabled(false);
-        paramDirectionCombo->setCurrentIndex(Param::Out);
+        //paramDirectionCombo->setCurrentIndex(Param::Out);
     }else{
         if(!valueEditor->isEnabled()){
             valueEditor->setEnabled(true);

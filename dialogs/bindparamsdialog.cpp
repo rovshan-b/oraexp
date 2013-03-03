@@ -11,7 +11,7 @@ BindParamsDialog::BindParamsDialog(const QStringList &bindParams,
     QDialog(parent), bindParams(bindParams), suggestedParamTypes(suggestedParamTypes),
     paramHistory(paramHistory), controlToSetFocus(0)
 {
-    setWindowTitle(tr("Bind parameters"));
+    setWindowTitle(tr("Bind variables"));
 
     createUi();
 }
@@ -97,6 +97,9 @@ QWidget *BindParamsDialog::createForm()
         if(paramInfo==0){
             BindParamInfo::BindParamType suggestedType = suggestedParamTypes.at(i);
             editor->setBindParamType(suggestedType);
+            if(suggestedType==BindParamInfo::Date){
+                editor->setBindParamValue(QDateTime::currentDateTime().toString("yyyy-MM-dd"));
+            }
         }else{
             editor->setBindParamInfo(paramInfo);
         }

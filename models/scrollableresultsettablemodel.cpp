@@ -25,7 +25,7 @@ QVariant ScrollableResultsetTableModel::data(const QModelIndex &index, int role)
         return QVariant();
     }
 
-    if(index.row()<currentOffset || index.row()>=currentOffset+modelData.size()){
+    if(!isInCache(index.row())){
         return QVariant();
     }
 
@@ -55,12 +55,12 @@ void ScrollableResultsetTableModel::recordsFetched(const QList<QStringList> &rec
     int currentRangeEndIx = currentOffset+modelData.size()-1;
     if(modelData.size()>0 && currentRangeEndIx==fetchedRowCount-1){
         modelData.append(records);
-        qDebug("Appended to model");
+        //qDebug("Appended to model");
         shrinkModelData(true);
     }else{
         modelData=records;
         currentOffset=fetchedRowCount;
-        qDebug("Replaced model");
+        //qDebug("Replaced model");
     }
 
     fetchedRowCount+=records.size();
@@ -72,9 +72,15 @@ void ScrollableResultsetTableModel::fetchComplete()
 {
     ResultsetTableModel::fetchComplete();
     //QTimer::singleShot(0, this, SLOT(fetchData()));
-    fetchData();
+    bool fetchStarted=fetchData();
 
-    //TODO: check if cursor is at the bottom and fetchData returned false, call fetchMore
+    if(!fetchStarted && canFetchMore(QModelIndex())){
+        QModelIndex dummyIndex, last;
+        getFirstLastVisibleIndexes(dummyIndex, last);
+        if(last.isValid() && last.row()>=rowCount()-5){
+            fetchMore(QModelIndex());
+        }
+    }
 }
 
 void ScrollableResultsetTableModel::existingRecordsFetched(const QList<QStringList> &records)
@@ -91,7 +97,7 @@ void ScrollableResultsetTableModel::existingRecordsFetched(const QList<QStringLi
         lastChangedRowIx = currentOffset+modelData.size()+records.size()-1;
 
         modelData.append(records);
-        qDebug("appended to model");
+        //qDebug("appended to model");
         break;
     case FetchRangeInfo::PrependToCurrentData:
         newList.reserve(modelData.size()+records.size());
@@ -102,7 +108,7 @@ void ScrollableResultsetTableModel::existingRecordsFetched(const QList<QStringLi
 
         firstChangedRowIx = currentOffset;
         lastChangedRowIx = currentOffset+records.size()-1;
-        qDebug("prepended to model");
+        //qDebug("prepended to model");
         break;
     case FetchRangeInfo::ReplaceCurrentData:
         modelData=records;
@@ -110,7 +116,7 @@ void ScrollableResultsetTableModel::existingRecordsFetched(const QList<QStringLi
 
         firstChangedRowIx = currentOffset;
         lastChangedRowIx = currentOffset+modelData.size()-1;
-        qDebug("replaced model");
+        //qDebug("replaced model");
         break;
     }
 
@@ -120,8 +126,8 @@ void ScrollableResultsetTableModel::existingRecordsFetched(const QList<QStringLi
         shrinkModelData(rangeInfo->fetchMode==FetchRangeInfo::AppendToCurrentData);
     }
 
-    qDebug() << "record count in buffer is" << modelData.size();
-    qDebug() << "current data range is from" << currentOffset << "to" << currentOffset+modelData.size()-1;
+    //qDebug() << "record count in buffer is" << modelData.size();
+    //qDebug() << "current data range is from" << currentOffset << "to" << currentOffset+modelData.size()-1;
 
     emit dataChanged(this->index(firstChangedRowIx, columnCount()-1),
                      this->index(lastChangedRowIx, columnCount()-1));
@@ -155,6 +161,7 @@ void ScrollableResultsetTableModel::shrinkModelData(bool fromTop)
         countToRemove=modelData.size()-bufferSize;
     }
 
+    /*
     if(countToRemove>0){
         qDebug() << "modelData.size()=" << modelData.size()
                  << "bufferSize=" << bufferSize
@@ -163,7 +170,7 @@ void ScrollableResultsetTableModel::shrinkModelData(bool fromTop)
         qDebug() << "not shrinking. modelData.size()="
                  << modelData.size()
                  << "bufferSize=" << bufferSize;
-    }
+    }*/
 
     for(int i=0; i<countToRemove; ++i){
         if(fromTop){
@@ -175,17 +182,17 @@ void ScrollableResultsetTableModel::shrinkModelData(bool fromTop)
     }
 }
 
-void ScrollableResultsetTableModel::fetchData()
+bool ScrollableResultsetTableModel::fetchData()
 {
-    if(fetchInProgress || rs==0){
-        return;
+    if(fetchInProgress || rs==0 || fetchedRowCount < 1){
+        return false;
     }
 
     QModelIndex firstVisibleIndex, lastVisibleIndex;
     getFirstLastVisibleIndexes(firstVisibleIndex, lastVisibleIndex);
 
     if(!firstVisibleIndex.isValid() || !lastVisibleIndex.isValid()){
-        return;
+        return false;
     }
 
     int firstRowIx=firstVisibleIndex.row();
@@ -194,6 +201,10 @@ void ScrollableResultsetTableModel::fetchData()
 
     int currentFirstIx = currentOffset;
     int currentLastIx = currentOffset + modelData.size() - 1;
+
+    if(isInCache(firstRowIx) && isInCache(lastRowIx)){ //already in buffer
+        return false;
+    }
 
     //range to fetch. expand in both directions to minimize database
     //roundtrips during continuous scrolling
@@ -224,16 +235,16 @@ void ScrollableResultsetTableModel::fetchData()
     rangeEnd = qMin(rowCount()-1, rangeEnd);
 
     if(rangeStart > rangeEnd){ //nothing to fetch
-        return;
+        return false;
     }
 
-    if(rangeStart>=currentFirstIx && rangeEnd<=currentLastIx){ //already in buffer
-        return;
+    if(isInCache(rangeStart) && isInCache(rangeEnd)){ //already in buffer
+        return false;
     }
 
-    Q_ASSERT_X((rangeEnd - rangeStart + 1) < getCacheSize(),
+    Q_ASSERT_X((rangeEnd - rangeStart + 1) <= getCacheSize(),
                "buffer size calculation",
-               qPrintable(QString("count to fetch (%1) must be less than max buffer size (%2)")
+               qPrintable(QString("count to fetch (%1) must be less than or equal to max buffer size (%2)")
                           .arg(rangeEnd - rangeStart + 1)
                           .arg(getCacheSize())));
 
@@ -242,10 +253,10 @@ void ScrollableResultsetTableModel::fetchData()
     rangeInfo->rangeEnd=rangeEnd;
     rangeInfo->fetchMode=fetchMode;
 
-    qDebug() << "current offset=" << currentOffset
+    /*qDebug() << "current offset=" << currentOffset
              << ", current last=" << currentLastIx
              << ", first visible row=" << firstRowIx
-             << ", last visible row=" << lastRowIx;
+             << ", last visible row=" << lastRowIx;*/
     qDebug() << "fetch range = " << rangeStart << ".." << rangeEnd << ", count=" << rangeEnd-rangeStart+1;
 
     queryScheduler->increaseRefCount();
@@ -259,6 +270,8 @@ void ScrollableResultsetTableModel::fetchData()
     connect(fetcherThread, SIGNAL(fetchComplete()), this, SLOT(fetchComplete()));
     connect(fetcherThread, SIGNAL(fetchError(OciException)), this, SLOT(fetchError(OciException)));
     fetcherThread->start();
+
+    return true;
 }
 
 QTableView *ScrollableResultsetTableModel::getParentView()
@@ -310,12 +323,14 @@ int ScrollableResultsetTableModel::getVisibleRowCount()
 
 int ScrollableResultsetTableModel::getCacheSize()
 {
-    int cacheSize=getVisibleRowCount()*3;
-    if(cacheSize<50){
-        cacheSize=50;
-    }
+    int cacheSize=qMax(getVisibleRowCount()*3, 50);
 
     cacheSize = qMin(cacheSize, fetchedRowCount);
 
     return cacheSize;
+}
+
+bool ScrollableResultsetTableModel::isInCache(int row) const
+{
+    return row>=currentOffset && row<=(currentOffset + modelData.size() - 1);
 }

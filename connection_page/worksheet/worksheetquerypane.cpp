@@ -65,7 +65,7 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
 
     WidgetHelper::updateActionTooltips(toolbar);
 
-    multiEditor->getCurrentEditor()->editor()->setPlainText("select * from smpp_incoming where rownum<50");
+    multiEditor->getCurrentEditor()->editor()->setPlainText("select * from smpp_outgoing");
 }
 
 WorksheetQueryPane::~WorksheetQueryPane()
@@ -112,7 +112,6 @@ void WorksheetQueryPane::executeQuery(ExecuteMode executeMode)
     task.query=queryText;
     task.params=params;
     task.queryCompletedSlotName="queryCompleted";
-    task.retrieveScrollableResultsets=true;
 
     this->currentQuery = queryText;
 

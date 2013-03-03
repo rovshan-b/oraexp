@@ -136,6 +136,7 @@ void WorksheetExplainPlanTab::explainPlanQueryCompleted(const QueryResult &resul
         QString errorMessage;
         if(autotraceMode && result.exception.getErrorCode()==ERR_TABLE_OR_VIEW_DOES_NOT_EXIST){
             errorMessage = QString(tr("Please, ask DBA for SELECT access on following views:\n"
+                                   " - V$SQL_SESSION\n"
                                    " - V$SQL_PLAN\n"
                                    " - V$SQL_PLAN_STATISTICS_ALL\n"
                                    " - V$STATNAME\n"

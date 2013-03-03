@@ -389,7 +389,9 @@ SOURCES += main.cpp\
     util/codeeditorutil.cpp \
     codeeditor/linenavigationbar.cpp \
     models/scrollableresultsettablemodel.cpp \
-    beans/fetchrangeinfo.cpp
+    beans/fetchrangeinfo.cpp \
+    connection_page/data_exporter/dataexportoptionswidget.cpp \
+    connection_page/data_exporter/dataexportdialog.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -782,7 +784,9 @@ HEADERS  += mainwindow.h \
     util/codeeditorutil.h \
     codeeditor/linenavigationbar.h \
     models/scrollableresultsettablemodel.h \
-    beans/fetchrangeinfo.h
+    beans/fetchrangeinfo.h \
+    connection_page/data_exporter/dataexportoptionswidget.h \
+    connection_page/data_exporter/dataexportdialog.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

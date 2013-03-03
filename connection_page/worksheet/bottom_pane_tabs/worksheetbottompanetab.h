@@ -19,7 +19,7 @@ public:
     virtual WorksheetResultPane::WorksheetBottomPaneTabType getTabType() const = 0;
     virtual void showQueryResults(IQueryScheduler *queryScheduler, const QueryResult &result) = 0;
 
-    bool isPinned() const;
+    virtual bool isPinned() const;
 
 public slots:
     void setPinned(bool pinned);

@@ -31,6 +31,10 @@ Resultset::Resultset(OCI_Resultset *ociResultset, Connection *cn, Statement *stm
         }
         columnIndexes.insert(columnName, i);
         columnDataTypes.insert(i, OCI_GetColumnType(column));
+
+        if(OCI_ColumnGetCharsetForm(column)!=OCI_CSF_NONE){
+            textColIndexes.append(i);
+        }
     }
 
     ref();
@@ -177,7 +181,27 @@ QString Resultset::getAsString(unsigned int colIx) const
         return "";
     }
 
-    return toQString(OCI_GetString(ociResultset, colIx));
+    unsigned int dataType = columnDataTypes.value(colIx);
+
+    QString result;
+
+    if(dataType==OCI_CDT_CURSOR){
+        result=QObject::tr("Cursor");
+    }else if(dataType==OCI_CDT_OBJECT){
+        result=QObject::tr("Object");
+    }else if(dataType==OCI_CDT_COLLECTION){
+        result=QObject::tr("Collection");
+    }else if(dataType==OCI_CDT_LOB && !isTextColumn(colIx)){
+        result=QObject::tr("BLOB");
+    }else if(dataType==OCI_CDT_LONG && !isTextColumn(colIx)){
+        result=QObject::tr("LONG RAW");
+    }else if(dataType==OCI_CDT_FILE && !isTextColumn(colIx)){
+        result=QObject::tr("FILE");
+    }else{
+        result=toQString(OCI_GetString(ociResultset, colIx));
+    }
+
+    return result;
 }
 
 QString Resultset::fetchOneAsString(unsigned int colIx)
@@ -212,6 +236,11 @@ OCI_Timestamp *Resultset::getTimestamp(unsigned int colIx) const
 OCI_Interval *Resultset::getInterval(unsigned int colIx) const
 {
     return OCI_GetInterval(ociResultset, colIx);
+}
+
+bool Resultset::isTextColumn(unsigned int colIx) const
+{
+    return textColIndexes.contains(colIx);
 }
 
 bool Resultset::isScrollable() const

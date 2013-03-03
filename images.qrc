@@ -132,5 +132,6 @@
         <file>images/dbms.png</file>
         <file>images/autotrace.png</file>
         <file>images/tree.png</file>
+        <file>images/export.png</file>
     </qresource>
 </RCC>

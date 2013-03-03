@@ -83,7 +83,7 @@ void WorksheetInfoTab::printParamValues(Statement *stmt)
         output.append(QString("%1 : %2\n").arg(param->getParamName(), param->toString()));
     }
     if(!output.isEmpty()){
-        output.prepend("Bind parameters:\n");
+        output.prepend("Bind variables:\n");
     }
 
     if(!output.isEmpty()){

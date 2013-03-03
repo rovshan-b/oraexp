@@ -1,8 +1,7 @@
 #include "worksheetresultsettab.h"
 #include "widgets/datatable.h"
 #include "util/iconutil.h"
-#include "util/widgethelper.h"
-#include "connectivity/statement.h"
+#include "dialogs/dataexportdialog.h"
 #include <QtGui>
 
 WorksheetResultsetTab::WorksheetResultsetTab(QWidget *parent) :
@@ -18,11 +17,15 @@ WorksheetResultsetTab::WorksheetResultsetTab(QWidget *parent) :
     resultsTable->setAlternatingRowColors(true);
     layout->addWidget(resultsTable);
 
-    layout->setSpacing(2);
     layout->setContentsMargins(2, 0, 2, 0);
     setLayout(layout);
 
     connect(resultsTable, SIGNAL(firstFetchCompleted()), this, SLOT(firstFetchCompleted()));
+}
+
+void WorksheetResultsetTab::addTabSpecificToolbarButtons()
+{
+    toolbar->addAction(IconUtil::getIcon("export"), tr("Export"), this, SLOT(exportData()));
 }
 
 WorksheetResultPane::WorksheetBottomPaneTabType WorksheetResultsetTab::getTabType() const
@@ -44,4 +47,10 @@ void WorksheetResultsetTab::displayResultset(IQueryScheduler *queryScheduler, Re
 void WorksheetResultsetTab::firstFetchCompleted()
 {
     progressBarAction->setVisible(false);
+}
+
+void WorksheetResultsetTab::exportData()
+{
+    DataExportDialog dialog(this);
+    dialog.exec();
 }

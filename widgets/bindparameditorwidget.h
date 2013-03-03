@@ -19,6 +19,7 @@ public:
     void setBindParamType(BindParamInfo::BindParamType type);
     BindParamInfo::BindParamType getBindParamType() const;
     QString getBindParamValue() const;
+    void setBindParamValue(const QString &value) const;
 
     void setBindParamInfo(BindParamInfo *paramInfo);
 

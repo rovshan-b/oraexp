@@ -19,6 +19,11 @@ public:
     static void showConnectDialog(ConnectionsPane *connectionsPane);
     static DbConnection *getConnection(QWidget *dialogParent);
 
+    static QString showFileSaveDialog(QWidget *parent,
+                                      const QString &defaultSuffix,
+                                      const QString &title = QObject::tr("Enter file name to save"),
+                                      const QString &filter = QObject::tr("All files (*.*)"));
+
 private:
     DialogHelper();
 };

@@ -275,7 +275,7 @@ void DataTable::keyPressEvent(QKeyEvent *event)
     }
 }
 
-
+/*
 void DataTable::resizeEvent(QResizeEvent *event)
 {
     ScrollableResultsetTableModel *currModel = qobject_cast<ScrollableResultsetTableModel*>(this->model());
@@ -285,3 +285,4 @@ void DataTable::resizeEvent(QResizeEvent *event)
 
     QTableView::resizeEvent(event);
 }
+*/
