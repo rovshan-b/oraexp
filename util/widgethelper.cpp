@@ -91,6 +91,16 @@ void WidgetHelper::setComboBoxText(QComboBox *comboBox, const QString &value){
     }
 }
 
+QString WidgetHelper::getComboBoxUserDataOrText(QComboBox *comboBox)
+{
+    int currentIx = comboBox->currentIndex();
+    if(currentIx!=-1){
+        return comboBox->itemData(currentIx).toString();
+    }else{
+        return comboBox->currentText();
+    }
+}
+
 void WidgetHelper::popOutTab(QTabWidget *tabWidget, int tabIndex)
 {
     QWidget *currentTabWidget=tabWidget->currentWidget();

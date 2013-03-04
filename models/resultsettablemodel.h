@@ -29,6 +29,12 @@ public:
     virtual QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
 
     void setFetchSize(int fetchSize);
+
+    QList< QStringList > getModelData() const;
+    Resultset *getResultset() const;
+    bool isAllDataFetched() const;
+    void setAllDataFetched();
+    void setFetchInProgress(bool inProgress);
 signals:
     void firstFetchCompleted();
 
@@ -50,7 +56,7 @@ protected:
     int fetchedRowCount;
 
     int rsColumnCount;
-    volatile bool allDataFetched;
+    bool allDataFetched;
     QHash<QString, unsigned int> columnIndexes;
 
     RecordFetcherThread *fetcherThread;

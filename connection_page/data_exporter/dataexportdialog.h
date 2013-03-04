@@ -2,6 +2,7 @@
 #define DATAEXPORTDIALOG_H
 
 #include <QDialog>
+#include "dataexportoptionswidget.h"
 
 class DataExportOptionsWidget;
 
@@ -11,6 +12,11 @@ class DataExportDialog : public QDialog
 public:
     explicit DataExportDialog(QWidget *parent = 0);
     
+    DataExportOptionsWidget *exportWidget() const {return this->exportOptionsWidget;}
+
+public slots:
+    virtual void accept();
+
 private:
     void createUi();
 

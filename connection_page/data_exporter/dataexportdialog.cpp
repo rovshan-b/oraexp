@@ -1,6 +1,5 @@
 #include "dataexportdialog.h"
 #include "util/dialoghelper.h"
-#include "dataexportoptionswidget.h"
 #include <QtGui>
 
 DataExportDialog::DataExportDialog(QWidget *parent) :
@@ -9,6 +8,13 @@ DataExportDialog::DataExportDialog(QWidget *parent) :
     setWindowTitle(tr("Export data"));
 
     createUi();
+}
+
+void DataExportDialog::accept()
+{
+    if(exportOptionsWidget->validate()){
+        QDialog::accept();
+    }
 }
 
 void DataExportDialog::createUi()

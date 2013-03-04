@@ -234,8 +234,7 @@ QVariant ResultsetTableModel::headerData ( int section, Qt::Orientation orientat
     }
 
     if(orientation==Qt::Vertical){
-        //return section+1;
-        return section;
+        return section+1;
     }
 
     if(orientation==Qt::Horizontal && (section>=columnIndexes.size() || section<0)){
@@ -248,6 +247,31 @@ QVariant ResultsetTableModel::headerData ( int section, Qt::Orientation orientat
 void ResultsetTableModel::setFetchSize(int fetchSize)
 {
     this->fetchSize=(fetchSize<DB_PREFETCH_SIZE ? DB_PREFETCH_SIZE : fetchSize);
+}
+
+QList<QStringList> ResultsetTableModel::getModelData() const
+{
+    return this->modelData;
+}
+
+Resultset *ResultsetTableModel::getResultset() const
+{
+    return this->rs;
+}
+
+bool ResultsetTableModel::isAllDataFetched() const
+{
+    return this->allDataFetched;
+}
+
+void ResultsetTableModel::setAllDataFetched()
+{
+    this->allDataFetched=true;
+}
+
+void ResultsetTableModel::setFetchInProgress(bool inProgress)
+{
+    this->fetchInProgress=inProgress;
 }
 
 QVariant ResultsetTableModel::getColumnIcon(const QList<QString> &oneRow, unsigned int colIx) const

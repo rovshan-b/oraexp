@@ -114,6 +114,8 @@ void Resultset::checkForError()
 
 void Resultset::endFetchRows()
 {
+    Q_ASSERT(acquiredMutex);
+
     acquiredMutex=false;
     cn->unlock();
 }

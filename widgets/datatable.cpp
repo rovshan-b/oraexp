@@ -139,29 +139,28 @@ void DataTable::showContextMenu(const QPoint &pos)
 
 void DataTable::copyToClipboard()
 {
-    if(!this->selectionModel()->hasSelection()){
+    int startRow, startColumn, endRow, endColumn;
+    getSelectedRange(&startRow, &startColumn, &endRow, &endColumn);
+
+    if(startRow==-1 || startColumn==-1 || endRow==-1 || endColumn==-1){
         return;
     }
 
-    QModelIndexList indexes = this->selectionModel()->selectedIndexes();
+    bool isMultiColumn = startColumn!=endColumn;
+    bool isMultiRow = startRow!=endRow;
+
     QString selectedText;
 
-    const QModelIndex &from = indexes.at(0);
-    const QModelIndex &to = indexes.at(indexes.size()-1);
-
-    bool isMultiColumn = from.column()!=to.column();
-    bool isMultiRow = from.row()!=to.row();
-
-    for(int i=from.row(); i<=to.row(); ++i){
-        for(int k=from.column(); k<=to.column(); ++k){
+    for(int i=startRow; i<=endRow; ++i){
+        for(int k=startColumn; k<=endColumn; ++k){
             selectedText.append(this->model()->index(i, k).data().toString());
 
-            if(isMultiColumn && k<to.column()){
+            if(isMultiColumn && k<endColumn){
                 selectedText.append("\t");
             }
         }
 
-        if(isMultiRow && i<to.row()){
+        if(isMultiRow && i<endRow){
             selectedText.append("\n");
         }
     }
@@ -264,6 +263,27 @@ void DataTable::setObjectListMode(int schemaNameCol, int objectNameCol, int obje
     this->objectListObjectType=objectListObjectType;
 
     setContextMenuPolicy(Qt::CustomContextMenu);
+}
+
+void DataTable::getSelectedRange(int *startRow, int *startColumn, int *endRow, int *endColumn)
+{
+    if(this->selectionModel()==0 || !this->selectionModel()->hasSelection()){
+        *startRow = -1;
+        *startColumn = -1;
+        *endRow = -1;
+        *endColumn = -1;
+        return;
+    }
+
+    QModelIndexList indexes = this->selectionModel()->selectedIndexes();
+
+    const QModelIndex &from = indexes.at(0);
+    const QModelIndex &to = indexes.at(indexes.size()-1);
+
+    *startRow = from.row();
+    *startColumn = from.column();
+    *endRow = to.row();
+    *endColumn = to.column();
 }
 
 void DataTable::keyPressEvent(QKeyEvent *event)

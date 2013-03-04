@@ -7,13 +7,15 @@ class DbConnection;
 class QStackedWidget;
 class DataTable;
 class Resultset;
-class DataExportOptionsWidget;
+class DataExportDialog;
+class DataExporterBase;
 
 class WorksheetResultsetTab : public WorksheetBottomPaneTab
 {
     Q_OBJECT
 public:
     explicit WorksheetResultsetTab(QWidget *parent = 0);
+    virtual ~WorksheetResultsetTab();
 
     virtual void addTabSpecificToolbarButtons();
 
@@ -24,8 +26,18 @@ private slots:
     void firstFetchCompleted();
     void exportData();
 
+    void startExport(DataExporterBase *exporter);
+    void recordsExported(int count);
+    void exportComplete();
+    void exportError(const QString &errorMessage);
+
 private:
+    IQueryScheduler *queryScheduler;
+
     DataTable *resultsTable;
+    QAction *dataExportAction;
+
+    DataExportDialog *exportDialog;
 
 };
 

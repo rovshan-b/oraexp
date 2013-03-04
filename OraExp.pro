@@ -391,7 +391,10 @@ SOURCES += main.cpp\
     models/scrollableresultsettablemodel.cpp \
     beans/fetchrangeinfo.cpp \
     connection_page/data_exporter/dataexportoptionswidget.cpp \
-    connection_page/data_exporter/dataexportdialog.cpp
+    connection_page/data_exporter/dataexportdialog.cpp \
+    connection_page/data_exporter/exporters/dataexporterbase.cpp \
+    connection_page/data_exporter/exporters/csvexporter.cpp \
+    connection_page/data_exporter/dataexporterthread.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -786,7 +789,10 @@ HEADERS  += mainwindow.h \
     models/scrollableresultsettablemodel.h \
     beans/fetchrangeinfo.h \
     connection_page/data_exporter/dataexportoptionswidget.h \
-    connection_page/data_exporter/dataexportdialog.h
+    connection_page/data_exporter/dataexportdialog.h \
+    connection_page/data_exporter/exporters/dataexporterbase.h \
+    connection_page/data_exporter/exporters/csvexporter.h \
+    connection_page/data_exporter/dataexporterthread.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

@@ -10,6 +10,8 @@ class QBoxLayout;
 class LineEditWithButton;
 class QTabWidget;
 class DataTableAndToolBarWidget;
+class DataExporterBase;
+
 
 class DataExportOptionsWidget : public QWidget
 {
@@ -17,10 +19,21 @@ class DataExportOptionsWidget : public QWidget
 public:
     explicit DataExportOptionsWidget(QWidget *parent = 0);
 
+    void setSelectedRange(int startRow, int startColumn, int endRow, int endColumn);
+
+    DataExporterBase *createExporter() const;
+
+    bool validate();
+
 private slots:
     void selectSaveFilename();
+    void enableControls();
     
 private:
+    enum ExportFormat{
+        CSV
+    };
+
     QTabWidget *tab;
 
     QComboBox *formatComboBox;
@@ -42,7 +55,12 @@ private:
 
     DataTableAndToolBarWidget *dataTableAndToolbar;
 
-    QStackedWidget *formatWidgetsTab;
+    //QStackedWidget *formatWidgetsTab;
+
+    int selectionStartRow;
+    int selectionStartColumn;
+    int selectionEndRow;
+    int selectionEndColumn;
 
     void createOptionsTab();
     void createDataReplacementTab();

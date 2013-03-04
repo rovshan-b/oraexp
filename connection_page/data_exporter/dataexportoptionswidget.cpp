@@ -5,10 +5,15 @@
 #include "delegates/autoappenddelegate.h"
 #include "util/widgethelper.h"
 #include "util/dialoghelper.h"
+#include "exporters/csvexporter.h"
 #include <QtGui>
 
 DataExportOptionsWidget::DataExportOptionsWidget(QWidget *parent) :
-    QWidget(parent)
+    QWidget(parent),
+    selectionStartRow(-1),
+    selectionStartColumn(-1),
+    selectionEndRow(-1),
+    selectionEndColumn(-1)
 {
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
@@ -40,6 +45,20 @@ DataExportOptionsWidget::DataExportOptionsWidget(QWidget *parent) :
     populateExportFormats();
 
     connect(filenameEditor, SIGNAL(buttonClicked(LineEditWithButton*)), this, SLOT(selectSaveFilename()));
+    connect(includeColumnHeadersCheckbox, SIGNAL(stateChanged(int)), this, SLOT(enableControls()));
+
+    enableControls();
+}
+
+void DataExportOptionsWidget::setSelectedRange(int startRow, int startColumn, int endRow, int endColumn)
+{
+    this->selectionStartRow=startRow;
+    this->selectionStartColumn=startColumn;
+    this->selectionEndRow=endRow;
+    this->selectionEndColumn=endColumn;
+
+    bool canExportSelection = (startRow!=-1 && startColumn!=-1 && endRow!=-1 && endColumn!=-1);
+    selectedOnlyCheckbox->setEnabled(canExportSelection);
 }
 
 void DataExportOptionsWidget::selectSaveFilename()
@@ -48,6 +67,12 @@ void DataExportOptionsWidget::selectSaveFilename()
     if(!filename.isEmpty()){
         filenameEditor->lineEdit()->setText(filename);
     }
+}
+
+void DataExportOptionsWidget::enableControls()
+{
+    quoteColumnHeadersCheckbox->setEnabled(includeColumnHeadersCheckbox->isChecked() &&
+                                           includeColumnHeadersCheckbox->isEnabled());
 }
 
 void DataExportOptionsWidget::createOptionsTab()
@@ -100,6 +125,7 @@ void DataExportOptionsWidget::createGeneralOptionsPane(QBoxLayout *layout)
     QGridLayout *grid = new QGridLayout();
 
     selectedOnlyCheckbox = new QCheckBox(tr("Export only selected rows"));
+    selectedOnlyCheckbox->setEnabled(false);
     grid->addWidget(selectedOnlyCheckbox, 0, 0);
 
     includeNullTextCheckbox = new QCheckBox(tr("Include null text"));
@@ -157,40 +183,100 @@ void DataExportOptionsWidget::createDelimiterOptionsPane(QBoxLayout *layout)
 
 void DataExportOptionsWidget::populateExportFormats()
 {
-    formatComboBox->addItem(tr("CSV"));
-    formatComboBox->setItemData(0, "csv");
+    formatComboBox->addItem(tr("CSV"), "csv");
     //formatWidgetsTab->addWidget(new CsvExportOptionsWidget());
 }
 
 
 void DataExportOptionsWidget::populateQuotingOptions(QComboBox *comboBox)
 {
-    comboBox->addItem(tr("None"));
-    comboBox->addItem(tr("Single quoted"));
-    comboBox->addItem(tr("Double quoted"));
+    comboBox->addItem(tr("None"), "");
+    comboBox->addItem(tr("Single quoted"), "'");
+    comboBox->addItem(tr("Double quoted"), "\"");
 }
 
 void DataExportOptionsWidget::populateLineEndingOptions(QComboBox *comboBox)
 {
-    comboBox->addItem(tr("Platform default"));
-    comboBox->addItem(tr("Unix style"));
-    comboBox->addItem(tr("Windows style"));
+#ifdef Q_WS_WIN
+    QString platformLineEnding = "\r\n";
+#else
+    QString platformLineEnding = "\n";
+#endif
+    comboBox->addItem(tr("Platform default"), platformLineEnding);
+    comboBox->addItem(tr("Unix style"), "\n");
+    comboBox->addItem(tr("Windows style"), "\r\n");
 }
 
 void DataExportOptionsWidget::populateDelimiterOptions(QComboBox *comboBox)
 {
     comboBox->setEditable(true);
-    comboBox->addItem(tr("Comma"));
-    comboBox->addItem(tr("Tab"));
+    comboBox->addItem(tr("Comma"), ",");
+    comboBox->addItem(tr("Tab"), "\t");
 }
 
 void DataExportOptionsWidget::populateNewlineReplacements(QComboBox *comboBox)
 {
     comboBox->setEditable(true);
     comboBox->addItem("");
-    comboBox->addItem(tr("Blank"));
-    comboBox->addItem(tr("Tab"));
-    comboBox->addItem(tr("\\n"));
+    comboBox->addItem(tr("Blank"), "");
+    comboBox->addItem(tr("Tab"), "\t");
+    comboBox->addItem(tr("\\n"), "\\n");
 
     comboBox->setCurrentIndex(0);
+}
+
+DataExporterBase *DataExportOptionsWidget::createExporter() const
+{
+    DataExporterBase *exporter;
+
+    ExportFormat format = (ExportFormat)formatComboBox->currentIndex();
+    switch(format){
+    case CSV:
+        exporter=new CsvExporter();
+        break;
+    default:
+        exporter=0;
+        Q_ASSERT(false);
+        break;
+    }
+
+    exporter->filename = filenameEditor->lineEdit()->text().trimmed();
+    exporter->encoding = encodingComboBox->currentText();
+    exporter->bom = bomCheckbox->isChecked();
+
+    bool onlySelectedRows = selectedOnlyCheckbox->isChecked();
+    exporter->startRow = onlySelectedRows ? this->selectionStartRow : -1;
+    exporter->startColumn = onlySelectedRows ? this->selectionStartColumn : -1;
+    exporter->endRow = onlySelectedRows ? this->selectionEndRow : -1;
+    exporter->endColumn = onlySelectedRows ? this->selectionEndColumn : -1;
+
+    exporter->includeColumnHeaders = includeColumnHeadersCheckbox->isChecked();
+    exporter->quoteColumnHeaders = quoteColumnHeadersCheckbox->isChecked();
+    exporter->stringQuoting = WidgetHelper::getComboBoxUserDataOrText(stringQuotingComboBox);
+    exporter->numberQuoting = WidgetHelper::getComboBoxUserDataOrText(numberQuotingComboBox);
+    exporter->lineEnding = WidgetHelper::getComboBoxUserDataOrText(lineEndingsComboBox);
+    exporter->columnDelimiter = WidgetHelper::getComboBoxUserDataOrText(delimiterComboBox);
+    exporter->delimiterAfterLastColumn = delimiterAfterLastColumnCheckbox->isChecked();
+
+    QAbstractItemModel *model = dataTableAndToolbar->table()->model();
+    for(int i=0; i<model->rowCount(); ++i){
+        QString from = model->index(i, 0).data().toString();
+        QString to = model->index(i, 1).data().toString();
+
+        if(!from.isEmpty()){
+            exporter->stringReplacements.append(new QPair<QString,QString>(from, to));
+        }
+    }
+
+    return exporter;
+}
+
+bool DataExportOptionsWidget::validate()
+{
+    if(filenameEditor->lineEdit()->text().trimmed().isEmpty()){
+        QMessageBox::critical(this, tr("Validation error"), tr("Please, enter the filename."));
+        return false;
+    }
+
+    return true;
 }

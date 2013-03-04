@@ -26,6 +26,7 @@ public:
                                         const QString &iconName);
 
     static void setComboBoxText(QComboBox *comboBox, const QString &value);
+    static QString getComboBoxUserDataOrText(QComboBox *comboBox);
 
     static void popOutTab(QTabWidget *tabWidget, int tabIndex);
 

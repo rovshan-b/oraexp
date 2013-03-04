@@ -42,6 +42,8 @@ public:
                            const QString &objectListSchemaName=QString(),
                            const QString &objectListObjectType=QString());
 
+    void getSelectedRange(int *startRow, int *startColumn, int *endRow, int *endColumn);
+
 public slots:
     void resizeColumnsToFitContents();
 
