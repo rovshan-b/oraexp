@@ -1,11 +1,13 @@
 #include "dataexportdialog.h"
 #include "util/dialoghelper.h"
+#include "util/iconutil.h"
 #include <QtGui>
 
 DataExportDialog::DataExportDialog(QWidget *parent) :
     QDialog(parent)
 {
     setWindowTitle(tr("Export data"));
+    setWindowIcon(IconUtil::getIcon("export"));
 
     createUi();
 }

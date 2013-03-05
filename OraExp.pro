@@ -13,8 +13,10 @@ DEFINES += OCI_IMPORT_LINKAGE OCI_CHARSET_WIDE ORAEXP_USE_VARCHAR_FOR_BULK_TS_AN
 
 CONFIG(debug) {
      DEFINES += DEBUG
+     message(Debug build!)
 } else {
      DEFINES += QT_NO_DEBUG QT_NO_DEBUG_OUTPUT
+     message(Release build!)
 }
 
 
@@ -394,7 +396,8 @@ SOURCES += main.cpp\
     connection_page/data_exporter/dataexportdialog.cpp \
     connection_page/data_exporter/exporters/dataexporterbase.cpp \
     connection_page/data_exporter/exporters/csvexporter.cpp \
-    connection_page/data_exporter/dataexporterthread.cpp
+    connection_page/data_exporter/dataexporterthread.cpp \
+    beans/resultsetcolumnmetadata.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -792,7 +795,8 @@ HEADERS  += mainwindow.h \
     connection_page/data_exporter/dataexportdialog.h \
     connection_page/data_exporter/exporters/dataexporterbase.h \
     connection_page/data_exporter/exporters/csvexporter.h \
-    connection_page/data_exporter/dataexporterthread.h
+    connection_page/data_exporter/dataexporterthread.h \
+    beans/resultsetcolumnmetadata.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

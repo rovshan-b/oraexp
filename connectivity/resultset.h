@@ -4,6 +4,8 @@
 #include <QHash>
 #include <QDateTime>
 #include "util/datetimewithtimezone.h"
+#include "enums.h"
+#include "beans/resultsetcolumnmetadata.h"
 #include <ocilib.h>
 
 struct OCI_Resultset;
@@ -55,21 +57,22 @@ public:
 
     static void printObjectCount();
 
+    QSharedPointer<ResultsetColumnMetadata> getColumnMetadata() const;
+
 private:
     OCI_Resultset *ociResultset;
 
     Connection *cn;
     Statement *stmt;
 
-    QHash<QString, unsigned int> columnIndexes;
-    QHash<int, unsigned int> columnDataTypes;
-    QList<int> textColIndexes;
+    QSharedPointer<ResultsetColumnMetadata> columnMetadata;
 
     int fetchedRowCount;
     bool reachedEOF;
     bool acquiredMutex;
 
     void checkForError();
+    OraExp::ColumnDataType convertColumnDataType(unsigned int ociDataType) const;
 
 
 #ifdef DEBUG

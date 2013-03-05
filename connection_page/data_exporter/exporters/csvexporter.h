@@ -10,6 +10,9 @@ public:
 
     virtual void exportColumnHeaders(const QStringList &headers, int from, int to, QTextStream &out);
     virtual void exportRow(const QStringList &oneRow, QTextStream &out);
+
+protected:
+    void exportStringList(const QStringList &list, int from, int to, QTextStream &out);
 };
 
 #endif // CSVEXPORTER_H

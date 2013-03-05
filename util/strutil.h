@@ -56,4 +56,6 @@ QString md5(const QString &str);
 
 QString addNumericSuffix(const QString &str, const QStringList &excludeList);
 
+void replaceGuiEscapeCharactersWithReal(QString &str);
+
 #endif // STRUTIL_H

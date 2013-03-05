@@ -4,6 +4,8 @@
 #include <QThread>
 #include <QStringList>
 #include <QTextStream>
+#include <QSharedPointer>
+#include "beans/resultsetcolumnmetadata.h"
 
 class Resultset;
 class DataExporterBase;
@@ -13,7 +15,7 @@ class DataExporterThread : public QThread
     Q_OBJECT
 public:
     explicit DataExporterThread(DataExporterBase *exporter,
-                                const QStringList &columnTitles,
+                                QSharedPointer<ResultsetColumnMetadata> columnMetadata,
                                 QList<QStringList> alreadyFetchedData,
                                 Resultset *rs,
                                 bool fetchToEnd,
@@ -30,7 +32,7 @@ signals:
 
 private:
     DataExporterBase *exporter;
-    QStringList columnTitles;
+    QSharedPointer<ResultsetColumnMetadata> columnMetadata;
     QList<QStringList> alreadyFetchedData;
     Resultset *rs;
     bool fetchToEnd;

@@ -26,11 +26,11 @@ ResultsetTableModel::ResultsetTableModel(IQueryScheduler *queryScheduler, Result
     allDataFetched(false),
     fetcherThread(0),
     fetchInProgress(false),
-    firstFetchDone(false),
-    fetchSize(DB_PREFETCH_SIZE)
+    firstFetchDone(false)
+    //fetchSize(DB_PREFETCH_SIZE)
 {
     rsColumnCount=rs->getColumnCount()-iconColumns.size();
-    columnIndexes=rs->getColumnIndexes();
+    columnMetadata=rs->getColumnMetadata();
 
     //create deep copy
     //columnIndexes.detach();
@@ -73,11 +73,11 @@ void ResultsetTableModel::startFetcherThread()
 
     queryScheduler->increaseRefCount();
 
-    fetcherThread=new RecordFetcherThread(queryScheduler->getDb(), rs, this->fetchSize, dynamicQueries, this);
-    fetcherThread->setFetchInChunks(false);
-    if(rs->isScrollable()){
-        fetcherThread->setFetchRange(fetchedRowCount, this->fetchSize);
-    }
+    fetcherThread=new RecordFetcherThread(queryScheduler->getDb(), rs, 50, dynamicQueries, this);
+    fetcherThread->setFetchInChunks(true);
+    //if(rs->isScrollable()){
+    //    fetcherThread->setFetchRange(fetchedRowCount, this->fetchSize);
+    //}
     connect(fetcherThread, SIGNAL(recordsFetched(QList<QStringList>)), this, SLOT(recordsFetched(QList<QStringList>)));
     connect(fetcherThread, SIGNAL(fetchComplete()), this, SLOT(fetchComplete()));
     connect(fetcherThread, SIGNAL(fetchError(OciException)), this, SLOT(fetchError(OciException)));
@@ -196,7 +196,7 @@ bool ResultsetTableModel::isValidIndex(const QModelIndex &index, int role) const
         return false;
     }
 
-    if(index.column()>=columnIndexes.size() || index.column()<0){
+    if(index.column()>=columnMetadata->columnIndexes.size() || index.column()<0){
         return false;
     }
 
@@ -237,17 +237,18 @@ QVariant ResultsetTableModel::headerData ( int section, Qt::Orientation orientat
         return section+1;
     }
 
-    if(orientation==Qt::Horizontal && (section>=columnIndexes.size() || section<0)){
+    if(orientation==Qt::Horizontal && (section>=columnMetadata->columnIndexes.size() || section<0)){
         return QVariant();
     }
 
-    return humanizeColumnNames ? humanize(columnIndexes.key(section+1)) : columnIndexes.key(section+1);
+    return humanizeColumnNames ? humanize(columnMetadata->columnIndexes.key(section+1)) : columnMetadata->columnIndexes.key(section+1);
 }
 
+/*
 void ResultsetTableModel::setFetchSize(int fetchSize)
 {
     this->fetchSize=(fetchSize<DB_PREFETCH_SIZE ? DB_PREFETCH_SIZE : fetchSize);
-}
+}*/
 
 QList<QStringList> ResultsetTableModel::getModelData() const
 {
@@ -257,6 +258,11 @@ QList<QStringList> ResultsetTableModel::getModelData() const
 Resultset *ResultsetTableModel::getResultset() const
 {
     return this->rs;
+}
+
+QSharedPointer<ResultsetColumnMetadata> ResultsetTableModel::getColumnMetadata() const
+{
+    return this->columnMetadata;
 }
 
 bool ResultsetTableModel::isAllDataFetched() const

@@ -6,23 +6,23 @@ CsvExporter::CsvExporter()
 
 void CsvExporter::exportColumnHeaders(const QStringList &headers, int from, int to, QTextStream &out)
 {
-    for(int i=from; i<=to; ++i){
-        out << headers.at(i);
-
-        if(i==to){
-            out << this->lineEnding;
-        }else{
-            out << this->columnDelimiter;
-        }
-    }
+    exportStringList(headers, from, to, out);
 }
 
 void CsvExporter::exportRow(const QStringList &oneRow, QTextStream &out)
 {
-    for(int i=0; i<oneRow.size(); ++i){
-        out << oneRow.at(i);
+    exportStringList(oneRow, 0, oneRow.size()-1, out);
+}
 
-        if(i==oneRow.size()-1){
+void CsvExporter::exportStringList(const QStringList &list, int from, int to, QTextStream &out)
+{
+    for(int i=from; i<=to; ++i){
+        out << list.at(i);
+
+        if(i==to){
+            if(this->delimiterAfterLastColumn){
+                out << this->columnDelimiter;
+            }
             out << this->lineEnding;
         }else{
             out << this->columnDelimiter;

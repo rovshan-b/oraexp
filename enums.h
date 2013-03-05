@@ -75,6 +75,23 @@ namespace OraExp
         ObjectGrants,
         UserGrants
     };
+
+    enum ColumnDataType {
+        CDTNumeric,
+        CDTDateTime,
+        CDTText,
+        CDTLong,
+        CDTCursor,
+        CDTLob,
+        CDTFile,
+        CDTTimestamp,
+        CDTInterval,
+        CDTRaw,
+        CDTObject,
+        CDTCollection,
+        CDTRef,
+        CDTUnknown
+    };
 }
 
 #endif // ENUMS_H

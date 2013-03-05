@@ -93,12 +93,24 @@ void WidgetHelper::setComboBoxText(QComboBox *comboBox, const QString &value){
 
 QString WidgetHelper::getComboBoxUserDataOrText(QComboBox *comboBox)
 {
+    QString result;
     int currentIx = comboBox->currentIndex();
     if(currentIx!=-1){
-        return comboBox->itemData(currentIx).toString();
+        if(comboBox->isEditable()){
+            result = comboBox->lineEdit()->text();
+            int foundIx = comboBox->findText(result);
+            if(foundIx!=-1){
+                result = comboBox->itemData(foundIx).toString();
+            }
+        }else{
+            result = comboBox->itemData(currentIx).toString();
+        }
+
     }else{
-        return comboBox->currentText();
+        result = comboBox->currentText();
     }
+
+    return result;
 }
 
 void WidgetHelper::popOutTab(QTabWidget *tabWidget, int tabIndex)
@@ -571,6 +583,10 @@ void WidgetHelper::fillAvailableTextCodecNames(QComboBox *comboBox, const QStrin
         comboBox->addItem(codec);
     }
 
+    QStandardItemModel *model=qobject_cast<QStandardItemModel*>(comboBox->model());
+    if(model){
+        model->sort(0);
+    }
     comboBox->setCurrentIndex(comboBox->findText(preselect));
 }
 

@@ -5,6 +5,7 @@
 #include "delegates/autoappenddelegate.h"
 #include "util/widgethelper.h"
 #include "util/dialoghelper.h"
+#include "util/strutil.h"
 #include "exporters/csvexporter.h"
 #include <QtGui>
 
@@ -44,6 +45,7 @@ DataExportOptionsWidget::DataExportOptionsWidget(QWidget *parent) :
 
     populateExportFormats();
 
+    connect(formatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(correctFileSuffix()));
     connect(filenameEditor, SIGNAL(buttonClicked(LineEditWithButton*)), this, SLOT(selectSaveFilename()));
     connect(includeColumnHeadersCheckbox, SIGNAL(stateChanged(int)), this, SLOT(enableControls()));
 
@@ -73,6 +75,33 @@ void DataExportOptionsWidget::enableControls()
 {
     quoteColumnHeadersCheckbox->setEnabled(includeColumnHeadersCheckbox->isChecked() &&
                                            includeColumnHeadersCheckbox->isEnabled());
+}
+
+void DataExportOptionsWidget::correctFileSuffix()
+{
+    QString filename=filenameEditor->lineEdit()->text().trimmed();
+
+    if(filename.isEmpty()){
+        return;
+    }
+
+    QFileInfo fileInfo(filename);
+
+    QString currentSuffix = fileInfo.suffix();
+    if(currentSuffix.isEmpty()){
+        return;
+    }
+    QString newSuffix=formatComboBox->itemData(formatComboBox->currentIndex()).toString();
+    Q_ASSERT(newSuffix.size());
+
+    if(currentSuffix.compare(newSuffix)==0){
+        return;
+    }
+
+    filename.chop(currentSuffix.size());
+    filename.append(newSuffix);
+
+    filenameEditor->lineEdit()->setText(filename);
 }
 
 void DataExportOptionsWidget::createOptionsTab()
@@ -132,6 +161,7 @@ void DataExportOptionsWidget::createGeneralOptionsPane(QBoxLayout *layout)
     grid->addWidget(includeNullTextCheckbox, 1, 0);
 
     includeColumnHeadersCheckbox = new QCheckBox(tr("Include column headers"));
+    includeColumnHeadersCheckbox->setChecked(true);
     grid->addWidget(includeColumnHeadersCheckbox, 2, 0);
 
     quoteColumnHeadersCheckbox = new QCheckBox(tr("Quote column headers"));
@@ -184,6 +214,7 @@ void DataExportOptionsWidget::createDelimiterOptionsPane(QBoxLayout *layout)
 void DataExportOptionsWidget::populateExportFormats()
 {
     formatComboBox->addItem(tr("CSV"), "csv");
+    formatComboBox->addItem(tr("Excel"), "xlsx");
     //formatWidgetsTab->addWidget(new CsvExportOptionsWidget());
 }
 
@@ -202,6 +233,7 @@ void DataExportOptionsWidget::populateLineEndingOptions(QComboBox *comboBox)
 #else
     QString platformLineEnding = "\n";
 #endif
+
     comboBox->addItem(tr("Platform default"), platformLineEnding);
     comboBox->addItem(tr("Unix style"), "\n");
     comboBox->addItem(tr("Windows style"), "\r\n");
@@ -250,6 +282,7 @@ DataExporterBase *DataExportOptionsWidget::createExporter() const
     exporter->endRow = onlySelectedRows ? this->selectionEndRow : -1;
     exporter->endColumn = onlySelectedRows ? this->selectionEndColumn : -1;
 
+    exporter->includeNullText = includeNullTextCheckbox->isChecked();
     exporter->includeColumnHeaders = includeColumnHeadersCheckbox->isChecked();
     exporter->quoteColumnHeaders = quoteColumnHeadersCheckbox->isChecked();
     exporter->stringQuoting = WidgetHelper::getComboBoxUserDataOrText(stringQuotingComboBox);
@@ -262,6 +295,13 @@ DataExporterBase *DataExportOptionsWidget::createExporter() const
     for(int i=0; i<model->rowCount(); ++i){
         QString from = model->index(i, 0).data().toString();
         QString to = model->index(i, 1).data().toString();
+
+        if(!from.isEmpty()){
+            replaceGuiEscapeCharactersWithReal(from);
+        }
+        if(!to.isEmpty()){
+            replaceGuiEscapeCharactersWithReal(to);
+        }
 
         if(!from.isEmpty()){
             exporter->stringReplacements.append(new QPair<QString,QString>(from, to));

@@ -52,8 +52,7 @@ void WorksheetResultsetTab::showQueryResults(IQueryScheduler *, const QueryResul
 
 void WorksheetResultsetTab::displayResultset(IQueryScheduler *queryScheduler, Resultset *rs)
 {
-    progressBarAction->setVisible(true);
-    dataExportAction->setEnabled(false);
+    setInProgress(true);
     resultsTable->setResultset(queryScheduler, rs, QHash<int,StatementDesc*>());
 
     this->queryScheduler = queryScheduler;
@@ -61,9 +60,7 @@ void WorksheetResultsetTab::displayResultset(IQueryScheduler *queryScheduler, Re
 
 void WorksheetResultsetTab::firstFetchCompleted()
 {
-    progressBarAction->setVisible(false);
-
-    dataExportAction->setEnabled(true);
+    setInProgress(false);
 }
 
 void WorksheetResultsetTab::exportData()
@@ -92,9 +89,9 @@ void WorksheetResultsetTab::startExport(DataExporterBase *exporter)
     bool fetchToEnd=false;
     if(!tableModel->isAllDataFetched() && exporter->startRow==-1){
         QMessageBox::StandardButton result = QMessageBox::question(this->window(), tr("Not all records fetched"),
-                              tr("Please, note that not all available records are currently fetched.\n"
-                                 "If you want to export the rest of available records as well press Yes.\n"
-                                 "If you want to export only records currently in grid press No."),
+                              tr("Not all records are fetched.\n"
+                                 "Press Yes to fetch and export all records.\n"
+                                 "Press No to export only fetched records."),
                               QMessageBox::Yes | QMessageBox::No,
                               QMessageBox::Yes);
         if(result == QMessageBox::Yes){
@@ -103,12 +100,8 @@ void WorksheetResultsetTab::startExport(DataExporterBase *exporter)
         }
     }
 
-    QStringList columnTitles;
-    for(int i=0; i<tableModel->columnCount(); ++i){
-        columnTitles.append(tableModel->headerData(i, Qt::Horizontal).toString());
-    }
-
-    DataExporterThread *thread = new DataExporterThread(exporter, columnTitles,
+    DataExporterThread *thread = new DataExporterThread(exporter,
+                                                        tableModel->getColumnMetadata(),
                                                         tableModel->getModelData(),
                                                         tableModel->getResultset(),
                                                         fetchToEnd, this);
@@ -117,8 +110,7 @@ void WorksheetResultsetTab::startExport(DataExporterBase *exporter)
     connect(thread, SIGNAL(exportError(QString)), this, SLOT(exportError(QString)));
 
     this->queryScheduler->increaseRefCount();
-    progressBarAction->setVisible(true);
-    dataExportAction->setEnabled(false);
+    setInProgress(true);
     tableModel->setFetchInProgress(true);
 
     thread->start();
@@ -132,8 +124,7 @@ void WorksheetResultsetTab::recordsExported(int count)
 void WorksheetResultsetTab::exportComplete()
 {
     this->queryScheduler->decreaseRefCount();
-    progressBarAction->setVisible(false);
-    dataExportAction->setEnabled(true);
+    setInProgress(false);
 
     ResultsetTableModel *tableModel = qobject_cast<ResultsetTableModel*>(resultsTable->model());
     Q_ASSERT(tableModel);
@@ -146,4 +137,10 @@ void WorksheetResultsetTab::exportError(const QString &errorMessage)
 
     QMessageBox::critical(this->window(), tr("Error exporting data"),
                           tr("Following error occured while exporting data:\n%1").arg(errorMessage));
+}
+
+void WorksheetResultsetTab::setInProgress(bool inProgress)
+{
+    progressBarAction->setVisible(inProgress);
+    dataExportAction->setEnabled(!inProgress);
 }

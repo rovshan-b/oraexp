@@ -37,7 +37,7 @@ void DataTable::setResultset(IQueryScheduler *queryScheduler,
                     new ResultsetTableModel(queryScheduler, rs, this, dynamicQueries, iconColumns, humanizeColumnNames);
         connect(newModel, SIGNAL(firstFetchCompleted()), this, SLOT(handleFirstFetchCompleted()));
 
-        newModel->setFetchSize(getVisibleRecordCount()+10);
+        //newModel->setFetchSize(getVisibleRecordCount()+10);
         setModel(newModel);
 
         //resizeColumnsToContents();
@@ -56,10 +56,11 @@ void DataTable::handleFirstFetchCompleted()
 {
     resizeColumnsToFitContents();
 
+    /*
     ResultsetTableModel *currModel = qobject_cast<ResultsetTableModel*>(this->model());
     if(currModel){
         currModel->setFetchSize(DB_PREFETCH_SIZE);
-    }
+    }*/
 
     emit firstFetchCompleted();
 }
@@ -269,9 +270,15 @@ void DataTable::getSelectedRange(int *startRow, int *startColumn, int *endRow, i
 {
     if(this->selectionModel()==0 || !this->selectionModel()->hasSelection()){
         *startRow = -1;
-        *startColumn = -1;
         *endRow = -1;
-        *endColumn = -1;
+
+        if(startColumn!=0){
+            *startColumn = -1;
+        }
+        if(endColumn!=0){
+            *endColumn = -1;
+        }
+
         return;
     }
 
@@ -281,9 +288,14 @@ void DataTable::getSelectedRange(int *startRow, int *startColumn, int *endRow, i
     const QModelIndex &to = indexes.at(indexes.size()-1);
 
     *startRow = from.row();
-    *startColumn = from.column();
     *endRow = to.row();
-    *endColumn = to.column();
+
+    if(startColumn!=0){
+        *startColumn = from.column();
+    }
+    if(endColumn!=0){
+        *endColumn = to.column();
+    }
 }
 
 void DataTable::keyPressEvent(QKeyEvent *event)

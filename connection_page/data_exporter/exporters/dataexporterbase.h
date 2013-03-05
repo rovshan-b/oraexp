@@ -6,6 +6,8 @@
 #include <QTextStream>
 #include <QPair>
 
+class ResultsetColumnMetadata;
+
 class DataExporterBase
 {
 public:
@@ -21,6 +23,7 @@ public:
     int endRow;
     int endColumn;
 
+    bool includeNullText;
     bool includeColumnHeaders;
     bool quoteColumnHeaders;
 
@@ -32,6 +35,9 @@ public:
     bool delimiterAfterLastColumn;
 
     QList< QPair<QString,QString>* > stringReplacements;
+
+    void prepareColumnHeaders(QStringList &headers);
+    void prepareRow(QStringList &row, ResultsetColumnMetadata *columnMetadata);
 
     virtual void startDocument(){}
     virtual void exportColumnHeaders(const QStringList &headers, int from, int to, QTextStream &out);

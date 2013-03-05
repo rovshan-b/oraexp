@@ -18,6 +18,6 @@ typedef QPair<QString,QString> StringPair;
 
 #define PLACEHOLDER_DEFAULT QObject::tr("default")
 
-#define DB_PREFETCH_SIZE 20
+#define DB_PREFETCH_SIZE 50
 
 #endif // DEFINES_H

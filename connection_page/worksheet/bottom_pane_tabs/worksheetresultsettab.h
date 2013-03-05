@@ -39,6 +39,8 @@ private:
 
     DataExportDialog *exportDialog;
 
+    void setInProgress(bool inProgress);
+
 };
 
 #endif // WORKSHEETRESULTSETTAB_H

@@ -255,3 +255,10 @@ QString addNumericSuffix(const QString &str, const QStringList &excludeList)
 
     return result;
 }
+
+void replaceGuiEscapeCharactersWithReal(QString &str)
+{
+    str.replace("\\n", "\n").replace("\\\n", "\\n").
+        replace("\\r", "\r").replace("\\\r", "\\r").
+        replace("\\t", "\t").replace("\\\t", "\\t");
+}

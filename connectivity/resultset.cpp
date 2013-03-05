@@ -4,8 +4,6 @@
 #include <iostream>
 #include "util/strutil.h"
 #include "util/dbutil.h"
-#include <stdexcept>
-#include <sstream>
 #include <QThread>
 #include <QDebug>
 
@@ -16,9 +14,13 @@ QAtomicInt Resultset::objectCount;
 #endif
 
 Resultset::Resultset(OCI_Resultset *ociResultset, Connection *cn, Statement *stmt) :
-    cn(cn), stmt(stmt), reachedEOF(false), acquiredMutex(false)
+    cn(cn), stmt(stmt),
+    columnMetadata(new ResultsetColumnMetadata()),
+    reachedEOF(false), acquiredMutex(false)
 {
     this->ociResultset=ociResultset;
+
+    ResultsetColumnMetadata *metadata=columnMetadata.data();
 
     unsigned int colCount = OCI_GetColumnCount(ociResultset);
     OCI_Column *column;
@@ -26,14 +28,15 @@ Resultset::Resultset(OCI_Resultset *ociResultset, Connection *cn, Statement *stm
     for(unsigned int i=1; i<=colCount; ++i){
         column=OCI_GetColumn(ociResultset, i);
         columnName=toQString(OCI_GetColumnName(column));
-        if(columnIndexes.contains(columnName)){
-            columnName = addNumericSuffix(columnName, columnIndexes.keys());
+        if(metadata->columnIndexes.contains(columnName)){
+            columnName = addNumericSuffix(columnName, metadata->columnIndexes.keys());
         }
-        columnIndexes.insert(columnName, i);
-        columnDataTypes.insert(i, OCI_GetColumnType(column));
+
+        metadata->columnIndexes.insert(columnName, i);
+        metadata->columnDataTypes.insert(i, convertColumnDataType(OCI_GetColumnType(column)));
 
         if(OCI_ColumnGetCharsetForm(column)!=OCI_CSF_NONE){
-            textColIndexes.append(i);
+            metadata->textColIndexes.append(i);
         }
     }
 
@@ -112,6 +115,58 @@ void Resultset::checkForError()
     }
 }
 
+OraExp::ColumnDataType Resultset::convertColumnDataType(unsigned int ociDataType) const
+{
+    OraExp::ColumnDataType result;
+
+    switch(ociDataType){
+    case OCI_CDT_NUMERIC:
+        result = OraExp::CDTNumeric;
+        break;
+    case OCI_CDT_DATETIME:
+        result = OraExp::CDTDateTime;
+        break;
+    case OCI_CDT_TEXT:
+        result = OraExp::CDTText;
+        break;
+    case OCI_CDT_LONG:
+        result = OraExp::CDTLong;
+        break;
+    case OCI_CDT_CURSOR:
+        result = OraExp::CDTCursor;
+        break;
+    case OCI_CDT_LOB:
+        result = OraExp::CDTLob;
+        break;
+    case OCI_CDT_FILE:
+        result = OraExp::CDTFile;
+        break;
+    case OCI_CDT_TIMESTAMP:
+        result = OraExp::CDTTimestamp;
+        break;
+    case OCI_CDT_INTERVAL:
+        result = OraExp::CDTInterval;
+        break;
+    case OCI_CDT_RAW:
+        result = OraExp::CDTRaw;
+        break;
+    case OCI_CDT_OBJECT:
+        result = OraExp::CDTObject;
+        break;
+    case OCI_CDT_COLLECTION:
+        result = OraExp::CDTCollection;
+        break;
+    case OCI_CDT_REF:
+        result = OraExp::CDTRef;
+        break;
+    default:
+        result = OraExp::CDTUnknown;
+        break;
+    }
+
+    return result;
+}
+
 void Resultset::endFetchRows()
 {
     Q_ASSERT(acquiredMutex);
@@ -122,7 +177,7 @@ void Resultset::endFetchRows()
 
 int Resultset::getColumnCount() const
 {
-    return columnIndexes.size();
+    return columnMetadata->getColumnCount();
 }
 
 bool Resultset::isEOF() const
@@ -132,16 +187,12 @@ bool Resultset::isEOF() const
 
 unsigned int Resultset::getColumnIndexByName(const QString &colName) const
 {
-    if(columnIndexes.contains(colName)){
-        return columnIndexes.value(colName);
-    }else{
-        throw logic_error(QObject::tr("Column does not exist in resultset - %1").arg(colName).toStdString());
-    }
+    return columnMetadata->getColumnIndexByName(colName);
 }
 
 QHash<QString, unsigned int> Resultset::getColumnIndexes() const
 {
-    return columnIndexes;
+    return columnMetadata->columnIndexes;
 }
 
 QString Resultset::getString(unsigned int colIx) const
@@ -175,7 +226,7 @@ QString Resultset::getNumberAsString(unsigned int colIx) const
 
 QString Resultset::getAsString(unsigned int colIx) const
 {
-    if(!columnDataTypes.contains(colIx)){
+    if(!columnMetadata->columnDataTypes.contains(colIx)){
         return "column not found";
     }
 
@@ -183,21 +234,21 @@ QString Resultset::getAsString(unsigned int colIx) const
         return "";
     }
 
-    unsigned int dataType = columnDataTypes.value(colIx);
+    unsigned int dataType = columnMetadata->columnDataTypes.value(colIx);
 
     QString result;
 
-    if(dataType==OCI_CDT_CURSOR){
+    if(dataType==OraExp::CDTCursor){
         result=QObject::tr("Cursor");
-    }else if(dataType==OCI_CDT_OBJECT){
+    }else if(dataType==OraExp::CDTObject){
         result=QObject::tr("Object");
-    }else if(dataType==OCI_CDT_COLLECTION){
+    }else if(dataType==OraExp::CDTCollection){
         result=QObject::tr("Collection");
-    }else if(dataType==OCI_CDT_LOB && !isTextColumn(colIx)){
+    }else if(dataType==OraExp::CDTLob && !isTextColumn(colIx)){
         result=QObject::tr("BLOB");
-    }else if(dataType==OCI_CDT_LONG && !isTextColumn(colIx)){
+    }else if(dataType==OraExp::CDTLong && !isTextColumn(colIx)){
         result=QObject::tr("LONG RAW");
-    }else if(dataType==OCI_CDT_FILE && !isTextColumn(colIx)){
+    }else if(dataType==OraExp::CDTFile && !isTextColumn(colIx)){
         result=QObject::tr("FILE");
     }else{
         result=toQString(OCI_GetString(ociResultset, colIx));
@@ -242,7 +293,7 @@ OCI_Interval *Resultset::getInterval(unsigned int colIx) const
 
 bool Resultset::isTextColumn(unsigned int colIx) const
 {
-    return textColIndexes.contains(colIx);
+    return columnMetadata->isTextColumn(colIx);
 }
 
 bool Resultset::isScrollable() const
@@ -255,4 +306,9 @@ void Resultset::printObjectCount()
 #ifdef DEBUG
     qDebug() << "Total number of resultsets:" << (int)Resultset::objectCount;
 #endif
+}
+
+QSharedPointer<ResultsetColumnMetadata> Resultset::getColumnMetadata() const
+{
+    return this->columnMetadata;
 }

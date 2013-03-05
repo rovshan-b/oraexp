@@ -3,14 +3,14 @@
 #include "connectivity/resultset.h"
 #include "exporters/dataexporterbase.h"
 #include <QFile>
+#include <QTextCodec>
 
 DataExporterThread::DataExporterThread(DataExporterBase *exporter,
-                                       const QStringList &columnTitles,
-                                       QList<QStringList> alreadyFetchedData,
-                                       Resultset *rs, bool fetchToEnd, QObject *parent) :
+                                       QSharedPointer<ResultsetColumnMetadata> columnMetadata,
+                                       QList<QStringList> alreadyFetchedData, Resultset *rs, bool fetchToEnd, QObject *parent) :
     QThread(parent),
     exporter(exporter),
-    columnTitles(columnTitles),
+    columnMetadata(columnMetadata),
     alreadyFetchedData(alreadyFetchedData),
     rs(rs),
     fetchToEnd(fetchToEnd)
@@ -32,6 +32,11 @@ void DataExporterThread::run()
     }
 
     QTextStream out(&file);
+    out.setCodec(exporter->encoding.toStdString().c_str());
+    if(exporter->encoding.startsWith("UTF")){
+        out.setGenerateByteOrderMark(exporter->bom);
+    }
+
 
     try{
         exportToStream(out);
@@ -57,10 +62,14 @@ void DataExporterThread::exportToStream(QTextStream &out)
         startRow = 0;
         startColumn = 0;
         endRow = -1;
-        endColumn = columnTitles.size()-1;
+        endColumn = columnMetadata->getColumnCount()-1;
     }
 
-    exporter->exportColumnHeaders(columnTitles, startColumn, endColumn, out);
+    if(exporter->includeColumnHeaders){
+        QStringList columnTitles = columnMetadata->columnIndexes.keys();
+        exporter->prepareColumnHeaders(columnTitles);
+        exporter->exportColumnHeaders(columnTitles, startColumn, endColumn, out);
+    }
 
     if(rs==0 && alreadyFetchedData.size()==0){
         return;
@@ -81,6 +90,7 @@ void DataExporterThread::exportToStream(QTextStream &out)
         }
 
         ++exportedCount;
+        exporter->prepareRow(oneRow, columnMetadata.data());
         exporter->exportRow(oneRow, out);
 
         if(exportedCount%50==0){
@@ -96,6 +106,7 @@ void DataExporterThread::exportToStream(QTextStream &out)
             }
 
             ++exportedCount;
+            exporter->prepareRow(oneRow, columnMetadata.data());
             exporter->exportRow(oneRow, out);
             if(exportedCount%50==0){
                 emit recordsExported(exportedCount);

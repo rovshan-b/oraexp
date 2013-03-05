@@ -62,13 +62,29 @@ DbConnection *DialogHelper::getConnection(QWidget *dialogParent)
 
 QString DialogHelper::showFileSaveDialog(QWidget *parent, const QString &defaultSuffix, const QString &title, const QString &filter)
 {
+    QString result = QFileDialog::getSaveFileName(parent->window(),
+                                        title,
+                                        QDesktopServices::storageLocation(QDesktopServices::DesktopLocation),
+                                        filter);
+    if(!result.isEmpty()){
+        QFileInfo info(result);
+        if(info.suffix().isEmpty()){
+            result.append(".").append(defaultSuffix);
+        }
+    }
+
+    return result;
+    /*
     QFileDialog dialog(parent, title, QDesktopServices::storageLocation(QDesktopServices::DesktopLocation), filter);
     dialog.setDefaultSuffix(defaultSuffix);
     dialog.setFileMode(QFileDialog::AnyFile);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setConfirmOverwrite(true);
 
-    dialog.restoreState(Settings::value("saveFileDialogState").toByteArray());
+    QByteArray state = Settings::value("saveFileDialogState").toByteArray();
+    if(!state.isEmpty()){
+        dialog.restoreState(state);
+    }
 
     QString result;
 
@@ -78,5 +94,5 @@ QString DialogHelper::showFileSaveDialog(QWidget *parent, const QString &default
         Settings::setValue("saveFileDialogState", dialog.saveState());
     }
 
-    return result;
+    return result;*/
 }

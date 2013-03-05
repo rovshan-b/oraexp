@@ -28,6 +28,7 @@ public:
 private slots:
     void selectSaveFilename();
     void enableControls();
+    void correctFileSuffix();
     
 private:
     enum ExportFormat{

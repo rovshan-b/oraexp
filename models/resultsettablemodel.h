@@ -3,11 +3,14 @@
 
 #include <QAbstractTableModel>
 #include "connectivity/ociexception.h"
+#include <QSharedPointer>
+
 
 class IQueryScheduler;
 class Resultset;
 class RecordFetcherThread;
 class StatementDesc;
+class ResultsetColumnMetadata;
 
 class ResultsetTableModel : public QAbstractTableModel
 {
@@ -28,10 +31,11 @@ public:
     virtual QVariant data ( const QModelIndex & index, int role = Qt::DisplayRole ) const;
     virtual QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
 
-    void setFetchSize(int fetchSize);
+    //void setFetchSize(int fetchSize);
 
     QList< QStringList > getModelData() const;
     Resultset *getResultset() const;
+    QSharedPointer<ResultsetColumnMetadata> getColumnMetadata() const;
     bool isAllDataFetched() const;
     void setAllDataFetched();
     void setFetchInProgress(bool inProgress);
@@ -57,7 +61,8 @@ protected:
 
     int rsColumnCount;
     bool allDataFetched;
-    QHash<QString, unsigned int> columnIndexes;
+    QSharedPointer<ResultsetColumnMetadata> columnMetadata;
+
 
     RecordFetcherThread *fetcherThread;
 
@@ -77,7 +82,7 @@ private:
 
     bool firstFetchDone;
 
-    int fetchSize;
+    //int fetchSize;
 
     void deleteResultset();
 
