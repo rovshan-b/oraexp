@@ -11,7 +11,8 @@ public:
     {
         StringOrNumber,
         Date,
-        Cursor
+        Cursor,
+        ReturningInto
     };
 
     BindParamInfo();

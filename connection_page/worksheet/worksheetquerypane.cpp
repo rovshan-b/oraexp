@@ -247,12 +247,15 @@ void WorksheetQueryPane::saveBindParams(const QList<Param *> &params)
         case Param::Stmt:
             paramType=BindParamInfo::Cursor;
             break;
+        case Param::ReturningInto:
+            paramType=BindParamInfo::ReturningInto;
+            break;
         default:
             break;
         }
         paramInfo->paramType=paramType;
         paramInfo->paramDirection=p->getParamDirection();
-        if(paramType!=BindParamInfo::Cursor){
+        if(paramType!=BindParamInfo::Cursor && paramType!=BindParamInfo::ReturningInto){
             QString value = p->toString();
             int valueIx = paramInfo->paramValueHistory.indexOf(value);
             if(valueIx==-1){

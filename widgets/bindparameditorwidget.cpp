@@ -17,6 +17,7 @@ BindParamEditorWidget::BindParamEditorWidget(QWidget *parent) :
     paramTypeCombo->addItem(tr("String/Number"));
     paramTypeCombo->addItem(tr("Date"));
     paramTypeCombo->addItem(tr("Cursor"));
+    paramTypeCombo->addItem(tr("Returning into"));
     mainLayout->addWidget(paramTypeCombo);
 
     valueEditor=new QComboBox();
@@ -93,6 +94,9 @@ Param *BindParamEditorWidget::createParam(const QString &paramName)
 
     qDebug() << value;
     switch(paramType){
+    case BindParamInfo::ReturningInto:
+        result = new Param(paramName, Param::ReturningInto);
+        break;
     case BindParamInfo::Cursor:
         result = new Param(paramName);
         break;
@@ -116,7 +120,7 @@ Param *BindParamEditorWidget::createParam(const QString &paramName)
 
 void BindParamEditorWidget::paramTypeChanged(int newType)
 {
-    if(newType==BindParamInfo::Cursor){
+    if(newType==BindParamInfo::Cursor || newType==BindParamInfo::ReturningInto){
         valueEditor->setEnabled(false);
         paramDirectionCombo->setEnabled(false);
         //paramDirectionCombo->setCurrentIndex(Param::Out);

@@ -35,51 +35,78 @@ void Param::cleanup()
     }
 }
 
-Param::Param(const QString &paramName, const QString &paramValue, ParamDirection direction) : paramName(paramName), direction(direction)
+
+Param::Param(const QString &paramName, const QString &paramValue, ParamDirection direction)
 {
-    type=String;
-
-    data=toOciString(paramValue);
-
-    ref();
+    QString copy = paramValue;
+    initParam(paramName, String, direction, &copy);
 }
 
-Param::Param(const QString &paramName, int paramValue, ParamDirection direction) : paramName(paramName), direction(direction)
+Param::Param(const QString &paramName, int paramValue, ParamDirection direction)
 {
-    type=Integer;
-    data=new int(paramValue);
-
-    ref();
+    initParam(paramName, Integer, direction, &paramValue);
 }
 
-Param::Param(const QString &paramName, double paramValue, Param::ParamDirection direction) : paramName(paramName), direction(direction)
+Param::Param(const QString &paramName, double paramValue, Param::ParamDirection direction)
 {
-    type=Double;
-    data=new double(paramValue);
-
-    ref();
+    initParam(paramName, Double, direction, &paramValue);
 }
 
-Param::Param(const QString &paramName, bool paramValue, ParamDirection direction) : paramName(paramName), direction(direction)
+Param::Param(const QString &paramName, bool paramValue, ParamDirection direction)
 {
-    type=Integer;
-    data=new int(paramValue==0 ? false : true);
-
-    ref();
+    int intValue = paramValue ? 1 : 0;
+    initParam(paramName, Integer, direction, &intValue);
 }
 
 Param::Param(const QString &paramName, const DateTime &paramValue, Param::ParamDirection direction) : paramName(paramName), direction(direction)
 {
-    type=Datetime;
-    data=new DateTime(paramValue);
-
-    ref();
+    DateTime copy = paramValue;
+    initParam(paramName, Datetime, direction, &copy);
 }
 
-Param::Param(const QString &paramName) : paramName(paramName), direction(InOut)
+Param::Param(const QString &paramName) : paramName(paramName), direction(Out)
 {
-    type=Stmt;
-    data=new Statement();
+    initParam(paramName, Stmt, direction, 0);
+}
+
+Param::Param(const QString &paramName, Param::ParamType paramType, void *paramValue, ParamDirection direction)
+{
+    initParam(paramName, paramType, direction, paramValue);
+}
+
+void Param::initParam(const QString &paramName,
+                      Param::ParamType paramType,
+                      Param::ParamDirection direction,
+                      void *paramValue)
+{
+    this->paramName=paramName;
+    this->type=paramType;
+    this->direction=direction;
+
+    switch(paramType){
+    case String:
+        data=toOciString(*((QString*)paramValue));
+        break;
+    case Integer:
+        data=new int(*((int*)paramValue));
+        break;
+    case Double:
+        data=new double(*((double*)paramValue));
+        break;
+    case Datetime:
+        data=new DateTime(*((DateTime*)paramValue));
+        break;
+    case Stmt:
+        data=new Statement();
+        break;
+    case ReturningInto:
+        data=0;
+        break;
+    default:
+        data = 0;
+        Q_ASSERT(false);
+        break;
+    }
 
     ref();
 }
@@ -165,6 +192,9 @@ QString Param::toString() const
         break;
     case Stmt:
         result = QObject::tr("Cursor");
+        break;
+    case ReturningInto:
+        result = QObject::tr("Returning into");
         break;
     default:
         Q_ASSERT(false);

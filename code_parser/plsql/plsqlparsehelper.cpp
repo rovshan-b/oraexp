@@ -14,16 +14,19 @@ QStringList PlSqlParseHelper::getBindParams(const QString &query, QList<BindPara
 
     int token = PLS_E_O_F;
     bool waitingForName=false;
-    bool isCursor=false;
-    int openKeywordIx=PlSqlParsingTable::getInstance()->getKeywordIx("OPEN");
+    bool metReturningIntoParam=false;
+    bool isDmlStatement = isDml(query);
+    QStringList lastLexemes;
+    lastLexemes.reserve(3);
 
     do{
         token = scanner->getNextToken();
+        lastLexemes.append(scanner->getTokenLexeme());
+        if(lastLexemes.size()>4){
+            lastLexemes.removeAt(0);
+        }
 
-        if(token==openKeywordIx){
-            isCursor=true;
-            waitingForName=false;
-        }else if(token==PLS_COLON){ //waiting for bind variable name
+        if(token==PLS_COLON){ //waiting for bind variable name
             waitingForName=true;
         }else if(waitingForName && (token==PLS_ID || token==PLS_DOUBLEQUOTED_STRING)){
             waitingForName=false;
@@ -36,11 +39,18 @@ QStringList PlSqlParseHelper::getBindParams(const QString &query, QList<BindPara
                                         Qt::CaseSensitive :
                                         Qt::CaseInsensitive)){
                 results.append(token==PLS_DOUBLEQUOTED_STRING ? paramName : paramName.toUpper());
+            }else{
+                continue;
             }
 
             if(suggestedParamTypes!=0){
-                if(isCursor){
+                if(lastLexemes.size()>=3 && lastLexemes.at(lastLexemes.size()-3).compare("OPEN", Qt::CaseInsensitive)==0){
                     suggestedParamTypes->append(BindParamInfo::Cursor);
+                }else if(metReturningIntoParam || (isDmlStatement &&
+                                                   lastLexemes.size()>=3 &&
+                                                   lastLexemes.at(lastLexemes.size()-3).compare("INTO", Qt::CaseInsensitive)==0)){
+                    suggestedParamTypes->append(BindParamInfo::ReturningInto);
+                    metReturningIntoParam = true;
                 }else {
                     QStringList nameParts=paramName.split('_');
                     if(nameParts.contains("DATE", Qt::CaseInsensitive) ||
@@ -52,10 +62,6 @@ QStringList PlSqlParseHelper::getBindParams(const QString &query, QList<BindPara
                     }
                 }
             }
-            isCursor=false;
-        }else if(waitingForName || isCursor){
-            waitingForName=false;
-            isCursor=false;
         }
 
     }while(token!=PLS_E_O_F && token!=PLS_ERROR);
@@ -81,7 +87,8 @@ bool PlSqlParseHelper::isDml(const QString &query)
             firstTokenLexeme=="UPDATE" ||
             firstTokenLexeme=="INSERT" ||
             firstTokenLexeme=="DELETE" ||
-            firstTokenLexeme=="MERGE"){
+            firstTokenLexeme=="MERGE" ||
+            firstTokenLexeme=="WITH"){
         return true;
     }else{
         return false;

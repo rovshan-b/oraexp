@@ -21,16 +21,18 @@ public:
         Integer,
         Double,
         Datetime,
-        Stmt
+        Stmt,
+        ReturningInto
     };
 
     ~Param();
-    Param(const QString &paramName, const QString &paramValue, ParamDirection direction=InOut);
-    Param(const QString &paramName, int paramValue, ParamDirection direction=InOut);
-    Param(const QString &paramName, double paramValue, ParamDirection direction=InOut);
-    Param(const QString &paramName, bool paramValue, ParamDirection direction=InOut);
-    Param(const QString &paramName, const DateTime &paramValue, ParamDirection direction=InOut);
+    Param(const QString &paramName, const QString &paramValue, ParamDirection direction=In);
+    Param(const QString &paramName, int paramValue, ParamDirection direction=In);
+    Param(const QString &paramName, double paramValue, ParamDirection direction=In);
+    Param(const QString &paramName, bool paramValue, ParamDirection direction=In);
+    Param(const QString &paramName, const DateTime &paramValue, ParamDirection direction=In);
     Param(const QString &paramName);
+    Param(const QString &paramName, ParamType paramType, void *paramValue = 0, ParamDirection direction=In);
 
     QString getParamName() const;
 
@@ -67,6 +69,11 @@ private:
     void cleanup();
 
     bool isNullParam;
+
+    void initParam(const QString &paramName,
+                   Param::ParamType paramType,
+                   Param::ParamDirection direction,
+                   void *paramValue = 0);
 
 #ifdef DEBUG
     static QAtomicInt objectCount;

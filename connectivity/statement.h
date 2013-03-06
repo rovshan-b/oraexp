@@ -100,6 +100,7 @@ private:
     void freeOciQuery();
     void checkForOciError();
     void collectParamResultsets();
+    void setParamDirection(Param *parameter);
 
     dtext *createOciString(const QString &str);
 

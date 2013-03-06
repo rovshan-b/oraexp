@@ -153,12 +153,17 @@ void Statement::bindParam(Param *parameter)
                           paramStmt->ociStatement());
     }
         break;
+    case Param::ReturningInto:
+        OCI_RegisterString(ociStmt, parameter->getParamName().toStdWString().c_str(), 250);
+        break;
     default:
         Q_ASSERT(false);
         break;
     }
 
     DbUtil::checkForOciError(ociStmt);
+
+    setParamDirection(parameter);
 
     if(parameter->isNull()){
         OCI_BindSetNull(OCI_GetBind2(ociStmt, parameter->getParamName().toStdWString().c_str()));
@@ -214,11 +219,11 @@ QueryResult Statement::doExecute()
 
         this->affectedRecordCount=OCI_GetAffectedRows(ociStmt);
 
-    }else if(statementType==OraExp::QueryTypeBegin || statementType==OraExp::QueryTypeDeclare){
+    }//else if(statementType==OraExp::QueryTypeBegin || statementType==OraExp::QueryTypeDeclare){
 
         collectParamResultsets();
 
-    }
+    //}
 
     DbUtil::checkForOciError(ociStmt);
 
@@ -387,6 +392,8 @@ Param *Statement::param(int i) const
 void Statement::collectParamResultsets()
 {   
     Param::ParamType paramType;
+    bool retrievedReturningIntoResultset = false;
+
     for(int i=0; i<params.size(); i++){
         const Param *parameter=params.at(i);
         paramType=parameter->getParamType();
@@ -399,8 +406,37 @@ void Statement::collectParamResultsets()
                 DbUtil::checkForOciError(ociStmt);
             }
             this->resultsets.append(new Resultset(ociResultSet, this->connection, this));
+        }else if(paramType==Param::ReturningInto && !retrievedReturningIntoResultset){
+            OCI_Resultset *rs=OCI_GetResultset(ociStmt);
+            if(rs!=0){ //will be 0 when affected record count is 0
+                this->resultsets.append(new Resultset(rs, this->connection, this));
+                retrievedReturningIntoResultset=true;
+            }
         }
     }
+}
+
+void Statement::setParamDirection(Param *parameter)
+{
+    if(parameter->getParamType()==Param::ReturningInto){
+        return;
+    }
+
+    Param::ParamDirection direction = parameter->getParamDirection();
+    int ociParamDirection;
+    switch(direction){
+    case Param::In:
+        ociParamDirection = OCI_BDM_IN;
+        break;
+    case Param::Out:
+        ociParamDirection = OCI_BDM_OUT;
+        break;
+    default:
+        ociParamDirection = OCI_BDM_IN_OUT;
+    }
+
+    OCI_BindSetDirection(OCI_GetBind2(ociStmt, parameter->getParamName().toStdWString().c_str()),
+                         ociParamDirection);
 }
 
 void Statement::releaseResultsets()
