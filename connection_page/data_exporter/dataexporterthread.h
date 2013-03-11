@@ -15,7 +15,6 @@ class DataExporterThread : public QThread
     Q_OBJECT
 public:
     explicit DataExporterThread(DataExporterBase *exporter,
-                                QSharedPointer<ResultsetColumnMetadata> columnMetadata,
                                 QList<QStringList> alreadyFetchedData,
                                 Resultset *rs,
                                 bool fetchToEnd,
@@ -25,6 +24,8 @@ public:
     
     void run();
 
+    void stop();
+
 signals:
     void recordsExported(int count);
     void exportComplete();
@@ -32,10 +33,10 @@ signals:
 
 private:
     DataExporterBase *exporter;
-    QSharedPointer<ResultsetColumnMetadata> columnMetadata;
     QList<QStringList> alreadyFetchedData;
     Resultset *rs;
     bool fetchToEnd;
+    bool stopped;
 
     void exportToStream(QTextStream &out);
     

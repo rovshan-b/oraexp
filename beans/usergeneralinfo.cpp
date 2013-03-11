@@ -95,7 +95,7 @@ UserGeneralInfo UserGeneralInfo::fromFetchResult(const FetchResult &result)
 
     info.username=result.colValue("USERNAME");
     QString authType;
-    if(result.columnIndexes.contains("AUTHENTICATION_TYPE")){ //11g or later
+    if(result.columnTitles.contains("AUTHENTICATION_TYPE")){ //11g or later
         authType=result.colValue("AUTHENTICATION_TYPE");
     }else{ //earlier release
         authType=result.colValue("PASSWORD");

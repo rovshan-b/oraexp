@@ -132,7 +132,7 @@ TableAdditionalAttributes TableAdditionalAttributes::fromFetchResult(const Fetch
     a.rowDependencies=result.colValue("DEPENDENCIES")=="ENABLED" ? 1 : 2;
     a.rowMovement=result.colValue("ROW_MOVEMENT")=="ENABLED" ? 1 : 2;
 
-    if(result.columnIndexes.contains("FLASHBACK_STATUS")){
+    if(result.columnTitles.contains("FLASHBACK_STATUS")){
         a.flashbackArchive=result.colValue("FLASHBACK_STATUS")=="ENABLED" ? 1 : 2;
         a.flashbackArchiveName=result.colValue("FLASHBACK_ARCHIVE_NAME");
     }

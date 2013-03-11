@@ -25,7 +25,7 @@ TableExternalInfo TableExternalInfo::fromFetchResult(const FetchResult &result)
         }
     }
 
-    if(result.columnIndexes.contains("PROPERTY")){
+    if(result.columnTitles.contains("PROPERTY")){
         QString projectColumnType=result.colValue("PROPERTY");
         if(projectColumnType=="ALL"){
             info.projectColumn=1;

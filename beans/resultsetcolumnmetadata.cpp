@@ -1,4 +1,5 @@
 #include "resultsetcolumnmetadata.h"
+#include <QStringList>
 #include <stdexcept>
 #include <sstream>
 
@@ -8,13 +9,13 @@ ResultsetColumnMetadata::ResultsetColumnMetadata()
 
 int ResultsetColumnMetadata::getColumnCount() const
 {
-    return columnIndexes.size();
+    return columnTitles.size();
 }
 
 unsigned int ResultsetColumnMetadata::getColumnIndexByName(const QString &colName) const
 {
-    if(columnIndexes.contains(colName)){
-        return columnIndexes.value(colName);
+    if(columnTitles.contains(colName)){
+        return columnTitles.indexOf(colName)+1;
     }else{
         throw std::logic_error(QObject::tr("Column does not exist in resultset - %1").arg(colName).toStdString());
     }

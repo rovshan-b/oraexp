@@ -31,7 +31,7 @@ public:
 
     unsigned int getColumnIndexByName(const QString &colName) const;
 
-    QHash<QString, unsigned int> getColumnIndexes() const;
+    QStringList getColumnTitles() const;
 
     bool isNull(unsigned int colIx) const;
 

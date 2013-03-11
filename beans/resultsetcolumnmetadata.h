@@ -2,6 +2,7 @@
 #define RESULTSETCOLUMNMETADATA_H
 
 #include <QHash>
+#include <QStringList>
 #include "enums.h"
 
 class ResultsetColumnMetadata
@@ -9,7 +10,7 @@ class ResultsetColumnMetadata
 public:
     ResultsetColumnMetadata();
 
-    QHash<QString, unsigned int> columnIndexes;
+    QStringList columnTitles;
     QHash<unsigned int, OraExp::ColumnDataType> columnDataTypes;
     QList<unsigned int> textColIndexes;
 

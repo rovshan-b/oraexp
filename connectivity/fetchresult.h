@@ -1,7 +1,7 @@
 #ifndef FETCHRESULT_H
 #define FETCHRESULT_H
 
-#include <QList>
+#include <QStringList>
 #include <QHash>
 #include "ociexception.h"
 
@@ -15,14 +15,14 @@ public:
     QString taskName;
 
     int resultsetIx;
-    QHash<QString, unsigned int> columnIndexes;
+    QStringList columnTitles;
     QList<QString> oneRow;
 
     bool hasError;
     OciException exception;
 
     QString colValue(const QString &columnName) const {
-        int colIx=columnIndexes.value(columnName)-1;
+        int colIx=columnTitles.indexOf(columnName);
         return colIx<0 ? "" : oneRow.at(colIx);
     }
     int colValue(const QString &columnName, int defaultValue) const {

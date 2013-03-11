@@ -32,7 +32,10 @@ private slots:
     
 private:
     enum ExportFormat{
-        CSV
+        CSV,
+        Excel,
+        HTML,
+        XML
     };
 
     QTabWidget *tab;

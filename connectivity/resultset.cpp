@@ -25,14 +25,15 @@ Resultset::Resultset(OCI_Resultset *ociResultset, Connection *cn, Statement *stm
     unsigned int colCount = OCI_GetColumnCount(ociResultset);
     OCI_Column *column;
     QString columnName;
+    metadata->columnTitles.reserve(colCount);
     for(unsigned int i=1; i<=colCount; ++i){
         column=OCI_GetColumn(ociResultset, i);
         columnName=toQString(OCI_GetColumnName(column));
-        if(metadata->columnIndexes.contains(columnName)){
-            columnName = addNumericSuffix(columnName, metadata->columnIndexes.keys());
+        if(metadata->columnTitles.contains(columnName)){
+            columnName = addNumericSuffix(columnName, metadata->columnTitles);
         }
 
-        metadata->columnIndexes.insert(columnName, i);
+        metadata->columnTitles.append(columnName);
         metadata->columnDataTypes.insert(i, convertColumnDataType(OCI_GetColumnType(column)));
 
         if(OCI_ColumnGetCharsetForm(column)!=OCI_CSF_NONE){
@@ -190,9 +191,9 @@ unsigned int Resultset::getColumnIndexByName(const QString &colName) const
     return columnMetadata->getColumnIndexByName(colName);
 }
 
-QHash<QString, unsigned int> Resultset::getColumnIndexes() const
+QStringList Resultset::getColumnTitles() const
 {
-    return columnMetadata->columnIndexes;
+    return columnMetadata->columnTitles;
 }
 
 QString Resultset::getString(unsigned int colIx) const

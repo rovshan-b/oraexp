@@ -133,5 +133,6 @@
         <file>images/autotrace.png</file>
         <file>images/tree.png</file>
         <file>images/export.png</file>
+        <file>images/stop.png</file>
     </qresource>
 </RCC>

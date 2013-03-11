@@ -78,7 +78,7 @@ void QueryRunner::fetchResultset(QueryResult &result, const QueryExecTask &task,
     Resultset *rs=result.statement->rsAt(rsIx);
     FetchResult fetchResult;
     fetchResult.resultsetIx=rsIx;
-    fetchResult.columnIndexes=rs->getColumnIndexes();
+    fetchResult.columnTitles=rs->getColumnTitles();
     fetchResult.taskName=task.taskName;
 
     //const char *fetchSlotName=;

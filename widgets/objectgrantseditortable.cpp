@@ -111,7 +111,7 @@ void ObjectGrantsEditorTable::alterQuerySucceeded(const QString &taskName)
     ItemCreatorHelper::markDataChanges(model, rowIx, originalItemList);
 }
 
-void ObjectGrantsEditorTable::alterQueryError(const QString &taskName)
+void ObjectGrantsEditorTable::alterQueryError(const QString & /*taskName*/)
 {
 }
 

@@ -58,4 +58,8 @@ QString addNumericSuffix(const QString &str, const QStringList &excludeList);
 
 void replaceGuiEscapeCharactersWithReal(QString &str);
 
+QString xmlEncode(const QString& xml);
+
+QString removeEnclosure(const QString &str, const QChar &enclosure = '"');
+
 #endif // STRUTIL_H

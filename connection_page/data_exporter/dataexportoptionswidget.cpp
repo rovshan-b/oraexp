@@ -7,6 +7,9 @@
 #include "util/dialoghelper.h"
 #include "util/strutil.h"
 #include "exporters/csvexporter.h"
+#include "exporters/excelexporter.h"
+#include "exporters/htmlexporter.h"
+#include "exporters/xmlexporter.h"
 #include <QtGui>
 
 DataExportOptionsWidget::DataExportOptionsWidget(QWidget *parent) :
@@ -215,6 +218,8 @@ void DataExportOptionsWidget::populateExportFormats()
 {
     formatComboBox->addItem(tr("CSV"), "csv");
     formatComboBox->addItem(tr("Excel"), "xlsx");
+    formatComboBox->addItem(tr("HTML"), "html");
+    formatComboBox->addItem(tr("XML"), "xml");
     //formatWidgetsTab->addWidget(new CsvExportOptionsWidget());
 }
 
@@ -265,6 +270,15 @@ DataExporterBase *DataExportOptionsWidget::createExporter() const
     switch(format){
     case CSV:
         exporter=new CsvExporter();
+        break;
+    case Excel:
+        exporter=new ExcelExporter();
+        break;
+    case HTML:
+        exporter=new HtmlExporter();
+        break;
+    case XML:
+        exporter=new XmlExporter();
         break;
     default:
         exporter=0;

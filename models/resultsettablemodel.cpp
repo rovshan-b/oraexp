@@ -196,7 +196,7 @@ bool ResultsetTableModel::isValidIndex(const QModelIndex &index, int role) const
         return false;
     }
 
-    if(index.column()>=columnMetadata->columnIndexes.size() || index.column()<0){
+    if(index.column()>=columnMetadata->columnTitles.size() || index.column()<0){
         return false;
     }
 
@@ -237,11 +237,11 @@ QVariant ResultsetTableModel::headerData ( int section, Qt::Orientation orientat
         return section+1;
     }
 
-    if(orientation==Qt::Horizontal && (section>=columnMetadata->columnIndexes.size() || section<0)){
+    if(orientation==Qt::Horizontal && (section>=columnMetadata->columnTitles.size() || section<0)){
         return QVariant();
     }
 
-    return humanizeColumnNames ? humanize(columnMetadata->columnIndexes.key(section+1)) : columnMetadata->columnIndexes.key(section+1);
+    return humanizeColumnNames ? humanize(columnMetadata->columnTitles.at(section)) : columnMetadata->columnTitles.at(section);
 }
 
 /*

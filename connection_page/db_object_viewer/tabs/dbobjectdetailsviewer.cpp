@@ -77,7 +77,7 @@ void DbObjectDetailsViewer::createLabels(const FetchResult &result)
         label = new QLabel(result.oneRow.at(i).trimmed());
         label->setStyleSheet("font-style:italic");
         label->setTextInteractionFlags(Qt::TextSelectableByMouse|Qt::TextSelectableByKeyboard);
-        labelTitle=QString("%1:").arg(humanize(result.columnIndexes.key(i+1)));
+        labelTitle=QString("%1:").arg(humanize(result.columnTitles.at(i)));
         formLayout->addRow(labelTitle, label);
 
         labels.append(label);

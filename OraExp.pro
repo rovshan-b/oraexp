@@ -9,7 +9,7 @@ QT       += core gui
 TARGET = OraExp
 TEMPLATE = app
 
-DEFINES += OCI_IMPORT_LINKAGE OCI_CHARSET_WIDE ORAEXP_USE_VARCHAR_FOR_BULK_TS_AND_INTERVAL
+DEFINES += OCI_IMPORT_LINKAGE OCI_CHARSET_WIDE ORAEXP_USE_VARCHAR_FOR_BULK_TS_AND_INTERVAL QUAZIP_STATIC
 
 CONFIG(debug) {
      DEFINES += DEBUG
@@ -397,7 +397,24 @@ SOURCES += main.cpp\
     connection_page/data_exporter/exporters/dataexporterbase.cpp \
     connection_page/data_exporter/exporters/csvexporter.cpp \
     connection_page/data_exporter/dataexporterthread.cpp \
-    beans/resultsetcolumnmetadata.cpp
+    beans/resultsetcolumnmetadata.cpp \
+    quazip/JlCompress.cpp \
+    quazip/qioapi.cpp \
+    quazip/quaadler32.cpp \
+    quazip/quacrc32.cpp \
+    quazip/quagzipfile.cpp \
+    quazip/quaziodevice.cpp \
+    quazip/quazip.cpp \
+    quazip/quazipdir.cpp \
+    quazip/quazipfile.cpp \
+    quazip/quazipfileinfo.cpp \
+    quazip/quazipnewinfo.cpp \
+    quazip/unzip.c \
+    quazip/zip.c \
+    connection_page/data_exporter/exporters/excelexporter.cpp \
+    util/filesystemutil.cpp \
+    connection_page/data_exporter/exporters/htmlexporter.cpp \
+    connection_page/data_exporter/exporters/xmlexporter.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -796,7 +813,27 @@ HEADERS  += mainwindow.h \
     connection_page/data_exporter/exporters/dataexporterbase.h \
     connection_page/data_exporter/exporters/csvexporter.h \
     connection_page/data_exporter/dataexporterthread.h \
-    beans/resultsetcolumnmetadata.h
+    beans/resultsetcolumnmetadata.h \
+    quazip/crypt.h \
+    quazip/ioapi.h \
+    quazip/JlCompress.h \
+    quazip/quaadler32.h \
+    quazip/quachecksum32.h \
+    quazip/quacrc32.h \
+    quazip/quagzipfile.h \
+    quazip/quaziodevice.h \
+    quazip/quazip.h \
+    quazip/quazipdir.h \
+    quazip/quazipfile.h \
+    quazip/quazipfileinfo.h \
+    quazip/quazip_global.h \
+    quazip/quazipnewinfo.h \
+    quazip/unzip.h \
+    quazip/zip.h \
+    connection_page/data_exporter/exporters/excelexporter.h \
+    util/filesystemutil.h \
+    connection_page/data_exporter/exporters/htmlexporter.h \
+    connection_page/data_exporter/exporters/xmlexporter.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

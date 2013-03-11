@@ -9,7 +9,7 @@ void CsvExporter::exportColumnHeaders(const QStringList &headers, int from, int 
     exportStringList(headers, from, to, out);
 }
 
-void CsvExporter::exportRow(const QStringList &oneRow, QTextStream &out)
+void CsvExporter::exportRow(const QStringList &oneRow, int /*rowIx*/, QTextStream &out)
 {
     exportStringList(oneRow, 0, oneRow.size()-1, out);
 }

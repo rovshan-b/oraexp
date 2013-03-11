@@ -11,11 +11,18 @@
 WorksheetResultsetTab::WorksheetResultsetTab(QWidget *parent) :
     WorksheetBottomPaneTab(parent),
     queryScheduler(0),
+    exporterThread(0),
     exportDialog(0)
 {
     QVBoxLayout *layout=new QVBoxLayout();
 
     createToolbar();
+    statusBarLabel = new QLabel();
+    labelAction = toolbar->addWidget(statusBarLabel);
+    stopProgressButton = toolbar->addAction(IconUtil::getIcon("stop"),
+                                            tr("Stop"),
+                                            this,
+                                            SLOT(stopProgress()));
 
     layout->addWidget(toolbar);
 
@@ -82,6 +89,7 @@ void WorksheetResultsetTab::exportData()
 void WorksheetResultsetTab::startExport(DataExporterBase *exporter)
 {
     Q_ASSERT(queryScheduler);
+    Q_ASSERT(exporterThread==0);
 
     ResultsetTableModel *tableModel = qobject_cast<ResultsetTableModel*>(resultsTable->model());
     Q_ASSERT(tableModel);
@@ -100,31 +108,32 @@ void WorksheetResultsetTab::startExport(DataExporterBase *exporter)
         }
     }
 
-    DataExporterThread *thread = new DataExporterThread(exporter,
-                                                        tableModel->getColumnMetadata(),
+    exporter->columnMetadata = tableModel->getColumnMetadata();
+    exporterThread = new DataExporterThread(exporter,
                                                         tableModel->getModelData(),
                                                         tableModel->getResultset(),
                                                         fetchToEnd, this);
-    connect(thread, SIGNAL(recordsExported(int)), this, SLOT(recordsExported(int)));
-    connect(thread, SIGNAL(exportComplete()), this, SLOT(exportComplete()));
-    connect(thread, SIGNAL(exportError(QString)), this, SLOT(exportError(QString)));
+    connect(exporterThread, SIGNAL(recordsExported(int)), this, SLOT(recordsExported(int)));
+    connect(exporterThread, SIGNAL(exportComplete()), this, SLOT(exportComplete()));
+    connect(exporterThread, SIGNAL(exportError(QString)), this, SLOT(exportError(QString)));
 
     this->queryScheduler->increaseRefCount();
-    setInProgress(true);
+    setInProgress(true, true, true);
     tableModel->setFetchInProgress(true);
 
-    thread->start();
+    exporterThread->start();
 }
 
 void WorksheetResultsetTab::recordsExported(int count)
 {
-    qDebug() << "exported" << count << "rows";
+    statusBarLabel->setText(QString("  %1 records exported").arg(count));
 }
 
 void WorksheetResultsetTab::exportComplete()
 {
     this->queryScheduler->decreaseRefCount();
     setInProgress(false);
+    exporterThread=0;
 
     ResultsetTableModel *tableModel = qobject_cast<ResultsetTableModel*>(resultsTable->model());
     Q_ASSERT(tableModel);
@@ -139,8 +148,27 @@ void WorksheetResultsetTab::exportError(const QString &errorMessage)
                           tr("Following error occured while exporting data:\n%1").arg(errorMessage));
 }
 
-void WorksheetResultsetTab::setInProgress(bool inProgress)
+void WorksheetResultsetTab::stopProgress()
+{
+    Q_ASSERT(exporterThread);
+
+    if(QMessageBox::question(this->window(),
+                             tr("Stop export"),
+                             tr("Do you want to stop exporting data?"),
+                             QMessageBox::Ok | QMessageBox::Cancel)==QMessageBox::Ok){
+
+        if(exporterThread){ //thread may have completed its job by the time user presses OK button
+            exporterThread->stop();
+            stopProgressButton->setVisible(false);
+        }
+    }
+}
+
+void WorksheetResultsetTab::setInProgress(bool inProgress, bool showsStatusMessage, bool cancellable)
 {
     progressBarAction->setVisible(inProgress);
     dataExportAction->setEnabled(!inProgress);
+
+    labelAction->setVisible(inProgress && showsStatusMessage);
+    stopProgressButton->setVisible(inProgress && cancellable);
 }

@@ -128,7 +128,12 @@ int CodeEditor::lineNumberAreaWidth()
 
      QRect cr = contentsRect();
      lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
-     lineNavBar->setGeometry(QRect(cr.right()-lineNavBar->width()+1, cr.top(), lineNavBar->width(), cr.height()));
+
+     QPoint viewportRight = viewport()->mapToParent(viewport()->rect().topRight());
+     QRect navBarRect = QRect(viewportRight.x()+1, viewportRight.y(), lineNavBar->width(), viewport()->height());
+     lineNavBar->setGeometry(navBarRect);
+
+     //lineNavBar->setGeometry(QRect(cr.right()-lineNavBar->width()+1, cr.top(), lineNavBar->width(), cr.height()));
 
      if(lineNavBar->isVisible()!=verticalScrollBar()->isVisible()){
          updateLineNumberAreaWidth(0);
@@ -235,21 +240,33 @@ int CodeEditor::lineNumberAreaWidth()
      qreal docHeight = blockCount() * blockHeight;
      bool hasScrollbars = docHeight > viewport()->height();
 
+     int currentBlockNo = textCursor().blockNumber();
+     bool hasHighlightOnCurrentBlock = false;
+
      for(int i=0; i<foundTextPositions.size(); ++i){
          const QTextCursor &cur=foundTextPositions.at(i);
          Q_ASSERT(!cur.isNull());
          drawLineNavBarHighlight(painter, cur.blockNumber(), EDITOR_SEARCH_BG_COLOR, docHeight, blockHeight, hasScrollbars);
+
+         if(cur.blockNumber()==currentBlockNo && !hasHighlightOnCurrentBlock){
+             hasHighlightOnCurrentBlock=true;
+         }
      }
 
      if(!errorPosition.isNull()){
          drawLineNavBarHighlight(painter, errorPosition.blockNumber(), EDITOR_ERROR_TEXT_COLOR, docHeight, blockHeight, hasScrollbars);
+
+         if(errorPosition.blockNumber()==currentBlockNo && !hasHighlightOnCurrentBlock){
+             hasHighlightOnCurrentBlock=true;
+         }
      }
 
      //highlight current line
      drawLineNavBarHighlight(painter,
-                             textCursor().blockNumber(),
+                             currentBlockNo,
                              EDITOR_CURR_LINE_NAVBAR_COLOR,
-                             docHeight, blockHeight, hasScrollbars);
+                             docHeight, blockHeight, hasScrollbars,
+                             !hasHighlightOnCurrentBlock);
  }
 
  void CodeEditor::drawLineNavBarHighlight(QPainter &painter,
@@ -257,7 +274,8 @@ int CodeEditor::lineNumberAreaWidth()
                                           const QColor &color,
                                           qreal docHeight,
                                           qreal blockHeight,
-                                          bool hasScrollbars)
+                                          bool hasScrollbars,
+                                          bool fullLength)
  {
      qreal highlightTop;
      qreal highlightHeight;
@@ -278,7 +296,9 @@ int CodeEditor::lineNumberAreaWidth()
          }
      }
 
-     painter.fillRect(QRect(1,(int)highlightTop,lineNavBar->width()-1,(int)highlightHeight), color);
+     int xPos = fullLength ? 1 : qCeil(lineNavBar->width()/2);
+     int width = fullLength ? lineNumberArea->width()-1 : qCeil(lineNumberArea->width()-1/2)-1;
+     painter.fillRect(QRect(xPos,(int)highlightTop,width,(int)highlightHeight), color);
  }
 
  void CodeEditor::lineNavBarMouseReleaseEvent(QMouseEvent *event)

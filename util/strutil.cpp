@@ -262,3 +262,49 @@ void replaceGuiEscapeCharactersWithReal(QString &str)
         replace("\\r", "\r").replace("\\\r", "\\r").
         replace("\\t", "\t").replace("\\\t", "\\t");
 }
+
+QString xmlEncode(const QString& xml)
+{
+    QString temp;
+    temp.reserve(xml.size());
+
+    for (int index = 0; index < xml.size(); index++)
+    {
+        QChar character(xml.at(index));
+
+        switch (character.unicode())
+        {
+        case '&':
+            temp.append("&amp;");
+            break;
+        case '\'':
+            temp.append("&apos;");
+            break;
+        case '"':
+            temp.append("&quot;");
+            break;
+        case '<':
+            temp.append("&lt;");
+            break;
+        case '>':
+            temp.append("&gt;");
+            break;
+        default:
+            temp.append(character);
+            break;
+        }
+    }
+
+    return temp;
+}
+
+QString removeEnclosure(const QString &str, const QChar &enclosure)
+{
+    QString s = str;
+
+    if(s.length()>2 && s.startsWith(enclosure) && s.endsWith(enclosure)){
+        s.remove(0, 1).chop(1);
+    }
+
+    return s;
+}

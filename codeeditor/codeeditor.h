@@ -103,7 +103,9 @@ private:
     void ensureHasSelection();
 
     void drawLineNavBarHighlights(QPainter &painter);
-    void drawLineNavBarHighlight(QPainter &painter, int blockNumber, const QColor &color, qreal docHeight, qreal blockHeight, bool hasScrollbars);
+    void drawLineNavBarHighlight(QPainter &painter, int blockNumber, const QColor &color,
+                                 qreal docHeight, qreal blockHeight, bool hasScrollbars,
+                                 bool fullLength = true);
     QList<int> getHighlightedBlockNumbers() const;
 
 };

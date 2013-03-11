@@ -4,11 +4,13 @@
 #include "worksheetbottompanetab.h"
 
 class DbConnection;
+class DataExporterThread;
 class QStackedWidget;
 class DataTable;
 class Resultset;
 class DataExportDialog;
 class DataExporterBase;
+class QLabel;
 
 class WorksheetResultsetTab : public WorksheetBottomPaneTab
 {
@@ -30,16 +32,22 @@ private slots:
     void recordsExported(int count);
     void exportComplete();
     void exportError(const QString &errorMessage);
+    void stopProgress();
 
 private:
     IQueryScheduler *queryScheduler;
+    DataExporterThread *exporterThread;
 
     DataTable *resultsTable;
     QAction *dataExportAction;
 
+    QLabel *statusBarLabel;
+    QAction *labelAction;
+    QAction *stopProgressButton;
+
     DataExportDialog *exportDialog;
 
-    void setInProgress(bool inProgress);
+    void setInProgress(bool inProgress, bool showsStatusMessage=false, bool cancellable=false);
 
 };
 

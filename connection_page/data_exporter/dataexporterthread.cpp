@@ -6,14 +6,14 @@
 #include <QTextCodec>
 
 DataExporterThread::DataExporterThread(DataExporterBase *exporter,
-                                       QSharedPointer<ResultsetColumnMetadata> columnMetadata,
-                                       QList<QStringList> alreadyFetchedData, Resultset *rs, bool fetchToEnd, QObject *parent) :
+                                       QList<QStringList> alreadyFetchedData,
+                                       Resultset *rs, bool fetchToEnd, QObject *parent) :
     QThread(parent),
     exporter(exporter),
-    columnMetadata(columnMetadata),
     alreadyFetchedData(alreadyFetchedData),
     rs(rs),
-    fetchToEnd(fetchToEnd)
+    fetchToEnd(fetchToEnd),
+    stopped(false)
 {
     connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
 }
@@ -25,18 +25,14 @@ DataExporterThread::~DataExporterThread()
 
 void DataExporterThread::run()
 {
-    QFile file(exporter->filename);
-    if(!file.open(QIODevice::WriteOnly)){
-        emit exportError(file.errorString());
+    QString errMessage;
+    QTextStream *textStream = exporter->createOutputStream(errMessage);
+    if(!textStream){
+        emit exportError(errMessage);
         return;
     }
 
-    QTextStream out(&file);
-    out.setCodec(exporter->encoding.toStdString().c_str());
-    if(exporter->encoding.startsWith("UTF")){
-        out.setGenerateByteOrderMark(exporter->bom);
-    }
-
+    QTextStream &out = *textStream;
 
     try{
         exportToStream(out);
@@ -45,6 +41,11 @@ void DataExporterThread::run()
     }catch(OciException &ex){
         emit exportError(ex.getErrorMessage());
     }
+}
+
+void DataExporterThread::stop()
+{
+    this->stopped=true;
 }
 
 void DataExporterThread::exportToStream(QTextStream &out)
@@ -60,13 +61,15 @@ void DataExporterThread::exportToStream(QTextStream &out)
         endColumn = exporter->endColumn;
     }else{
         startRow = 0;
-        startColumn = 0;
+        exporter->startColumn = startColumn = 0;
         endRow = -1;
-        endColumn = columnMetadata->getColumnCount()-1;
+        exporter->endColumn = endColumn = exporter->columnMetadata->getColumnCount()-1;
     }
 
+    exporter->startDocument(out);
+
     if(exporter->includeColumnHeaders){
-        QStringList columnTitles = columnMetadata->columnIndexes.keys();
+        QStringList columnTitles = exporter->columnMetadata->columnTitles;
         exporter->prepareColumnHeaders(columnTitles);
         exporter->exportColumnHeaders(columnTitles, startColumn, endColumn, out);
     }
@@ -89,31 +92,43 @@ void DataExporterThread::exportToStream(QTextStream &out)
             oneRow[k-startColumn] = currentRow.at(k);
         }
 
+        exporter->prepareRow(oneRow);
+        exporter->exportRow(oneRow, exportedCount, out);
         ++exportedCount;
-        exporter->prepareRow(oneRow, columnMetadata.data());
-        exporter->exportRow(oneRow, out);
 
         if(exportedCount%50==0){
             emit recordsExported(exportedCount);
+
+            if(stopped){
+                break;
+            }
         }
     }
 
-    if(fetchToEnd && endRow==-1){
+    if(!stopped && fetchToEnd && endRow==-1){
         rs->beginFetchRows();
         while(rs->moveNext()){
             for(int k=startColumn; k<=endColumn; ++k){
                 oneRow[k-startColumn] = rs->getAsString(k+1);
             }
 
+            exporter->prepareRow(oneRow);
+            exporter->exportRow(oneRow, exportedCount, out);
             ++exportedCount;
-            exporter->prepareRow(oneRow, columnMetadata.data());
-            exporter->exportRow(oneRow, out);
+
             if(exportedCount%50==0){
                 emit recordsExported(exportedCount);
+
+                if(stopped){
+                    break;
+                }
             }
         }
         rs->endFetchRows();
     }
+
+    exporter->endDocument(out);
+    out.flush();
 
     emit recordsExported(exportedCount);
 }
