@@ -73,6 +73,7 @@ private:
 
     void checkForError();
     OraExp::ColumnDataType convertColumnDataType(unsigned int ociDataType) const;
+    OraExp::ColumnSubType convertColumnSubType(unsigned int colIx, unsigned int ociSubType) const;
 
 
 #ifdef DEBUG

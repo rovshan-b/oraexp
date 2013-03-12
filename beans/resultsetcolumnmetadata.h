@@ -12,6 +12,7 @@ public:
 
     QStringList columnTitles;
     QHash<unsigned int, OraExp::ColumnDataType> columnDataTypes;
+    QHash<unsigned int, OraExp::ColumnSubType> columnSubTypes;
     QList<unsigned int> textColIndexes;
 
     int getColumnCount() const;

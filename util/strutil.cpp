@@ -196,10 +196,23 @@ QString joinEnclosed(const QStringList &list, const QString &join, const QString
         if(i>0){
             result.append(join);
         }
-        result.append(enclose).append(list.at(i)).append(enclose);
+        if(!(result.startsWith(enclose) && result.endsWith(enclose))){
+            result.append(enclose).append(list.at(i)).append(enclose);
+        }else{
+            result.append(list.at(i));
+        }
     }
 
     return result;
+}
+
+QString enclose(const QString &str, const QString &enclose)
+{
+    if(!(str.startsWith(enclose) && str.endsWith(enclose))){
+        return QString("%1%2%1").arg(enclose, str);
+    }else{
+        return str;
+    }
 }
 
 QString ensureStartsWith(QString str, const QString &startWith)

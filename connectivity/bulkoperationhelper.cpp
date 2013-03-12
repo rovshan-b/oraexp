@@ -81,11 +81,11 @@ void BulkOperationHelper::bindArrays(Statement *stmt, const QString& bindVarPref
         }else if(DbUtil::isDateType(dataType)){
             stmt->bindArrayOfDates(bindVarName, (OCI_Date**)buffers.at(i), this->bulkSize);
         }else if(DbUtil::isTimestampType(dataType)){
-            int timestampType=DbUtil::getTimestampType(dataType);
-            stmt->bindArrayOfTimestamps(bindVarName, (OCI_Timestamp**)buffers.at(i), timestampType, this->bulkSize);
+            OraExp::ColumnSubType timestampSubType=DbUtil::getTimestampSubType(dataType);
+            stmt->bindArrayOfTimestamps(bindVarName, (OCI_Timestamp**)buffers.at(i), DbUtil::toOciTimestampSubType(timestampSubType), this->bulkSize);
         }else if(DbUtil::isIntervalType(dataType)){
-            int intervalType=DbUtil::getIntervalType(dataType);
-            stmt->bindArrayOfIntervals(bindVarName, (OCI_Interval**)buffers.at(i), intervalType, this->bulkSize);
+            OraExp::ColumnSubType intervalSubType=DbUtil::getIntervalSubType(dataType);
+            stmt->bindArrayOfIntervals(bindVarName, (OCI_Interval**)buffers.at(i), DbUtil::toOciIntervalSubType(intervalSubType), this->bulkSize);
         }else{
             qDebug() << "Unsupported column data type for binding:" << dataType;
             Q_ASSERT(false);

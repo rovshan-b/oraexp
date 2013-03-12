@@ -6,6 +6,8 @@
 class QStackedWidget;
 class QComboBox;
 class QCheckBox;
+class QGroupBox;
+class QLineEdit;
 class QBoxLayout;
 class LineEditWithButton;
 class QTabWidget;
@@ -20,6 +22,7 @@ public:
     explicit DataExportOptionsWidget(QWidget *parent = 0);
 
     void setSelectedRange(int startRow, int startColumn, int endRow, int endColumn);
+    void setTableName(const QString &schemaName, const QString &tableName);
 
     DataExporterBase *createExporter() const;
 
@@ -29,13 +32,15 @@ private slots:
     void selectSaveFilename();
     void enableControls();
     void correctFileSuffix();
+    void fileFormatChanged();
     
 private:
     enum ExportFormat{
         CSV,
         Excel,
         HTML,
-        XML
+        XML,
+        Insert
     };
 
     QTabWidget *tab;
@@ -50,12 +55,18 @@ private:
     QCheckBox *includeColumnHeadersCheckbox;
     QCheckBox *quoteColumnHeadersCheckbox;
 
+    QGroupBox *quotingOptionsBox;
     QComboBox *stringQuotingComboBox;
     QComboBox *numberQuotingComboBox;
 
+    QGroupBox *delimiterOptionsBox;
     QComboBox *lineEndingsComboBox;
     QComboBox *delimiterComboBox;
     QCheckBox *delimiterAfterLastColumnCheckbox;
+
+    QGroupBox *tableNameOptionsBox;
+    QLineEdit *schemaNameEditor;
+    QLineEdit *tableNameEditor;
 
     DataTableAndToolBarWidget *dataTableAndToolbar;
 
@@ -71,6 +82,7 @@ private:
     void createGeneralOptionsPane(QBoxLayout *layout);
     void createQuotingOptionsPane(QBoxLayout *layout);
     void createDelimiterOptionsPane(QBoxLayout *layout);
+    void createTargetTableOptionsPane(QBoxLayout *layout);
 
     void populateExportFormats();
     void populateQuotingOptions(QComboBox *comboBox);

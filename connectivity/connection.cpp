@@ -6,6 +6,7 @@
 #include "ociexception.h"
 #include "util/queryutil.h"
 #include "util/dbutil.h"
+#include "defines.h"
 #include <stdexcept>
 #include <QMutexLocker>
 #include <QThread>
@@ -131,8 +132,6 @@ void Connection::connect(QString tns, QString username, QString password)
     if(ociConnection==NULL){
         DbUtil::checkForOciError(0);
     }
-
-    OCI_SetDefaultFormatDate(ociConnection, L"yyyy-mm-dd hh24:mi:ss");
 
     cout << "connected" << endl;
 

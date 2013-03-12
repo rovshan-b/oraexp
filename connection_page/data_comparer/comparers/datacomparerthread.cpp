@@ -289,24 +289,24 @@ QString DataComparerThread::toDynamicSqlValue(const QString &varName, const QStr
     }else if(DbUtil::isDateType(dataType)){
         result = QString("to_date('''||to_char(%1,'%2')||''',''%2'')").arg(varName, DB_DATE_FORMAT);
     }else if(DbUtil::isIntervalType(dataType)){
-        int intervalType=DbUtil::getIntervalType(dataType);
+        OraExp::ColumnSubType intervalSubType=DbUtil::getIntervalSubType(dataType);
 #ifdef ORAEXP_USE_VARCHAR_FOR_BULK_TS_AND_INTERVAL
-        if(intervalType==OCI_INTERVAL_DS){
+        if(intervalSubType==OraExp::CSTIntervalDs){
             result = QString("to_dsinterval('''||%1||''')").arg(varName);
         }else{
             result = QString("to_yminterval('''||%1||''')").arg(varName);
         }
 #else
-        if(intervalType==OCI_INTERVAL_DS){
+        if(intervalSubType==OraExp::CSTIntervalDs){
             result = QString("to_dsinterval('''||to_char(%1)||''')").arg(varName);
         }else{
             result = QString("to_yminterval('''||to_char(%1)||''')").arg(varName);
         }
 #endif
     }else if(DbUtil::isTimestampType(dataType)){
-        int timestampType=DbUtil::getTimestampType(dataType);
+        OraExp::ColumnSubType timestampSubType=DbUtil::getTimestampSubType(dataType);
 #ifdef ORAEXP_USE_VARCHAR_FOR_BULK_TS_AND_INTERVAL
-        if(timestampType==OCI_TIMESTAMP_TZ){
+        if(timestampSubType==OraExp::CSTTimestampTz){
             result = QString("to_timestamp_tz('''||%1||''',''%2'')").arg(varName, DB_TZ_TIMESTAMP_FORMAT);
         }else{
             result = QString("to_timestamp('''||%1||''',''%2'')").arg(varName, DB_TIMESTAMP_FORMAT);

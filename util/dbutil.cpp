@@ -450,24 +450,65 @@ QStringList DbUtil::getComparableDataTypes()
     return comparableDataTypes;
 }
 
-int DbUtil::getIntervalType(const QString &dataTypeName)
+OraExp::ColumnSubType DbUtil::getIntervalSubType(const QString &dataTypeName)
 {
     if(dataTypeName.contains("SECOND")){
-        return OCI_INTERVAL_DS;
+        return OraExp::CSTIntervalDs;
     }else{
-        return OCI_INTERVAL_YM;
+        return OraExp::CSTIntervalYm;
     }
 }
 
-int DbUtil::getTimestampType(const QString &dataTypeName)
+OraExp::ColumnSubType DbUtil::getTimestampSubType(const QString &dataTypeName)
 {
     if(dataTypeName.endsWith("LOCAL TIME ZONE")){
-        return OCI_TIMESTAMP_LTZ;
+        return OraExp::CSTTimestampLtz;
     }else if(dataTypeName.endsWith("TIME ZONE")){
-        return OCI_TIMESTAMP_TZ;
+        return OraExp::CSTTimestampTz;
     }else{
-        return OCI_TIMESTAMP;
+        return OraExp::CSTTimestamp;
     }
+}
+
+unsigned int DbUtil::toOciTimestampSubType(OraExp::ColumnSubType tsSubType)
+{
+    unsigned int ociTsSubType;
+
+    switch(tsSubType){
+    case OraExp::CSTTimestamp:
+        ociTsSubType=OCI_TIMESTAMP;
+        break;
+    case OraExp::CSTTimestampTz:
+        ociTsSubType=OCI_TIMESTAMP_TZ;
+        break;
+    case OraExp::CSTTimestampLtz:
+        ociTsSubType=OCI_TIMESTAMP_LTZ;
+        break;
+    default:
+        ociTsSubType=OCI_UNKNOWN;
+        Q_ASSERT(false);
+        break;
+    }
+
+    return ociTsSubType;
+}
+
+unsigned int DbUtil::toOciIntervalSubType(OraExp::ColumnSubType intSubType)
+{
+    unsigned int ociIntSubType;
+
+    switch(intSubType){
+    case OraExp::CSTIntervalDs:
+        ociIntSubType=OCI_INTERVAL_DS;
+    case OraExp::CSTIntervalYm:
+        ociIntSubType=OCI_INTERVAL_YM;
+    default:
+        ociIntSubType=OCI_UNKNOWN;
+        Q_ASSERT(false);
+        break;
+    }
+
+    return ociIntSubType;
 }
 
 bool DbUtil::isStringType(const QString &dataTypeName)
@@ -482,9 +523,19 @@ bool DbUtil::isNumericType(const QString &dataTypeName)
             dataTypeName=="BINARY_FLOAT" || dataTypeName=="BINARY_DOUBLE";
 }
 
+bool DbUtil::isNumericType(OraExp::ColumnDataType dataType)
+{
+    return dataType==OraExp::CDTNumeric;
+}
+
 bool DbUtil::isDateType(const QString &dataTypeName)
 {
     return dataTypeName=="DATE";
+}
+
+bool DbUtil::isDateType(OraExp::ColumnDataType dataType)
+{
+    return dataType==OraExp::CDTDateTime;
 }
 
 bool DbUtil::isIntervalType(const QString &dataTypeName)
@@ -492,28 +543,56 @@ bool DbUtil::isIntervalType(const QString &dataTypeName)
     return dataTypeName.startsWith("INTERVAL");
 }
 
+bool DbUtil::isIntervalType(OraExp::ColumnDataType dataType)
+{
+    return dataType==OraExp::CDTInterval;
+}
+
 bool DbUtil::isTimestampType(const QString &dataTypeName)
 {
     return dataTypeName.startsWith("TIMESTAMP");
+}
+
+bool DbUtil::isTimestampType(OraExp::ColumnDataType dataType)
+{
+    return dataType==OraExp::CDTTimestamp;
+}
+
+QString DbUtil::toInterval(const QString &columnName, OraExp::ColumnSubType intSubType)
+{
+    QString result;
+
+    if(intSubType==OraExp::CSTIntervalDs){
+        result = QString("to_dsinterval(%1)").arg(columnName);
+    }else{
+        result = QString("to_yminterval(%1)").arg(columnName);
+    }
+
+    return result;
+}
+
+QString DbUtil::toTimestamp(const QString &columnName, OraExp::ColumnSubType tsSubType)
+{
+    QString result;
+
+    if(tsSubType==OraExp::CSTTimestampTz){
+        result = QString("to_timestamp_tz(%1,'%2')").arg(columnName, DB_TZ_TIMESTAMP_FORMAT);
+    }else{
+        result = QString("to_timestamp(%1,'%2')").arg(columnName, DB_TIMESTAMP_FORMAT);
+    }
+
+    return result;
 }
 
 QString DbUtil::toIntervalOrTimestamp(const QString &columnName, const QString &dataType)
 {
     QString result = columnName;
     if(DbUtil::isIntervalType(dataType)){
-        int intervalType=DbUtil::getIntervalType(dataType);
-        if(intervalType==OCI_INTERVAL_DS){
-            result = QString("to_dsinterval(%1)").arg(columnName);
-        }else{
-            result = QString("to_yminterval(%1)").arg(columnName);
-        }
+        OraExp::ColumnSubType intervalSubType=DbUtil::getIntervalSubType(dataType);
+        result = toInterval(columnName, intervalSubType);
     }else if(DbUtil::isTimestampType(dataType)){
-        int timestampType=DbUtil::getTimestampType(dataType);
-        if(timestampType==OCI_TIMESTAMP_TZ){
-            result = QString("to_timestamp_tz(%1,'%2')").arg(columnName, DB_TZ_TIMESTAMP_FORMAT);
-        }else{
-            result = QString("to_timestamp(%1,'%2')").arg(columnName, DB_TIMESTAMP_FORMAT);
-        }
+        OraExp::ColumnSubType timestampSubType=DbUtil::getTimestampSubType(dataType);
+        result = toTimestamp(columnName, timestampSubType);
     }
     return result;
 }
@@ -524,8 +603,8 @@ QString DbUtil::intervalOrTimestampToChar(const QString &columnName, const QStri
     if(DbUtil::isIntervalType(dataType)){
         result = QString("to_char(%1)").arg(columnName);
     }else if(DbUtil::isTimestampType(dataType)){
-        int timestampType=DbUtil::getTimestampType(dataType);
-        if(timestampType==OCI_TIMESTAMP_TZ){
+        OraExp::ColumnSubType timestampSubType=DbUtil::getTimestampSubType(dataType);
+        if(timestampSubType==OraExp::CSTTimestampTz){
             result = QString("to_char(%1,'%2')").arg(columnName, DB_TZ_TIMESTAMP_FORMAT);
         }else{
             result = QString("to_char(%1,'%2')").arg(columnName, DB_TIMESTAMP_FORMAT);

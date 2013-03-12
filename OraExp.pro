@@ -414,7 +414,8 @@ SOURCES += main.cpp\
     connection_page/data_exporter/exporters/excelexporter.cpp \
     util/filesystemutil.cpp \
     connection_page/data_exporter/exporters/htmlexporter.cpp \
-    connection_page/data_exporter/exporters/xmlexporter.cpp
+    connection_page/data_exporter/exporters/xmlexporter.cpp \
+    connection_page/data_exporter/exporters/insertexporter.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -833,7 +834,8 @@ HEADERS  += mainwindow.h \
     connection_page/data_exporter/exporters/excelexporter.h \
     util/filesystemutil.h \
     connection_page/data_exporter/exporters/htmlexporter.h \
-    connection_page/data_exporter/exporters/xmlexporter.h
+    connection_page/data_exporter/exporters/xmlexporter.h \
+    connection_page/data_exporter/exporters/insertexporter.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \
@@ -856,3 +858,5 @@ unix:LIBS += -L/usr/local/lib -locilib
 
 windows:INCLUDEPATH += "C:/ocilib-3.9.4-windows/ocilib/include"
 windows:LIBS += -L"C:/ocilib-3.9.4-windows/ocilib/lib32" -locilibw
+
+windows:INCLUDEPATH += "C:/qt-everywhere-opensource-src-4.7.4/qt-everywhere-opensource-src-4.7.4/src/3rdparty/zlib"

@@ -483,8 +483,9 @@ void *Statement::createDateArray(int size)
 
 void *Statement::createTimestampArray(const QString &timestampTypeName, int size)
 {
-    int timestampType=DbUtil::getTimestampType(timestampTypeName);
-    void *result = OCI_TimestampArrayCreate(this->connection->getOciConnection(), timestampType, size);
+    OraExp::ColumnSubType timestampSubType=DbUtil::getTimestampSubType(timestampTypeName);
+
+    void *result = OCI_TimestampArrayCreate(this->connection->getOciConnection(), DbUtil::toOciTimestampSubType(timestampSubType), size);
     if(!result){
         DbUtil::checkForOciError();
     }
@@ -494,8 +495,9 @@ void *Statement::createTimestampArray(const QString &timestampTypeName, int size
 
 void *Statement::createIntervalArray(const QString &intervalTypeName, int size)
 {
-    int intervalType=DbUtil::getIntervalType(intervalTypeName);
-    void *result = OCI_IntervalArrayCreate(this->connection->getOciConnection(), intervalType, size);
+    OraExp::ColumnSubType intervalSubType=DbUtil::getIntervalSubType(intervalTypeName);
+
+    void *result = OCI_IntervalArrayCreate(this->connection->getOciConnection(), DbUtil::toOciIntervalSubType(intervalSubType), size);
     if(!result){
         DbUtil::checkForOciError();
     }

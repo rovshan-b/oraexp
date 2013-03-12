@@ -36,14 +36,28 @@ public:
     static bool isLob(const QString &dataType);
     static QStringList getComparableDataTypes();
 
-    static int getIntervalType(const QString &dataTypeName);
-    static int getTimestampType(const QString &dataTypeName);
+    static OraExp::ColumnSubType getIntervalSubType(const QString &dataTypeName);
+    static OraExp::ColumnSubType getTimestampSubType(const QString &dataTypeName);
+
+    static unsigned int toOciTimestampSubType(OraExp::ColumnSubType tsSubType);
+    static unsigned int toOciIntervalSubType(OraExp::ColumnSubType intSubType);
 
     static bool isStringType(const QString &dataTypeName);
+
     static bool isNumericType(const QString &dataTypeName);
+    static bool isNumericType(OraExp::ColumnDataType dataType);
+
     static bool isDateType(const QString &dataTypeName);
+    static bool isDateType(OraExp::ColumnDataType dataType);
+
     static bool isIntervalType(const QString &dataTypeName);
+    static bool isIntervalType(OraExp::ColumnDataType dataType);
+
     static bool isTimestampType(const QString &dataTypeName);
+    static bool isTimestampType(OraExp::ColumnDataType dataType);
+
+    static QString toInterval(const QString &columnName, OraExp::ColumnSubType intSubType);
+    static QString toTimestamp(const QString &columnName, OraExp::ColumnSubType tsSubType);
 
     static QString toIntervalOrTimestamp(const QString &columnName, const QString &dataType);
     static QString intervalOrTimestampToChar(const QString &columnName, const QString &dataType);

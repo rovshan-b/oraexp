@@ -92,6 +92,22 @@ namespace OraExp
         CDTRef,
         CDTUnknown
     };
+
+    enum ColumnSubType {
+        CSTBLong,
+        CSTCLong,
+        CSTBlob,
+        CSTClob,
+        CSTNClob,
+        CSTBFile,
+        CSTCFile,
+        CSTTimestamp,
+        CSTTimestampTz,
+        CSTTimestampLtz,
+        CSTIntervalYm,
+        CSTIntervalDs,
+        CSTUnknown
+    };
 }
 
 #endif // ENUMS_H

@@ -4,6 +4,7 @@
 #include <iostream>
 #include "util/strutil.h"
 #include "util/dbutil.h"
+#include "defines.h"
 #include <QThread>
 #include <QDebug>
 
@@ -35,6 +36,7 @@ Resultset::Resultset(OCI_Resultset *ociResultset, Connection *cn, Statement *stm
 
         metadata->columnTitles.append(columnName);
         metadata->columnDataTypes.insert(i, convertColumnDataType(OCI_GetColumnType(column)));
+        metadata->columnSubTypes.insert(i, convertColumnSubType(i, OCI_ColumnGetSubType(column)));
 
         if(OCI_ColumnGetCharsetForm(column)!=OCI_CSF_NONE){
             metadata->textColIndexes.append(i);
@@ -168,6 +170,86 @@ OraExp::ColumnDataType Resultset::convertColumnDataType(unsigned int ociDataType
     return result;
 }
 
+OraExp::ColumnSubType Resultset::convertColumnSubType(unsigned int colIx, unsigned int ociSubType) const
+{
+    OraExp::ColumnSubType result = OraExp::CSTUnknown;
+    OraExp::ColumnDataType colDataType = columnMetadata->columnDataTypes.value(colIx);
+
+    switch(colDataType){
+    case OraExp::CDTLong:
+    {
+        switch(ociSubType){
+        case OCI_BLONG:
+            result = OraExp::CSTBLong;
+            break;
+        case OCI_CLONG:
+            result = OraExp::CSTCLong;
+            break;
+        }
+    }
+        break;
+    case OraExp::CDTLob:
+    {
+        switch(ociSubType){
+        case OCI_BLOB:
+            result = OraExp::CSTBlob;
+            break;
+        case OCI_CLOB:
+            result = OraExp::CSTClob;
+            break;
+        case OCI_NCLOB:
+            result = OraExp::CSTNClob;
+            break;
+        }
+    }
+        break;
+    case OraExp::CDTFile:
+    {
+        switch(ociSubType){
+        case OCI_BFILE:
+            result = OraExp::CSTBFile;
+            break;
+        case OCI_CFILE:
+            result = OraExp::CSTCFile;
+            break;
+        }
+    }
+        break;
+    case OraExp::CDTTimestamp:
+    {
+        switch(ociSubType){
+        case OCI_TIMESTAMP:
+            result = OraExp::CSTTimestamp;
+            break;
+        case OCI_TIMESTAMP_TZ:
+            result = OraExp::CSTTimestampTz;
+            break;
+        case OCI_TIMESTAMP_LTZ:
+            result = OraExp::CSTTimestampLtz;
+            break;
+        }
+    }
+        break;
+    case OraExp::CDTInterval:
+    {
+        switch(ociSubType){
+        case OCI_INTERVAL_YM:
+            result = OraExp::CSTIntervalYm;
+            break;
+        case OCI_INTERVAL_DS:
+            result = OraExp::CSTIntervalDs;
+            break;
+        }
+    }
+        break;
+    default:
+        result = OraExp::CSTUnknown;
+        break;
+    }
+
+    return result;
+}
+
 void Resultset::endFetchRows()
 {
     Q_ASSERT(acquiredMutex);
@@ -251,6 +333,34 @@ QString Resultset::getAsString(unsigned int colIx) const
         result=QObject::tr("LONG RAW");
     }else if(dataType==OraExp::CDTFile && !isTextColumn(colIx)){
         result=QObject::tr("FILE");
+    }else if(dataType==OraExp::CDTDateTime){
+        mtext *dateBuffer = new mtext[mtslen(W_DB_DATE_FORMAT)+1];
+        OCI_DateToText(OCI_GetDate(ociResultset, colIx),
+                       W_DB_DATE_FORMAT,
+                       mtslen(W_DB_DATE_FORMAT),
+                       dateBuffer);
+        result = toQString(dateBuffer);
+        delete[] dateBuffer;
+    }else if(dataType==OraExp::CDTTimestamp){
+        OraExp::ColumnSubType subType = columnMetadata->columnSubTypes.value(colIx);
+        mtext *tzBuffer = new mtext[51];
+        if(subType==OraExp::CSTTimestampTz){
+            OCI_TimestampToText(OCI_GetTimestamp(ociResultset, colIx),
+                                W_DB_TZ_TIMESTAMP_FORMAT,
+                                50,
+                                tzBuffer,
+                                9);
+        }else{
+            OCI_TimestampToText(OCI_GetTimestamp(ociResultset, colIx),
+                                W_DB_TIMESTAMP_FORMAT,
+                                50,
+                                tzBuffer,
+                                9);
+        }
+
+        result = toQString(tzBuffer);
+
+        delete[] tzBuffer;
     }else{
         result=toQString(OCI_GetString(ociResultset, colIx));
     }

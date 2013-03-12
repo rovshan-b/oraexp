@@ -1,4 +1,5 @@
 #include "worksheetresultsettab.h"
+#include "connectivity/dbconnection.h"
 #include "widgets/datatable.h"
 #include "util/iconutil.h"
 #include "connection_page/data_exporter/dataexportdialog.h"
@@ -74,6 +75,7 @@ void WorksheetResultsetTab::exportData()
 {
     if(exportDialog==0){
         exportDialog = new DataExportDialog();
+        exportDialog->exportWidget()->setTableName(this->queryScheduler->getDb()->getSchemaName(), "EXPORT_TABLE");
     }
 
     int startRow, startColumn, endRow, endColumn;

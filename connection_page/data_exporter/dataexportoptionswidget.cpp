@@ -10,6 +10,8 @@
 #include "exporters/excelexporter.h"
 #include "exporters/htmlexporter.h"
 #include "exporters/xmlexporter.h"
+#include "exporters/insertexporter.h"
+#include "defines.h"
 #include <QtGui>
 
 DataExportOptionsWidget::DataExportOptionsWidget(QWidget *parent) :
@@ -48,7 +50,8 @@ DataExportOptionsWidget::DataExportOptionsWidget(QWidget *parent) :
 
     populateExportFormats();
 
-    connect(formatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(correctFileSuffix()));
+    fileFormatChanged();
+    connect(formatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(fileFormatChanged()));
     connect(filenameEditor, SIGNAL(buttonClicked(LineEditWithButton*)), this, SLOT(selectSaveFilename()));
     connect(includeColumnHeadersCheckbox, SIGNAL(stateChanged(int)), this, SLOT(enableControls()));
 
@@ -64,6 +67,12 @@ void DataExportOptionsWidget::setSelectedRange(int startRow, int startColumn, in
 
     bool canExportSelection = (startRow!=-1 && startColumn!=-1 && endRow!=-1 && endColumn!=-1);
     selectedOnlyCheckbox->setEnabled(canExportSelection);
+}
+
+void DataExportOptionsWidget::setTableName(const QString &schemaName, const QString &tableName)
+{
+    this->schemaNameEditor->setText(schemaName);
+    this->tableNameEditor->setText(tableName);
 }
 
 void DataExportOptionsWidget::selectSaveFilename()
@@ -107,6 +116,20 @@ void DataExportOptionsWidget::correctFileSuffix()
     filenameEditor->lineEdit()->setText(filename);
 }
 
+void DataExportOptionsWidget::fileFormatChanged()
+{
+    correctFileSuffix();
+
+    ExportFormat format = (ExportFormat)formatComboBox->currentIndex();
+
+    includeNullTextCheckbox->setEnabled(format!=Insert);
+    includeColumnHeadersCheckbox->setEnabled(format==CSV || format==Excel || format==HTML);
+    quoteColumnHeadersCheckbox->setEnabled(includeColumnHeadersCheckbox->isEnabled() && includeColumnHeadersCheckbox->isChecked());
+    quotingOptionsBox->setEnabled(format==CSV);
+    delimiterOptionsBox->setEnabled(format==CSV);
+    tableNameOptionsBox->setEnabled(format==Insert);
+}
+
 void DataExportOptionsWidget::createOptionsTab()
 {
     QVBoxLayout *layout = new QVBoxLayout();
@@ -122,6 +145,7 @@ void DataExportOptionsWidget::createOptionsTab()
     createGeneralOptionsPane(firstColLayout);
     createQuotingOptionsPane(firstColLayout);
     createDelimiterOptionsPane(secondColLayout);
+    createTargetTableOptionsPane(secondColLayout);
 
     layout->addLayout(vboxContainerLayout);
 
@@ -187,10 +211,10 @@ void DataExportOptionsWidget::createQuotingOptionsPane(QBoxLayout *layout)
     populateQuotingOptions(numberQuotingComboBox);
     form->addRow(tr("Number quoting"), numberQuotingComboBox);
 
-    QGroupBox *box = new QGroupBox(tr("Quoting options"));
-    box->setLayout(form);
+    quotingOptionsBox = new QGroupBox(tr("Quoting options"));
+    quotingOptionsBox->setLayout(form);
 
-    layout->addWidget(box);
+    layout->addWidget(quotingOptionsBox);
 }
 
 void DataExportOptionsWidget::createDelimiterOptionsPane(QBoxLayout *layout)
@@ -208,10 +232,28 @@ void DataExportOptionsWidget::createDelimiterOptionsPane(QBoxLayout *layout)
     delimiterAfterLastColumnCheckbox = new QCheckBox(tr("Delimiter after last column"));
     form->addRow(delimiterAfterLastColumnCheckbox);
 
-    QGroupBox *box = new QGroupBox(tr("Delimiters"));
-    box->setLayout(form);
+    delimiterOptionsBox = new QGroupBox(tr("Delimiters"));
+    delimiterOptionsBox->setLayout(form);
 
-    layout->addWidget(box);
+    layout->addWidget(delimiterOptionsBox);
+}
+
+void DataExportOptionsWidget::createTargetTableOptionsPane(QBoxLayout *layout)
+{
+    QFormLayout *form = new QFormLayout();
+
+    schemaNameEditor = new QLineEdit();
+    schemaNameEditor->setMaxLength(MAX_IDENTIFIER_LENGTH);
+    form->addRow(tr("Schema"), schemaNameEditor);
+
+    tableNameEditor = new QLineEdit();
+    tableNameEditor->setMaxLength(MAX_IDENTIFIER_LENGTH);
+    form->addRow(tr("Table"), tableNameEditor);
+
+    tableNameOptionsBox = new QGroupBox(tr("Table"));
+    tableNameOptionsBox->setLayout(form);
+
+    layout->addWidget(tableNameOptionsBox);
 }
 
 void DataExportOptionsWidget::populateExportFormats()
@@ -220,6 +262,7 @@ void DataExportOptionsWidget::populateExportFormats()
     formatComboBox->addItem(tr("Excel"), "xlsx");
     formatComboBox->addItem(tr("HTML"), "html");
     formatComboBox->addItem(tr("XML"), "xml");
+    formatComboBox->addItem(tr("Insert"), "sql");
     //formatWidgetsTab->addWidget(new CsvExportOptionsWidget());
 }
 
@@ -280,6 +323,11 @@ DataExporterBase *DataExportOptionsWidget::createExporter() const
     case XML:
         exporter=new XmlExporter();
         break;
+    case Insert:
+        exporter=new InsertExporter();
+        ((InsertExporter*)exporter)->schemaName=schemaNameEditor->text().trimmed();
+        ((InsertExporter*)exporter)->tableName=tableNameEditor->text().trimmed();
+        break;
     default:
         exporter=0;
         Q_ASSERT(false);
@@ -297,10 +345,10 @@ DataExporterBase *DataExportOptionsWidget::createExporter() const
     exporter->endColumn = onlySelectedRows ? this->selectionEndColumn : -1;
 
     exporter->includeNullText = includeNullTextCheckbox->isChecked();
-    exporter->includeColumnHeaders = includeColumnHeadersCheckbox->isChecked();
-    exporter->quoteColumnHeaders = quoteColumnHeadersCheckbox->isChecked();
-    exporter->stringQuoting = WidgetHelper::getComboBoxUserDataOrText(stringQuotingComboBox);
-    exporter->numberQuoting = WidgetHelper::getComboBoxUserDataOrText(numberQuotingComboBox);
+    exporter->includeColumnHeaders = includeColumnHeadersCheckbox->isEnabled() && includeColumnHeadersCheckbox->isChecked();
+    exporter->quoteColumnHeaders = quoteColumnHeadersCheckbox->isEnabled() && quoteColumnHeadersCheckbox->isChecked();
+    exporter->stringQuoting = stringQuotingComboBox->isEnabled() ? WidgetHelper::getComboBoxUserDataOrText(stringQuotingComboBox) : "";
+    exporter->numberQuoting = numberQuotingComboBox->isEnabled() ? WidgetHelper::getComboBoxUserDataOrText(numberQuotingComboBox) : "";
     exporter->lineEnding = WidgetHelper::getComboBoxUserDataOrText(lineEndingsComboBox);
     exporter->columnDelimiter = WidgetHelper::getComboBoxUserDataOrText(delimiterComboBox);
     exporter->delimiterAfterLastColumn = delimiterAfterLastColumnCheckbox->isChecked();

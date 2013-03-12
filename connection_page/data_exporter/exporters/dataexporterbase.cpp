@@ -58,6 +58,7 @@ void DataExporterBase::prepareField(QString &fieldValue, int fieldIx)
 
     if(!stringQuoting.isEmpty() &&
             columnMetadata->isTextColumn(startColumn+fieldIx+1)){
+        fieldValue.replace(stringQuoting, QString("\\%1").arg(stringQuoting)); //first escape quoting characters inside string
         fieldValue.prepend(stringQuoting);
         fieldValue.append(stringQuoting);
     }else if(!numberQuoting.isEmpty() &&
