@@ -110,6 +110,7 @@ public:
     void fetchMore (const QModelIndex & parent);
     void loadChildItems(const QModelIndex &parent);
 
+    IQueryScheduler *getQueryScheduler() const {return this->m_queryScheduler;}
     DbConnection *getDb() const;
     void setUiManager(DbUiManager *m_uiManager);
     DbUiManager *getUiManager() const;
@@ -124,6 +125,8 @@ public:
     void setCheckableItemTypes(DbTreeNodeTypes checkableItemTypes){this->m_checkableItemTypes=checkableItemTypes;}
 
     void checkAll(const QModelIndex &parent, bool check=true);
+    bool checkItem(const QModelIndex &index, Qt::CheckState newCheckState);
+    QList<QModelIndex> getCheckedItems(const QModelIndex &parent, DbTreeNodeType nodeType) const;
 
     QList<DbTreeItem*> getChildItems(const QModelIndex &parent, bool checkType=false, DbTreeNodeType nodeType=DbTreeModel::All) const;
     QList<QModelIndex> getChildIndexes(const QModelIndex &parent, DbTreeNodeType nodeType) const;

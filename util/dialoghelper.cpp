@@ -62,15 +62,20 @@ DbConnection *DialogHelper::getConnection(QWidget *dialogParent)
 
 QString DialogHelper::showFileSaveDialog(QWidget *parent, const QString &defaultSuffix, const QString &title, const QString &filter)
 {
+    QString directory = Settings::value("saveFileDialogDirectory",
+                                        QDesktopServices::storageLocation(QDesktopServices::DesktopLocation)).toString();
+
     QString result = QFileDialog::getSaveFileName(parent->window(),
                                         title,
-                                        QDesktopServices::storageLocation(QDesktopServices::DesktopLocation),
+                                        directory,
                                         filter);
     if(!result.isEmpty()){
         QFileInfo info(result);
         if(info.suffix().isEmpty()){
             result.append(".").append(defaultSuffix);
         }
+
+        Settings::setValue("saveFileDialogDirectory", info.path());
     }
 
     return result;

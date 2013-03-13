@@ -14,12 +14,16 @@ public:
     explicit DbTreeView(QWidget *parent = 0);
 
     void setQueryScheduler(IQueryScheduler *queryScheduler, const QString &defaultSchemaName, DbUiManager *uiManager, bool enableHorizontalScrollbar=true);
+    IQueryScheduler *getQueryScheduler() const;
 
     QString getDefaultSchemaName() const {return this->defaultSchemaName;}
 
     DbTreeModel *getModel() const;
 
     void checkAll(const QModelIndex &parent, bool check=true);
+
+signals:
+    void treeViewReady();
 
 private slots:
     void showContextMenu(const QPoint &);

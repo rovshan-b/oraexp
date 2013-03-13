@@ -7,7 +7,7 @@
 
 class QGroupBox;
 class QCheckBox;
-class DbTreeView;
+class DbTreeViewPanel;
 class QBoxLayout;
 class DbItemListComboBox;
 class ConnectionSelectorWidget;
@@ -46,8 +46,6 @@ private slots:
     void targetConnectionEstablished(DbConnection *db);
     void targetSchemaListLoaded();
     void loadSchemaObjects();
-    void selectAll();
-    void selectNone();
     void sourceSchemaNameChanged();
 
 protected:
@@ -63,14 +61,13 @@ protected:
     ConnectionSelectorWidget *targetConnection;
     DbItemListComboBox *targetSchemaComboBox;
 
-    DbTreeView *schemaObjectsTree;
+    DbTreeViewPanel *schemaObjectsPanel;
 
     QPushButton *btnSelectAll;
     QPushButton *btnSelectNone;
 
     void createConnectionOptionsPane(QBoxLayout *layout);
     virtual void createItemsTable(QBoxLayout *layout);
-    void createActionButtons(QBoxLayout *layout);
     
 };
 

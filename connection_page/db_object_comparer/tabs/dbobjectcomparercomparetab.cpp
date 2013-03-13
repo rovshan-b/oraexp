@@ -3,7 +3,7 @@
 #include "widgets/connectionselectorwidget.h"
 #include "widgets/dbitemlistcombobox.h"
 #include "widgets/subtabwidget.h"
-#include "widgets/dbtreeview.h"
+#include "widgets/dbtreeviewpanel.h"
 #include "connectivity/dbconnection.h"
 #include <QtGui>
 
@@ -19,7 +19,6 @@ void DbObjectComparerCompareTab::createUi()
 
     createConnectionOptionsPane(mainLayout);
     createItemsTable(mainLayout);
-    createActionButtons(mainLayout);
 
     setLayout(mainLayout);
 
@@ -83,29 +82,9 @@ void DbObjectComparerCompareTab::createConnectionOptionsPane(QBoxLayout *layout)
 
 void DbObjectComparerCompareTab::createItemsTable(QBoxLayout *layout)
 {
-    schemaObjectsTree=new DbTreeView();
-    layout->addWidget(schemaObjectsTree);
-    layout->setStretchFactor(schemaObjectsTree, 1);
-}
-
-void DbObjectComparerCompareTab::createActionButtons(QBoxLayout *layout)
-{
-    QHBoxLayout *selectButtonsLayout=new QHBoxLayout();
-    selectButtonsLayout->setContentsMargins(0,0,0,0);
-
-    btnSelectAll=new QPushButton(tr("Select all"));
-    btnSelectAll->setEnabled(false);
-    connect(btnSelectAll, SIGNAL(clicked()), this, SLOT(selectAll()));
-    selectButtonsLayout->addWidget(btnSelectAll);
-
-    btnSelectNone=new QPushButton(tr("Select none"));
-    btnSelectNone->setEnabled(false);
-    connect(btnSelectNone, SIGNAL(clicked()), this, SLOT(selectNone()));
-    selectButtonsLayout->addWidget(btnSelectNone);
-
-    selectButtonsLayout->addStretch();
-
-    layout->addLayout(selectButtonsLayout);
+    schemaObjectsPanel=new DbTreeViewPanel();
+    layout->addWidget(schemaObjectsPanel);
+    layout->setStretchFactor(schemaObjectsPanel, 1);
 }
 
 void DbObjectComparerCompareTab::targetConnectionEstablished(DbConnection *db)
@@ -138,7 +117,7 @@ QString DbObjectComparerCompareTab::getTargetSchemaName() const
 
 DbTreeModel *DbObjectComparerCompareTab::getObjectsModel() const
 {
-    return schemaObjectsTree->getModel();
+    return schemaObjectsPanel->tree()->getModel();
 }
 
 void DbObjectComparerCompareTab::beforeCompare()
@@ -190,6 +169,8 @@ DbTreeModel::DbTreeNodeTypes DbObjectComparerCompareTab::getCheckableNodeTypes()
 void DbObjectComparerCompareTab::loadSchemaObjects()
 {
     QString sourceSchema=sourceSchemaComboBox->lineEdit()->text().trimmed().toUpper();
+    DbTreeView *schemaObjectsTree = schemaObjectsPanel->tree();
+
     if(sourceSchema.isEmpty() || sourceSchema==schemaObjectsTree->getDefaultSchemaName()){
         return;
     }
@@ -204,19 +185,6 @@ void DbObjectComparerCompareTab::loadSchemaObjects()
     schemaObjectsTree->getModel()->setupInitialItems(getNodeTypesToDisplay());
 
     connect(schemaObjectsTree->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(currentTreeItemChanged(QModelIndex,QModelIndex)));
-
-    btnSelectAll->setEnabled(true);
-    btnSelectNone->setEnabled(true);
-}
-
-void DbObjectComparerCompareTab::selectAll()
-{
-    schemaObjectsTree->checkAll(QModelIndex(), true);
-}
-
-void DbObjectComparerCompareTab::selectNone()
-{
-    schemaObjectsTree->checkAll(QModelIndex(), false);
 }
 
 void DbObjectComparerCompareTab::sourceSchemaNameChanged()

@@ -52,6 +52,13 @@ void DbTreeView::setQueryScheduler(IQueryScheduler *queryScheduler,
         header()->setResizeMode(QHeaderView::ResizeToContents);
         header()->setStretchLastSection(false);
     }
+
+    emit treeViewReady();
+}
+
+IQueryScheduler *DbTreeView::getQueryScheduler() const
+{
+    return getModel()->getQueryScheduler();
 }
 
 void DbTreeView::showContextMenu(const QPoint &pos)

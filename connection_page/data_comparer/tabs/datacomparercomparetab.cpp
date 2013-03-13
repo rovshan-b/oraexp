@@ -1,5 +1,5 @@
 #include "datacomparercomparetab.h"
-#include "widgets/dbtreeview.h"
+#include "widgets/dbtreeviewpanel.h"
 #include "navtree/dbtreeitem.h"
 #include "navtree/table/dbtablecolumnitem.h"
 #include "util/dbutil.h"
@@ -10,7 +10,7 @@
 DataComparerCompareTab::DataComparerCompareTab(DbUiManager *uiManager, QWidget *parent) :
     DbObjectComparerCompareTab(uiManager, parent)
 {
-    schemaObjectsTree=new DbTreeView();
+    schemaObjectsPanel=new DbTreeViewPanel();
     rightPane=new QWidget();
     rightPane->setEnabled(false);
 
@@ -27,7 +27,7 @@ void DataComparerCompareTab::createItemsTable(QBoxLayout *layout)
     QLayout *treeLayout=new QVBoxLayout();
     treeLayout->setContentsMargins(0,0,0,0);
     treeLayout->addWidget(treeLabel);
-    treeLayout->addWidget(schemaObjectsTree);
+    treeLayout->addWidget(schemaObjectsPanel);
     treeParent->setLayout(treeLayout);
     splitter->addWidget(treeParent);
 
@@ -96,7 +96,7 @@ void DataComparerCompareTab::treeChildrenPopulated(const QModelIndex &parent)
             childItem=static_cast<DbTreeItem *>(parent.child(i,0).internalPointer());
             if(childItem->getItemType()==DbTreeModel::Tables){
                 childItem->setCheckState(Qt::Unchecked);
-                schemaObjectsTree->setExpanded(parent.child(i,0), true);
+                schemaObjectsPanel->tree()->setExpanded(parent.child(i,0), true);
                 break;
             }
         }
@@ -153,5 +153,5 @@ void DataComparerCompareTab::currentTreeItemChanged(const QModelIndex &current, 
 
 void DataComparerCompareTab::beforeCompare()
 {
-    commitWhereQuery(schemaObjectsTree->currentIndex());
+    commitWhereQuery(schemaObjectsPanel->tree()->currentIndex());
 }

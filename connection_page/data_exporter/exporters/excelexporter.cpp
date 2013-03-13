@@ -45,9 +45,6 @@ void ExcelExporter::startDocument(QTextStream &out)
     out << QString("<?xml version=\"1.0\" encoding=\"%1\" standalone=\"yes\"?>").arg((QString)out.codec()->name());
     out << "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" "
                "xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">";
-    out << "<sheetPr filterMode=\"false\">"
-                "<pageSetUpPr fitToPage=\"false\" />"
-            "</sheetPr>";
 
     createExcelColumnTitles();
     exportColumnDefinitions();
@@ -64,14 +61,10 @@ void ExcelExporter::endDocument(QTextStream &out)
            arg(excelColumnTitles.at(excelColumnTitles.size()-1)).
            arg(rowCount);
 
-    out << "<sheetViews>"
-           "<sheetView colorId=\"64\" defaultGridColor=\"true\" rightToLeft=\"false\" showFormulas=\"false\" "
-           "showGridLines=\"true\" showOutlineSymbols=\"true\" showRowColHeaders=\"true\" showZeros=\"true\" "
-           "tabSelected=\"true\" topLeftCell=\"A1\" view=\"normal\" windowProtection=\"false\" workbookViewId=\"0\" "
-           "zoomScale=\"100\" zoomScaleNormal=\"100\" zoomScalePageLayoutView=\"100\">"
-             "<selection activeCell=\"A1\" activeCellId=\"0\" pane=\"topLeft\" sqref=\"A2\" />"
-           "</sheetView>"
-         "</sheetViews>";
+
+    out << "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>";
+
+    out << "<sheetFormatPr defaultRowHeight=\"15\" />";
 
     copyTmpFile();
 
@@ -98,8 +91,7 @@ void ExcelExporter::exportColumnHeaders(const QStringList &headers, int from, in
 {
     ++rowCount;
 
-    *tmpFileStream << "<row collapsed=\"false\" customFormat=\"true\" customHeight=\"false\" hidden=\"false\" ht=\"12.1\" "
-                     "outlineLevel=\"0\" r=\"1\" s=\"1\">";
+    *tmpFileStream << QString("<row customFormat=\"1\" r=\"1\" s=\"1\" spans=\"1:%1\">").arg(excelColumnTitles.size());
     for(int i=0; i<excelColumnTitles.size(); ++i){
         *tmpFileStream << QString("<c r=\"%1%2\" s=\"1\" t=\"inlineStr\"><is><t>%3</t></is></c>").
                          arg(excelColumnTitles.at(i)).arg(1).arg(headers.at(from+i));
@@ -110,11 +102,10 @@ void ExcelExporter::exportColumnHeaders(const QStringList &headers, int from, in
 void ExcelExporter::exportRow(const QStringList &oneRow, int rowIx, QTextStream &/*out*/)
 {
     ++rowCount;
-
-    *tmpFileStream << "<row collapsed=\"false\" customFormat=\"true\" customHeight=\"false\" hidden=\"false\" ht=\"12.1\" "
-                     "outlineLevel=\"0\" r=\"1\">";
-
     int excelRowOffset = this->includeColumnHeaders ? 2 : 1;
+
+    *tmpFileStream << QString("<row r=\"%1\" spans=\"1:%2\">").arg(rowIx+excelRowOffset).arg(excelColumnTitles.size());
+
     for(int i=0; i<oneRow.size(); ++i){
         *tmpFileStream << QString("<c r=\"%1%2\" t=\"inlineStr\"><is><t>%3</t></is></c>").
                          arg(excelColumnTitles.at(i)).arg(rowIx+excelRowOffset).arg(oneRow.at(i));

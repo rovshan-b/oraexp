@@ -460,6 +460,31 @@ void DbTreeModel::checkAll(const QModelIndex &parent, bool check)
     }
 }
 
+bool DbTreeModel::checkItem(const QModelIndex &index, Qt::CheckState newCheckState)
+{
+    return this->checkItem(index, newCheckState, true);
+}
+
+QList<QModelIndex> DbTreeModel::getCheckedItems(const QModelIndex &parent, DbTreeModel::DbTreeNodeType nodeType) const
+{
+    QList<QModelIndex> results;
+
+    QModelIndex itemIndex=getChildIndex(parent, nodeType);
+    int rows=rowCount(itemIndex);
+
+    QModelIndex childIndex;
+    DbTreeItem *item;
+    for(int i=0; i<rows; ++i){
+        childIndex = index(i, 0, itemIndex);
+        item=static_cast<DbTreeItem *>(childIndex.internalPointer());
+        if(item->checkState()!=Qt::Unchecked){
+            results.append(childIndex);
+        }
+    }
+
+    return results;
+}
+
 bool DbTreeModel::isCheckable(DbTreeItem *item) const
 {
     Q_ASSERT(item);

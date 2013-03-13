@@ -65,7 +65,7 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
 
     WidgetHelper::updateActionTooltips(toolbar);
 
-    multiEditor->getCurrentEditor()->editor()->setPlainText("select * from dt_test");
+    multiEditor->getCurrentEditor()->editor()->setPlainText("select * from smpp_outgoing");
 }
 
 WorksheetQueryPane::~WorksheetQueryPane()
