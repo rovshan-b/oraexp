@@ -11,6 +11,7 @@
 #include "../synonym/dbsynonymparentitem.h"
 #include "../dblink/dbdblinkparentitem.h"
 #include "dballschemasitem.h"
+#include "util/dbutil.h"
 
 DbSchemaItem::DbSchemaItem(const QString &itemText, const QString &itemName,
                            DbTreeModel *model, DbTreeItem *parent, bool isRootItem) :
@@ -29,63 +30,63 @@ QList<DbTreeItem*> DbSchemaItem::populateChildren()
     QList<DbTreeItem*> children;
 
     if(nodeTypesToDisplay.testFlag(DbTreeModel::Tables)){
-        children.append(new DbTableParentTreeItem(QObject::tr("Tables"), "", getModel(), this));
+        children.append(new DbTableParentTreeItem(DbUtil::getDbObjectDisplayNameByNodeType(DbTreeModel::Tables), "", getModel(), this));
     }
 
     if(nodeTypesToDisplay.testFlag(DbTreeModel::Views)){
-        children.append(new DbViewParentItem(QObject::tr("Views"), "", getModel(), this));
+        children.append(new DbViewParentItem(DbUtil::getDbObjectDisplayNameByNodeType(DbTreeModel::Views), "", getModel(), this));
     }
 
     if(nodeTypesToDisplay.testFlag(DbTreeModel::Packages)){
-        children.append(new DbPackageParentItem(QObject::tr("Packages"), "", getModel(), this));
+        children.append(new DbPackageParentItem(DbUtil::getDbObjectDisplayNameByNodeType(DbTreeModel::Packages), "", getModel(), this));
     }
 
     if(nodeTypesToDisplay.testFlag(DbTreeModel::Procedures)){
-        children.append(new DbProcedureParentItem(QObject::tr("Procedures"), "", getModel(), this));
+        children.append(new DbProcedureParentItem(DbUtil::getDbObjectDisplayNameByNodeType(DbTreeModel::Procedures), "", getModel(), this));
     }
 
     if(nodeTypesToDisplay.testFlag(DbTreeModel::Functions)){
-        children.append(new DbFunctionParentItem(QObject::tr("Functions"), "", getModel(), this));
+        children.append(new DbFunctionParentItem(DbUtil::getDbObjectDisplayNameByNodeType(DbTreeModel::Functions), "", getModel(), this));
     }
 
     if(nodeTypesToDisplay.testFlag(DbTreeModel::SchemaTriggers)){
-        children.append(new DbTriggerParentItem(QObject::tr("Triggers"), "", getModel(), this));
+        children.append(new DbTriggerParentItem(DbUtil::getDbObjectDisplayNameByNodeType(DbTreeModel::Triggers), "", getModel(), this));
     }
 
     if(nodeTypesToDisplay.testFlag(DbTreeModel::SchemaIndexes)){
-        children.append(new DbIndexParentItem(QObject::tr("Indexes"), "", getModel(), this));
+        children.append(new DbIndexParentItem(DbUtil::getDbObjectDisplayNameByNodeType(DbTreeModel::Indexes), "", getModel(), this));
     }
 
     if(nodeTypesToDisplay.testFlag(DbTreeModel::Sequences)){
-         children.append(new DbSequenceParentItem(QObject::tr("Sequences"), "", getModel(), this));
+         children.append(new DbSequenceParentItem(DbUtil::getDbObjectDisplayNameByNodeType(DbTreeModel::Sequences), "", getModel(), this));
     }
 
     if(nodeTypesToDisplay.testFlag(DbTreeModel::Types)){
-        children.append(new DbTypeParentItem(QObject::tr("Types"), "", getModel(), this));
+        children.append(new DbTypeParentItem(DbUtil::getDbObjectDisplayNameByNodeType(DbTreeModel::Types), "", getModel(), this));
     }
 
     if(nodeTypesToDisplay.testFlag(DbTreeModel::Synonyms)){
-        children.append(new DbSynonymParentItem(QObject::tr("Synonyms"), "", getModel(), this));
+        children.append(new DbSynonymParentItem(DbUtil::getDbObjectDisplayNameByNodeType(DbTreeModel::Synonyms), "", getModel(), this));
     }
 
     if(nodeTypesToDisplay.testFlag(DbTreeModel::PublicSynonyms)){
-        DbTreeItem *publicSynonymsItem = new DbSynonymParentItem(QObject::tr("Public synonyms"), "", getModel(), this);
+        DbTreeItem *publicSynonymsItem = new DbSynonymParentItem(DbUtil::getDbObjectDisplayNameByNodeType(DbTreeModel::PublicSynonyms), "", getModel(), this);
         publicSynonymsItem->setSchemaName("PUBLIC");
         children.append(publicSynonymsItem);
     }
 
     if(nodeTypesToDisplay.testFlag(DbTreeModel::DatabaseLinks)){
-        children.append(new DbDbLinkParentItem(QObject::tr("Database links"), "", getModel(), this));
+        children.append(new DbDbLinkParentItem(DbUtil::getDbObjectDisplayNameByNodeType(DbTreeModel::DatabaseLinks), "", getModel(), this));
     }
 
     if(nodeTypesToDisplay.testFlag(DbTreeModel::PublicDatabaseLinks)){
-        DbTreeItem *publicDbLinksItem = new DbDbLinkParentItem(QObject::tr("Public database links"), "", getModel(), this);
+        DbTreeItem *publicDbLinksItem = new DbDbLinkParentItem(DbUtil::getDbObjectDisplayNameByNodeType(DbTreeModel::PublicDatabaseLinks), "", getModel(), this);
         publicDbLinksItem->setSchemaName("PUBLIC");
         children.append(publicDbLinksItem);
     }
 
     if(isRootItem && nodeTypesToDisplay.testFlag(DbTreeModel::AllSchemas)){
-        children.append(new DbAllSchemasItem(QObject::tr("All schemas"), "", getModel(), this, nodeTypesToDisplay));
+        children.append(new DbAllSchemasItem(DbUtil::getDbObjectDisplayNameByNodeType(DbTreeModel::AllSchemas), "", getModel(), this, nodeTypesToDisplay));
     }
 
     return children;

@@ -64,4 +64,6 @@ QString xmlEncode(const QString& xml);
 
 QString removeEnclosure(const QString &str, const QChar &enclosure = '"');
 
+void copyStringToArray(dtext *array, int arrayPos, int arrayMaxStrLength, const dtext *str);
+
 #endif // STRUTIL_H

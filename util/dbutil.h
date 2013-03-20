@@ -25,6 +25,7 @@ public:
     static QString getIndexPartitioningTypeName(int partitioningType, bool translate=true);
     static void populatePrivilegeNames(QStringList &list, DbTreeModel::DbTreeNodeType objectType);
     static QString getPartitionTypeName(OraExp::PartitionType pType);
+    static QString getDbObjectDisplayNameByNodeType(DbTreeModel::DbTreeNodeType nodeType);
     static QString getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeType);
     static DbTreeModel::DbTreeNodeType getDbObjectNodeTypeByTypeName(const QString &typeName);
     static QString getDbObjectIconNameByParentNodeType(DbTreeModel::DbTreeNodeType nodeType);

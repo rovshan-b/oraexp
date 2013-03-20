@@ -25,9 +25,12 @@ public:
 signals:
     void treeViewReady();
 
+    void childrenPopulated(const QModelIndex &parent);
+    void childrenPopulateError(const QModelIndex &parent, const OciException &exception);
+
 private slots:
     void showContextMenu(const QPoint &);
-    void childrenPopulateError(const QModelIndex &parent, const OciException &exception);
+    void handleChildrenPopulateError(const QModelIndex &parent, const OciException &exception);
 
 private:
     QString defaultSchemaName;

@@ -22,7 +22,8 @@ public:
         Double,
         Datetime,
         Stmt,
-        ReturningInto
+        ReturningInto,
+        StringList
     };
 
     ~Param();
@@ -33,6 +34,8 @@ public:
     Param(const QString &paramName, const DateTime &paramValue, ParamDirection direction=In);
     Param(const QString &paramName);
     Param(const QString &paramName, ParamType paramType, void *paramValue = 0, ParamDirection direction=In);
+
+    Param(const QString &paramName, const QStringList &paramValue, int maxLength = -1, ParamDirection direction=In);
 
     QString getParamName() const;
 
@@ -57,6 +60,9 @@ public:
 
     QString toString() const;
 
+    int getArraySize() const {return this->arraySize;}
+    int getArrayMaxStringLength() const {return this->arrayMaxStringLength;}
+
     void *data;
 
     static void printObjectCount();
@@ -65,6 +71,9 @@ private:
 
     ParamDirection direction;
     ParamType type;
+
+    int arraySize;
+    int arrayMaxStringLength;
 
     void cleanup();
 

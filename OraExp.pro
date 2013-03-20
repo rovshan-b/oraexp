@@ -417,7 +417,9 @@ SOURCES += main.cpp\
     connection_page/data_exporter/exporters/xmlexporter.cpp \
     connection_page/data_exporter/exporters/insertexporter.cpp \
     widgets/dbtreeviewpanel.cpp \
-    dialogs/selectlinkedtablesdialog.cpp
+    dialogs/selectlinkedobjectsdialog.cpp \
+    navtree/dbtreemodelnodeexpander.cpp \
+    dialogs/dbobjectselectordialog.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -839,7 +841,9 @@ HEADERS  += mainwindow.h \
     connection_page/data_exporter/exporters/xmlexporter.h \
     connection_page/data_exporter/exporters/insertexporter.h \
     widgets/dbtreeviewpanel.h \
-    dialogs/selectlinkedtablesdialog.h
+    dialogs/selectlinkedobjectsdialog.h \
+    navtree/dbtreemodelnodeexpander.h \
+    dialogs/dbobjectselectordialog.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

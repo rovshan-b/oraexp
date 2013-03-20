@@ -45,7 +45,9 @@ void DbTreeView::setQueryScheduler(IQueryScheduler *queryScheduler,
 
     DbTreeModel *treeModel=new DbTreeModel(queryScheduler, defaultSchemaName, this);
     treeModel->setUiManager(uiManager);
-    connect(treeModel, SIGNAL(childrenPopulateError(const QModelIndex &, const OciException &)), this, SLOT(childrenPopulateError(const QModelIndex &, const OciException &)));
+    connect(treeModel, SIGNAL(childrenPopulated(QModelIndex)), this, SIGNAL(childrenPopulated(QModelIndex)));
+    connect(treeModel, SIGNAL(childrenPopulateError(QModelIndex,OciException)), this, SIGNAL(childrenPopulateError(QModelIndex,OciException)));
+    connect(treeModel, SIGNAL(childrenPopulateError(const QModelIndex &, const OciException &)), this, SLOT(handleChildrenPopulateError(const QModelIndex &, const OciException &)));
     setModel(treeModel);
 
     if(enableHorizontalScrollbar){
@@ -96,7 +98,7 @@ void DbTreeView::checkAll(const QModelIndex &parent, bool check)
     }
 }
 
-void DbTreeView::childrenPopulateError(const QModelIndex &/*parent*/, const OciException &exception)
+void DbTreeView::handleChildrenPopulateError(const QModelIndex &/*parent*/, const OciException &exception)
 {
     QMessageBox::critical(this->window(), tr("Error retrieving child nodes"), exception.getErrorMessage());
 }

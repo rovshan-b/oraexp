@@ -183,6 +183,94 @@ QString DbUtil::getPartitionTypeName(OraExp::PartitionType pType)
     return result;
 }
 
+QString DbUtil::getDbObjectDisplayNameByNodeType(DbTreeModel::DbTreeNodeType nodeType)
+{
+    QString result;
+
+    switch(nodeType){
+    case DbTreeModel::Tables:
+    case DbTreeModel::Table:
+        result=QObject::tr("Tables");
+        break;
+    case DbTreeModel::Views:
+    case DbTreeModel::View:
+        result=QObject::tr("Views");
+        break;
+    case DbTreeModel::Packages:
+    case DbTreeModel::Package:
+        result=QObject::tr("Packages");
+        break;
+    case DbTreeModel::PackageSpecs:
+    case DbTreeModel::PackageSpec:
+        result=QObject::tr("Package specs");
+        break;
+    case DbTreeModel::PackageBodies:
+    case DbTreeModel::PackageBody:
+        result=QObject::tr("Package bodies");
+        break;
+    case DbTreeModel::Procedures:
+    case DbTreeModel::Procedure:
+        result=QObject::tr("Procedures");
+        break;
+    case DbTreeModel::Functions:
+    case DbTreeModel::Function:
+        result=QObject::tr("Functions");
+        break;
+    case DbTreeModel::SchemaTriggers:
+    case DbTreeModel::Triggers:
+    case DbTreeModel::Trigger:
+        result=QObject::tr("Triggers");
+        break;
+    case DbTreeModel::SchemaIndexes:
+    case DbTreeModel::Indexes:
+    case DbTreeModel::Index:
+        result=QObject::tr("Indexes");
+        break;
+    case DbTreeModel::Sequences:
+    case DbTreeModel::Sequence:
+        result=QObject::tr("Sequences");
+        break;
+    case DbTreeModel::TypeSpecs:
+    case DbTreeModel::TypeSpec:
+        result=QObject::tr("Type specs");
+        break;
+    case DbTreeModel::Types:
+    case DbTreeModel::Type:
+        result=QObject::tr("Types");
+        break;
+    case DbTreeModel::TypeBodies:
+    case DbTreeModel::TypeBody:
+        result=QObject::tr("Type bodies");
+        break;
+    case DbTreeModel::Synonyms:
+    case DbTreeModel::Synonym:
+        result=QObject::tr("Synonyms");
+        break;
+    case DbTreeModel::PublicSynonyms:
+        result=QObject::tr("Public synonyms");
+        break;
+    case DbTreeModel::DatabaseLinks:
+    case DbTreeModel::DatabaseLink:
+        result=QObject::tr("Database links");
+        break;
+    case DbTreeModel::PublicDatabaseLinks:
+        result=QObject::tr("Public database links");
+        break;
+    case DbTreeModel::AllSchemas:
+        result=QObject::tr("All schemas");
+        break;
+    case DbTreeModel::Schema:
+        result=QObject::tr("Schemas");
+        break;
+    default:
+        Q_ASSERT(false);
+        result=QObject::tr("Unsupported type");
+        break;
+    }
+
+    return result;
+}
+
 QString DbUtil::getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeType)
 {
     QString result;

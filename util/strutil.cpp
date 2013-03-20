@@ -321,3 +321,9 @@ QString removeEnclosure(const QString &str, const QChar &enclosure)
 
     return s;
 }
+
+void copyStringToArray(dtext *array, int arrayPos, int arrayMaxStrLength, const dtext *str)
+{
+    dtext *currPosInBuffer = &array[arrayPos*(arrayMaxStrLength+1)];
+    dtscpy(currPosInBuffer, str);
+}

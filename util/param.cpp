@@ -32,6 +32,9 @@ void Param::cleanup()
     }else if(type==Stmt){
         Statement *stmt=(Statement*)data;
         delete stmt;
+    }else if(type==StringList){
+        dtext *charArray=(dtext*)data;
+        delete[] charArray;
     }
 }
 
@@ -74,6 +77,25 @@ Param::Param(const QString &paramName, Param::ParamType paramType, void *paramVa
     initParam(paramName, paramType, direction, paramValue);
 }
 
+Param::Param(const QString &paramName, const QStringList &paramValue, int maxLength, ParamDirection direction)
+{
+    int calcMaxLength = maxLength;
+    if(calcMaxLength==-1){
+        for(int i=0; i<paramValue.size(); ++i){
+            calcMaxLength = qMax(calcMaxLength, paramValue.at(i).size());
+        }
+    }
+    dtext *charArray = new dtext[paramValue.size()*(calcMaxLength+1)];
+    this->arraySize = paramValue.size();
+    this->arrayMaxStringLength = calcMaxLength;
+
+    for(int i=0; i<paramValue.size(); ++i){
+        copyStringToArray(charArray, i, calcMaxLength, paramValue.at(i).toStdWString().c_str());
+    }
+
+    initParam(paramName, StringList, direction, charArray);
+}
+
 void Param::initParam(const QString &paramName,
                       Param::ParamType paramType,
                       Param::ParamDirection direction,
@@ -101,6 +123,9 @@ void Param::initParam(const QString &paramName,
         break;
     case ReturningInto:
         data=0;
+        break;
+    case StringList:
+        data  = (dtext*)paramValue; //already allocated in calling function
         break;
     default:
         data = 0;
@@ -195,6 +220,9 @@ QString Param::toString() const
         break;
     case ReturningInto:
         result = QObject::tr("Returning into");
+        break;
+    case StringList:
+        result = QObject::tr("Array");
         break;
     default:
         Q_ASSERT(false);

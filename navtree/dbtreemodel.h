@@ -125,8 +125,8 @@ public:
     void setCheckableItemTypes(DbTreeNodeTypes checkableItemTypes){this->m_checkableItemTypes=checkableItemTypes;}
 
     void checkAll(const QModelIndex &parent, bool check=true);
-    bool checkItem(const QModelIndex &index, Qt::CheckState newCheckState);
-    QList<QModelIndex> getCheckedItems(const QModelIndex &parent, DbTreeNodeType nodeType) const;
+
+    QList<QModelIndex> getCheckedGrandChildren(const QModelIndex &grandfather, DbTreeNodeType parentNodeType) const;
 
     QList<DbTreeItem*> getChildItems(const QModelIndex &parent, bool checkType=false, DbTreeNodeType nodeType=DbTreeModel::All) const;
     QList<QModelIndex> getChildIndexes(const QModelIndex &parent, DbTreeNodeType nodeType) const;
@@ -139,6 +139,9 @@ public:
     bool isCheckable(const QModelIndex &index) const;
 
     QString itemName(const QModelIndex &index) const;
+
+    QString getDefaultSchemaName() const;
+
 signals:
     void childrenPopulated(const QModelIndex &parent);
     void childrenPopulateError(const QModelIndex &parent, const OciException &exception);

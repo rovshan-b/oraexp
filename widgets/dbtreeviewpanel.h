@@ -3,10 +3,13 @@
 
 #include <QWidget>
 #include "dbtreeview.h"
+#include "connectivity/queryresult.h"
+#include "connectivity/fetchresult.h"
 
 class DbTreeView;
 class QPushButton;
 class QBoxLayout;
+class SelectLinkedObjectsDialog;
 
 class DbTreeViewPanel : public QWidget
 {
@@ -19,17 +22,31 @@ public:
 private slots:
     void selectAll();
     void selectNone();
-    void selectLinkedTables();
+    void selectLinkedObjects();
 
     void treeReady();
+
+    void childrenLoaded();
+    void childrenLoadError(const OciException &exception);
+
+    void linkedObjectsQueryCompleted(const QueryResult &result);
+    void linkedObjectRecordAvailable(const FetchResult &fetchResult);
+    void linkedObjectsFetchCompleted(const QString &);
 
 private:
     DbTreeView *dbTree;
     QPushButton *btnSelectAll;
     QPushButton *btnSelectNone;
-    QPushButton *btnSelectLinkedTables;
+    QPushButton *btnSelectLinkedObjects;
+
+    SelectLinkedObjectsDialog *selectLinkedObjectsDialog;
 
     void createActionButtons(QBoxLayout *layout);
+    void setInProgress(bool inProgress);
+
+    //variables related to find linked objects action
+    bool findOnlyTables;
+    QList<DbTreeModel::DbTreeNodeType> availableObjectTypes;
     
 };
 

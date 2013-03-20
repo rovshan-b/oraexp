@@ -28,8 +28,12 @@ QStringList PlSqlParseHelper::getBindParams(const QString &query, QList<BindPara
 
         if(token==PLS_COLON){ //waiting for bind variable name
             waitingForName=true;
-        }else if(waitingForName && (token==PLS_ID || token==PLS_DOUBLEQUOTED_STRING)){
+        }else if(waitingForName){
             waitingForName=false;
+
+            if(token!=PLS_ID && token!=PLS_DOUBLEQUOTED_STRING && !(token<NON_LITERAL_START_IX)){
+                continue;
+            }
 
             //must keep single entry for non double quoted strings regardless of case
             //and must keep single entry for double quoted strings taking into account case

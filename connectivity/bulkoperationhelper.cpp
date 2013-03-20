@@ -1,5 +1,6 @@
 #include "bulkoperationhelper.h"
 #include "util/dbutil.h"
+#include "util/strutil.h"
 #include "connectivity/statement.h"
 #include "connectivity/resultset.h"
 #include <QDebug>
@@ -150,12 +151,19 @@ void BulkOperationHelper::copyStringAtPos(int bufferIx, int dataIx, const dtext 
     const QString &dataType=dataTypes.at(bufferIx);
 
     if(DbUtil::isStringType(dataType)){
+        copyStringToArray((dtext*)buffers.at(bufferIx), dataIx, lenghts.at(bufferIx), str);
+    }
+
+    /*
+    const QString &dataType=dataTypes.at(bufferIx);
+
+    if(DbUtil::isStringType(dataType)){
 
         dtext *strBuffer = (dtext*)buffers.at(bufferIx);
         dtext *currPosInBuffer = &strBuffer[dataIx*(lenghts.at(bufferIx)+1)];
         dtscpy(currPosInBuffer, str);
 
-    }
+    }*/
 }
 
 void BulkOperationHelper::cleanup()

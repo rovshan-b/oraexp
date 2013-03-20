@@ -460,16 +460,11 @@ void DbTreeModel::checkAll(const QModelIndex &parent, bool check)
     }
 }
 
-bool DbTreeModel::checkItem(const QModelIndex &index, Qt::CheckState newCheckState)
-{
-    return this->checkItem(index, newCheckState, true);
-}
-
-QList<QModelIndex> DbTreeModel::getCheckedItems(const QModelIndex &parent, DbTreeModel::DbTreeNodeType nodeType) const
+QList<QModelIndex> DbTreeModel::getCheckedGrandChildren(const QModelIndex &grandfather, DbTreeModel::DbTreeNodeType parentNodeType) const
 {
     QList<QModelIndex> results;
 
-    QModelIndex itemIndex=getChildIndex(parent, nodeType);
+    QModelIndex itemIndex=getChildIndex(grandfather, parentNodeType);
     int rows=rowCount(itemIndex);
 
     QModelIndex childIndex;
@@ -579,4 +574,9 @@ QString DbTreeModel::itemName(const QModelIndex &index) const
     Q_ASSERT(item);
 
     return item->itemName();
+}
+
+QString DbTreeModel::getDefaultSchemaName() const
+{
+    return m_rootItem->schemaName();
 }

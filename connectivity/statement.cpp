@@ -156,6 +156,10 @@ void Statement::bindParam(Param *parameter)
     case Param::ReturningInto:
         OCI_RegisterString(ociStmt, parameter->getParamName().toStdWString().c_str(), 250);
         break;
+    case Param::StringList:
+        this->bindArrayOfStrings(parameter->getParamName(), (dtext*)parameter->data,
+                                 parameter->getArrayMaxStringLength(), parameter->getArraySize());
+        break;
     default:
         Q_ASSERT(false);
         break;
