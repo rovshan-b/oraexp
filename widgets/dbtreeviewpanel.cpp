@@ -1,7 +1,7 @@
 #include "dbtreeviewpanel.h"
 #include "interfaces/iqueryscheduler.h"
 #include "dialogs/selectlinkedobjectsdialog.h"
-#include "dialogs/dbobjectselectordialog.h"
+#include "dialogs/linkedobjectsviewerdialog.h"
 #include "navtree/dbtreeitem.h"
 #include "navtree/dbtreemodelnodeexpander.h"
 #include "util/dbutil.h"
@@ -171,9 +171,9 @@ void DbTreeViewPanel::childrenLoaded()
     QString nameNotLike = selectLinkedObjectsDialog->nameNotLikeEditor->text();
     int maxLevel = selectLinkedObjectsDialog->maxLevelEditor->value();
     int scanType = selectLinkedObjectsDialog->relationTypeComboBox->currentIndex();
-
-    //bool stopOnInvalidType = selectLinkedObjectsDialog->strictMatchCheckBox->isChecked();
     bool stopOnInvalidType = false;
+    bool onlyReferencedAfterLevel = selectLinkedObjectsDialog->onlyReferencedAfterLevel->value();
+
 
     IQueryScheduler *queryScheduler = dbTree->getQueryScheduler();
     queryScheduler->enqueueQuery("find_linked_objects",
@@ -189,7 +189,8 @@ void DbTreeViewPanel::childrenLoaded()
                                               << new Param("max_level", maxLevel)
                                               << new Param("scan_type", scanType)
                                               << new Param("only_tables", findOnlyTables)
-                                              << new Param("stop_on_invalid_type", stopOnInvalidType),
+                                              << new Param("stop_on_invalid_type", stopOnInvalidType)
+                                              << new Param("only_referenced_after_level", onlyReferencedAfterLevel),
                                               this,
                                               "find_linked_objects",
                                               "linkedObjectsQueryCompleted",
@@ -228,21 +229,73 @@ void DbTreeViewPanel::linkedObjectRecordAvailable(const FetchResult &fetchResult
         QStringList objectNames;
         QStringList objectTypes;
         QStringList levels;
+        QStringList refTypes;
 
         QStringList parts;
         for(int i=0; i<nameTypePairs.size(); ++i){
             const QString &pair = nameTypePairs.at(i);
             parts=pair.split(",", QString::SkipEmptyParts);
-            Q_ASSERT(parts.size()==3);
+            Q_ASSERT(parts.size()==4);
 
             objectNames.append(parts.at(0));
             objectTypes.append(parts.at(1));
             levels.append(parts.at(2));
+            QString refType = parts.at(3);
+            refType.replace("^",", ").chop(2);
+            refTypes.append(refType);
         }
 
-        DbObjectSelectorDialog dialog(this);
-        dialog.setObjectList(objectNames, objectTypes, levels);
-        dialog.exec();
+        LinkedObjectsViewerDialog dialog(this);
+        dialog.setObjectList(objectNames, objectTypes, levels, refTypes);
+        if(dialog.exec()){
+            selectInTreeView(dialog.tableModel);
+        }
+    }
+}
+
+void DbTreeViewPanel::selectInTreeView(QStandardItemModel *tableModel)
+{
+    DbTreeModel *model=dbTree->getModel();
+    QList<QModelIndex> changedParentNodes;
+
+    for(int i=0; i<tableModel->rowCount(); ++i){
+        QStandardItem *nameItem = tableModel->item(i);
+
+        if(nameItem->checkState()!=Qt::Checked){
+            continue;
+        }
+
+        QString objectType = tableModel->index(i,1).data().toString();
+        DbTreeModel::DbTreeNodeType nodeType = DbUtil::getDbObjectNodeTypeByTypeName(objectType);
+
+        if(nodeType==DbTreeModel::Unknown){
+            continue;
+        }
+
+        DbTreeModel::DbTreeNodeType parentNodeType = DbUtil::getDbObjectParentNodeType(nodeType);
+
+        if(parentNodeType==DbTreeModel::Unknown){
+            continue;
+        }
+
+        QModelIndex parentIndex = model->getChildIndex(QModelIndex(), parentNodeType);
+        Q_ASSERT(parentIndex.isValid());
+
+        if(!changedParentNodes.contains(parentIndex)){
+            changedParentNodes.append(parentIndex);
+        }
+
+        QString objectName = nameItem->text();
+        QModelIndex index = model->findByName(parentIndex, objectName);
+        if(!index.isValid()){
+            continue;
+        }
+
+        model->checkItem(index, Qt::Checked, false);
+    }
+
+    for(int i=0; i<changedParentNodes.size(); ++i){
+        model->updateItemCheckedState(changedParentNodes.at(i), true);
     }
 }
 

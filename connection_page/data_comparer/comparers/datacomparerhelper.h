@@ -71,7 +71,7 @@ private:
     QString enableRefContraintsQuery;
 
     void emitCompletedSignal();
-    void fillItemsToCompare();
+    QStringList getItemsToCompare() const;
     void loadTableColumns();
     void compareNextItem();
     void startComparerThread(const QString &tableName);

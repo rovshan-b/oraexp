@@ -5,7 +5,7 @@ DataComparisonOptions::DataComparisonOptions() :
     updates(true),
     deletes(true),
     includeSchemaName(true),
-    disableRefConstraints(true),
+    disableRefConstraints(Auto),
     comparisonMode(GenerateDml)
 {
 }

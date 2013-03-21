@@ -27,8 +27,15 @@ SelectLinkedObjectsDialog::SelectLinkedObjectsDialog(QWidget *parent) :
 
     maxLevelEditor = new QSpinBox();
     maxLevelEditor->setRange(0, 10000);
+    maxLevelEditor->setValue(3);
     maxLevelEditor->setToolTip(tr("Maximum number of steps to go. Zero means unlimited."));
     form->addRow(tr("Max level"), maxLevelEditor);
+
+    onlyReferencedAfterLevel = new QSpinBox();
+    onlyReferencedAfterLevel->setRange(0, 10000);
+    onlyReferencedAfterLevel->setValue(1);
+    onlyReferencedAfterLevel->setToolTip(tr("Number of steps after which to fetch only referenced objects. Zero disables this feature."));
+    form->addRow(tr("Only ref. after level"), onlyReferencedAfterLevel);
 
     nameLikeEditor = new QLineEdit();
     nameLikeEditor->setText("%");
@@ -52,6 +59,9 @@ SelectLinkedObjectsDialog::SelectLinkedObjectsDialog(QWidget *parent) :
     mainLayout->addWidget(buttonBox);
 
     setLayout(mainLayout);
+
+    enableControls();
+    connect(relationTypeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(enableControls()));
 }
 
 QList<DbTreeModel::DbTreeNodeType> SelectLinkedObjectsDialog::getSelectedItemTypes() const
@@ -103,4 +113,9 @@ void SelectLinkedObjectsDialog::accept()
     }else{
         QDialog::accept();
     }
+}
+
+void SelectLinkedObjectsDialog::enableControls()
+{
+    onlyReferencedAfterLevel->setEnabled(relationTypeComboBox->currentIndex()==2);
 }

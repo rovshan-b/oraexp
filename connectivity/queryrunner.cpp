@@ -38,6 +38,7 @@ void QueryRunner::run()
                                 task.retrieveScrollableResultsets);
         if(result.statement!=0 && result.statement->isAnonymousBlock()){
             result.dbmsOutput=db->retrieveDbmsOutput();
+            //qDebug() << result.dbmsOutput;
         }
     }catch(OciException &ex){
         result.hasError=true;

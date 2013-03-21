@@ -27,6 +27,7 @@ public:
     static QString getPartitionTypeName(OraExp::PartitionType pType);
     static QString getDbObjectDisplayNameByNodeType(DbTreeModel::DbTreeNodeType nodeType);
     static QString getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeType);
+    static DbTreeModel::DbTreeNodeType getDbObjectParentNodeType(DbTreeModel::DbTreeNodeType nodeType);
     static DbTreeModel::DbTreeNodeType getDbObjectNodeTypeByTypeName(const QString &typeName);
     static QString getDbObjectIconNameByParentNodeType(DbTreeModel::DbTreeNodeType nodeType);
 

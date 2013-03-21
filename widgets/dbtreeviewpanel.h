@@ -10,6 +10,7 @@ class DbTreeView;
 class QPushButton;
 class QBoxLayout;
 class SelectLinkedObjectsDialog;
+class QStandardItemModel;
 
 class DbTreeViewPanel : public QWidget
 {
@@ -43,6 +44,7 @@ private:
 
     void createActionButtons(QBoxLayout *layout);
     void setInProgress(bool inProgress);
+    void selectInTreeView(QStandardItemModel *tableModel);
 
     //variables related to find linked objects action
     bool findOnlyTables;

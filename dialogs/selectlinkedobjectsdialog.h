@@ -21,6 +21,7 @@ public:
     void setAvailableObjectTypes(QList<DbTreeModel::DbTreeNodeType> objectTypes);
 
     QComboBox *relationTypeComboBox;
+    QSpinBox *onlyReferencedAfterLevel;
     QLineEdit *nameLikeEditor;
     QLineEdit *nameNotLikeEditor;
     QSpinBox *maxLevelEditor;
@@ -28,6 +29,7 @@ public:
 
 public slots:
     virtual void accept();
+    void enableControls();
 
 private:
     QListView *itemTypesList;

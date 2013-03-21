@@ -141,18 +141,17 @@ bool DbTreeModel::checkItem(const QModelIndex &index, Qt::CheckState newCheckSta
     return false;
 }
 
-void DbTreeModel::updateParentCheckedState(const QModelIndex &index)
+void DbTreeModel::updateItemCheckedState(const QModelIndex &index, bool emitChangedSignalForChildren)
 {
-    QModelIndex parentIndex=index.parent();
-    if(!isValidIndex(parentIndex)){
+    if(!isValidIndex(index)){
         return;
     }
 
-    if(rowCount(parentIndex)==0){
+    if(rowCount(index)==0){
         return;
     }
 
-    DbTreeItem *parentItem = static_cast<DbTreeItem *>(parentIndex.internalPointer());
+    DbTreeItem *parentItem = static_cast<DbTreeItem *>(index.internalPointer());
 
     DbTreeItem::CheckBehavior parentCheckBehavior=parentItem->checkBehavior();
     if(parentCheckBehavior!=DbTreeItem::CheckableForTogglingChildren){
@@ -163,13 +162,13 @@ void DbTreeModel::updateParentCheckedState(const QModelIndex &index)
     bool hasUnchecked=false;
     DbTreeItem *item;
     QModelIndex childIndex;
-    for(int i=0; i<rowCount(parentIndex); ++i){
+    for(int i=0; i<rowCount(index); ++i){
 
         if(hasChecked && hasUnchecked){
             break;
         }
 
-        childIndex=parentIndex.child(i,0);
+        childIndex=index.child(i,0);
         item=static_cast<DbTreeItem *>(childIndex.internalPointer());
         if(item!=0 && item->checkBehavior()==DbTreeItem::Checkable){
             Qt::CheckState checkState=item->checkState();
@@ -192,8 +191,18 @@ void DbTreeModel::updateParentCheckedState(const QModelIndex &index)
 
     if(newCheckState!=parentItem->checkState()){
         parentItem->setCheckState(newCheckState);
-        emit dataChanged(parentIndex, parentIndex);
+        emit dataChanged(index, index);
     }
+
+    if(emitChangedSignalForChildren){
+        emit dataChanged(index.child(0,0), index.child(rowCount(index)-1,0));
+    }
+}
+
+void DbTreeModel::updateParentCheckedState(const QModelIndex &index)
+{
+    QModelIndex parentIndex=index.parent();
+    updateItemCheckedState(parentIndex);
 }
 
 Qt::ItemFlags DbTreeModel::flags(const QModelIndex &index) const
@@ -579,4 +588,21 @@ QString DbTreeModel::itemName(const QModelIndex &index) const
 QString DbTreeModel::getDefaultSchemaName() const
 {
     return m_rootItem->schemaName();
+}
+
+QModelIndex DbTreeModel::findByName(const QModelIndex &parent, const QString &name) const
+{
+    int rows = rowCount(parent);
+    QModelIndex ix;
+    DbTreeItem *item;
+    for(int i=0; i<rows; ++i){
+        ix = index(i, 0, parent);
+        item = static_cast<DbTreeItem*>(ix.internalPointer());
+
+        if(item->itemName()==name){
+            return ix;
+        }
+    }
+
+    return QModelIndex();
 }

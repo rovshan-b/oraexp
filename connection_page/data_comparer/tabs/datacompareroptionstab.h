@@ -23,7 +23,7 @@ private:
     QCheckBox *insertsCheckbox;
     QCheckBox *updatesCheckbox;
     QCheckBox *deletesCheckbox;
-    QCheckBox *disableRefContraintsCheckBox;
+    QComboBox *disableRefContraintsComboBox;
     QCheckBox *includeSchemaCheckBox;
     QComboBox *comparisonModeComboBox;
 

@@ -352,6 +352,59 @@ QString DbUtil::getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeTy
     return result;
 }
 
+DbTreeModel::DbTreeNodeType DbUtil::getDbObjectParentNodeType(DbTreeModel::DbTreeNodeType nodeType)
+{
+    DbTreeModel::DbTreeNodeType result;
+
+    switch(nodeType){
+    case DbTreeModel::Table:
+        result=DbTreeModel::Tables;
+        break;
+    case DbTreeModel::View:
+        result=DbTreeModel::Views;
+        break;
+    case DbTreeModel::Package:
+    case DbTreeModel::PackageSpec:
+    case DbTreeModel::PackageBody:
+        result=DbTreeModel::Packages;
+        break;
+    case DbTreeModel::Procedure:
+        result=DbTreeModel::Procedures;
+        break;
+    case DbTreeModel::Function:
+        result=DbTreeModel::Functions;
+        break;
+    case DbTreeModel::Trigger:
+        result=DbTreeModel::SchemaTriggers;
+        break;
+    case DbTreeModel::Index:
+        result=DbTreeModel::SchemaIndexes;
+        break;
+    case DbTreeModel::Sequence:
+        result=DbTreeModel::Sequences;
+        break;
+    case DbTreeModel::Type:
+    case DbTreeModel::TypeSpec:
+    case DbTreeModel::TypeBody:
+        result=DbTreeModel::Types;
+        break;
+    case DbTreeModel::Synonym:
+        result=DbTreeModel::Synonyms;
+        break;
+    case DbTreeModel::DatabaseLink:
+        result=DbTreeModel::DatabaseLinks;
+        break;
+    case DbTreeModel::Schema:
+        result=DbTreeModel::AllSchemas;
+        break;
+    default:
+        result=DbTreeModel::Unknown;
+        break;
+    }
+
+    return result;
+}
+
 DbTreeModel::DbTreeNodeType DbUtil::getDbObjectNodeTypeByTypeName(const QString &typeName)
 {
     DbTreeModel::DbTreeNodeType result=DbTreeModel::Unknown;

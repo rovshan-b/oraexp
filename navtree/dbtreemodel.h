@@ -121,6 +121,9 @@ public:
 
     bool checkboxesEnabled() const {return this->m_displayCheckBoxes;}
     void enableCheckboxes(bool enable=true) {this->m_displayCheckBoxes=enable;}
+    bool checkItem(const QModelIndex &index, Qt::CheckState newCheckState, bool updateParentItem);
+    void updateItemCheckedState(const QModelIndex &index, bool emitChangedSignalForChildren=false);
+    void updateParentCheckedState(const QModelIndex &index);
 
     void setCheckableItemTypes(DbTreeNodeTypes checkableItemTypes){this->m_checkableItemTypes=checkableItemTypes;}
 
@@ -142,6 +145,8 @@ public:
 
     QString getDefaultSchemaName() const;
 
+    QModelIndex findByName(const QModelIndex &parent, const QString &name) const;
+
 signals:
     void childrenPopulated(const QModelIndex &parent);
     void childrenPopulateError(const QModelIndex &parent, const OciException &exception);
@@ -153,9 +158,6 @@ private:
     bool isValidIndex(const QModelIndex &index) const;
     void populateChildNodes(const QModelIndex & parent);
     void clearChildren(const QModelIndex & parent, bool resetPopulatedFlag=true);
-
-    bool checkItem(const QModelIndex &index, Qt::CheckState newCheckState, bool updateParentItem);
-    void updateParentCheckedState(const QModelIndex &index);
 
     void startNodePopulatorThread(const QModelIndex &parent);
     void deleteNodePopulatorThread();

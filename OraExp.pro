@@ -419,7 +419,7 @@ SOURCES += main.cpp\
     widgets/dbtreeviewpanel.cpp \
     dialogs/selectlinkedobjectsdialog.cpp \
     navtree/dbtreemodelnodeexpander.cpp \
-    dialogs/dbobjectselectordialog.cpp
+    dialogs/linkedobjectsviewerdialog.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -843,7 +843,7 @@ HEADERS  += mainwindow.h \
     widgets/dbtreeviewpanel.h \
     dialogs/selectlinkedobjectsdialog.h \
     navtree/dbtreemodelnodeexpander.h \
-    dialogs/dbobjectselectordialog.h
+    dialogs/linkedobjectsviewerdialog.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

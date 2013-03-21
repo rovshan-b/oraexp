@@ -12,13 +12,20 @@ public:
         UpdateDatabase=1
     };
 
+    enum DisableRefConstraintsMode
+    {
+        Auto,
+        Disable,
+        DoNotDisable
+    };
+
     DataComparisonOptions();
 
     bool inserts;
     bool updates;
     bool deletes;
     bool includeSchemaName;
-    bool disableRefConstraints;
+    DisableRefConstraintsMode disableRefConstraints;
     ComparisonMode comparisonMode;
 };
 

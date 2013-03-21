@@ -19,7 +19,7 @@ DbObjectComparisonOptions *DataComparerOptionsTab::getOptions() const
     options->inserts=insertsCheckbox->isChecked();
     options->updates=updatesCheckbox->isChecked();
     options->deletes=deletesCheckbox->isChecked();
-    options->disableRefConstraints=disableRefContraintsCheckBox->isChecked();
+    options->disableRefConstraints=(DataComparisonOptions::DisableRefConstraintsMode)disableRefContraintsComboBox->currentIndex();
     options->includeSchemaName=includeSchemaCheckBox->isChecked();
     options->comparisonMode=comparisonModeComboBox->currentIndex() == 0 ? DataComparisonOptions::GenerateDml : DataComparisonOptions::UpdateDatabase;
 
@@ -59,8 +59,15 @@ void DataComparerOptionsTab::createDataCompareOptionsPane(QVBoxLayout *layout)
     insertsCheckbox = WidgetHelper::createCheckBox(grid, 0, 0, tr("Generate INSERT statements"), true, 1, 2);
     updatesCheckbox = WidgetHelper::createCheckBox(grid, 1, 0, tr("Generate UPDATE statements"), true, 1, 2);
     deletesCheckbox = WidgetHelper::createCheckBox(grid, 2, 0, tr("Generate DELETE statements"), true, 1, 2);
-    disableRefContraintsCheckBox = WidgetHelper::createCheckBox(grid, 3, 0, tr("Disable referential constraints"), true, 1, 2);
-    includeSchemaCheckBox = WidgetHelper::createCheckBox(grid, 4, 0, tr("Include schema"), true, 1, 2);
+    includeSchemaCheckBox = WidgetHelper::createCheckBox(grid, 3, 0, tr("Include schema"), true, 1, 2);
+
+    grid->addWidget(new QLabel(tr("Disable referential constraints")), 4, 0);
+    disableRefContraintsComboBox = new QComboBox();
+    disableRefContraintsComboBox->addItem(tr("Auto"));
+    disableRefContraintsComboBox->addItem(tr("Yes"));
+    disableRefContraintsComboBox->addItem(tr("No"));
+    disableRefContraintsComboBox->setCurrentIndex(0);
+    grid->addWidget(disableRefContraintsComboBox, 4, 1);
 
     grid->addWidget(new QLabel(tr("Comparison mode")), 5, 0);
 
