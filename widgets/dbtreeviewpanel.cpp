@@ -108,7 +108,7 @@ void DbTreeViewPanel::selectLinkedObjects()
     }
 
 
-    QList<DbTreeModel::DbTreeNodeType> selectedObjectTypes = selectLinkedObjectsDialog->getSelectedItemTypes();
+    selectedObjectTypes = selectLinkedObjectsDialog->getSelectedItemTypes();
     for(int i=0; i<fullyCheckedObjectTypes.size(); ++i){
         selectedObjectTypes.removeOne(fullyCheckedObjectTypes.at(i));
     }
@@ -147,7 +147,10 @@ void DbTreeViewPanel::childrenLoaded()
     for(int i=0; i<availableObjectTypes.size(); ++i){
         DbTreeModel::DbTreeNodeType selectedNodeType = availableObjectTypes.at(i);
         QString objectTypeName = DbUtil::getDbObjectTypeNameByNodeType(selectedNodeType);
-        scanObjectTypes.append(objectTypeName);
+
+        if(selectedObjectTypes.contains(selectedNodeType)){
+            scanObjectTypes.append(objectTypeName);
+        }
 
         QList<QModelIndex> checkedIndexes = model->getCheckedGrandChildren(QModelIndex(), selectedNodeType);
         for(int k=0; k<checkedIndexes.size(); ++k){

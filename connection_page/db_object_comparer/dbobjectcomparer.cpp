@@ -202,7 +202,7 @@ void DbObjectComparer::comparisonError(const QString &taskName, const OciExcepti
 
     statusChanged(tr("Completed with error"));
 
-    QMessageBox::critical(this->window(), tr("Error comparing schemas"),
+    QMessageBox::critical(this->window(), tr("Comparison error"),
                           tr("Task name:%1\nError:%2").arg(taskName, exception.getErrorMessage()));
 
     enableControls(true);

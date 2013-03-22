@@ -134,5 +134,6 @@
         <file>images/tree.png</file>
         <file>images/export.png</file>
         <file>images/stop.png</file>
+        <file>images/type_body.png</file>
     </qresource>
 </RCC>

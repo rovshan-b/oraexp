@@ -1,10 +1,18 @@
 declare
   TYPE str_list_type IS TABLE OF VARCHAR2(50) INDEX BY BINARY_INTEGER;
   TYPE num_list_type IS TABLE OF NUMBER INDEX BY BINARY_INTEGER;
+  TYPE obj_constraints_type IS RECORD
+  (
+     ref_table_names str_list_type,
+     constraint_count number := 0
+  );
+  TYPE obj_constraint_list IS TABLE OF obj_constraints_type INDEX BY BINARY_INTEGER;
   
-  l_table_names str_list_type := :table_names ;
-  l_table_count number := :table_count ;
+  l_table_names str_list_type := :table_names;
+  l_table_count number := :table_count;
   l_schema varchar2(50) := :owner;
+  
+  l_tables_constraints obj_constraint_list;
   
   l_self_ref_check_list str_list_type;
   l_self_ref_check_count number := 0;
@@ -14,6 +22,39 @@ declare
   l_fully_sorted number := 1;
   
   l_result clob;
+  
+  procedure populate_constraints_list is
+     l_count number;
+  begin
+     for i in 1..l_table_count
+     loop         
+         l_count := 0;
+         for cur_constraints in (select (select table_name from sys.all_constraints where owner=c1.r_owner and 
+                                constraint_name=c1.r_constraint_name) as referenced_table_name
+                                from sys.all_constraints c1 
+                                where c1.owner=l_schema and c1.table_name=l_table_names(i) and c1.constraint_type='R')
+         loop
+            l_count := l_count + 1;
+            l_tables_constraints(i).ref_table_names(l_count) := cur_constraints.referenced_table_name;
+         end loop;
+         
+         l_tables_constraints(i).constraint_count := l_count;
+         
+         --dbms_output.put_line('added '||l_count||' constraints to '||l_table_names(i));
+     end loop;
+  end;
+  
+  function get_table_index(p_table_name varchar2) return number is
+  begin
+     for i in 1..l_table_count
+     loop  
+        if l_table_names(i) = p_table_name then
+           return i;
+        end if;
+     end loop;
+     
+     return 0;
+  end;
   
   function is_in_collection(p_key varchar2, p_coll str_list_type, p_size number) return number is
   begin
@@ -28,59 +69,63 @@ declare
   end;
   
   function reference_exists(p_from_table varchar2, p_to_table varchar2, 
-                            p_checked_names in out str_list_type, p_checked_count in out number) return number is
+                            p_checked_names in out str_list_type, p_checked_count in out number,
+                            p_recursive number := 1) return number is
+     l_table_ix number;
+     l_table_constraints obj_constraints_type;
+     l_table_constraint_count number;
+     l_ref_table_name varchar2(50);
   begin
-     for cur_referenced in (select (select table_name from sys.all_constraints where owner=c1.r_owner and 
-                            constraint_name=c1.r_constraint_name) as referenced_table_name
-                            from sys.all_constraints c1 
-                            where c1.owner=l_schema and c1.table_name=p_from_table and c1.constraint_type='R')
+     l_table_ix := get_table_index(p_from_table);
+     l_table_constraints := l_tables_constraints(l_table_ix);
+     l_table_constraint_count := l_table_constraints.constraint_count;
+     
+     for i in 1..l_table_constraint_count 
      loop
-        if cur_referenced.referenced_table_name = p_to_table then
+        if l_table_constraints.ref_table_names(i) = p_to_table then
            return 1;
-        else
-           if is_in_collection(cur_referenced.referenced_table_name, p_checked_names, p_checked_count) = 0 then 
-              p_checked_count := p_checked_count + 1;
-              p_checked_names(p_checked_count) := cur_referenced.referenced_table_name;
-              
-              return reference_exists(p_from_table, p_to_table, p_checked_names, p_checked_count);
-           end if;
+        end if;
+     end loop;
+     
+     if p_recursive = 0 then
+        return 0;
+     end if;
+     
+     for i in 1..l_table_constraint_count 
+     loop
+        l_ref_table_name := l_table_constraints.ref_table_names(i);
+        if is_in_collection(l_ref_table_name, p_checked_names, p_checked_count) = 0 then 
+           p_checked_count := p_checked_count + 1;
+           p_checked_names(p_checked_count) := l_ref_table_name;
+           
+           return reference_exists(p_from_table, p_to_table, p_checked_names, p_checked_count);
         end if;
      end loop;
      
      return 0;
   end;
   
-  function has_self_reference(p_table_name varchar2) return number is
-     l_result number;
-  begin
-     select case when exists (      
-            select 0 from (
-               select (select table_name from sys.all_constraints where owner=c1.r_owner and 
-               constraint_name=c1.r_constraint_name) as referenced_table_name
-               from sys.all_constraints c1 
-               where c1.owner=l_schema and c1.table_name=p_table_name and c1.constraint_type='R') t
-            where t.referenced_table_name = p_table_name) then 1 else 0 end into l_result from dual;
-  
-     return l_result;
-  end;
-  
   procedure move_in_collection(p_item_to_move_up number, p_place_to_move number,
                                p_coll in out str_list_type, p_size number) is
-     l_item_text_to_move varchar2(50);
      l_tmp_item varchar2(50);
+     
+     l_tmp_tab_const obj_constraints_type;
   begin
      if p_item_to_move_up <= p_place_to_move then --supporting only moving items after p_place_to_move to p_place_to_move
         return;
      end if;
           
      l_tmp_item := p_coll(p_item_to_move_up);
+     l_tmp_tab_const := l_tables_constraints(p_item_to_move_up);
      
      for i in reverse (p_place_to_move+1)..p_item_to_move_up
      loop
         p_coll(i) := p_coll(i-1);
+        l_tables_constraints(i) := l_tables_constraints(i-1);
      end loop;
      
      p_coll(p_place_to_move) := l_tmp_item;
+     l_tables_constraints(p_place_to_move) := l_tmp_tab_const;
   end;
   
   procedure sort_tables is
@@ -119,7 +164,7 @@ declare
                     l_self_ref_check_count := l_self_ref_check_count + 1;     
                     l_self_ref_check_list(l_self_ref_check_count) := l_curr_table_name;
                     
-                    l_has_self_ref := has_self_reference(l_curr_table_name);
+                    l_has_self_ref := reference_exists(l_curr_table_name, l_curr_table_name, p_checked_names2, p_checked_count2);
                     
                     if l_has_self_ref =1 then
                        l_fully_sorted := 0;
@@ -141,6 +186,8 @@ declare
   end;
   
 begin
+
+  populate_constraints_list;
   
   sort_tables;
   

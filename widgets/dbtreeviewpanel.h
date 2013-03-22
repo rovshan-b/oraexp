@@ -44,6 +44,7 @@ private:
     QPushButton *btnSelectLinkedObjects;
 
     SelectLinkedObjectsDialog *selectLinkedObjectsDialog;
+    QList<DbTreeModel::DbTreeNodeType> selectedObjectTypes;
 
     void createActionButtons(QBoxLayout *layout);
     void setInProgress(bool inProgress);

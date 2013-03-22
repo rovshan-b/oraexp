@@ -4,7 +4,6 @@
 #include "util/queryutil.h"
 #include "util/strutil.h"
 #include "connectivity/statement.h"
-#include <QDebug>
 
 DataComparerHelper::DataComparerHelper(const QString &sourceSchema,
                                        IQueryScheduler *sourceScheduler,
@@ -42,9 +41,10 @@ void DataComparerHelper::compare()
         return;
     }
 
-    QStringList tableNames = fillItemsToCompare();
+    currentItemIxToCompare = 0;
+    QStringList tableNames = getItemsToCompare();
 
-    if(itemsToCompare.isEmpty()){
+    if(tableNames.isEmpty()){
         emitCompletedSignal();
         return;
     }
@@ -57,10 +57,8 @@ void DataComparerHelper::startToCompare()
     loadTableColumns();
 }
 
-QStringList DataComparerHelper::fillItemsToCompare()
+QStringList DataComparerHelper::getItemsToCompare() const
 {
-    Q_ASSERT(itemsToCompare.isEmpty());
-
     QModelIndex tablesIndex=model->getChildIndex(QModelIndex(), DbTreeModel::Tables);
 
     QStringList tableNames;
@@ -72,19 +70,38 @@ QStringList DataComparerHelper::fillItemsToCompare()
         childIndex=model->index(i, 0, tablesIndex);
         item=static_cast<DbTreeItem *>(childIndex.internalPointer());
         if(item->checkState()!=Qt::Unchecked && item->canGenerateDdlForItem()){
-            itemsToCompare.enqueue(childIndex);
-            TableInfoForDataComparison info = tableOptions.value(item->itemName());
-            tableNames.append(info.targetTableName.isEmpty() ? item->itemName() : info.targetTableName);
+            tableNames.append(item->itemName());
         }
     }
-
-    this->tableNamesToCompare = joinEnclosed(tableNames, ",", "'");
 
     return tableNames;
 }
 
+void DataComparerHelper::fillItemsToCompare(const QString &tables)
+{
+    Q_ASSERT(itemsToCompare.isEmpty() && currentItemIxToCompare==0);
+
+    QStringList sourceTableNames = tables.split(',', QString::SkipEmptyParts);
+    QStringList targetTableNames;
+
+    QModelIndex tablesIndex=model->getChildIndex(QModelIndex(), DbTreeModel::Tables);
+
+    for(int i=0; i<sourceTableNames.size(); ++i){
+        const QString &soureTableName = sourceTableNames.at(i);
+        QModelIndex foundIndex = model->findByName(tablesIndex, soureTableName);
+        Q_ASSERT(foundIndex.isValid());
+        itemsToCompare.append(foundIndex);
+        TableInfoForDataComparison info = tableOptions.value(soureTableName);
+        targetTableNames.append(info.targetTableName.isEmpty() ? soureTableName : info.targetTableName);
+
+        this->tableNamesToCompare = joinEnclosed(targetTableNames, ",", "'");
+    }
+}
+
 void DataComparerHelper::sortTableNames(const QStringList &tableNames)
 {
+    emit statusChanged(tr("Determining compare order..."));
+
     sourceScheduler->enqueueQuery("sort_referencing_tables",
                                   QList<Param*>()
                                   << new Param("table_names", tableNames)
@@ -112,9 +129,14 @@ void DataComparerHelper::tableSortRecordFetched(const FetchResult &fetchResult)
         return;
     }
 
-    qDebug() << "sorted table names:" << fetchResult.oneRow;
+    QString tables = fetchResult.oneRow.at(0);
+    bool fullySorted = fetchResult.oneRow.at(1).toInt()==1;
 
-    if(options->disableRefConstraints==DataComparisonOptions::Disable){
+    fillItemsToCompare(tables);
+
+    this->needToDisableRefConstraints = (options->disableRefConstraints==DataComparisonOptions::Disable ||
+                                         !fullySorted);
+    if(needToDisableRefConstraints){
         disableRefConstraints();
     }else{
         startToCompare();
@@ -127,12 +149,13 @@ void DataComparerHelper::tableSortFetchCompleted(const QString &)
 
 void DataComparerHelper::loadTableColumns()
 {
-    if(itemsToCompare.isEmpty()){
-        fillItemsToCompare();
+    if(currentItemIxToCompare >= itemsToCompare.size()){
+        currentItemIxToCompare = 0;
+        //fillItemsToCompare();
         emit objectCountDetermined(itemsToCompare.size());
         compareNextItem();
     }else{
-        const QModelIndex &tableIndex=itemsToCompare.head();
+        const QModelIndex &tableIndex=itemsToCompare.at(currentItemIxToCompare);
         DbTreeItem *tableItem=static_cast<DbTreeItem *>(tableIndex.internalPointer());
         if(!tableItem->areChildrenPopulated()){
             model->loadChildItems(tableIndex);
@@ -155,7 +178,7 @@ void DataComparerHelper::loadTableColumns()
 
                 tableOptions[tableItem->itemName()]=tableInfo;
 
-                itemsToCompare.dequeue();
+                ++currentItemIxToCompare;
 
                 loadTableColumns(); //load next items
             }
@@ -165,14 +188,14 @@ void DataComparerHelper::loadTableColumns()
 
 void DataComparerHelper::compareNextItem()
 {
-    if(itemsToCompare.isEmpty()){
-        if(options->disableRefConstraints==DataComparisonOptions::Disable){
+    if(currentItemIxToCompare >= itemsToCompare.size()){
+        if(needToDisableRefConstraints){
             enableRefConstraints();
         }else{
             emitCompletedSignal();
         }
     }else{
-        QModelIndex tableIndex=itemsToCompare.dequeue();
+        QModelIndex tableIndex=itemsToCompare.at(currentItemIxToCompare++);
         DbTreeItem *tableItem=static_cast<DbTreeItem *>(tableIndex.internalPointer());
         Q_ASSERT(tableItem);
 
@@ -240,7 +263,7 @@ void DataComparerHelper::tableComparisonError(const QString &taskName, const Oci
 {
     deleteComparerThread();
 
-    if(options->disableRefConstraints==DataComparisonOptions::Disable &&
+    if(needToDisableRefConstraints &&
             options->comparisonMode==DataComparisonOptions::UpdateDatabase){
         lastExceptionTaskName=taskName;
         lastException=exception;

@@ -10,7 +10,6 @@
 #include "connectivity/queryresult.h"
 #include "connectivity/fetchresult.h"
 #include "beans/datacompareinfo.h"
-#include <QQueue>
 
 class DbTreeModel;
 class DataComparerThread;
@@ -64,7 +63,8 @@ private:
 
     QString currentTableName;
 
-    QQueue<QModelIndex> itemsToCompare;
+    QList<QModelIndex> itemsToCompare;
+    int currentItemIxToCompare;
 
     DataComparerThread *comparerThread;
 
@@ -75,9 +75,12 @@ private:
 
     QString enableRefContraintsQuery;
 
+    bool needToDisableRefConstraints;
+
     void emitCompletedSignal();
-    QStringList fillItemsToCompare();
+    QStringList getItemsToCompare() const;
     void sortTableNames(const QStringList &tableNames);
+    void fillItemsToCompare(const QString &tables);
     void loadTableColumns();
     void compareNextItem();
     void startComparerThread(const QString &tableName);

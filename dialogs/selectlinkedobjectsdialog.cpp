@@ -27,7 +27,7 @@ SelectLinkedObjectsDialog::SelectLinkedObjectsDialog(QWidget *parent) :
 
     maxLevelEditor = new QSpinBox();
     maxLevelEditor->setRange(0, 10000);
-    maxLevelEditor->setValue(3);
+    maxLevelEditor->setValue(2);
     maxLevelEditor->setToolTip(tr("Maximum number of steps to go. Zero means unlimited."));
     form->addRow(tr("Max level"), maxLevelEditor);
 
