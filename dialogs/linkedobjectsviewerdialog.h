@@ -15,6 +15,11 @@ public:
     void setObjectList(const QStringList &objectNames, const QStringList &objectTypes, const QStringList &levels, const QStringList &refTypes);
 
     QStandardItemModel *tableModel;
+
+private slots:
+    void selectAll();
+    void selectNone();
+
 private:
     DataTable *table;
     

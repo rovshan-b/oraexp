@@ -38,6 +38,7 @@ signals:
     void uiCreated();
     void connectionEstablished(DbConnection *db);
     void sourceSchemaChanged(const QString &newSchemaName);
+    void busyStateChanged(bool busy);
 
 private slots:
     void loadDbObjects();

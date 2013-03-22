@@ -590,4 +590,11 @@ void WidgetHelper::fillAvailableTextCodecNames(QComboBox *comboBox, const QStrin
     comboBox->setCurrentIndex(comboBox->findText(preselect));
 }
 
+void WidgetHelper::checkModelItems(QStandardItemModel *model, bool check)
+{
+    for(int i=0; i<model->rowCount(); ++i){
+        model->item(i, 0)->setCheckState(check ? Qt::Checked : Qt::Unchecked);
+    }
+}
+
 

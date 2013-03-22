@@ -2,6 +2,7 @@
 #include "widgets/datatable.h"
 #include "util/dialoghelper.h"
 #include "util/iconutil.h"
+#include "util/widgethelper.h"
 #include <QtGui>
 
 LinkedObjectsViewerDialog::LinkedObjectsViewerDialog(QWidget *parent) :
@@ -21,6 +22,17 @@ LinkedObjectsViewerDialog::LinkedObjectsViewerDialog(QWidget *parent) :
 
     mainLayout->addWidget(table);
 
+    QHBoxLayout *selectButtonsLayout = new QHBoxLayout();
+
+    QPushButton *btnSelectAll = new QPushButton(tr("Select all"));
+    selectButtonsLayout->addWidget(btnSelectAll);
+    QPushButton *btnSelectNone = new QPushButton(tr("Select none"));
+    selectButtonsLayout->addWidget(btnSelectNone);
+
+    selectButtonsLayout->addStretch();
+
+    mainLayout->addLayout(selectButtonsLayout);
+
     QDialogButtonBox *buttonBox=DialogHelper::createButtonBox(this);
     buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Select in Tree View"));
     mainLayout->addWidget(buttonBox);
@@ -28,6 +40,9 @@ LinkedObjectsViewerDialog::LinkedObjectsViewerDialog(QWidget *parent) :
     setLayout(mainLayout);
 
     resize(700, 500);
+
+    connect(btnSelectAll, SIGNAL(clicked()), this, SLOT(selectAll()));
+    connect(btnSelectNone, SIGNAL(clicked()), this, SLOT(selectNone()));
 }
 
 void LinkedObjectsViewerDialog::setObjectList(const QStringList &objectNames, const QStringList &objectTypes, const QStringList &levels, const QStringList &refTypes)
@@ -53,4 +68,14 @@ void LinkedObjectsViewerDialog::setObjectList(const QStringList &objectNames, co
         table->horizontalHeader()->resizeSection(3, 200);
     }
     //table->horizontalHeader()->setStretchLastSection(true);
+}
+
+void LinkedObjectsViewerDialog::selectAll()
+{
+    WidgetHelper::checkModelItems(tableModel, true);
+}
+
+void LinkedObjectsViewerDialog::selectNone()
+{
+    WidgetHelper::checkModelItems(tableModel, false);
 }

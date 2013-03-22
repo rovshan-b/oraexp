@@ -19,6 +19,9 @@ public:
     explicit DbTreeViewPanel(QWidget *parent = 0);
 
     DbTreeView *tree() const {return this->dbTree;}
+
+signals:
+    void busyStateChanged(bool busy);
     
 private slots:
     void selectAll();

@@ -48,6 +48,12 @@ void DbObjectComparer::createTabs()
 
     connect(tabWidget, SIGNAL(currentChanged(int)), this, SIGNAL(stateChanged()));
     connect(compareTab, SIGNAL(sourceSchemaChanged(QString)), resultsTab, SLOT(setCurrentSchema(QString)));
+    connect(compareTab, SIGNAL(busyStateChanged(bool)), this, SLOT(busyStateChanged(bool)));
+}
+
+void DbObjectComparer::busyStateChanged(bool busy)
+{
+    this->setEnabled(!busy);
 }
 
 DbObjectComparerCompareTab *DbObjectComparer::createCompareTab(DbUiManager *uiManager)

@@ -424,7 +424,7 @@ void DataComparerThread::doReverseComparison(const QStringList &uqColumns)
 
     QString selectFromTargetSql=QString("SELECT %1 FROM \"%2\".\"%3\"").
             arg(getColumnsForSelect(uqColumns)).
-            arg(targetSchema).arg(tableOptions.targetTableName);
+            arg(targetSchema).arg(tableOptions.targetTableName.isEmpty() ? this->tableName : tableOptions.targetTableName);
 
     if(!tableOptions.whereClause.isEmpty()){
         selectFromTargetSql.append(" ").append(ensureStartsWith(tableOptions.whereClause, "WHERE"));

@@ -47,6 +47,7 @@ public slots:
 
 private slots:
     void createTabs();
+    void busyStateChanged(bool busy);
 
 protected:
     DbObjectComparerCompareTab* createCompareTab(DbUiManager *uiManager);

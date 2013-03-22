@@ -8,6 +8,7 @@
 #include "../tableinfofordatacomparison.h"
 #include "navtree/dbtreemodel.h"
 #include "connectivity/queryresult.h"
+#include "connectivity/fetchresult.h"
 #include "beans/datacompareinfo.h"
 #include <QQueue>
 
@@ -48,6 +49,10 @@ private slots:
     void refConstraintsDisabled(const QueryResult &result);
     void refConstraintsEnabled(const QueryResult &result);
 
+    void tableSortQueryCompleted(const QueryResult &result);
+    void tableSortRecordFetched(const FetchResult &fetchResult);
+    void tableSortFetchCompleted(const QString &);
+
 private:
     QString sourceSchema;
     IQueryScheduler *sourceScheduler;
@@ -71,7 +76,8 @@ private:
     QString enableRefContraintsQuery;
 
     void emitCompletedSignal();
-    QStringList getItemsToCompare() const;
+    QStringList fillItemsToCompare();
+    void sortTableNames(const QStringList &tableNames);
     void loadTableColumns();
     void compareNextItem();
     void startComparerThread(const QString &tableName);

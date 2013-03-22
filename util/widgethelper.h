@@ -97,6 +97,8 @@ public:
     static QFont getMonospaceFont(int pointSize=-1);
 
     static void fillAvailableTextCodecNames(QComboBox *comboBox, const QString &preselect = "UTF-8");
+
+    static void checkModelItems(QStandardItemModel *model, bool check);
 };
 
 #endif // WIDGETHELPER_H

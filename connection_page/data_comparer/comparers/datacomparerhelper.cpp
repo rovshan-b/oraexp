@@ -4,6 +4,7 @@
 #include "util/queryutil.h"
 #include "util/strutil.h"
 #include "connectivity/statement.h"
+#include <QDebug>
 
 DataComparerHelper::DataComparerHelper(const QString &sourceSchema,
                                        IQueryScheduler *sourceScheduler,
@@ -41,18 +42,14 @@ void DataComparerHelper::compare()
         return;
     }
 
-    fillItemsToCompare();
+    QStringList tableNames = fillItemsToCompare();
 
     if(itemsToCompare.isEmpty()){
         emitCompletedSignal();
         return;
     }
 
-    if(options->disableRefConstraints){
-        disableRefConstraints();
-    }else{
-        startToCompare();
-    }
+    sortTableNames(tableNames);
 }
 
 void DataComparerHelper::startToCompare()
@@ -60,7 +57,7 @@ void DataComparerHelper::startToCompare()
     loadTableColumns();
 }
 
-void DataComparerHelper::fillItemsToCompare()
+QStringList DataComparerHelper::fillItemsToCompare()
 {
     Q_ASSERT(itemsToCompare.isEmpty());
 
@@ -82,6 +79,50 @@ void DataComparerHelper::fillItemsToCompare()
     }
 
     this->tableNamesToCompare = joinEnclosed(tableNames, ",", "'");
+
+    return tableNames;
+}
+
+void DataComparerHelper::sortTableNames(const QStringList &tableNames)
+{
+    sourceScheduler->enqueueQuery("sort_referencing_tables",
+                                  QList<Param*>()
+                                  << new Param("table_names", tableNames)
+                                  << new Param("table_count", tableNames.size())
+                                  << new Param("owner", sourceSchema),
+                                  this,
+                                  "sort_referencing_tables",
+                                  "tableSortQueryCompleted",
+                                  "tableSortRecordFetched",
+                                  "tableSortFetchCompleted",
+                                  true);
+}
+
+void DataComparerHelper::tableSortQueryCompleted(const QueryResult &result)
+{
+    if(result.hasError){
+        subComparisonError("sort_referencing_tables_query", result.exception);
+    }
+}
+
+void DataComparerHelper::tableSortRecordFetched(const FetchResult &fetchResult)
+{
+    if(fetchResult.hasError){
+        subComparisonError("sort_referencing_tables_fetch", fetchResult.exception);
+        return;
+    }
+
+    qDebug() << "sorted table names:" << fetchResult.oneRow;
+
+    if(options->disableRefConstraints==DataComparisonOptions::Disable){
+        disableRefConstraints();
+    }else{
+        startToCompare();
+    }
+}
+
+void DataComparerHelper::tableSortFetchCompleted(const QString &)
+{
 }
 
 void DataComparerHelper::loadTableColumns()
@@ -125,7 +166,7 @@ void DataComparerHelper::loadTableColumns()
 void DataComparerHelper::compareNextItem()
 {
     if(itemsToCompare.isEmpty()){
-        if(options->disableRefConstraints){
+        if(options->disableRefConstraints==DataComparisonOptions::Disable){
             enableRefConstraints();
         }else{
             emitCompletedSignal();
@@ -199,7 +240,7 @@ void DataComparerHelper::tableComparisonError(const QString &taskName, const Oci
 {
     deleteComparerThread();
 
-    if(options->disableRefConstraints &&
+    if(options->disableRefConstraints==DataComparisonOptions::Disable &&
             options->comparisonMode==DataComparisonOptions::UpdateDatabase){
         lastExceptionTaskName=taskName;
         lastException=exception;

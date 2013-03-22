@@ -85,6 +85,8 @@ void DbObjectComparerCompareTab::createItemsTable(QBoxLayout *layout)
     schemaObjectsPanel=new DbTreeViewPanel();
     layout->addWidget(schemaObjectsPanel);
     layout->setStretchFactor(schemaObjectsPanel, 1);
+
+    connect(schemaObjectsPanel, SIGNAL(busyStateChanged(bool)), this, SIGNAL(busyStateChanged(bool)));
 }
 
 void DbObjectComparerCompareTab::targetConnectionEstablished(DbConnection *db)

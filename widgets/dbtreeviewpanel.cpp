@@ -51,6 +51,8 @@ void DbTreeViewPanel::createActionButtons(QBoxLayout *layout)
 void DbTreeViewPanel::setInProgress(bool inProgress)
 {
     this->setEnabled(!inProgress);
+
+    emit busyStateChanged(inProgress);
 }
 
 void DbTreeViewPanel::selectAll()
@@ -201,7 +203,7 @@ void DbTreeViewPanel::childrenLoaded()
 
 void DbTreeViewPanel::childrenLoadError(const OciException &)
 {
-    this->setEnabled(false);
+    setInProgress(false);
 }
 
 void DbTreeViewPanel::linkedObjectsQueryCompleted(const QueryResult &result)

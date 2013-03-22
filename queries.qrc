@@ -123,5 +123,6 @@
         <file>queries/disable_autotrace.sql</file>
         <file>queries/get_current_session_stats.sql</file>
         <file>queries/find_linked_objects.sql</file>
+        <file>queries/sort_referencing_tables.sql</file>
     </qresource>
 </RCC>
