@@ -15,20 +15,15 @@ DataComparerThread::DataComparerThread(const QString &sourceSchema,
                                        const QString &targetSchema,
                                        DbConnection *targetDb,
                                        const QString &tableName,
-                                       DataComparisonOptions *options,
+                                       DataOperationOptions *options,
                                        const TableInfoForDataComparison &tableOptions,
                                        QObject *parent) :
-    QThread(parent),
-    sourceSchema(sourceSchema),
-    sourceDb(sourceDb),
-    targetSchema(targetSchema),
-    targetDb(targetDb),
-    tableName(tableName),
-    options(options),
-    tableOptions(tableOptions),
+    DataOperationThread(sourceSchema, sourceDb, targetSchema, targetDb, tableName, options, tableOptions, parent),
     targetStmt(0),
     sourceDeleteGeneratorStmt(0)
 {
+    compareOptions = static_cast<DataComparisonOptions*>(options);
+
     compareScript=QueryUtil::getQuery("compare_data", targetDb);
     reverseCompareScript=QueryUtil::getQuery("compare_data_reverse", sourceDb);
 
@@ -56,7 +51,7 @@ void DataComparerThread::run()
         }
 
         QString uqCols=getUqColumns();
-        QStringList uqColumns = splitTrimmed(uqCols);
+        this->uqColumns = splitTrimmed(uqCols);
         if(uqColumns.isEmpty()){ //no columns to use for uniquely identifying records
             emitCompareInfo(tableName, tr("Skipped. No PK or unique key selected."));
             emitCompletedSignal();
@@ -73,17 +68,17 @@ void DataComparerThread::run()
         sourceDeleteGeneratorStmt=sourceDb->createStatement();
 
         currentTaskName="prepare_bind_arrays";
-        prepareBindArrays(uqColumns);
+        prepareBindArrays();
 
         currentTaskName="create_comparison_script";
-        createComparisonScript(uqColumns);
+        createComparisonScript();
 
-        if(options->deletes){
+        if(compareOptions->deletes){
             currentTaskName="reverse_compare_data";
-            doReverseComparison(uqColumns);
+            doReverseComparison();
         }
 
-        if(options->inserts || options->updates){
+        if(compareOptions->inserts || compareOptions->updates){
             currentTaskName="compare_data";
             doComparison();
         }
@@ -122,56 +117,19 @@ QString DataComparerThread::getUqColumns()
     return result;
 }
 
-void DataComparerThread::prepareBindArrays(const QStringList &uqColumns)
+void DataComparerThread::prepareBindArrayForColumn(const QString &colName, const QString &dataType, int length, int colOffset)
 {
-    QString query=QueryUtil::getQuery("get_table_columns_for_buffer_allocation");
-    QueryResult res=sourceDb->executeQuery(query, QList<Param*>() <<
-                                  new Param(":owner", sourceSchema) <<
-                                  new Param(":object_name", tableName));
-
-    QScopedPointer<Statement> stmt(res.statement);
-
-    Resultset *rs=stmt->rsAt(0);
-
-    rs->beginFetchRows();
-
-    QString colName;
-    int offset=0;
-    while(rs->moveNext()){
-
-        colName=rs->getString(1);
-        QString dataType=rs->getString(2);
-        int length=rs->getString(4).toInt();
-
-#ifdef ORAEXP_USE_VARCHAR_FOR_BULK_TS_AND_INTERVAL
-        allColumns[colName]=dataType;
-
-        if(DbUtil::isIntervalType(dataType) || DbUtil::isTimestampType(dataType)){
-            dataType="VARCHAR2";
-            length=50;
-        }
-#endif
-
-        if(!tableOptions.columnsToCompare.contains(colName)){ //column is not comparable
-            continue;
-        }
-
-
-        if(options->inserts || options->deletes){
-            bulkHelper.createBufferForDataType(targetStmt, dataType, length);
-        }
-
-        if(options->deletes && uqColumns.contains(colName)){
-            bulkDeleteHelper.createBufferForDataType(sourceDeleteGeneratorStmt, dataType, length);
-            uqColumnOffsets.append(offset);
-        }
-
-        ++offset;
+    if(compareOptions->inserts || compareOptions->deletes){
+        bulkHelper.createBufferForDataType(targetStmt, dataType, length);
     }
-    rs->endFetchRows();
+
+    if(compareOptions->deletes && uqColumns.contains(colName)){
+        bulkDeleteHelper.createBufferForDataType(sourceDeleteGeneratorStmt, dataType, length);
+        uqColumnOffsets.append(colOffset);
+    }
 }
 
-void DataComparerThread::createComparisonScript(const QStringList &uqColumns)
+void DataComparerThread::createComparisonScript()
 {
     QString columnNames = joinEnclosed(tableOptions.columnsToCompare, ",", "\"");
     QString columnNamesForSelectInto = getColumnsForSelect(tableOptions.columnsToCompare);
@@ -243,7 +201,7 @@ void DataComparerThread::createComparisonScript(const QStringList &uqColumns)
 
     QString targetTableName = tableOptions.targetTableName.isEmpty() ? this->tableName : tableOptions.targetTableName;
     //this may be different if user disabled schema name generation in script
-    QString scriptTargetTableName = (options->comparisonMode==DataComparisonOptions::GenerateDml && !options->includeSchemaName) ?
+    QString scriptTargetTableName = (compareOptions->comparisonMode==DataComparisonOptions::GenerateDml && !compareOptions->includeSchemaName) ?
                                     QString("\"%1\"").arg(targetTableName) :
                                     QString("\"%1\".\"%2\"").arg(targetSchema, targetTableName);
 
@@ -275,55 +233,6 @@ void DataComparerThread::createComparisonScript(const QStringList &uqColumns)
 
     qDebug() << "compare script:" << compareScript;
     qDebug() << "reverse compare script:" << reverseCompareScript;
-}
-
-QString DataComparerThread::toDynamicSqlValue(const QString &varName, const QString &dataType)
-{
-    QString result;
-
-    if(DbUtil::isStringType(dataType)){
-
-        result = QString("'''||replace(%1,'''','''||chr(39)||''')||'''").arg(varName);
-    }else if(DbUtil::isNumericType(dataType)){
-        result = QString("to_number('''||%1||''')").arg(varName);
-    }else if(DbUtil::isDateType(dataType)){
-        result = QString("to_date('''||to_char(%1,'%2')||''',''%2'')").arg(varName, DB_DATE_FORMAT);
-    }else if(DbUtil::isIntervalType(dataType)){
-        OraExp::ColumnSubType intervalSubType=DbUtil::getIntervalSubType(dataType);
-#ifdef ORAEXP_USE_VARCHAR_FOR_BULK_TS_AND_INTERVAL
-        if(intervalSubType==OraExp::CSTIntervalDs){
-            result = QString("to_dsinterval('''||%1||''')").arg(varName);
-        }else{
-            result = QString("to_yminterval('''||%1||''')").arg(varName);
-        }
-#else
-        if(intervalSubType==OraExp::CSTIntervalDs){
-            result = QString("to_dsinterval('''||to_char(%1)||''')").arg(varName);
-        }else{
-            result = QString("to_yminterval('''||to_char(%1)||''')").arg(varName);
-        }
-#endif
-    }else if(DbUtil::isTimestampType(dataType)){
-        OraExp::ColumnSubType timestampSubType=DbUtil::getTimestampSubType(dataType);
-#ifdef ORAEXP_USE_VARCHAR_FOR_BULK_TS_AND_INTERVAL
-        if(timestampSubType==OraExp::CSTTimestampTz){
-            result = QString("to_timestamp_tz('''||%1||''',''%2'')").arg(varName, DB_TZ_TIMESTAMP_FORMAT);
-        }else{
-            result = QString("to_timestamp('''||%1||''',''%2'')").arg(varName, DB_TIMESTAMP_FORMAT);
-        }
-#else
-        if(timestampType==OCI_TIMESTAMP_TZ){
-            result = QString("to_timestamp_tz('''||to_char(%1,'%2')||''',''%2'')").arg(varName, DB_TZ_TIMESTAMP_FORMAT);
-        }else{
-            result = QString("to_timestamp('''||to_char(%1,'%2')||''',''%2'')").arg(varName, DB_TIMESTAMP_FORMAT);
-        }
-#endif
-    }else{
-        qDebug("Data type not supported in DataComparerThread::toDynamicSqlValue");
-        Q_ASSERT(false);
-    }
-
-    return result;
 }
 
 void DataComparerThread::doComparison()
@@ -363,9 +272,9 @@ void DataComparerThread::doComparison()
                                               arrSizeParam <<
                                               insertCountParam <<
                                               updateCountParam <<
-                                              new Param(":generate_inserts", this->options->inserts) <<
-                                              new Param(":generate_updates", this->options->updates) <<
-                                              new Param(":update_database", (int)this->options->comparisonMode) <<
+                                              new Param(":generate_inserts", this->compareOptions->inserts) <<
+                                              new Param(":generate_updates", this->compareOptions->updates) <<
+                                              new Param(":update_database", (int)this->compareOptions->comparisonMode) <<
                                               new Param(":rs_out");
     targetStmt->bindParams(params); //second. do not move upper than first
     targetStmt->printBindVars();
@@ -418,7 +327,7 @@ void DataComparerThread::doComparison()
     targetStmt->unlockConnection();
 }
 
-void DataComparerThread::doReverseComparison(const QStringList &uqColumns)
+void DataComparerThread::doReverseComparison()
 {
     emitCompareInfo(tableName, tr("Generating DELETE statements"));
 
@@ -478,7 +387,7 @@ void DataComparerThread::doReverseComparison(const QStringList &uqColumns)
             sourceDeleteGeneratorStmt->releaseResultsets();
 
             if(!dml.isEmpty()){
-                if(options->comparisonMode==DataComparisonOptions::GenerateDml){
+                if(compareOptions->comparisonMode==DataComparisonOptions::GenerateDml){
                     emitCompareInfo(tableName, "", 0, 0, deleteCountParam->getIntValue(), dml);
                 }else{
                     emitCompareInfo(tableName, "", 0, 0, deleteCountParam->getIntValue(), "");
@@ -513,7 +422,7 @@ void DataComparerThread::doReverseComparison(const QStringList &uqColumns)
         if(!dml.isEmpty()){
             fullDml.append(dml);
         }
-        if(options->comparisonMode==DataComparisonOptions::GenerateDml && !dml.isEmpty()){
+        if(compareOptions->comparisonMode==DataComparisonOptions::GenerateDml && !dml.isEmpty()){
            emitCompareInfo(tableName, "", 0, 0, currentDeleteCount, dml);
         }else if(!fullDml.isEmpty()){
             emitCompareInfo(tableName, "", 0, 0, currentDeleteCount, "");
@@ -524,40 +433,6 @@ void DataComparerThread::doReverseComparison(const QStringList &uqColumns)
 
     sourceDeleteGeneratorStmt->unlockConnection();
 
-}
-
-QString DataComparerThread::getColumnsForSelect(const QStringList &columnList)
-{
-#ifdef ORAEXP_USE_VARCHAR_FOR_BULK_TS_AND_INTERVAL
-
-    QString result;
-    for(int i=0; i<columnList.size(); ++i){
-        const QString &columnName = columnList.at(i);
-        const QString &dataType=allColumns.value(columnName);
-        Q_ASSERT(!dataType.isEmpty());
-
-        QString convertedName = DbUtil::intervalOrTimestampToChar(columnName, dataType);
-
-        if(convertedName==columnName){
-            result.append("\"").append(convertedName).append("\"");
-        }else{
-            result.append(convertedName);
-        }
-
-        if(i!=columnList.size()-1){
-            result.append(",");
-        }
-    }
-
-    return result;
-#else
-    return joinEnclosed(columnList, ",", "\"");
-#endif
-}
-
-void DataComparerThread::emitCompletedSignal()
-{
-    emit comparisonCompleted();
 }
 
 void DataComparerThread::emitCompareInfo(const QString &tableName, const QString &newStatus, int inserts, int updates, int deletes, const QString &dml)

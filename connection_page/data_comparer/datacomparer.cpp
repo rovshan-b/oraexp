@@ -44,6 +44,7 @@ IDbObjectCompareHelper *DataComparer::createCompareHelper(const QString &sourceS
     //connect(comparer, SIGNAL(changedObjectDetected(QString,DbTreeModel::DbTreeNodeType,QString)), resultsTab, SLOT(changedObjectDetected(QString,DbTreeModel::DbTreeNodeType,QString)));
     connect(comparer, SIGNAL(statusChanged(QString)), this, SLOT(statusChanged(QString)));
     connect(comparer, SIGNAL(compareInfoAvailable(DataCompareInfo)), resultsTab, SLOT(compareInfoAvailable(DataCompareInfo)));
+    connect(comparer, SIGNAL(queryTextAvailable(QString)), this, SLOT(comparisonResultAvailable(QString)));
     connect(comparer, SIGNAL(completed()), this, SLOT(completed()));
     connect(comparer, SIGNAL(comparisonError(QString,OciException)), this, SLOT(comparisonError(QString,OciException)));
     connect(comparer, SIGNAL(objectCountDetermined(int)), this, SLOT(objectCountDetermined(int)));

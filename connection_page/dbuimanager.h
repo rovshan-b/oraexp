@@ -35,6 +35,7 @@ public slots:
     void addWorksheet(const QString &contents="");
     void addSchemaComparer();
     void addDataComparer();
+    void addDataCopier();
 
     DbItemAction *getSenderAction() const;
 

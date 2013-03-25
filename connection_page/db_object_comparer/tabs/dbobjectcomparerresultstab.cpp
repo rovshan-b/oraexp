@@ -23,6 +23,7 @@ void DbObjectComparerResultsTab::createUi()
 
     editor=new CodeEditorAndSearchPaneWidget();
     editor->editor()->setUndoRedoEnabled(false);
+    editor->setVisible(false);
     splitter->addWidget(editor);
 
     //splitter->setStretchFactor(1, 1);
@@ -60,6 +61,7 @@ void DbObjectComparerResultsTab::addText(const QString &text)
     if(noText && text.size()>1 && text.startsWith('\n')){
         noText=false;
         editor->editor()->addText(text.mid(1));
+        editor->setVisible(true);
     }else{
         editor->editor()->addText(text);
     }

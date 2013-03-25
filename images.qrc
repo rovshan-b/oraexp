@@ -135,5 +135,6 @@
         <file>images/export.png</file>
         <file>images/stop.png</file>
         <file>images/type_body.png</file>
+        <file>images/copy_data.png</file>
     </qresource>
 </RCC>

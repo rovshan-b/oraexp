@@ -3,10 +3,13 @@
 #include "util/widgethelper.h"
 #include <QtGui>
 
-DataComparerOptionsTab::DataComparerOptionsTab(QWidget *parent) : DbObjectComparerOptionsTab(parent)
+DataComparerOptionsTab::DataComparerOptionsTab(QWidget *parent) :
+    DbObjectComparerOptionsTab(parent),
+    disableRefConsChanged(false)
 {
     QVBoxLayout *mainLayout=new QVBoxLayout();
-    createOptionsPane(mainLayout);
+
+    createDataCompareOptionsPane(createSingleColumnOptionsPane(mainLayout));
 
     enableControls();
 
@@ -16,39 +19,15 @@ DataComparerOptionsTab::DataComparerOptionsTab(QWidget *parent) : DbObjectCompar
 DbObjectComparisonOptions *DataComparerOptionsTab::getOptions() const
 {
     DataComparisonOptions *options=new DataComparisonOptions();
+
     options->inserts=insertsCheckbox->isChecked();
     options->updates=updatesCheckbox->isChecked();
     options->deletes=deletesCheckbox->isChecked();
-    options->disableRefConstraints=(DataComparisonOptions::DisableRefConstraintsMode)disableRefContraintsComboBox->currentIndex();
+    options->disableRefConstraints=(DataOperationOptions::DisableRefConstraintsMode)disableRefContraintsComboBox->currentIndex();
     options->includeSchemaName=includeSchemaCheckBox->isChecked();
     options->comparisonMode=comparisonModeComboBox->currentIndex() == 0 ? DataComparisonOptions::GenerateDml : DataComparisonOptions::UpdateDatabase;
 
     return options;
-}
-
-void DataComparerOptionsTab::createOptionsPane(QBoxLayout *layout)
-{
-    QVBoxLayout *optionsPaneLayout=new QVBoxLayout();
-
-    QVBoxLayout *firstColLayout=new QVBoxLayout();
-    firstColLayout->setContentsMargins(0,0,0,0);
-
-    createDataCompareOptionsPane(firstColLayout);
-
-    optionsPaneLayout->addLayout(firstColLayout);
-    optionsPaneLayout->addStretch();
-
-    QWidget *scrollWidget=new QWidget();
-    scrollWidget->setContentsMargins(0,0,0,0);
-    scrollWidget->setLayout(optionsPaneLayout);
-
-    QScrollArea *scrollArea=new QScrollArea();
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setBackgroundRole(QPalette::Base);
-    scrollArea->setWidget(scrollWidget);
-
-    layout->addWidget(scrollArea);
-    layout->setAlignment(optionsPaneLayout, Qt::AlignTop|Qt::AlignLeft);
 }
 
 void DataComparerOptionsTab::createDataCompareOptionsPane(QVBoxLayout *layout)
@@ -66,7 +45,7 @@ void DataComparerOptionsTab::createDataCompareOptionsPane(QVBoxLayout *layout)
     disableRefContraintsComboBox->addItem(tr("Auto"));
     disableRefContraintsComboBox->addItem(tr("Yes"));
     disableRefContraintsComboBox->addItem(tr("No"));
-    disableRefContraintsComboBox->setCurrentIndex(0);
+    disableRefContraintsComboBox->setCurrentIndex(1);
     grid->addWidget(disableRefContraintsComboBox, 4, 1);
 
     grid->addWidget(new QLabel(tr("Comparison mode")), 5, 0);
@@ -82,9 +61,26 @@ void DataComparerOptionsTab::createDataCompareOptionsPane(QVBoxLayout *layout)
     layout->setAlignment(dataCompareOptionsGroupBox, Qt::AlignTop|Qt::AlignLeft);
 
     connect(comparisonModeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(enableControls()));
+    connect(comparisonModeComboBox, SIGNAL(activated(int)), this, SLOT(disableRefConstraintsChangedByUser()));
+    connect(deletesCheckbox, SIGNAL(stateChanged(int)), this, SLOT(deletesCheckboxChanged()));
 }
 
 void DataComparerOptionsTab::enableControls()
 {
     includeSchemaCheckBox->setEnabled(comparisonModeComboBox->currentIndex()==DataComparisonOptions::GenerateDml);
+}
+
+void DataComparerOptionsTab::disableRefConstraintsChangedByUser()
+{
+    disableRefConsChanged=true;
+}
+
+void DataComparerOptionsTab::deletesCheckboxChanged()
+{
+    if(!disableRefConsChanged){
+        disableRefContraintsComboBox->setCurrentIndex(deletesCheckbox->isChecked() ?
+                                                          DataComparisonOptions::Disable
+                                                        :
+                                                          DataComparisonOptions::Auto);
+    }
 }

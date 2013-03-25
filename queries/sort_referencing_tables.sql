@@ -17,11 +17,15 @@ declare
   l_self_ref_check_list str_list_type;
   l_self_ref_check_count number := 0;
   
+  l_not_sorted_table_list str_list_type;
+  l_not_sorted_table_count number := 0;
+  
   l_new_order num_list_type;
   
   l_fully_sorted number := 1;
   
   l_result clob;
+  l_not_sorted_tables clob;
   
   procedure populate_constraints_list is
      l_count number;
@@ -67,6 +71,15 @@ declare
      
      return 0;
   end;
+  
+  procedure add_to_not_sorted_list(p_table_name varchar2) is
+  begin
+    if is_in_collection(p_table_name, l_not_sorted_table_list, l_not_sorted_table_count) = 0 then
+        l_not_sorted_table_count := l_not_sorted_table_count + 1;
+        l_not_sorted_table_list(l_not_sorted_table_count) := p_table_name;
+    end if;
+  end;
+  
   
   function reference_exists(p_from_table varchar2, p_to_table varchar2, 
                             p_checked_names in out str_list_type, p_checked_count in out number,
@@ -168,6 +181,7 @@ declare
                     
                     if l_has_self_ref =1 then
                        l_fully_sorted := 0;
+                       add_to_not_sorted_list(l_curr_table_name);
                     end if;
                  end if;
                  
@@ -176,6 +190,7 @@ declare
                     l_did_changes := 1;
                  elsif (l_has_fwd_ref=1 and l_has_back_ref=1) then --no circular dependency allowed
                     l_fully_sorted := 0;
+                    add_to_not_sorted_list(l_curr_table_name);
                  end if;
               end loop;
            end if;
@@ -194,8 +209,13 @@ begin
   
   for i in 1..l_table_count
   loop
-      l_result := l_result || l_table_names(i) ||',';
+    l_result := l_result || l_table_names(i) || ',';
   end loop;
   
-  open :rs_out for select l_result as sorted_names, l_fully_sorted as fully_sorted from dual;
+  for i in 1..l_not_sorted_table_count 
+  loop
+    l_not_sorted_tables := l_not_sorted_tables || l_not_sorted_table_list(i) || ',';
+  end loop;
+  
+  open :rs_out for select l_result as sorted_names, l_fully_sorted as fully_sorted, l_not_sorted_tables as not_sorted from dual;
 end;

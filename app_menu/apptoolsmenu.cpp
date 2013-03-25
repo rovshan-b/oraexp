@@ -13,8 +13,14 @@ void AppToolsMenu::setupMenu(QMenu *toolsMenu, QToolBar *toolbar)
 
     toolsCompareSchemasAction=toolsMenu->addAction(IconUtil::getIcon("compare_schemas"), tr("Compare &schemas"), this, SLOT(addSchemaComparer()));
     toolsCompareSchemasAction->setStatusTip(tr("Generate DDL statements to make target schema the same with current"));
+
+    toolsMenu->addSeparator();
+
     toolsCompareDataAction=toolsMenu->addAction(IconUtil::getIcon("compare_data"), tr("Compare &data"), this, SLOT(addDataComparer()));
     toolsCompareDataAction->setStatusTip(tr("Generate DML statements to make tables have the same data"));
+
+    toolsCopyDataAction=toolsMenu->addAction(IconUtil::getIcon("copy_data"), tr("Cop&y data"), this, SLOT(addDataCopier()));
+    toolsCopyDataAction->setStatusTip(tr("Copy table data to other schema or database"));
 
     toolsMenu->addSeparator();
 

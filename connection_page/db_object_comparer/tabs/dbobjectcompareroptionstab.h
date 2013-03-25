@@ -3,7 +3,9 @@
 
 #include <QWidget>
 #include "beans/dbobjectcomparisonoptions.h"
+
 class DbConnection;
+class QVBoxLayout;
 
 class DbObjectComparerOptionsTab : public QWidget
 {
@@ -16,10 +18,9 @@ public:
     virtual void targetConnectionEstablished(DbConnection *sourceDb, DbConnection *targetDb);
 
     virtual DbObjectComparisonOptions *getOptions() const = 0;
-    
-signals:
-    
-public slots:
+
+protected:
+    QVBoxLayout *createSingleColumnOptionsPane(QVBoxLayout *layout);
     
 };
 

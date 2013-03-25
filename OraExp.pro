@@ -419,7 +419,13 @@ SOURCES += main.cpp\
     widgets/dbtreeviewpanel.cpp \
     dialogs/selectlinkedobjectsdialog.cpp \
     navtree/dbtreemodelnodeexpander.cpp \
-    dialogs/linkedobjectsviewerdialog.cpp
+    dialogs/linkedobjectsviewerdialog.cpp \
+    connection_page/data_comparer/dataoperationhelper.cpp \
+    beans/dataoperationoptions.cpp \
+    connection_page/data_comparer/dataoperationthread.cpp \
+    connection_page/data_copier/datacopier.cpp \
+    connection_page/data_copier/tabs/datacopieroptionstab.cpp \
+    beans/datacopieroptions.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -843,7 +849,13 @@ HEADERS  += mainwindow.h \
     widgets/dbtreeviewpanel.h \
     dialogs/selectlinkedobjectsdialog.h \
     navtree/dbtreemodelnodeexpander.h \
-    dialogs/linkedobjectsviewerdialog.h
+    dialogs/linkedobjectsviewerdialog.h \
+    connection_page/data_comparer/dataoperationhelper.h \
+    beans/dataoperationoptions.h \
+    connection_page/data_comparer/dataoperationthread.h \
+    connection_page/data_copier/datacopier.h \
+    connection_page/data_copier/tabs/datacopieroptionstab.h \
+    beans/datacopieroptions.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \
