@@ -16,6 +16,7 @@ public:
     {
         Auto,
         Disable,
+        DisableForAll,
         DoNotDisable
     };
 

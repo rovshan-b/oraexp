@@ -14,7 +14,8 @@ DataOperationThread::DataOperationThread(const QString &sourceSchema, DbConnecti
     targetDb(targetDb),
     tableName(tableName),
     options(options),
-    tableOptions(tableOptions)
+    tableOptions(tableOptions),
+    stopped(false)
 {
 }
 
@@ -22,6 +23,14 @@ DataOperationThread::DataOperationThread(const QString &sourceSchema, DbConnecti
 void DataOperationThread::emitCompletedSignal()
 {
     emit comparisonCompleted();
+}
+
+void DataOperationThread::emitCompareInfo(const QString &tableName, const QString &newStatus, int inserts, int updates, int deletes, const QString &dml)
+{
+    DataCompareInfo info=DataCompareInfo(tableName, newStatus, inserts, updates, deletes);
+    info.dml=dml;
+
+    emit compareInfoAvailable(info);
 }
 
 void DataOperationThread::prepareBindArrays()

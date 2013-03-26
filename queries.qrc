@@ -124,5 +124,7 @@
         <file>queries/get_current_session_stats.sql</file>
         <file>queries/find_linked_objects.sql</file>
         <file>queries/sort_referencing_tables.sql</file>
+        <file>queries/disable_ref_constraints.sql</file>
+        <file>queries/enable_ref_constraints.sql</file>
     </qresource>
 </RCC>

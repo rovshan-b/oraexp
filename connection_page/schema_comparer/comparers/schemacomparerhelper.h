@@ -22,6 +22,7 @@ public:
     ~SchemaComparerHelper();
 
     void compare();
+    virtual void stop();
 signals:
     void changedObjectDetected(const QString &objectName, DbTreeModel::DbTreeNodeType objectType, const QString &compareResult);
     void statusChanged(const QString &newStatus);

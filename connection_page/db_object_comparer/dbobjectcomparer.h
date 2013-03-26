@@ -34,7 +34,7 @@ public:
     virtual void findPrevious();
 
 public slots:
-    void startComparing();
+    void startStopComparing();
 
     void statusChanged(const QString &newStatus);
     void comparisonResultAvailable(const QString &ddl);
@@ -65,6 +65,13 @@ protected:
     void createBottomLayout(QBoxLayout *layout);
     void showStatusControls(bool show);
     void enableControls(bool enable);
+
+    bool isInProgress() const;
+
+    void startComparing();
+    void stopComparing();
+
+    void deleteCompareHelper();
 
     IDbObjectCompareHelper *comparer;
 

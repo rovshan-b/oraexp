@@ -5,7 +5,7 @@
 #include "connectivity/resultset.h"
 #include <QDebug>
 
-BulkOperationHelper::BulkOperationHelper() : bulkSize(-1)
+BulkOperationHelper::BulkOperationHelper() : bulkSize(-1), dmlMode(false)
 {
 }
 
@@ -62,6 +62,11 @@ int BulkOperationHelper::lengthAt(int ix)
     return lenghts.at(ix);
 }
 
+void BulkOperationHelper::setDmlMode()
+{
+    this->dmlMode=true;
+}
+
 void BulkOperationHelper::bindArrays(Statement *stmt, const QString& bindVarPrefix, const QList<int> &bindVarSuffixes)
 {
     Q_ASSERT(this->bulkSize>0);
@@ -75,18 +80,18 @@ void BulkOperationHelper::bindArrays(Statement *stmt, const QString& bindVarPref
 
         if(DbUtil::isStringType(dataType)){
 
-            stmt->bindArrayOfStrings(bindVarName, (dtext*)buffers.at(i), length, this->bulkSize);
+            stmt->bindArrayOfStrings(bindVarName, (dtext*)buffers.at(i), length, dmlMode ? 0 : this->bulkSize);
 
         }else if(DbUtil::isNumericType(dataType)){
-            stmt->bindArrayOfDoubles(bindVarName, (double*)buffers.at(i), this->bulkSize);
+            stmt->bindArrayOfDoubles(bindVarName, (double*)buffers.at(i), dmlMode ? 0 : this->bulkSize);
         }else if(DbUtil::isDateType(dataType)){
-            stmt->bindArrayOfDates(bindVarName, (OCI_Date**)buffers.at(i), this->bulkSize);
+            stmt->bindArrayOfDates(bindVarName, (OCI_Date**)buffers.at(i), dmlMode ? 0 : this->bulkSize);
         }else if(DbUtil::isTimestampType(dataType)){
             OraExp::ColumnSubType timestampSubType=DbUtil::getTimestampSubType(dataType);
-            stmt->bindArrayOfTimestamps(bindVarName, (OCI_Timestamp**)buffers.at(i), DbUtil::toOciTimestampSubType(timestampSubType), this->bulkSize);
+            stmt->bindArrayOfTimestamps(bindVarName, (OCI_Timestamp**)buffers.at(i), DbUtil::toOciTimestampSubType(timestampSubType), dmlMode ? 0 : this->bulkSize);
         }else if(DbUtil::isIntervalType(dataType)){
             OraExp::ColumnSubType intervalSubType=DbUtil::getIntervalSubType(dataType);
-            stmt->bindArrayOfIntervals(bindVarName, (OCI_Interval**)buffers.at(i), DbUtil::toOciIntervalSubType(intervalSubType), this->bulkSize);
+            stmt->bindArrayOfIntervals(bindVarName, (OCI_Interval**)buffers.at(i), DbUtil::toOciIntervalSubType(intervalSubType), dmlMode ? 0 : this->bulkSize);
         }else{
             qDebug() << "Unsupported column data type for binding:" << dataType;
             Q_ASSERT(false);

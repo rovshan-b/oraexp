@@ -425,7 +425,10 @@ SOURCES += main.cpp\
     connection_page/data_comparer/dataoperationthread.cpp \
     connection_page/data_copier/datacopier.cpp \
     connection_page/data_copier/tabs/datacopieroptionstab.cpp \
-    beans/datacopieroptions.cpp
+    beans/datacopieroptions.cpp \
+    connection_page/data_copier/datacopyhelper.cpp \
+    connection_page/data_copier/datacopierthread.cpp \
+    connection_page/data_copier/tabs/datacopierresultstab.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -855,7 +858,10 @@ HEADERS  += mainwindow.h \
     connection_page/data_comparer/dataoperationthread.h \
     connection_page/data_copier/datacopier.h \
     connection_page/data_copier/tabs/datacopieroptionstab.h \
-    beans/datacopieroptions.h
+    beans/datacopieroptions.h \
+    connection_page/data_copier/datacopyhelper.h \
+    connection_page/data_copier/datacopierthread.h \
+    connection_page/data_copier/tabs/datacopierresultstab.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

@@ -31,6 +31,9 @@ public:
 
     const SchemaComparisonOptions *compareOptions() const {return this->options;}
 
+    void stop() {this->stopped=true;}
+    void resetState() {this->stopped=false;}
+
 signals:
     void changedObjectDetected(const QString &objectName, DbTreeModel::DbTreeNodeType objectType, const QString &compareResult);
     void statusChanged(const QString &newStatus);
@@ -69,6 +72,8 @@ private:
     void hashNextChunk();
 
     int currentChunkSize;
+
+    bool stopped;
 
 };
 

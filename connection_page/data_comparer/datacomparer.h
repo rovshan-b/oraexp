@@ -18,6 +18,8 @@ protected:
                                                         const QString &targetSchema, IQueryScheduler *targetScheduler,
                                                         DbObjectComparisonOptions *options, QObject *parent);
 
+    void connectComparerSignalsAndSlots(QObject *comparer);
+
 };
 
 #endif // DATACOMPARER_H

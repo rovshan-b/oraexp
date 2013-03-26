@@ -25,4 +25,6 @@ typedef QPair<QString,QString> StringPair;
 
 #define DB_PREFETCH_SIZE 50
 
+#define BULK_DATA_OPERATION_CHUNK_SIZE 50
+
 #endif // DEFINES_H

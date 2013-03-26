@@ -17,13 +17,8 @@ public:
 
     virtual bool canStart();
 
-signals:
-    void compareInfoAvailable(const DataCompareInfo &info);
-
 protected:
     virtual void startWorkerThread(const QString &tableName);
-
-    virtual void subComparisonErrorOccured(const QString &, const OciException &);
 };
 
 #endif // DATACOMPARERHELPER_H

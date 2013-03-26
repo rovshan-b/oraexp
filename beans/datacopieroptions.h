@@ -6,13 +6,6 @@
 class DataCopierOptions : public DataOperationOptions
 {
 public:
-    enum TruncateMode
-    {
-        Truncate,
-        TruncateAndCascadeConstraints,
-        DoNotTruncate
-    };
-
     DataCopierOptions();
 
     bool truncate;

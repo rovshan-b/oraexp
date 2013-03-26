@@ -15,13 +15,9 @@ DataTable *DataComparerResultsTab::createChangeListTable()
 {
     DataTable *changeListTable=new DataTable();
 
-    tableModel=new QStandardItemModel(0, 5, this);
-    tableModel->setHorizontalHeaderLabels(QStringList() <<
-                                          tr("Table name") <<
-                                          tr("Status") <<
-                                          tr("Inserts") <<
-                                          tr("Updates") <<
-                                          tr("Deletes"));
+    QStringList columnNames = getTableColumnNames();
+    tableModel=new QStandardItemModel(0, columnNames.size(), this);
+    tableModel->setHorizontalHeaderLabels(columnNames);
     changeListTable->setModel(tableModel);
     changeListTable->horizontalHeader()->setDefaultSectionSize(100);
     changeListTable->horizontalHeader()->resizeSection(0, 250);
@@ -39,23 +35,45 @@ void DataComparerResultsTab::setCurrentSchema(const QString &currentSchemaName)
     changeListTable->setObjectListMode(-1, 0, -1, currentSchemaName, "TABLE");
 }
 
+QStringList DataComparerResultsTab::getTableColumnNames() const
+{
+    return QStringList() <<
+                            tr("Table name") <<
+                            tr("Status") <<
+                            tr("Inserts") <<
+                            tr("Updates") <<
+                            tr("Deletes");
+}
+
 void DataComparerResultsTab::compareInfoAvailable(const DataCompareInfo &info)
 {
     if(!info.tableName.isEmpty()){
 
-        QList<QStandardItem*> items = tableModel->findItems(info.tableName, Qt::MatchFixedString|Qt::MatchCaseSensitive, 0);
-        Q_ASSERT(items.size()<=1);
+        //QList<QStandardItem*> items = tableModel->findItems(info.tableName, Qt::MatchFixedString|Qt::MatchCaseSensitive, 0);
+        //Q_ASSERT(items.size()<=1);
 
-        if(items.size()==0){
+        int rowCount = tableModel->rowCount();
+        QStandardItem* item = 0;
+
+        if(rowCount > 0){
+            item = tableModel->item(rowCount-1);
+            if(item->text()!=info.tableName){
+                item = 0;
+            }
+        }
+
+        if(item==0){
             QPixmap tableIcon=IconUtil::getIcon(DbUtil::getDbObjectIconNameByParentNodeType(DbTreeModel::Tables));
-            tableModel->appendRow(QList<QStandardItem*>() <<
-                                  new QStandardItem(tableIcon, info.tableName) <<
-                                  new QStandardItem(info.newStatus) <<
-                                  new QStandardItem(QString::number(info.inserts)) <<
-                                  new QStandardItem(QString::number(info.updates)) <<
-                                  new QStandardItem(QString::number(info.deletes)));
+            QList<QStandardItem*> rowValues =  QList<QStandardItem*>() <<
+                                              new QStandardItem(tableIcon, info.tableName) <<
+                                              new QStandardItem(info.newStatus) <<
+                                              new QStandardItem(QString::number(info.inserts));
+            if(tableModel->columnCount()>3){
+                rowValues << new QStandardItem(QString::number(info.updates)) << new QStandardItem(QString::number(info.deletes));
+            }
+            tableModel->appendRow(rowValues);
         }else{
-            int row=items.at(0)->row();
+            int row=rowCount-1;
             if(!info.newStatus.isEmpty()){
                 tableModel->item(row, 1)->setText(info.newStatus);
             }
@@ -64,12 +82,14 @@ void DataComparerResultsTab::compareInfoAvailable(const DataCompareInfo &info)
                 WidgetHelper::increaseValueAtPos(tableModel, row, 2, info.inserts);
             }
 
-            if(info.updates>0){
-                WidgetHelper::increaseValueAtPos(tableModel, row, 3, info.updates);
-            }
+            if(tableModel->columnCount()>3){ //in descendant classes may be less
+                if(info.updates>0){
+                    WidgetHelper::increaseValueAtPos(tableModel, row, 3, info.updates);
+                }
 
-            if(info.deletes>0){
-                WidgetHelper::increaseValueAtPos(tableModel, row, 4, info.deletes);
+                if(info.deletes>0){
+                    WidgetHelper::increaseValueAtPos(tableModel, row, 4, info.deletes);
+                }
             }
         }
     }

@@ -11,6 +11,10 @@ public:
     
 protected:
     virtual DbObjectComparerOptionsTab *doCreateOptionsTab();
+    virtual DbObjectComparerResultsTab *doCreateResultsTab();
+    virtual IDbObjectCompareHelper *createCompareHelper(const QString &sourceSchema, IQueryScheduler *sourceScheduler,
+                                                        const QString &targetSchema, IQueryScheduler *targetScheduler,
+                                                        DbObjectComparisonOptions *options, QObject *parent);
     
 };
 

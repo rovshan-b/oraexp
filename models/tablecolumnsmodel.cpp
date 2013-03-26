@@ -63,10 +63,10 @@ QVariant TableColumnsModel::data ( const QModelIndex & index, int role) const
         if(tableType==OraExp::TableTypeTemporaryTransaction || tableType==OraExp::TableTypeTemporarySession){
             return QApplication::palette().background();
         }
-    }else if(columnIx==ColumnColumnType && role==Qt::DisplayRole){
+    }/*else if(columnIx==ColumnColumnType && role==Qt::DisplayRole){
         int columnType=GenericEditableTableModel::data(index, role).toInt();
         return getColumnTypeName(columnType);
-    }else if(columnIx==ColumnVirtualDefinition && role==Qt::BackgroundRole){
+    }*/else if(columnIx==ColumnVirtualDefinition && role==Qt::BackgroundRole){
         int columnType=this->index(index.row(), ColumnColumnType).data(Qt::EditRole).toInt();
         if(columnType==OraExp::ColumnTypeNormal){
             return QApplication::palette().background();
@@ -107,6 +107,7 @@ OraExp::TableType TableColumnsModel::getTableType() const
     return tableType;
 }
 
+/*
 QVariant TableColumnsModel::getColumnTypeName(int columnType) const
 {
     QVariant value;
@@ -121,7 +122,7 @@ QVariant TableColumnsModel::getColumnTypeName(int columnType) const
     }
 
     return value;
-}
+}*/
 
 QString TableColumnsModel::isRowDataCorrect(int rowIx) const
 {

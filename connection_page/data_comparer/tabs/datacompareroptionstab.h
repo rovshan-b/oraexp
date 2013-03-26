@@ -18,7 +18,6 @@ public:
 
 private slots:
     void enableControls();
-    void disableRefConstraintsChangedByUser();
     void deletesCheckboxChanged();
 
 private:
@@ -28,8 +27,6 @@ private:
     QComboBox *disableRefContraintsComboBox;
     QCheckBox *includeSchemaCheckBox;
     QComboBox *comparisonModeComboBox;
-
-    bool disableRefConsChanged;
 
     void createOptionsPane(QBoxLayout *layout);
     void createDataCompareOptionsPane(QVBoxLayout *layout);

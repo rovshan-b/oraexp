@@ -41,7 +41,13 @@ IDbObjectCompareHelper *DataComparer::createCompareHelper(const QString &sourceS
                                                             static_cast<DataComparerCompareTab*>(compareTab)->getTableOptions(),
                                                             parent);
 
-    //connect(comparer, SIGNAL(changedObjectDetected(QString,DbTreeModel::DbTreeNodeType,QString)), resultsTab, SLOT(changedObjectDetected(QString,DbTreeModel::DbTreeNodeType,QString)));
+    connectComparerSignalsAndSlots(comparer);
+
+    return comparer;
+}
+
+void DataComparer::connectComparerSignalsAndSlots(QObject *comparer)
+{
     connect(comparer, SIGNAL(statusChanged(QString)), this, SLOT(statusChanged(QString)));
     connect(comparer, SIGNAL(compareInfoAvailable(DataCompareInfo)), resultsTab, SLOT(compareInfoAvailable(DataCompareInfo)));
     connect(comparer, SIGNAL(queryTextAvailable(QString)), this, SLOT(comparisonResultAvailable(QString)));
@@ -50,5 +56,4 @@ IDbObjectCompareHelper *DataComparer::createCompareHelper(const QString &sourceS
     connect(comparer, SIGNAL(objectCountDetermined(int)), this, SLOT(objectCountDetermined(int)));
     connect(comparer, SIGNAL(chunkCompleted(int)), this, SLOT(chunkCompleted(int)));
 
-    return comparer;
 }

@@ -8,7 +8,7 @@
 #include <QDebug>
 
 DbObjectsCompareHelper::DbObjectsCompareHelper(SchemaComparisonOptions *options, QObject *parent) :
-    QObject(parent), sourceHasher(this), targetHasher(this), options(options)
+    QObject(parent), sourceHasher(this), targetHasher(this), options(options), stopped(false)
 {
     connect(&sourceHasher, SIGNAL(hashReady(QString)), this, SLOT(sourceHashReady(QString)));
     connect(&sourceHasher, SIGNAL(hashError(QString,OciException)), this, SIGNAL(comparisonError(QString,OciException)));
@@ -67,12 +67,12 @@ void DbObjectsCompareHelper::targetHashReady(const QString &hash)
 
 void DbObjectsCompareHelper::fetchNextObject()
 {
-    if(targetHashingResults.isEmpty()){
+    if(targetHashingResults.isEmpty() || this->stopped){
 
         currentChunkSize=qMin(objectNames.size()-currentOffset, SCHEMA_COMPARER_CHUNK_SIZE);
         currentOffset+=currentChunkSize;
 
-        if(currentOffset<objectNames.size()){
+        if(currentOffset<objectNames.size() && !this->stopped){
             hashNextChunk();
         }else{
             emit chunkCompleted(currentChunkSize);

@@ -58,10 +58,13 @@ void DbObjectComparerResultsTab::clearText()
 
 void DbObjectComparerResultsTab::addText(const QString &text)
 {
+    if(!editor->isVisible()){
+        editor->setVisible(true);
+    }
+
     if(noText && text.size()>1 && text.startsWith('\n')){
         noText=false;
         editor->editor()->addText(text.mid(1));
-        editor->setVisible(true);
     }else{
         editor->editor()->addText(text);
     }

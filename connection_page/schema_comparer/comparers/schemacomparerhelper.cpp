@@ -34,6 +34,8 @@ void SchemaComparerHelper::compare()
 {
     emit statusChanged(tr("Starting..."));
 
+    dbObjectsComparer.resetState();
+
     totalItemCountToCompare=0;
     populateParentIndexesToCompare();
 
@@ -43,6 +45,12 @@ void SchemaComparerHelper::compare()
     }
 
     loadNextItemList();
+}
+
+void SchemaComparerHelper::stop()
+{
+    IDbObjectCompareHelper::stop();
+    dbObjectsComparer.stop();
 }
 
 void SchemaComparerHelper::populateParentIndexesToCompare()
@@ -87,7 +95,7 @@ void SchemaComparerHelper::loadNextItemList()
 
 void SchemaComparerHelper::compareNextItem()
 {
-    if(parentIndexesToCompare.isEmpty()){
+    if(parentIndexesToCompare.isEmpty() || this->stopped){
         emitCompletedSignal();
         return;
     }

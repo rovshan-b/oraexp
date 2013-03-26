@@ -9,25 +9,24 @@
 DbObjectComparer::DbObjectComparer(DbUiManager *uiManager, QWidget *parent) :
     ConnectionPageTab(uiManager, parent), comparer(0), compareTab(0), optionsTab(0), resultsTab(0)
 {
+
+}
+
+void DbObjectComparer::createUi()
+{
     QVBoxLayout *mainLayout=new QVBoxLayout();
     mainLayout->setContentsMargins(2,2,2,2);
 
     tabWidget=new SubTabWidget();
     tabWidget->setTabPosition(QTabWidget::South);
     tabWidget->setContentsMargins(0,0,0,0);
-
+    createTabs();
 
     mainLayout->addWidget(tabWidget);
 
     createBottomLayout(mainLayout);
 
     setLayout(mainLayout);
-
-}
-
-void DbObjectComparer::createUi()
-{
-    createTabs();
 }
 
 void DbObjectComparer::createTabs()
@@ -129,9 +128,9 @@ void DbObjectComparer::createBottomLayout(QBoxLayout *layout)
 
     layout->addLayout(statusLayout);
 
-    compareButton=new QPushButton(tr("Compare"));
+    compareButton=new QPushButton(tr("Start"));
     compareButton->setEnabled(false);
-    connect(compareButton, SIGNAL(clicked()), this, SLOT(startComparing()));
+    connect(compareButton, SIGNAL(clicked()), this, SLOT(startStopComparing()));
 
     layout->addWidget(compareButton);
 }
@@ -148,7 +147,24 @@ void DbObjectComparer::enableControls(bool enable)
     optionsTab->setEnabled(enable);
     //resultsTab->setEnabled(enable);
 
-    compareButton->setEnabled(enable);
+    compareButton->setText(enable ? tr("Start") : tr("Stop"));
+    if(enable){
+        compareButton->setEnabled(true);
+    }
+}
+
+bool DbObjectComparer::isInProgress() const
+{
+    return progressBar->isVisible();
+}
+
+void DbObjectComparer::startStopComparing()
+{
+    if(!isInProgress()){
+        startComparing();
+    }else{
+        stopComparing();
+    }
 }
 
 void DbObjectComparer::startComparing()
@@ -175,6 +191,31 @@ void DbObjectComparer::startComparing()
     tabWidget->setCurrentWidget(resultsTab);
 }
 
+void DbObjectComparer::stopComparing()
+{
+    if(QMessageBox::question(this->window(), tr("Stop operation"),
+                             tr("Do you really want to stop current operation?"),
+                             QMessageBox::Ok|QMessageBox::Cancel)!=QMessageBox::Ok){
+        return;
+    }
+
+    if(!isInProgress()){
+        return;
+    }
+
+    compareButton->setEnabled(false);
+    compareButton->setText(tr("Stopping..."));
+    comparer->stop();
+}
+
+void DbObjectComparer::deleteCompareHelper()
+{
+    /*
+    Q_ASSERT(comparer);
+    delete comparer;
+    comparer = 0;*/
+}
+
 void DbObjectComparer::statusChanged(const QString &newStatus)
 {
     statusLabel->setText(newStatus);
@@ -187,6 +228,7 @@ void DbObjectComparer::comparisonResultAvailable(const QString &ddl)
 
 void DbObjectComparer::completed()
 {
+    deleteCompareHelper();
     progressBar->setVisible(false);
 
     statusChanged(tr("Comparison completed in %1").arg(formatMsecs(timer.elapsed())));
@@ -198,6 +240,7 @@ void DbObjectComparer::completed()
 
 void DbObjectComparer::comparisonError(const QString &taskName, const OciException &exception)
 {
+    deleteCompareHelper();
     progressBar->setVisible(false);
 
     statusChanged(tr("Completed with error"));

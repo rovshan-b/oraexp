@@ -27,7 +27,9 @@ public:
     virtual ~DataOperationHelper();
     
     virtual void compare();
-    virtual bool canStart() = 0;
+    virtual bool canStart() {return true;}
+
+    virtual void stop();
 
 signals:
     void statusChanged(const QString &newStatus);
@@ -36,6 +38,7 @@ signals:
     void objectCountDetermined(int count);
     void chunkCompleted(int size);
     void queryTextAvailable(const QString &queryText);
+    void compareInfoAvailable(const DataCompareInfo &info);
     
 protected slots:
     void childrenPopulated(const QModelIndex &parent);
@@ -91,8 +94,6 @@ protected:
 
     void disableRefConstraints();
     void enableRefConstraints();
-
-    virtual void subComparisonErrorOccured(const QString &taskName, const OciException &exception){Q_UNUSED(taskName);Q_UNUSED(exception);}
 };
 
 #endif // DATAOPERATIONHELPER_H

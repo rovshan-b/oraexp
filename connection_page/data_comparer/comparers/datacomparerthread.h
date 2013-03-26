@@ -3,7 +3,6 @@
 
 #include <QThread>
 #include "../dataoperationthread.h"
-#include "beans/datacompareinfo.h"
 
 class DataComparisonOptions;
 
@@ -25,9 +24,6 @@ public:
 protected:
     virtual void run();
 
-signals:
-    void compareInfoAvailable(const DataCompareInfo &info);
-
 private:
     QString compareScript;
     QString reverseCompareScript;
@@ -47,8 +43,6 @@ private:
     void createComparisonScript();
     void doComparison();
     void doReverseComparison();
-
-    void emitCompareInfo(const QString &tableName, const QString &newStatus, int inserts=0, int updates=0, int deletes=0, const QString &dml="");
 
 };
 

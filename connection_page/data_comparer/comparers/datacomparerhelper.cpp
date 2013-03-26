@@ -40,7 +40,7 @@ void DataComparerHelper::startWorkerThread(const QString &tableName)
 
     workerThread=new DataComparerThread(sourceSchema, sourceScheduler->getDb(),
                                           targetSchema, targetScheduler->getDb(),
-                                          tableName, static_cast<DataComparisonOptions*>(options), tableOptions.value(tableName),
+                                          tableName, options, tableOptions.value(tableName),
                                           this);
 
     connect(workerThread, SIGNAL(statusChanged(QString)), this, SIGNAL(statusChanged(QString)));
@@ -49,9 +49,4 @@ void DataComparerHelper::startWorkerThread(const QString &tableName)
     connect(workerThread, SIGNAL(compareError(QString,OciException)), this, SLOT(tableComparisonError(QString,OciException)));
 
     workerThread->start();
-}
-
-void DataComparerHelper::subComparisonErrorOccured(const QString &, const OciException &)
-{
-    emit compareInfoAvailable(DataCompareInfo(currentTableName, tr("Error")));
 }

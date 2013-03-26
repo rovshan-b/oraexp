@@ -22,6 +22,8 @@ public:
 
     QString dataTypeAt(int ix);
     int lengthAt(int ix);
+
+    void setDmlMode();
 private:
     void cleanup();
 
@@ -30,6 +32,8 @@ private:
     QList<void*> buffers;
     QStringList dataTypes;
     QList<int> lenghts;
+
+    bool dmlMode;
 
 };
 

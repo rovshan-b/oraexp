@@ -47,6 +47,15 @@ void DataOperationHelper::compare()
     sortTableNames(tableNames);
 }
 
+void DataOperationHelper::stop()
+{
+    IDbObjectCompareHelper::stop();
+
+    if(workerThread!=0){
+        workerThread->stop();
+    }
+}
+
 void DataOperationHelper::startToCompare()
 {
     loadTableColumns();
@@ -90,7 +99,7 @@ void DataOperationHelper::fillItemsToCompare(const QStringList &tableNames)
 
 void DataOperationHelper::sortTableNames(const QStringList &tableNames)
 {
-    emit statusChanged(tr("Determining compare order..."));
+    //emit statusChanged(tr("Determining compare order..."));
 
     sourceScheduler->enqueueQuery("sort_referencing_tables",
                                   QList<Param*>()
@@ -137,11 +146,14 @@ void DataOperationHelper::tableSortRecordFetched(const FetchResult &fetchResult)
 
     if(options->disableRefConstraints==DataOperationOptions::Auto){
         tableNamesToDisableConstraints = joinEnclosed(notSortedTargetTableNames, ",", "'");
-    }else{
+    }else if(options->disableRefConstraints==DataOperationOptions::Disable){
         tableNamesToDisableConstraints = joinEnclosed(sourceTableNames, ",", "'");
+    }else{
+        tableNamesToDisableConstraints = "";
     }
 
     this->needToDisableRefConstraints = (options->disableRefConstraints==DataOperationOptions::Disable ||
+                                         options->disableRefConstraints==DataOperationOptions::DisableForAll ||
                                          !fullySorted);
     if(needToDisableRefConstraints){
         disableRefConstraints();
@@ -195,7 +207,7 @@ void DataOperationHelper::loadTableColumns()
 
 void DataOperationHelper::compareNextItem()
 {
-    if(currentItemIxToCompare >= itemsToCompare.size()){
+    if(currentItemIxToCompare >= itemsToCompare.size() || this->stopped){
         if(needToDisableRefConstraints){
             enableRefConstraints();
         }else{
@@ -214,6 +226,8 @@ void DataOperationHelper::compareNextItem()
 
 void DataOperationHelper::subComparisonError(const QString &taskName, const OciException &exception)
 {
+    emit compareInfoAvailable(DataCompareInfo(currentTableName, tr("Error:%1").arg(exception.getErrorMessage())));
+
     emit comparisonError(taskName, exception);
 
     this->deleteLater();
@@ -273,7 +287,9 @@ void DataOperationHelper::disableRefConstraints()
 {
     emit statusChanged(tr("Disabling referential constraints"));
 
-    QString disableQuery = QueryUtil::getQuery("disable_all_ref_constraints", targetScheduler->getDb());
+    QString disableQuery = QueryUtil::getQuery(this->tableNamesToDisableConstraints.isEmpty() ?
+                                               "disable_all_ref_constraints" : "disable_ref_constraints",
+                                               targetScheduler->getDb());
     disableQuery.replace("{owner}", this->targetSchema);
     disableQuery.replace("{table_names}", this->tableNamesToDisableConstraints);
 
@@ -293,7 +309,9 @@ void DataOperationHelper::enableRefConstraints()
 {
     emit statusChanged(tr("Enabling referential constraints"));
 
-    enableRefContraintsQuery = QueryUtil::getQuery("enable_all_ref_constraints", targetScheduler->getDb());
+    enableRefContraintsQuery = QueryUtil::getQuery(this->tableNamesToDisableConstraints.isEmpty() ?
+                                                   "enable_all_ref_constraints" : "enable_ref_constraints",
+                                                   targetScheduler->getDb());
     enableRefContraintsQuery.replace("{owner}", this->targetSchema);
     enableRefContraintsQuery.replace("{table_names}", this->tableNamesToDisableConstraints);
 

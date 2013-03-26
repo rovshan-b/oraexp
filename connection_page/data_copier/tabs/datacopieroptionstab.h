@@ -4,6 +4,7 @@
 #include "connection_page/db_object_comparer/tabs/dbobjectcompareroptionstab.h"
 
 class QComboBox;
+class QCheckBox;
 
 class DataCopierOptionsTab : public DbObjectComparerOptionsTab
 {
@@ -13,10 +14,13 @@ public:
 
     virtual DbObjectComparisonOptions *getOptions() const;
     
+private slots:
+    void truncateOptionChanged();
+
 private:
     void createDataCopierOptionsPane(QVBoxLayout *layout);
 
-    QComboBox *truncateBeforeCopyComboBox;
+    QCheckBox *truncateBeforeCopyCheckBox;
     QComboBox *disableRefContraintsComboBox;
     
 };

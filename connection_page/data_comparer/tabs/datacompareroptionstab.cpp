@@ -4,8 +4,7 @@
 #include <QtGui>
 
 DataComparerOptionsTab::DataComparerOptionsTab(QWidget *parent) :
-    DbObjectComparerOptionsTab(parent),
-    disableRefConsChanged(false)
+    DbObjectComparerOptionsTab(parent)
 {
     QVBoxLayout *mainLayout=new QVBoxLayout();
 
@@ -43,9 +42,10 @@ void DataComparerOptionsTab::createDataCompareOptionsPane(QVBoxLayout *layout)
     grid->addWidget(new QLabel(tr("Disable referential constraints")), 4, 0);
     disableRefContraintsComboBox = new QComboBox();
     disableRefContraintsComboBox->addItem(tr("Auto"));
-    disableRefContraintsComboBox->addItem(tr("Yes"));
-    disableRefContraintsComboBox->addItem(tr("No"));
-    disableRefContraintsComboBox->setCurrentIndex(1);
+    disableRefContraintsComboBox->addItem(tr("Disable for selected tables"));
+    disableRefContraintsComboBox->addItem(tr("Disable for all tables"));
+    disableRefContraintsComboBox->addItem(tr("Do not disable"));
+    disableRefContraintsComboBox->setCurrentIndex(2);
     grid->addWidget(disableRefContraintsComboBox, 4, 1);
 
     grid->addWidget(new QLabel(tr("Comparison mode")), 5, 0);
@@ -61,7 +61,6 @@ void DataComparerOptionsTab::createDataCompareOptionsPane(QVBoxLayout *layout)
     layout->setAlignment(dataCompareOptionsGroupBox, Qt::AlignTop|Qt::AlignLeft);
 
     connect(comparisonModeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(enableControls()));
-    connect(comparisonModeComboBox, SIGNAL(activated(int)), this, SLOT(disableRefConstraintsChangedByUser()));
     connect(deletesCheckbox, SIGNAL(stateChanged(int)), this, SLOT(deletesCheckboxChanged()));
 }
 
@@ -70,17 +69,10 @@ void DataComparerOptionsTab::enableControls()
     includeSchemaCheckBox->setEnabled(comparisonModeComboBox->currentIndex()==DataComparisonOptions::GenerateDml);
 }
 
-void DataComparerOptionsTab::disableRefConstraintsChangedByUser()
-{
-    disableRefConsChanged=true;
-}
 
 void DataComparerOptionsTab::deletesCheckboxChanged()
 {
-    if(!disableRefConsChanged){
-        disableRefContraintsComboBox->setCurrentIndex(deletesCheckbox->isChecked() ?
-                                                          DataComparisonOptions::Disable
-                                                        :
-                                                          DataComparisonOptions::Auto);
+    if(deletesCheckbox->isChecked()){
+        disableRefContraintsComboBox->setCurrentIndex(DataComparisonOptions::DisableForAll);
     }
 }

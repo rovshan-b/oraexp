@@ -7,7 +7,9 @@ class DataCompareInfo
 {
 public:
     DataCompareInfo();
-    DataCompareInfo(const QString &tableName, const QString &newStatus, int inserts=0, int updates=0, int deletes=0, const QString &dml="");
+    DataCompareInfo(const QString &tableName, const QString &newStatus,
+                    int inserts=0, int updates=0, int deletes=0,
+                    const QString &dml="");
 
     QString tableName;
     QString newStatus;

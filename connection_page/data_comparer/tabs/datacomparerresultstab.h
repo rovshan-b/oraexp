@@ -15,8 +15,11 @@ public:
 signals:
     
 public slots:
-    void compareInfoAvailable(const DataCompareInfo &info);
+    virtual void compareInfoAvailable(const DataCompareInfo &info);
     virtual void setCurrentSchema(const QString &currentSchemaName);
+
+protected:
+    virtual QStringList getTableColumnNames() const;
     
 };
 

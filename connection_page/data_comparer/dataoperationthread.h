@@ -5,6 +5,7 @@
 #include "connectivity/ociexception.h"
 #include "tableinfofordatacomparison.h"
 #include "connectivity/bulkoperationhelper.h"
+#include "beans/datacompareinfo.h"
 
 #include <QThread>
 #include <QHash>
@@ -24,9 +25,14 @@ public:
                                  DataOperationOptions *options,
                                  const TableInfoForDataComparison &tableOptions,
                                  QObject *parent);
+
+    virtual ~DataOperationThread() {}
+
+    void stop() {this->stopped=true;}
     
 signals:
     void statusChanged(const QString &newStatus);
+    void compareInfoAvailable(const DataCompareInfo &info);
     void comparisonCompleted();
     void compareError(const QString &taskName, const OciException &ex);
 
@@ -48,6 +54,9 @@ protected:
     QString getColumnsForSelect(const QStringList &columnList);
 
     void emitCompletedSignal();
+    void emitCompareInfo(const QString &tableName, const QString &newStatus, int inserts=0, int updates=0, int deletes=0, const QString &dml="");
+
+    bool stopped;
 };
 
 #endif // DATAOPERATIONTHREAD_H

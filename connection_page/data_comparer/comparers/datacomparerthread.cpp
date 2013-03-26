@@ -8,8 +8,6 @@
 #include "beans/datacomparisonoptions.h"
 #include "defines.h"
 
-const int DATA_COMPARER_CHUNK_SIZE = 50;
-
 DataComparerThread::DataComparerThread(const QString &sourceSchema,
                                        DbConnection *sourceDb,
                                        const QString &targetSchema,
@@ -27,8 +25,8 @@ DataComparerThread::DataComparerThread(const QString &sourceSchema,
     compareScript=QueryUtil::getQuery("compare_data", targetDb);
     reverseCompareScript=QueryUtil::getQuery("compare_data_reverse", sourceDb);
 
-    bulkHelper.setBulkSize(DATA_COMPARER_CHUNK_SIZE);
-    bulkDeleteHelper.setBulkSize(DATA_COMPARER_CHUNK_SIZE);
+    bulkHelper.setBulkSize(BULK_DATA_OPERATION_CHUNK_SIZE);
+    bulkDeleteHelper.setBulkSize(BULK_DATA_OPERATION_CHUNK_SIZE);
 }
 
 DataComparerThread::~DataComparerThread()
@@ -294,7 +292,7 @@ void DataComparerThread::doComparison()
         }
 
         ++offset;
-        if(offset==DATA_COMPARER_CHUNK_SIZE){
+        if(offset==BULK_DATA_OPERATION_CHUNK_SIZE){
             arrSizeParam->setIntValue(offset);
             targetStmt->execute();
 
@@ -307,6 +305,10 @@ void DataComparerThread::doComparison()
             emit statusChanged(QString("Comparing data for table %1 (%2 records done - INSERT/UPDATE)").arg(this->tableName).arg(fetchedCount));
 
             offset=0;
+
+            if(this->stopped){
+                break;
+            }
         }
     }
 
@@ -378,7 +380,7 @@ void DataComparerThread::doReverseComparison()
         }
 
         ++offset;
-        if(offset==DATA_COMPARER_CHUNK_SIZE){
+        if(offset==BULK_DATA_OPERATION_CHUNK_SIZE){
             arrSizeParam->setIntValue(offset);
             sourceDeleteGeneratorStmt->execute();
 
@@ -393,7 +395,7 @@ void DataComparerThread::doReverseComparison()
                     emitCompareInfo(tableName, "", 0, 0, deleteCountParam->getIntValue(), "");
                     currentDeleteCount+=deleteCountParam->getIntValue();
                     fullDml.append(dml);
-                    if(currentDeleteCount>0 && currentDeleteCount%DATA_COMPARER_CHUNK_SIZE==0){
+                    if(currentDeleteCount>0 && currentDeleteCount%BULK_DATA_OPERATION_CHUNK_SIZE==0){
                         currentDeleteCount=0;
                         rs->endFetchRows();
                         targetDb->executeQueryAndCleanup(QString("begin %1 commit; end;").arg(fullDml));
@@ -406,6 +408,10 @@ void DataComparerThread::doReverseComparison()
             emit statusChanged(QString("Comparing data for table %1 (%2 records done - DELETE)").arg(this->tableName).arg(fetchedCount));
 
             offset=0;
+
+            if(this->stopped){
+                break;
+            }
         }
     }
 
@@ -433,12 +439,4 @@ void DataComparerThread::doReverseComparison()
 
     sourceDeleteGeneratorStmt->unlockConnection();
 
-}
-
-void DataComparerThread::emitCompareInfo(const QString &tableName, const QString &newStatus, int inserts, int updates, int deletes, const QString &dml)
-{
-    DataCompareInfo info=DataCompareInfo(tableName, newStatus, inserts, updates, deletes);
-    info.dml=dml;
-
-    emit compareInfoAvailable(info);
 }
