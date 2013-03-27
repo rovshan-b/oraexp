@@ -1,12 +1,12 @@
 #ifndef DATACOPIEROPTIONSTAB_H
 #define DATACOPIEROPTIONSTAB_H
 
-#include "connection_page/db_object_comparer/tabs/dbobjectcompareroptionstab.h"
+#include "connection_page/data_operation/tabs/dataoperationoptionstab.h"
 
 class QComboBox;
 class QCheckBox;
 
-class DataCopierOptionsTab : public DbObjectComparerOptionsTab
+class DataCopierOptionsTab : public DataOperationOptionsTab
 {
     Q_OBJECT
 public:
@@ -18,10 +18,9 @@ private slots:
     void truncateOptionChanged();
 
 private:
-    void createDataCopierOptionsPane(QVBoxLayout *layout);
+    void createOptionsPane(QVBoxLayout *layout);
 
     QCheckBox *truncateBeforeCopyCheckBox;
-    QComboBox *disableRefContraintsComboBox;
     
 };
 

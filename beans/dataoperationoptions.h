@@ -24,6 +24,8 @@ public:
 
     DisableRefConstraintsMode disableRefConstraints;
     ComparisonMode comparisonMode;
+    bool uncheckInGuiOnSuccess;
+    bool skipOnError;
 };
 
 #endif // DATAOPERATIONOPTIONS_H

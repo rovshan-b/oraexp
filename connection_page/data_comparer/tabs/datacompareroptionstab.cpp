@@ -4,15 +4,9 @@
 #include <QtGui>
 
 DataComparerOptionsTab::DataComparerOptionsTab(QWidget *parent) :
-    DbObjectComparerOptionsTab(parent)
+    DataOperationOptionsTab(parent)
 {
-    QVBoxLayout *mainLayout=new QVBoxLayout();
 
-    createDataCompareOptionsPane(createSingleColumnOptionsPane(mainLayout));
-
-    enableControls();
-
-    setLayout(mainLayout);
 }
 
 DbObjectComparisonOptions *DataComparerOptionsTab::getOptions() const
@@ -22,44 +16,39 @@ DbObjectComparisonOptions *DataComparerOptionsTab::getOptions() const
     options->inserts=insertsCheckbox->isChecked();
     options->updates=updatesCheckbox->isChecked();
     options->deletes=deletesCheckbox->isChecked();
-    options->disableRefConstraints=(DataOperationOptions::DisableRefConstraintsMode)disableRefContraintsComboBox->currentIndex();
     options->includeSchemaName=includeSchemaCheckBox->isChecked();
     options->comparisonMode=comparisonModeComboBox->currentIndex() == 0 ? DataComparisonOptions::GenerateDml : DataComparisonOptions::UpdateDatabase;
+
+    setOptions(options);
 
     return options;
 }
 
-void DataComparerOptionsTab::createDataCompareOptionsPane(QVBoxLayout *layout)
+void DataComparerOptionsTab::createOptionsPane(QVBoxLayout *layout)
 {
-    QGroupBox *dataCompareOptionsGroupBox=new QGroupBox(tr("Options"));
-    QGridLayout *grid = new QGridLayout();
+    QFormLayout *form = new QFormLayout();
 
-    insertsCheckbox = WidgetHelper::createCheckBox(grid, 0, 0, tr("Generate INSERT statements"), true, 1, 2);
-    updatesCheckbox = WidgetHelper::createCheckBox(grid, 1, 0, tr("Generate UPDATE statements"), true, 1, 2);
-    deletesCheckbox = WidgetHelper::createCheckBox(grid, 2, 0, tr("Generate DELETE statements"), true, 1, 2);
-    includeSchemaCheckBox = WidgetHelper::createCheckBox(grid, 3, 0, tr("Include schema"), true, 1, 2);
+    insertsCheckbox = WidgetHelper::createCheckBox(form, tr("Generate INSERT statements"), true);
+    updatesCheckbox = WidgetHelper::createCheckBox(form, tr("Generate UPDATE statements"), true);
+    deletesCheckbox = WidgetHelper::createCheckBox(form, tr("Generate DELETE statements"), true);
+    includeSchemaCheckBox = WidgetHelper::createCheckBox(form, tr("Include schema"), true);
 
-    grid->addWidget(new QLabel(tr("Disable referential constraints")), 4, 0);
-    disableRefContraintsComboBox = new QComboBox();
-    disableRefContraintsComboBox->addItem(tr("Auto"));
-    disableRefContraintsComboBox->addItem(tr("Disable for selected tables"));
-    disableRefContraintsComboBox->addItem(tr("Disable for all tables"));
-    disableRefContraintsComboBox->addItem(tr("Do not disable"));
-    disableRefContraintsComboBox->setCurrentIndex(2);
-    grid->addWidget(disableRefContraintsComboBox, 4, 1);
+    addSkipOnErrorCheckBox(form);
+    addUncheckInGuiCheckBox(form);
 
-    grid->addWidget(new QLabel(tr("Comparison mode")), 5, 0);
+    addDisableRefConstraintsComboBox(form, DataOperationOptions::Disable);
 
     comparisonModeComboBox = new QComboBox();
     comparisonModeComboBox->addItem(tr("Generate script"));
     comparisonModeComboBox->addItem(tr("Update target database"));
     comparisonModeComboBox->setCurrentIndex(0);
-    grid->addWidget(comparisonModeComboBox, 5, 1);
+    form->addRow(tr("Comparison mode"), comparisonModeComboBox);
 
-    dataCompareOptionsGroupBox->setLayout(grid);
-    layout->addWidget(dataCompareOptionsGroupBox);
-    layout->setAlignment(dataCompareOptionsGroupBox, Qt::AlignTop|Qt::AlignLeft);
+    QGroupBox *groupBox = WidgetHelper::createGroupBox(form, tr("Options"));
+    layout->addWidget(groupBox);
+    layout->setAlignment(groupBox, Qt::AlignTop|Qt::AlignLeft);
 
+    enableControls();
     connect(comparisonModeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(enableControls()));
     connect(deletesCheckbox, SIGNAL(stateChanged(int)), this, SLOT(deletesCheckboxChanged()));
 }

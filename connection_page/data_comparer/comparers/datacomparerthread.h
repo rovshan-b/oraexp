@@ -2,7 +2,7 @@
 #define DATACOMPARERTHREAD_H
 
 #include <QThread>
-#include "../dataoperationthread.h"
+#include "connection_page/data_operation/dataoperationthread.h"
 
 class DataComparisonOptions;
 

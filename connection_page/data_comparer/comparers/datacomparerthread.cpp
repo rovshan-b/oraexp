@@ -178,8 +178,12 @@ void DataComparerThread::createComparisonScript()
             updateScript.append("\t if (").append(collName).append(" is null and ").append(colVarName).append(" is not null) or\n");
             updateScript.append("\t\t  (").append(collName).append(" is not null and ").append(colVarName).append(" is null) or\n");
             updateScript.append("\t\t  (").append(collName).append(" != ").append(colVarName).append(") then");
-            updateScript.append("\n\t\t\t if l_update_sql is not null then l_update_sql := l_update_sql || ','; end if;");
-            updateScript.append("\n\t\t\t l_update_sql := l_update_sql || '\"").
+
+            QString printValue = QString("dbms_output.put_line('%1='||%1||', '||'%2='||%2);").arg(collName, colVarName);
+
+            updateScript.append("\n\t\t\t if l_update_sql is not null then ").append(" l_update_sql := l_update_sql || ','; end if;");
+            updateScript.append("\n\t\t\t ").append(printValue)
+                    .append(" l_update_sql := l_update_sql || '\"").
                     append(currentColumnName).append("\" = ").
                     append(toDynamicSqlValue(collName, dataType)).
                     append("';");
@@ -229,8 +233,8 @@ void DataComparerThread::createComparisonScript()
     reverseCompareScript.replace("{uq_columns_and_coll_values}", joinedUqColumnsANDCollValues);
     reverseCompareScript.replace("{dyn_target_table}", scriptTargetTableName);
 
-    qDebug() << "compare script:" << compareScript;
-    qDebug() << "reverse compare script:" << reverseCompareScript;
+   qDebug() << "compare script:" << compareScript;
+   //qDebug() << "reverse compare script:" << reverseCompareScript;
 }
 
 void DataComparerThread::doComparison()
@@ -275,7 +279,7 @@ void DataComparerThread::doComparison()
                                               new Param(":update_database", (int)this->compareOptions->comparisonMode) <<
                                               new Param(":rs_out");
     targetStmt->bindParams(params); //second. do not move upper than first
-    targetStmt->printBindVars();
+    //targetStmt->printBindVars();
 
     rs->beginFetchRows();
 
@@ -297,6 +301,7 @@ void DataComparerThread::doComparison()
             targetStmt->execute();
 
             dml=targetStmt->rsAt(0)->fetchOneAsString(1);
+            qDebug() << targetDb->retrieveDbmsOutput();
 
             targetStmt->releaseResultsets();
 
@@ -318,6 +323,7 @@ void DataComparerThread::doComparison()
         targetStmt->execute();
 
         dml=targetStmt->rsAt(0)->fetchOneAsString(1);
+        qDebug() << targetDb->retrieveDbmsOutput();
 
         emitCompareInfo(tableName, "", insertCountParam->getIntValue(), updateCountParam->getIntValue(), 0, dml);
     }
@@ -358,7 +364,7 @@ void DataComparerThread::doReverseComparison()
                                           arrSizeParam <<
                                           deleteCountParam <<
                                           new Param(":rs_out")); //second. do not move upper than first
-    sourceDeleteGeneratorStmt->printBindVars();
+    //sourceDeleteGeneratorStmt->printBindVars();
 
     int offset=0;
 

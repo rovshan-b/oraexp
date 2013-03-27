@@ -1,7 +1,7 @@
 #ifndef DATACOPYHELPER_H
 #define DATACOPYHELPER_H
 
-#include "connection_page/data_comparer/dataoperationhelper.h"
+#include "connection_page/data_operation/dataoperationhelper.h"
 
 class DataCopyHelper : public DataOperationHelper
 {

@@ -35,9 +35,6 @@ void DataComparerHelper::startWorkerThread(const QString &tableName)
 {
     Q_ASSERT(workerThread==0);
 
-    currentTableName = tableName;
-    emit compareInfoAvailable(DataCompareInfo(tableName, tr("Starting")));
-
     workerThread=new DataComparerThread(sourceSchema, sourceScheduler->getDb(),
                                           targetSchema, targetScheduler->getDb(),
                                           tableName, options, tableOptions.value(tableName),

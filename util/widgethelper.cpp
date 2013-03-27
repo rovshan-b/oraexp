@@ -387,6 +387,15 @@ QCheckBox *WidgetHelper::createCheckBox(QGridLayout *layout, int row, int column
     return chk;
 }
 
+QCheckBox *WidgetHelper::createCheckBox(QFormLayout *layout, const QString &text, bool checked)
+{
+    QCheckBox *chk=new QCheckBox(text);
+    chk->setChecked(checked);
+    layout->addRow(chk);
+
+    return chk;
+}
+
 QStringList WidgetHelper::getCheckedBoxes(QWidget *parent)
 {
     QStringList results;
@@ -595,6 +604,14 @@ void WidgetHelper::checkModelItems(QStandardItemModel *model, bool check)
     for(int i=0; i<model->rowCount(); ++i){
         model->item(i, 0)->setCheckState(check ? Qt::Checked : Qt::Unchecked);
     }
+}
+
+QGroupBox *WidgetHelper::createGroupBox(QLayout *layout, const QString &title)
+{
+    QGroupBox *groupBox=new QGroupBox(title);
+    groupBox->setLayout(layout);
+
+    return groupBox;
 }
 
 

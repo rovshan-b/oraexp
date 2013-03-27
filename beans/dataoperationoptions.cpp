@@ -2,6 +2,8 @@
 
 DataOperationOptions::DataOperationOptions() :
     disableRefConstraints(Auto),
-    comparisonMode(GenerateDml)
+    comparisonMode(GenerateDml),
+    uncheckInGuiOnSuccess(true),
+    skipOnError(false)
 {
 }

@@ -1,14 +1,14 @@
 #ifndef DATACOMPAREROPTIONSTAB_H
 #define DATACOMPAREROPTIONSTAB_H
 
-#include "connection_page/db_object_comparer/tabs/dbobjectcompareroptionstab.h"
+#include "connection_page/data_operation/tabs/dataoperationoptionstab.h"
 
 class QBoxLayout;
 class QVBoxLayout;
 class QCheckBox;
 class QComboBox;
 
-class DataComparerOptionsTab : public DbObjectComparerOptionsTab
+class DataComparerOptionsTab : public DataOperationOptionsTab
 {
     Q_OBJECT
 public:
@@ -20,16 +20,14 @@ private slots:
     void enableControls();
     void deletesCheckboxChanged();
 
-private:
+protected:
     QCheckBox *insertsCheckbox;
     QCheckBox *updatesCheckbox;
     QCheckBox *deletesCheckbox;
-    QComboBox *disableRefContraintsComboBox;
     QCheckBox *includeSchemaCheckBox;
     QComboBox *comparisonModeComboBox;
 
-    void createOptionsPane(QBoxLayout *layout);
-    void createDataCompareOptionsPane(QVBoxLayout *layout);
+    virtual void createOptionsPane(QVBoxLayout *layout);
 };
 
 #endif // DATACOMPAREROPTIONSTAB_H

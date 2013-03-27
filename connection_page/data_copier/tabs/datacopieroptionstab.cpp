@@ -1,15 +1,11 @@
 #include "datacopieroptionstab.h"
 #include "beans/datacopieroptions.h"
+#include "util/widgethelper.h"
 #include <QtGui>
 
 DataCopierOptionsTab::DataCopierOptionsTab(QWidget *parent) :
-    DbObjectComparerOptionsTab(parent)
+    DataOperationOptionsTab(parent)
 {
-    QVBoxLayout *mainLayout=new QVBoxLayout();
-
-    createDataCopierOptionsPane(createSingleColumnOptionsPane(mainLayout));
-
-    setLayout(mainLayout);
 }
 
 DbObjectComparisonOptions *DataCopierOptionsTab::getOptions() const
@@ -18,7 +14,8 @@ DbObjectComparisonOptions *DataCopierOptionsTab::getOptions() const
 
     options->comparisonMode = DataOperationOptions::UpdateDatabase;
     options->truncate = truncateBeforeCopyCheckBox->isChecked();
-    options->disableRefConstraints = (DataOperationOptions::DisableRefConstraintsMode)disableRefContraintsComboBox->currentIndex();
+
+    setOptions(options);
 
     return options;
 }
@@ -30,26 +27,21 @@ void DataCopierOptionsTab::truncateOptionChanged()
     }
 }
 
-void DataCopierOptionsTab::createDataCopierOptionsPane(QVBoxLayout *layout)
+void DataCopierOptionsTab::createOptionsPane(QVBoxLayout *layout)
 {
-    QGroupBox *dataCompareOptionsGroupBox=new QGroupBox(tr("Options"));
-    QGridLayout *grid = new QGridLayout();
+    QFormLayout *form = new QFormLayout();
 
     truncateBeforeCopyCheckBox = new QCheckBox(tr("Truncate before copy"));
-    grid->addWidget(truncateBeforeCopyCheckBox, 0, 0);
+    form->addRow(truncateBeforeCopyCheckBox);
 
-    grid->addWidget(new QLabel(tr("Disable referential constraints")), 1, 0);
-    disableRefContraintsComboBox = new QComboBox();
-    disableRefContraintsComboBox->addItem(tr("Auto"));
-    disableRefContraintsComboBox->addItem(tr("Disable for selected tables"));
-    disableRefContraintsComboBox->addItem(tr("Disable for all tables"));
-    disableRefContraintsComboBox->addItem(tr("Do not disable"));
-    disableRefContraintsComboBox->setCurrentIndex(0);
-    grid->addWidget(disableRefContraintsComboBox, 1, 1);
+    addSkipOnErrorCheckBox(form);
+    addUncheckInGuiCheckBox(form);
 
-    dataCompareOptionsGroupBox->setLayout(grid);
-    layout->addWidget(dataCompareOptionsGroupBox);
-    layout->setAlignment(dataCompareOptionsGroupBox, Qt::AlignTop|Qt::AlignLeft);
+    addDisableRefConstraintsComboBox(form, DataOperationOptions::Auto);
+
+    QGroupBox *groupBox = WidgetHelper::createGroupBox(form, tr("Options"));
+    layout->addWidget(groupBox);
+    layout->setAlignment(groupBox, Qt::AlignTop|Qt::AlignLeft);
 
     connect(truncateBeforeCopyCheckBox, SIGNAL(stateChanged(int)), this, SLOT(truncateOptionChanged()));
 }

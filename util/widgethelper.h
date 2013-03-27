@@ -48,6 +48,7 @@ public:
     static QGridLayout *createCheckBoxes(const QStringList &texts, int columnCount, const QStringList &checked=QStringList());
     static QCheckBox *createCheckBox(QLayout *layout, const QString &text, bool checked=false);
     static QCheckBox *createCheckBox(QGridLayout *layout, int row, int column, const QString &text, bool checked=false, int rowSpan=1, int colSpan=1);
+    static QCheckBox *createCheckBox(QFormLayout *layout, const QString &text, bool checked=false);
     static QStringList getCheckedBoxes(QWidget *parent);
     static void setCheckedBoxes(QWidget *parent, const QStringList &checkedList, bool check=true, bool all=false);
 
@@ -99,6 +100,8 @@ public:
     static void fillAvailableTextCodecNames(QComboBox *comboBox, const QString &preselect = "UTF-8");
 
     static void checkModelItems(QStandardItemModel *model, bool check);
+
+    static QGroupBox *createGroupBox(QLayout *layout, const QString &title);
 };
 
 #endif // WIDGETHELPER_H

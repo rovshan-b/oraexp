@@ -20,6 +20,9 @@ protected:
 
     void connectComparerSignalsAndSlots(QObject *comparer);
 
+protected slots:
+    void tableCompareSuccess(const QString &tableName);
+
 };
 
 #endif // DATACOMPARER_H

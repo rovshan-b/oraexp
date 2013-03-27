@@ -3,7 +3,7 @@
 
 
 #include "connectivity/ociexception.h"
-#include "tableinfofordatacomparison.h"
+#include "beans/tableinfofordatacomparison.h"
 #include "connectivity/bulkoperationhelper.h"
 #include "beans/datacompareinfo.h"
 

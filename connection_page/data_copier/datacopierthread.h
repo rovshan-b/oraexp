@@ -1,7 +1,7 @@
 #ifndef DATACOPIERTHREAD_H
 #define DATACOPIERTHREAD_H
 
-#include "connection_page/data_comparer/dataoperationthread.h"
+#include "connection_page/data_operation/dataoperationthread.h"
 
 class DataCopierOptions;
 

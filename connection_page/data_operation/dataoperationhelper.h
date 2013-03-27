@@ -5,7 +5,7 @@
 #include "interfaces/iqueryscheduler.h"
 #include "beans/dataoperationoptions.h"
 #include "connectivity/ociexception.h"
-#include "tableinfofordatacomparison.h"
+#include "beans/tableinfofordatacomparison.h"
 #include "navtree/dbtreemodel.h"
 #include "connectivity/queryresult.h"
 #include "connectivity/fetchresult.h"
@@ -39,6 +39,7 @@ signals:
     void chunkCompleted(int size);
     void queryTextAvailable(const QString &queryText);
     void compareInfoAvailable(const DataCompareInfo &info);
+    void tableCompareSuccess(const QString &tableName);
     
 protected slots:
     void childrenPopulated(const QModelIndex &parent);
@@ -94,6 +95,7 @@ protected:
 
     void disableRefConstraints();
     void enableRefConstraints();
+    bool allCompared() const;
 };
 
 #endif // DATAOPERATIONHELPER_H

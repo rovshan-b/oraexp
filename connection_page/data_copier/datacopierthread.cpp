@@ -65,6 +65,8 @@ void DataCopierThread::prepareBindArrayForColumn(const QString & /*colName*/, co
 
 void DataCopierThread::copyData()
 {
+    emitCompareInfo(this->tableName, tr("Copying data"));
+
     QString columnNamesForSelect = getColumnsForSelect(tableOptions.columnsToCompare);
     QString selectFromSourceSql=QString("SELECT %1 FROM \"%2\".\"%3\"").
             arg(columnNamesForSelect).
@@ -76,7 +78,7 @@ void DataCopierThread::copyData()
 
     qDebug() << "select statement from source table:" << selectFromSourceSql;
 
-    QString columnNames = tableOptions.columnsToCompare.join(",");
+    QString columnNames = joinEnclosed(tableOptions.columnsToCompare, ",", "\"");
     QString bindVarNames;
     int colCount = tableOptions.columnsToCompare.size();
     QString bindVarName;
@@ -157,8 +159,8 @@ void DataCopierThread::copyData()
     }
 
     if(offset>0){
-        //bulkHelper.nullifyArrayData(targetStmt, offset);
         if(offset < BULK_DATA_OPERATION_CHUNK_SIZE){
+            bulkHelper.nullifyArrayData(targetStmt, offset);
             targetStmt->setBindArraySize(offset);
         }
 

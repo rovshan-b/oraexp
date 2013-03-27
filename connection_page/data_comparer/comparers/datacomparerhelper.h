@@ -1,7 +1,7 @@
 #ifndef DATACOMPARERHELPER_H
 #define DATACOMPARERHELPER_H
 
-#include "../dataoperationhelper.h"
+#include "connection_page/data_operation/dataoperationhelper.h"
 
 class DataComparerThread;
 

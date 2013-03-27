@@ -264,7 +264,7 @@ SOURCES += main.cpp\
     connection_page/data_comparer/tabs/datacomparercomparetab.cpp \
     connection_page/data_comparer/comparers/datacomparerhelper.cpp \
     beans/datacomparisonoptions.cpp \
-    connection_page/data_comparer/tableinfofordatacomparison.cpp \
+    beans/tableinfofordatacomparison.cpp \
     connection_page/data_comparer/comparers/datacomparerthread.cpp \
     connectivity/bulkoperationhelper.cpp \
     connection_page/data_comparer/tabs/datacomparerresultstab.cpp \
@@ -420,15 +420,16 @@ SOURCES += main.cpp\
     dialogs/selectlinkedobjectsdialog.cpp \
     navtree/dbtreemodelnodeexpander.cpp \
     dialogs/linkedobjectsviewerdialog.cpp \
-    connection_page/data_comparer/dataoperationhelper.cpp \
+    connection_page/data_operation/dataoperationhelper.cpp \
     beans/dataoperationoptions.cpp \
-    connection_page/data_comparer/dataoperationthread.cpp \
+    connection_page/data_operation/dataoperationthread.cpp \
     connection_page/data_copier/datacopier.cpp \
     connection_page/data_copier/tabs/datacopieroptionstab.cpp \
     beans/datacopieroptions.cpp \
     connection_page/data_copier/datacopyhelper.cpp \
     connection_page/data_copier/datacopierthread.cpp \
-    connection_page/data_copier/tabs/datacopierresultstab.cpp
+    connection_page/data_copier/tabs/datacopierresultstab.cpp \
+    connection_page/data_operation/tabs/dataoperationoptionstab.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -683,7 +684,7 @@ HEADERS  += mainwindow.h \
     interfaces/isearchable.h \
     connection_page/data_comparer/comparers/datacomparerhelper.h \
     beans/datacomparisonoptions.h \
-    connection_page/data_comparer/tableinfofordatacomparison.h \
+    beans/tableinfofordatacomparison.h \
     navtree/idbtreeitemcheckstateprovider.h \
     proxystyle.h \
     connection_page/data_comparer/comparers/datacomparerthread.h \
@@ -853,15 +854,16 @@ HEADERS  += mainwindow.h \
     dialogs/selectlinkedobjectsdialog.h \
     navtree/dbtreemodelnodeexpander.h \
     dialogs/linkedobjectsviewerdialog.h \
-    connection_page/data_comparer/dataoperationhelper.h \
+    connection_page/data_operation/dataoperationhelper.h \
     beans/dataoperationoptions.h \
-    connection_page/data_comparer/dataoperationthread.h \
+    connection_page/data_operation/dataoperationthread.h \
     connection_page/data_copier/datacopier.h \
     connection_page/data_copier/tabs/datacopieroptionstab.h \
     beans/datacopieroptions.h \
     connection_page/data_copier/datacopyhelper.h \
     connection_page/data_copier/datacopierthread.h \
-    connection_page/data_copier/tabs/datacopierresultstab.h
+    connection_page/data_copier/tabs/datacopierresultstab.h \
+    connection_page/data_operation/tabs/dataoperationoptionstab.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

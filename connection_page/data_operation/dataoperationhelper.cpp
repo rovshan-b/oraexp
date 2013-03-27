@@ -168,7 +168,7 @@ void DataOperationHelper::tableSortFetchCompleted(const QString &)
 
 void DataOperationHelper::loadTableColumns()
 {
-    if(currentItemIxToCompare >= itemsToCompare.size()){
+    if(allCompared()){
         currentItemIxToCompare = 0;
         //fillItemsToCompare();
         emit objectCountDetermined(itemsToCompare.size());
@@ -207,7 +207,7 @@ void DataOperationHelper::loadTableColumns()
 
 void DataOperationHelper::compareNextItem()
 {
-    if(currentItemIxToCompare >= itemsToCompare.size() || this->stopped){
+    if(allCompared() || this->stopped){
         if(needToDisableRefConstraints){
             enableRefConstraints();
         }else{
@@ -220,16 +220,19 @@ void DataOperationHelper::compareNextItem()
 
         emit statusChanged(tr("Comparing data for table %1").arg(tableItem->itemName()));
 
-        startWorkerThread(tableItem->itemName());
+        QString tableName = tableItem->itemName();
+
+        currentTableName = tableName;
+        emit compareInfoAvailable(DataCompareInfo(tableName, tr("Starting")));
+
+        startWorkerThread(tableName);
     }
 }
 
 void DataOperationHelper::subComparisonError(const QString &taskName, const OciException &exception)
 {
     emit compareInfoAvailable(DataCompareInfo(currentTableName, tr("Error:%1").arg(exception.getErrorMessage())));
-
     emit comparisonError(taskName, exception);
-
     this->deleteLater();
 }
 
@@ -253,6 +256,7 @@ void DataOperationHelper::childrenPopulateError(const QModelIndex &, const OciEx
 void DataOperationHelper::tableComparisonCompleted()
 {
     emit chunkCompleted(1);
+    emit tableCompareSuccess(this->currentTableName);
 
     deleteWorkerThread();
     compareNextItem();
@@ -260,6 +264,12 @@ void DataOperationHelper::tableComparisonCompleted()
 
 void DataOperationHelper::tableComparisonError(const QString &taskName, const OciException &exception)
 {
+    if(options->skipOnError && !allCompared()){
+        emit compareInfoAvailable(DataCompareInfo(currentTableName, tr("Error:%1").arg(exception.getErrorMessage())));
+        tableComparisonCompleted();
+        return;
+    }
+
     deleteWorkerThread();
 
     if(needToDisableRefConstraints &&
@@ -325,6 +335,11 @@ void DataOperationHelper::enableRefConstraints()
         emit queryTextAvailable(enableRefContraintsQuery);
         emitCompletedSignal();
     }
+}
+
+bool DataOperationHelper::allCompared() const
+{
+    return currentItemIxToCompare >= itemsToCompare.size();
 }
 
 void DataOperationHelper::refConstraintsDisabled(const QueryResult &result)

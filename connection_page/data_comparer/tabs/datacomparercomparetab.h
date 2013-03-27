@@ -3,7 +3,7 @@
 
 #include "connection_page/db_object_comparer/tabs/dbobjectcomparercomparetab.h"
 #include "widgets/codeeditorandsearchpanewidget.h"
-#include "../tableinfofordatacomparison.h"
+#include "beans/tableinfofordatacomparison.h"
 #include "interfaces/isearchable.h"
 #include "navtree/idbtreeitemcheckstateprovider.h"
 

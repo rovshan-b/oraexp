@@ -74,7 +74,7 @@ void BulkOperationHelper::bindArrays(Statement *stmt, const QString& bindVarPref
 
     for(int i=0; i<buffers.size(); ++i){
         QString bindVarName = QString(":%1_%2").arg(bindVarPrefix).arg(bindVarSuffixes.isEmpty() ? i : bindVarSuffixes.at(i));
-        qDebug() << "binding" << bindVarName;
+        //qDebug() << "binding" << bindVarName;
         const QString &dataType=dataTypes.at(i);
         int length=lenghts.at(i);
 

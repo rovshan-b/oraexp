@@ -222,7 +222,7 @@ QString ensureStartsWith(QString str, const QString &startWith)
     if(alreadyStartsWith>-1){
         return str;
     }else{
-        return QString("%1 %2").arg(startWith, str);
+        return QString(" %1 %2").arg(startWith, str);
     }
 }
 
