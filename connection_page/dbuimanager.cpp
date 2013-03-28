@@ -12,6 +12,7 @@
 #include "schema_comparer/schemacomparer.h"
 #include "data_comparer/datacomparer.h"
 #include "data_copier/datacopier.h"
+#include "data_exporter/dataexporter.h"
 #include "editorcreatorutil.h"
 #include <QtGui>
 
@@ -131,8 +132,14 @@ void DbUiManager::addDataComparer()
 
 void DbUiManager::addDataCopier()
 {
-    DataCopier *dataComparer=new DataCopier(this);
-    cnPage->addTab(dataComparer, IconUtil::getIcon("copy_data"), tr("Copy data"));
+    DataCopier *dataCopier=new DataCopier(this);
+    cnPage->addTab(dataCopier, IconUtil::getIcon("copy_data"), tr("Copy data"));
+}
+
+void DbUiManager::addDataExporter()
+{
+    DataExporter *dataExporter=new DataExporter(this);
+    cnPage->addTab(dataExporter, IconUtil::getIcon("export"), tr("Export data"));
 }
 
 void DbUiManager::closeTab(QWidget *widget)

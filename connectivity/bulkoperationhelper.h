@@ -20,6 +20,8 @@ public:
     void bindArrays(Statement *stmt, const QString &bindVarPrefix, const QList<int> &bindVarSuffixes=QList<int>());
     void createBufferForDataType(Statement *stmt, const QString &dataType, int length);
 
+    //void printArrayData(Statement *stmt);
+
     QString dataTypeAt(int ix);
     int lengthAt(int ix);
 

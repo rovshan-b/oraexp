@@ -1,5 +1,6 @@
 #include "apptoolsmenu.h"
 #include "util/iconutil.h"
+#include "connectionspane.h"
 #include <QtGui>
 
 AppToolsMenu::AppToolsMenu(QMenu *toolsMenu, QToolBar *toolbar, QObject *parent) : AppMainMenu(parent)
@@ -22,10 +23,27 @@ void AppToolsMenu::setupMenu(QMenu *toolsMenu, QToolBar *toolbar)
     toolsCopyDataAction=toolsMenu->addAction(IconUtil::getIcon("copy_data"), tr("Cop&y data"), this, SLOT(addDataCopier()));
     toolsCopyDataAction->setStatusTip(tr("Copy table data to other schema or database"));
 
+    toolsExportDataAction=toolsMenu->addAction(IconUtil::getIcon("export"), tr("E&xport data"), this, SLOT(addDataExporter()));
+    toolsExportDataAction->setStatusTip(tr("Export table data to various formats"));
+
     toolsMenu->addSeparator();
 
     toolsOptionsAction=toolsMenu->addAction(IconUtil::getIcon("settings"), tr("&Options..."));
     toolsOptionsAction->setStatusTip(tr("Application settings"));
+
+    toolsMenu->addSeparator();
+    toolsOptionsAction=toolsMenu->addAction("800x600", this, SLOT(resize800x600()));
+    toolsOptionsAction=toolsMenu->addAction("1024x768", this, SLOT(resize1024x768()));
+}
+
+void AppToolsMenu::resize800x600()
+{
+    this->getConnectionsPane()->window()->resize(800, 540);
+}
+
+void AppToolsMenu::resize1024x768()
+{
+    this->getConnectionsPane()->window()->resize(1024, 740);
 }
 
 void AppToolsMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab * /*cnPageTab*/)

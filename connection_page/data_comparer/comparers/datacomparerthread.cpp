@@ -179,11 +179,9 @@ void DataComparerThread::createComparisonScript()
             updateScript.append("\t\t  (").append(collName).append(" is not null and ").append(colVarName).append(" is null) or\n");
             updateScript.append("\t\t  (").append(collName).append(" != ").append(colVarName).append(") then");
 
-            QString printValue = QString("dbms_output.put_line('%1='||%1||', '||'%2='||%2);").arg(collName, colVarName);
-
             updateScript.append("\n\t\t\t if l_update_sql is not null then ").append(" l_update_sql := l_update_sql || ','; end if;");
-            updateScript.append("\n\t\t\t ").append(printValue)
-                    .append(" l_update_sql := l_update_sql || '\"").
+            //QString printValue = QString("dbms_output.put_line('%1='||%1||', '||'%2='||%2);").arg(collName, colVarName);
+            updateScript.append("\n\t\t\t ")/*.append(printValue)*/.append(" l_update_sql := l_update_sql || '\"").
                     append(currentColumnName).append("\" = ").
                     append(toDynamicSqlValue(collName, dataType)).
                     append("';");
@@ -301,7 +299,6 @@ void DataComparerThread::doComparison()
             targetStmt->execute();
 
             dml=targetStmt->rsAt(0)->fetchOneAsString(1);
-            qDebug() << targetDb->retrieveDbmsOutput();
 
             targetStmt->releaseResultsets();
 
@@ -323,7 +320,6 @@ void DataComparerThread::doComparison()
         targetStmt->execute();
 
         dml=targetStmt->rsAt(0)->fetchOneAsString(1);
-        qDebug() << targetDb->retrieveDbmsOutput();
 
         emitCompareInfo(tableName, "", insertCountParam->getIntValue(), updateCountParam->getIntValue(), 0, dml);
     }

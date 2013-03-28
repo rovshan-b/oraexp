@@ -39,7 +39,6 @@ WorksheetResultsetTab::WorksheetResultsetTab(QWidget *parent) :
 
 WorksheetResultsetTab::~WorksheetResultsetTab()
 {
-    delete exportDialog;
 }
 
 void WorksheetResultsetTab::addTabSpecificToolbarButtons()
@@ -74,7 +73,7 @@ void WorksheetResultsetTab::firstFetchCompleted()
 void WorksheetResultsetTab::exportData()
 {
     if(exportDialog==0){
-        exportDialog = new DataExportDialog();
+        exportDialog = new DataExportDialog(this);
         exportDialog->exportWidget()->setTableName(this->queryScheduler->getDb()->getSchemaName(), "EXPORT_TABLE");
     }
 

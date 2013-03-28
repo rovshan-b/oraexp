@@ -5,6 +5,9 @@
 #include "connectivity/resultset.h"
 #include <QDebug>
 
+//#include <iostream>
+//using namespace std;
+
 BulkOperationHelper::BulkOperationHelper() : bulkSize(-1), dmlMode(false)
 {
 }
@@ -51,6 +54,38 @@ void BulkOperationHelper::createBufferForDataType(Statement *stmt, const QString
 
     buffers.append(result);
 }
+
+/*
+void BulkOperationHelper::printArrayData(Statement *stmt)
+{
+    wcout << "------------array data------------" << endl;
+    for(int k=0; k<this->bulkSize; ++k){
+        wcout << "row:" << endl;
+        for(int i=0; i<dataTypes.size(); ++i){
+            const QString &dataType=dataTypes.at(i);
+
+            if(stmt->isBindNullAtPos(i+1, k+1)){
+                wcout << L"\tNULL, ";
+            }else if(DbUtil::isStringType(dataType)){
+
+                dtext *currPosInBuffer = &((dtext*)buffers.at(i))[k*(lengthAt(i)+1)];
+                wcout << L"\t" << currPosInBuffer << L", ";
+
+            }else if(DbUtil::isNumericType(dataType)){
+                wcout << L"\t" << ((double*)buffers.at(i))[k] << L", ";
+            }else if(DbUtil::isDateType(dataType)){
+                OCI_Date *date = ((OCI_Date**)buffers.at(i))[k];
+                dtext str[21];
+                OCI_DateToText(date, L"DD/MM/YYYY HH24:MI:SS", 20, str);
+                wcout << L"\t" << str << L", ";
+            }else{
+                wcout << L"\tsomething else, ";
+            }
+        }
+        wcout << endl;
+    }
+    wcout << "----------end array data----------" << endl;
+}*/
 
 QString BulkOperationHelper::dataTypeAt(int ix)
 {

@@ -89,7 +89,7 @@ void ConnectionPage::closeTab(int index)
         }
     }else{
         QMessageBox::information(this->window(), tr("Tab busy"),
-                                 tr("Cannot close this tab at the moment, because it is executing a database query"));
+                                 tr("Cannot close tab while it is busy."));
     }
 }
 

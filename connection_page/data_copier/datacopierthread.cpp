@@ -65,8 +65,6 @@ void DataCopierThread::prepareBindArrayForColumn(const QString & /*colName*/, co
 
 void DataCopierThread::copyData()
 {
-    emitCompareInfo(this->tableName, tr("Copying data"));
-
     QString columnNamesForSelect = getColumnsForSelect(tableOptions.columnsToCompare);
     QString selectFromSourceSql=QString("SELECT %1 FROM \"%2\".\"%3\"").
             arg(columnNamesForSelect).
@@ -105,11 +103,14 @@ void DataCopierThread::copyData()
     qDebug() << "insert into target table:" << insertIntoTargetSql;
 
     if(copyOptions->truncate){
+        emitCompareInfo(this->tableName, tr("Truncating table"));
 
         QString truncateQuery = QString("TRUNCATE TABLE \"%1\".\"%2\"").arg(targetSchema, targetTableName);
 
         targetDb->executeQueryAndCleanup(truncateQuery);
     }
+
+    emitCompareInfo(this->tableName, tr("Copying data"));
 
     QueryResult res=sourceDb->executeQuery(selectFromSourceSql);
 

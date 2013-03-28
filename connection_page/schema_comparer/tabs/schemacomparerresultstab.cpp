@@ -22,4 +22,6 @@ void SchemaComparerResultsTab::changedObjectDetected(const QString &objectName, 
     rowItems.append(new QStandardItem(DbUtil::getDbObjectTypeNameByNodeType(objectType)));
     rowItems.append(new QStandardItem(compareResult=="new" ?  tr("New") : tr("Changed")));
     tableModel->appendRow(rowItems);
+
+    changeListTable->scrollToBottom();
 }

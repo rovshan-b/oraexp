@@ -49,9 +49,6 @@ void DataComparerResultsTab::compareInfoAvailable(const DataCompareInfo &info)
 {
     if(!info.tableName.isEmpty()){
 
-        //QList<QStandardItem*> items = tableModel->findItems(info.tableName, Qt::MatchFixedString|Qt::MatchCaseSensitive, 0);
-        //Q_ASSERT(items.size()<=1);
-
         int rowCount = tableModel->rowCount();
         QStandardItem* item = 0;
 
@@ -97,4 +94,6 @@ void DataComparerResultsTab::compareInfoAvailable(const DataCompareInfo &info)
     if(!info.dml.isEmpty()){
         this->addText(info.dml);
     }
+
+    changeListTable->scrollToBottom();
 }

@@ -14,6 +14,7 @@ class ConnectionSelectorWidget;
 class DbConnection;
 class DbUiManager;
 class QPushButton;
+class QTabWidget;
 
 class DbObjectComparerCompareTab : public QWidget, public QueryScheduler
 {
@@ -33,6 +34,10 @@ public:
     DbTreeModel *getObjectsModel() const;
 
     virtual void beforeCompare();
+
+    virtual bool nestOptionsTab() const;
+
+    void addToBottomPaneTab(QWidget *widget, const QString &title);
 
 signals:
     void uiCreated();
@@ -69,6 +74,8 @@ protected:
 
     void createConnectionOptionsPane(QBoxLayout *layout);
     virtual void createItemsTable(QBoxLayout *layout);
+
+    QTabWidget *bottomPaneTab;
     
 };
 

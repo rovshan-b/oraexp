@@ -36,6 +36,7 @@ public slots:
     void addSchemaComparer();
     void addDataComparer();
     void addDataCopier();
+    void addDataExporter();
 
     DbItemAction *getSenderAction() const;
 

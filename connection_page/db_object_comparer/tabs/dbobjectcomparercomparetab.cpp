@@ -8,7 +8,8 @@
 #include <QtGui>
 
 DbObjectComparerCompareTab::DbObjectComparerCompareTab(DbUiManager *uiManager, QWidget *parent) :
-    QWidget(parent), uiManager(uiManager), parentQueryEndMonitor(parent), queryScheduler(0), sourceSchemaComboBox(0)
+    QWidget(parent), uiManager(uiManager), parentQueryEndMonitor(parent),
+    queryScheduler(0), sourceSchemaComboBox(0), bottomPaneTab(0)
 {
 }
 
@@ -18,7 +19,23 @@ void DbObjectComparerCompareTab::createUi()
     mainLayout->setContentsMargins(0, 2, 0, 2);
 
     createConnectionOptionsPane(mainLayout);
-    createItemsTable(mainLayout);
+
+    if(nestOptionsTab()){
+        bottomPaneTab = new QTabWidget();
+        QWidget *itemsTableWidget = new QWidget();
+
+        QVBoxLayout *itemsTableLayout = new QVBoxLayout();
+        itemsTableLayout->setContentsMargins(0,0,0,0);
+        itemsTableWidget->setLayout(itemsTableLayout);
+
+        createItemsTable(itemsTableLayout);
+
+        bottomPaneTab->addTab(itemsTableWidget, tr("Objects"));
+
+        mainLayout->addWidget(bottomPaneTab);
+    }else{
+        createItemsTable(mainLayout);
+    }
 
     setLayout(mainLayout);
 
@@ -125,6 +142,18 @@ DbTreeModel *DbObjectComparerCompareTab::getObjectsModel() const
 void DbObjectComparerCompareTab::beforeCompare()
 {
 
+}
+
+bool DbObjectComparerCompareTab::nestOptionsTab() const
+{
+    return true;
+}
+
+void DbObjectComparerCompareTab::addToBottomPaneTab(QWidget *widget, const QString &title)
+{
+    Q_ASSERT(bottomPaneTab);
+
+    bottomPaneTab->addTab(widget, title);
 }
 
 void DbObjectComparerCompareTab::beforeEnqueueQuery()

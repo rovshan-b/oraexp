@@ -34,13 +34,18 @@ void DbObjectComparer::createTabs()
     compareTab=createCompareTab(uiManager);
     connect(compareTab, SIGNAL(connectionEstablished(DbConnection*)), this, SLOT(targetConnectionEstablished(DbConnection*)));
     connect(compareTab, SIGNAL(uiCreated()), this, SIGNAL(stateChanged()));
-    tabWidget->addTab(compareTab, tr("Objects"));
+    tabWidget->addTab(compareTab, compareTab->nestOptionsTab() ? tr("Options") :  tr("Objects"));
     if(this->getDb()){
         compareTab->setQueryScheduler(this);
     }
 
     optionsTab=createOptionsTab();
-    tabWidget->addTab(optionsTab, tr("Options"));
+
+    if(compareTab->nestOptionsTab()){
+        compareTab->addToBottomPaneTab(optionsTab, tr("Advanced options"));
+    }else{
+        tabWidget->addTab(optionsTab, tr("Options"));
+    }
 
     resultsTab=createResultsTab();
     tabWidget->addTab(resultsTab, tr("Results"));

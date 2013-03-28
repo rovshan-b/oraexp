@@ -62,6 +62,6 @@ void DataComparerOptionsTab::enableControls()
 void DataComparerOptionsTab::deletesCheckboxChanged()
 {
     if(deletesCheckbox->isChecked()){
-        disableRefContraintsComboBox->setCurrentIndex(DataComparisonOptions::DisableForAll);
+        disableRefContraintsComboBox->setCurrentIndex(DataComparisonOptions::Disable);
     }
 }
