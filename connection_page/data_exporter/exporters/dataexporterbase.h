@@ -13,6 +13,14 @@ class QFile;
 class DataExporterBase
 {
 public:
+    enum ExportFormat{
+        CSV,
+        Excel,
+        HTML,
+        XML,
+        Insert
+    };
+
     DataExporterBase();
     virtual ~DataExporterBase();
 

@@ -45,8 +45,8 @@ public slots:
 
     void targetConnectionEstablished(DbConnection *db);
 
-private slots:
-    void createTabs();
+protected slots:
+    virtual void createTabs();
     void busyStateChanged(bool busy);
 
 protected:

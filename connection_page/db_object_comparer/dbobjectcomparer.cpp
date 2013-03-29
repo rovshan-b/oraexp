@@ -34,7 +34,7 @@ void DbObjectComparer::createTabs()
     compareTab=createCompareTab(uiManager);
     connect(compareTab, SIGNAL(connectionEstablished(DbConnection*)), this, SLOT(targetConnectionEstablished(DbConnection*)));
     connect(compareTab, SIGNAL(uiCreated()), this, SIGNAL(stateChanged()));
-    tabWidget->addTab(compareTab, compareTab->nestOptionsTab() ? tr("Options") :  tr("Objects"));
+    tabWidget->addTab(compareTab, tr("Objects"));
     if(this->getDb()){
         compareTab->setQueryScheduler(this);
     }
@@ -42,7 +42,7 @@ void DbObjectComparer::createTabs()
     optionsTab=createOptionsTab();
 
     if(compareTab->nestOptionsTab()){
-        compareTab->addToBottomPaneTab(optionsTab, tr("Advanced options"));
+        compareTab->addToBottomPaneTab(optionsTab, tr("Options"));
     }else{
         tabWidget->addTab(optionsTab, tr("Options"));
     }
@@ -134,7 +134,9 @@ void DbObjectComparer::createBottomLayout(QBoxLayout *layout)
     layout->addLayout(statusLayout);
 
     compareButton=new QPushButton(tr("Start"));
-    compareButton->setEnabled(false);
+    if(compareTab->needsTargetConnection()){
+        compareButton->setEnabled(false);
+    }
     connect(compareButton, SIGNAL(clicked()), this, SLOT(startStopComparing()));
 
     layout->addWidget(compareButton);

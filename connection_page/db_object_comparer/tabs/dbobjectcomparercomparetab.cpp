@@ -21,11 +21,11 @@ void DbObjectComparerCompareTab::createUi()
     createConnectionOptionsPane(mainLayout);
 
     if(nestOptionsTab()){
-        bottomPaneTab = new QTabWidget();
+        bottomPaneTab = new SubTabWidget();
         QWidget *itemsTableWidget = new QWidget();
 
         QVBoxLayout *itemsTableLayout = new QVBoxLayout();
-        itemsTableLayout->setContentsMargins(0,0,0,0);
+        //itemsTableLayout->setContentsMargins(0,0,0,0);
         itemsTableWidget->setLayout(itemsTableLayout);
 
         createItemsTable(itemsTableLayout);
@@ -79,22 +79,27 @@ void DbObjectComparerCompareTab::currentTreeItemChanged(const QModelIndex &, con
 
 void DbObjectComparerCompareTab::createConnectionOptionsPane(QBoxLayout *layout)
 {
-    //QWidget *targetConnectionWidget=new QWidget();
-    QFormLayout *connectionOptionsLayout=new QFormLayout();
+    topPaneForm=new QFormLayout();
 
     sourceSchemaComboBox=new DbItemListComboBox("", "user", true);
-    connectionOptionsLayout->addRow(tr("Schema"), sourceSchemaComboBox);
-    targetConnection=new ConnectionSelectorWidget();
-    connect(targetConnection, SIGNAL(connectionEstablished(DbConnection*)), this, SLOT(targetConnectionEstablished(DbConnection*)));
-    connectionOptionsLayout->addRow(tr("Target connection"), targetConnection);
+    topPaneForm->addRow(tr("Schema"), sourceSchemaComboBox);
 
-    targetSchemaComboBox=new DbItemListComboBox("", "user", true);
-    connect(targetSchemaComboBox, SIGNAL(loadingCompleted()), this, SLOT(targetSchemaListLoaded()));
-    connectionOptionsLayout->addRow(tr("Target schema"), targetSchemaComboBox);
-    //targetConnectionWidget->setLayout(connectionTabLayout);
+    if(needsTargetConnection()){
+        targetConnection=new ConnectionSelectorWidget();
+        connect(targetConnection, SIGNAL(connectionEstablished(DbConnection*)), this, SLOT(targetConnectionEstablished(DbConnection*)));
+        topPaneForm->addRow(tr("Target connection"), targetConnection);
 
-    //layout->addWidget(targetConnectionWidget);
-    layout->addLayout(connectionOptionsLayout);
+        targetSchemaComboBox=new DbItemListComboBox("", "user", true);
+        connect(targetSchemaComboBox, SIGNAL(loadingCompleted()), this, SLOT(targetSchemaListLoaded()));
+        topPaneForm->addRow(tr("Target schema"), targetSchemaComboBox);
+
+        //addModuleSpecificControls(connectionOptionsLayout);
+    }else{
+        targetConnection=0;
+        targetSchemaComboBox=0;
+    }
+
+    layout->addLayout(topPaneForm);
 }
 
 void DbObjectComparerCompareTab::createItemsTable(QBoxLayout *layout)
@@ -131,7 +136,7 @@ QString DbObjectComparerCompareTab::getSourceSchemaName() const
 
 QString DbObjectComparerCompareTab::getTargetSchemaName() const
 {
-    return targetSchemaComboBox->currentText().toUpper().trimmed();
+    return targetSchemaComboBox!=0 ? targetSchemaComboBox->currentText().toUpper().trimmed() : "";
 }
 
 DbTreeModel *DbObjectComparerCompareTab::getObjectsModel() const
@@ -145,6 +150,11 @@ void DbObjectComparerCompareTab::beforeCompare()
 }
 
 bool DbObjectComparerCompareTab::nestOptionsTab() const
+{
+    return true;
+}
+
+bool DbObjectComparerCompareTab::needsTargetConnection() const
 {
     return true;
 }

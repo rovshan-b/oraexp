@@ -8,6 +8,7 @@ class InsertExporter : public DataExporterBase
 public:
     InsertExporter();
 
+    bool includeSchema;
     QString schemaName;
     QString tableName;
 

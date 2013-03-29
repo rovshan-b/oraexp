@@ -2,7 +2,10 @@
 #include <QtGui>
 
 DataOperationOptionsTab::DataOperationOptionsTab(QWidget *parent) :
-    DbObjectComparerOptionsTab(parent)
+    DbObjectComparerOptionsTab(parent),
+    disableRefContraintsComboBox(0),
+    skipOnErrorCheckBox(0),
+    uncheckInGuiCheckBox(0)
 {
 }
 
@@ -17,9 +20,9 @@ void DataOperationOptionsTab::createUi()
 
 void DataOperationOptionsTab::setOptions(DataOperationOptions *options) const
 {
-    options->disableRefConstraints = (DataOperationOptions::DisableRefConstraintsMode)disableRefContraintsComboBox->currentIndex();
-    options->skipOnError = skipOnErrorCheckBox->isChecked();
-    options->uncheckInGuiOnSuccess = uncheckInGuiCheckBox->isChecked();
+    options->disableRefConstraints = disableRefContraintsComboBox ? (DataOperationOptions::DisableRefConstraintsMode)disableRefContraintsComboBox->currentIndex() : DataOperationOptions::DoNotDisable;
+    options->skipOnError = skipOnErrorCheckBox ? skipOnErrorCheckBox->isChecked() : false;
+    options->uncheckInGuiOnSuccess = uncheckInGuiCheckBox ? uncheckInGuiCheckBox->isChecked() : false;
 }
 
 void DataOperationOptionsTab::addDisableRefConstraintsComboBox(QFormLayout *form, int currentIndex)

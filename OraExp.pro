@@ -430,7 +430,9 @@ SOURCES += main.cpp\
     connection_page/data_copier/datacopierthread.cpp \
     connection_page/data_copier/tabs/datacopierresultstab.cpp \
     connection_page/data_operation/tabs/dataoperationoptionstab.cpp \
-    connection_page/data_exporter/dataexporter.cpp
+    connection_page/data_exporter/dataexporter.cpp \
+    connection_page/data_exporter/tabs/dataexportercomparetab.cpp \
+    connection_page/data_exporter/tabs/dataexporteroptionstab.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -865,7 +867,9 @@ HEADERS  += mainwindow.h \
     connection_page/data_copier/datacopierthread.h \
     connection_page/data_copier/tabs/datacopierresultstab.h \
     connection_page/data_operation/tabs/dataoperationoptionstab.h \
-    connection_page/data_exporter/dataexporter.h
+    connection_page/data_exporter/dataexporter.h \
+    connection_page/data_exporter/tabs/dataexportercomparetab.h \
+    connection_page/data_exporter/tabs/dataexporteroptionstab.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

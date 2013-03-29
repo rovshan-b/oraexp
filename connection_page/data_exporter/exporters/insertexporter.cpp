@@ -20,7 +20,7 @@ void InsertExporter::startDocument(QTextStream & /*out*/)
 
     insertStatement=QString("INSERT INTO ");
 
-    if(!this->schemaName.isEmpty()){
+    if(this->includeSchema && !this->schemaName.isEmpty()){
         insertStatement.append(this->schemaName).append(".");
     }
 

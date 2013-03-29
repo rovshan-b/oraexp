@@ -14,52 +14,73 @@
 #include "defines.h"
 #include <QtGui>
 
-DataExportOptionsWidget::DataExportOptionsWidget(QWidget *parent) :
+DataExportOptionsWidget::DataExportOptionsWidget(bool selfContained, QWidget *parent) :
     QWidget(parent),
     selectionStartRow(-1),
     selectionStartColumn(-1),
     selectionEndRow(-1),
-    selectionEndColumn(-1)
+    selectionEndColumn(-1),
+    multiTableExport(false)
+{
+    if(selfContained){
+        createUi();
+    }
+}
+
+void DataExportOptionsWidget::createUi()
 {
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
     QFormLayout *form = new QFormLayout();
-
-    formatComboBox = new QComboBox();
-    form->addRow(tr("Export format"), formatComboBox);
-
-    filenameEditor = new LineEditWithButton(this);
-    form->addRow(tr("File name"), filenameEditor);
-
-    encodingComboBox = new QComboBox();
-    WidgetHelper::fillAvailableTextCodecNames(encodingComboBox);
-    form->addRow(tr("Encoding"), encodingComboBox);
-
-    bomCheckbox = new QCheckBox(tr("BOM"));
-    form->addRow(bomCheckbox);
-
+    createFileOptionsControls(form);
     mainLayout->addLayout(form);
 
     tab = new QTabWidget();
-    createOptionsTab();
-    createDataReplacementTab();
+    tab->addTab(createOptionsTab(), tr("Options"));
+    tab->addTab(createDataReplacementTab(), tr("Data replacement"));
     mainLayout->addWidget(tab);
 
     mainLayout->setContentsMargins(0,0,0,0);
     setLayout(mainLayout);
 
+    connectSignalsAndSlots();
+}
+
+void DataExportOptionsWidget::createSeparatedUi(QFormLayout *fileControlsForm, QTabWidget *optionsTab)
+{
+    QVBoxLayout *mainLayout = new QVBoxLayout();
+
+    createFileOptionsControls(fileControlsForm);
+
+    tab = 0;
+    mainLayout->addWidget(createOptionsTab());
+    optionsTab->addTab(createDataReplacementTab(), tr("Data replacement"));
+
+    mainLayout->setContentsMargins(0,0,0,0);
+    setLayout(mainLayout);
+
+    connectSignalsAndSlots();
+
+    formatComboBox->setCurrentIndex(DataExporterBase::Insert);
+}
+
+void DataExportOptionsWidget::connectSignalsAndSlots()
+{
     populateExportFormats();
 
     fileFormatChanged();
     connect(formatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(fileFormatChanged()));
     connect(filenameEditor, SIGNAL(buttonClicked(LineEditWithButton*)), this, SLOT(selectSaveFilename()));
     connect(includeColumnHeadersCheckbox, SIGNAL(stateChanged(int)), this, SLOT(enableControls()));
+    connect(includeSchemaCheckBox, SIGNAL(stateChanged(int)), this, SLOT(includeSchemaCheckBoxChanged()));
 
     enableControls();
 }
 
 void DataExportOptionsWidget::setSelectedRange(int startRow, int startColumn, int endRow, int endColumn)
 {
+    Q_ASSERT(selectedOnlyCheckbox);
+
     this->selectionStartRow=startRow;
     this->selectionStartColumn=startColumn;
     this->selectionEndRow=endRow;
@@ -120,19 +141,43 @@ void DataExportOptionsWidget::fileFormatChanged()
 {
     correctFileSuffix();
 
-    ExportFormat format = (ExportFormat)formatComboBox->currentIndex();
+    DataExporterBase::ExportFormat format = (DataExporterBase::ExportFormat)formatComboBox->currentIndex();
 
-    includeNullTextCheckbox->setEnabled(format!=Insert);
-    includeColumnHeadersCheckbox->setEnabled(format==CSV || format==Excel || format==HTML);
+    includeNullTextCheckbox->setEnabled(format!=DataExporterBase::Insert);
+    includeColumnHeadersCheckbox->setEnabled(format==DataExporterBase::CSV || format==DataExporterBase::Excel || format==DataExporterBase::HTML);
     quoteColumnHeadersCheckbox->setEnabled(includeColumnHeadersCheckbox->isEnabled() && includeColumnHeadersCheckbox->isChecked());
-    quotingOptionsBox->setEnabled(format==CSV);
-    delimiterOptionsBox->setEnabled(format==CSV);
-    tableNameOptionsBox->setEnabled(format==Insert);
+    quotingOptionsBox->setEnabled(format==DataExporterBase::CSV);
+    delimiterOptionsBox->setEnabled(format==DataExporterBase::CSV);
+    tableNameOptionsBox->setEnabled(format==DataExporterBase::Insert);
+
+    emit exportFormatChanged(format);
 }
 
-void DataExportOptionsWidget::createOptionsTab()
+void DataExportOptionsWidget::includeSchemaCheckBoxChanged()
+{
+    schemaNameEditor->setEnabled(includeSchemaCheckBox->isChecked());
+}
+
+void DataExportOptionsWidget::createFileOptionsControls(QFormLayout *form)
+{
+    formatComboBox = new QComboBox();
+    form->addRow(tr("Export format"), formatComboBox);
+
+    filenameEditor = new LineEditWithButton(this);
+    form->addRow(tr("File name"), filenameEditor);
+
+    encodingComboBox = new QComboBox();
+    WidgetHelper::fillAvailableTextCodecNames(encodingComboBox);
+    form->addRow(tr("Encoding"), encodingComboBox);
+
+    bomCheckbox = new QCheckBox(tr("BOM"));
+    form->addRow(bomCheckbox);
+}
+
+QWidget *DataExportOptionsWidget::createOptionsTab()
 {
     QVBoxLayout *layout = new QVBoxLayout();
+    layout->setContentsMargins(0,0,0,0);
 
     QHBoxLayout *vboxContainerLayout = new QHBoxLayout();
     QVBoxLayout *firstColLayout = new QVBoxLayout();
@@ -152,10 +197,10 @@ void DataExportOptionsWidget::createOptionsTab()
     QWidget *optionsTabWidget = new QWidget();
     optionsTabWidget->setLayout(layout);
 
-    tab->addTab(optionsTabWidget, tr("Options"));
+    return optionsTabWidget;
 }
 
-void DataExportOptionsWidget::createDataReplacementTab()
+QWidget *DataExportOptionsWidget::createDataReplacementTab()
 {
     QVBoxLayout *layout = new QVBoxLayout();
 
@@ -173,16 +218,19 @@ void DataExportOptionsWidget::createDataReplacementTab()
 
     QWidget *dataReplacementTabWidget = new QWidget();
     dataReplacementTabWidget->setLayout(layout);
-    tab->addTab(dataReplacementTabWidget, tr("Data replacement"));
+
+    return dataReplacementTabWidget;
 }
 
 void DataExportOptionsWidget::createGeneralOptionsPane(QBoxLayout *layout)
 {
     QGridLayout *grid = new QGridLayout();
 
-    selectedOnlyCheckbox = new QCheckBox(tr("Export only selected rows"));
-    selectedOnlyCheckbox->setEnabled(false);
-    grid->addWidget(selectedOnlyCheckbox, 0, 0);
+    if(!multiTableExport){
+        selectedOnlyCheckbox = new QCheckBox(tr("Export only selected rows"));
+        selectedOnlyCheckbox->setEnabled(false);
+        grid->addWidget(selectedOnlyCheckbox, 0, 0);
+    }
 
     includeNullTextCheckbox = new QCheckBox(tr("Include null text"));
     grid->addWidget(includeNullTextCheckbox, 1, 0);
@@ -242,15 +290,25 @@ void DataExportOptionsWidget::createTargetTableOptionsPane(QBoxLayout *layout)
 {
     QFormLayout *form = new QFormLayout();
 
+    includeSchemaCheckBox = new QCheckBox();
+    includeSchemaCheckBox->setChecked(true);
+    form->addRow(tr("Include schema"), includeSchemaCheckBox);
+
     schemaNameEditor = new QLineEdit();
     schemaNameEditor->setMaxLength(MAX_IDENTIFIER_LENGTH);
     form->addRow(tr("Schema"), schemaNameEditor);
 
-    tableNameEditor = new QLineEdit();
-    tableNameEditor->setMaxLength(MAX_IDENTIFIER_LENGTH);
-    form->addRow(tr("Table"), tableNameEditor);
+    if(multiTableExport){
+        schemaNameEditor->setPlaceholderText(tr("Default"));
+    }
 
-    tableNameOptionsBox = new QGroupBox(tr("Table"));
+    if(!multiTableExport){
+        tableNameEditor = new QLineEdit();
+        tableNameEditor->setMaxLength(MAX_IDENTIFIER_LENGTH);
+        form->addRow(tr("Table"), tableNameEditor);
+    }
+
+    tableNameOptionsBox = new QGroupBox(multiTableExport ? tr("Tables") : tr("Table"));
     tableNameOptionsBox->setLayout(form);
 
     layout->addWidget(tableNameOptionsBox);
@@ -309,24 +367,27 @@ DataExporterBase *DataExportOptionsWidget::createExporter() const
 {
     DataExporterBase *exporter;
 
-    ExportFormat format = (ExportFormat)formatComboBox->currentIndex();
+    DataExporterBase::ExportFormat format = (DataExporterBase::ExportFormat)formatComboBox->currentIndex();
     switch(format){
-    case CSV:
+    case DataExporterBase::CSV:
         exporter=new CsvExporter();
         break;
-    case Excel:
+    case DataExporterBase::Excel:
         exporter=new ExcelExporter();
         break;
-    case HTML:
+    case DataExporterBase::HTML:
         exporter=new HtmlExporter();
         break;
-    case XML:
+    case DataExporterBase::XML:
         exporter=new XmlExporter();
         break;
-    case Insert:
+    case DataExporterBase::Insert:
         exporter=new InsertExporter();
+        ((InsertExporter*)exporter)->includeSchema = includeSchemaCheckBox->isChecked();
         ((InsertExporter*)exporter)->schemaName=schemaNameEditor->text().trimmed();
-        ((InsertExporter*)exporter)->tableName=tableNameEditor->text().trimmed();
+        if(tableNameEditor!=0){
+            ((InsertExporter*)exporter)->tableName=tableNameEditor->text().trimmed();
+        }
         break;
     default:
         exporter=0;
@@ -338,7 +399,7 @@ DataExporterBase *DataExportOptionsWidget::createExporter() const
     exporter->encoding = encodingComboBox->currentText();
     exporter->bom = bomCheckbox->isChecked();
 
-    bool onlySelectedRows = selectedOnlyCheckbox->isChecked();
+    bool onlySelectedRows = multiTableExport ? false : selectedOnlyCheckbox->isChecked();
     exporter->startRow = onlySelectedRows ? this->selectionStartRow : -1;
     exporter->startColumn = onlySelectedRows ? this->selectionStartColumn : -1;
     exporter->endRow = onlySelectedRows ? this->selectionEndRow : -1;
@@ -371,6 +432,11 @@ DataExporterBase *DataExportOptionsWidget::createExporter() const
     }
 
     return exporter;
+}
+
+void DataExportOptionsWidget::setMultiTableMode()
+{
+    this->multiTableExport=true;
 }
 
 bool DataExportOptionsWidget::validate()

@@ -9,6 +9,7 @@ class QGroupBox;
 class QCheckBox;
 class DbTreeViewPanel;
 class QBoxLayout;
+class QFormLayout;
 class DbItemListComboBox;
 class ConnectionSelectorWidget;
 class DbConnection;
@@ -36,7 +37,10 @@ public:
     virtual void beforeCompare();
 
     virtual bool nestOptionsTab() const;
+    virtual bool needsTargetConnection() const;
 
+    QFormLayout *getTopPaneForm() const {return this->topPaneForm;}
+    QTabWidget *getBottomPaneTab() const {return this->bottomPaneTab;}
     void addToBottomPaneTab(QWidget *widget, const QString &title);
 
 signals:
@@ -63,6 +67,8 @@ protected:
     QObject *parentQueryEndMonitor;
     IQueryScheduler *queryScheduler;
 
+    QFormLayout *topPaneForm;
+
     DbItemListComboBox *sourceSchemaComboBox;
     ConnectionSelectorWidget *targetConnection;
     DbItemListComboBox *targetSchemaComboBox;
@@ -73,6 +79,7 @@ protected:
     QPushButton *btnSelectNone;
 
     void createConnectionOptionsPane(QBoxLayout *layout);
+    //virtual void addModuleSpecificControls(QFormLayout *layout) {Q_UNUSED(layout);}
     virtual void createItemsTable(QBoxLayout *layout);
 
     QTabWidget *bottomPaneTab;

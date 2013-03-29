@@ -9,9 +9,11 @@ class DataExporter : public DataComparer
 public:
     explicit DataExporter(DbUiManager *uiManager, QWidget *parent = 0);
     
-signals:
-    
-public slots:
+    virtual DbObjectComparerCompareTab* doCreateCompareTab(DbUiManager *uiManager);
+    virtual DbObjectComparerOptionsTab *doCreateOptionsTab();
+
+protected slots:
+    virtual void createTabs();
     
 };
 

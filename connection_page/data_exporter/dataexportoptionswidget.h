@@ -2,6 +2,7 @@
 #define DATAEXPORTOPTIONSWIDGET_H
 
 #include <QWidget>
+#include "exporters/dataexporterbase.h"
 
 class QStackedWidget;
 class QComboBox;
@@ -9,40 +10,41 @@ class QCheckBox;
 class QGroupBox;
 class QLineEdit;
 class QBoxLayout;
+class QFormLayout;
 class LineEditWithButton;
 class QTabWidget;
 class DataTableAndToolBarWidget;
-class DataExporterBase;
 
 
 class DataExportOptionsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit DataExportOptionsWidget(QWidget *parent = 0);
+    explicit DataExportOptionsWidget(bool selfContained=true, QWidget *parent = 0);
+
+    void createUi();
+    void createSeparatedUi(QFormLayout *fileControlsForm, QTabWidget *optionsTab);
 
     void setSelectedRange(int startRow, int startColumn, int endRow, int endColumn);
     void setTableName(const QString &schemaName, const QString &tableName);
 
     DataExporterBase *createExporter() const;
 
+    void setMultiTableMode();
+
     bool validate();
+
+signals:
+    void exportFormatChanged(DataExporterBase::ExportFormat newFormat);
 
 private slots:
     void selectSaveFilename();
     void enableControls();
     void correctFileSuffix();
     void fileFormatChanged();
+    void includeSchemaCheckBoxChanged();
     
 private:
-    enum ExportFormat{
-        CSV,
-        Excel,
-        HTML,
-        XML,
-        Insert
-    };
-
     QTabWidget *tab;
 
     QComboBox *formatComboBox;
@@ -65,6 +67,7 @@ private:
     QCheckBox *delimiterAfterLastColumnCheckbox;
 
     QGroupBox *tableNameOptionsBox;
+    QCheckBox *includeSchemaCheckBox;
     QLineEdit *schemaNameEditor;
     QLineEdit *tableNameEditor;
 
@@ -77,8 +80,13 @@ private:
     int selectionEndRow;
     int selectionEndColumn;
 
-    void createOptionsTab();
-    void createDataReplacementTab();
+    bool multiTableExport;
+
+    void connectSignalsAndSlots();
+
+    void createFileOptionsControls(QFormLayout *form);
+    QWidget *createOptionsTab();
+    QWidget *createDataReplacementTab();
     void createGeneralOptionsPane(QBoxLayout *layout);
     void createQuotingOptionsPane(QBoxLayout *layout);
     void createDelimiterOptionsPane(QBoxLayout *layout);
