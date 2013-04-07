@@ -1,26 +1,36 @@
 #include "dataexporterthread.h"
+#include "interfaces/iqueryscheduler.h"
+#include "connectivity/dbconnection.h"
+#include "connectivity/statement.h"
 #include "connectivity/ociexception.h"
 #include "connectivity/resultset.h"
 #include "exporters/dataexporterbase.h"
+#include "util/strutil.h"
 #include <QFile>
 #include <QTextCodec>
 
 DataExporterThread::DataExporterThread(DataExporterBase *exporter,
                                        QList<QStringList> alreadyFetchedData,
-                                       Resultset *rs, bool fetchToEnd, QObject *parent) :
-    QThread(parent),
+                                       Resultset *rs, bool fetchToEnd,
+                                       bool autoDestroy, QObject *parent) :
+    StopableThread(parent),
     exporter(exporter),
     alreadyFetchedData(alreadyFetchedData),
     rs(rs),
     fetchToEnd(fetchToEnd),
-    stopped(false)
+    bulkMode(false),
+    options(0)
 {
-    connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
+    if(autoDestroy){
+        connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
+    }
 }
 
 DataExporterThread::~DataExporterThread()
 {
-    delete exporter;
+    if(!bulkMode){
+        delete exporter;
+    }
 }
 
 void DataExporterThread::run()
@@ -34,18 +44,50 @@ void DataExporterThread::run()
 
     QTextStream &out = *textStream;
 
+    Statement *stmt = 0;
+
     try{
+        if(bulkMode){ //working in bulk mode. must select own data
+            Q_ASSERT(rs==0);
+            stmt = getStatement();
+            rs = stmt->rsAt(0);
+            exporter->columnMetadata = rs->getColumnMetadata();
+        }
+
         exportToStream(out);
 
         emit exportComplete();
     }catch(OciException &ex){
         emit exportError(ex.getErrorMessage());
     }
+
+    delete stmt;
 }
 
-void DataExporterThread::stop()
+Statement *DataExporterThread::getStatement()
 {
-    this->stopped=true;
+    QString query = QString("SELECT %1 FROM \"%2\".\"%3\"").arg(joinEnclosed(tableOptions.columnsToCompare),
+                                                                this->schemaName,
+                                                                this->tableName);
+    if(!tableOptions.whereClause.isEmpty()){
+        query.append(ensureStartsWith(tableOptions.whereClause, "WHERE"));
+    }
+
+    return this->queryScheduler->getDb()->executeQuery(query).statement;
+}
+
+void DataExporterThread::setOptions(IQueryScheduler *queryScheduler,
+                                    const QString &schemaName,
+                                    const QString &tableName,
+                                    DataExporterOptions *options,
+                                    const TableInfoForDataComparison &tableOptions)
+{
+    this->bulkMode=true;
+    this->queryScheduler=queryScheduler;
+    this->schemaName=schemaName;
+    this->tableName=tableName;
+    this->options=options;
+    this->tableOptions=tableOptions;
 }
 
 void DataExporterThread::exportToStream(QTextStream &out)

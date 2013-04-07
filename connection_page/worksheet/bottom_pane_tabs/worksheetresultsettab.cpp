@@ -111,9 +111,9 @@ void WorksheetResultsetTab::startExport(DataExporterBase *exporter)
 
     exporter->columnMetadata = tableModel->getColumnMetadata();
     exporterThread = new DataExporterThread(exporter,
-                                                        tableModel->getModelData(),
-                                                        tableModel->getResultset(),
-                                                        fetchToEnd, this);
+                                            tableModel->getModelData(),
+                                            tableModel->getResultset(),
+                                            fetchToEnd, true, this);
     connect(exporterThread, SIGNAL(recordsExported(int)), this, SLOT(recordsExported(int)));
     connect(exporterThread, SIGNAL(exportComplete()), this, SLOT(exportComplete()));
     connect(exporterThread, SIGNAL(exportError(QString)), this, SLOT(exportError(QString)));

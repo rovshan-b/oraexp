@@ -28,7 +28,7 @@ public:
     void setSelectedRange(int startRow, int startColumn, int endRow, int endColumn);
     void setTableName(const QString &schemaName, const QString &tableName);
 
-    DataExporterBase *createExporter() const;
+    DataExporterBase *createExporter();
 
     void setMultiTableMode();
 

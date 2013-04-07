@@ -9,7 +9,7 @@ DataComparerOptionsTab::DataComparerOptionsTab(QWidget *parent) :
 
 }
 
-DbObjectComparisonOptions *DataComparerOptionsTab::getOptions() const
+DbObjectComparisonOptions *DataComparerOptionsTab::getOptions()
 {
     DataComparisonOptions *options=new DataComparisonOptions();
 

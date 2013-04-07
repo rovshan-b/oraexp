@@ -1,19 +1,18 @@
 #ifndef DATAOPERATIONTHREAD_H
 #define DATAOPERATIONTHREAD_H
 
-
+#include "util/stopablethread.h"
 #include "connectivity/ociexception.h"
 #include "beans/tableinfofordatacomparison.h"
 #include "connectivity/bulkoperationhelper.h"
 #include "beans/datacompareinfo.h"
 
-#include <QThread>
 #include <QHash>
 
 class DbConnection;
 class DataOperationOptions;
 
-class DataOperationThread : public QThread
+class DataOperationThread : public StopableThread
 {
     Q_OBJECT
 public:
@@ -28,8 +27,6 @@ public:
 
     virtual ~DataOperationThread() {}
 
-    void stop() {this->stopped=true;}
-    
 signals:
     void statusChanged(const QString &newStatus);
     void compareInfoAvailable(const DataCompareInfo &info);
@@ -55,8 +52,6 @@ protected:
 
     void emitCompletedSignal();
     void emitCompareInfo(const QString &tableName, const QString &newStatus, int inserts=0, int updates=0, int deletes=0, const QString &dml="");
-
-    bool stopped;
 };
 
 #endif // DATAOPERATIONTHREAD_H

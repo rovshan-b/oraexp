@@ -73,6 +73,8 @@ protected:
 
     void deleteCompareHelper();
 
+    void comparisonCompleted();
+
     IDbObjectCompareHelper *comparer;
 
     QTabWidget *tabWidget;

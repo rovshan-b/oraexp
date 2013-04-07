@@ -14,7 +14,7 @@ class DataComparerOptionsTab : public DataOperationOptionsTab
 public:
     DataComparerOptionsTab(QWidget *parent = 0);
 
-    virtual DbObjectComparisonOptions *getOptions() const;
+    virtual DbObjectComparisonOptions *getOptions();
 
 private slots:
     void enableControls();

@@ -21,6 +21,7 @@ public:
     };
 
     DataOperationOptions();
+    virtual ~DataOperationOptions(){}
 
     DisableRefConstraintsMode disableRefConstraints;
     ComparisonMode comparisonMode;

@@ -10,7 +10,7 @@ class DataExporterOptionsTab : public DataOperationOptionsTab
 public:
     explicit DataExporterOptionsTab(QWidget *parent);
 
-    virtual DbObjectComparisonOptions *getOptions() const;
+    virtual DbObjectComparisonOptions *getOptions();
 
     DataExportOptionsWidget *getOptionsWidget() const {return this->optionsWidget;}
 

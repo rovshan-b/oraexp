@@ -20,7 +20,7 @@ public:
     void setCanFlashbackArchive(bool canFlashbackArchive);
 
     virtual void targetConnectionEstablished(DbConnection *sourceDb, DbConnection *targetDb);
-    virtual DbObjectComparisonOptions *getOptions() const;
+    virtual DbObjectComparisonOptions *getOptions();
 
 signals:
 

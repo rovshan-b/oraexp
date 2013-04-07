@@ -17,7 +17,7 @@ public:
 
     virtual void createUi();
 
-    virtual DbObjectComparisonOptions *getOptions() const = 0;
+    virtual DbObjectComparisonOptions *getOptions() = 0;
     
 protected:
     QComboBox *disableRefContraintsComboBox;

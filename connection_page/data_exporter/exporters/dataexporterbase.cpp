@@ -11,8 +11,16 @@ DataExporterBase::~DataExporterBase()
 {
     qDeleteAll(stringReplacements);
 
+    reset();
+}
+
+void DataExporterBase::reset()
+{
     delete textStream;
     delete file;
+
+    textStream = 0;
+    file = 0;
 }
 
 void DataExporterBase::prepareColumnHeaders(QStringList &headers)

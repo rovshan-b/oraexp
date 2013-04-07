@@ -17,7 +17,7 @@ public:
 
     virtual void targetConnectionEstablished(DbConnection *sourceDb, DbConnection *targetDb);
 
-    virtual DbObjectComparisonOptions *getOptions() const = 0;
+    virtual DbObjectComparisonOptions *getOptions() = 0;
 
 protected:
     QVBoxLayout *createSingleColumnOptionsPane(QVBoxLayout *layout);

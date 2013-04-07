@@ -12,7 +12,7 @@ class DataCopierOptionsTab : public DataOperationOptionsTab
 public:
     explicit DataCopierOptionsTab(QWidget *parent = 0);
 
-    virtual DbObjectComparisonOptions *getOptions() const;
+    virtual DbObjectComparisonOptions *getOptions();
     
 private slots:
     void truncateOptionChanged();

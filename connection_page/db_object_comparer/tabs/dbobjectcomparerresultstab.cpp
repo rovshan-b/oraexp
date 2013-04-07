@@ -49,13 +49,6 @@ DataTable *DbObjectComparerResultsTab::createChangeListTable()
     return changeListTable;
 }
 
-void DbObjectComparerResultsTab::clearText()
-{
-    tableModel->setRowCount(0);
-    editor->editor()->clear();
-    noText=true;
-}
-
 void DbObjectComparerResultsTab::addText(const QString &text)
 {
     if(!editor->isVisible()){
@@ -68,6 +61,19 @@ void DbObjectComparerResultsTab::addText(const QString &text)
     }else{
         editor->editor()->addText(text);
     }
+}
+
+void DbObjectComparerResultsTab::beforeCompare()
+{
+    changeListTable->setSortingEnabled(false);
+    tableModel->setRowCount(0);
+    editor->editor()->clear();
+    noText=true;
+}
+
+void DbObjectComparerResultsTab::afterCompare()
+{
+    changeListTable->setSortingEnabled(true);
 }
 
 void DbObjectComparerResultsTab::setCurrentSchema(const QString &)

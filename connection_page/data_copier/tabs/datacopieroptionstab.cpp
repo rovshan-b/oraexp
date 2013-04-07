@@ -8,7 +8,7 @@ DataCopierOptionsTab::DataCopierOptionsTab(QWidget *parent) :
 {
 }
 
-DbObjectComparisonOptions *DataCopierOptionsTab::getOptions() const
+DbObjectComparisonOptions *DataCopierOptionsTab::getOptions()
 {
     DataCopierOptions *options = new DataCopierOptions();
 

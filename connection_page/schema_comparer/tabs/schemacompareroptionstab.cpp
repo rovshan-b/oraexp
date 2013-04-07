@@ -41,7 +41,7 @@ void SchemaComparerOptionsTab::targetConnectionEstablished(DbConnection *sourceD
     setCanFlashbackArchive(sourceDb->supportsFlashbackArchive() && targetDb->supportsFlashbackArchive());
 }
 
-DbObjectComparisonOptions *SchemaComparerOptionsTab::getOptions() const
+DbObjectComparisonOptions *SchemaComparerOptionsTab::getOptions()
 {
     SchemaComparisonOptions *opt=new SchemaComparisonOptions();
 

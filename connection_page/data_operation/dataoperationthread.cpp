@@ -7,15 +7,14 @@
 #include "defines.h"
 
 DataOperationThread::DataOperationThread(const QString &sourceSchema, DbConnection *sourceDb, const QString &targetSchema, DbConnection *targetDb, const QString &tableName, DataOperationOptions *options, const TableInfoForDataComparison &tableOptions, QObject *parent) :
-    QThread(parent),
+    StopableThread(parent),
     sourceSchema(sourceSchema),
     sourceDb(sourceDb),
     targetSchema(targetSchema),
     targetDb(targetDb),
     tableName(tableName),
     options(options),
-    tableOptions(tableOptions),
-    stopped(false)
+    tableOptions(tableOptions)
 {
 }
 

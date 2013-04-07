@@ -24,6 +24,8 @@ public:
     DataExporterBase();
     virtual ~DataExporterBase();
 
+    void reset();
+
     QString filename;
     QString encoding;
     bool bom;

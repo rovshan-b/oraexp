@@ -1,5 +1,6 @@
 #include "dataexporteroptionstab.h"
 #include "util/widgethelper.h"
+#include "beans/dataexporteroptions.h"
 #include <QtGui>
 
 DataExporterOptionsTab::DataExporterOptionsTab(QWidget *parent) :
@@ -7,9 +8,16 @@ DataExporterOptionsTab::DataExporterOptionsTab(QWidget *parent) :
 {
 }
 
-DbObjectComparisonOptions *DataExporterOptionsTab::getOptions() const
+DbObjectComparisonOptions *DataExporterOptionsTab::getOptions()
 {
-    return 0;
+    DataExporterOptions *options = new DataExporterOptions();
+
+    options->exporter = optionsWidget->createExporter();
+    options->singleFile = singleFileCheckBox->isEnabledTo(this) && singleFileCheckBox->isChecked();
+    setOptions(options);
+    options->disableRefConstraints = DataOperationOptions::DoNotDisable;
+
+    return options;
 }
 
 void DataExporterOptionsTab::createOptionsPane(QVBoxLayout *layout)

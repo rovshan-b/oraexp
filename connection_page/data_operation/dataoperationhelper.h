@@ -14,6 +14,7 @@
 
 class DbTreeModel;
 class DataOperationThread;
+class StopableThread;
 
 class DataOperationHelper : public QObject, public IDbObjectCompareHelper
 {
@@ -71,7 +72,7 @@ protected:
     QList<QModelIndex> itemsToCompare;
     int currentItemIxToCompare;
 
-    DataOperationThread *workerThread;
+    StopableThread *workerThread;
 
     QString tableNamesToDisableConstraints;
 

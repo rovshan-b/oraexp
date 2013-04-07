@@ -432,7 +432,11 @@ SOURCES += main.cpp\
     connection_page/data_operation/tabs/dataoperationoptionstab.cpp \
     connection_page/data_exporter/dataexporter.cpp \
     connection_page/data_exporter/tabs/dataexportercomparetab.cpp \
-    connection_page/data_exporter/tabs/dataexporteroptionstab.cpp
+    connection_page/data_exporter/tabs/dataexporteroptionstab.cpp \
+    beans/dataexporteroptions.cpp \
+    connection_page/data_exporter/dataexporthelper.cpp \
+    util/stopablethread.cpp \
+    connection_page/data_exporter/tabs/dataexporterresultstab.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -869,7 +873,11 @@ HEADERS  += mainwindow.h \
     connection_page/data_operation/tabs/dataoperationoptionstab.h \
     connection_page/data_exporter/dataexporter.h \
     connection_page/data_exporter/tabs/dataexportercomparetab.h \
-    connection_page/data_exporter/tabs/dataexporteroptionstab.h
+    connection_page/data_exporter/tabs/dataexporteroptionstab.h \
+    beans/dataexporteroptions.h \
+    connection_page/data_exporter/dataexporthelper.h \
+    util/stopablethread.h \
+    connection_page/data_exporter/tabs/dataexporterresultstab.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

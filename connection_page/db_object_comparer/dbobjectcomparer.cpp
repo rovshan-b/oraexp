@@ -179,7 +179,7 @@ void DbObjectComparer::startComparing()
     compareTab->beforeCompare();
     enableControls(false);
     showStatusControls(true);
-    resultsTab->clearText();
+    resultsTab->beforeCompare();
 
     comparer=createCompareHelper(compareTab->getSourceSchemaName(),
                             this,
@@ -235,29 +235,32 @@ void DbObjectComparer::comparisonResultAvailable(const QString &ddl)
 
 void DbObjectComparer::completed()
 {
-    deleteCompareHelper();
-    progressBar->setVisible(false);
+    comparisonCompleted();
 
     statusChanged(tr("Comparison completed in %1").arg(formatMsecs(timer.elapsed())));
-
-    enableControls(true);
-
-    decreaseRefCount();
 }
 
 void DbObjectComparer::comparisonError(const QString &taskName, const OciException &exception)
 {
-    deleteCompareHelper();
-    progressBar->setVisible(false);
+    comparisonCompleted();
 
     statusChanged(tr("Completed with error"));
 
     QMessageBox::critical(this->window(), tr("Comparison error"),
                           tr("Task name:%1\nError:%2").arg(taskName, exception.getErrorMessage()));
+}
+
+void DbObjectComparer::comparisonCompleted()
+{
+    deleteCompareHelper();
+
+    progressBar->setVisible(false);
 
     enableControls(true);
 
     decreaseRefCount();
+
+    resultsTab->afterCompare();
 }
 
 void DbObjectComparer::objectCountDetermined(int count)

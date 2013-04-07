@@ -20,6 +20,7 @@ public slots:
 
 protected:
     virtual QStringList getTableColumnNames() const;
+    virtual void updateDmlCounts(int row, const DataCompareInfo &info);
     
 };
 

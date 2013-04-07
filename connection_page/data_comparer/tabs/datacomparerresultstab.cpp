@@ -69,31 +69,35 @@ void DataComparerResultsTab::compareInfoAvailable(const DataCompareInfo &info)
                 rowValues << new QStandardItem(QString::number(info.updates)) << new QStandardItem(QString::number(info.deletes));
             }
             tableModel->appendRow(rowValues);
+            changeListTable->scrollToBottom();
         }else{
             int row=rowCount-1;
             if(!info.newStatus.isEmpty()){
                 tableModel->item(row, 1)->setText(info.newStatus);
             }
 
-            if(info.inserts>0){
-                WidgetHelper::increaseValueAtPos(tableModel, row, 2, info.inserts);
-            }
-
-            if(tableModel->columnCount()>3){ //in descendant classes may be less
-                if(info.updates>0){
-                    WidgetHelper::increaseValueAtPos(tableModel, row, 3, info.updates);
-                }
-
-                if(info.deletes>0){
-                    WidgetHelper::increaseValueAtPos(tableModel, row, 4, info.deletes);
-                }
-            }
+            updateDmlCounts(row, info);
         }
     }
 
     if(!info.dml.isEmpty()){
         this->addText(info.dml);
     }
+}
 
-    changeListTable->scrollToBottom();
+void DataComparerResultsTab::updateDmlCounts(int row, const DataCompareInfo &info)
+{
+    if(info.inserts>0){
+        WidgetHelper::increaseValueAtPos(tableModel, row, 2, info.inserts);
+    }
+
+    if(tableModel->columnCount()>3){ //in descendant classes may be less
+        if(info.updates>0){
+            WidgetHelper::increaseValueAtPos(tableModel, row, 3, info.updates);
+        }
+
+        if(info.deletes>0){
+            WidgetHelper::increaseValueAtPos(tableModel, row, 4, info.deletes);
+        }
+    }
 }

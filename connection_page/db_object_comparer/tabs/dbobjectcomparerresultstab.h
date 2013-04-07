@@ -18,12 +18,14 @@ public:
     virtual void createUi();
     virtual DataTable *createChangeListTable();
 
-    void clearText();
     void addText(const QString &text);
 
     void showSearchWidget(){editor->showSearchPane();}
     void findNext(){editor->findNext();}
     void findPrevious(){editor->findPrevious();}
+
+    void beforeCompare();
+    void afterCompare();
 
 public slots:
     virtual void setCurrentSchema(const QString &currentSchemaName);

@@ -1,16 +1,20 @@
 #ifndef DATAEXPORTERTHREAD_H
 #define DATAEXPORTERTHREAD_H
 
-#include <QThread>
+#include "util/stopablethread.h"
 #include <QStringList>
 #include <QTextStream>
 #include <QSharedPointer>
 #include "beans/resultsetcolumnmetadata.h"
+#include "beans/tableinfofordatacomparison.h"
 
+class Statement;
 class Resultset;
 class DataExporterBase;
+class DataExporterOptions;
+class IQueryScheduler;
 
-class DataExporterThread : public QThread
+class DataExporterThread : public StopableThread
 {
     Q_OBJECT
 public:
@@ -18,13 +22,16 @@ public:
                                 QList<QStringList> alreadyFetchedData,
                                 Resultset *rs,
                                 bool fetchToEnd,
+                                bool autoDestroy,
                                 QObject *parent);
 
     virtual ~DataExporterThread();
     
     void run();
 
-    void stop();
+    void setOptions(IQueryScheduler *queryScheduler,
+                    const QString &schemaName, const QString &tableName,
+                    DataExporterOptions *options, const TableInfoForDataComparison &tableOptions);
 
 signals:
     void recordsExported(int count);
@@ -36,8 +43,15 @@ private:
     QList<QStringList> alreadyFetchedData;
     Resultset *rs;
     bool fetchToEnd;
-    bool stopped;
 
+    bool bulkMode;
+    IQueryScheduler *queryScheduler;
+    QString schemaName;
+    QString tableName;
+    DataExporterOptions *options;
+    TableInfoForDataComparison tableOptions;
+
+    Statement *getStatement();
     void exportToStream(QTextStream &out);
     
 };
