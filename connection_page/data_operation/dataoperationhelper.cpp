@@ -153,8 +153,8 @@ void DataOperationHelper::tableSortRecordFetched(const FetchResult &fetchResult)
     }
 
     this->needToDisableRefConstraints = (options->disableRefConstraints==DataOperationOptions::Disable ||
-                                         options->disableRefConstraints==DataOperationOptions::DisableForAll ||
-                                         !fullySorted);
+                                         options->disableRefConstraints==DataOperationOptions::DisableForAll) &&
+                                         !fullySorted;
     if(needToDisableRefConstraints){
         disableRefConstraints();
     }else{
@@ -171,6 +171,7 @@ void DataOperationHelper::loadTableColumns()
     if(allCompared()){
         currentItemIxToCompare = 0;
         //fillItemsToCompare();
+        this->objectCount = itemsToCompare.size();
         emit objectCountDetermined(itemsToCompare.size());
         compareNextItem();
     }else{

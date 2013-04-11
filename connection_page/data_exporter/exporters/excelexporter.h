@@ -13,6 +13,8 @@ public:
     ExcelExporter();
     virtual ~ExcelExporter();
 
+    virtual void reset();
+
     virtual void startDocument(QTextStream &out);
     virtual void exportColumnHeaders(const QStringList &headers, int from, int to, QTextStream &out);
     virtual void exportRow(const QStringList &oneRow, int rowIx, QTextStream &out);

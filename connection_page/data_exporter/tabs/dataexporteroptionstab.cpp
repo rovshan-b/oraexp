@@ -20,6 +20,11 @@ DbObjectComparisonOptions *DataExporterOptionsTab::getOptions()
     return options;
 }
 
+bool DataExporterOptionsTab::validate()
+{
+    return optionsWidget->validate();
+}
+
 void DataExporterOptionsTab::createOptionsPane(QVBoxLayout *layout)
 {
     optionsWidget = new DataExportOptionsWidget(false);

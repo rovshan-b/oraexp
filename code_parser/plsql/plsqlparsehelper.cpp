@@ -21,7 +21,15 @@ QStringList PlSqlParseHelper::getBindParams(const QString &query, QList<BindPara
 
     do{
         token = scanner->getNextToken();
-        lastLexemes.append(scanner->getTokenLexeme());
+        QString lastLexeme = scanner->getTokenLexeme();
+
+        if(lastLexemes.isEmpty()){ //just got first lexeme
+            if(lastLexeme=="CREATE"){ //no bind param prompting for DDL
+                return results;
+            }
+        }
+
+        lastLexemes.append(lastLexeme);
         if(lastLexemes.size()>4){
             lastLexemes.removeAt(0);
         }
@@ -80,12 +88,17 @@ QStringList PlSqlParseHelper::getBindParams(const QString &query, QList<BindPara
     return results;
 }
 
-bool PlSqlParseHelper::isDml(const QString &query)
+QString PlSqlParseHelper::getFirstLexeme(const QString &query)
 {
     QScopedPointer<PlSqlScanner> scanner(new PlSqlScanner(new StringReader(query)));
     scanner->getNextToken();
 
-    QString firstTokenLexeme = scanner->getTokenLexeme().toUpper();
+    return scanner->getTokenLexeme().toUpper();
+}
+
+bool PlSqlParseHelper::isDml(const QString &query)
+{
+    QString firstTokenLexeme = PlSqlParseHelper::getFirstLexeme(query);
 
     if(firstTokenLexeme=="SELECT" ||
             firstTokenLexeme=="UPDATE" ||

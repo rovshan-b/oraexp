@@ -39,7 +39,8 @@ public:
                                                     const QString &schemaName,
                                                     const QString &tableName,
                                                     OraExp::TableType tableType,
-                                                    bool includePartitioningDiff=true) const;
+                                                    bool includePartitioningDiff=true,
+                                                    bool includeStorageDiff=true) const;
     bool needsRecreation(const IndexInfo &other) const;
 };
 

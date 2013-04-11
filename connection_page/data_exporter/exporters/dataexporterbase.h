@@ -24,7 +24,7 @@ public:
     DataExporterBase();
     virtual ~DataExporterBase();
 
-    void reset();
+    virtual void reset();
 
     QString filename;
     QString encoding;
@@ -50,6 +50,8 @@ public:
 
     QList< QPair<QString,QString>* > stringReplacements;
 
+    void setStreamOpenMode(QIODevice::OpenMode openMode);
+
     void prepareColumnHeaders(QStringList &headers);
     void prepareRow(QStringList &row);
 
@@ -70,6 +72,7 @@ protected:
 
 private:
     QFile *file;
+    QIODevice::OpenMode streamOpenMode;
 
 };
 

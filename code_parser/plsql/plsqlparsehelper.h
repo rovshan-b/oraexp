@@ -9,6 +9,7 @@ class PlSqlParseHelper
 public:
     static QStringList getBindParams(const QString &query, QList<BindParamInfo::BindParamType> *suggestedParamTypes=0);
 
+    static QString getFirstLexeme(const QString &query);
     static bool isDml(const QString &query);
 
 private:

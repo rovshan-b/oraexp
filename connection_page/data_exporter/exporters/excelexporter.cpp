@@ -21,23 +21,35 @@ ExcelExporter::~ExcelExporter()
 {
     qDebug("deleting ExcelExporter");
 
+    reset();
+}
+
+void ExcelExporter::reset()
+{
     if(tmpFileStream){
         delete tmpFileStream;
+        tmpFileStream = 0;
     }
 
     if(tmpFile){
         delete tmpFile;
+        tmpFile = 0;
     }
 
     if(worksheetFile){
         worksheetFile->close();
         delete worksheetFile;
+        worksheetFile = 0;
     }
 
     if(zip){
         zip->close();
         delete zip;
+        zip = 0;
     }
+
+    excelColumnTitles.clear();
+    rowCount = 0;
 }
 
 void ExcelExporter::startDocument(QTextStream &out)

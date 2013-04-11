@@ -19,6 +19,8 @@ public:
 
     virtual DbObjectComparisonOptions *getOptions() = 0;
 
+    virtual bool validate();
+
 protected:
     QVBoxLayout *createSingleColumnOptionsPane(QVBoxLayout *layout);
     

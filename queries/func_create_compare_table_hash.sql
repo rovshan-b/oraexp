@@ -241,10 +241,13 @@
                                 order by ai.index_name)
             loop
               l_ix_columns := null;
-              l_tmp_str := cur_indexes.index_type || cur_indexes.uniqueness || cur_indexes.compression || cur_indexes.prefix_length || 
-                           cur_indexes.max_trans;
+              l_tmp_str := cur_indexes.index_type || cur_indexes.uniqueness || cur_indexes.compression || cur_indexes.prefix_length;
               if cur_indexes.generated != 'GENERATED NAME' then
                  l_tmp_str := l_tmp_str || cur_indexes.index_name;
+              end if;
+              
+              if opt_tbl_storage = 1 then
+                 l_tmp_str := l_tmp_str || cur_indexes.max_trans;
               end if;
                            
               for cc in (select column_name, column_position

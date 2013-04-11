@@ -176,6 +176,10 @@ void DbObjectComparer::startStopComparing()
 
 void DbObjectComparer::startComparing()
 {
+    if(!optionsTab->validate()){
+        return;
+    }
+
     compareTab->beforeCompare();
     enableControls(false);
     showStatusControls(true);

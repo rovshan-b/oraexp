@@ -10,6 +10,11 @@ void DbObjectComparerOptionsTab::targetConnectionEstablished(DbConnection *, DbC
 {
 }
 
+bool DbObjectComparerOptionsTab::validate()
+{
+    return true;
+}
+
 QVBoxLayout *DbObjectComparerOptionsTab::createSingleColumnOptionsPane(QVBoxLayout *layout)
 {
     QVBoxLayout *optionsPaneLayout=new QVBoxLayout();

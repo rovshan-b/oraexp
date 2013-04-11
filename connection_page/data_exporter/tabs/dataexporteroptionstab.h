@@ -14,6 +14,8 @@ public:
 
     DataExportOptionsWidget *getOptionsWidget() const {return this->optionsWidget;}
 
+    virtual bool validate();
+
 protected:
     virtual void createOptionsPane(QVBoxLayout *layout);
 

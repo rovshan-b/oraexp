@@ -3,7 +3,7 @@
 #include "util/strutil.h"
 #include <QFile>
 
-DataExporterBase::DataExporterBase() : isXmlFile(false), textStream(0), file(0)
+DataExporterBase::DataExporterBase() : isXmlFile(false), textStream(0), file(0), streamOpenMode(QIODevice::WriteOnly)
 {
 }
 
@@ -21,6 +21,11 @@ void DataExporterBase::reset()
 
     textStream = 0;
     file = 0;
+}
+
+void DataExporterBase::setStreamOpenMode(QIODevice::OpenMode openMode)
+{
+    this->streamOpenMode=openMode;
 }
 
 void DataExporterBase::prepareColumnHeaders(QStringList &headers)
@@ -93,7 +98,7 @@ QTextStream *DataExporterBase::createOutputStream(QString &errorMessage)
     Q_ASSERT(file==0);
 
     file = new QFile(this->filename);
-    if(!file->open(QIODevice::WriteOnly)){
+    if(!file->open(streamOpenMode)){
         errorMessage = file->errorString();
         return 0;
     };

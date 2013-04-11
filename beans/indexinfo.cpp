@@ -110,11 +110,11 @@ QString IndexInfo::generateDropDdl(const QString &schemaName) const
 }
 
 QList< NameQueryPair > IndexInfo::generateDiffDdl(const IndexInfo &other,
-                                                                const QString &schemaName,
-                                                                const QString &tableName,
-                                                                OraExp::TableType tableType,
-                                                                bool includePartitioningDiff /*this argument will be true when function
-                                                                is called from schema comparer tool*/) const
+                                                  const QString &schemaName,
+                                                  const QString &tableName,
+                                                  OraExp::TableType tableType,
+                                                  bool includePartitioningDiff, //this argument will be true when function is called from schema comparer tool
+                                                  bool includeStorageDiff) const
 {
     QString fullTableName=QString("\"%1\".\"%2\"").arg(schemaName).arg(tableName);
 
@@ -163,7 +163,9 @@ QList< NameQueryPair > IndexInfo::generateDiffDdl(const IndexInfo &other,
             }
         }
 
-        ddl.append(storageParams.generateDiffDdl(other.storageParams, true));
+        if(includeStorageDiff){
+            ddl.append(storageParams.generateDiffDdl(other.storageParams, true));
+        }
 
         if(!ddl.isEmpty()){
             ddl.prepend(QString("ALTER INDEX \"%1\".\"%2\"").arg(schemaName, other.name));

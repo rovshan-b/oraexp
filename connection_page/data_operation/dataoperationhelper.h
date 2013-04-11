@@ -83,6 +83,8 @@ protected:
 
     bool needToDisableRefConstraints;
 
+    int objectCount;
+
     void emitCompletedSignal();
     QStringList getItemsToCompare() const;
     void sortTableNames(const QStringList &tableNames);

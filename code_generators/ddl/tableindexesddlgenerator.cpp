@@ -56,8 +56,9 @@ QList<NameQueryPair> TableIndexesDdlGenerator::generateAlterDdl(const TableInfo 
     return result;
 }
 
-QString TableIndexesDdlGenerator::generateDiffDdl(const TableInfo &sourceTableInfo, const TableInfo &targetTableInfo, const QStringList &droppedColumnNames,
-                                                  bool storageForNew, bool tablespaceOnlyForNew)
+QString TableIndexesDdlGenerator::generateDiffDdl(const TableInfo &sourceTableInfo, const TableInfo &targetTableInfo,
+                                                  const QStringList &droppedColumnNames,
+                                                  bool storageForNew, bool storageForExisting, bool tablespaceOnlyForNew)
 {
     QString ddl;
 
@@ -97,7 +98,8 @@ QString TableIndexesDdlGenerator::generateDiffDdl(const TableInfo &sourceTableIn
                                                                       targetTableInfo.generalInfo.schema,
                                                                       targetTableInfo.generalInfo.tableName,
                                                                       targetTableInfo.generalInfo.tableType,
-                                                                      false);
+                                                                      false,
+                                                                      storageForExisting);
                 foreach(NameQueryPair pair, ddlList){
                     if(!ddl.isEmpty()){
                         ddl.append("\n");

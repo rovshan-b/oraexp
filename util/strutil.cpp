@@ -327,3 +327,16 @@ void copyStringToArray(dtext *array, int arrayPos, int arrayMaxStrLength, const 
     dtext *currPosInBuffer = &array[arrayPos*(arrayMaxStrLength+1)];
     dtscpy(currPosInBuffer, str);
 }
+
+QString toValidFilename(const QString &str)
+{
+    QString result(str);
+    for(int i=0; i<result.size(); ++i){
+        QChar c = result.at(i);
+        if(!c.isDigit() && !c.isLetter() && c!='_' && c!='-'){
+            result[i]='_';
+        }
+    }
+
+    return result;
+}

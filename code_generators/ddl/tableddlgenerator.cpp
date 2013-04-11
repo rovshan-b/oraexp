@@ -236,8 +236,11 @@ QPair<QString, QString> TableDdlGenerator::generateDiffDdl(const TableInfo &sour
     }
 
     //generate diff ddl for indexes
-    QString indexesDiffDdl=options.indexes ? TableIndexesDdlGenerator::generateDiffDdl(sourceTableInfo, targetTableInfo, droppedColumnNames,
-                                                                                       options.newObjectOptions.storage, options.newObjectOptions.tablespaceOnly) : "";
+    QString indexesDiffDdl=options.indexes ? TableIndexesDdlGenerator::generateDiffDdl(sourceTableInfo, targetTableInfo,
+                                                                                       droppedColumnNames,
+                                                                                       options.newObjectOptions.storage,
+                                                                                       options.storage,
+                                                                                       options.newObjectOptions.tablespaceOnly) : "";
 
     if(!indexesDiffDdl.isEmpty()){
         addEOL(startDdl);

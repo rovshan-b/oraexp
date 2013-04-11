@@ -66,4 +66,6 @@ QString removeEnclosure(const QString &str, const QChar &enclosure = '"');
 
 void copyStringToArray(dtext *array, int arrayPos, int arrayMaxStrLength, const dtext *str);
 
+QString toValidFilename(const QString &str);
+
 #endif // STRUTIL_H

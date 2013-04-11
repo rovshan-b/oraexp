@@ -116,14 +116,14 @@ QList< NameQueryPair > ColumnInfo::generateDiffDdl(const ColumnInfo &other,
         result.append(qMakePair(QString("alter_column_data_type_%1").arg(columnId), ddl));
     }
 
-    if(isNullable!=other.isNullable){
-        ddl=QString("ALTER TABLE %1 MODIFY \"%2\" %3").arg(fullTableName, name, isNullable ? "NULL" : "NOT NULL");
-        result.append(qMakePair(QString("alter_column_nullable_%1").arg(columnId), ddl));
-    }
-
     if(defaultValue!=other.defaultValue){
         ddl=QString("ALTER TABLE %1 MODIFY \"%2\" DEFAULT %3").arg(fullTableName, name, defaultValue.trimmed().isEmpty() ? "NULL" : defaultValue);
         result.append(qMakePair(QString("alter_column_default_value_%1").arg(columnId), ddl));
+    }
+
+    if(isNullable!=other.isNullable){
+        ddl=QString("ALTER TABLE %1 MODIFY \"%2\" %3").arg(fullTableName, name, isNullable ? "NULL" : "NOT NULL");
+        result.append(qMakePair(QString("alter_column_nullable_%1").arg(columnId), ddl));
     }
 
     if(virtualDefinition!=other.virtualDefinition){

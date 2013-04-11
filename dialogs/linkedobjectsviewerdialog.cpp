@@ -17,8 +17,7 @@ LinkedObjectsViewerDialog::LinkedObjectsViewerDialog(QWidget *parent) :
     table = new DataTable();
     table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     table->setModel(tableModel);
-    table->sortByColumn(2);
-    table->setSortingEnabled(true);
+    table->setSortingEnabled(false);
 
     mainLayout->addWidget(table);
 
@@ -62,7 +61,9 @@ void LinkedObjectsViewerDialog::setObjectList(const QStringList &objectNames, co
         tableModel->appendRow(QList<QStandardItem*>() << objNameItem << objTypeItem << levelItem << refTypeItem);
     }
 
-    tableModel->sort(2);
+    table->horizontalHeader()->setSortIndicator(2, Qt::AscendingOrder);
+    table->setSortingEnabled(true);
+    //tableModel->sort(2);
     table->resizeColumnsToContents();
     if(table->horizontalHeader()->sectionSize(3)>200){
         table->horizontalHeader()->resizeSection(3, 200);

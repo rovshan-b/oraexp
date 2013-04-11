@@ -73,6 +73,7 @@ void DbObjectComparerResultsTab::beforeCompare()
 
 void DbObjectComparerResultsTab::afterCompare()
 {
+    changeListTable->horizontalHeader()->setSortIndicator(-1, Qt::AscendingOrder);
     changeListTable->setSortingEnabled(true);
 }
 

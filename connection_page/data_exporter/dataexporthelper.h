@@ -20,7 +20,10 @@ private slots:
     void recordsExported(int count);
     void tableDataExported();
     void exportError(const QString &errorMessage);
-    
+
+private:
+    QString initialFileName;
+
 };
 
 #endif // DATAEXPORTHELPER_H

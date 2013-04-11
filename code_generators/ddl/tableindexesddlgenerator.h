@@ -10,8 +10,12 @@ public:
 
     static QString generateDdl(const TableInfo &tableInfo, bool storage=true, bool tablespaceOnly=false);
     static QList<NameQueryPair> generateAlterDdl(const TableInfo &tableInfo);
-    static QString generateDiffDdl(const TableInfo &sourceTableInfo, const TableInfo &targetTableInfo, const QStringList &droppedColumnNames,
-                                   bool storageForNew=true, bool tablespaceOnlyForNew=false);
+    static QString generateDiffDdl(const TableInfo &sourceTableInfo,
+                                   const TableInfo &targetTableInfo,
+                                   const QStringList &droppedColumnNames,
+                                   bool storageForNew,
+                                   bool storageForExisting,
+                                   bool tablespaceOnlyForNew);
 };
 
 #endif // TABLEINDEXESDDLGENERATOR_H
