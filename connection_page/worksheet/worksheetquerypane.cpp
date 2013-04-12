@@ -26,6 +26,8 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
     toolbar->setEnabled(false);
 
     toolbar->addAction(IconUtil::getIcon("execute"), tr("Execute"), this, SLOT(executeQuery()))->setShortcut(QKeySequence("Ctrl+Return"));
+    toolbar->addAction(IconUtil::getIcon("execute_as_script"), tr("Execute as script"), this, SLOT(executeAsScript()))->setShortcut(QKeySequence("F9"));
+    //toolbar->addSeparator();
     toolbar->addAction(IconUtil::getIcon("explain_plan"), tr("Explain plan"), this, SLOT(executeExplainPlan()))->setShortcut(QKeySequence("Ctrl+E"));
     autotraceAction=toolbar->addAction(IconUtil::getIcon("autotrace"), tr("Enable auto trace"));
     autotraceAction->setCheckable(true);
@@ -66,6 +68,9 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
     WidgetHelper::updateActionTooltips(toolbar);
 
     multiEditor->getCurrentEditor()->editor()->setPlainText("select * from smpp_outgoing");
+
+    connect(&sequentialRunner, SIGNAL(queryResultAvailable(QueryResult)), this, SLOT(sequentialQueryCompleted(QueryResult)));
+    connect(&sequentialRunner, SIGNAL(completed()), this, SLOT(sequentialExecutionCompleted()));
 }
 
 WorksheetQueryPane::~WorksheetQueryPane()
@@ -119,6 +124,16 @@ void WorksheetQueryPane::executeQuery(ExecuteMode executeMode)
     progressBarAction->setVisible(true);
 }
 
+void WorksheetQueryPane::executeAsScript()
+{
+    if(!canExecute()){
+        return;
+    }
+
+    progressBarAction->setVisible(true);
+    sequentialRunner.execute(currentEditor()->editor()->toPlainText(), this);
+}
+
 void WorksheetQueryPane::executeExplainPlan()
 {
     executeQuery(ExecuteExplainPlan);
@@ -135,6 +150,16 @@ void WorksheetQueryPane::queryCompleted(const QueryResult &result)
     }else{
         emit queryDone(result);
     }
+}
+
+void WorksheetQueryPane::sequentialQueryCompleted(const QueryResult &result)
+{
+    emit queryDone(result);
+}
+
+void WorksheetQueryPane::sequentialExecutionCompleted()
+{
+    progressBarAction->setVisible(false);
 }
 
 void WorksheetQueryPane::autotraceTriggeredByUser(bool checked)
@@ -174,6 +199,7 @@ void WorksheetQueryPane::setContents(const QString &contents)
 void WorksheetQueryPane::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
     this->queryScheduler=queryScheduler;
+    sequentialRunner.setQueryScheduler(queryScheduler);
 
     toolbar->setEnabled(true);
 }

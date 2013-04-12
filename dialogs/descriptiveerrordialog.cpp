@@ -12,7 +12,7 @@ DescriptiveErrorDialog::DescriptiveErrorDialog(const QString &title,
 {
     setWindowTitle(title);
 
-    QVBoxLayout *layout=new QVBoxLayout();
+    mainLayout=new QVBoxLayout();
 
     QHBoxLayout *errorMessageLayout=new QHBoxLayout();
     errorMessageLayout->setSpacing(errorMessageLayout->spacing()+10);
@@ -39,7 +39,7 @@ DescriptiveErrorDialog::DescriptiveErrorDialog(const QString &title,
 
     errorMessageLayout->setStretch(1, 1);
 
-    layout->addLayout(errorMessageLayout);
+    mainLayout->addLayout(errorMessageLayout);
 
 
     QHBoxLayout *codeLayout=new QHBoxLayout();
@@ -49,14 +49,14 @@ DescriptiveErrorDialog::DescriptiveErrorDialog(const QString &title,
     codeLayout->addWidget(editor);
     editor->setPlainText(code);
 
-    layout->addLayout(codeLayout);
+    mainLayout->addLayout(codeLayout);
 
-    QDialogButtonBox *buttonBox=DialogHelper::createButtonBox(this, QDialogButtonBox::Ok);
-    layout->addWidget(buttonBox);
+    buttonBox=DialogHelper::createButtonBox(this, QDialogButtonBox::Ok);
+    mainLayout->addWidget(buttonBox);
 
     //layout->setSpacing(15);
 
-    setLayout(layout);
+    setLayout(mainLayout);
 
     resize(500, 300);
 }
@@ -69,4 +69,9 @@ void DescriptiveErrorDialog::showMessage(const QString &title,
 {
     DescriptiveErrorDialog dialog(title, errorMessage, code, errorLine, parent);
     dialog.exec();
+}
+
+void DescriptiveErrorDialog::addWidget(QWidget *widget)
+{
+    mainLayout->insertWidget(mainLayout->indexOf(buttonBox), widget);
 }

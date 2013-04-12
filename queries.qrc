@@ -126,5 +126,6 @@
         <file>queries/sort_referencing_tables.sql</file>
         <file>queries/disable_ref_constraints.sql</file>
         <file>queries/enable_ref_constraints.sql</file>
+        <file>queries/func_get_source_code.sql</file>
     </qresource>
 </RCC>

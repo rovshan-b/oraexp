@@ -1,4 +1,3 @@
---not used at the moment
 function get_source_code(p_object_type varchar2, p_owner varchar2, p_object_name varchar2, p_sql_terminator number := 1) return clob is
     h1      NUMBER;         -- handle returned by OPEN
     th      NUMBER;         -- handle returned by ADD_TRANSFORM for DDL

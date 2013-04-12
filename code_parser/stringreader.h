@@ -6,7 +6,7 @@
 class StringReader : public TextReaderBase
 {
 public:
-    StringReader(const QString &str);
+    StringReader(const QString &str, int startPos = 0);
 
     virtual bool isEOF() const;
     virtual bool atStart() const;

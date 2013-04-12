@@ -65,6 +65,7 @@ public:
     static QString intervalOrTimestampToChar(const QString &columnName, const QString &dataType);
 
     static bool isPLSQLProgramUnit(DbTreeModel::DbTreeNodeType itemType);
+    static bool isPLSQLProgramUnit(const QString &itemType);
     static DbTreeModel::DbTreeNodeType getSpecType(DbTreeModel::DbTreeNodeType itemType);
     static DbTreeModel::DbTreeNodeType getBodyType(DbTreeModel::DbTreeNodeType itemType);
 

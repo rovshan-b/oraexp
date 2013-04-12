@@ -3,6 +3,9 @@
 
 #include <QDialog>
 
+class QDialogButtonBox;
+class QVBoxLayout;
+
 class DescriptiveErrorDialog : public QDialog
 {
     Q_OBJECT
@@ -18,6 +21,13 @@ public:
                             const QString &code,
                             unsigned int errorLine,
                             QWidget *parent);
+
+    QDialogButtonBox *getButtonBox() const {return this->buttonBox;}
+    void addWidget(QWidget *widget);
+
+private:
+    QVBoxLayout *mainLayout;
+    QDialogButtonBox *buttonBox;
 };
 
 #endif // DESCRIPTIVEERRORDIALOG_H

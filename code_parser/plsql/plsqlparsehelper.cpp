@@ -3,6 +3,7 @@
 #include "../stringreader.h"
 #include "plsqltokens.h"
 #include "code_parser/plsql/plsqlparsingtable.h"
+#include "util/dbutil.h"
 #include <QDebug>
 
 QStringList PlSqlParseHelper::getBindParams(const QString &query, QList<BindParamInfo::BindParamType> *suggestedParamTypes)
@@ -110,6 +111,68 @@ bool PlSqlParseHelper::isDml(const QString &query)
     }else{
         return false;
     }
+}
+
+void PlSqlParseHelper::getNextQueryPos(const QString &query, int startFromPos, int *queryStartPos, int *queryEndPos)
+{
+    QScopedPointer<PlSqlScanner> scanner(new PlSqlScanner(new StringReader(query, startFromPos)));
+
+    //skip to first keyword
+    int token;
+    do{
+        token = scanner->getNextToken();
+    }while(token>=NON_LITERAL_START_IX && token!=PLS_E_O_F);
+
+    if(token==PLS_E_O_F || token==PLS_ERROR){
+        *queryStartPos=-1;
+        *queryEndPos=-1;
+        return;
+    }
+
+    *queryStartPos = scanner->getTokenStartPos() + startFromPos;
+
+    bool isPlSql=false;
+
+    if(scanner->getTokenLexeme().compare("CREATE", Qt::CaseSensitive)==0){
+        token = scanner->getNextToken();
+        if(scanner->getTokenLexeme().compare("OR", Qt::CaseInsensitive)==0){
+            token = scanner->getNextToken();
+            Q_ASSERT(scanner->getTokenLexeme().compare("REPLACE", Qt::CaseInsensitive)==0);
+            token = scanner->getNextToken();
+        }
+
+        isPlSql = DbUtil::isPLSQLProgramUnit(scanner->getTokenLexeme());
+    }
+
+    if(token == PLS_E_O_F){
+        *queryEndPos = scanner->getTokenEndPos() + startFromPos;
+        return;
+    }
+
+    //if isPlSql=true then scan to semicolon (;) followed by slash (/) or slash at the beginning of line
+    //otherwise scan to semicolon (;)
+    bool sawSemicolon=false;
+    do{
+        token = scanner->getNextToken();
+
+        if(token==PLS_SEMI){
+            sawSemicolon=true;
+            if(!isPlSql){
+                break;
+            }
+        }else if(sawSemicolon){
+            Q_ASSERT(isPlSql);
+            sawSemicolon=false;
+
+            if(token==PLS_DIVIDE){
+                break;
+            }
+        }else if(token==PLS_DIVIDE && scanner->getTokenStartLinePos()==0){ //slash as the first symbol of line
+            break;
+        }
+    }while(token != PLS_E_O_F);
+
+    *queryEndPos = scanner->getTokenEndPos() + startFromPos;
 }
 
 PlSqlParseHelper::PlSqlParseHelper()

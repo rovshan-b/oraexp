@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "connectivity/queryresult.h"
 #include "connectivity/ociexception.h"
+#include "connectivity/sequentialqueryrunner.h"
 #include "codeeditor/codeeditor.h"
 #include "widgets/codeeditorandsearchpanewidget.h"
 #include "beans/bindparaminfo.h"
@@ -76,10 +77,16 @@ private:
 
     QString getExplainPlanPrefix() const;
     QueryResult highlightError(const QueryResult &result);
+
+    SequentialQueryRunner sequentialRunner;
 private slots:
     void executeQuery(ExecuteMode executeMode=ExecuteQuery);
+    void executeAsScript();
     void executeExplainPlan();
     void queryCompleted(const QueryResult &result);
+
+    void sequentialQueryCompleted(const QueryResult &result);
+    void sequentialExecutionCompleted();
 
     void autotraceTriggeredByUser(bool checked);
     void autotraceQueryCompleted(const QueryResult &result);

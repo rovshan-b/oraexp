@@ -765,6 +765,19 @@ bool DbUtil::isPLSQLProgramUnit(DbTreeModel::DbTreeNodeType itemType)
             itemType==DbTreeModel::TypeBody;
 }
 
+bool DbUtil::isPLSQLProgramUnit(const QString &itemType)
+{
+    return itemType.compare("PACKAGE", Qt::CaseInsensitive)==0 ||
+            itemType.compare("PACKAGE SPEC", Qt::CaseInsensitive)==0 ||
+            itemType.compare("PACKAGE BODY", Qt::CaseInsensitive)==0 ||
+            itemType.compare("PROCEDURE", Qt::CaseInsensitive)==0 ||
+            itemType.compare("FUNCTION", Qt::CaseInsensitive)==0 ||
+            itemType.compare("TRIGGER", Qt::CaseInsensitive)==0 ||
+            itemType.compare("TYPE", Qt::CaseInsensitive)==0 ||
+            itemType.compare("TYPE SPEC", Qt::CaseInsensitive)==0 ||
+            itemType.compare("TYPE BODY", Qt::CaseInsensitive)==0;
+}
+
 DbTreeModel::DbTreeNodeType DbUtil::getSpecType(DbTreeModel::DbTreeNodeType itemType)
 {
     switch(itemType){

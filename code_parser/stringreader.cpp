@@ -1,6 +1,7 @@
 #include "stringreader.h"
 
-StringReader::StringReader(const QString &str) : str(str), lastSearchPos(0), reachedEOF(false)
+StringReader::StringReader(const QString &str, int startPos) :
+    str(str), lastSearchPos(startPos), reachedEOF(false)
 {
 }
 

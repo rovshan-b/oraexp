@@ -436,7 +436,8 @@ SOURCES += main.cpp\
     beans/dataexporteroptions.cpp \
     connection_page/data_exporter/dataexporthelper.cpp \
     util/stopablethread.cpp \
-    connection_page/data_exporter/tabs/dataexporterresultstab.cpp
+    connection_page/data_exporter/tabs/dataexporterresultstab.cpp \
+    connectivity/sequentialqueryrunner.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -877,7 +878,8 @@ HEADERS  += mainwindow.h \
     beans/dataexporteroptions.h \
     connection_page/data_exporter/dataexporthelper.h \
     util/stopablethread.h \
-    connection_page/data_exporter/tabs/dataexporterresultstab.h
+    connection_page/data_exporter/tabs/dataexporterresultstab.h \
+    connectivity/sequentialqueryrunner.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \
