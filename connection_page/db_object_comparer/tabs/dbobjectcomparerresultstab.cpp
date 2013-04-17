@@ -50,7 +50,7 @@ DataTable *DbObjectComparerResultsTab::createChangeListTable()
 }
 
 void DbObjectComparerResultsTab::addText(const QString &text)
-{
+{   
     if(!editor->isVisible()){
         editor->setVisible(true);
     }

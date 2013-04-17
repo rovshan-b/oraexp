@@ -1,5 +1,4 @@
 #include "codescanner.h"
-#include "textreaderbase.h"
 
 CodeScanner::CodeScanner(TextReaderBase *textReader) :
     textReader(textReader),

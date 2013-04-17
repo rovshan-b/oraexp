@@ -25,7 +25,8 @@ QStringList PlSqlParseHelper::getBindParams(const QString &query, QList<BindPara
         QString lastLexeme = scanner->getTokenLexeme();
 
         if(lastLexemes.isEmpty()){ //just got first lexeme
-            if(lastLexeme=="CREATE"){ //no bind param prompting for DDL
+            if(!PlSqlParseHelper::isDmlStartLexeme(lastLexeme) &&
+                    !PlSqlParseHelper::isAnonymousBlockStartLexeme(lastLexeme)){ //prompting for bind variables on for dmls and anonymous blocks
                 return results;
             }
         }
@@ -101,16 +102,23 @@ bool PlSqlParseHelper::isDml(const QString &query)
 {
     QString firstTokenLexeme = PlSqlParseHelper::getFirstLexeme(query);
 
-    if(firstTokenLexeme=="SELECT" ||
-            firstTokenLexeme=="UPDATE" ||
-            firstTokenLexeme=="INSERT" ||
-            firstTokenLexeme=="DELETE" ||
-            firstTokenLexeme=="MERGE" ||
-            firstTokenLexeme=="WITH"){
-        return true;
-    }else{
-        return false;
-    }
+    return PlSqlParseHelper::isDmlStartLexeme(firstTokenLexeme);
+}
+
+bool PlSqlParseHelper::isDmlStartLexeme(const QString &lexeme)
+{
+    return lexeme.compare("SELECT", Qt::CaseInsensitive) == 0 ||
+            lexeme.compare("UPDATE", Qt::CaseInsensitive) == 0 ||
+            lexeme.compare("INSERT", Qt::CaseInsensitive) == 0 ||
+            lexeme.compare("DELETE", Qt::CaseInsensitive) == 0 ||
+            lexeme.compare("MERGE", Qt::CaseInsensitive) == 0 ||
+            lexeme.compare("WITH", Qt::CaseInsensitive) == 0;
+}
+
+bool PlSqlParseHelper::isAnonymousBlockStartLexeme(const QString &lexeme)
+{
+    return lexeme.compare("BEGIN", Qt::CaseInsensitive) == 0 ||
+            lexeme.compare("DECLARE", Qt::CaseInsensitive) == 0;
 }
 
 void PlSqlParseHelper::getNextQueryPos(const QString &query, int startFromPos, int *queryStartPos, int *queryEndPos)
@@ -121,7 +129,7 @@ void PlSqlParseHelper::getNextQueryPos(const QString &query, int startFromPos, i
     int token;
     do{
         token = scanner->getNextToken();
-    }while(token>=NON_LITERAL_START_IX && token!=PLS_E_O_F);
+    }while(token>=NON_LITERAL_START_IX && token!=PLS_ID && token!=PLS_E_O_F);
 
     if(token==PLS_E_O_F || token==PLS_ERROR){
         *queryStartPos=-1;
@@ -142,6 +150,8 @@ void PlSqlParseHelper::getNextQueryPos(const QString &query, int startFromPos, i
         }
 
         isPlSql = DbUtil::isPLSQLProgramUnit(scanner->getTokenLexeme());
+    }else if(PlSqlParseHelper::isAnonymousBlockStartLexeme(scanner->getTokenLexeme())){
+        isPlSql = true;
     }
 
     if(token == PLS_E_O_F){
@@ -167,7 +177,7 @@ void PlSqlParseHelper::getNextQueryPos(const QString &query, int startFromPos, i
             if(token==PLS_DIVIDE){
                 break;
             }
-        }else if(token==PLS_DIVIDE && scanner->getTokenStartLinePos()==0){ //slash as the first symbol of line
+        }else if(token==PLS_DIVIDE && scanner->getCurrentLine().trimmed()=="/"){ //slash as the only symbol of line
             break;
         }
     }while(token != PLS_E_O_F);

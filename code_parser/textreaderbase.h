@@ -17,6 +17,8 @@ public:
     int getCurrLineNo() const {return this->lineNo;}
     int getCurrLinePos() const {return this->linePos;}
 
+    QString getCurrentLine() const {return this->buffer;}
+
 protected:
     virtual QString getNextLine()=0;
 

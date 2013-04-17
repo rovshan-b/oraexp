@@ -15,7 +15,7 @@ QString TableTriggersDdlGenerator::generateDdl(const TableInfo &tableInfo)
     QString ddlLine;
     for(int i=0; i<ddlCount; ++i){
         const TriggerInfo &triggerInfo=tableInfo.triggers.at(i);
-        ddlLine=triggerInfo.generateDdl(fullTableName);
+        ddlLine=triggerInfo.generateDdl(fullTableName, true);
         if(!ddlLine.isEmpty()){
             addEOL(ddl);
             addEOL(ddl);
@@ -39,7 +39,7 @@ QString TableTriggersDdlGenerator::generateDiffDdl(const TableInfo &sourceTableI
         const TriggerInfo &sourceTrg=sourceTableInfo.triggers.at(i);
         const TriggerInfo &targetTrg=targetTableInfo.findTriggerByName(sourceTrg.name, found);
 
-        ddlLine=found ? sourceTrg.generateDiffDdl(targetTrg, fullTargetTableName) : sourceTrg.generateDdl(fullTargetTableName);
+        ddlLine=found ? sourceTrg.generateDiffDdl(targetTrg, fullTargetTableName) : sourceTrg.generateDdl(fullTargetTableName, true);
         if(!ddlLine.isEmpty()){
             addEOL(ddl);
             ddl.append(ddlLine);

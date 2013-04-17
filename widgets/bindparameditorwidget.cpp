@@ -14,6 +14,7 @@ BindParamEditorWidget::BindParamEditorWidget(QWidget *parent) :
     //dateValidator = new QRegExpValidator(WidgetHelper::createDateTimeRegExp(), this);
 
     paramTypeCombo=new QComboBox();
+    paramTypeCombo->setFocusPolicy(Qt::ClickFocus);
     paramTypeCombo->addItem(tr("String/Number"));
     paramTypeCombo->addItem(tr("Date"));
     paramTypeCombo->addItem(tr("Cursor"));
@@ -24,9 +25,11 @@ BindParamEditorWidget::BindParamEditorWidget(QWidget *parent) :
     valueEditor->setEditable(true);
     valueEditor->lineEdit()->setPlaceholderText(tr("NULL"));
     valueEditor->setMinimumWidth(200);
+    valueEditor->setInsertPolicy(QComboBox::NoInsert);
     mainLayout->addWidget(valueEditor);
 
     paramDirectionCombo=new QComboBox();
+    paramDirectionCombo->setFocusPolicy(Qt::ClickFocus);
     paramDirectionCombo->addItem(IconUtil::getIcon("right_arrow"), tr("In"));
     paramDirectionCombo->addItem(IconUtil::getIcon("left_arrow"), tr("Out"));
     paramDirectionCombo->addItem(IconUtil::getIcon("left_right_arrows"), tr("InOut"));
@@ -35,6 +38,8 @@ BindParamEditorWidget::BindParamEditorWidget(QWidget *parent) :
     mainLayout->setStretchFactor(valueEditor, 1);
     mainLayout->setContentsMargins(0,0,0,0);
     setLayout(mainLayout);
+
+    valueEditor->installEventFilter(this);
 
     connect(paramTypeCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(paramTypeChanged(int)));
 }
@@ -116,6 +121,19 @@ Param *BindParamEditorWidget::createParam(const QString &paramName)
     }
 
     return result;
+}
+
+bool BindParamEditorWidget::eventFilter(QObject *obj, QEvent *event)
+{
+    if(event->type()==QEvent::KeyPress){
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        if(keyEvent->key()==Qt::Key_Return || keyEvent->key()==Qt::Key_Enter){
+            event->setAccepted(false);
+            return true;
+        }
+    }
+
+    return QWidget::eventFilter(obj, event);
 }
 
 void BindParamEditorWidget::paramTypeChanged(int newType)

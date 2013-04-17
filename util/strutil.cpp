@@ -176,16 +176,25 @@ QString formatSecs(int secs)
     .arg(remainingSecs, 2, 10, QLatin1Char('0'));
 }
 
-QString formatMsecs(int msecs)
+QString formatMsecs(int msecs, bool includeMsecs)
 {
     int secs = msecs / 1000;
     int mins = (secs / 60) % 60;
     int hours = (secs / 3600);
     secs = secs % 60;
-    return QString("%1:%2:%3")
-    .arg(hours, 2, 10, QLatin1Char('0'))
-    .arg(mins, 2, 10, QLatin1Char('0'))
-    .arg(secs, 2, 10, QLatin1Char('0'));
+
+    if(includeMsecs){
+        return QString("%1:%2:%3.%4")
+        .arg(hours, 2, 10, QLatin1Char('0'))
+        .arg(mins, 2, 10, QLatin1Char('0'))
+        .arg(secs, 2, 10, QLatin1Char('0'))
+        .arg(msecs%1000, 3, 10, QLatin1Char('0'));
+    }else{
+        return QString("%1:%2:%3")
+        .arg(hours, 2, 10, QLatin1Char('0'))
+        .arg(mins, 2, 10, QLatin1Char('0'))
+        .arg(secs, 2, 10, QLatin1Char('0'));
+    }
 }
 
 QString joinEnclosed(const QStringList &list, const QString &join, const QString &enclose)

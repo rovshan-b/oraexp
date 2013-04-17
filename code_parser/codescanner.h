@@ -3,9 +3,8 @@
 
 #define NON_LITERAL_START_IX 100000
 
-class TextReaderBase;
-
 #include <QString>
+#include "textreaderbase.h"
 
 class CodeScanner
 {
@@ -27,6 +26,8 @@ public:
     QString getTokenLexeme() const {return currentLexeme;}
 
     bool isNewline() const {return c=='\n' || c==0x2029;}
+
+    QString getCurrentLine() const {return textReader->getCurrentLine();}
 
 protected:
     TextReaderBase *textReader;

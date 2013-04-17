@@ -9,9 +9,10 @@ decode(data_type, 'NUMBER',
      case when data_precision is not null and data_scale is null then ' ('||to_char(data_precision)||')'
           when data_precision is null and data_scale is not null then ' (*, '||to_char(data_scale)||')'
           when data_precision is not null and data_scale is not null then ' ('||to_char(data_precision)||', '||to_char(data_scale)||')'
-     else '' end
-     ,'')
-as data_type, 
+     else '' end,
+     'RAW', '('||data_length||')',
+     '')
+as data_type,
 decode(nullable, 'Y', 'Yes', 'No') as nullable,
 data_default,
 column_id,

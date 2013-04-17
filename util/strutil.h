@@ -40,7 +40,7 @@ void addEOL(QString &str, const QString &terminator=QString());
 
 QString formatSecs(int secs);
 
-QString formatMsecs(int msecs);
+QString formatMsecs(int msecs, bool includeMsecs = false);
 
 QString joinEnclosed(const QStringList &list, const QString &join = ",", const QString &enclose = "\"");
 

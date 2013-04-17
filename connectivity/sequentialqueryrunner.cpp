@@ -1,14 +1,14 @@
 #include "sequentialqueryrunner.h"
 #include "code_parser/plsql/plsqlparsehelper.h"
 #include "util/queryscheduler.h"
-#include "util/widgethelper.h"
-#include "dialogs/descriptiveerrordialog.h"
 #include <QtGui>
 #include <QDebug>
 
 SequentialQueryRunner::SequentialQueryRunner(QObject *parent) :
     QObject(parent),
-    queryScheduler(0)
+    queryScheduler(0),
+    lastErrorAction(SequantialExecutionErrorDialog::IgnoreCurrent),
+    busy(false)
 {
 
 }
@@ -23,6 +23,9 @@ void SequentialQueryRunner::execute(const QString &query, QWidget *parentWidget)
     Q_ASSERT(queryScheduler);
 
     this->parentWidget = parentWidget;
+    stopped=false;
+    ignoreAllErrors = false;
+    errorCodesToIgnore.clear();
 
     queries.clear();
     queryPositions.clear();
@@ -42,19 +45,26 @@ void SequentialQueryRunner::execute(const QString &query, QWidget *parentWidget)
     }
 
     if(queries.size()>0){
+        this->busy=true;
         executeNextQuery();
     }
 }
 
+void SequentialQueryRunner::stop()
+{
+
+}
+
 void SequentialQueryRunner::executeNextQuery()
 {
-    if(queries.isEmpty()){
-        emit completed();
+    if(queries.isEmpty() || stopped){
+        emitCompletedSignal();
         return;
     }
 
     currentQuery = queries.takeFirst();
     QPair<int,int> positions = queryPositions.takeFirst();
+    currentQueryStartPos = positions.first;
 
     emit beforeExecute(currentQuery, positions.first, positions.second);
 
@@ -65,45 +75,51 @@ void SequentialQueryRunner::executeNextQuery()
                                  "queryCompleted");
 }
 
+void SequentialQueryRunner::emitCompletedSignal()
+{
+    emit completed();
+
+    queries.clear();
+    queryPositions.clear();
+
+    this->busy=false;
+}
+
 void SequentialQueryRunner::queryCompleted(const QueryResult &result)
 {
     emit queryResultAvailable(result);
 
-    if(result.hasError){
-        QString errorMessage = result.exception.getErrorMessage();
+    if(result.hasError && !ignoreAllErrors && !errorCodesToIgnore.contains(result.exception.getErrorCode()) && !stopped){
+        SequantialExecutionErrorDialog dialog(tr("Error occured"),
+                                              result.exception,
+                                              currentQuery,
+                                              this->parentWidget);
+        dialog.setErrorAction(lastErrorAction);
 
-        DescriptiveErrorDialog dialog(tr("Error occured"),
-                                      errorMessage,
-                                      currentQuery,
-                                      0,
-                                      this->parentWidget);
+        if(!dialog.exec()){ //dialog was closed by pressing close button or by pressing Escape key
+            emitCompletedSignal();
+            return;
+        }
 
-        int colonIx = errorMessage.indexOf(':');
-        QString errorPrefix = colonIx!=-1 ? errorMessage.left(colonIx) : QString::number(result.exception.getErrorCode());
+        lastErrorAction=dialog.getErrorAction();
 
-
-
-        QVBoxLayout *radioLayout = new QVBoxLayout();
-
-        QRadioButton ignoreAllRadio(tr("Ignore all errors"));
-        QRadioButton ignoreCurrentRadio(tr("Ignore this error"));
-        ignoreCurrentRadio.setChecked(true);
-        QRadioButton ignoreCurrentCodeRadio(tr("Ignore all occurences of error %1").arg(errorPrefix));
-        QRadioButton abortRadio(tr("Abort"));
-
-        radioLayout->addWidget(&ignoreAllRadio);
-        radioLayout->addWidget(&ignoreCurrentRadio);
-        radioLayout->addWidget(&ignoreCurrentCodeRadio);
-        radioLayout->addWidget(&abortRadio);
-
-        QGroupBox *groupBox = WidgetHelper::createGroupBox(radioLayout, tr("Select action"));
-
-        dialog.addWidget(groupBox);
-        dialog.exec();
-
-        emit completed();
-
-        return;
+        switch(lastErrorAction){
+        case SequantialExecutionErrorDialog::IgnoreAll:
+            ignoreAllErrors = true;
+            break;
+        case SequantialExecutionErrorDialog::IgnoreCurrent:
+            break;
+        case SequantialExecutionErrorDialog::IgnoreCurrentCode:
+            errorCodesToIgnore.append(result.exception.getErrorCode());
+            break;
+        case SequantialExecutionErrorDialog::Abort:
+            emitCompletedSignal();
+            return;
+            break;
+        default: //unhandled case
+            Q_ASSERT(false);
+            break;
+        }
     }
 
     executeNextQuery();

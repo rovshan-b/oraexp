@@ -4,6 +4,7 @@
 #include "linenavigationbar.h"
 #include "dialogs/gotolinedialog.h"
 #include "util/widgethelper.h"
+#include "util/iconutil.h"
 #include "app_menu/appmenu.h"
 #include "app_menu/appeditmenu.h"
 #include <QPainter>
@@ -15,7 +16,7 @@
 QFont CodeEditor::currentFont;
 
 CodeEditor::CodeEditor(QWidget *parent) :
-    QPlainTextEdit(parent), lineNumberArea(0), lineNavBar(0)
+    QPlainTextEdit(parent), lineNumberArea(0), lineNavBar(0), markedLineIx(-1), lineMarkerUsed(false)
 {
     QFont monospaceFont("Monospace");
     setFont(monospaceFont);
@@ -45,7 +46,7 @@ CodeEditor::CodeEditor(QWidget *parent) :
 
     connect(this, SIGNAL(undoAvailable(bool)), this, SLOT(setUndoAvailable(bool)));
     connect(this, SIGNAL(redoAvailable(bool)), this, SLOT(setRedoAvailable(bool)));
-    connect(this, SIGNAL(textChanged()), this, SLOT(removeErrorSelection()));
+    connect(this, SIGNAL(textChanged()), this, SLOT(clearErrorPositions()));
 
     new QShortcut(QKeySequence(tr("Ctrl+=", "CodeEditor|Increase font size")),
                   this, SLOT(increaseFontSize()), 0, Qt::WidgetWithChildrenShortcut);
@@ -57,8 +58,8 @@ QStringList CodeEditor::getSemicolonSeparated() const
     return toPlainText().split(';', QString::SkipEmptyParts);
 }
 
-int CodeEditor::lineNumberAreaWidth()
- {
+int CodeEditor::lineNumberAreaWidth() const
+{
      int digits = 1;
      int max = qMax(1, blockCount());
      while (max >= 10) {
@@ -66,9 +67,19 @@ int CodeEditor::lineNumberAreaWidth()
          ++digits;
      }
 
-     int space = 5 + 5 + fontMetrics().width(QLatin1Char('9')) * digits;
+     int space = 5 + 5 + fontMetrics().width(QLatin1Char('9')) * digits + lineMarkerAreaWidth(); //area for drawing marker icons
 
      return space;
+}
+
+int CodeEditor::lineMarkerAreaWidth() const
+{
+    return lineMarkerVisible() ? (fontMetrics().height() + lineMarkerAreaOffset()) : 0;
+}
+
+int CodeEditor::lineMarkerAreaOffset() const
+{
+    return 3;
 }
 
  void CodeEditor::updateLineNumberAreaWidth(int /* newBlockCount */)
@@ -113,12 +124,10 @@ int CodeEditor::lineNumberAreaWidth()
      highlightCurrentLine();
  }
 
- void CodeEditor::removeErrorSelection()
+ void CodeEditor::clearErrorPositions()
  {
-     if(!errorPosition.isNull()){
-         errorPosition=QTextCursor();
-         highlightCurrentLine();
-         updateNavBar();
+     if(errorPositions.size()>0){
+         setErrorPositions(QList<QTextCursor>());
      }
  }
 
@@ -175,13 +184,12 @@ int CodeEditor::lineNumberAreaWidth()
          extraSelections.append(pulsateSelection);
      }
 
-     if(!errorPosition.isNull()){
+     for(int i=0; i<errorPositions.size(); ++i){
          QTextEdit::ExtraSelection errorSelection;
          errorSelection.format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
          errorSelection.format.setUnderlineColor(Qt::red);
-         //errorSelection.format.setBackground(Qt::red);
          errorSelection.format.setForeground(EDITOR_ERROR_TEXT_COLOR);
-         errorSelection.cursor=errorPosition;
+         errorSelection.cursor=errorPositions.at(i);
 
          extraSelections.append(errorSelection);
      }
@@ -196,9 +204,8 @@ int CodeEditor::lineNumberAreaWidth()
      QPainter painter(lineNumberArea);
      QRect rect=event->rect();
      painter.fillRect(rect, palette().color(QPalette::Base));
-     painter.setPen(Qt::DotLine);
-     painter.drawLine(rect.right(), rect.top(), rect.right(), rect.bottom());
-
+     painter.setRenderHint(QPainter::Antialiasing);
+     //painter.setRenderHint(QPainter::TextAntialiasing);
      QTextBlock block = firstVisibleBlock();
      int blockNumber = block.blockNumber();
      int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
@@ -206,8 +213,38 @@ int CodeEditor::lineNumberAreaWidth()
 
      while (block.isValid() && top <= event->rect().bottom()) {
          if (block.isVisible() && bottom >= event->rect().top()) {
+
+             if(blockNumber == this->markedLineIx && this->markedLineIx!=-1){
+                 int markerAreaOffset = lineMarkerAreaOffset();
+                 //int markerAreaCleanWidth = lineMarkerAreaWidth() - markerAreaOffset;
+
+                 float triangleTop = top;
+                 float triangleBottom = triangleTop + lineMarkerAreaWidth();
+                 float triagleCenter = top + (float)lineMarkerAreaWidth() / 2;
+                 float triangleLeft = markerAreaOffset;
+                 float triangleRight = lineMarkerAreaWidth();
+
+                 QPolygonF triangle;
+                 triangle.append(QPointF(triangleLeft,triangleTop));
+                 triangle.append(QPointF(triangleRight, triagleCenter));
+                 triangle.append(QPointF(triangleLeft, triangleBottom));
+                 triangle.append(QPointF(triangleLeft,triangleTop));
+
+                 QPainterPath paintPath;
+                 paintPath.addPolygon(triangle);
+                 //QPen pen(Qt::SolidLine);
+                 //pen.setJoinStyle(Qt::RoundJoin);
+                 painter.setPen(Qt::SolidLine);
+                 QLinearGradient gradient(triangleLeft, triangleTop, triangleLeft, triangleBottom);
+                 gradient.setColorAt(0.0, Qt::green);
+                 gradient.setColorAt(0.7, Qt::darkGreen);
+                 painter.setBrush(gradient);
+                 painter.drawPath(paintPath);
+             }
+
              QString number = QString::number(blockNumber + 1);
-             painter.drawText(0, top, lineNumberArea->width()-5, fontMetrics().height(),
+             int offset = lineMarkerAreaWidth();
+             painter.drawText(offset, top, lineNumberArea->width()-offset-5, fontMetrics().height(),
                               Qt::AlignRight, number);
          }
 
@@ -216,6 +253,9 @@ int CodeEditor::lineNumberAreaWidth()
          bottom = top + (int) blockBoundingRect(block).height();
          ++blockNumber;
      }
+
+     painter.setPen(Qt::DotLine);
+     painter.drawLine(rect.right(), rect.top(), rect.right()-1, rect.bottom());
  }
 
 
@@ -253,10 +293,12 @@ int CodeEditor::lineNumberAreaWidth()
          }
      }
 
-     if(!errorPosition.isNull()){
-         drawLineNavBarHighlight(painter, errorPosition.blockNumber(), EDITOR_ERROR_TEXT_COLOR, docHeight, blockHeight, hasScrollbars);
+     for(int i=0; i<errorPositions.size(); ++i){
+         const QTextCursor &cur=errorPositions.at(i);
+         Q_ASSERT(!cur.isNull());
+         drawLineNavBarHighlight(painter, cur.blockNumber(), EDITOR_ERROR_TEXT_COLOR, docHeight, blockHeight, hasScrollbars);
 
-         if(errorPosition.blockNumber()==currentBlockNo && !hasHighlightOnCurrentBlock){
+         if(cur.blockNumber()==currentBlockNo && !hasHighlightOnCurrentBlock){
              hasHighlightOnCurrentBlock=true;
          }
      }
@@ -354,18 +396,24 @@ int CodeEditor::lineNumberAreaWidth()
  QList<int> CodeEditor::getHighlightedBlockNumbers() const
  {
      QList<int> results;
-     results.reserve(foundTextPositions.size()+1);
+     results.reserve(foundTextPositions.size()+errorPositions.size());
 
      for(int i=0; i<foundTextPositions.size(); ++i){
          const QTextCursor &cur=foundTextPositions.at(i);
          results.append(cur.blockNumber());
      }
 
-     if(!errorPosition.isNull()){
-         results.append(errorPosition.blockNumber());
+     for(int i=0; i<errorPositions.size(); ++i){
+         const QTextCursor &cur=errorPositions.at(i);
+         results.append(cur.blockNumber());
      }
 
      return results;
+ }
+
+ bool CodeEditor::lineMarkerVisible() const
+ {
+     return markedLineIx!=-1 || lineMarkerUsed;
  }
 
  void CodeEditor::lineNumberAreaWheelEvent(QWheelEvent *event)
@@ -912,7 +960,7 @@ int CodeEditor::lineNumberAreaWidth()
      cur.insertText(text);
  }
 
- QString CodeEditor::getCurrentText(QTextCursor &txtCursor) const
+ QString CodeEditor::getCurrentText(QTextCursor &txtCursor, bool fullTextOnNoSelection) const
  {
      QString result;
 
@@ -920,7 +968,12 @@ int CodeEditor::lineNumberAreaWidth()
      if(cursor.hasSelection()){
          result = cursor.selectedText().replace(QChar(0x2029), QChar('\n'));
      }else{
-         result = getCurrentTextSurroundedByEmptyLines(cursor);
+         if(!fullTextOnNoSelection){
+            result = getCurrentTextSurroundedByEmptyLines(cursor);
+         }else{
+            result = this->toPlainText();
+            cursor.movePosition(QTextCursor::Start);
+         }
      }
 
      txtCursor=cursor;
@@ -1022,8 +1075,47 @@ int CodeEditor::lineNumberAreaWidth()
 
  void CodeEditor::setErrorPosition(const QTextCursor &cursor)
  {
-     this->errorPosition=cursor;
-     highlightCurrentLine();
+     Q_ASSERT(!cursor.isNull());
 
+     this->errorPositions.clear();
+     setErrorPositions(QList<QTextCursor>() << cursor);
+ }
+
+ void CodeEditor::setErrorPositions(const QList<QTextCursor> &errorPositions)
+ {
+     this->errorPositions = errorPositions;
+
+     highlightCurrentLine();
      updateNavBar();
+ }
+
+ void CodeEditor::addErrorPosition(const QTextCursor &cursor)
+ {
+     Q_ASSERT(!cursor.isNull());
+
+     this->errorPositions.append(cursor);
+     highlightCurrentLine();
+     updateNavBar();
+ }
+
+ void CodeEditor::setMarkedLine(int line)
+ {
+     if(line == markedLineIx){
+         return;
+     }
+
+     markedLineIx = line;
+
+     if(line==-1){
+         lineNumberArea->update();
+     }else{
+         Q_ASSERT(line>=0 && line<blockCount());
+
+         if(!lineMarkerUsed){
+             lineMarkerUsed=true;
+             updateLineNumberAreaWidth(0);
+         }else{
+             lineNumberArea->update();
+         }
+     }
  }

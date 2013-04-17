@@ -2,6 +2,7 @@
 #define DESCRIPTIVEERRORDIALOG_H
 
 #include <QDialog>
+#include "connectivity/ociexception.h"
 
 class QDialogButtonBox;
 class QVBoxLayout;
@@ -11,16 +12,15 @@ class DescriptiveErrorDialog : public QDialog
     Q_OBJECT
 public:
     explicit DescriptiveErrorDialog(const QString &title,
-                                    const QString &errorMessage,
+                                    const OciException &exception,
                                     const QString &code,
-                                    unsigned int errorLine,
-                                    QWidget *parent);
+                                    QWidget *parent,
+                                    const QString &errorMessageOverride=QString());
 
     static void showMessage(const QString &title,
-                            const QString &errorMessage,
+                            const OciException &exception,
                             const QString &code,
-                            unsigned int errorLine,
-                            QWidget *parent);
+                            QWidget *parent, const QString &errorMessageOverride);
 
     QDialogButtonBox *getButtonBox() const {return this->buttonBox;}
     void addWidget(QWidget *widget);

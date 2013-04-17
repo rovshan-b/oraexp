@@ -13,6 +13,7 @@ class WorksheetCodeEditor;
 class QToolButton;
 class DbConnection;
 class QToolBar;
+class QLabel;
 class IQueryScheduler;
 class MultiEditorWidget;
 class Param;
@@ -55,11 +56,19 @@ signals:
     void message(const QString &msg);
     void autotraceTriggered(bool checked);
 
+protected:
+    virtual void timerEvent(QTimerEvent *event);
+
 private:
     IQueryScheduler *queryScheduler;
     QToolBar *toolbar;
-    QAction *progressBarAction;
     QAction *autotraceAction;
+
+    QAction *progressBarAction;
+    QLabel *timerLabel;
+    QTime progressTimer;
+    int progressTimerId;
+    QAction *stopProgressAction;
 
     MultiEditorWidget *multiEditor;
 
@@ -68,6 +77,7 @@ private:
     void saveBindParams(const QList<Param *> &params);
 
     bool canExecute();
+    void handleQueryCompleted(const QueryResult &result, int queryStartPos);
 
     QHash<QString, BindParamInfo *> paramHistory;
 
@@ -76,17 +86,25 @@ private:
     QString lastExpPlanStatementId;
 
     QString getExplainPlanPrefix() const;
-    QueryResult highlightError(const QueryResult &result);
+    QueryResult highlightError(const QueryResult &result, int queryStartPos, bool append=false);
+
+    void setInProgress(bool progress);
+    void resetProgressLabel();
+    void updateProgressLabel();
 
     SequentialQueryRunner sequentialRunner;
+    int sequentialRunnerStartPos;
 private slots:
     void executeQuery(ExecuteMode executeMode=ExecuteQuery);
     void executeAsScript();
     void executeExplainPlan();
     void queryCompleted(const QueryResult &result);
 
+    void beforeExecuteSequentialQuery(const QString &query, int startPos, int endPos);
     void sequentialQueryCompleted(const QueryResult &result);
     void sequentialExecutionCompleted();
+
+    void stopCurrentQuery();
 
     void autotraceTriggeredByUser(bool checked);
     void autotraceQueryCompleted(const QueryResult &result);

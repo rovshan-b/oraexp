@@ -37,6 +37,10 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
 
     toolbar->addSeparator();
 
+    timerLabel = new QLabel();
+    toolbar->addWidget(timerLabel);
+    resetProgressLabel();
+
     QProgressBar *progressBar=new QProgressBar();
     progressBar->setMinimum(0);
     progressBar->setMaximum(0);
@@ -44,6 +48,9 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
     progressBar->setMaximumHeight(16);
     progressBarAction=toolbar->addWidget(progressBar);
     progressBarAction->setVisible(false);
+
+    stopProgressAction = toolbar->addAction(IconUtil::getIcon("stop"), tr("Stop"), this, SLOT(stopCurrentQuery()));
+    stopProgressAction->setVisible(false);
 
     //create code editor
     multiEditor = new MultiEditorWidget();
@@ -69,6 +76,7 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
 
     multiEditor->getCurrentEditor()->editor()->setPlainText("select * from smpp_outgoing");
 
+    connect(&sequentialRunner, SIGNAL(beforeExecute(QString,int,int)), this, SLOT(beforeExecuteSequentialQuery(QString,int,int)));
     connect(&sequentialRunner, SIGNAL(queryResultAvailable(QueryResult)), this, SLOT(sequentialQueryCompleted(QueryResult)));
     connect(&sequentialRunner, SIGNAL(completed()), this, SLOT(sequentialExecutionCompleted()));
 }
@@ -121,7 +129,7 @@ void WorksheetQueryPane::executeQuery(ExecuteMode executeMode)
     this->currentQuery = queryText;
 
     queryScheduler->enqueueQuery(task);
-    progressBarAction->setVisible(true);
+    setInProgress(true);
 }
 
 void WorksheetQueryPane::executeAsScript()
@@ -130,8 +138,23 @@ void WorksheetQueryPane::executeAsScript()
         return;
     }
 
-    progressBarAction->setVisible(true);
-    sequentialRunner.execute(currentEditor()->editor()->toPlainText(), this);
+    CodeEditor *editor = currentEditor()->editor();
+    QTextCursor cur;
+    QString queryText = editor->getCurrentText(cur, true);
+
+    sequentialRunnerStartPos = qMin(cur.position(), cur.anchor());
+
+    if(queryText.trimmed().isEmpty()){
+        emitMessage(tr("Query text cannot be empty"));
+        return;
+    }
+
+    this->currentQueryCursor = cur;
+
+    multiEditor->setReadOnly(true);
+    setInProgress(true);
+
+    sequentialRunner.execute(queryText, this);
 }
 
 void WorksheetQueryPane::executeExplainPlan()
@@ -139,27 +162,56 @@ void WorksheetQueryPane::executeExplainPlan()
     executeQuery(ExecuteExplainPlan);
 }
 
-
-void WorksheetQueryPane::queryCompleted(const QueryResult &result)
+void WorksheetQueryPane::handleQueryCompleted(const QueryResult &result, int queryStartPos)
 {
-    progressBarAction->setVisible(false);
-
     if(result.hasError){ //reset error position according to editor
-        QueryResult modifiedResult = highlightError(result);
+        QueryResult modifiedResult = highlightError(result, queryStartPos, sequentialRunner.isBusy());
         emit queryDone(modifiedResult);
     }else{
         emit queryDone(result);
     }
 }
 
+void WorksheetQueryPane::queryCompleted(const QueryResult &result)
+{
+    setInProgress(false);
+
+    handleQueryCompleted(result, qMin(currentQueryCursor.position(), currentQueryCursor.anchor()));
+}
+
+void WorksheetQueryPane::beforeExecuteSequentialQuery(const QString &query, int startPos, int endPos)
+{
+    Q_UNUSED(endPos);
+
+
+    this->currentQuery = query;
+
+    CodeEditor *editor = currentEditor()->editor();
+    QTextCursor cur = editor->textCursor();
+    cur.setPosition(sequentialRunnerStartPos+startPos);
+    editor->setMarkedLine(cur.blockNumber());
+    editor->setTextCursor(cur);
+    editor->centerCursor();
+}
+
 void WorksheetQueryPane::sequentialQueryCompleted(const QueryResult &result)
 {
-    emit queryDone(result);
+    handleQueryCompleted(result, sequentialRunnerStartPos+sequentialRunner.getCurrentQueryPos());
 }
 
 void WorksheetQueryPane::sequentialExecutionCompleted()
 {
-    progressBarAction->setVisible(false);
+    currentEditor()->editor()->setMarkedLine(-1);
+    setInProgress(false);
+    multiEditor->setReadOnly(false);
+}
+
+void WorksheetQueryPane::stopCurrentQuery()
+{
+    if(sequentialRunner.isBusy()){
+        sequentialRunner.stop();
+        stopProgressAction->setVisible(false);
+    }
 }
 
 void WorksheetQueryPane::autotraceTriggeredByUser(bool checked)
@@ -313,18 +365,21 @@ QString WorksheetQueryPane::getExplainPlanPrefix() const
     return QString("EXPLAIN PLAN SET STATEMENT_ID='%1' FOR ").arg(lastExpPlanStatementId);
 }
 
-QueryResult WorksheetQueryPane::highlightError(const QueryResult &result) //returns modified result with correct error position according to editor
+QueryResult WorksheetQueryPane::highlightError(const QueryResult &result, int queryStartPos, bool append) //returns modified result with correct error position according to editor
 {
     QueryResult modifiedResult=result;
     int modifiedPosition = -1;
 
     int errorPos = result.exception.getErrorPos();
     if(errorPos>0){
-        int editorErrorPos = currentQueryCursor.selectionStart()+errorPos;
+        int editorErrorPos = queryStartPos+errorPos;
         if(!lastExpPlanStatementId.isEmpty()){ //this is an explain plan query
             editorErrorPos -= getExplainPlanPrefix().size();
         }
-        CodeEditorUtil::highlightEditorError(currentEditor()->editor(), editorErrorPos, result.exception);
+        CodeEditorUtil::highlightEditorError(currentEditor()->editor(),
+                                             editorErrorPos,
+                                             result.exception,
+                                             append);
 
         modifiedPosition=editorErrorPos;
         modifiedResult.exception.setErrorPos(modifiedPosition);
@@ -339,4 +394,40 @@ QueryResult WorksheetQueryPane::highlightError(const QueryResult &result) //retu
     }
 
     return modifiedResult;
+}
+
+void WorksheetQueryPane::setInProgress(bool progress)
+{
+    if(progress){
+        progressTimerId = startTimer(1000);
+        progressTimer.start();
+    }else{
+        killTimer(progressTimerId);
+        updateProgressLabel();
+
+        progressBarAction->setVisible(false);
+        stopProgressAction->setVisible(false);
+    }
+}
+
+void WorksheetQueryPane::resetProgressLabel()
+{
+    timerLabel->setText(" 00:00:00.00   ");
+}
+
+void WorksheetQueryPane::updateProgressLabel()
+{
+    if(!progressBarAction->isVisible()){
+        progressBarAction->setVisible(true);
+        stopProgressAction->setVisible(true);
+    }
+
+    timerLabel->setText(QString(" %1   ").arg(formatMsecs(progressTimer.elapsed(), true)));
+}
+
+void WorksheetQueryPane::timerEvent(QTimerEvent *event)
+{
+    if(event->timerId()==progressTimerId){
+        updateProgressLabel();
+    }
 }

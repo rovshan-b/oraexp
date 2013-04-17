@@ -12,6 +12,9 @@ public:
     static QString getFirstLexeme(const QString &query);
     static bool isDml(const QString &query);
 
+    static bool isDmlStartLexeme(const QString &lexeme);
+    static bool isAnonymousBlockStartLexeme(const QString &lexeme);
+
     static void getNextQueryPos(const QString &query, int startFromPos, int *queryStartPos, int *queryEndPos);
 
 private:

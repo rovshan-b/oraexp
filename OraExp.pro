@@ -437,7 +437,8 @@ SOURCES += main.cpp\
     connection_page/data_exporter/dataexporthelper.cpp \
     util/stopablethread.cpp \
     connection_page/data_exporter/tabs/dataexporterresultstab.cpp \
-    connectivity/sequentialqueryrunner.cpp
+    connectivity/sequentialqueryrunner.cpp \
+    dialogs/sequantialexecutionerrordialog.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -879,7 +880,8 @@ HEADERS  += mainwindow.h \
     connection_page/data_exporter/dataexporthelper.h \
     util/stopablethread.h \
     connection_page/data_exporter/tabs/dataexporterresultstab.h \
-    connectivity/sequentialqueryrunner.h
+    connectivity/sequentialqueryrunner.h \
+    dialogs/sequantialexecutionerrordialog.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

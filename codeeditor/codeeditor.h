@@ -14,7 +14,7 @@ public:
     CodeEditor(QWidget *parent = 0);
 
     void lineNumberAreaPaintEvent(QPaintEvent *event);
-    int lineNumberAreaWidth();
+    int lineNumberAreaWidth() const;
     void lineNumberAreaWheelEvent(QWheelEvent * event);
 
     void lineNavBarPaintEvent(QPaintEvent *event);
@@ -25,7 +25,7 @@ public:
     QStringList getSemicolonSeparated() const;
 
     void addText(const QString &text);
-    QString getCurrentText(QTextCursor &txtCursor) const;
+    QString getCurrentText(QTextCursor &txtCursor, bool fullTextOnNoSelection=false) const;
     QString getCurrentTextSurroundedByEmptyLines(QTextCursor &cursor) const;
 
     void setFoundTextPositions(const QList< QTextCursor > &foundTextPositions);
@@ -36,6 +36,10 @@ public:
     void pulsate(const QTextCursor &cursor, int duration = 300);
 
     void setErrorPosition(const QTextCursor &cursor);
+    void setErrorPositions(const QList< QTextCursor > &errorPositions);
+    void addErrorPosition(const QTextCursor &cursor);
+
+    void setMarkedLine(int line);
 
     static QFont currentFont;
 
@@ -55,6 +59,7 @@ public slots:
     void customCut();
     void customCopy();
 
+    void clearErrorPositions();
 signals:
     void escapeKeyPressed();
     void gotFocus();
@@ -76,7 +81,6 @@ private slots:
     void setUndoAvailable(bool available);
     void setRedoAvailable(bool available);
     void removePulsatePositions();
-    void removeErrorSelection();
     void updateNavBar();
 
 private:
@@ -85,9 +89,11 @@ private:
 
     QList< QTextCursor > foundTextPositions;
     QList< QTextCursor > pulsatePositions;
-    QTextCursor errorPosition;
+    QList< QTextCursor > errorPositions;
 
     QString strTab;
+
+    int markedLineIx;
 
     void autoIndentNewBlock();
     void indentSelection();
@@ -107,6 +113,11 @@ private:
                                  qreal docHeight, qreal blockHeight, bool hasScrollbars,
                                  bool fullLength = true);
     QList<int> getHighlightedBlockNumbers() const;
+
+    bool lineMarkerUsed;
+    bool lineMarkerVisible() const;
+    int lineMarkerAreaWidth() const;
+    int lineMarkerAreaOffset() const;
 
 };
 

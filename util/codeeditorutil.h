@@ -7,7 +7,7 @@
 class CodeEditorUtil
 {
 public:
-    static void highlightEditorError(CodeEditor *editor, int errorPos, const OciException &ex);
+    static void highlightEditorError(CodeEditor *editor, int errorPos, const OciException &ex, bool append=false);
 
 private:
     CodeEditorUtil();

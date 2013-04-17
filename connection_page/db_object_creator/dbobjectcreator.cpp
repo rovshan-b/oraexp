@@ -168,13 +168,11 @@ void DbObjectCreator::processCreateError(const OciException &ex)
         messageText.append(tr("Remaining queries will now be opened in a new worksheet\n so that you can manually fix errors and continue."));
     }
 
-    unsigned int errorLine=ex.getErrorRow();
-    messageText.append("\nLine: ").append(QString::number(errorLine));
     DescriptiveErrorDialog::showMessage(tr("Error creating %1").arg(DbUtil::getDbObjectTypeNameByNodeType(this->objectType)),
-                                        messageText,
+                                        ex,
                                         createDdlList.at(alterQueryIx),
-                                        errorLine,
-                                        this->window());
+                                        this->window(),
+                                        messageText);
     if(alterQueryIx!=0){
         QString remainingQueries;
         for(int i=alterQueryIx; i<createDdlList.size(); ++i){
@@ -266,14 +264,12 @@ void DbObjectCreator::processAlterError(const OciException &ex)
         }
     }
 
-    unsigned int errorLine=ex.getErrorRow();
     QString messageText=ex.getErrorMessage();
-    messageText.append("\nLine: ").append(QString::number(errorLine));
     DescriptiveErrorDialog::showMessage(tr("Error altering %1").arg(DbUtil::getDbObjectTypeNameByNodeType(this->objectType)),
-                                        messageText,
+                                        ex,
                                         currentAlterItem.third,
-                                        errorLine,
-                                        this->window());
+                                        this->window(),
+                                        messageText);
 
     alterDdlQueue.clear();
 }

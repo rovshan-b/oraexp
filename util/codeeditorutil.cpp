@@ -9,7 +9,7 @@ CodeEditorUtil::CodeEditorUtil()
 {
 }
 
-void CodeEditorUtil::highlightEditorError(CodeEditor *editor, int errorPos, const OciException &ex)
+void CodeEditorUtil::highlightEditorError(CodeEditor *editor, int errorPos, const OciException &ex, bool append)
 {
     QTextCursor errorPositionCursor = editor->textCursor();
     errorPositionCursor.setPosition(errorPos); //errorPos is 1 based
@@ -93,5 +93,5 @@ void CodeEditorUtil::highlightEditorError(CodeEditor *editor, int errorPos, cons
                                          QTextCursor::KeepAnchor);
     }
 
-    editor->setErrorPosition(errorPositionCursor);
+    append ? editor->addErrorPosition(errorPositionCursor) : editor->setErrorPosition(errorPositionCursor);
 }

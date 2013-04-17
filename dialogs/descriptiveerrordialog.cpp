@@ -1,13 +1,14 @@
 #include "descriptiveerrordialog.h"
 #include "codeeditor/codeeditor.h"
+#include "util/codeeditorutil.h"
 #include "util/dialoghelper.h"
 #include <QtGui>
 
 DescriptiveErrorDialog::DescriptiveErrorDialog(const QString &title,
-                                               const QString &errorMessage,
+                                               const OciException &exception,
                                                const QString &code,
-                                               unsigned int /*errorLine*/,
-                                               QWidget *parent) :
+                                               QWidget *parent,
+                                               const QString &errorMessageOverride) :
     QDialog(parent)
 {
     setWindowTitle(title);
@@ -31,7 +32,7 @@ DescriptiveErrorDialog::DescriptiveErrorDialog(const QString &title,
     errorTitleLabel->setTextInteractionFlags(Qt::TextSelectableByMouse|Qt::TextSelectableByKeyboard);
     messageLayout->addWidget(errorTitleLabel);
 
-    QLabel *errorMessageLabel=new QLabel(errorMessage);
+    QLabel *errorMessageLabel=new QLabel(errorMessageOverride.isEmpty() ? exception.getErrorMessage() : errorMessageOverride);
     errorMessageLabel->setTextInteractionFlags(Qt::TextSelectableByMouse|Qt::TextSelectableByKeyboard);
     messageLayout->addWidget(errorMessageLabel);
 
@@ -45,9 +46,13 @@ DescriptiveErrorDialog::DescriptiveErrorDialog(const QString &title,
     QHBoxLayout *codeLayout=new QHBoxLayout();
 
     CodeEditor *editor=new CodeEditor();
-    editor->setWordWrapMode(QTextOption::WordWrap);
     codeLayout->addWidget(editor);
     editor->setPlainText(code);
+
+    unsigned int errorPos = exception.getErrorPos();
+    if(errorPos>0){
+        CodeEditorUtil::highlightEditorError(editor, errorPos, exception);
+    }
 
     mainLayout->addLayout(codeLayout);
 
@@ -62,12 +67,12 @@ DescriptiveErrorDialog::DescriptiveErrorDialog(const QString &title,
 }
 
 void DescriptiveErrorDialog::showMessage(const QString &title,
-                        const QString &errorMessage,
+                        const OciException &exception,
                         const QString &code,
-                        unsigned int errorLine,
-                        QWidget *parent)
+                        QWidget *parent,
+                        const QString &errorMessageOverride)
 {
-    DescriptiveErrorDialog dialog(title, errorMessage, code, errorLine, parent);
+    DescriptiveErrorDialog dialog(title, exception, code, parent, errorMessageOverride);
     dialog.exec();
 }
 

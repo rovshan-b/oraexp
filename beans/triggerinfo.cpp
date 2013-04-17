@@ -5,7 +5,7 @@ TriggerInfo::TriggerInfo() : isEmpty(true)
 {
 }
 
-QString TriggerInfo::generateDdl(const QString &fullTableName) const
+QString TriggerInfo::generateDdl(const QString &fullTableName, bool sqlTerminator) const
 {
     QString ddl;
 
@@ -51,12 +51,16 @@ QString TriggerInfo::generateDdl(const QString &fullTableName) const
 
     ddl.append(body);
 
+    if(sqlTerminator){
+        ddl.append("\n").append("/");
+    }
+
     return ddl;
 }
 
 QString TriggerInfo::generateDropDdl() const
 {
-    return QString("DROP TRIGGER \"%1\".\"%2\"").arg(owner, name);
+    return QString("DROP TRIGGER \"%1\".\"%2\";").arg(owner, name);
 }
 
 QString TriggerInfo::generateDiffDdl(const TriggerInfo &other, const QString &fullTableName) const
@@ -76,7 +80,7 @@ QString TriggerInfo::generateDiffDdl(const TriggerInfo &other, const QString &fu
         actionType!=other.actionType ||
         body!=other.body){
 
-        ddl=generateDdl(fullTableName);
+        ddl=generateDdl(fullTableName, true);
     }
 
     return ddl;

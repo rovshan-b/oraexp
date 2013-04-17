@@ -24,6 +24,9 @@ public:
     void setBindParamInfo(BindParamInfo *paramInfo);
 
     Param *createParam(const QString &paramName);
+
+protected:
+     virtual bool eventFilter(QObject *obj, QEvent *event);
     
 private slots:
     void paramTypeChanged(int newType);

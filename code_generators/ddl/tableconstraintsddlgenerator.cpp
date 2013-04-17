@@ -22,12 +22,17 @@ QString TableConstraintsDdlGenerator::generateKeyConstraintsDdl(const TableInfo 
 
         ddlLine=consInfo.generateDdl(tableInfo.generalInfo.tableType, generateAsAlterTable, fullTableName);
 
+        if(generateAsAlterTable){
+            ddlLine.append(";");
+        }
+
         if(!ddl.isEmpty()){
             if(!generateAsAlterTable){
                 ddl.append(",");
             }
             ddl.append("\n");
         }
+
         ddl.append(ddlLine);
     }
 
