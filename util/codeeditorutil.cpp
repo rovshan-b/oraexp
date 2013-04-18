@@ -71,7 +71,8 @@ void CodeEditorUtil::highlightEditorError(CodeEditor *editor, int errorPos, cons
         }
     }else if(errorCode == ERR_TABLE_OR_VIEW_DOES_NOT_EXIST ||
                 errorCode == ERR_COMPONENT_MUST_BE_DECALRED ||
-                errorCode == ERR_AMBIGUOUS_COLUMN_NAME){
+                errorCode == ERR_AMBIGUOUS_COLUMN_NAME ||
+                errorCode == ERR_NAME_ALREADY_USED){
         QTextCursor editorReaderCursor = errorPositionCursor;
         QScopedPointer<PlSqlScanner> editorScanner(new PlSqlScanner(new TextCursorReader(editorReaderCursor)));
         int token=editorScanner->getNextToken(); //move one token forward

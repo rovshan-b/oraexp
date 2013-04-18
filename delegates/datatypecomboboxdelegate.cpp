@@ -2,8 +2,8 @@
 #include "defines.h"
 #include <QtGui>
 
-DataTypeComboBoxDelegate::DataTypeComboBoxDelegate(QObject *parent) :
-    ComboBoxDelegate(parent)
+DataTypeComboBoxDelegate::DataTypeComboBoxDelegate(QObject *parent, int modelColumnIx) :
+    ComboBoxDelegate(parent, modelColumnIx)
 {
 }
 
@@ -51,7 +51,7 @@ void DataTypeComboBoxDelegate::setEditorData(QWidget *editor,
     if(!value.isEmpty()){
         int editorItemIndex=comboBox->findText(value, Qt::MatchFixedString);
         if(editorItemIndex==-1){
-            comboBox->insertItem(0, itemIcon, value);
+            comboBox->insertItem(0, value);
             comboBox->setCurrentIndex(0);
 
             currentModel->setData(index, value, DATA_TYPE_ORIGINAL_VALUE_ROLE_ID);

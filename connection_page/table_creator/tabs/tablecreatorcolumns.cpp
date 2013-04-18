@@ -64,10 +64,11 @@ void TableCreatorColumns::customizeTableWidget()
     QStringList columnTypes;
     columnTypes.append(tr("Normal"));
     columnTypes.append(tr("Virtual"));
-    IndexBasedComboBoxDelegate *columnTypeDelegate=new IndexBasedComboBoxDelegate(QIcon(), columnTypes, this);
+    tableModel->setList(TableColumnsModel::ColumnColumnType, columnTypes);
+    IndexBasedComboBoxDelegate *columnTypeDelegate=new IndexBasedComboBoxDelegate(this, TableColumnsModel::ColumnColumnType);
     table->setItemDelegateForColumn(TableColumnsModel::ColumnColumnType, columnTypeDelegate);
 
-    DataTypeComboBoxDelegate *dataTypeDelegate=new DataTypeComboBoxDelegate(this);
+    DataTypeComboBoxDelegate *dataTypeDelegate=new DataTypeComboBoxDelegate(this, TableColumnsModel::ColumnDataType);
     table->setItemDelegateForColumn(TableColumnsModel::ColumnDataType, dataTypeDelegate);
 
     BooleanDelegate *isNullableDelegate=new BooleanDelegate(this, false);

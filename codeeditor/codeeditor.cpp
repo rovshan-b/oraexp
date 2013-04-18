@@ -255,7 +255,7 @@ int CodeEditor::lineMarkerAreaOffset() const
      }
 
      painter.setPen(Qt::DotLine);
-     painter.drawLine(rect.right(), rect.top(), rect.right()-1, rect.bottom());
+     painter.drawLine(rect.right(), rect.top(), rect.right(), rect.bottom());
  }
 
 

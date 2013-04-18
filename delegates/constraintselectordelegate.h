@@ -15,7 +15,8 @@ public:
                                    int modelTableNameColumnIndex,
                                    OraExp::ConstraintType constraintType,
                                    const QString &initialColumnName,
-                                   IQueryScheduler *queryScheduler, QObject *parent);
+                                   IQueryScheduler *queryScheduler,
+                                   QObject *parent);
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                                const QModelIndex &index) const;

@@ -6,7 +6,7 @@
 TableSelectorDelegate::TableSelectorDelegate(const QString &defaultSchemaName,
                                              int modelSchemaNameColumnIndex,
                                              IQueryScheduler *queryScheduler, QObject *parent) :
-    ComboBoxDelegate(parent),
+    ComboBoxDelegate(parent, -1),
     defaultSchemaName(defaultSchemaName),
     modelSchemaNameColumnIndex(modelSchemaNameColumnIndex),
     queryScheduler(queryScheduler)

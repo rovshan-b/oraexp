@@ -66,12 +66,9 @@ void TableCreatorIndexes::customizeTableWidget(const QString &schemaName)
     IndexNameEditorDelegate *indexNameDelegate=new IndexNameEditorDelegate(schemaName, this);
     table->setItemDelegateForColumn(TableIndexesModel::IndexName, indexNameDelegate);
 
-    QIcon indexIcon=IconUtil::getIcon("index");
-    QStringList indexTypes;
-    indexTypes.append(tr("Normal"));
-    indexTypes.append(tr("Bitmap"));
-    indexTypes.append(tr("Unique"));
-    IndexBasedComboBoxDelegate *typeDelegate=new IndexBasedComboBoxDelegate(indexIcon, indexTypes, this);
+    IndexBasedComboBoxDelegate *typeDelegate=new IndexBasedComboBoxDelegate(this, TableIndexesModel::IndexType);
+    tableModel->setList(TableIndexesModel::IndexType, DbUtil::getIndexTypeNames());
+    tableModel->setColumnIcon(TableIndexesModel::IndexType, IconUtil::getIcon("index"));
     table->setItemDelegateForColumn(TableIndexesModel::IndexType, typeDelegate);
 
     ColumnSelectorDelegate *columnsDelegate=new ColumnSelectorDelegate(objectCreator->getColumnsTab(), tr("Select columns"), this);
@@ -83,11 +80,8 @@ void TableCreatorIndexes::customizeTableWidget(const QString &schemaName)
     NumericDelegate *prefixLengthDelegate=new NumericDelegate(this);
     table->setItemDelegateForColumn(TableIndexesModel::IndexPrefixLength, prefixLengthDelegate);
 
-    QStringList enableParallelOptions;
-    enableParallelOptions.append(tr("Default"));
-    enableParallelOptions.append(tr("Enable"));
-    enableParallelOptions.append(tr("Disable"));
-    IndexBasedComboBoxDelegate *parallelDelegate=new IndexBasedComboBoxDelegate(QIcon(), enableParallelOptions, this);
+    IndexBasedComboBoxDelegate *parallelDelegate=new IndexBasedComboBoxDelegate(this, TableIndexesModel::IndexParallel);
+    tableModel->setList(TableIndexesModel::IndexParallel, DbUtil::getIndexParallelOptionNames());
     table->setItemDelegateForColumn(TableIndexesModel::IndexParallel, parallelDelegate);
 
     NumericDelegate *parallelDegreeDelegate=new NumericDelegate(this);
@@ -99,11 +93,8 @@ void TableCreatorIndexes::customizeTableWidget(const QString &schemaName)
     IndexStorageParamsDelegate *storageDelegate=new IndexStorageParamsDelegate(this->queryScheduler, this);
     table->setItemDelegateForColumn(TableIndexesModel::IndexStorage, storageDelegate);
 
-    QStringList partitioningTypes;
-    partitioningTypes.append("None");
-    partitioningTypes.append(tr("Local"));
-    partitioningTypes.append(tr("Global"));
-    ComboBoxDelegate *partitioningTypeDelegate=new ComboBoxDelegate(this, false, QIcon(), partitioningTypes, false);
+    ComboBoxDelegate *partitioningTypeDelegate=new ComboBoxDelegate(this, TableIndexesModel::IndexPartitioningType, false, false);
+    tableModel->setList(TableIndexesModel::IndexPartitioningType, DbUtil::getIndexPartitioningTypeNames());
     table->setItemDelegateForColumn(TableIndexesModel::IndexPartitioningType, partitioningTypeDelegate);
 
     PartitioningParamsDelegate *partititionDefinitionDelegate=new PartitioningParamsDelegate(this->queryScheduler, true, objectCreator, this);

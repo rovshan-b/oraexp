@@ -16,6 +16,7 @@ class OracleLoaderDriverPropertiesWidget;
 class IQueryScheduler;
 class TableCreatorTabs;
 class ComboBoxDelegate;
+class GenericEditableTableModel;
 
 class TableCreatorExternalPropertiesGeneralInfoWidget : public QWidget
 {
@@ -50,7 +51,7 @@ private:
     QComboBox *externalTableTypeComboBox;
     QComboBox *defaultDirectoryComboBox;
     DataTableAndToolBarWidget *locationsTable;
-    ComboBoxDelegate *directoryDelegate;
+    GenericEditableTableModel *locationsTableModel;
     ExtentSizeEditorWidget *rejectLimitEditor;
     QComboBox *projectColumnComboBox;
     QCheckBox *usingClobCheckBox;

@@ -7,10 +7,7 @@ class IndexBasedComboBoxDelegate : public ComboBoxDelegate
 {
     Q_OBJECT
 public:
-    explicit IndexBasedComboBoxDelegate(const QIcon &itemIcon, const QStringList &itemList, QObject *parent);
-
-    //when using this constructor you must override createEditor method
-    explicit IndexBasedComboBoxDelegate(QObject *parent = 0);
+    explicit IndexBasedComboBoxDelegate(QObject *parent, int modelColumnIx);
 
     void setEditorData(QWidget *editor, const QModelIndex &index) const;
 

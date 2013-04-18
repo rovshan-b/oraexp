@@ -61,7 +61,13 @@ public:
     int getTitleColumn()const {return this->titleColumnIx;}
     void setTitleColumn(int column){this->titleColumnIx=column;}
 
-    void setColumnIcon(int colIx, const QIcon &icon);
+    void setColumnIcon(int columnIx, const QPixmap &icon);
+    QPixmap getColumnIcon(int columnIx);
+
+    QStringList getList(int columnIx) const;
+    QList<QPixmap> getIconList(int columnIx) const;
+    void setList(int columnIx, const QStringList &list);
+    void setIconList(int columnIx, const QList<QPixmap> &list);
 protected:
     QStringList headerTitles;
 
@@ -78,7 +84,10 @@ private:
 
     int titleColumnIx;
 
-    QHash<int,QIcon> columnIcons;
+    QHash<int,QPixmap> columnIcons;
+
+    QHash<int, QStringList> columnLists;
+    QHash<int, QList<QPixmap> > columnIconLists;
 
 };
 

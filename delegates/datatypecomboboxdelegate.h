@@ -7,7 +7,7 @@ class DataTypeComboBoxDelegate : public ComboBoxDelegate
 {
     Q_OBJECT
 public:
-    explicit DataTypeComboBoxDelegate(QObject *parent = 0);
+    explicit DataTypeComboBoxDelegate(QObject *parent, int modelColumnIx);
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                                const QModelIndex &index) const;

@@ -18,7 +18,7 @@ ConstraintSelectorDelegate::ConstraintSelectorDelegate(const QString &defaultSch
                                              OraExp::ConstraintType constraintType,
                                              const QString &initialColumnName,
                                              IQueryScheduler *queryScheduler, QObject *parent) :
-    ComboBoxDelegate(parent, true),
+    ComboBoxDelegate(parent, -1, true),
     defaultSchemaName(defaultSchemaName),
     modelSchemaNameColumnIndex(modelSchemaNameColumnIndex),
     modelTableNameColumnIndex(modelTableNameColumnIndex),

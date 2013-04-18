@@ -46,7 +46,6 @@ private slots:
 
 private:
     void createFieldsTable(IQueryScheduler *queryScheduler);
-    void fillTrimTypes(QStringList &list);
     void createColumnTransformsTable(IStringListRetriever *columnListRetriever);
 
     ComboBoxAndLineEditWidget *terminatorSelector;

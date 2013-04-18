@@ -1,18 +1,18 @@
 #ifndef DYNAMICCOMBOBOXDELEGATE_H
 #define DYNAMICCOMBOBOXDELEGATE_H
 
-#include "abstractcomboboxdelegate.h"
+#include "comboboxdelegate.h"
 
 class IStringListRetriever;
 
-class DynamicComboBoxDelegate : public AbstractComboBoxDelegate
+class DynamicComboBoxDelegate : public ComboBoxDelegate
 {
     Q_OBJECT
 public:
     explicit DynamicComboBoxDelegate(QObject *parent, IStringListRetriever *columnNameRetriever, bool isEditable);
 
 protected:
-    virtual QStringList getList() const;
+    virtual QStringList getList(GenericEditableTableModel *model) const;
 
 private:
     IStringListRetriever *columnNameRetriever;

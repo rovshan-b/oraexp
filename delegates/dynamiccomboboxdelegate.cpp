@@ -2,11 +2,13 @@
 #include "interfaces/istringlistretriever.h"
 
 DynamicComboBoxDelegate::DynamicComboBoxDelegate(QObject *parent, IStringListRetriever *columnNameRetriever, bool isEditable) :
-    AbstractComboBoxDelegate(parent, isEditable), columnNameRetriever(columnNameRetriever)
+    ComboBoxDelegate(parent, isEditable), columnNameRetriever(columnNameRetriever)
 {
 }
 
-QStringList DynamicComboBoxDelegate::getList() const
+QStringList DynamicComboBoxDelegate::getList(GenericEditableTableModel *model) const
 {
+    Q_UNUSED(model);
+
     return columnNameRetriever->getStringList();
 }

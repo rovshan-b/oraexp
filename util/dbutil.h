@@ -22,9 +22,22 @@ public:
                                           const QString &iotType, const QString &external);
 
     static QString getIndexTypeName(int indexType, bool translate=true);
+    static QStringList getIndexTypeNames();
+    static QStringList getIndexParallelOptionNames();
     static QString getIndexPartitioningTypeName(int partitioningType, bool translate=true);
+    static QStringList getIndexPartitioningTypeNames();
     static void populatePrivilegeNames(QStringList &list, DbTreeModel::DbTreeNodeType objectType);
     static QString getPartitionTypeName(OraExp::PartitionType pType);
+    static QStringList getConstraintTypeNames();
+    static QList<QPixmap> getConstraintTypeIcons();
+    static QStringList getOnDeleteActionNames();
+    static QStringList getOracleLoaderDataTypeNames();
+    static QStringList getOracleLoaderTrimTypes();
+    static QStringList getDateTypeNames();
+    static QStringList getExternalTableColumnTransformTypes();
+    static QStringList getExternalTableLobTypeNames();
+    static QStringList getGrantTypes();
+
     static QString getDbObjectDisplayNameByNodeType(DbTreeModel::DbTreeNodeType nodeType);
     static QString getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeType);
     static DbTreeModel::DbTreeNodeType getDbObjectParentNodeType(DbTreeModel::DbTreeNodeType nodeType);

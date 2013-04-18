@@ -1,5 +1,6 @@
 #include "dbutil.h"
 #include "strutil.h"
+#include "iconutil.h"
 #include <QObject>
 #include <QtGui>
 #include "defines.h"
@@ -117,6 +118,16 @@ QString DbUtil::getIndexTypeName(int indexType, bool translate)
     return value;
 }
 
+QStringList DbUtil::getIndexTypeNames()
+{
+    return QStringList() << QObject::tr("Normal") << QObject::tr("Bitmap") << QObject::tr("Unique");
+}
+
+QStringList DbUtil::getIndexParallelOptionNames()
+{
+    return QStringList() << QObject::tr("Default") << QObject::tr("Enable") << QObject::tr("Disable");
+}
+
 QString DbUtil::getIndexPartitioningTypeName(int partitioningType, bool translate)
 {
     switch(partitioningType)
@@ -131,6 +142,11 @@ QString DbUtil::getIndexPartitioningTypeName(int partitioningType, bool translat
         return translate ? QObject::tr("Global") : "Global";
         break;
     }
+}
+
+QStringList DbUtil::getIndexPartitioningTypeNames()
+{
+    return QStringList() << QObject::tr("None") << QObject::tr("Local") << QObject::tr("Global");
 }
 
 void DbUtil::populatePrivilegeNames(QStringList &list, DbTreeModel::DbTreeNodeType objectType)
@@ -181,6 +197,110 @@ QString DbUtil::getPartitionTypeName(OraExp::PartitionType pType)
     }
 
     return result;
+}
+
+QStringList DbUtil::getConstraintTypeNames()
+{
+    return QStringList() << QObject::tr("Primary key") << QObject::tr("Foreign key") << QObject::tr("Unique");
+}
+
+QList<QPixmap> DbUtil::getConstraintTypeIcons()
+{
+    return QList<QPixmap>() << IconUtil::getIcon("column_pk") << IconUtil::getIcon("column_fk") << IconUtil::getIcon("column_uq");
+}
+
+QStringList DbUtil::getOnDeleteActionNames()
+{
+    return QStringList() << QObject::tr("No action") << QObject::tr("Cascade") << QObject::tr("Set null");
+}
+
+QStringList DbUtil::getOracleLoaderDataTypeNames()
+{
+    QStringList dataTypeList;
+
+    dataTypeList.append("");
+    dataTypeList.append("CHAR(255)");
+    dataTypeList.append("INTEGER");
+    dataTypeList.append("INTEGER EXTERNAL");
+    dataTypeList.append("UNSIGNED INTEGER");
+    dataTypeList.append("UNSIGNED INTEGER EXTERNAL");
+    dataTypeList.append("DECIMAL");
+    dataTypeList.append("DECIMAL EXTERNAL");
+    dataTypeList.append("ZONED");
+    dataTypeList.append("ZONED EXTERNAL");
+    dataTypeList.append("ORACLE_DATE");
+    dataTypeList.append("ORACLE_NUMBER");
+    dataTypeList.append("ORACLE_NUMBER COUNTED");
+    dataTypeList.append("FLOAT");
+    dataTypeList.append("FLOAT EXTERNAL");
+    dataTypeList.append("DOUBLE");
+    dataTypeList.append("BINARY FLOAT");
+    dataTypeList.append("BINARY FLOAT EXTERNAL");
+    dataTypeList.append("BINARY_DOUBLE");
+    dataTypeList.append("RAW");
+    dataTypeList.append("VARCHAR(255)");
+    dataTypeList.append("VARRAW(255)");
+    dataTypeList.append("VARCHARC(255)");
+    dataTypeList.append("VARRAWC(255)");
+
+    return dataTypeList;
+}
+
+QStringList DbUtil::getOracleLoaderTrimTypes()
+{
+    QStringList list;
+
+    list.append("");
+    list.append("LRTRIM");
+    list.append("LTRIM");
+    list.append("RTRIM");
+    list.append("LDRTRIM");
+    list.append("NOTRIM");
+
+    return list;
+}
+
+QStringList DbUtil::getDateTypeNames()
+{
+    QStringList dateTypes;
+
+    dateTypes.append("");
+    dateTypes.append("DATE");
+    dateTypes.append("TIMESTAMP WITH TIME ZONE");
+    dateTypes.append("TIMESTAMP WITH LOCAL TIME ZONE");
+    dateTypes.append("INTERVAL YEAR_TO_MONTH");
+    dateTypes.append("INTERVAL DAY_TO_SECOND");
+
+    return dateTypes;
+}
+
+QStringList DbUtil::getExternalTableColumnTransformTypes()
+{
+    QStringList list;
+
+    list.append("");
+    list.append("NULL");
+    list.append("CONSTANT");
+    list.append("CONCAT");
+    list.append("LOBFILE");
+
+    return list;
+}
+
+QStringList DbUtil::getExternalTableLobTypeNames()
+{
+    return QStringList () << "" << "CLOB" << "BLOB";
+}
+
+QStringList DbUtil::getGrantTypes()
+{
+    QStringList grantTypes;
+
+    grantTypes.append("");
+    grantTypes.append(QObject::tr("GRANT"));
+    grantTypes.append(QObject::tr("WITH GRANT OPTION"));
+
+    return grantTypes;
 }
 
 QString DbUtil::getDbObjectDisplayNameByNodeType(DbTreeModel::DbTreeNodeType nodeType)

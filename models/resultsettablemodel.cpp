@@ -3,10 +3,12 @@
 #include "connectivity/statement.h"
 #include "connectivity/resultset.h"
 #include "connectivity/recordfetcherthread.h"
+#include "connectivity/resultsetdeleter.h"
 #include "util/iconutil.h"
 #include "util/strutil.h"
 #include "interfaces/iqueryscheduler.h"
 #include "defines.h"
+#include <QThreadPool>
 #include <iostream>
 #include <QMessageBox>
 #include <QDebug>
@@ -56,14 +58,8 @@ ResultsetTableModel::~ResultsetTableModel()
 void ResultsetTableModel::deleteResultset()
 {
     if(rs!=0){
-        Statement *parentStmt=rs->getStatement();
-
-        delete rs;
+        QThreadPool::globalInstance()->start(new ResultsetDeleter(rs));
         rs=0;
-
-        if(parentStmt->rsCount()==0){
-            delete parentStmt;
-        }
     }
 }
 
@@ -160,7 +156,6 @@ void ResultsetTableModel::fetchComplete()
 
         if(deleteResultsetOnFetchComplete()){
             deleteResultset();
-            rs=0;
         }
     }
 

@@ -1,19 +1,38 @@
 #ifndef COMBOBOXDELEGATE_H
 #define COMBOBOXDELEGATE_H
 
-#include "abstractcomboboxdelegate.h"
+#include <QStyledItemDelegate>
 
-class ComboBoxDelegate : public AbstractComboBoxDelegate
+class GenericEditableTableModel;
+
+class ComboBoxDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    explicit ComboBoxDelegate(QObject *parent, bool isEditable=true, const QIcon &itemIcon=QIcon(), const QStringList &itemList=QStringList(), bool convertToUpperCase=true);
+    explicit ComboBoxDelegate(QObject *parent,
+                              int modelColumnIx,
+                              bool isEditable=true,
+                              bool convertToUpperCase=true);
 
-    virtual void setList(const QStringList &itemList);
-    virtual QStringList getList() const;
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+                               const QModelIndex &index) const;
+
+    void setEditorData(QWidget *editor, const QModelIndex &index) const;
+    void setModelData(QWidget *editor, QAbstractItemModel *model,
+                           const QModelIndex &index) const;
+
+    void updateEditorGeometry(QWidget *editor,
+             const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
 
 protected:
-    QStringList itemList;
+    int modelColumnIx;
+    bool isEditable;
+    bool convertToUpperCase;
+
+    virtual QStringList getList(GenericEditableTableModel *model) const;
+    virtual QList<QPixmap> getIconList(GenericEditableTableModel *model) const;
+    virtual QPixmap getColumnIcon(GenericEditableTableModel *model) const;
 
 };
 

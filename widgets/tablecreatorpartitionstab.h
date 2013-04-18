@@ -104,6 +104,7 @@ private:
     LineEditWithButton *storeInSelector;
 
     DataTableAndToolBarWidget *table;
+    PartitionsModel *partitionListModel;
     IdentifierNameDelegate *partitionNameDelegate;
     ComboBoxDelegate *valuesDelegate;
     ComboBoxDelegate *tablespaceDelegate;

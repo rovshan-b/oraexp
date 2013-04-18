@@ -158,16 +158,15 @@ void ObjectGrantsEditorTable::customizeTable()
         tblModel->setTitleColumn(ObjectGrantsModel::GrantObject);
     }
 
-    QStringList grantTypes;
-    grantTypes.append("");
-    grantTypes.append(tr("GRANT"));
-    grantTypes.append(tr("WITH GRANT OPTION"));
-
-    QIcon grantIcon=QIcon();
+    QPixmap grantIcon = IconUtil::getIcon("grants");
+    QStringList grantTypes = DbUtil::getGrantTypes();
 
     for(int i=0; i<priviligeNames.size(); ++i){
-        IndexBasedComboBoxDelegate *privDelegate=new IndexBasedComboBoxDelegate(grantIcon, grantTypes, this);
-        tbl->setItemDelegateForColumn(i+tblModel->offset(), privDelegate);
+        int colIx = i+tblModel->offset();
+        IndexBasedComboBoxDelegate *privDelegate=new IndexBasedComboBoxDelegate(this, colIx);
+        tblModel->setList(colIx, grantTypes);
+        tblModel->setColumnIcon(colIx, grantIcon);
+        tbl->setItemDelegateForColumn(colIx, privDelegate);
     }
 
     if(this->editMode){

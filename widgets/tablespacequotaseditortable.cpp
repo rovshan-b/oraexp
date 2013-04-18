@@ -119,7 +119,8 @@ void TablespaceQuotasEditorTable::customizeTable()
     NumericDelegate *quotaDelegate=new NumericDelegate(this);
     table->setItemDelegateForColumn(TablespaceQuotasModel::Quota, quotaDelegate);
 
-    IndexBasedComboBoxDelegate *quotaUnitDelegate=new IndexBasedComboBoxDelegate(QIcon(), DbUtil::getSizeUnitTexts(), this);
+    IndexBasedComboBoxDelegate *quotaUnitDelegate=new IndexBasedComboBoxDelegate(this, TablespaceQuotasModel::Unit);
+    tableModel->setList(TablespaceQuotasModel::Unit, DbUtil::getSizeUnitTexts());
     table->setItemDelegateForColumn(TablespaceQuotasModel::Unit, quotaUnitDelegate);
 
     if(editMode){

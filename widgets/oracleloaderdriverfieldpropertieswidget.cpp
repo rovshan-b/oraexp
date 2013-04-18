@@ -7,6 +7,7 @@
 #include "widgets/tabletoolbar.h"
 #include "delegates/identifiernamedelegate.h"
 #include "util/iconutil.h"
+#include "util/dbutil.h"
 #include "models/externaltablefieldsmodel.h"
 #include "models/externaltablecolumntransformsmodel.h"
 #include "delegates/comboboxdelegate.h"
@@ -37,9 +38,7 @@ OracleLoaderDriverFieldPropertiesWidget::OracleLoaderDriverFieldPropertiesWidget
     form->addRow(tr("Enclosed by"), enclosedByEditor);
 
     trimTypeComboBox=new QComboBox();
-    QStringList trimTypes;
-    fillTrimTypes(trimTypes);
-    trimTypeComboBox->addItems(trimTypes);
+    trimTypeComboBox->addItems(DbUtil::getOracleLoaderTrimTypes());
     form->addRow(tr("Trim"), trimTypeComboBox);
 
     missingFieldValuesNullCheckBox=new QCheckBox();
@@ -109,47 +108,17 @@ void OracleLoaderDriverFieldPropertiesWidget::createFieldsTable(IQueryScheduler 
     IdentifierNameDelegate *nameDelegate=new IdentifierNameDelegate(this);
     table->setItemDelegateForColumn(ExternalTableFieldsModel::FieldName, nameDelegate);
 
-    QStringList dataTypeList;
-    dataTypeList.append("");
-    dataTypeList.append("CHAR(255)");
-    dataTypeList.append("INTEGER");
-    dataTypeList.append("INTEGER EXTERNAL");
-    dataTypeList.append("UNSIGNED INTEGER");
-    dataTypeList.append("UNSIGNED INTEGER EXTERNAL");
-    dataTypeList.append("DECIMAL");
-    dataTypeList.append("DECIMAL EXTERNAL");
-    dataTypeList.append("ZONED");
-    dataTypeList.append("ZONED EXTERNAL");
-    dataTypeList.append("ORACLE_DATE");
-    dataTypeList.append("ORACLE_NUMBER");
-    dataTypeList.append("ORACLE_NUMBER COUNTED");
-    dataTypeList.append("FLOAT");
-    dataTypeList.append("FLOAT EXTERNAL");
-    dataTypeList.append("DOUBLE");
-    dataTypeList.append("BINARY FLOAT");
-    dataTypeList.append("BINARY FLOAT EXTERNAL");
-    dataTypeList.append("BINARY_DOUBLE");
-    dataTypeList.append("RAW");
-    dataTypeList.append("VARCHAR(255)");
-    dataTypeList.append("VARRAW(255)");
-    dataTypeList.append("VARCHARC(255)");
-    dataTypeList.append("VARRAWC(255)");
-    ComboBoxDelegate *dataTypeDelegate=new ComboBoxDelegate(this, true, QIcon(), dataTypeList);
+
+    ComboBoxDelegate *dataTypeDelegate=new ComboBoxDelegate(this, ExternalTableFieldsModel::FieldDataType);
+    fieldListModel->setList(ExternalTableFieldsModel::FieldDataType, DbUtil::getOracleLoaderDataTypeNames());
     table->setItemDelegateForColumn(ExternalTableFieldsModel::FieldDataType, dataTypeDelegate);
 
-    QStringList trimTypes;
-    fillTrimTypes(trimTypes);
-    ComboBoxDelegate *trimTypesDelegate=new ComboBoxDelegate(this, false, QIcon(), trimTypes);
+    ComboBoxDelegate *trimTypesDelegate=new ComboBoxDelegate(this, ExternalTableFieldsModel::FieldTrim, false);
+    fieldListModel->setList(ExternalTableFieldsModel::FieldTrim, DbUtil::getOracleLoaderTrimTypes());
     table->setItemDelegateForColumn(ExternalTableFieldsModel::FieldTrim, trimTypesDelegate);
 
-    QStringList dateTypes;
-    dateTypes.append("");
-    dateTypes.append("DATE");
-    dateTypes.append("TIMESTAMP WITH TIME ZONE");
-    dateTypes.append("TIMESTAMP WITH LOCAL TIME ZONE");
-    dateTypes.append("INTERVAL YEAR_TO_MONTH");
-    dateTypes.append("INTERVAL DAY_TO_SECOND");
-    ComboBoxDelegate *dateTypeDelegate=new ComboBoxDelegate(this, false, QIcon(), dateTypes);
+    ComboBoxDelegate *dateTypeDelegate=new ComboBoxDelegate(this, ExternalTableFieldsModel::FieldDateType, false);
+    fieldListModel->setList(ExternalTableFieldsModel::FieldDateType, DbUtil::getDateTypeNames());
     table->setItemDelegateForColumn(ExternalTableFieldsModel::FieldDateType, dateTypeDelegate);
 
     fieldList->toolBar()->addSeparator();
@@ -159,16 +128,6 @@ void OracleLoaderDriverFieldPropertiesWidget::createFieldsTable(IQueryScheduler 
 void OracleLoaderDriverFieldPropertiesWidget::populateFieldListFromColumnsTab()
 {
 
-}
-
-void OracleLoaderDriverFieldPropertiesWidget::fillTrimTypes(QStringList &list)
-{
-    list.append("");
-    list.append(tr("LRTRIM"));
-    list.append(tr("LTRIM"));
-    list.append(tr("RTRIM"));
-    list.append(tr("LDRTRIM"));
-    list.append(tr("NOTRIM"));
 }
 
 void OracleLoaderDriverFieldPropertiesWidget::createColumnTransformsTable(IStringListRetriever *columnListRetriever)
@@ -194,13 +153,8 @@ void OracleLoaderDriverFieldPropertiesWidget::createColumnTransformsTable(IStrin
     ColumnSelectorDelegate *columnsDelegate=new ColumnSelectorDelegate(columnListRetriever, tr("Select columns"), this);
     table->setItemDelegateForColumn(ExternalTableColumnTransformsModel::TransformColumn, columnsDelegate);
 
-    QStringList fromList;
-    fromList.append("");
-    fromList.append(tr("NULL"));
-    fromList.append(tr("CONSTANT"));
-    fromList.append(tr("CONCAT"));
-    fromList.append(tr("LOBFILE"));
-    ComboBoxDelegate *fromDelegate=new ComboBoxDelegate(this, false, QIcon(), fromList);
+    ComboBoxDelegate *fromDelegate=new ComboBoxDelegate(this, ExternalTableColumnTransformsModel::TransformType, false);
+    columnTransformsModel->setList(ExternalTableColumnTransformsModel::TransformType, DbUtil::getExternalTableColumnTransformTypes());
     table->setItemDelegateForColumn(ExternalTableColumnTransformsModel::TransformType, fromDelegate);
 
     ColumnSelectorDelegate *fieldNameDelegate=new ColumnSelectorDelegate(&fieldNameRetriever, tr("Select fields"), this, false);
@@ -210,11 +164,8 @@ void OracleLoaderDriverFieldPropertiesWidget::createColumnTransformsTable(IStrin
                                      "\n\tWhen Transform type is LOBFILE: field_name, CONSTANT 'some_string':, ..."));
     table->setItemDelegateForColumn(ExternalTableColumnTransformsModel::TransformFieldName, fieldNameDelegate);
 
-    QStringList lobTypeList;
-    lobTypeList.append("");
-    lobTypeList.append(tr("CLOB"));
-    lobTypeList.append(tr("BLOB"));
-    ComboBoxDelegate *lobTypeDelegate=new ComboBoxDelegate(this, false, QIcon(), lobTypeList);
+    ComboBoxDelegate *lobTypeDelegate=new ComboBoxDelegate(this, ExternalTableColumnTransformsModel::TransformLobType, false);
+    columnTransformsModel->setList(ExternalTableColumnTransformsModel::TransformLobType, DbUtil::getExternalTableLobTypeNames());
     table->setItemDelegateForColumn(ExternalTableColumnTransformsModel::TransformLobType, lobTypeDelegate);
 
     ColumnSelectorDelegate *foldersDelegate=new ColumnSelectorDelegate(this, tr("Select directories"), this);

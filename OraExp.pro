@@ -90,10 +90,7 @@ SOURCES += main.cpp\
     delegates/booleandelegate.cpp \
     connection_page/table_creator/tabs/tablecreatorconstraints.cpp \
     delegates/schemaselectordelegate.cpp \
-    delegates/comboboxdelegate.cpp \
-    delegates/contrainttypedelegate.cpp \
     models/tableconstraintsmodel.cpp \
-    delegates/ondeleteactiondelegate.cpp \
     delegates/indexbasedcomboboxdelegate.cpp \
     connectivity/dblocalcache.cpp \
     delegates/tableselectordelegate.cpp \
@@ -151,7 +148,6 @@ SOURCES += main.cpp\
     models/externaltablefieldsmodel.cpp \
     models/externaltablecolumntransformsmodel.cpp \
     delegates/dynamiccomboboxdelegate.cpp \
-    delegates/abstractcomboboxdelegate.cpp \
     widgets/oracledatapumpdriverproperties.cpp \
     widgets/indexorganizedtablepropertieswidget.cpp \
     dialogs/indexorganizedtablepropertiesdialog.cpp \
@@ -438,7 +434,9 @@ SOURCES += main.cpp\
     util/stopablethread.cpp \
     connection_page/data_exporter/tabs/dataexporterresultstab.cpp \
     connectivity/sequentialqueryrunner.cpp \
-    dialogs/sequantialexecutionerrordialog.cpp
+    dialogs/sequantialexecutionerrordialog.cpp \
+    delegates/comboboxdelegate.cpp \
+    connectivity/resultsetdeleter.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -510,10 +508,7 @@ HEADERS  += mainwindow.h \
     connection_page/table_creator/tablecreatortabwithtableview.h \
     connection_page/table_creator/tabs/tablecreatorconstraints.h \
     delegates/schemaselectordelegate.h \
-    delegates/comboboxdelegate.h \
-    delegates/contrainttypedelegate.h \
     models/tableconstraintsmodel.h \
-    delegates/ondeleteactiondelegate.h \
     delegates/indexbasedcomboboxdelegate.h \
     connectivity/dblocalcache.h \
     delegates/tableselectordelegate.h \
@@ -574,7 +569,6 @@ HEADERS  += mainwindow.h \
     models/externaltablecolumntransformsmodel.h \
     interfaces/istringlistretriever.h \
     delegates/dynamiccomboboxdelegate.h \
-    delegates/abstractcomboboxdelegate.h \
     widgets/oracledatapumpdriverproperties.h \
     widgets/indexorganizedtablepropertieswidget.h \
     dialogs/indexorganizedtablepropertiesdialog.h \
@@ -881,7 +875,9 @@ HEADERS  += mainwindow.h \
     util/stopablethread.h \
     connection_page/data_exporter/tabs/dataexporterresultstab.h \
     connectivity/sequentialqueryrunner.h \
-    dialogs/sequantialexecutionerrordialog.h
+    dialogs/sequantialexecutionerrordialog.h \
+    delegates/comboboxdelegate.h \
+    connectivity/resultsetdeleter.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

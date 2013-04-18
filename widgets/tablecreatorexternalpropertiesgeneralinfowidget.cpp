@@ -85,9 +85,7 @@ void TableCreatorExternalPropertiesGeneralInfoWidget::directoryListAvailable(con
 {
     WidgetHelper::populateComboBox(defaultDirectoryComboBox, directoryList, "directory");
 
-    QStringList dirList(directoryList);
-    dirList.prepend("");
-    directoryDelegate->setList(dirList);
+    locationsTableModel->setList(0, directoryList);
 }
 
 void TableCreatorExternalPropertiesGeneralInfoWidget::parallelEditorChanged()
@@ -100,16 +98,17 @@ void TableCreatorExternalPropertiesGeneralInfoWidget::setupLocationsTable()
     QStringList locationTableHeaders;
     locationTableHeaders.append(tr("Directory"));
     locationTableHeaders.append(tr("File name"));
-    GenericEditableTableModel *model=new GenericEditableTableModel(locationTableHeaders, this);
-    model->setTitleColumn(1);
-    locationsTable=new DataTableAndToolBarWidget(model);
+    locationsTableModel=new GenericEditableTableModel(locationTableHeaders, this);
+    locationsTableModel->setTitleColumn(1);
+    locationsTable=new DataTableAndToolBarWidget(locationsTableModel);
 
     locationsTable->table()->horizontalHeader()->setDefaultSectionSize(200);
     locationsTable->table()->verticalHeader()->setVisible(false);
     locationsTable->table()->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
-    QIcon directoryIcon=IconUtil::getIcon("directory");
-    directoryDelegate=new ComboBoxDelegate(this, true, directoryIcon);
+    QPixmap directoryIcon=IconUtil::getIcon("directory");
+    ComboBoxDelegate *directoryDelegate=new ComboBoxDelegate(this, 0, true);
+    locationsTableModel->setColumnIcon(0, directoryIcon);
     locationsTable->table()->setItemDelegateForColumn(0, directoryDelegate);
     AutoAppendDelegate *filenameDelegate=new AutoAppendDelegate(this);
     locationsTable->table()->setItemDelegateForColumn(1, filenameDelegate);

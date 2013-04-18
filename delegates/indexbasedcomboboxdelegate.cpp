@@ -2,16 +2,11 @@
 #include <QtGui>
 #include <QDebug>
 
-IndexBasedComboBoxDelegate::IndexBasedComboBoxDelegate(const QIcon &itemIcon, const QStringList &itemList, QObject *parent) :
-    ComboBoxDelegate(parent, false, itemIcon, itemList)
+IndexBasedComboBoxDelegate::IndexBasedComboBoxDelegate(QObject *parent, int modelColumnIx) :
+    ComboBoxDelegate(parent, modelColumnIx, false)
 {
 }
 
-//when using this constructor you must override createEditor method
-IndexBasedComboBoxDelegate::IndexBasedComboBoxDelegate(QObject *parent) :
-    ComboBoxDelegate(parent, false)
-{
-}
 
 void IndexBasedComboBoxDelegate::setEditorData(QWidget *editor,
                                     const QModelIndex &index) const

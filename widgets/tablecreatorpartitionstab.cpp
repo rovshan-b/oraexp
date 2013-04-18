@@ -135,21 +135,22 @@ TableCreatorPartitionsTab::TableCreatorPartitionsTab(TableCreatorTabs* tableCrea
     columnNames.append(configureFor==OraExp::PartitionPartPartition ? tr("Name") : tr("Subpartition name"));
     columnNames.append(tr("Values less than"));
     columnNames.append(tr("Tablespace"));
-    PartitionsModel *model=new PartitionsModel(columnNames, configureFor, this);
-    table=new DataTableAndToolBarWidget(model);
+    partitionListModel=new PartitionsModel(columnNames, configureFor, this);
+    table=new DataTableAndToolBarWidget(partitionListModel);
     table->table()->setEditTriggers(QAbstractItemView::AllEditTriggers);
     table->table()->horizontalHeader()->setDefaultSectionSize(200);
 
     partitionNameDelegate=new IdentifierNameDelegate(this);
     table->table()->setItemDelegateForColumn(configureFor==OraExp::PartitionPartPartition ?
-                                                 model->PartitionNameColIx : model->SubpartitionNameColIx, partitionNameDelegate);
+                                                 partitionListModel->PartitionNameColIx : partitionListModel->SubpartitionNameColIx, partitionNameDelegate);
 
-    valuesDelegate=new ComboBoxDelegate(this);
-    table->table()->setItemDelegateForColumn(model->ValuesColIx, valuesDelegate);
+    valuesDelegate=new ComboBoxDelegate(this, partitionListModel->ValuesColIx);
+    table->table()->setItemDelegateForColumn(partitionListModel->ValuesColIx, valuesDelegate);
 
-    QIcon tablespaceIcon=IconUtil::getIcon("tablespace");
-    tablespaceDelegate=new ComboBoxDelegate(this, true, tablespaceIcon);
-    table->table()->setItemDelegateForColumn(model->TablespaceColIx, tablespaceDelegate);
+    QPixmap tablespaceIcon=IconUtil::getIcon("tablespace");
+    tablespaceDelegate=new ComboBoxDelegate(this, partitionListModel->TablespaceColIx);
+    partitionListModel->setColumnIcon(partitionListModel->TablespaceColIx, tablespaceIcon);
+    table->table()->setItemDelegateForColumn(partitionListModel->TablespaceColIx, tablespaceDelegate);
 
     layout->addWidget(table);
 
@@ -169,7 +170,7 @@ TableCreatorPartitionsTab::TableCreatorPartitionsTab(TableCreatorTabs* tableCrea
     }
 
     if(configureFor==OraExp::PartitionPartSubpartition){
-        model->setTitleColumn(1);
+        partitionListModel->setTitleColumn(1);
         table->toolBar()->addAction(IconUtil::getIcon("normalize_data"), tr("Normalize subpartition list"), this, SLOT(normalizeTableData()));
     }
 }
@@ -204,7 +205,7 @@ void TableCreatorPartitionsTab::tablespaceListAvailable()
         QStringList tablespaces;
         tablespaces.append("");
         tablespaces.append(parentTab->tablespaceList);
-        tablespaceDelegate->setList(tablespaces);
+        partitionListModel->setList(partitionListModel->TablespaceColIx, tablespaces);
         storeInSelector->lineEdit()->setItemList(parentTab->tablespaceList);
     }
 }
@@ -428,10 +429,10 @@ void TableCreatorPartitionsTab::adjustTable()
     PartitionsModel *model=static_cast<PartitionsModel*>(table->table()->model());
     if(currentPartitionType==OraExp::PartitionTypeList){
         model->setHeaderData(model->ValuesColIx, Qt::Horizontal, tr("Values"));
-        valuesDelegate->setList(QStringList() << "DEFAULT");
+        partitionListModel->setList(partitionListModel->ValuesColIx, QStringList() << "DEFAULT");
     }else{
         model->setHeaderData(model->ValuesColIx, Qt::Horizontal, tr("Values less than"));
-        valuesDelegate->setList(QStringList() << "MAXVALUE");
+        partitionListModel->setList(partitionListModel->ValuesColIx, QStringList() << "MAXVALUE");
     }
 
     table->table()->setColumnHidden(model->ValuesColIx, currentPartitionType==OraExp::PartitionTypeHash);

@@ -10,7 +10,7 @@ DbItemListDelegate::DbItemListDelegate(const QString &initialValue,
                                        const QString &iconName,
                                        QObject *parent,
                                        bool appendRowIfLast) :
-    ComboBoxDelegate(parent, true, IconUtil::getIcon(iconName)),
+    ComboBoxDelegate(parent, -1, true),
     initialValue(initialValue),
     queryScheduler(queryScheduler),
     queryName(queryName),

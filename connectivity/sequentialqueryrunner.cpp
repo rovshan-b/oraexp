@@ -52,7 +52,7 @@ void SequentialQueryRunner::execute(const QString &query, QWidget *parentWidget)
 
 void SequentialQueryRunner::stop()
 {
-
+    this->stopped=true;
 }
 
 void SequentialQueryRunner::executeNextQuery()

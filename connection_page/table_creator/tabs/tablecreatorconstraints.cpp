@@ -5,16 +5,16 @@
 #include "interfaces/istringlistretriever.h"
 #include "delegates/schemaselectordelegate.h"
 #include "delegates/tableselectordelegate.h"
-#include "delegates/contrainttypedelegate.h"
-#include "delegates/ondeleteactiondelegate.h"
 #include "delegates/booleandelegate.h"
 #include "delegates/comboboxdelegate.h"
 #include "delegates/constraintselectordelegate.h"
 #include "delegates/columnselectordelegate.h"
 #include "delegates/identifiernamedelegate.h"
+#include "delegates/indexbasedcomboboxdelegate.h"
 #include "connectivity/dbconnection.h"
 #include "util/iconutil.h"
 #include "util/itemcreatorhelper.h"
+#include "util/dbutil.h"
 #include <QtGui>
 
 #include <memory>
@@ -66,7 +66,9 @@ void TableCreatorConstraints::customizeTableWidget(const QString &schemaName)
     IdentifierNameDelegate *constraintNameDelegate=new IdentifierNameDelegate(this);
     table->setItemDelegateForColumn(TableConstraintsModel::ConstraintName, constraintNameDelegate);
 
-    ContraintTypeDelegate *constraintTypeDelegate=new ContraintTypeDelegate(this);
+    IndexBasedComboBoxDelegate *constraintTypeDelegate=new IndexBasedComboBoxDelegate(this, TableConstraintsModel::ConstraintConstraintType);
+    tableModel->setList(TableConstraintsModel::ConstraintConstraintType, DbUtil::getConstraintTypeNames());
+    tableModel->setIconList(TableConstraintsModel::ConstraintConstraintType, DbUtil::getConstraintTypeIcons());
     table->setItemDelegateForColumn(TableConstraintsModel::ConstraintConstraintType, constraintTypeDelegate);
 
     ColumnSelectorDelegate *columnsDelegate=new ColumnSelectorDelegate(objectCreator->getColumnsTab(), tr("Select columns"), this);
@@ -85,7 +87,8 @@ void TableCreatorConstraints::customizeTableWidget(const QString &schemaName)
                                                                                  "", this->queryScheduler, this);
     table->setItemDelegateForColumn(TableConstraintsModel::ConstraintReferencedColumn, referencedColumnsDelegate);
 
-    OnDeleteActionDelegate *onDeleteDelegate=new OnDeleteActionDelegate(this);
+    IndexBasedComboBoxDelegate *onDeleteDelegate=new IndexBasedComboBoxDelegate(this, TableConstraintsModel::ConstraintOnDeleteAction);
+    tableModel->setList(TableConstraintsModel::ConstraintOnDeleteAction, DbUtil::getOnDeleteActionNames());
     table->setItemDelegateForColumn(TableConstraintsModel::ConstraintOnDeleteAction, onDeleteDelegate);
     table->setColumnWidth(TableConstraintsModel::ConstraintOnDeleteAction, 80);
 
