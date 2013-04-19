@@ -3,6 +3,7 @@
 #include "util/iconutil.h"
 #include "connectivity/dbconnection.h"
 #include "util/widgethelper.h"
+#include "dialogs/ctrltabdialog.h"
 #include <QtGui>
 
 ConnectionsPane::ConnectionsPane(QWidget *parent) :
@@ -17,6 +18,8 @@ ConnectionsPane::ConnectionsPane(QWidget *parent) :
 
     //addTab(new ConnectionPage(), IconUtil::getEnvironmentIcon(tr("Test")), "Example 1");
     setStyleSheet("QToolBar { border: 0px }");
+
+    new QShortcut(QKeySequence("Ctrl+Tab"), this, SLOT(ctrlTabPressed()));
 }
 
 void ConnectionsPane::addConnection(DbConnection *db)
@@ -38,6 +41,22 @@ ConnectionPage *ConnectionsPane::currentConnectionPage() const
     }
 
     return 0;
+}
+
+void ConnectionsPane::ctrlTabPressed()
+{
+    ConnectionPage *cnPage = currentConnectionPage();
+    if(!cnPage){
+        return;
+    }
+    QList<CtrlTabData*> ctrlTabData = cnPage->getCtrlTabData();
+    if(ctrlTabData.size()<2){
+        return;
+    }
+    CtrlTabDialog dialog(ctrlTabData, this);
+    if(dialog.exec()){
+        cnPage->setCurrentTab(dialog.getSelectedWidget());
+    }
 }
 
 void ConnectionsPane::closeTab(int index)

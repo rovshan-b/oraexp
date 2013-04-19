@@ -436,7 +436,10 @@ SOURCES += main.cpp\
     connectivity/sequentialqueryrunner.cpp \
     dialogs/sequantialexecutionerrordialog.cpp \
     delegates/comboboxdelegate.cpp \
-    connectivity/resultsetdeleter.cpp
+    connectivity/resultsetdeleter.cpp \
+    dialogs/ctrltabdialog.cpp \
+    widgets/connectionpagetabwidget.cpp \
+    beans/ctrltabdata.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -876,7 +879,10 @@ HEADERS  += mainwindow.h \
     connectivity/sequentialqueryrunner.h \
     dialogs/sequantialexecutionerrordialog.h \
     delegates/comboboxdelegate.h \
-    connectivity/resultsetdeleter.h
+    connectivity/resultsetdeleter.h \
+    dialogs/ctrltabdialog.h \
+    widgets/connectionpagetabwidget.h \
+    beans/ctrltabdata.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

@@ -20,7 +20,8 @@ public:
     void showConnectDialog();
 
 protected:
-    void closeEvent(QCloseEvent *event);
+    virtual void closeEvent(QCloseEvent *event);
+    //virtual bool eventFilter(QObject *obj, QEvent *ev);
 
 private:
     Ui::MainWindow *ui;

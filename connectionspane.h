@@ -22,6 +22,7 @@ signals:
 public slots:
     void closeTab(int index);
     void popOutTab();
+    void ctrlTabPressed();
 
 protected:
     void contextMenuEvent(QContextMenuEvent* pEvent);

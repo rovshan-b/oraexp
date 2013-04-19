@@ -6,6 +6,7 @@
 #include  "dbuimanager.h"
 #include "util/iconutil.h"
 #include "util/settingshelper.h"
+#include "beans/ctrltabdata.h"
 #include <iostream>
 #include <QtGui>
 
@@ -34,7 +35,7 @@ ConnectionPage::ConnectionPage(DbConnection *db, QWidget *parent) :
     treeDock->setWidget(treePane);
     addDockWidget(Qt::LeftDockWidgetArea, treeDock);
 
-    centralTab=new TabWidget();
+    centralTab=new ConnectionPageTabWidget();
     centralTab->setTabsClosable(true);
     centralTab->setDocumentMode(true);
     centralTab->setMovable(true);
@@ -213,4 +214,24 @@ QList<ConnectionPageTab *> ConnectionPage::getTabsByConnection(DbConnection *db,
     }
 
     return results;
+}
+
+QList<CtrlTabData *> ConnectionPage::getCtrlTabData() const
+{
+    QList<CtrlTabData *> results;
+
+    QList<QWidget*> history = centralTab->getTabChangeHistory();
+    foreach(QWidget *tab, history){
+        int tabIndex = centralTab->indexOf(tab);
+        results.append(new CtrlTabData(centralTab->tabIcon(tabIndex),
+                                       centralTab->tabText(tabIndex),
+                                       tab));
+    }
+
+    return results;
+}
+
+void ConnectionPage::setCurrentTab(QWidget *widget)
+{
+    centralTab->setCurrentWidget(widget);
 }

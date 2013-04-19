@@ -33,6 +33,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     SettingsHelper::restoreWindowPosition(this, "MainWindow");
     SettingsHelper::loadStaticApplicationSettings();
+
+    //connectionsPane->installEventFilter(this);
 }
 
 MainWindow::~MainWindow()
@@ -61,3 +63,18 @@ void MainWindow::closeEvent(QCloseEvent *event)
     SettingsHelper::saveStaticApplicationSettings();
     event->accept();
 }
+
+/*
+bool MainWindow::eventFilter(QObject *obj, QEvent *ev)
+{
+    if(obj==connectionsPane && ev->type()==QEvent::KeyPress){
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
+        if(keyEvent->key()==Qt::Key_Tab && (keyEvent->modifiers() & Qt::ControlModifier)==Qt::ControlModifier){
+            qDebug("Ctrl+Tab pressed");
+            ev->setAccepted(true);
+            return true;
+        }
+    }
+
+    return QMainWindow::eventFilter(obj, ev);
+}*/

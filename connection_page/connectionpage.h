@@ -5,13 +5,14 @@
 #include "dbuimanager.h"
 #include "connectivity/ociexception.h"
 #include "connectivity/connectionpool.h"
-#include "widgets/tabwidget.h"
+#include "widgets/connectionpagetabwidget.h"
 
 class DbConnection;
 class QDockWidget;
 class TreePane;
 class ConnectionPageTab;
 class InfoPanel;
+class CtrlTabData;
 
 class ConnectionPage : public QMainWindow
 {
@@ -34,6 +35,9 @@ public:
 
     QList<ConnectionPageTab*> getTabsByConnection(DbConnection *db, const QString &className=QString(), int limit = -1);
 
+    QList<CtrlTabData*> getCtrlTabData() const;
+    void setCurrentTab(QWidget *widget);
+
     static QByteArray currentState;
 signals:
     void connectionPageStateChanged();
@@ -50,7 +54,7 @@ public slots:
 private:
     DbConnection *db;
     QDockWidget *treeDock;
-    TabWidget *centralTab;
+    ConnectionPageTabWidget *centralTab;
     TreePane *treePane;
     DbUiManager uiManager;
 

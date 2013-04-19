@@ -430,7 +430,9 @@ int CodeEditor::lineMarkerAreaOffset() const
  {
      QPlainTextEdit::keyReleaseEvent(event);
 
-     if(event->key()==Qt::Key_Escape){
+     if(event->key()==Qt::Key_Control){
+         event->ignore();
+     }else if(event->key()==Qt::Key_Escape){
         emit escapeKeyPressed();
      }
  }
@@ -450,14 +452,18 @@ int CodeEditor::lineMarkerAreaOffset() const
          }else if(key==Qt::Key_Tab){
              handled=true;
 
-             if(textCursor().hasSelection()){
-                 if(event->modifiers() & Qt::ShiftModifier){
-                     unindentSelection();
-                 }else{
-                     indentSelection();
-                 }
+             if((event->modifiers() & Qt::ControlModifier)==Qt::ControlModifier){
+                 event->setAccepted(false);
              }else{
-                 textCursor().insertText(strTab);
+                 if(textCursor().hasSelection()){
+                     if(event->modifiers() & Qt::ShiftModifier){
+                         unindentSelection();
+                     }else{
+                         indentSelection();
+                     }
+                 }else{
+                     textCursor().insertText(strTab);
+                 }
              }
          }else if(key==Qt::Key_Backtab && textCursor().hasSelection()){
              handled=true;
