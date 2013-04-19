@@ -19,11 +19,6 @@ public:
 
     virtual bool canSave() const {return true;}
     virtual bool canPrint() const {return true;}
-    virtual bool canFind() const {return true;}
-
-    virtual void showSearchWidget(){worksheetWidget->showSearchWidget();}
-    virtual void findNext() {worksheetWidget->findNext();}
-    virtual void findPrevious() {worksheetWidget->findPrevious();}
 
     virtual void focusAvailable();
 

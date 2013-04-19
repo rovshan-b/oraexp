@@ -102,6 +102,8 @@ public:
     static void checkModelItems(QStandardItemModel *model, bool check);
 
     static QGroupBox *createGroupBox(QLayout *layout, const QString &title);
+
+    static QWidget *findParentWidget(QWidget *w, const QString &parentWidgetClassName, int maxLevelsUp = 5);
 };
 
 #endif // WIDGETHELPER_H

@@ -20,11 +20,6 @@ public:
     virtual void createUi();
     virtual void setConnection(DbConnection *db);
 
-    virtual bool canFind() const {return true;}
-    virtual void showSearchWidget(){currentCreator()->showSearchWidget();}
-    virtual void findNext() {currentCreator()->findNext();}
-    virtual void findPrevious() {currentCreator()->findPrevious();}
-
     virtual void focusAvailable();
 
 private slots:

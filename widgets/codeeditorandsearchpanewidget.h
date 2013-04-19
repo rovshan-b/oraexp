@@ -16,6 +16,7 @@ public:
     CodeEditor *editor(){return this->codeEditor;}
     SearchPane *pane(){return this->searchPane;}
 
+public slots:
     void showSearchPane();
     void findNext(){searchPane->findNext();}
     void findPrevious(){searchPane->findPrevious();}

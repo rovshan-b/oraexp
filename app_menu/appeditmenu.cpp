@@ -1,5 +1,6 @@
 #include "appeditmenu.h"
 #include "util/iconutil.h"
+#include "connectionspane.h"
 #include "connection_page/connectionpage.h"
 #include "connection_page/connectionpagetab.h"
 #include "codeeditor/codeeditor.h"
@@ -112,11 +113,24 @@ QMenu *AppEditMenu::createCopyAsMenu(QWidget *parent)
     return menu;
 }
 
+QWidget *AppEditMenu::findParentSearchPane() const
+{
+    return WidgetHelper::findParentWidget(currentAppWidget, "CodeEditorAndSearchPaneWidget");
+}
+
 void AppEditMenu::updateActionStates(ConnectionPage * /*cnPage*/, ConnectionPageTab *cnPageTab)
 {
-    editFindAction->setEnabled(cnPageTab!=0 && cnPageTab->canFind());
-    editFindNextAction->setEnabled(cnPageTab!=0 && cnPageTab->canFindNext());
-    editFindPreviousAction->setEnabled(cnPageTab!=0 && cnPageTab->canFindPrevious());
+    bool enable = false;
+    if(currentAppWidget!=0 && cnPageTab!=0){
+        CodeEditor *editor = qobject_cast<CodeEditor*>(currentAppWidget);
+        if(editor!=0){
+            enable = (findParentSearchPane()!=0);
+        }
+    }
+
+    editFindAction->setEnabled(enable);
+    editFindNextAction->setEnabled(enable);
+    editFindPreviousAction->setEnabled(enable);
 }
 
 void AppEditMenu::updateActionStatesForCodeEditor(CodeEditor *editor)
@@ -163,6 +177,10 @@ void AppEditMenu::focusWidgetChanged(QWidget * /*old*/, QWidget *now)
     }
 
     currentAppWidget=now;
+
+    ConnectionPage *cnPage=getConnectionsPane()->currentConnectionPage();
+    ConnectionPageTab *cnPageTab=cnPage ? cnPage->currentConnectionPage() : 0;
+    updateActionStates(cnPage, cnPageTab);
 
     CodeEditor *editor = qobject_cast<CodeEditor*>(currentAppWidget);
     bool isCodeEditor=(editor!=0);
@@ -282,6 +300,30 @@ void AppEditMenu::toLowerCase()
 void AppEditMenu::makeDuplicate()
 {
     WidgetHelper::invokeSlot(currentAppWidget, "makeDuplicate");
+}
+
+void AppEditMenu::showSearchWidget()
+{
+    QWidget *w = findParentSearchPane();
+    if(w){
+        WidgetHelper::invokeSlot(w, "showSearchPane");
+    }
+}
+
+void AppEditMenu::findNext()
+{
+    QWidget *w = findParentSearchPane();
+    if(w){
+        WidgetHelper::invokeSlot(w, "findNext");
+    }
+}
+
+void AppEditMenu::findPrevious()
+{
+    QWidget *w = findParentSearchPane();
+    if(w){
+        WidgetHelper::invokeSlot(w, "findPrevious");
+    }
 }
 
 void AppEditMenu::goToLine()

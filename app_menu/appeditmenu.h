@@ -46,9 +46,9 @@ private slots:
     void toLowerCase();
     void makeDuplicate();
 
-    void showSearchWidget(){currentConnectionPageTab()->showSearchWidget();}
-    void findNext(){currentConnectionPageTab()->findNext();}
-    void findPrevious(){currentConnectionPageTab()->findPrevious();}
+    void showSearchWidget();
+    void findNext();
+    void findPrevious();
 
     void goToLine();
 
@@ -85,6 +85,8 @@ private:
     QAction *editGoToLineAction;
 
     QWidget *currentAppWidget;
+
+    QWidget *findParentSearchPane() const;
 
 };
 

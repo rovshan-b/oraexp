@@ -137,5 +137,6 @@
         <file>images/type_body.png</file>
         <file>images/copy_data.png</file>
         <file>images/execute_as_script.png</file>
+        <file>images/export_schema.png</file>
     </qresource>
 </RCC>

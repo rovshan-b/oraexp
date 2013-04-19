@@ -27,12 +27,6 @@ public:
     
     virtual void setConnection(DbConnection *db);
 
-    virtual bool canFind() const;
-
-    virtual void showSearchWidget();
-    virtual void findNext();
-    virtual void findPrevious();
-
 public slots:
     void startStopComparing();
 

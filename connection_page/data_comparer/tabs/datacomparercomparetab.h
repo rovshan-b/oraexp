@@ -4,10 +4,9 @@
 #include "connection_page/db_object_comparer/tabs/dbobjectcomparercomparetab.h"
 #include "widgets/codeeditorandsearchpanewidget.h"
 #include "beans/tableinfofordatacomparison.h"
-#include "interfaces/isearchable.h"
 #include "navtree/idbtreeitemcheckstateprovider.h"
 
-class DataComparerCompareTab : public DbObjectComparerCompareTab, public ISearchable, public IDbTreeItemCheckStateProvider
+class DataComparerCompareTab : public DbObjectComparerCompareTab, public IDbTreeItemCheckStateProvider
 {
     Q_OBJECT
 public:
@@ -23,10 +22,6 @@ protected:
     virtual void createItemsTable(QBoxLayout *layout);
     virtual DbTreeModel::DbTreeNodeTypes getNodeTypesToDisplay() const;
     virtual DbTreeModel::DbTreeNodeTypes getCheckableNodeTypes() const;
-
-    void showSearchWidget(){whereClauseEditor->showSearchPane();}
-    void findNext(){whereClauseEditor->findNext();}
-    void findPrevious(){whereClauseEditor->findPrevious();}
 
 private slots:
     virtual void treeChildrenPopulated(const QModelIndex &parent);

@@ -684,7 +684,6 @@ HEADERS  += mainwindow.h \
     beans/dbobjectcomparisonoptions.h \
     connection_page/data_comparer/tabs/datacompareroptionstab.h \
     connection_page/data_comparer/tabs/datacomparercomparetab.h \
-    interfaces/isearchable.h \
     connection_page/data_comparer/comparers/datacomparerhelper.h \
     beans/datacomparisonoptions.h \
     beans/tableinfofordatacomparison.h \

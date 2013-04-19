@@ -29,9 +29,17 @@ public:
 
     void setResultsetTabNamesFromOutParams(Statement *stmt, QList<WorksheetBottomPaneTab *> tabs);
 
+public slots:
+    void scriptModeStarted();
+    void scriptModeCompleted();
+
 private:
     WorksheetBottomPaneTab *getTabToDisplayResults(WorksheetBottomPaneTabType tabType);
-    QList<WorksheetBottomPaneTab *> getTabsToDisplayResults(WorksheetBottomPaneTabType tabType, int countToReturn);
+    QList<WorksheetBottomPaneTab *> getTabsToDisplayResults(WorksheetBottomPaneTabType tabType,
+                                                            int countToReturn,
+                                                            int startIx = 0);
+
+    int currentTabStartIx;
 };
 
 #endif // WORKSHEETRESULTPANE_H

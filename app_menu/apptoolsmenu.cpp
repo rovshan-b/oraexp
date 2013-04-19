@@ -15,6 +15,9 @@ void AppToolsMenu::setupMenu(QMenu *toolsMenu, QToolBar *toolbar)
     toolsCompareSchemasAction=toolsMenu->addAction(IconUtil::getIcon("compare_schemas"), tr("Compare &schemas"), this, SLOT(addSchemaComparer()));
     toolsCompareSchemasAction->setStatusTip(tr("Generate DDL statements to make target schema the same with current"));
 
+    toolsExportSchemaAction=toolsMenu->addAction(IconUtil::getIcon("export_schema"), tr("Export sche&ma"), this, SLOT(addSchemaExporter()));
+    toolsExportSchemaAction->setStatusTip(tr("Export schema objects to file"));
+
     toolsMenu->addSeparator();
 
     toolsCompareDataAction=toolsMenu->addAction(IconUtil::getIcon("compare_data"), tr("Compare &data"), this, SLOT(addDataComparer()));

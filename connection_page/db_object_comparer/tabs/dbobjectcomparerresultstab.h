@@ -2,14 +2,13 @@
 #define DBOBJECTCOMPARERRESULTSTAB_H
 
 #include "widgets/codeeditorandsearchpanewidget.h"
-#include "interfaces/isearchable.h"
 
 class QStandardItemModel;
 class CodeEditorAndSearchPaneWidget;
 class DataTable;
 class DbUiManager;
 
-class DbObjectComparerResultsTab : public QWidget, public ISearchable
+class DbObjectComparerResultsTab : public QWidget
 {
     Q_OBJECT
 public:

@@ -81,32 +81,6 @@ DbObjectComparerResultsTab *DbObjectComparer::createResultsTab()
     return tab;
 }
 
-bool DbObjectComparer::canFind() const
-{
-    return dynamic_cast<ISearchable*>(tabWidget->currentWidget())!=0;
-}
-
-void DbObjectComparer::showSearchWidget()
-{
-    ISearchable *searchable=dynamic_cast<ISearchable*>(tabWidget->currentWidget());
-    Q_ASSERT(searchable);
-    searchable->showSearchWidget();
-}
-
-void DbObjectComparer::findNext()
-{
-    ISearchable *searchable=dynamic_cast<ISearchable*>(tabWidget->currentWidget());
-    Q_ASSERT(searchable);
-    searchable->findNext();
-}
-
-void DbObjectComparer::findPrevious()
-{
-    ISearchable *searchable=dynamic_cast<ISearchable*>(tabWidget->currentWidget());
-    Q_ASSERT(searchable);
-    searchable->findPrevious();
-}
-
 void DbObjectComparer::setConnection(DbConnection *db)
 {
     ConnectionPageTab::setConnection(db);

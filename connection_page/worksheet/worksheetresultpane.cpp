@@ -9,7 +9,7 @@
 #include <QtGui>
 
 
-WorksheetResultPane::WorksheetResultPane(QWidget *parent) : SubTabWidget(parent)
+WorksheetResultPane::WorksheetResultPane(QWidget *parent) : SubTabWidget(parent), currentTabStartIx(0)
 {
     setTabsClosable(true);
     setMovable(true);
@@ -37,7 +37,7 @@ void WorksheetResultPane::displayQueryResults(IQueryScheduler *queryScheduler,
     }
 
     if(result.statement!=0 && result.statement->rsCount()>0 && !isExplainPlan){
-        QList<WorksheetBottomPaneTab *> tabs = getTabsToDisplayResults(ResultsetTab, rsCount);
+        QList<WorksheetBottomPaneTab *> tabs = getTabsToDisplayResults(ResultsetTab, rsCount, currentTabStartIx++);
         if(statementType==OraExp::QueryTypeDeclare || statementType==OraExp::QueryTypeBegin){
             setResultsetTabNamesFromOutParams(result.statement, tabs);
         }
@@ -90,19 +90,31 @@ void WorksheetResultPane::setResultsetTabNamesFromOutParams(Statement *stmt, QLi
     }
 }
 
+void WorksheetResultPane::scriptModeStarted()
+{
+    currentTabStartIx = 0;
+}
+
+void WorksheetResultPane::scriptModeCompleted()
+{
+    currentTabStartIx = 0;
+}
+
 WorksheetBottomPaneTab *WorksheetResultPane::getTabToDisplayResults(WorksheetBottomPaneTabType tabType)
 {
     return getTabsToDisplayResults(tabType, 1).at(0);
 }
 
-QList<WorksheetBottomPaneTab *> WorksheetResultPane::getTabsToDisplayResults(WorksheetResultPane::WorksheetBottomPaneTabType tabType, int countToReturn)
+QList<WorksheetBottomPaneTab *> WorksheetResultPane::getTabsToDisplayResults(WorksheetResultPane::WorksheetBottomPaneTabType tabType,
+                                                                             int countToReturn,
+                                                                             int startIx)
 {
     QList<WorksheetBottomPaneTab *> tabs;
     WorksheetBottomPaneTab *tab;
 
     //check whether current tab can be used
     int currentTabIx=currentIndex();
-    if(currentTabIx!=-1){
+    if(currentTabIx!=-1 && currentTabIx>=startIx){
         tab=static_cast<WorksheetBottomPaneTab*>(currentWidget());
         if(tab->getTabType()==tabType && !tab->isPinned()){
             tabs.append(tab);
@@ -115,7 +127,7 @@ QList<WorksheetBottomPaneTab *> WorksheetResultPane::getTabsToDisplayResults(Wor
 
     //find first tab that can be used
     int tabCount=count();
-    for(int i=0; i<tabCount; ++i){
+    for(int i=startIx; i<tabCount; ++i){
         tab=static_cast<WorksheetBottomPaneTab*>(widget(i));
         if(tab->getTabType()==tabType && !tab->isPinned() && !tabs.contains(tab)){
             tabs.append(tab);

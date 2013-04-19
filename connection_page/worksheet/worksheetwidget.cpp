@@ -30,6 +30,9 @@ WorksheetWidget::WorksheetWidget(DbUiManager *uiManager, QWidget *parent) :
     connect(queryPane, SIGNAL(queryDone(QueryResult)), this, SLOT(queryCompleted(QueryResult)));
     connect(queryPane, SIGNAL(message(QString)), this, SLOT(handleQueryPaneMessage(QString)));
     connect(queryPane, SIGNAL(autotraceTriggered(bool)), this, SIGNAL(autotraceTriggered(bool)));
+
+    connect(queryPane, SIGNAL(scriptModeStarted()), resultPane, SLOT(scriptModeStarted()));
+    connect(queryPane, SIGNAL(scriptModeCompleted()), resultPane, SLOT(scriptModeCompleted()));
 }
 
 void WorksheetWidget::setQueryScheduler(IQueryScheduler *queryScheduler)

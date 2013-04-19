@@ -614,4 +614,22 @@ QGroupBox *WidgetHelper::createGroupBox(QLayout *layout, const QString &title)
     return groupBox;
 }
 
+QWidget *WidgetHelper::findParentWidget(QWidget *w, const QString &parentWidgetClassName, int maxLevelsUp)
+{
+    QWidget *tmp = w;
+
+    for(int i=0; i<maxLevelsUp; ++i){
+        tmp = tmp->parentWidget();
+        if(tmp==0){
+            return 0;
+        }
+
+        if(tmp->metaObject()->className()==parentWidgetClassName){
+            return tmp;
+        }
+    }
+
+    return 0;
+}
+
 

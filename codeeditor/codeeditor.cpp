@@ -155,7 +155,7 @@ int CodeEditor::lineMarkerAreaOffset() const
  {
      QList<QTextEdit::ExtraSelection> extraSelections;
 
-     if (!isReadOnly()) {
+     //if (!isReadOnly()) {
          QTextEdit::ExtraSelection selection;
 
          QColor lineColor = QColor(Qt::yellow).lighter(180);
@@ -165,7 +165,7 @@ int CodeEditor::lineMarkerAreaOffset() const
          selection.cursor = textCursor();
          selection.cursor.clearSelection();
          extraSelections.append(selection);
-     }
+     //}
 
      for(int i=0; i<foundTextPositions.size(); ++i){
          QTextEdit::ExtraSelection searchTextSelection;

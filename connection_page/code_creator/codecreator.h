@@ -17,11 +17,6 @@ public:
     virtual void createUi();
     virtual void setConnection(DbConnection *db);
 
-    virtual bool canFind() const {return true;}
-    virtual void showSearchWidget(){creatorWidget->showSearchWidget();}
-    virtual void findNext() {creatorWidget->findNext();}
-    virtual void findPrevious() {creatorWidget->findPrevious();}
-
     virtual void focusAvailable();
 
 private:

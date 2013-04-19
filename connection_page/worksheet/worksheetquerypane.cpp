@@ -151,6 +151,8 @@ void WorksheetQueryPane::executeAsScript()
 
     this->currentQueryCursor = cur;
 
+    emit scriptModeStarted();
+
     multiEditor->setReadOnly(true);
     setInProgress(true);
 
@@ -204,6 +206,8 @@ void WorksheetQueryPane::sequentialExecutionCompleted()
     currentEditor()->editor()->setMarkedLine(-1);
     setInProgress(false);
     multiEditor->setReadOnly(false);
+
+    emit scriptModeCompleted();
 }
 
 void WorksheetQueryPane::stopCurrentQuery()

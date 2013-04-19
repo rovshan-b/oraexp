@@ -56,6 +56,9 @@ signals:
     void message(const QString &msg);
     void autotraceTriggered(bool checked);
 
+    void scriptModeStarted();
+    void scriptModeCompleted();
+
 protected:
     virtual void timerEvent(QTimerEvent *event);
 

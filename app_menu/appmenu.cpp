@@ -71,7 +71,7 @@ void AppMenu::connectionsPaneStateChanged()
     ConnectionPageTab *cnPageTab=cnPage ? cnPage->currentConnectionPage() : 0;
 
     appFileMenu->updateActionStates(cnPage, cnPageTab);
-    appEditMenu->updateActionStates(cnPage, cnPageTab);
+    //appEditMenu->updateActionStates(cnPage, cnPageTab);
     appViewMenu->updateActionStates(cnPage, cnPageTab);
     appToolsMenu->updateActionStates(cnPage, cnPageTab);
 }

@@ -56,7 +56,7 @@ QString SequenceInfo::generateDdl(const SequenceCreateDdlOptions &options) const
 
 QString SequenceInfo::generateDropDdl() const
 {
-    return QString("DROP SEQUENCE \"%1\".\"%2\";").arg(owner, name);
+    return QString("DROP SEQUENCE \"%1\".\"%2\"").arg(owner, name);
 }
 
 bool SequenceInfo::needsRecreation(const SequenceInfo &other) const

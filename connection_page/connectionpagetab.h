@@ -3,13 +3,12 @@
 
 #include <QWidget>
 #include "util/queryscheduler.h"
-#include "interfaces/isearchable.h"
 
 class QLabel;
 class DbConnection;
 class DbUiManager;
 
-class ConnectionPageTab : public QWidget, public QueryScheduler, public ISearchable
+class ConnectionPageTab : public QWidget, public QueryScheduler
 {
     Q_OBJECT
 public:
@@ -33,14 +32,6 @@ public:
     virtual bool canOpen() const {return true;}
     virtual bool canSave() const {return false;}
     virtual bool canPrint() const {return false;}
-
-    virtual bool canFind() const {return false;}
-    virtual bool canFindNext() const {return canFind();}
-    virtual bool canFindPrevious() const {return canFind();}
-
-    virtual void showSearchWidget() {}
-    virtual void findNext() {}
-    virtual void findPrevious() {}
 
     virtual void focusAvailable() {}
 

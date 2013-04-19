@@ -20,6 +20,7 @@ private:
     void setupMenu(QMenu *toolsMenu, QToolBar *toolbar);
 
     QAction *toolsCompareSchemasAction;
+    QAction *toolsExportSchemaAction;
 
     QAction *toolsCompareDataAction;
     QAction *toolsCopyDataAction;
@@ -29,6 +30,7 @@ private:
 
 private slots:
     void addSchemaComparer(){uiManager()->addSchemaComparer();}
+    void addSchemaExporter(){uiManager()->addSchemaComparer();}
     void addDataComparer(){uiManager()->addDataComparer();}
     void addDataCopier(){uiManager()->addDataCopier();}
     void addDataExporter(){uiManager()->addDataExporter();}
