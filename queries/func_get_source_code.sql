@@ -1,3 +1,5 @@
+{@replace_with:func_trim_str}
+
 function get_source_code(p_object_type varchar2, p_owner varchar2, p_object_name varchar2, p_sql_terminator number := 1) return clob is
     h1      NUMBER;         -- handle returned by OPEN
     th      NUMBER;         -- handle returned by ADD_TRANSFORM for DDL
@@ -19,5 +21,5 @@ begin
     
     DBMS_METADATA.CLOSE(h1);
     
-    return ddl;
+    return trim_str(ddl);
 end;

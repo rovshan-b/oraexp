@@ -34,6 +34,7 @@ public slots:
 
     void addWorksheet(const QString &contents="");
     void addSchemaComparer();
+    void addSchemaExporter();
     void addDataComparer();
     void addDataCopier();
     void addDataExporter();

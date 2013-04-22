@@ -1,7 +1,7 @@
 #ifndef TABLEDIFFDDLOPTIONS_H
 #define TABLEDIFFDDLOPTIONS_H
 
-#include "newdbobjectddloptions.h"
+#include "newdbobjectstorageoptions.h"
 
 class TableDiffDdlOptions
 {
@@ -22,7 +22,7 @@ public:
     bool triggers;
     bool grants;
 
-    NewDbObjectDdlOptions newObjectOptions;
+    NewDbObjectStorageOptions newObjectOptions;
 
 };
 

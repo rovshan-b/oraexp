@@ -1,12 +1,12 @@
-#ifndef NEWDBOBJECTDDLOPTIONS_H
-#define NEWDBOBJECTDDLOPTIONS_H
+#ifndef NEWDBOBJECTSTORAGEOPTIONS_H
+#define NEWDBOBJECTSTORAGEOPTIONS_H
 
 #include <QString>
 
-class NewDbObjectDdlOptions
+class NewDbObjectStorageOptions
 {
 public:
-    NewDbObjectDdlOptions();
+    NewDbObjectStorageOptions();
 
     bool storage;
     bool tablespaceOnly;
@@ -17,4 +17,4 @@ public:
     QString partitionsTablespaceName;
 };
 
-#endif // NEWDBOBJECTDDLOPTIONS_H
+#endif // NEWDBOBJECTSTORAGEOPTIONS_H

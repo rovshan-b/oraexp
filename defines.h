@@ -27,4 +27,6 @@ typedef QPair<QString,QString> StringPair;
 
 #define BULK_DATA_OPERATION_CHUNK_SIZE 50
 
+#define NOT_SUPPORTED_BY_DB_MSG "Not supported by current database version"
+
 #endif // DEFINES_H

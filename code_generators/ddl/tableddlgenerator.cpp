@@ -21,7 +21,7 @@ QString TableDdlGenerator::generateDdl(const TableInfo &tableInfo,
     const TableGeneralInfo *generalInfo=&tableInfo.generalInfo;
 
     QString createTableStatement = generalInfo->generateDdl(!tableInfo.partitioningInfo.isEmpty,
-                                                            options.newObjectOptions.storage, options.newObjectOptions.tablespaceOnly,
+                                                            options.newObjectStorageOptions.storage, options.newObjectStorageOptions.tablespaceOnly,
                                                             options.iotProperties, options.properties,
                                                             options.flashbackArchive);
 
@@ -73,7 +73,7 @@ QString TableDdlGenerator::generateDdl(const TableInfo &tableInfo,
     }
 
     if(tableType!=OraExp::TableTypeExternal && options.indexes){
-        QString indexesDdl=TableIndexesDdlGenerator::generateDdl(tableInfo, options.newObjectOptions.storage, options.newObjectOptions.tablespaceOnly);
+        QString indexesDdl=TableIndexesDdlGenerator::generateDdl(tableInfo, options.newObjectStorageOptions.storage, options.newObjectStorageOptions.tablespaceOnly);
         if(!indexesDdl.isEmpty()){
             createTableStatement.append("\n").append(indexesDdl);
         }

@@ -9,6 +9,11 @@ class QGroupBox;
 class QCheckBox;
 class QBoxLayout;
 class QLineEdit;
+class TableDdlExportOptionsWidget;
+class StorageDdlExportOptionsWidget;
+class SourceDdlExportOptionsWidget;
+class SequenceDdlExportOptionsWidget;
+class SequenceDdlDiffOptionsWidget;
 
 class SchemaComparerOptionsTab : public DbObjectComparerOptionsTab
 {
@@ -25,9 +30,7 @@ public:
 signals:
 
 private slots:
-    void noOptionsChanged(int);
     void etOptionsChanged(int);
-    void sourceWrapCheckBoxStateChanged(int state);
 
 private:
     void createExistingTableOptionsPane(QBoxLayout *layout);
@@ -54,30 +57,17 @@ private:
     QCheckBox *etGrants;
 
     QGroupBox *newTableOptionsGroupBox;
-    QCheckBox *ntProperties;
-    QCheckBox *ntFlashbackArchive;
-    QCheckBox *ntIOTProperties;
-    QCheckBox *ntLobProperties;
-    QCheckBox *ntIndexes;
-    QCheckBox *ntTriggers;
-    QCheckBox *ntGrants;
+    TableDdlExportOptionsWidget *ntOptionsWidget;
 
     QGroupBox *newObjectOptionsGroupBox;
-    QCheckBox *noStorage;
-    QCheckBox *noTablespaceOnly;
-    QLineEdit *noTablespaceName;
-    QLineEdit *noIOTOverflowTablespaceName;
-    QLineEdit *noIndexTablespaceName;
-    QLineEdit *noLobTablespaceName;
-    QLineEdit *noPartitionsTablespaceName;
+    StorageDdlExportOptionsWidget *noOptionsWidget;
 
     QGroupBox *sourceOptionsGroupBox;
-    QCheckBox *sourceIgnoreWhitespace;
-    QCheckBox *sourceWrap;
+    SourceDdlExportOptionsWidget *sourceOptionsWidget;
 
     QGroupBox *sequenceOptionsGroupBox;
-    QCheckBox *seqSetStartVal;
-    QCheckBox *seqUpdateCurrval;
+    SequenceDdlExportOptionsWidget *seqExportOptionWidget;
+    SequenceDdlDiffOptionsWidget *seqDiffOptionsWidget;
 
     /*QGroupBox *indexOptionsGroupBox;
     QCheckBox *indexPartitions;

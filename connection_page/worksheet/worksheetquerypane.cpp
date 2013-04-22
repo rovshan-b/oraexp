@@ -295,6 +295,11 @@ bool WorksheetQueryPane::isAutotraceEnabled() const
     return autotraceAction->isChecked();
 }
 
+bool WorksheetQueryPane::isInScriptMode() const
+{
+    return sequentialRunner.isBusy();
+}
+
 void WorksheetQueryPane::emitMessage(const QString &msg)
 {
     emit message(msg);

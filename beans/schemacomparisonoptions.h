@@ -4,7 +4,7 @@
 #include "dbobjectcomparisonoptions.h"
 #include "tablecreateddloptions.h"
 #include "tablediffddloptions.h"
-#include "newdbobjectddloptions.h"
+#include "newdbobjectstorageoptions.h"
 #include "sourcecodeddloptions.h"
 #include "sequencecreateddloptions.h"
 #include "sequencediffddloptions.h"

@@ -52,6 +52,7 @@ public slots:
     void toUpperCase();
     void toLowerCase();
     void makeDuplicate();
+    void removeEmptyLines();
     void moveUp();
     void moveDown();
     void moveSelectedText(bool up);

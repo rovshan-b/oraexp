@@ -37,7 +37,7 @@ void WorksheetResultPane::displayQueryResults(IQueryScheduler *queryScheduler,
     }
 
     if(result.statement!=0 && result.statement->rsCount()>0 && !isExplainPlan){
-        QList<WorksheetBottomPaneTab *> tabs = getTabsToDisplayResults(ResultsetTab, rsCount, currentTabStartIx++);
+        QList<WorksheetBottomPaneTab *> tabs = getTabsToDisplayResults(ResultsetTab, rsCount, currentTabStartIx);
         if(statementType==OraExp::QueryTypeDeclare || statementType==OraExp::QueryTypeBegin){
             setResultsetTabNamesFromOutParams(result.statement, tabs);
         }
@@ -51,6 +51,10 @@ void WorksheetResultPane::displayQueryResults(IQueryScheduler *queryScheduler,
                 }
                 setCurrentWidget(rsTab);
             }
+        }
+
+        if(queryPane->isInScriptMode()){
+            currentTabStartIx += tabs.size();
         }
     }
 

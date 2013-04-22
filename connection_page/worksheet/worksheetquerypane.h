@@ -51,6 +51,8 @@ public:
     QString getCurrentQuery() const {return this->currentQuery;}
 
     QString getLastExplainPlanStatementId() const {return this->lastExpPlanStatementId;}
+
+    bool isInScriptMode() const;
 signals:
     void queryDone(const QueryResult &result);
     void message(const QString &msg);

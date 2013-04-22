@@ -525,6 +525,7 @@ int CodeEditor::lineMarkerAreaOffset() const
      menu->addAction(editMenu->editToUpperCaseAction);
      menu->addAction(editMenu->editToLowerCaseAction);
      menu->addAction(editMenu->editCreateDuplicateAction);
+     menu->addAction(editMenu->editRemoveEmptyLinesAction);
 
      menu->exec(event->globalPos());
      delete menu;
@@ -865,6 +866,38 @@ int CodeEditor::lineMarkerAreaOffset() const
 
     inf.selectText(cur);
     setTextCursor(cur);
+ }
+
+ void CodeEditor::removeEmptyLines()
+ {
+     QTextCursor cur = textCursor();
+     int startBlock, endBlock;
+     if(cur.hasSelection()){
+         CursorPositionInfo info=getStartStopPositions(cur);
+         startBlock = info.startBlock;
+         endBlock = info.endBlock;
+     }else{
+         startBlock = 0;
+         endBlock = blockCount() - 1;
+     }
+
+     cur.beginEditBlock();
+     QTextBlock block = document()->findBlockByNumber(startBlock);
+     while(block.isValid() && block.blockNumber()<=endBlock){
+         cur.setPosition(block.position());
+         block = block.next();
+         cur.select(QTextCursor::BlockUnderCursor);
+         if(cur.selectedText().trimmed().isEmpty()){
+
+             if(cur.movePosition(QTextCursor::PreviousBlock)){
+                 cur.movePosition(QTextCursor::EndOfBlock);
+                 cur.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
+             }
+
+             cur.removeSelectedText();
+         }
+     }
+     cur.endEditBlock();
  }
 
  void CodeEditor::moveUp()

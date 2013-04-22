@@ -21,7 +21,7 @@ QPair<QString, QString> TableCompareHelper::generateCreateDdl(DbObjectInfo *obje
     if(sourceTableInfo->generalInfo.schema!=dbObjectsCompareHelper->getTargetSchemaName()){
         sourceTableInfo->setSchemaName(dbObjectsCompareHelper->getTargetSchemaName());
     }
-    sourceTableInfo->prepareForOptions(options->tableCreateOptions.newObjectOptions);
+    sourceTableInfo->prepareForOptions(options->tableCreateOptions.newObjectStorageOptions);
 
     return TableDdlGenerator::generateDdlForExporting(*sourceTableInfo, options->tableCreateOptions);
 }
@@ -39,7 +39,7 @@ QPair<QString, QString> TableCompareHelper::generateDiffDdl(DbObjectInfo *srcObj
     }
 
     if(sourceTableInfo->needsRecreation(*targetTableInfo, options->tableDiffOptions.partitions)){
-        sourceTableInfo->prepareForOptions(options->tableCreateOptions.newObjectOptions);
+        sourceTableInfo->prepareForOptions(options->tableCreateOptions.newObjectStorageOptions);
         QString recreateDdl=TableDdlGenerator::generateDropDdl(*targetTableInfo);
         QPair<QString,QString> ddlPair = TableDdlGenerator::generateDdlForExporting(*sourceTableInfo, options->tableCreateOptions);
         recreateDdl.append("\n").append(ddlPair.first);

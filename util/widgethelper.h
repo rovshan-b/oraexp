@@ -103,6 +103,12 @@ public:
 
     static QGroupBox *createGroupBox(QLayout *layout, const QString &title);
 
+    static QGroupBox *createGroupBox(QWidget *widget, const QString &title);
+
+    static QScrollArea *createScrollArea(QLayout *layout);
+
+    static QScrollArea *createScrollArea(QWidget *widget);
+
     static QWidget *findParentWidget(QWidget *w, const QString &parentWidgetClassName, int maxLevelsUp = 5);
 };
 

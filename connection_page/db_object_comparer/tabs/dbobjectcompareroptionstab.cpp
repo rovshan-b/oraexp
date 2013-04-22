@@ -1,4 +1,5 @@
 #include "dbobjectcompareroptionstab.h"
+#include "util/widgethelper.h"
 #include <QtGui>
 
 DbObjectComparerOptionsTab::DbObjectComparerOptionsTab(QWidget *parent) :
@@ -6,8 +7,15 @@ DbObjectComparerOptionsTab::DbObjectComparerOptionsTab(QWidget *parent) :
 {
 }
 
-void DbObjectComparerOptionsTab::targetConnectionEstablished(DbConnection *, DbConnection *)
+void DbObjectComparerOptionsTab::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
+    Q_UNUSED(queryScheduler);
+}
+
+void DbObjectComparerOptionsTab::targetConnectionEstablished(DbConnection *sourceDb, DbConnection *targetDb)
+{
+    Q_UNUSED(sourceDb);
+    Q_UNUSED(targetDb);
 }
 
 bool DbObjectComparerOptionsTab::validate()
@@ -25,14 +33,7 @@ QVBoxLayout *DbObjectComparerOptionsTab::createSingleColumnOptionsPane(QVBoxLayo
     optionsPaneLayout->addLayout(firstColLayout);
     optionsPaneLayout->addStretch();
 
-    QWidget *scrollWidget=new QWidget();
-    scrollWidget->setContentsMargins(0,0,0,0);
-    scrollWidget->setLayout(optionsPaneLayout);
-
-    QScrollArea *scrollArea=new QScrollArea();
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setBackgroundRole(QPalette::Base);
-    scrollArea->setWidget(scrollWidget);
+    QScrollArea *scrollArea=WidgetHelper::createScrollArea(optionsPaneLayout);
 
     layout->addWidget(scrollArea);
     layout->setAlignment(optionsPaneLayout, Qt::AlignTop|Qt::AlignLeft);

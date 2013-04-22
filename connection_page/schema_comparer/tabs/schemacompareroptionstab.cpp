@@ -1,12 +1,18 @@
 #include "schemacompareroptionstab.h"
 #include "util/widgethelper.h"
 #include "connectivity/dbconnection.h"
+#include "widgets/tableddlexportoptionswidget.h"
+#include "widgets/storageddlexportoptionswidget.h"
+#include "widgets/sourceddlexportoptionswidget.h"
+#include "widgets/sequenceddlexportoptionswidget.h"
+#include "widgets/sequenceddldiffoptionswidget.h"
 #include <QtGui>
 
 SchemaComparerOptionsTab::SchemaComparerOptionsTab(QWidget *parent) :
     DbObjectComparerOptionsTab(parent)
 {
     QVBoxLayout *mainLayout=new QVBoxLayout();
+
     createOptionsPane(mainLayout);
 
     setLayout(mainLayout);
@@ -14,24 +20,22 @@ SchemaComparerOptionsTab::SchemaComparerOptionsTab(QWidget *parent) :
 
 void SchemaComparerOptionsTab::setCanWrap(bool canWrap)
 {
-    sourceWrap->setEnabled(canWrap);
-    if(canWrap){
-        sourceWrap->setToolTip("");
-    }else{
-        sourceWrap->setToolTip(tr("Either source database version is higher than target or one of database versions is lower than 10g"));
-    }
+    sourceOptionsWidget->setCanWrap(canWrap,
+                                    canWrap ?
+                                        ""
+                                      :
+                                        tr("Either source database version is higher than target or one of database versions is lower than 10g"));
 }
 
 void SchemaComparerOptionsTab::setCanFlashbackArchive(bool canFlashbackArchive)
 {
+    QString notSupportedTooltip=tr("Not supported by source or target or both databases");
     if(canFlashbackArchive){
-        ntFlashbackArchive->setEnabled(true);
         etFlashbackArchive->setEnabled(true);
     }else{
-        QString tooltip=tr("Not supported by source or target or both databases");
-        ntFlashbackArchive->setToolTip(tooltip);
-        etFlashbackArchive->setToolTip(tooltip);
+        etFlashbackArchive->setToolTip(notSupportedTooltip);
     }
+    ntOptionsWidget->setFlashbackEnabled(canFlashbackArchive, canFlashbackArchive ? "" : notSupportedTooltip);
 }
 
 void SchemaComparerOptionsTab::targetConnectionEstablished(DbConnection *sourceDb, DbConnection *targetDb)
@@ -59,54 +63,24 @@ DbObjectComparisonOptions *SchemaComparerOptionsTab::getOptions()
     opt->tableDiffOptions.triggers=etTriggers->isChecked();
     opt->tableDiffOptions.grants=etGrants->isChecked();
 
-    opt->tableCreateOptions.properties=ntProperties->isChecked();
-    opt->tableCreateOptions.flashbackArchive=ntFlashbackArchive->isChecked();
-    opt->tableCreateOptions.iotProperties=ntIOTProperties->isChecked();
-    opt->tableCreateOptions.lobProperties=ntLobProperties->isChecked();
-    opt->tableCreateOptions.indexes=ntIndexes->isChecked();
-    opt->tableCreateOptions.triggers=ntTriggers->isChecked();
-    opt->tableCreateOptions.grants=ntGrants->isChecked();
+    opt->tableCreateOptions = ntOptionsWidget->getOptions();
 
-    NewDbObjectDdlOptions newObjectOptions;
-    newObjectOptions.storage=noStorage->isChecked();
-    newObjectOptions.tablespaceOnly=noTablespaceOnly->isChecked();
-    newObjectOptions.tablespaceName=noTablespaceName->text().trimmed().toUpper();
-    newObjectOptions.iotOverflowTablespaceName=noIOTOverflowTablespaceName->text().trimmed().toUpper();
-    newObjectOptions.indexTablespaceName=noIndexTablespaceName->text().trimmed().toUpper();
-    newObjectOptions.lobTablespaceName=noLobTablespaceName->text().trimmed().toUpper();
-    newObjectOptions.partitionsTablespaceName=noPartitionsTablespaceName->text().trimmed().toUpper();
+    NewDbObjectStorageOptions newObjectOptions = noOptionsWidget->getOptions();
 
-    opt->tableCreateOptions.newObjectOptions=newObjectOptions;
+    opt->tableCreateOptions.newObjectStorageOptions=newObjectOptions;
     opt->tableDiffOptions.newObjectOptions=newObjectOptions;
 
-    opt->sourceCodeOptions.ignoreWhitespace=sourceIgnoreWhitespace->isChecked();
-    opt->sourceCodeOptions.wrap=sourceWrap->isChecked();
+    opt->sourceCodeOptions = sourceOptionsWidget->getOptions();
 
-    opt->sequenceCreateOptions.setInitialValue=seqSetStartVal->isChecked();
-    opt->sequenceDiffOptions.updateCurrVal=seqUpdateCurrval->isChecked();
+    opt->sequenceCreateOptions = seqExportOptionWidget->getOptions();
+    opt->sequenceDiffOptions = seqDiffOptionsWidget->getOptions();
 
     return opt;
-}
-
-void SchemaComparerOptionsTab::noOptionsChanged(int)
-{
-    bool storageChecked=noStorage->isChecked();
-    noTablespaceOnly->setEnabled(storageChecked);
-    noTablespaceName->setEnabled(storageChecked);
-    noIOTOverflowTablespaceName->setEnabled(storageChecked);
-    noIndexTablespaceName->setEnabled(storageChecked);
-    noLobTablespaceName->setEnabled(storageChecked);
-    noPartitionsTablespaceName->setEnabled(storageChecked);
 }
 
 void SchemaComparerOptionsTab::etOptionsChanged(int)
 {
     etLOBProperties->setEnabled(etColumns->isChecked());
-}
-
-void SchemaComparerOptionsTab::sourceWrapCheckBoxStateChanged(int state)
-{
-    sourceIgnoreWhitespace->setEnabled(state!=Qt::Checked);
 }
 
 void SchemaComparerOptionsTab::createOptionsPane(QBoxLayout *layout)
@@ -147,16 +121,7 @@ void SchemaComparerOptionsTab::createOptionsPane(QBoxLayout *layout)
 
     optionsPaneLayout->addStretch();
 
-    QWidget *scrollWidget=new QWidget();
-    scrollWidget->setContentsMargins(0,0,0,0);
-    scrollWidget->setLayout(optionsPaneLayout);
-
-    QScrollArea *scrollArea=new QScrollArea();
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setBackgroundRole(QPalette::Base);
-    scrollArea->setWidget(scrollWidget);
-
-    layout->addWidget(scrollArea);
+    layout->addWidget(WidgetHelper::createScrollArea(optionsPaneLayout));
     layout->setAlignment(optionsPaneLayout, Qt::AlignTop|Qt::AlignLeft);
 }
 
@@ -191,92 +156,49 @@ void SchemaComparerOptionsTab::createExistingTableOptionsPane(QBoxLayout *layout
 
 void SchemaComparerOptionsTab::createNewTableOptionsPane(QBoxLayout *layout)
 {
-    newTableOptionsGroupBox=new QGroupBox(tr("New tables"));
+    QVBoxLayout *optionsLayout = new QVBoxLayout();
+    ntOptionsWidget = new TableDdlExportOptionsWidget();
+    optionsLayout->addWidget(ntOptionsWidget);
+    newTableOptionsGroupBox = WidgetHelper::createGroupBox(optionsLayout, tr("New tables"));
 
-    QGridLayout *tableOptionsLayout=new QGridLayout();
-
-    ntProperties=WidgetHelper::createCheckBox(tableOptionsLayout, 0, 0, tr("Properties"), false);
-    ntFlashbackArchive=WidgetHelper::createCheckBox(tableOptionsLayout, 1, 0, tr("Flashback archive"), false);
-    ntFlashbackArchive->setEnabled(false);
-    ntFlashbackArchive->setToolTip(tr("Will be enabled if both databases are version 11g or higher"));
-    ntIOTProperties=WidgetHelper::createCheckBox(tableOptionsLayout, 2, 0, tr("IOT properties"), true);
-    ntLobProperties=WidgetHelper::createCheckBox(tableOptionsLayout, 3, 0, tr("LOB properties"), false);
-    ntIndexes=WidgetHelper::createCheckBox(tableOptionsLayout, 0, 1, tr("Indexes"), true);
-
-    ntTriggers=WidgetHelper::createCheckBox(tableOptionsLayout, 1, 1, tr("Triggers"), true);
-    ntGrants=WidgetHelper::createCheckBox(tableOptionsLayout, 2, 1, tr("Grants"), false);
-
-    newTableOptionsGroupBox->setLayout(tableOptionsLayout);
     layout->addWidget(newTableOptionsGroupBox);
     layout->setAlignment(newTableOptionsGroupBox, Qt::AlignTop|Qt::AlignLeft);    
 }
 
 void SchemaComparerOptionsTab::createNewObjectOptionsPane(QBoxLayout *layout)
 {
-    newObjectOptionsGroupBox=new QGroupBox(tr("Storage for new objects"));
+    QVBoxLayout *optionsLayout = new QVBoxLayout();
+    noOptionsWidget = new StorageDdlExportOptionsWidget();
+    optionsLayout->addWidget(noOptionsWidget);
+    newObjectOptionsGroupBox = WidgetHelper::createGroupBox(optionsLayout, tr("Storage for new objects"));
 
-    QGridLayout *newObjectOptionsLayout=new QGridLayout();
-
-    noStorage=WidgetHelper::createCheckBox(newObjectOptionsLayout, 0, 0, tr("Generate storage DDL"), false);
-    noTablespaceOnly=WidgetHelper::createCheckBox(newObjectOptionsLayout, 0, 1, tr("Tablespace only"), true);
-
-    noTablespaceName=new QLineEdit();
-    newObjectOptionsLayout->addWidget(new QLabel(tr("Tablespace for tables")), 2, 0);
-    newObjectOptionsLayout->addWidget(noTablespaceName, 2, 1);
-
-    noIOTOverflowTablespaceName=new QLineEdit();
-    newObjectOptionsLayout->addWidget(new QLabel(tr("IOT overflow tablespace")),3, 0);
-    newObjectOptionsLayout->addWidget(noIOTOverflowTablespaceName, 3, 1);
-
-    noIndexTablespaceName=new QLineEdit();
-    newObjectOptionsLayout->addWidget(new QLabel(tr("Index tablespace")), 4, 0);
-    newObjectOptionsLayout->addWidget(noIndexTablespaceName, 4, 1);
-
-    noLobTablespaceName=new QLineEdit();
-    newObjectOptionsLayout->addWidget(new QLabel(tr("LOB tablespace")), 5, 0);
-    newObjectOptionsLayout->addWidget(noLobTablespaceName, 5, 1);
-
-    noPartitionsTablespaceName=new QLineEdit();
-    newObjectOptionsLayout->addWidget(new QLabel(tr("Partition tablespace")), 6, 0);
-    newObjectOptionsLayout->addWidget(noPartitionsTablespaceName, 6, 1);
-
-
-    newObjectOptionsGroupBox->setLayout(newObjectOptionsLayout);
     layout->addWidget(newObjectOptionsGroupBox);
     layout->setAlignment(newObjectOptionsGroupBox, Qt::AlignTop|Qt::AlignLeft);
-
-    connect(noStorage, SIGNAL(stateChanged(int)), this, SLOT(noOptionsChanged(int)));
-    noOptionsChanged(noStorage->checkState());
 }
 
 void SchemaComparerOptionsTab::createSourceOptionsPane(QBoxLayout *layout)
 {
-    sourceOptionsGroupBox=new QGroupBox(tr("Source code"));
+    QVBoxLayout *optionsLayout = new QVBoxLayout();
+    sourceOptionsWidget = new SourceDdlExportOptionsWidget();
+    optionsLayout->addWidget(sourceOptionsWidget);
+    sourceOptionsGroupBox = WidgetHelper::createGroupBox(optionsLayout, tr("Source code"));
 
-    QGridLayout *sourceOptionsLayout=new QGridLayout();
-
-    sourceIgnoreWhitespace=WidgetHelper::createCheckBox(sourceOptionsLayout, 0, 0, tr("Ignore whitespace"), true);
-    sourceWrap=WidgetHelper::createCheckBox(sourceOptionsLayout, 1, 0, tr("Wrap"), false);
-    sourceWrap->setEnabled(false);
-    sourceWrap->setToolTip(tr("Will be enabled upon connecting to target database if version check is successfull"));
-
-    sourceOptionsGroupBox->setLayout(sourceOptionsLayout);
     layout->addWidget(sourceOptionsGroupBox);
     layout->setAlignment(sourceOptionsGroupBox, Qt::AlignTop|Qt::AlignLeft);
-
-    connect(sourceWrap, SIGNAL(stateChanged(int)), this, SLOT(sourceWrapCheckBoxStateChanged(int)));
 }
 
 void SchemaComparerOptionsTab::createSequenceOptionsPane(QBoxLayout *layout)
 {
-    sequenceOptionsGroupBox=new QGroupBox(tr("Sequences"));
+    QVBoxLayout *optionsLayout=new QVBoxLayout();
 
-    QGridLayout *sequenceOptionsLayout=new QGridLayout();
+    seqExportOptionWidget = new SequenceDdlExportOptionsWidget();
+    seqDiffOptionsWidget = new SequenceDdlDiffOptionsWidget();
 
-    seqSetStartVal=WidgetHelper::createCheckBox(sequenceOptionsLayout, 0, 0, tr("Set start value"), false);
-    seqUpdateCurrval=WidgetHelper::createCheckBox(sequenceOptionsLayout, 1, 0, tr("Update CURRVAL"), false);
+    optionsLayout->addWidget(seqExportOptionWidget);
+    optionsLayout->addWidget(seqDiffOptionsWidget);
 
-    sequenceOptionsGroupBox->setLayout(sequenceOptionsLayout);
+    sequenceOptionsGroupBox = WidgetHelper::createGroupBox(optionsLayout, tr("Sequences"));
+
     layout->addWidget(sequenceOptionsGroupBox);
     layout->setAlignment(sequenceOptionsGroupBox, Qt::AlignTop|Qt::AlignLeft);
 }

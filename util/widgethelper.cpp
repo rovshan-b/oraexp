@@ -614,6 +614,32 @@ QGroupBox *WidgetHelper::createGroupBox(QLayout *layout, const QString &title)
     return groupBox;
 }
 
+QGroupBox *WidgetHelper::createGroupBox(QWidget *widget, const QString &title)
+{
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(widget);
+
+    return WidgetHelper::createGroupBox(layout, title);
+}
+
+QScrollArea *WidgetHelper::createScrollArea(QLayout *layout)
+{
+    QWidget *scrollWidget=new QWidget();
+    scrollWidget->setLayout(layout);
+
+    return WidgetHelper::createScrollArea(scrollWidget);
+}
+
+QScrollArea *WidgetHelper::createScrollArea(QWidget *widget)
+{
+    QScrollArea *scrollArea=new QScrollArea();
+    widget->setBackgroundRole(QPalette::Base);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setWidget(widget);
+
+    return scrollArea;
+}
+
 QWidget *WidgetHelper::findParentWidget(QWidget *w, const QString &parentWidgetClassName, int maxLevelsUp)
 {
     QWidget *tmp = w;

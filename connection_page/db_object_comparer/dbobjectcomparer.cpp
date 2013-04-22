@@ -87,6 +87,7 @@ void DbObjectComparer::setConnection(DbConnection *db)
 
     if(compareTab){
         compareTab->setQueryScheduler(this);
+        optionsTab->setQueryScheduler(this);
     }
 
     emitInitCompletedSignal();

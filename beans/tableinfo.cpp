@@ -130,7 +130,7 @@ void TableInfo::setLobTablespace(const QString &lobTablespace)
     }
 }
 
-void TableInfo::prepareForOptions(const NewDbObjectDdlOptions &options)
+void TableInfo::prepareForOptions(const NewDbObjectStorageOptions &options)
 {
     if(options.storage && !options.tablespaceName.isEmpty()){
         this->generalInfo.storageParams.tablespaceName=options.tablespaceName;

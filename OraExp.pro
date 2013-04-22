@@ -439,7 +439,15 @@ SOURCES += main.cpp\
     connectivity/resultsetdeleter.cpp \
     dialogs/ctrltabdialog.cpp \
     widgets/connectionpagetabwidget.cpp \
-    beans/ctrltabdata.cpp
+    beans/ctrltabdata.cpp \
+    connection_page/schema_exporter/schemaexporter.cpp \
+    connection_page/schema_exporter/tabs/schemaexporteroptionstab.cpp \
+    widgets/tableddlexportoptionswidget.cpp \
+    widgets/storageddlexportoptionswidget.cpp \
+    widgets/sourceddlexportoptionswidget.cpp \
+    widgets/sequenceddlexportoptionswidget.cpp \
+    widgets/sequenceddldiffoptionswidget.cpp \
+    beans/schemaexportoptions.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -675,7 +683,6 @@ HEADERS  += mainwindow.h \
     connection_page/schema_comparer/comparers/sequencecomparehelper.h \
     metadata_loaders/metadataloaderfactory.h \
     beans/sequencecreateddloptions.h \
-    beans/newdbobjectddloptions.h \
     connectivity/statement.h \
     beans/statementdesc.h \
     connection_page/data_comparer/datacomparer.h \
@@ -882,7 +889,16 @@ HEADERS  += mainwindow.h \
     connectivity/resultsetdeleter.h \
     dialogs/ctrltabdialog.h \
     widgets/connectionpagetabwidget.h \
-    beans/ctrltabdata.h
+    beans/ctrltabdata.h \
+    connection_page/schema_exporter/schemaexporter.h \
+    connection_page/schema_exporter/tabs/schemaexporteroptionstab.h \
+    widgets/tableddlexportoptionswidget.h \
+    beans/newdbobjectstorageoptions.h \
+    widgets/storageddlexportoptionswidget.h \
+    widgets/sourceddlexportoptionswidget.h \
+    widgets/sequenceddlexportoptionswidget.h \
+    widgets/sequenceddldiffoptionswidget.h \
+    beans/schemaexportoptions.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

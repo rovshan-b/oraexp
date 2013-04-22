@@ -67,6 +67,9 @@ void AppEditMenu::setupMenu(QMenu *editMenu, QToolBar *toolbar)
     editCreateDuplicateAction=editMenu->addAction(tr("Make duplicate"), this, SLOT(makeDuplicate()), QKeySequence("Ctrl+D"));
     editCreateDuplicateAction->setStatusTip(tr("Create duplicate of current line or selection"));
 
+    editRemoveEmptyLinesAction=editMenu->addAction(tr("Remove empty lines"), this, SLOT(removeEmptyLines()), QKeySequence("Ctrl+R"));
+    editRemoveEmptyLinesAction->setStatusTip(tr("Remove empty lines"));
+
     //toolbar->addAction(editSelectBlockAction);
 
     editMenu->addSeparator();
@@ -152,6 +155,7 @@ void AppEditMenu::updateActionStatesForCodeEditor(CodeEditor *editor)
     editToUpperCaseAction->setEnabled(!isReadOnly);
     editToLowerCaseAction->setEnabled(!isReadOnly);
     editCreateDuplicateAction->setEnabled(!isReadOnly);
+    editRemoveEmptyLinesAction->setEnabled(!isReadOnly);
 
     editIncreaseFontSize->setEnabled(true);
     editDecreaseFontSize->setEnabled(true);
@@ -211,6 +215,7 @@ void AppEditMenu::focusWidgetChanged(QWidget * /*old*/, QWidget *now)
     editToUpperCaseAction->setEnabled(false);
     editToLowerCaseAction->setEnabled(false);
     editCreateDuplicateAction->setEnabled(false);
+    editRemoveEmptyLinesAction->setEnabled(false);
 
     editIncreaseFontSize->setEnabled(false);
     editDecreaseFontSize->setEnabled(false);
@@ -300,6 +305,11 @@ void AppEditMenu::toLowerCase()
 void AppEditMenu::makeDuplicate()
 {
     WidgetHelper::invokeSlot(currentAppWidget, "makeDuplicate");
+}
+
+void AppEditMenu::removeEmptyLines()
+{
+    WidgetHelper::invokeSlot(currentAppWidget, "removeEmptyLines");
 }
 
 void AppEditMenu::showSearchWidget()

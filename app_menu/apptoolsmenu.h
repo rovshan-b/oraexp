@@ -30,7 +30,7 @@ private:
 
 private slots:
     void addSchemaComparer(){uiManager()->addSchemaComparer();}
-    void addSchemaExporter(){uiManager()->addSchemaComparer();}
+    void addSchemaExporter(){uiManager()->addSchemaExporter();}
     void addDataComparer(){uiManager()->addDataComparer();}
     void addDataCopier(){uiManager()->addDataCopier();}
     void addDataExporter(){uiManager()->addDataExporter();}

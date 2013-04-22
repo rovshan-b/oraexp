@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "beans/dbobjectcomparisonoptions.h"
+#include "interfaces/iqueryscheduler.h"
 
 class DbConnection;
 class QVBoxLayout;
@@ -15,6 +16,7 @@ public:
 
     virtual void createUi(){}
 
+    virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
     virtual void targetConnectionEstablished(DbConnection *sourceDb, DbConnection *targetDb);
 
     virtual DbObjectComparisonOptions *getOptions() = 0;

@@ -1,6 +1,6 @@
-#include "newdbobjectddloptions.h"
+#include "newdbobjectstorageoptions.h"
 
-NewDbObjectDdlOptions::NewDbObjectDdlOptions() :
+NewDbObjectStorageOptions::NewDbObjectStorageOptions() :
     storage(true),
     tablespaceOnly(false)
 {

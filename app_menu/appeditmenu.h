@@ -45,6 +45,7 @@ private slots:
     void toUpperCase();
     void toLowerCase();
     void makeDuplicate();
+    void removeEmptyLines();
 
     void showSearchWidget();
     void findNext();
@@ -69,6 +70,7 @@ public:
     QAction *editToUpperCaseAction;
     QAction *editToLowerCaseAction;
     QAction *editCreateDuplicateAction;
+    QAction *editRemoveEmptyLinesAction;
 
 private:
     void setupMenu(QMenu *editMenu, QToolBar *toolbar);

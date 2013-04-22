@@ -38,7 +38,7 @@ public:
 
     void setLobTablespace(const QString &lobTablespace);
     void setPartitionTablespace(const QString &partitionTablespace);
-    void prepareForOptions(const NewDbObjectDdlOptions &options);
+    void prepareForOptions(const NewDbObjectStorageOptions &options);
 
     TableInfo *originalInfo() const;
     void setOriginalInfo(TableInfo *originalTableInfo);

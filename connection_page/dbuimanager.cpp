@@ -10,6 +10,7 @@
 #include "util/dbutil.h"
 #include "worksheet/worksheet.h"
 #include "schema_comparer/schemacomparer.h"
+#include "schema_exporter/schemaexporter.h"
 #include "data_comparer/datacomparer.h"
 #include "data_copier/datacopier.h"
 #include "data_exporter/dataexporter.h"
@@ -122,6 +123,12 @@ void DbUiManager::addSchemaComparer()
 {
     SchemaComparer *schemaComparer=new SchemaComparer(this);
     cnPage->addTab(schemaComparer, IconUtil::getIcon("compare_schemas"), tr("Compare schemas"));
+}
+
+void DbUiManager::addSchemaExporter()
+{
+    SchemaExporter *schemaExporter=new SchemaExporter(this);
+    cnPage->addTab(schemaExporter, IconUtil::getIcon("export_schema"), tr("Export schema"));
 }
 
 void DbUiManager::addDataComparer()

@@ -2,7 +2,7 @@
 #define TABLECREATEDDLOPTIONS_H
 
 #include <QString>
-#include "newdbobjectddloptions.h"
+#include "newdbobjectstorageoptions.h"
 
 class TableCreateDdlOptions
 {
@@ -17,7 +17,7 @@ public:
     bool triggers;
     bool grants;
 
-    NewDbObjectDdlOptions newObjectOptions;
+    NewDbObjectStorageOptions newObjectStorageOptions;
 };
 
 #endif // TABLECREATEDDLOPTIONS_H
