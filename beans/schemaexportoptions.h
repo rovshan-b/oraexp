@@ -11,6 +11,10 @@ class SchemaExportOptions : public DbObjectComparisonOptions
 public:
     SchemaExportOptions();
 
+    QString filename;
+    QString encoding;
+    bool bom;
+
     TableCreateDdlOptions tableOptions;
     SourceCodeDdlOptions sourceCodeOptions;
     SequenceCreateDdlOptions sequenceOptions;

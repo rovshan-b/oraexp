@@ -44,7 +44,6 @@ void DataExporter::createTabs()
 {
     DataComparer::createTabs();
 
-    DataExporterCompareTab *cmpTab = static_cast<DataExporterCompareTab*>(compareTab);
     DataExporterOptionsTab *optTab = static_cast<DataExporterOptionsTab*>(optionsTab);
-    optTab->getOptionsWidget()->createSeparatedUi(cmpTab->getTopPaneForm(), cmpTab->getBottomPaneTab());
+    optTab->getOptionsWidget()->createSeparatedUi(compareTab->getTopPaneForm(), compareTab->getBottomPaneTab());
 }

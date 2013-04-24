@@ -18,9 +18,8 @@ protected:
                                                         const QString &targetSchema, IQueryScheduler *targetScheduler,
                                                         DbObjectComparisonOptions *options, QObject *parent);
     
-signals:
-    
-public slots:
+protected slots:
+    virtual void createTabs();
     
 };
 

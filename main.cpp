@@ -8,7 +8,13 @@
 #include "util/queryexectask.h"
 #include "beans/datacompareinfo.h"
 #include "proxystyle.h"
-//#include "beans/columninfo.h"
+
+#include "beans/columninfo.h"
+#include "beans/constraintinfo.h"
+#include "beans/indexinfo.h"
+#include "beans/triggerinfo.h"
+#include "beans/objectgrantinfo.h"
+#include "beans/tableexternalinfo.h"
 
 #include "grammar_parser/ebnfparser.h"
 #include "grammar_parser/firstfollowsetcomputer.h"
@@ -29,7 +35,13 @@ void registerMetaTypes()
 
     qRegisterMetaType<DataCompareInfo>("DataCompareInfo");
 
-    //qRegisterMetaType<ColumnInfo>("ColumnInfo");
+    qRegisterMetaType< QList<ColumnInfo> >("QList<ColumnInfo>");
+    qRegisterMetaType< QList<ConstraintInfo> >("QList<ConstraintInfo>");
+    qRegisterMetaType< QList<IndexInfo> >("QList<IndexInfo>");
+    qRegisterMetaType< QList<TriggerInfo> >("QList<TriggerInfo>");
+    qRegisterMetaType< QList<ObjectGrantInfo> >("QList<ObjectGrantInfo>");
+    qRegisterMetaType<TablePartitioningInfo>("TablePartitioningInfo");
+    qRegisterMetaType<TableExternalInfo>("TableExternalInfo");
 }
 
 int main(int argc, char *argv[])

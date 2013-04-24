@@ -2,7 +2,7 @@
 #include "dbtreeitem.h"
 
 DbTreeModelNodeExpander::DbTreeModelNodeExpander(DbTreeModel *treeModel) :
-    QObject(treeModel), currentIx(0)
+    QObject(treeModel), currentIx(0), loadOnlyChecked(false)
 {
     connect(treeModel, SIGNAL(childrenPopulated(QModelIndex)), this, SLOT(childrenPopulated(QModelIndex)));
     connect(treeModel, SIGNAL(childrenPopulateError(QModelIndex,OciException)), this, SLOT(childrenPopulateError(QModelIndex,OciException)));
@@ -17,6 +17,11 @@ void DbTreeModelNodeExpander::loadChildren(const QModelIndex &parent,
 
 
     load();
+}
+
+void DbTreeModelNodeExpander::setLoadOnlyChecked()
+{
+    this->loadOnlyChecked=true;
 }
 
 void DbTreeModelNodeExpander::load()
@@ -35,7 +40,8 @@ void DbTreeModelNodeExpander::load()
         index = treeModel->index(i,0,parentIndex);
         item = static_cast<DbTreeItem*>(index.internalPointer());
         if(!item->areChildrenPopulated() && item->hasChildren() &&
-                (nodeTypesToLoad.isEmpty() || nodeTypesToLoad.contains(item->getItemType()))){
+                (nodeTypesToLoad.isEmpty() || nodeTypesToLoad.contains(item->getItemType())) &&
+                (loadOnlyChecked==false || item->checkState()!=Qt::Unchecked)){
             treeModel->loadChildItems(index);
             loading=true;
             break;

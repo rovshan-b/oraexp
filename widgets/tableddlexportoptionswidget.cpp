@@ -41,4 +41,6 @@ void TableDdlExportOptionsWidget::setFlashbackEnabled(bool enabled, const QStrin
 {
     ntFlashbackArchive->setEnabled(enabled);
     ntFlashbackArchive->setToolTip(tooltip);
+
+    ntFlashbackArchive->setChecked(enabled);
 }

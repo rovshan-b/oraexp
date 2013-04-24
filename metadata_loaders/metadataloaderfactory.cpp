@@ -3,12 +3,6 @@
 #include "interfaces/iqueryscheduler.h"
 #include "util/dbutil.h"
 
-#include "table/tableinfoloader.h"
-#include "code/sourceinfoloader.h"
-#include "sequence/sequenceinfoloader.h"
-#include "synonym/synonyminfoloader.h"
-#include "dblink/dblinkinfoloader.h"
-
 MetadataLoaderFactory::MetadataLoaderFactory()
 {
 }

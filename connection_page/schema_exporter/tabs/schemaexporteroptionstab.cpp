@@ -3,6 +3,8 @@
 #include "widgets/storageddlexportoptionswidget.h"
 #include "widgets/sourceddlexportoptionswidget.h"
 #include "widgets/sequenceddlexportoptionswidget.h"
+#include "widgets/fileselectorwidget.h"
+#include "widgets/fileencodingwidget.h"
 #include "beans/schemaexportoptions.h"
 #include "util/widgethelper.h"
 #include "connectivity/dbconnection.h"
@@ -10,7 +12,7 @@
 #include <QtGui>
 
 SchemaExporterOptionsTab::SchemaExporterOptionsTab(QWidget *parent) :
-    DbObjectComparerOptionsTab(parent)
+    DbObjectComparerOptionsTab(parent), filenameEditor(0)
 {
     QVBoxLayout *mainLayout=new QVBoxLayout();
 
@@ -31,6 +33,10 @@ void SchemaExporterOptionsTab::setQueryScheduler(IQueryScheduler *queryScheduler
 DbObjectComparisonOptions *SchemaExporterOptionsTab::getOptions()
 {
     SchemaExportOptions *opt = new SchemaExportOptions();
+
+    opt->filename = filenameEditor->fileName();
+    opt->encoding = encodingWidget->encoding();
+    opt->bom = encodingWidget->bom();
 
     opt->tableOptions = tableOptionsWidget->getOptions();
     opt->tableOptions.newObjectStorageOptions = storageOptionsWidget->getOptions();
@@ -105,4 +111,26 @@ void SchemaExporterOptionsTab::createSequenceOptionsPane(QVBoxLayout *layout)
 
     layout->addWidget(sequenceOptionsGroupBox);
     layout->setAlignment(sequenceOptionsGroupBox, Qt::AlignTop|Qt::AlignLeft);
+}
+
+void SchemaExporterOptionsTab::createFileWidgets(QFormLayout *form)
+{
+    Q_ASSERT(filenameEditor==0);
+
+    filenameEditor = new FileSelectorWidget();
+    filenameEditor->setDefaultSuffix("sql");
+    form->addRow(tr("File name"), filenameEditor);
+
+    encodingWidget = new FileEncodingWidget();
+    form->addRow(tr("Encoding"), encodingWidget);
+}
+
+bool SchemaExporterOptionsTab::validate()
+{
+    if(filenameEditor->fileName().isEmpty()){
+        QMessageBox::critical(this, tr("Validation error"), tr("Please, enter the filename."));
+        return false;
+    }
+
+    return true;
 }

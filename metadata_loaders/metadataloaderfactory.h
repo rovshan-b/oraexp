@@ -2,6 +2,11 @@
 #define METADATALOADERFACTORY_H
 
 #include "navtree/dbtreemodel.h"
+#include "table/tableinfoloader.h"
+#include "code/sourceinfoloader.h"
+#include "sequence/sequenceinfoloader.h"
+#include "synonym/synonyminfoloader.h"
+#include "dblink/dblinkinfoloader.h"
 
 class MetadataLoader;
 class IQueryScheduler;

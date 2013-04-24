@@ -14,6 +14,8 @@ class QFormLayout;
 class LineEditWithButton;
 class QTabWidget;
 class DataTableAndToolBarWidget;
+class FileSelectorWidget;
+class FileEncodingWidget;
 
 
 class DataExportOptionsWidget : public QWidget
@@ -38,9 +40,7 @@ signals:
     void exportFormatChanged(DataExporterBase::ExportFormat newFormat);
 
 private slots:
-    void selectSaveFilename();
     void enableControls();
-    void correctFileSuffix();
     void fileFormatChanged();
     void includeSchemaCheckBoxChanged();
     
@@ -48,9 +48,8 @@ private:
     QTabWidget *tab;
 
     QComboBox *formatComboBox;
-    LineEditWithButton *filenameEditor;
-    QComboBox *encodingComboBox;
-    QCheckBox *bomCheckbox;
+    FileSelectorWidget *filenameEditor;
+    FileEncodingWidget *encodingEditor;
 
     QCheckBox *selectedOnlyCheckbox;
     QCheckBox *includeNullTextCheckbox;

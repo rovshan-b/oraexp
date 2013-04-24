@@ -8,6 +8,9 @@ class TableDdlExportOptionsWidget;
 class StorageDdlExportOptionsWidget;
 class SourceDdlExportOptionsWidget;
 class SequenceDdlExportOptionsWidget;
+class FileSelectorWidget;
+class FileEncodingWidget;
+class QFormLayout;
 
 class SchemaExporterOptionsTab : public DbObjectComparerOptionsTab
 {
@@ -18,6 +21,10 @@ public:
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
 
     virtual DbObjectComparisonOptions *getOptions();
+
+    void createFileWidgets(QFormLayout *form);
+
+    virtual bool validate();
     
 private:
     void createOptionsPane(QVBoxLayout *layout);
@@ -38,6 +45,9 @@ private:
 
     QGroupBox *sequenceOptionsGroupBox;
     SequenceDdlExportOptionsWidget *sequenceOptionsWidget;
+
+    FileSelectorWidget *filenameEditor;
+    FileEncodingWidget *encodingWidget;
     
 };
 

@@ -447,7 +447,14 @@ SOURCES += main.cpp\
     widgets/sourceddlexportoptionswidget.cpp \
     widgets/sequenceddlexportoptionswidget.cpp \
     widgets/sequenceddldiffoptionswidget.cpp \
-    beans/schemaexportoptions.cpp
+    beans/schemaexportoptions.cpp \
+    connection_page/schema_exporter/tabs/schemaexportercomparetab.cpp \
+    widgets/fileencodingwidget.cpp \
+    widgets/comboboxandcheckboxwidget.cpp \
+    widgets/fileselectorwidget.cpp \
+    connection_page/schema_exporter/schemaexporterhelper.cpp \
+    connection_page/schema_operation/schemaoperationhelper.cpp \
+    connection_page/schema_exporter/schemaexporterthread.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -898,7 +905,14 @@ HEADERS  += mainwindow.h \
     widgets/sourceddlexportoptionswidget.h \
     widgets/sequenceddlexportoptionswidget.h \
     widgets/sequenceddldiffoptionswidget.h \
-    beans/schemaexportoptions.h
+    beans/schemaexportoptions.h \
+    connection_page/schema_exporter/tabs/schemaexportercomparetab.h \
+    widgets/fileencodingwidget.h \
+    widgets/comboboxandcheckboxwidget.h \
+    widgets/fileselectorwidget.h \
+    connection_page/schema_exporter/schemaexporterhelper.h \
+    connection_page/schema_operation/schemaoperationhelper.h \
+    connection_page/schema_exporter/schemaexporterthread.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

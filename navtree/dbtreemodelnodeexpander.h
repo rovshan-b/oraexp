@@ -14,6 +14,8 @@ public:
 
     void loadChildren(const QModelIndex &parent,
                       QList<DbTreeModel::DbTreeNodeType> nodeTypes=QList<DbTreeModel::DbTreeNodeType>());
+
+    void setLoadOnlyChecked();
     
 signals:
     void loadComplete();
@@ -27,6 +29,8 @@ private:
     int currentIx;
     QModelIndex parentIndex;
     QList<DbTreeModel::DbTreeNodeType> nodeTypesToLoad;
+
+    bool loadOnlyChecked;
 
     void load();
     

@@ -1,6 +1,8 @@
 #include "dataexportoptionswidget.h"
 #include "widgets/lineeditwithbutton.h"
 #include "widgets/datatableandtoolbarwidget.h"
+#include "widgets/fileselectorwidget.h"
+#include "widgets/fileencodingwidget.h"
 #include "models/genericeditabletablemodel.h"
 #include "delegates/autoappenddelegate.h"
 #include "util/widgethelper.h"
@@ -70,7 +72,6 @@ void DataExportOptionsWidget::connectSignalsAndSlots()
 
     fileFormatChanged();
     connect(formatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(fileFormatChanged()));
-    connect(filenameEditor, SIGNAL(buttonClicked(LineEditWithButton*)), this, SLOT(selectSaveFilename()));
     connect(includeColumnHeadersCheckbox, SIGNAL(stateChanged(int)), this, SLOT(enableControls()));
     connect(includeSchemaCheckBox, SIGNAL(stateChanged(int)), this, SLOT(includeSchemaCheckBoxChanged()));
 
@@ -96,50 +97,16 @@ void DataExportOptionsWidget::setTableName(const QString &schemaName, const QStr
     this->tableNameEditor->setText(tableName);
 }
 
-void DataExportOptionsWidget::selectSaveFilename()
-{
-    QString filename=DialogHelper::showFileSaveDialog(this, formatComboBox->itemData(formatComboBox->currentIndex()).toString());
-    if(!filename.isEmpty()){
-        filenameEditor->lineEdit()->setText(filename);
-    }
-}
-
 void DataExportOptionsWidget::enableControls()
 {
     quoteColumnHeadersCheckbox->setEnabled(includeColumnHeadersCheckbox->isChecked() &&
                                            includeColumnHeadersCheckbox->isEnabledTo(this));
 }
 
-void DataExportOptionsWidget::correctFileSuffix()
-{
-    QString filename=filenameEditor->lineEdit()->text().trimmed();
-
-    if(filename.isEmpty()){
-        return;
-    }
-
-    QFileInfo fileInfo(filename);
-
-    QString currentSuffix = fileInfo.suffix();
-    if(currentSuffix.isEmpty()){
-        return;
-    }
-    QString newSuffix=formatComboBox->itemData(formatComboBox->currentIndex()).toString();
-    Q_ASSERT(newSuffix.size());
-
-    if(currentSuffix.compare(newSuffix)==0){
-        return;
-    }
-
-    filename.chop(currentSuffix.size());
-    filename.append(newSuffix);
-
-    filenameEditor->lineEdit()->setText(filename);
-}
-
 void DataExportOptionsWidget::fileFormatChanged()
 {
-    correctFileSuffix();
+    QString formatSuffix = formatComboBox->itemData(formatComboBox->currentIndex()).toString();
+    filenameEditor->setDefaultSuffix(formatSuffix);
 
     DataExporterBase::ExportFormat format = (DataExporterBase::ExportFormat)formatComboBox->currentIndex();
 
@@ -163,15 +130,11 @@ void DataExportOptionsWidget::createFileOptionsControls(QFormLayout *form)
     formatComboBox = new QComboBox();
     form->addRow(tr("Export format"), formatComboBox);
 
-    filenameEditor = new LineEditWithButton(this);
+    filenameEditor = new FileSelectorWidget(this);
     form->addRow(tr("File name"), filenameEditor);
 
-    encodingComboBox = new QComboBox();
-    WidgetHelper::fillAvailableTextCodecNames(encodingComboBox);
-    form->addRow(tr("Encoding"), encodingComboBox);
-
-    bomCheckbox = new QCheckBox(tr("BOM"));
-    form->addRow(bomCheckbox);
+    encodingEditor = new FileEncodingWidget();
+    form->addRow(tr("Encoding"), encodingEditor);
 }
 
 QWidget *DataExportOptionsWidget::createOptionsTab()
@@ -395,9 +358,9 @@ DataExporterBase *DataExportOptionsWidget::createExporter()
         break;
     }
 
-    exporter->filename = filenameEditor->lineEdit()->text().trimmed();
-    exporter->encoding = encodingComboBox->currentText();
-    exporter->bom = bomCheckbox->isChecked();
+    exporter->filename = filenameEditor->fileName();
+    exporter->encoding = encodingEditor->encoding();
+    exporter->bom = encodingEditor->bom();
 
     bool onlySelectedRows = multiTableExport ? false : selectedOnlyCheckbox->isChecked();
     exporter->startRow = onlySelectedRows ? this->selectionStartRow : -1;
@@ -441,7 +404,7 @@ void DataExportOptionsWidget::setMultiTableMode()
 
 bool DataExportOptionsWidget::validate()
 {
-    if(filenameEditor->lineEdit()->text().trimmed().isEmpty()){
+    if(filenameEditor->fileName().isEmpty()){
         QMessageBox::critical(this, tr("Validation error"), tr("Please, enter the filename."));
         return false;
     }

@@ -112,7 +112,5 @@ QTextStream *DataExporterBase::createOutputStream(QString &errorMessage)
 void DataExporterBase::setTextStreamProperties()
 {
     textStream->setCodec(this->encoding.toStdString().c_str());
-    if(this->encoding.startsWith("UTF")){
-        textStream->setGenerateByteOrderMark(this->bom);
-    }
+    textStream->setGenerateByteOrderMark(this->bom);
 }

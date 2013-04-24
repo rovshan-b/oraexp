@@ -489,6 +489,34 @@ QList<QModelIndex> DbTreeModel::getCheckedGrandChildren(const QModelIndex &grand
     return results;
 }
 
+int DbTreeModel::getCheckedChildCount(const QModelIndex &parent)
+{
+    int result=0;
+
+    QList<DbTreeItem*> items=getChildItems(parent);
+    foreach(DbTreeItem *item, items){
+        if(item->checkState()==Qt::Checked && item->canGenerateDdlForItem()){
+            ++result;
+        }
+    }
+
+    return result;
+}
+
+QStringList DbTreeModel::getCheckedChildNames(const QModelIndex &parent)
+{
+    QStringList result;
+
+    QList<DbTreeItem*> items=getChildItems(parent);
+    foreach(DbTreeItem *item, items){
+        if(item->checkState()==Qt::Checked && item->canGenerateDdlForItem()){
+            result.append(item->itemName());
+        }
+    }
+
+    return result;
+}
+
 bool DbTreeModel::isCheckable(DbTreeItem *item) const
 {
     Q_ASSERT(item);

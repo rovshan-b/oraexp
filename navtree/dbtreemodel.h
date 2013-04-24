@@ -147,6 +147,8 @@ public:
 
     QModelIndex findByName(const QModelIndex &parent, const QString &name) const;
 
+    int getCheckedChildCount(const QModelIndex &parent);
+    QStringList getCheckedChildNames(const QModelIndex &parent);
 signals:
     void childrenPopulated(const QModelIndex &parent);
     void childrenPopulateError(const QModelIndex &parent, const OciException &exception);
