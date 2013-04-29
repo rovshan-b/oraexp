@@ -13,7 +13,8 @@ public:
     explicit AsyncConnect(DbConnection *db, void *data, QThread *guiThread, QObject *parent);
     ~AsyncConnect();
 
-    void run();
+protected:
+    virtual void run();
 
 signals:
     void connectionEstablished(AsyncConnect *thread, DbConnection *db, void *data, bool error=false, const OciException &ex=OciException());

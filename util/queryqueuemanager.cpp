@@ -9,6 +9,7 @@
 #include <QMetaObject>
 #include <QMetaMethod>
 #include <QThreadPool>
+#include <QApplication>
 #include <QDebug>
 
 using namespace std;
@@ -21,6 +22,9 @@ QueryQueueManager::QueryQueueManager(DbConnection *db, QObject *parent) :
 
 void QueryQueueManager::enqueueQuery(const QueryExecTask &task)
 {
+    //can be called only from application main thread
+    Q_ASSERT(QApplication::instance()->thread() == QThread::currentThread());
+
     queryQueue.enqueue(task);
     if(!isWorking){
         processQueue();

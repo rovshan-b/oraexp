@@ -18,12 +18,13 @@ public:
                                  QHash<int, StatementDesc*> dynamicQueries,
                                  QObject *parent);
 
-    void run();
-
     void setFetchRange(int startIx, int count);
     void setFetchInChunks(bool fetchInChunks);
 
     void *data;
+
+protected:
+    virtual void run();
 
 signals:
     void recordsFetched(const QList<QStringList> &records);

@@ -77,7 +77,7 @@ void DbObjectComparerResultsTab::afterCompare()
     changeListTable->setSortingEnabled(true);
 }
 
-void DbObjectComparerResultsTab::setCurrentSchema(const QString &)
+void DbObjectComparerResultsTab::setCurrentSchema(const QString &currentSchemaName)
 {
-
+    Q_UNUSED(currentSchemaName);
 }

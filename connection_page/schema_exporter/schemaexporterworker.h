@@ -1,7 +1,8 @@
-#ifndef SCHEMAEXPORTERTHREAD_H
-#define SCHEMAEXPORTERTHREAD_H
+#ifndef SCHEMAEXPORTERWORKER_H
+#define SCHEMAEXPORTERWORKER_H
 
 #include <QStringList>
+#include <QIODevice>
 
 #include "util/stopablethread.h"
 #include "navtree/dbtreemodel.h"
@@ -9,26 +10,32 @@
 class SchemaExportOptions;
 class DbObjectInfo;
 class MetadataLoader;
+class QTextStream;
+class QFile;
 
-class SchemaExporterThread : public StopableThread
+class SchemaExporterWorker : public QObject
 {
     Q_OBJECT
 public:
-    explicit SchemaExporterThread(DbTreeModel::DbTreeNodeType parentNodeType,
+    explicit SchemaExporterWorker(DbTreeModel::DbTreeNodeType parentNodeType,
                                   const QString &schemaName,
                                   const QStringList &objectNames,
                                   SchemaExportOptions *options,
+                                  QIODevice::OpenMode fileOpenMode,
                                   IQueryScheduler *queryScheduler,
                                   QObject *parent);
-    
-    virtual void run();
+
+    virtual ~SchemaExporterWorker();
+
+    void start();
+    void stop();
 
 signals:
     void statusChanged(const QString &newStatus);
     void exportCompleted();
     void exportError(const QString &taskName, const OciException &ex);
-    void objectExported(DbTreeModel::DbTreeNodeType parentNodeType,
-                        const QString &objectName);
+    void objectExportStarted(DbTreeModel::DbTreeNodeType parentNodeType, const QString &objectName);
+    void objectExported(DbTreeModel::DbTreeNodeType parentNodeType, const QString &objectName);
 
 private slots:
     void objectInfoReady(DbObjectInfo *objectInfo, MetadataLoader *loader);
@@ -39,12 +46,20 @@ private:
     QString schemaName;
     QStringList objectNames;
     SchemaExportOptions *options;
+    QIODevice::OpenMode fileOpenMode;
     IQueryScheduler *queryScheduler;
+
+    bool stopped;
+
+    QTextStream *textStream;
+    QFile *file;
 
     QString currentObjectName;
 
     void loadNextObject();
+
+    void cleanup();
     
 };
 
-#endif // SCHEMAEXPORTERTHREAD_H
+#endif // SCHEMAEXPORTERWORKER_H

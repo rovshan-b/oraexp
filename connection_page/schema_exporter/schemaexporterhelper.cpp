@@ -1,6 +1,7 @@
 #include "schemaexporterhelper.h"
 #include "beans/schemaexportoptions.h"
-#include "schemaexporterthread.h"
+#include "schemaexporterworker.h"
+#include <QDebug>
 
 SchemaExporterHelper::SchemaExporterHelper(const QString &schemaName,
                                            IQueryScheduler *queryScheduler,
@@ -8,38 +9,72 @@ SchemaExporterHelper::SchemaExporterHelper(const QString &schemaName,
                                            SchemaExportOptions *options,
                                            QObject *parent) :
     SchemaOperationHelper(schemaName, queryScheduler, model, parent),
-    options(options)
+    options(options),
+    justStarted(true)
 {
 }
 
 SchemaExporterHelper::~SchemaExporterHelper()
 {
     delete options;
+    deleteWorker();
 }
 
 void SchemaExporterHelper::stop()
 {
     SchemaOperationHelper::stop();
+
+    if(worker){
+        worker->stop();
+    }
 }
 
 void SchemaExporterHelper::startComparer(DbTreeModel::DbTreeNodeType parentNodeType, const QStringList &checkedChildNames)
 {
-    workerThread = new SchemaExporterThread(parentNodeType,
+    worker = new SchemaExporterWorker(parentNodeType,
                                             sourceSchema,
                                             checkedChildNames,
                                             options,
+                                            justStarted ? QIODevice::WriteOnly : QIODevice::Append,
                                             sourceScheduler,
-                                            this);
+                                            0);
 
-    connect(workerThread, SIGNAL(statusChanged(QString)), this, SIGNAL(statusChanged(QString)));
-    connect(workerThread, SIGNAL(exportCompleted()), this, SLOT(compareNextParentItem()));
-    connect(workerThread, SIGNAL(objectExported(DbTreeModel::DbTreeNodeType,QString)), this, SLOT(objectExported(DbTreeModel::DbTreeNodeType,QString)));
-    connect(workerThread, SIGNAL(exportError(QString,OciException)), this, SLOT(subComparisonError(QString,OciException)));
+    if(this->stopped){
+        worker->stop();
+    }
 
-    workerThread->start();
+    connect(worker, SIGNAL(statusChanged(QString)), this, SIGNAL(statusChanged(QString)));
+    connect(worker, SIGNAL(exportCompleted()), this, SLOT(exportCompleted()));
+    connect(worker, SIGNAL(objectExportStarted(DbTreeModel::DbTreeNodeType,QString)), this, SIGNAL(objectExportStarted(DbTreeModel::DbTreeNodeType,QString)));
+    connect(worker, SIGNAL(objectExported(DbTreeModel::DbTreeNodeType,QString)), this, SLOT(objectExported(DbTreeModel::DbTreeNodeType,QString)));
+    connect(worker, SIGNAL(exportError(QString,OciException)), this, SLOT(subComparisonError(QString,OciException)));
+
+    worker->start();
 }
 
 void SchemaExporterHelper::objectExported(DbTreeModel::DbTreeNodeType parentNodeType, const QString &objectName)
 {
+    if(justStarted){
+        justStarted=false;
+    }
+
     emit chunkCompleted(1);
+
+    emit objectExportCompleted(parentNodeType, objectName);
+}
+
+void SchemaExporterHelper::exportCompleted()
+{
+    deleteWorker();
+    compareNextParentItem();
+}
+
+void SchemaExporterHelper::deleteWorker()
+{
+    if(worker==0){
+        return;
+    }
+
+    delete worker;
+    worker = 0;
 }

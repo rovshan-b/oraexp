@@ -13,7 +13,8 @@ public:
     explicit NodePopulatorThread(const QModelIndex &parentNode, QObject *parent);
     virtual ~NodePopulatorThread();
 
-    void run();
+protected:
+    virtual void run();
 
 signals:
     void queryCompleted(const DbTreeItemResult &result);

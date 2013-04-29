@@ -34,6 +34,7 @@ protected:
     QHash< DbTreeModel::DbTreeNodeType, QQueue<DbTreeModel::DbTreeNodeType> > parentIndexReplacements;
     
     void populateParentIndexesToCompare();
+    void reorderParentIndexesByPriority();
     void compareChildItems();
 
     void createParentIndexReplacements();

@@ -1,7 +1,7 @@
 #include "schemaexporter.h"
 #include "tabs/schemaexportercomparetab.h"
 #include "tabs/schemaexporteroptionstab.h"
-#include "connection_page/db_object_comparer/tabs/dbobjectcomparerresultstab.h"
+#include "tabs/schemaexporterresultstab.h"
 #include "schemaexporterhelper.h"
 #include "beans/schemaexportoptions.h"
 
@@ -22,7 +22,7 @@ DbObjectComparerOptionsTab *SchemaExporter::doCreateOptionsTab()
 
 DbObjectComparerResultsTab *SchemaExporter::doCreateResultsTab()
 {
-    return new DbObjectComparerResultsTab(this->uiManager);
+    return new SchemaExporterResultsTab(this->uiManager);
 }
 
 IDbObjectCompareHelper *SchemaExporter::createCompareHelper(const QString &sourceSchema, IQueryScheduler *sourceScheduler, const QString &targetSchema, IQueryScheduler *targetScheduler, DbObjectComparisonOptions *options, QObject *parent)
@@ -41,6 +41,8 @@ IDbObjectCompareHelper *SchemaExporter::createCompareHelper(const QString &sourc
     connect(exporter, SIGNAL(completed()), this, SLOT(completed()));
     connect(exporter, SIGNAL(comparisonError(QString,OciException)), this, SLOT(comparisonError(QString,OciException)));
     connect(exporter, SIGNAL(objectCountDetermined(int)), this, SLOT(objectCountDetermined(int)));
+    connect(exporter, SIGNAL(objectExportStarted(DbTreeModel::DbTreeNodeType,QString)), resultsTab, SLOT(objectExportStarted(DbTreeModel::DbTreeNodeType,QString)));
+    connect(exporter, SIGNAL(objectExportCompleted(DbTreeModel::DbTreeNodeType,QString)), resultsTab, SLOT(objectExportCompleted(DbTreeModel::DbTreeNodeType,QString)));
     connect(exporter, SIGNAL(chunkCompleted(int)), this, SLOT(chunkCompleted(int)));
 
     return exporter;

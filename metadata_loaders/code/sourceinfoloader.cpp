@@ -14,6 +14,7 @@ SourceInfoLoader::SourceInfoLoader(IQueryScheduler *queryScheduler, const QStrin
     wrap(wrap),
     sqlTerminator(sqlTerminator)
 {
+
 }
 
 void SourceInfoLoader::loadObjectInfo()

@@ -454,7 +454,9 @@ SOURCES += main.cpp\
     widgets/fileselectorwidget.cpp \
     connection_page/schema_exporter/schemaexporterhelper.cpp \
     connection_page/schema_operation/schemaoperationhelper.cpp \
-    connection_page/schema_exporter/schemaexporterthread.cpp
+    connection_page/schema_exporter/tabs/schemaexporterresultstab.cpp \
+    util/metatypesutil.cpp \
+    connection_page/schema_exporter/schemaexporterworker.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -912,7 +914,9 @@ HEADERS  += mainwindow.h \
     widgets/fileselectorwidget.h \
     connection_page/schema_exporter/schemaexporterhelper.h \
     connection_page/schema_operation/schemaoperationhelper.h \
-    connection_page/schema_exporter/schemaexporterthread.h
+    connection_page/schema_exporter/tabs/schemaexporterresultstab.h \
+    util/metatypesutil.h \
+    connection_page/schema_exporter/schemaexporterworker.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

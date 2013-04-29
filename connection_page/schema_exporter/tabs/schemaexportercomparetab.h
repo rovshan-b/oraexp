@@ -11,9 +11,9 @@ public:
 
     virtual bool needsTargetConnection() const;
     
-signals:
-    
-public slots:
+protected:
+    virtual DbTreeModel::DbTreeNodeTypes getNodeTypesToDisplay() const;
+    virtual DbTreeModel::DbTreeNodeTypes getCheckableNodeTypes() const;
     
 };
 

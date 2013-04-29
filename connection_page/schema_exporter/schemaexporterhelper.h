@@ -4,7 +4,9 @@
 #include "connection_page/schema_operation/schemaoperationhelper.h"
 
 class SchemaExportOptions;
-class SchemaExporterThread;
+class SchemaExporterWorker;
+class QTextStream;
+class QFile;
 
 class SchemaExporterHelper : public SchemaOperationHelper
 {
@@ -18,17 +20,26 @@ public:
 
     virtual void stop();
 
+signals:
+    void objectExportStarted(DbTreeModel::DbTreeNodeType parentNodeType, const QString &objectName);
+    void objectExportCompleted(DbTreeModel::DbTreeNodeType parentNodeType, const QString &objectName);
+
 protected:
     virtual void startComparer(DbTreeModel::DbTreeNodeType parentNodeType, const QStringList &checkedChildNames);
 
 private slots:
     void objectExported(DbTreeModel::DbTreeNodeType parentNodeType,
                         const QString &objectName);
+    void exportCompleted();
 
 private:
     SchemaExportOptions *options;
 
-    SchemaExporterThread *workerThread;
+    SchemaExporterWorker *worker;
+
+    bool justStarted;
+
+    void deleteWorker();
     
 };
 

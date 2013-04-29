@@ -1,6 +1,7 @@
 #include "dataexporterbase.h"
 #include "beans/resultsetcolumnmetadata.h"
 #include "util/strutil.h"
+#include "util/filesystemutil.h"
 #include <QFile>
 
 DataExporterBase::DataExporterBase() : isXmlFile(false), textStream(0), file(0), streamOpenMode(QIODevice::WriteOnly)
@@ -97,20 +98,15 @@ QTextStream *DataExporterBase::createOutputStream(QString &errorMessage)
 {
     Q_ASSERT(file==0);
 
-    file = new QFile(this->filename);
-    if(!file->open(streamOpenMode)){
-        errorMessage = file->errorString();
+    if(FileSystemUtil::createTextStream(this->filename, this->encoding, this->bom,
+                                     streamOpenMode, &textStream, &file, &errorMessage)){
+        return textStream;
+    }else{
         return 0;
-    };
-
-    textStream = new QTextStream(file);
-    setTextStreamProperties();
-
-    return textStream;
+    }
 }
 
 void DataExporterBase::setTextStreamProperties()
 {
-    textStream->setCodec(this->encoding.toStdString().c_str());
-    textStream->setGenerateByteOrderMark(this->bom);
+    FileSystemUtil::setTextStreamProperties(this->textStream, this->encoding, this->bom);
 }
