@@ -90,7 +90,7 @@ void SchemaExporterWorker::loadNextObject()
     default:
         metadataLoader = new SourceInfoLoader(queryScheduler, schemaName, currentObjectName,
                                           DbUtil::getDbObjectTypeNameByNodeType(parentNodeType),
-                                          schemaName, false, true, 0);
+                                          schemaName, options->sourceCodeOptions.wrap, true, 0);
         break;
     }
 
@@ -121,7 +121,7 @@ void SchemaExporterWorker::objectInfoReady(DbObjectInfo *objectInfo, MetadataLoa
     *textStream << ddl << "\n";
 
     delete objectInfo;
-    delete loader;
+    loader->deleteLater();
 
     emit objectExported(parentNodeType, currentObjectName);
 
@@ -130,7 +130,7 @@ void SchemaExporterWorker::objectInfoReady(DbObjectInfo *objectInfo, MetadataLoa
 
 void SchemaExporterWorker::loadError(const QString &taskName, const OciException &ex, MetadataLoader *loader)
 {
-    delete loader;
+    loader->deleteLater();
 
     emit exportError(taskName, ex);
 }

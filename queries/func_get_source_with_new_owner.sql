@@ -28,9 +28,9 @@
          replace_source_owner(p_owner, p_new_owner, p_object_name, p_object_type, l_code);
          
          if l_will_wrap = 0 and p_remove_whitespace = 1 then
-            l_code := clob_replace(l_code, ' ', '.');
-            l_code := clob_replace(l_code, chr(10), '.');
-            l_code := clob_replace(l_code, chr(13), '.');
+            l_code := clob_replace(l_code, ' ', '');
+            l_code := clob_replace(l_code, chr(10), '');
+            l_code := clob_replace(l_code, chr(13), '');
          end if;
          
          {@keep_if:>=10}

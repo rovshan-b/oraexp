@@ -75,6 +75,6 @@ void SchemaExporterHelper::deleteWorker()
         return;
     }
 
-    delete worker;
+    worker->deleteLater();
     worker = 0;
 }

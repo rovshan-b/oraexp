@@ -4,7 +4,10 @@
     as
         n        number;
         l_offset number := 1;
+        l_with_length number;
     begin
+       l_with_length := nvl(length(p_with), 0);
+ 
        loop
            n := dbms_lob.instr( p_lob, p_what, l_offset );
            if ( nvl(n,0) > 0 )
@@ -14,17 +17,20 @@
                   dbms_lob.copy( p_lob,
                                  p_lob,
                                  dbms_lob.getlength(p_lob),
-                                 n+length(p_with),
+                                 n+l_with_length,
                                  n+length(p_what) );
                end if;
-                                                                                          
-               dbms_lob.write( p_lob, length(p_with), n, p_with );
-               if ( length(p_what) > length(p_with) )
+               
+               if l_with_length > 0 then                                                                           
+                  dbms_lob.write( p_lob, l_with_length, n, p_with );
+               end if;
+               
+               if ( length(p_what) > l_with_length )
                then
                    dbms_lob.trim( p_lob,
-                      dbms_lob.getlength(p_lob)-(length(p_what)-length(p_with)) );
+                      dbms_lob.getlength(p_lob)-(length(p_what)+l_with_length) );
                end if;
-               l_offset := l_offset + length(p_with);
+               l_offset := l_offset + l_with_length;
            else
                exit;
            end if;

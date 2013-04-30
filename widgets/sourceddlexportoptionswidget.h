@@ -10,7 +10,7 @@ class SourceDdlExportOptionsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit SourceDdlExportOptionsWidget(QWidget *parent = 0);
+    explicit SourceDdlExportOptionsWidget(bool compareMode,QWidget *parent = 0);
 
     SourceCodeDdlOptions getOptions() const;
 

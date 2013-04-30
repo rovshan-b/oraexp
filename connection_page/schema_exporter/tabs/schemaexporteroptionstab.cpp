@@ -97,7 +97,7 @@ void SchemaExporterOptionsTab::createStorageOptionsPane(QVBoxLayout *layout)
 
 void SchemaExporterOptionsTab::createSourceOptionsPane(QVBoxLayout *layout)
 {
-    sourceOptionsWidget = new SourceDdlExportOptionsWidget();
+    sourceOptionsWidget = new SourceDdlExportOptionsWidget(false);
     sourceOptionsGroupBox = WidgetHelper::createGroupBox(sourceOptionsWidget, tr("Source code"));
 
     layout->addWidget(sourceOptionsGroupBox);

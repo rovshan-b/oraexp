@@ -179,7 +179,7 @@ void SchemaComparerOptionsTab::createNewObjectOptionsPane(QBoxLayout *layout)
 void SchemaComparerOptionsTab::createSourceOptionsPane(QBoxLayout *layout)
 {
     QVBoxLayout *optionsLayout = new QVBoxLayout();
-    sourceOptionsWidget = new SourceDdlExportOptionsWidget();
+    sourceOptionsWidget = new SourceDdlExportOptionsWidget(true);
     optionsLayout->addWidget(sourceOptionsWidget);
     sourceOptionsGroupBox = WidgetHelper::createGroupBox(optionsLayout, tr("Source code"));
 

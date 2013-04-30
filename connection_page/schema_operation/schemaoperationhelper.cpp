@@ -39,6 +39,36 @@ void SchemaOperationHelper::objectListLoadError(const OciException &exception)
     subComparisonError("populate_tree_child_nodes", exception);
 }
 
+int getSchemaExportPriority(DbTreeModel::DbTreeNodeType nodeType)
+{
+    int result;
+
+    switch(nodeType){
+    case DbTreeModel::Sequences:
+        result = 0;
+        break;
+    case DbTreeModel::Types:
+        result = 1;
+        break;
+    default:
+        result = (int)nodeType + 100;
+        break;
+    }
+
+    return result;
+}
+
+bool schemaExportLessThan(const QModelIndex &ix1, const QModelIndex &ix2)
+{
+    if(!ix1.isValid() || !ix2.isValid()){
+        return true;
+    }
+
+    DbTreeItem *item1 = static_cast<DbTreeItem*>(ix1.internalPointer());
+    DbTreeItem *item2 = static_cast<DbTreeItem*>(ix2.internalPointer());
+
+    return getSchemaExportPriority(item1->getItemType()) < getSchemaExportPriority(item2->getItemType());
+}
 
 void SchemaOperationHelper::populateParentIndexesToCompare()
 {
@@ -62,6 +92,8 @@ void SchemaOperationHelper::populateParentIndexesToCompare()
             }
         }
     }
+
+    qSort(parentIndexesToCompare.begin(), parentIndexesToCompare.end(), schemaExportLessThan);
 
     emit objectCountDetermined(objectCount);
 }

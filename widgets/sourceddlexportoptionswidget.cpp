@@ -2,12 +2,14 @@
 #include "util/widgethelper.h"
 #include <QtGui>
 
-SourceDdlExportOptionsWidget::SourceDdlExportOptionsWidget(QWidget *parent) :
-    QWidget(parent)
+SourceDdlExportOptionsWidget::SourceDdlExportOptionsWidget(bool compareMode, QWidget *parent) :
+    QWidget(parent), sourceIgnoreWhitespace(0)
 {
     QGridLayout *sourceOptionsLayout=new QGridLayout();
 
-    sourceIgnoreWhitespace=WidgetHelper::createCheckBox(sourceOptionsLayout, 0, 0, tr("Ignore whitespace"), true);
+    if(compareMode){
+        sourceIgnoreWhitespace=WidgetHelper::createCheckBox(sourceOptionsLayout, 0, 0, tr("Ignore whitespace"), true);
+    }
     sourceWrap=WidgetHelper::createCheckBox(sourceOptionsLayout, 1, 0, tr("Wrap"), false);
     sourceWrap->setEnabled(false);
     sourceWrap->setToolTip(tr("Will be enabled upon connecting to target database if version check is successfull"));
@@ -15,14 +17,16 @@ SourceDdlExportOptionsWidget::SourceDdlExportOptionsWidget(QWidget *parent) :
     sourceOptionsLayout->setContentsMargins(0,0,0,0);
     setLayout(sourceOptionsLayout);
 
-    connect(sourceWrap, SIGNAL(stateChanged(int)), this, SLOT(wrapCheckBoxChanged()));
+    if(compareMode){
+        connect(sourceWrap, SIGNAL(stateChanged(int)), this, SLOT(wrapCheckBoxChanged()));
+    }
 }
 
 SourceCodeDdlOptions SourceDdlExportOptionsWidget::getOptions() const
 {
     SourceCodeDdlOptions options;
 
-    options.ignoreWhitespace=sourceIgnoreWhitespace->isChecked();
+    options.ignoreWhitespace=sourceIgnoreWhitespace ? sourceIgnoreWhitespace->isChecked() : false;
     options.wrap=sourceWrap->isChecked();
 
     return options;
