@@ -99,7 +99,7 @@ QTextStream *DataExporterBase::createOutputStream(QString &errorMessage)
     Q_ASSERT(file==0);
 
     if(FileSystemUtil::createTextStream(this->filename, this->encoding, this->bom,
-                                     streamOpenMode, &textStream, &file, &errorMessage)){
+                                     streamOpenMode | QIODevice::Text, &textStream, &file, &errorMessage)){
         return textStream;
     }else{
         return 0;

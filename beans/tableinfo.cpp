@@ -207,8 +207,12 @@ bool TableInfo::needsRecreation(const TableInfo &other, bool checkPartitioning) 
 {
     bool sameType = this->generalInfo.tableType == other.generalInfo.tableType;
 
+    if(!sameType){
+        return true;
+    }
+
     if(!checkPartitioning){
-        return !sameType;
+        return false;
     }
 
     bool samePartitioning = this->partitioningInfo.isEmpty == other.partitioningInfo.isEmpty;
@@ -222,5 +226,5 @@ bool TableInfo::needsRecreation(const TableInfo &other, bool checkPartitioning) 
         }
     }
 
-    return !sameType || !samePartitioning;
+    return !samePartitioning;
 }

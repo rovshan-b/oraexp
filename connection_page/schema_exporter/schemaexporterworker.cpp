@@ -55,6 +55,14 @@ void SchemaExporterWorker::stop()
 void SchemaExporterWorker::loadNextObject()
 {
     if(objectNames.isEmpty() || this->stopped){
+
+        if(textStream){
+            if(!endDdl.isEmpty()){
+                *textStream << endDdl;
+            }
+            textStream->flush();
+        }
+
         emit exportCompleted();
         return;
     }
@@ -64,7 +72,7 @@ void SchemaExporterWorker::loadNextObject()
         if(!FileSystemUtil::createTextStream(options->filename,
                                             options->encoding,
                                             options->bom,
-                                            this->fileOpenMode,
+                                            this->fileOpenMode | QIODevice::Text,
                                             &textStream,
                                             &file,
                                             &errorMessage)){
@@ -107,12 +115,16 @@ void SchemaExporterWorker::objectInfoReady(DbObjectInfo *objectInfo, MetadataLoa
     if(parentNodeType==DbTreeModel::Tables){
         TableInfo *tableInfo = static_cast<TableInfo*>(objectInfo);
         tableInfo->prepareForOptions(options->tableOptions.newObjectStorageOptions);
-        ddl = TableDdlGenerator::generateDdl(*tableInfo, true, true, QList<OraExp::ConstraintType>(),
-                                             options->tableOptions.grants,
-                                             options->tableOptions);
+        QPair<QString,QString> ddlPair = TableDdlGenerator::generateDdlForExporting(*tableInfo, options->tableOptions);
+        ddl = ddlPair.first;
+
+        if(!ddlPair.second.isEmpty()){
+            endDdl.append(ddlPair.second).append("\n");
+        }
     }else if(parentNodeType==DbTreeModel::Sequences){
         SequenceInfo *sequenceInfo = static_cast<SequenceInfo*>(objectInfo);
         ddl = sequenceInfo->generateDdl(options->sequenceOptions);
+        ddl = QString("%1;").arg(ddl);
     }else{
         SourceInfo *sourceInfo = static_cast<SourceInfo*>(objectInfo);
         ddl = sourceInfo->source;

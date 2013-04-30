@@ -56,6 +56,8 @@ private:
 
     QString currentObjectName;
 
+    QString endDdl;
+
     void loadNextObject();
 
     void cleanup();
