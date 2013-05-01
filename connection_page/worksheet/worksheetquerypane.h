@@ -100,9 +100,11 @@ private:
     SequentialQueryRunner sequentialRunner;
     int sequentialRunnerStartPos;
 private slots:
-    void executeQuery(ExecuteMode executeMode=ExecuteQuery);
+    void executeQuery(ExecuteMode executeMode=ExecuteQuery, const QString &textToExecute = QString());
     void executeAsScript();
     void executeExplainPlan();
+    void commit();
+    void rollback();
     void queryCompleted(const QueryResult &result);
 
     void beforeExecuteSequentialQuery(const QString &query, int startPos, int endPos);

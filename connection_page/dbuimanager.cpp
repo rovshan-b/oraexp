@@ -14,6 +14,7 @@
 #include "data_comparer/datacomparer.h"
 #include "data_copier/datacopier.h"
 #include "data_exporter/dataexporter.h"
+#include "data_importer/dataimporter.h"
 #include "editorcreatorutil.h"
 #include <QtGui>
 
@@ -147,6 +148,22 @@ void DbUiManager::addDataExporter()
 {
     DataExporter *dataExporter=new DataExporter(this);
     cnPage->addTab(dataExporter, IconUtil::getIcon("export"), tr("Export data"));
+}
+
+void DbUiManager::addDataImporter()
+{
+    if(sender()){
+        DbItemAction *action=getSenderAction();
+        addDataImporter(action->getSchemaName(), action->getObjectName());
+    }else{
+        addDataImporter(db->getSchemaName(), "");
+    }
+}
+
+void DbUiManager::addDataImporter(const QString &schemaName, const QString &tableName)
+{
+    DataImporter *dataImporter=new DataImporter(schemaName, tableName, this);
+    cnPage->addTab(dataImporter, IconUtil::getIcon("import_data"), tr("Import data"));
 }
 
 void DbUiManager::closeTab(QWidget *widget)

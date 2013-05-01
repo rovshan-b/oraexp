@@ -138,5 +138,8 @@
         <file>images/copy_data.png</file>
         <file>images/execute_as_script.png</file>
         <file>images/export_schema.png</file>
+        <file>images/commit.png</file>
+        <file>images/rollback.png</file>
+        <file>images/import_data.png</file>
     </qresource>
 </RCC>

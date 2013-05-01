@@ -17,7 +17,6 @@ public:
     DbUiManager *getUiManager() const;
     DbUiManager *uiManager() const;
     ConnectionPageTab *currentConnectionPageTab() const;
-
 };
 
 #endif // APPMAINMENU_H

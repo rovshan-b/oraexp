@@ -37,6 +37,11 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
 
     toolbar->addSeparator();
 
+    toolbar->addAction(IconUtil::getIcon("commit"), tr("Commit"), this, SLOT(commit()));
+    toolbar->addAction(IconUtil::getIcon("rollback"), tr("Rollback"), this, SLOT(rollback()));
+
+    toolbar->addSeparator();
+
     timerLabel = new QLabel();
     toolbar->addWidget(timerLabel);
     resetProgressLabel();
@@ -86,20 +91,24 @@ WorksheetQueryPane::~WorksheetQueryPane()
     qDeleteAll(paramHistory.values());
 }
 
-void WorksheetQueryPane::executeQuery(ExecuteMode executeMode)
+void WorksheetQueryPane::executeQuery(ExecuteMode executeMode, const QString &textToExecute)
 {
     if(!canExecute()){
         return;
     }
 
-    QString queryText=currentEditor()->editor()->getCurrentText(currentQueryCursor);
+    QString queryText=textToExecute.isEmpty() ? currentEditor()->editor()->getCurrentText(currentQueryCursor) : textToExecute;
 
     if(queryText.isEmpty()){
         emitMessage(tr("Query text cannot be empty"));
         return;
     }
 
-    currentEditor()->editor()->pulsate(currentQueryCursor);
+    if(textToExecute.isEmpty()){
+        currentEditor()->editor()->pulsate(currentQueryCursor);
+    }else{
+        currentQueryCursor = QTextCursor();
+    }
 
     QList<Param*> params;
 
@@ -164,9 +173,19 @@ void WorksheetQueryPane::executeExplainPlan()
     executeQuery(ExecuteExplainPlan);
 }
 
+void WorksheetQueryPane::commit()
+{
+    executeQuery(ExecuteQuery, "COMMIT");
+}
+
+void WorksheetQueryPane::rollback()
+{
+    executeQuery(ExecuteQuery, "ROLLBACK");
+}
+
 void WorksheetQueryPane::handleQueryCompleted(const QueryResult &result, int queryStartPos)
 {
-    if(result.hasError){ //reset error position according to editor
+    if(result.hasError && !currentQueryCursor.isNull()){ //reset error position according to editor
         QueryResult modifiedResult = highlightError(result, queryStartPos, sequentialRunner.isBusy());
         emit queryDone(modifiedResult);
     }else{

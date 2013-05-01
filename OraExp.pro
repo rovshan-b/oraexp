@@ -456,7 +456,8 @@ SOURCES += main.cpp\
     connection_page/schema_operation/schemaoperationhelper.cpp \
     connection_page/schema_exporter/tabs/schemaexporterresultstab.cpp \
     util/metatypesutil.cpp \
-    connection_page/schema_exporter/schemaexporterworker.cpp
+    connection_page/schema_exporter/schemaexporterworker.cpp \
+    connection_page/data_importer/dataimporter.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -916,7 +917,8 @@ HEADERS  += mainwindow.h \
     connection_page/schema_operation/schemaoperationhelper.h \
     connection_page/schema_exporter/tabs/schemaexporterresultstab.h \
     util/metatypesutil.h \
-    connection_page/schema_exporter/schemaexporterworker.h
+    connection_page/schema_exporter/schemaexporterworker.h \
+    connection_page/data_importer/dataimporter.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

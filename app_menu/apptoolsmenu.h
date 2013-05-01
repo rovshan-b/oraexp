@@ -25,6 +25,7 @@ private:
     QAction *toolsCompareDataAction;
     QAction *toolsCopyDataAction;
     QAction *toolsExportDataAction;
+    QAction *toolsImportDataAction;
 
     QAction *toolsOptionsAction;
 
@@ -34,6 +35,7 @@ private slots:
     void addDataComparer(){uiManager()->addDataComparer();}
     void addDataCopier(){uiManager()->addDataCopier();}
     void addDataExporter(){uiManager()->addDataExporter();}
+    void addDataImporter(){uiManager()->addDataImporter();}
 
     void resize800x600();
     void resize1024x768();

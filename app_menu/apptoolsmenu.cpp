@@ -29,6 +29,9 @@ void AppToolsMenu::setupMenu(QMenu *toolsMenu, QToolBar *toolbar)
     toolsExportDataAction=toolsMenu->addAction(IconUtil::getIcon("export"), tr("E&xport data"), this, SLOT(addDataExporter()));
     toolsExportDataAction->setStatusTip(tr("Export table data to various formats"));
 
+    toolsImportDataAction=toolsMenu->addAction(IconUtil::getIcon("import_data"), tr("I&mport data"), this, SLOT(addDataImporter()));
+    toolsImportDataAction->setStatusTip(tr("Load data into table from CSV file"));
+
     toolsMenu->addSeparator();
 
     toolsOptionsAction=toolsMenu->addAction(IconUtil::getIcon("settings"), tr("&Options..."));
@@ -52,5 +55,10 @@ void AppToolsMenu::resize1024x768()
 void AppToolsMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab * /*cnPageTab*/)
 {
     toolsCompareSchemasAction->setEnabled(cnPage!=0);
+    toolsExportSchemaAction->setEnabled(cnPage!=0);
+
     toolsCompareDataAction->setEnabled(cnPage!=0);
+    toolsCopyDataAction->setEnabled(cnPage!=0);
+    toolsExportDataAction->setEnabled(cnPage!=0);
+    toolsImportDataAction->setEnabled(cnPage!=0);
 }

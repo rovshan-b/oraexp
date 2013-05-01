@@ -38,6 +38,8 @@ public slots:
     void addDataComparer();
     void addDataCopier();
     void addDataExporter();
+    void addDataImporter();
+    void addDataImporter(const QString &schemaName, const QString &tableName);
 
     DbItemAction *getSenderAction() const;
 
