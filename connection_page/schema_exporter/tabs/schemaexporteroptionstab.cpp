@@ -117,7 +117,7 @@ void SchemaExporterOptionsTab::createFileWidgets(QFormLayout *form)
 {
     Q_ASSERT(filenameEditor==0);
 
-    filenameEditor = new FileSelectorWidget();
+    filenameEditor = new FileSelectorWidget(FileSelectorWidget::Save);
     filenameEditor->setDefaultSuffix("sql");
     form->addRow(tr("File name"), filenameEditor);
 

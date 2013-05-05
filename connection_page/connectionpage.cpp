@@ -100,15 +100,13 @@ void ConnectionPage::closeTab(QWidget *widget)
     closeTab(tabIx);
 }
 
-void ConnectionPage::prepareTab(ConnectionPageTab *tab)
+void ConnectionPage::prepareObject(ConnectionPageObject *obj)
 {
-    connect(tab, SIGNAL(tabBusyStateChanged(ConnectionPageTab*,bool)), this, SLOT(tabBusyStateChanged(ConnectionPageTab*,bool)));
-
-    if(tab->needsSeparateConnection()){
-        connectionPool.requestConnection(this->db, tab);
+    if(obj->needsSeparateConnection()){
+        connectionPool.requestConnection(this->db, obj);
     }else{
         //tab->setUpdatesEnabled(false);
-        tab->setConnection(db);
+        obj->setConnection(db);
         //tab->setUpdatesEnabled(true);
     }
 }
@@ -116,7 +114,7 @@ void ConnectionPage::prepareTab(ConnectionPageTab *tab)
 void ConnectionPage::addTab(ConnectionPageTab *tab, const QPixmap &icon, const QString &title)
 {
     tab->setEnabled(false);
-    connect(tab, SIGNAL(initCompleted(ConnectionPageTab*)), this, SLOT(tabInitializationCompleted(ConnectionPageTab*)));
+    connect(tab, SIGNAL(initCompleted(ConnectionPageObject*)), this, SLOT(tabInitializationCompleted(ConnectionPageObject*)));
 
     tab->createUi();
 
@@ -127,34 +125,64 @@ void ConnectionPage::addTab(ConnectionPageTab *tab, const QPixmap &icon, const Q
     //centralTab->setTabBusy(newTabIx, true);
     connect(tab, SIGNAL(stateChanged()), this, SIGNAL(connectionPageStateChanged()));
 
-    prepareTab(tab);
+    connect(tab, SIGNAL(busyStateChanged(ConnectionPageObject*,bool)), this, SLOT(tabBusyStateChanged(ConnectionPageObject*,bool)));
+
+    prepareObject(tab);
+}
+
+void ConnectionPage::addWindow(ConnectionPageObject *window, const QPixmap &icon, const QString &title)
+{
+    window->createUi();
+
+    QWidget *widget = dynamic_cast<QWidget*>(window);
+    Q_ASSERT(widget);
+
+    widget->setWindowIcon(icon);
+    widget->setWindowTitle(title);
+
+    widget->show();
+    widget->activateWindow();
+    widget->raise();
+
+    prepareObject(window);
 }
 
 void ConnectionPage::asyncConnectionReady(DbConnection *db, void *data, bool error, const OciException &ex)
 {
-    ConnectionPageTab *tab = (ConnectionPageTab*)data;
     if(error){
         delete db;
         QMessageBox::critical(this->window(), tr("Error while connecting to database"), ex.getErrorMessage());
         //tab->decreaseRefCount();
     }
     else{
-        tab->setUpdatesEnabled(false);
-        tab->setConnection(db);
-        tab->setUpdatesEnabled(true);
+        ConnectionPageObject *obj = (ConnectionPageObject*)data;
+        QWidget *widget = dynamic_cast<QWidget*>(obj);
+
+        Q_ASSERT(widget);
+
+        widget->setUpdatesEnabled(false);
+        obj->setConnection(db);
+        widget->setUpdatesEnabled(true);
     }
 }
 
-void ConnectionPage::tabBusyStateChanged(ConnectionPageTab *tab, bool busy)
+void ConnectionPage::tabBusyStateChanged(ConnectionPageObject *obj, bool busy)
 {
-    centralTab->setTabBusy(tab, busy);
+    ConnectionPageTab *tab = dynamic_cast<ConnectionPageTab*>(obj);
+    if(tab){
+        centralTab->setTabBusy(tab, busy);
+    }
 }
 
-void ConnectionPage::tabInitializationCompleted(ConnectionPageTab *tab)
+void ConnectionPage::tabInitializationCompleted(ConnectionPageObject *obj)
 {
-    tab->setEnabled(true);
-    if(centralTab->currentWidget()==tab){
-        tab->focusAvailable();
+    ConnectionPageTab *tab = dynamic_cast<ConnectionPageTab*>(obj);
+
+    if(tab){
+        tab->setEnabled(true);
+        if(centralTab->currentWidget()==tab){
+            tab->focusAvailable();
+        }
     }
 }
 

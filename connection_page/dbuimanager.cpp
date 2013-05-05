@@ -162,8 +162,8 @@ void DbUiManager::addDataImporter()
 
 void DbUiManager::addDataImporter(const QString &schemaName, const QString &tableName)
 {
-    DataImporter *dataImporter=new DataImporter(schemaName, tableName, this);
-    cnPage->addTab(dataImporter, IconUtil::getIcon("import_data"), tr("Import data"));
+    DataImporter *dataImporter=new DataImporter(schemaName, tableName);
+    cnPage->addWindow(dataImporter, IconUtil::getIcon("import_data"), tr("Import data"));
 }
 
 void DbUiManager::closeTab(QWidget *widget)

@@ -1,5 +1,4 @@
 #include "connectionpagetab.h"
-#include "connectivity/dbconnection.h"
 #include "connection_page/dbuimanager.h"
 #include <QtGui>
 
@@ -7,34 +6,8 @@
 using namespace std;
 
 ConnectionPageTab::ConnectionPageTab(DbUiManager *uiManager, QWidget *parent) :
-    QWidget(parent), uiManager(uiManager), db(0), requiresSeparateConnection(false), busy(false), activeQueryCount(0)
+    QWidget(parent), uiManager(uiManager)
 {
-}
-
-ConnectionPageTab::~ConnectionPageTab()
-{
-    qDeleteAll(children());
-    if(requiresSeparateConnection && db!=0){
-        delete db;
-    }
-}
-
-void ConnectionPageTab::setConnection(DbConnection *db)
-{
-    this->db=db;
-}
-
-bool ConnectionPageTab::isBusy() const
-{
-    if(db==NULL){
-        return this->busy;
-    }else{
-        if(requiresSeparateConnection){
-            return this->busy || db->isBusy();
-        }else{
-            return this->busy;
-        }
-    }
 }
 
 void ConnectionPageTab::setProperties(const QHash<QString, QString> &properties)
@@ -45,38 +18,6 @@ void ConnectionPageTab::setProperties(const QHash<QString, QString> &properties)
 QString ConnectionPageTab::propertyValue(const QString &propName) const
 {
     return this->properties.value(propName);
-}
-
-void ConnectionPageTab::setBusy(bool busy)
-{
-    this->busy=busy;
-    emit tabBusyStateChanged(this, busy);
-}
-
-void ConnectionPageTab::increaseRefCount()
-{
-    if(!this->busy){
-        setBusy(true);
-    }
-
-    ++activeQueryCount;
-}
-
-void ConnectionPageTab::decreaseRefCount()
-{
-    --activeQueryCount;
-
-    Q_ASSERT(activeQueryCount>=0);
-
-    if(activeQueryCount==0){
-        setBusy(false);
-    }
-}
-
-void ConnectionPageTab::beforeEnqueueQuery()
-{
-    Q_ASSERT(db); 
-    increaseRefCount();
 }
 
 QList<ConnectionPageTab *> ConnectionPageTab::getPeerTabs(int limit) const
@@ -92,4 +33,9 @@ void ConnectionPageTab::emitInitCompletedSignal()
 void ConnectionPageTab::queryExecTaskCompleted(const QString &/*taskName*/)
 {
     decreaseRefCount();
+}
+
+void ConnectionPageTab::emitBusyStateChangedSignal()
+{
+    emit busyStateChanged(this, busy);
 }

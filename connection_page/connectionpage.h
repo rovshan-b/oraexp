@@ -10,7 +10,7 @@
 class DbConnection;
 class QDockWidget;
 class TreePane;
-class ConnectionPageTab;
+class ConnectionPageObject;
 class InfoPanel;
 class CtrlTabData;
 
@@ -21,8 +21,9 @@ public:
     explicit ConnectionPage(DbConnection *db, QWidget *parent = 0);
     virtual ~ConnectionPage();
 
-    void prepareTab(ConnectionPageTab *tab);
+    void prepareObject(ConnectionPageObject *obj);
     void addTab(ConnectionPageTab *tab, const QPixmap &icon, const QString &title);
+    void addWindow(ConnectionPageObject *window, const QPixmap &icon, const QString &title);
 
     DbUiManager *getUiManager();
 
@@ -45,8 +46,8 @@ signals:
 public slots:
     void closeTab(int index);
     void asyncConnectionReady(DbConnection *db, void *data, bool error, const OciException &ex);
-    void tabBusyStateChanged(ConnectionPageTab *tab, bool busy);
-    void tabInitializationCompleted(ConnectionPageTab *tab);
+    void tabBusyStateChanged(ConnectionPageObject *obj, bool busy);
+    void tabInitializationCompleted(ConnectionPageObject *obj);
     void toggleTreePane();
     void windowStateChanged();
     void restoreWindowState();

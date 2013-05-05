@@ -2,8 +2,9 @@
 #include "util/dialoghelper.h"
 #include <QtGui>
 
-FileSelectorWidget::FileSelectorWidget(QWidget *parent) :
-    LineEditWithButton(parent)
+FileSelectorWidget::FileSelectorWidget(FileMode mode, QWidget *parent) :
+    LineEditWithButton(parent),
+    mode(mode)
 {
     connect(this, SIGNAL(buttonClicked(LineEditWithButton*)), this, SLOT(selectFilename()));
 }
@@ -23,7 +24,11 @@ QString FileSelectorWidget::fileName() const
 
 void FileSelectorWidget::selectFilename()
 {
-    QString filename=DialogHelper::showFileSaveDialog(this, defaultSuffix);
+    QString filename = (mode==Save)
+                        ?
+                       DialogHelper::showFileSaveDialog(this, defaultSuffix)
+                        :
+                       DialogHelper::showFileOpenDialog(this, tr("Delimited file formats (*.csv *.tsv *.txt);;All files (*.*)"));
     if(!filename.isEmpty()){
         lineEdit()->setText(filename);
     }

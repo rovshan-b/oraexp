@@ -21,7 +21,10 @@ public:
 
     static QString showFileSaveDialog(QWidget *parent,
                                       const QString &defaultSuffix,
-                                      const QString &title = QObject::tr("Enter file name to save"),
+                                      const QString &title = QObject::tr("Save file"),
+                                      const QString &filter = QObject::tr("All files (*.*)"));
+
+    static QString showFileOpenDialog(QWidget *parent,
                                       const QString &filter = QObject::tr("All files (*.*)"));
 
 private:

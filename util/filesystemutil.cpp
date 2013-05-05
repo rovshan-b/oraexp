@@ -56,3 +56,19 @@ void FileSystemUtil::setTextStreamProperties(QTextStream *textStream, const QStr
     textStream->setCodec(encoding.toStdString().c_str());
     textStream->setGenerateByteOrderMark(bom);
 }
+
+bool FileSystemUtil::tryRead(const QString &filename, QString *errorMessage)
+{
+    QFile file(filename);
+    if(!file.exists()){
+        *errorMessage = QObject::tr("File does not exist");
+        return false;
+    }
+
+    if(!file.open(QIODevice::ReadOnly)){
+        *errorMessage = file.errorString();
+        return false;
+    }
+
+    return true;
+}

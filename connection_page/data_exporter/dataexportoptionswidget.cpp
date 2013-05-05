@@ -130,7 +130,7 @@ void DataExportOptionsWidget::createFileOptionsControls(QFormLayout *form)
     formatComboBox = new QComboBox();
     form->addRow(tr("Export format"), formatComboBox);
 
-    filenameEditor = new FileSelectorWidget(this);
+    filenameEditor = new FileSelectorWidget(FileSelectorWidget::Save, this);
     form->addRow(tr("File name"), filenameEditor);
 
     encodingEditor = new FileEncodingWidget();
@@ -313,6 +313,10 @@ void DataExportOptionsWidget::populateDelimiterOptions(QComboBox *comboBox)
     comboBox->setEditable(true);
     comboBox->addItem(tr("Comma"), ",");
     comboBox->addItem(tr("Tab"), "\t");
+    comboBox->addItem(tr("Space"), " ");
+    comboBox->addItem(tr("Colon"), ":");
+    comboBox->addItem(tr("Semicolon"), ";");
+    comboBox->addItem(tr("Pipe"), "|");
 }
 
 void DataExportOptionsWidget::populateNewlineReplacements(QComboBox *comboBox)

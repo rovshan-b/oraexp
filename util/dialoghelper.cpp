@@ -101,3 +101,18 @@ QString DialogHelper::showFileSaveDialog(QWidget *parent, const QString &default
 
     return result;*/
 }
+
+QString DialogHelper::showFileOpenDialog(QWidget *parent, const QString &filter)
+{
+    QString directory = Settings::value("saveFileDialogDirectory",
+                                        QDesktopServices::storageLocation(QDesktopServices::DesktopLocation)).toString();
+    QString result = QFileDialog::getOpenFileName(parent,
+                                                  QObject::tr("Open file"),
+                                                  directory,
+                                                  filter);
+    if(!result.isEmpty()){
+        Settings::setValue("saveFileDialogDirectory", QFileInfo(result).path());
+    }
+
+    return result;
+}

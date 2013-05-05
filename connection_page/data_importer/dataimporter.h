@@ -1,18 +1,18 @@
 #ifndef DATAIMPORTER_H
 #define DATAIMPORTER_H
 
-#include "connection_page/connectionpagetab.h"
+#include "connection_page/connectionpagewizard.h"
 
-class DbItemListComboBox;
+class DataImporterFirstPage;
+class DataImporterCsvOptionsPage;
 
-class DataImporter : public ConnectionPageTab
+class DataImporter : public ConnectionPageWizard
 {
     Q_OBJECT
 public:
     explicit DataImporter(
             const QString &schemaName,
             const QString &tableName,
-            DbUiManager *uiManager,
             QWidget *parent = 0);
 
     virtual void createUi();
@@ -23,12 +23,8 @@ private:
     QString schemaName;
     QString tableName;
 
-    DbItemListComboBox *schemaList;
-    DbItemListComboBox *tableList;
-
-
-    void loadTableList();
-    QString getSchemaName() const;
+    DataImporterFirstPage *firstPage;
+    DataImporterCsvOptionsPage *csvOptionsPage;
     
 };
 
