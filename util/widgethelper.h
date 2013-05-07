@@ -110,6 +110,10 @@ public:
     static QScrollArea *createScrollArea(QWidget *widget);
 
     static QWidget *findParentWidget(QWidget *w, const QString &parentWidgetClassName, int maxLevelsUp = 5);
+
+    static void fillFieldDelimiters(QComboBox *comboBox);
+
+    static void deleteViewModel(QAbstractItemView *view);
 };
 
 #endif // WIDGETHELPER_H

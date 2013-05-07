@@ -35,6 +35,8 @@ private:
 
     QString getSchemaName() const;
 
+    QString lastLoadedSchemaName;
+
 };
 
 #endif // DATAIMPORTERFIRSTPAGE_H

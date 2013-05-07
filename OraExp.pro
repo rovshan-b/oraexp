@@ -461,7 +461,9 @@ SOURCES += main.cpp\
     connection_page/connectionpageobject.cpp \
     connection_page/connectionpagewizard.cpp \
     connection_page/data_importer/pages/dataimporterfirstpage.cpp \
-    connection_page/data_importer/pages/dataimportercsvoptionspage.cpp
+    connection_page/data_importer/pages/dataimportercsvoptionspage.cpp \
+    connection_page/data_importer/importers/csvimporter.cpp \
+    code_parser/textstreamreader.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -926,7 +928,9 @@ HEADERS  += mainwindow.h \
     connection_page/connectionpageobject.h \
     connection_page/connectionpagewizard.h \
     connection_page/data_importer/pages/dataimporterfirstpage.h \
-    connection_page/data_importer/pages/dataimportercsvoptionspage.h
+    connection_page/data_importer/pages/dataimportercsvoptionspage.h \
+    connection_page/data_importer/importers/csvimporter.h \
+    code_parser/textstreamreader.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

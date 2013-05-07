@@ -4,6 +4,7 @@
 #include "util/queryqueuemanager.h"
 #include "util/queryexectask.h"
 #include "util/dbutil.h"
+#include "util/widgethelper.h"
 #include "connectivity/dbconnection.h"
 #include "connectivity/statement.h"
 #include "interfaces/iqueryscheduler.h"
@@ -171,16 +172,7 @@ void DataTable::copyToClipboard()
 
 void DataTable::deleteCurrentModel()
 {
-    QAbstractItemModel *currentModel=model();
-    QItemSelectionModel *currentSelectionModel=selectionModel();
-
-    if(currentModel!=0){
-        delete currentModel;
-    }
-
-    if(currentSelectionModel!=0){
-        delete currentSelectionModel;
-    }
+    WidgetHelper::deleteViewModel(this);
 }
 
 void DataTable::displayError(const QString &prefix, const OciException &ex)

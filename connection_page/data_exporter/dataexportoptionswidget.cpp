@@ -310,13 +310,7 @@ void DataExportOptionsWidget::populateLineEndingOptions(QComboBox *comboBox)
 
 void DataExportOptionsWidget::populateDelimiterOptions(QComboBox *comboBox)
 {
-    comboBox->setEditable(true);
-    comboBox->addItem(tr("Comma"), ",");
-    comboBox->addItem(tr("Tab"), "\t");
-    comboBox->addItem(tr("Space"), " ");
-    comboBox->addItem(tr("Colon"), ":");
-    comboBox->addItem(tr("Semicolon"), ";");
-    comboBox->addItem(tr("Pipe"), "|");
+    WidgetHelper::fillFieldDelimiters(comboBox);
 }
 
 void DataExportOptionsWidget::populateNewlineReplacements(QComboBox *comboBox)

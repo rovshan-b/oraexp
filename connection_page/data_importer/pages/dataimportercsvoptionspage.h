@@ -2,6 +2,7 @@
 #define DATAIMPORTERCSVOPTIONSPAGE_H
 
 #include <QWizardPage>
+#include "../importers/csvimporter.h"
 
 class QVBoxLayout;
 class QComboBox;
@@ -14,6 +15,13 @@ class DataImporterCsvOptionsPage : public QWizardPage
     Q_OBJECT
 public:
     explicit DataImporterCsvOptionsPage(QWidget *parent = 0);
+
+    virtual void initializePage ();
+
+private slots:
+    void setEncoding();
+    void setDelimiter();
+    void setEnclosure();
     
 private:
     QComboBox *fileEncodingComboBox;
@@ -24,7 +32,11 @@ private:
 
     DataTable *previewTable;
 
+    CsvImporter importer;
+
     void createForm(QVBoxLayout *mainLayout);
+
+    void previewData();
     
 };
 

@@ -49,6 +49,8 @@ private:
 
     void setInProgress(bool inProgress, bool showsStatusMessage=false, bool cancellable=false);
 
+    bool cursorClosed;
+
 };
 
 #endif // WORKSHEETRESULTSETTAB_H

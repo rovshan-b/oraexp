@@ -1,7 +1,6 @@
 #include "dataimporterfirstpage.h"
 #include "widgets/dbitemlistcombobox.h"
 #include "widgets/fileselectorwidget.h"
-#include "util/iconutil.h"
 #include "util/strutil.h"
 #include "util/filesystemutil.h"
 #include <QtGui>
@@ -11,7 +10,6 @@ DataImporterFirstPage::DataImporterFirstPage(const QString &schemaName, const QS
 {
     setTitle(tr("Table & File selection"));
     setSubTitle(tr("Select table and file name to import data from"));
-    setPixmap(QWizard::LogoPixmap, IconUtil::getIcon("import_data"));
 
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
@@ -84,10 +82,17 @@ bool DataImporterFirstPage::validatePage()
 
 void DataImporterFirstPage::loadTableList()
 {
+    QString schemaName = getSchemaName();
+    if(schemaName == lastLoadedSchemaName){
+        return;
+    }
+
+    lastLoadedSchemaName = schemaName;
+
     tableList->loadItems(this->queryScheduler,
                          "get_table_list",
                          QList<Param*>() <<
-                            new Param(":owner", getSchemaName()) <<
+                            new Param(":owner", schemaName) <<
                             new Param(":object_name",
                          QString("")));
 }

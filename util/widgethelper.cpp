@@ -658,4 +658,29 @@ QWidget *WidgetHelper::findParentWidget(QWidget *w, const QString &parentWidgetC
     return 0;
 }
 
+void WidgetHelper::fillFieldDelimiters(QComboBox *comboBox)
+{
+    comboBox->setEditable(true);
+    comboBox->addItem(QObject::tr(","), ",");
+    comboBox->addItem(QObject::tr(":"), ":");
+    comboBox->addItem(QObject::tr(";"), ";");
+    comboBox->addItem(QObject::tr("|"), "|");
+    comboBox->addItem(QObject::tr("Tab"), "\t");
+    comboBox->addItem(QObject::tr("Space"), " ");
+}
+
+void WidgetHelper::deleteViewModel(QAbstractItemView *view)
+{
+    QAbstractItemModel *currentModel=view->model();
+    QItemSelectionModel *currentSelectionModel=view->selectionModel();
+
+    if(currentModel!=0){
+        delete currentModel;
+    }
+
+    if(currentSelectionModel!=0){
+        delete currentSelectionModel;
+    }
+}
+
 

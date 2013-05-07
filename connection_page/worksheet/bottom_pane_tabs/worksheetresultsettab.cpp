@@ -13,7 +13,8 @@ WorksheetResultsetTab::WorksheetResultsetTab(QWidget *parent) :
     WorksheetBottomPaneTab(parent),
     queryScheduler(0),
     exporterThread(0),
-    exportDialog(0)
+    exportDialog(0),
+    cursorClosed(false)
 {
     QVBoxLayout *layout=new QVBoxLayout();
 
@@ -106,6 +107,8 @@ void WorksheetResultsetTab::startExport(DataExporterBase *exporter)
         if(result == QMessageBox::Yes){
             fetchToEnd = true;
             tableModel->setAllDataFetched();
+            cursorClosed = true;
+            dataExportAction->setToolTip(tr("Export data (Cursor is closed)"));
         }
     }
 
@@ -168,7 +171,7 @@ void WorksheetResultsetTab::stopProgress()
 void WorksheetResultsetTab::setInProgress(bool inProgress, bool showsStatusMessage, bool cancellable)
 {
     progressBarAction->setVisible(inProgress);
-    dataExportAction->setEnabled(!inProgress);
+    dataExportAction->setEnabled(!inProgress && !cursorClosed);
 
     labelAction->setVisible(inProgress && showsStatusMessage);
     stopProgressButton->setVisible(inProgress && cancellable);
