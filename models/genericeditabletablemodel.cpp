@@ -254,7 +254,8 @@ Qt::ItemFlags GenericEditableTableModel::flags ( const QModelIndex & index ) con
     int disabledUntilRow;
     if(!isColumnEnabled(index.column(), disabledUntilRow)){
         if(index.row()<=disabledUntilRow){
-            return Qt::NoItemFlags;
+            //return Qt::NoItemFlags;
+            return (Qt::ItemIsSelectable | Qt::ItemIsEnabled);
         }
     }
 

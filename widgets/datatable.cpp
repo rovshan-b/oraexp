@@ -70,7 +70,10 @@ void DataTable::handleFirstFetchCompleted()
 void DataTable::resizeColumnsToFitContents()
 {
     setUpdatesEnabled(false);
-    resizeColumnsToContents();
+    for(int i=0; i<horizontalHeader()->count(); ++i){
+        int sizeHint = qMax(sizeHintForColumn(i), horizontalHeader()->sectionSizeHint(i));
+        setColumnWidth(i, qMin(sizeHint+10, 300));
+    }
     setUpdatesEnabled(true);
 }
 

@@ -19,31 +19,70 @@ DataImporterCsvOptionsPage::DataImporterCsvOptionsPage(QWidget *parent) :
     mainLayout->addWidget(previewTable);
 
     setLayout(mainLayout);
+
+
+    connect(fileEncodingComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setEncoding()));
+    connect(delimiterComboBox->lineEdit(), SIGNAL(editingFinished()), this, SLOT(setDelimiter()));
+    connect(enclosureEditor, SIGNAL(editingFinished()), this, SLOT(setEnclosure()));
+    connect(skipRowsSpinBox, SIGNAL(valueChanged(int)), this, SLOT(setSkipRows()));
+    connect(headerComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setHeaderOption()));
 }
 
 void DataImporterCsvOptionsPage::initializePage()
 {
-    setEncoding();
-    setDelimiter();
-    setEnclosure();
+    setEncoding(false);
+    setDelimiter(false);
+    setEnclosure(false);
+    setSkipRows(false);
+    setHeaderOption(false);
     importer.setFilename(field("fileName").toString());
 
     previewData();
 }
 
-void DataImporterCsvOptionsPage::setEncoding()
+void DataImporterCsvOptionsPage::setEncoding(bool refreshData)
 {
-    importer.setEncoding(fileEncodingComboBox->currentText());
+    bool set = importer.setEncoding(fileEncodingComboBox->currentText());
+
+    if(set && refreshData){
+        previewData();
+    }
 }
 
-void DataImporterCsvOptionsPage::setDelimiter()
+void DataImporterCsvOptionsPage::setDelimiter(bool refreshData)
 {
-    importer.setDelimiter(WidgetHelper::getComboBoxUserDataOrText(delimiterComboBox));
+    bool set = importer.setDelimiter(WidgetHelper::getComboBoxUserDataOrText(delimiterComboBox));
+
+    if(set && refreshData){
+        previewData();
+    }
 }
 
-void DataImporterCsvOptionsPage::setEnclosure()
+void DataImporterCsvOptionsPage::setEnclosure(bool refreshData)
 {
-    importer.setEnclosures(enclosureEditor->text().trimmed().split(',', QString::SkipEmptyParts));
+    bool set = importer.setEnclosures(enclosureEditor->text().trimmed().split(',', QString::SkipEmptyParts));
+
+    if(set && refreshData){
+        previewData();
+    }
+}
+
+void DataImporterCsvOptionsPage::setSkipRows(bool refreshData)
+{
+    bool set = importer.setSkipRows(skipRowsSpinBox->value());
+
+    if(set && refreshData){
+        previewData();
+    }
+}
+
+void DataImporterCsvOptionsPage::setHeaderOption(bool refreshData)
+{
+    bool set = importer.setHeaderOption((CsvImporter::HeaderOption)headerComboBox->currentIndex());
+
+    if(set && refreshData){
+        previewData();
+    }
 }
 
 void DataImporterCsvOptionsPage::createForm(QVBoxLayout *mainLayout)
@@ -58,6 +97,7 @@ void DataImporterCsvOptionsPage::createForm(QVBoxLayout *mainLayout)
 
     delimiterComboBox = new QComboBox();
     WidgetHelper::fillFieldDelimiters(delimiterComboBox);
+    delimiterComboBox->insertItem(1, tr(", and space"), ", ");
     form1->addRow(tr("Field delimiter"), delimiterComboBox);
 
     skipRowsSpinBox = new QSpinBox();
@@ -97,27 +137,36 @@ void DataImporterCsvOptionsPage::previewData()
 
     WidgetHelper::deleteViewModel(previewTable);
 
-    QStandardItemModel *model = new QStandardItemModel(previewTable);
+    tableModel = new QStandardItemModel(previewTable);
 
-    int readCount = 0;
-    while(!importer.isEOF() && (readCount++) < 50){
-        QStringList values = importer.readValues();
-        if(!values.isEmpty()){
-            qDebug() << values;
+    importer.readRows(this, 50);
 
-            if(model->columnCount()==0){
-                model->setColumnCount(values.size());
-            }
+    previewTable->setModel(tableModel);
+    previewTable->resizeColumnsToFitContents();
+}
 
-            QList<QStandardItem*> rowItems;
+void DataImporterCsvOptionsPage::headerAvailable(const QStringList &headerTitles)
+{
+    tableModel->setHorizontalHeaderLabels(headerTitles);
+}
 
-            for(int i=0; i<qMin(values.size(), model->columnCount()); ++i){
-                rowItems.append(new QStandardItem(values.at(i)));
-            }
+void DataImporterCsvOptionsPage::rowAvailable(const QStringList &values)
+{
+    QList<QStandardItem*> rowItems;
 
-            model->appendRow(rowItems);
-        }
+    if(tableModel->columnCount()==0){
+        tableModel->setColumnCount(values.size());
     }
 
-    previewTable->setModel(model);
+    int columnCount = tableModel->columnCount();
+    for(int i=0; i<qMin(values.size(), columnCount); ++i){
+        rowItems.append(new QStandardItem(values.at(i)));
+    }
+
+    tableModel->appendRow(rowItems);
+}
+
+QStandardItemModel *DataImporterCsvOptionsPage::getDataPreviewModel() const
+{
+    return tableModel;
 }

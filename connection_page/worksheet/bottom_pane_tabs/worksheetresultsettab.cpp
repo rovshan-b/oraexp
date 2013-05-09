@@ -60,6 +60,7 @@ void WorksheetResultsetTab::showQueryResults(IQueryScheduler *, const QueryResul
 
 void WorksheetResultsetTab::displayResultset(IQueryScheduler *queryScheduler, Resultset *rs)
 {
+    cursorClosed = false;
     setInProgress(true);
     resultsTable->setResultset(queryScheduler, rs, QHash<int,StatementDesc*>());
 

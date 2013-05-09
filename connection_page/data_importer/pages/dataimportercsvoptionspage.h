@@ -3,14 +3,16 @@
 
 #include <QWizardPage>
 #include "../importers/csvimporter.h"
+#include "interfaces/idataimportlistener.h"
 
 class QVBoxLayout;
 class QComboBox;
 class QSpinBox;
 class QLineEdit;
 class DataTable;
+class QStandardItemModel;
 
-class DataImporterCsvOptionsPage : public QWizardPage
+class DataImporterCsvOptionsPage : public QWizardPage, public IDataImportListener
 {
     Q_OBJECT
 public:
@@ -18,10 +20,17 @@ public:
 
     virtual void initializePage ();
 
+    virtual void headerAvailable(const QStringList &headerTitles);
+    virtual void rowAvailable(const QStringList &values);
+
+    QStandardItemModel *getDataPreviewModel() const;
+
 private slots:
-    void setEncoding();
-    void setDelimiter();
-    void setEnclosure();
+    void setEncoding(bool refreshData = true);
+    void setDelimiter(bool refreshData = true);
+    void setEnclosure(bool refreshData = true);
+    void setSkipRows(bool refreshData = true);
+    void setHeaderOption(bool refreshData = true);
     
 private:
     QComboBox *fileEncodingComboBox;
@@ -31,6 +40,7 @@ private:
     QLineEdit *enclosureEditor;
 
     DataTable *previewTable;
+    QStandardItemModel *tableModel;
 
     CsvImporter importer;
 

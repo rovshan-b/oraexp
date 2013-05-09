@@ -216,6 +216,7 @@ void DataExportOptionsWidget::createQuotingOptionsPane(QBoxLayout *layout)
     QFormLayout *form = new QFormLayout();
     stringQuotingComboBox = new QComboBox();
     populateQuotingOptions(stringQuotingComboBox);
+    stringQuotingComboBox->setCurrentIndex(2);
     form->addRow(tr("String quoting"), stringQuotingComboBox);
 
     numberQuotingComboBox = new QComboBox();

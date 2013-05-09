@@ -7,6 +7,7 @@
 class QFile;
 class QTextStream;
 class TextStreamReader;
+class IDataImportListener;
 
 class CsvImporter
 {
@@ -22,17 +23,20 @@ public:
     };
 
     bool setFilename(const QString &filename);
-    void setEncoding(const QString &encoding);
-    void setDelimiter(const QString &delimiter);
-    void setSkipRows(int skipRows);
-    void setHeaderOption(HeaderOption headerOption);
-    void setEnclosures(const QStringList &enclosures);
+    bool setEncoding(const QString &encoding);
+    bool setDelimiter(const QString &delimiter);
+    bool setSkipRows(int skipRows);
+    bool setHeaderOption(HeaderOption headerOption);
+    bool setEnclosures(const QStringList &enclosures);
 
     void resetPosition();
 
     bool isEOF() const;
 
     QStringList readValues();
+
+    void readRows(IDataImportListener *importListener, int maxCount = -1);
+
 private:
     QString filename;
     QString encoding;

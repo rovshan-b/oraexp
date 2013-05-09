@@ -2,6 +2,7 @@
 #include "widgets/dbitemlistcombobox.h"
 #include "pages/dataimporterfirstpage.h"
 #include "pages/dataimportercsvoptionspage.h"
+#include "pages/dataimportercolumnmappingspage.h"
 #include "util/iconutil.h"
 #include <QtGui>
 
@@ -20,8 +21,14 @@ void DataImporter::setConnection(DbConnection *db)
     ConnectionPageWizard::setConnection(db);
 
     firstPage->setQueryScheduler(this);
+    mappingsPage->setQueryScheduler(this);
 
     emitInitCompletedSignal();
+}
+
+QAbstractItemModel *DataImporter::getDataPreviewModel() const
+{
+    return csvOptionsPage->getDataPreviewModel();
 }
 
 void DataImporter::createUi()
@@ -32,4 +39,7 @@ void DataImporter::createUi()
 
     csvOptionsPage = new DataImporterCsvOptionsPage();
     addPage(csvOptionsPage);
+
+    mappingsPage = new DataImporterColumnMappingsPage();
+    addPage(mappingsPage);
 }

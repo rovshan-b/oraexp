@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QTextCodec>
+#include "interfaces/idataimportlistener.h"
 
 CsvImporter::CsvImporter() :
     encoding(QObject::tr("System")),
@@ -44,8 +45,10 @@ QString CsvImporter::readString(int count)
             buffer.remove(0, count);
             return result;
         }else{
+            int bufferSize = buffer.size();
             result.append(buffer);
-            result.append(textStream->read(count - buffer.size()));
+            buffer.clear();
+            result.append(textStream->read(count - bufferSize));
 
             return result;
         }
@@ -88,6 +91,41 @@ bool CsvImporter::setFilename(const QString &filename)
     }
 
     return true;
+}
+
+void CsvImporter::readRows(IDataImportListener *importListener, int maxCount)
+{
+    int readCount = 0;
+    int skippedCount = 0;
+    bool readHeader = (headerOption==NoHeader);
+
+    while(!isEOF() && (maxCount == -1 || (readCount++) < maxCount)){
+        QStringList values = readValues();
+
+        if(values.isEmpty()){
+            continue;
+        }
+
+        if(!readHeader && headerOption == BeforeSkip){
+            importListener->headerAvailable(values);
+            readHeader = true;
+            continue;
+        }
+
+        if(skippedCount < skipRows){
+            ++skippedCount;
+            --readCount;
+            continue;
+        }
+
+        if(!readHeader && headerOption == AfterSkip){
+            importListener->headerAvailable(values);
+            readHeader = true;
+            continue;
+        }
+
+        importListener->rowAvailable(values);
+    }
 }
 
 QStringList CsvImporter::readValues()
@@ -147,7 +185,7 @@ QString CsvImporter::readNextField(bool *readEndOfLine)
         QString enclosure = enclosures.at(k);
         if(field.startsWith(enclosure)){
             currentFieldEnclosure = enclosure;
-            field.clear();
+            field.remove(0, enclosure.size());
             break;
         }
     }
@@ -190,23 +228,24 @@ QString CsvImporter::readNextField(bool *readEndOfLine)
             int escapeStartPos = isBackslashEscape ? field.length() - 1 : field.length() - currentFieldEnclosure.size();
             int escapeLength = isBackslashEscape ? 1 : currentFieldEnclosure.size();
 
-            buffer.append( readString(currentFieldEnclosure.size()) );
-            field.append(buffer);
+            QString partToAppend = readString(currentFieldEnclosure.size());
+            buffer.append(partToAppend);
+            field.append(partToAppend);
 
-            int readFrom = qMax(field.length()-currentFieldEnclosure.length(),0);
-            int readCount = currentFieldEnclosure.length();
+            int readFrom = qMax(field.length()-partToAppend.length(),0);
+            int readCount = partToAppend.length();
             QString afterEscape = field.mid(readFrom, readCount);
             //qDebug() << "before enclosure =" << beforeEnclosure;
             if(afterEscape!=currentFieldEnclosure){ //it's not an escape character (is a real enclosure), need to stop on next delimiter
                 stopOnDelimiter = true;
-                field.chop(2); //enclosure + afterEscape
+                field.chop(partToAppend.size()+currentFieldEnclosure.size());
 
                 if(field.isEmpty()){
                     field.append(readString(delimiter.size()));
                 }
             }else{ //remove escape character
                 field.remove(escapeStartPos, escapeLength);
-                buffer.chop(currentFieldEnclosure.size());
+                buffer.chop(partToAppend.size());
             }
         }
 
@@ -221,29 +260,54 @@ QString CsvImporter::readNextField(bool *readEndOfLine)
     return field;
 }
 
-void CsvImporter::setEncoding(const QString &encoding)
+bool CsvImporter::setEncoding(const QString &encoding)
 {
+    if(encoding == this->encoding){
+        return false;
+    }
+
     this->encoding = encoding;
+    return true;
 }
 
-void CsvImporter::setDelimiter(const QString &delimiter)
+bool CsvImporter::setDelimiter(const QString &delimiter)
 {
+    if(delimiter == this->delimiter){
+        return false;
+    }
+
     this->delimiter = delimiter;
+    return true;
 }
 
-void CsvImporter::setSkipRows(int skipRows)
+bool CsvImporter::setSkipRows(int skipRows)
 {
+    if(skipRows == this->skipRows){
+        return false;
+    }
+
     this->skipRows = qMax(skipRows, 0);
+    return true;
 }
 
-void CsvImporter::setHeaderOption(CsvImporter::HeaderOption headerOption)
+bool CsvImporter::setHeaderOption(CsvImporter::HeaderOption headerOption)
 {
+    if(headerOption == this->headerOption){
+        return false;
+    }
+
     this->headerOption = headerOption;
+    return true;
 }
 
-void CsvImporter::setEnclosures(const QStringList &enclosures)
+bool CsvImporter::setEnclosures(const QStringList &enclosures)
 {
+    if(enclosures == this->enclosures){
+        return false;
+    }
+
     this->enclosures = enclosures;
+    return true;
 }
 
 void CsvImporter::resetPosition()
@@ -257,5 +321,5 @@ void CsvImporter::resetPosition()
 
 bool CsvImporter::isEOF() const
 {
-    return textStream->status() == QTextStream::ReadPastEnd;
+    return textStream->status() == QTextStream::ReadPastEnd && buffer.isEmpty();
 }

@@ -28,7 +28,7 @@ void FileSelectorWidget::selectFilename()
                         ?
                        DialogHelper::showFileSaveDialog(this, defaultSuffix)
                         :
-                       DialogHelper::showFileOpenDialog(this, tr("Delimited file formats (*.csv *.tsv *.txt);;All files (*.*)"));
+                       DialogHelper::showFileOpenDialog(this, tr("Delimited file formats (*.csv *.tsv *.txt *.dsv);;All files (*.*)"));
     if(!filename.isEmpty()){
         lineEdit()->setText(filename);
     }
