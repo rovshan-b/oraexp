@@ -70,4 +70,6 @@ QString toValidFilename(const QString &str);
 
 QString detectDateFormat(const QString &date);
 
+QString dateFormatForLocale(const QString &dateFormat);
+
 #endif // STRUTIL_H

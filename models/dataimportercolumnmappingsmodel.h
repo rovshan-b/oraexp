@@ -23,9 +23,12 @@ public:
 
     void setColumnDataType(int row, const QString &dataType);
     QString getColumnDataType(int row) const;
+
+    void setDateFormat(int row, const QString &date);
     
 private:
     bool isFormatFieldEnabled(int row) const;
+
     
 };
 

@@ -1,5 +1,7 @@
 #include "dataimportercolumnmappingsmodel.h"
 #include "util/dbutil.h"
+#include "util/strutil.h"
+#include "defines.h"
 #include <QApplication>
 #include <QPalette>
 
@@ -54,10 +56,33 @@ QString DataImporterColumnMappingsModel::getColumnDataType(int row) const
     return index(row, ColumnName).data(COLUMN_DATA_TYPE_ROLE).toString();
 }
 
+void DataImporterColumnMappingsModel::setDateFormat(int row, const QString &date)
+{
+    if(isFormatFieldEnabled(row)){
+        QString dateFormat;
+        QString dataType = getColumnDataType(row);
+
+        if(DbUtil::isTimestampType(dataType)){
+            OraExp::ColumnSubType timestampSubType=DbUtil::getTimestampSubType(dataType);
+            if(timestampSubType==OraExp::CSTTimestampTz){
+                dateFormat = DB_TZ_TIMESTAMP_FORMAT;
+            }else{
+                dateFormat = DB_TIMESTAMP_FORMAT;
+            }
+        }else if(DbUtil::isDateType(dataType)){
+            dateFormat = detectDateFormat(date);
+        }
+
+        if(!dateFormat.isEmpty()){
+            setData(index(row, ColumnFormat), dateFormat);
+        }
+    }
+}
+
 bool DataImporterColumnMappingsModel::isFormatFieldEnabled(int row) const
 {
     QString dataType = getColumnDataType(row);
-    if(!(DbUtil::isDateType(dataType) || DbUtil::isIntervalType(dataType))){
+    if(!(DbUtil::isDateType(dataType) || DbUtil::isTimestampType(dataType))){
         return false;
     }
 

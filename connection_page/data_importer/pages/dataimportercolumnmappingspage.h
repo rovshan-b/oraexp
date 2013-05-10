@@ -39,6 +39,8 @@ private:
 
     void loadColumnList();
     void setFileFieldList(QStandardItemModel *model);
+
+    QString getFirstNonEmptyDate(int previewTableColIx) const;
     
 };
 

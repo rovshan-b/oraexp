@@ -84,6 +84,7 @@ void DataImporterColumnMappingsPage::columnFetched(const FetchResult &fetchResul
         mappingsModel->setData(fileFieldIndex, colIx, Qt::EditRole);
         mappingsModel->setData(fileFieldIndex, columnName, Qt::DisplayRole);
     }
+    mappingsModel->setDateFormat(lastRowIx, getFirstNonEmptyDate(colIx - 1)); //colIx is 1 based, because first item is always empty
 }
 
 void DataImporterColumnMappingsPage::columnFetchCompleted(const QString &)
@@ -129,12 +130,23 @@ void DataImporterColumnMappingsPage::setFileFieldList(QStandardItemModel *model)
 
         for(int i=0; i<mappingsModel->rowCount(); ++i){
             QModelIndex fileFieldIndex = mappingsModel->index(i, DataImporterColumnMappingsModel::FileField);
-            QModelIndex columnFormatIndex = mappingsModel->index(i, DataImporterColumnMappingsModel::ColumnFormat);
             mappingsModel->setData(fileFieldIndex, QVariant(), Qt::EditRole);
             mappingsModel->setData(fileFieldIndex, QVariant(), Qt::DisplayRole);
-            mappingsModel->setData(columnFormatIndex, QVariant());
         }
 
         mappingsModel->setList(DataImporterColumnMappingsModel::FileField, list);
     }
+}
+
+QString DataImporterColumnMappingsPage::getFirstNonEmptyDate(int previewTableColIx) const
+{
+    QAbstractItemModel *model = previewTable->model();
+    for(int i=0; i<model->rowCount(); ++i){
+        QString date = model->index(i, previewTableColIx).data().toString().trimmed();
+        if(!date.isEmpty() && date.compare("null", Qt::CaseInsensitive)!=0){
+            return date;
+        }
+    }
+
+    return "";
 }

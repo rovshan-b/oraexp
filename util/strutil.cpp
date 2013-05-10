@@ -2,7 +2,7 @@
 #include <QRegExp>
 #include <iostream>
 #include <QCryptographicHash>
-#include <QVector>
+#include <QLocale>
 
 using namespace std;
 
@@ -353,53 +353,75 @@ QString toValidFilename(const QString &str)
 
 QString detectDateFormat(const QString &date)
 {
-    QVector<QRegExp> dateRegexps(10);
-    QVector<QString> dateFormats(10);
+    QList<QString> datePatterns;
+    QList<QString> dateFormats;
 
-    //yyyy-mm-dd
-    dateRegexps.append(QRegExp("\\d{4}(/|-|.)\\d{2}(/|-|.)\\d{2}"));
+    QList<QString> timePatterns;
+    QList<QString> timeFormats;
+
+
+    datePatterns.append("\\d{4}(/|-|.)\\d{2}(/|-|.)\\d{2}");
     dateFormats.append("YYYY-MM-DD");
 
-    dateRegexps.append(QRegExp("\\d{4}(/|-|.)\\d{2}(/|-|.)\\d{2} \\d{2}:\\d{2}"));
-    dateFormats.append("YYYY-MM-DD HH24:MI");
-
-    dateRegexps.append(QRegExp("\\d{4}(/|-|.)\\d{2}(/|-|.)\\d{2} \\d{2}:\\d{2}:\\d{2}"));
-    dateFormats.append("YYYY-MM-DD HH24:MI:SS");
-
-    dateRegexps.append(QRegExp("\\d{4}(/|-|.)\\d{2}(/|-|.)\\d{2} \\d{2}:\\d{2} (am|pm)"));
-    dateFormats.append("YYYY-MM-DD HH24:MI AM");
-
-    dateRegexps.append(QRegExp("\\d{4}(/|-|.)\\d{2}(/|-|.)\\d{2} \\d{2}:\\d{2}:\\d{2} (am|pm)"));
-    dateFormats.append("YYYY-MM-DD HH24:MI:SS AM");
-
-    //dd.mm.yyyy
-    dateRegexps.append(QRegExp("\\d{2}(/|-|.)\\d{2}(/|-|.)\\d{4}"));
+    datePatterns.append("\\d{2}(/|-|.)\\d{2}(/|-|.)\\d{4}");
     dateFormats.append("DD-MM-YYYY");
 
-    dateRegexps.append(QRegExp("\\d{2}(/|-|.)\\d{2}(/|-|.)\\d{4} \\d{2}:\\d{2}"));
-    dateFormats.append("DD-MM-YYYY HH24:MI");
+    datePatterns.append("\\d{2}(/|-|.| )\\D{3}(/|-|.| )\\d{4}");
+    dateFormats.append("DD-MON-YYYY");
 
-    dateRegexps.append(QRegExp("\\d{2}(/|-|.)\\d{2}(/|-|.)\\d{4} \\d{2}:\\d{2}:\\d{2}"));
-    dateFormats.append("DD-MM-YYYY HH24:MI:SS");
+    datePatterns.append("\\d{2}(/|-|.| )\\D{4,}(/|-|.| )\\d{4}");
+    dateFormats.append("DD-MONTH-YYYY");
 
-    dateRegexps.append(QRegExp("\\d{2}(/|-|.)\\d{2}(/|-|.)\\d{4} \\d{2}:\\d{2} (am|pm)"));
-    dateFormats.append("DD-MM-YYYY HH24:MI AM");
 
-    dateRegexps.append(QRegExp("\\d{2}(/|-|.)\\d{2}(/|-|.)\\d{4} \\d{2}:\\d{2}:\\d{2} (am|pm)"));
-    dateFormats.append("DD-MM-YYYY HH24:MI:SS AM");
+    timePatterns.append("\\d{2}:\\d{2}");
+    timeFormats.append("HH24:MI");
 
-    for(int i=0; i<dateRegexps.size(); ++i){
-        QRegExp &regexp = dateRegexps[i];
-        regexp.setCaseSensitivity(Qt::CaseInsensitive);
-        regexp.setPatternSyntax(QRegExp::RegExp2);
+    timePatterns.append("\\d{2}:\\d{2}:\\d{2}");
+    timeFormats.append("HH24:MI:SS");
 
-        if(regexp.exactMatch(date)){
-            QString format = dateFormats.at(i);
-            format.replace("-", regexp.capturedTexts().at(1));
+    timePatterns.append("\\d{2}:\\d{2} (am|pm)");
+    timeFormats.append("HH:MI AM");
 
-            return format;
+    timePatterns.append("\\d{2}:\\d{2}:\\d{2} (am|pm)");
+    timeFormats.append("HH:MI:SS AM");
+
+    QString format;
+    for(int i=0; i<datePatterns.size(); ++i){
+        for(int k=0; k<timePatterns.size(); ++k){
+            //first try to match only date part
+            QString pattern = datePatterns.at(i);
+            QRegExp regexp(pattern, Qt::CaseInsensitive, QRegExp::RegExp2);
+
+            if(regexp.exactMatch(date)){
+                format = dateFormatForLocale(dateFormats.at(i));
+                format.replace("-", regexp.capturedTexts().at(1));
+                break;
+            }
+
+            //now do a full match
+            pattern = QString("%1 %2").arg(datePatterns.at(i), timePatterns.at(k));
+            regexp.setPattern(pattern);
+
+            if(regexp.exactMatch(date)){
+                format = QString("%1 %2").arg(dateFormatForLocale(dateFormats.at(i)), timeFormats.at(k));
+                format.replace("-", regexp.capturedTexts().at(1));
+                break;
+            }
         }
     }
 
-    return "";
+    return format;
+}
+
+QString dateFormatForLocale(const QString &dateFormat)
+{
+    if(dateFormat.startsWith("DD-MM")){
+        QLocale::Country country = QLocale::system().country();
+
+        if(country == QLocale::UnitedStates || country == QLocale::UnitedStatesMinorOutlyingIslands){
+            return QString(dateFormat).replace("DD-MM", "MM-DD");
+        }
+    }
+
+    return dateFormat;
 }
