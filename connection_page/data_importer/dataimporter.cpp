@@ -26,7 +26,7 @@ void DataImporter::setConnection(DbConnection *db)
     emitInitCompletedSignal();
 }
 
-QAbstractItemModel *DataImporter::getDataPreviewModel() const
+QStandardItemModel *DataImporter::getDataPreviewModel() const
 {
     return csvOptionsPage->getDataPreviewModel();
 }

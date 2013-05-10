@@ -68,4 +68,6 @@ void copyStringToArray(dtext *array, int arrayPos, int arrayMaxStrLength, const 
 
 QString toValidFilename(const QString &str);
 
+QString detectDateFormat(const QString &date);
+
 #endif // STRUTIL_H

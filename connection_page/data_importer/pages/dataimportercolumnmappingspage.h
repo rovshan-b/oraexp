@@ -8,6 +8,7 @@
 class IQueryScheduler;
 class DataTable;
 class DataImporterColumnMappingsModel;
+class QStandardItemModel;
 
 class DataImporterColumnMappingsPage : public QWizardPage
 {
@@ -35,6 +36,9 @@ private:
     QString currentSchemaName;
     QString currentTableName;
     QString currentFileName;
+
+    void loadColumnList();
+    void setFileFieldList(QStandardItemModel *model);
     
 };
 

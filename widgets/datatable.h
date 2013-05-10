@@ -44,6 +44,8 @@ public:
 
     void getSelectedRange(int *startRow, int *startColumn, int *endRow, int *endColumn);
 
+    void displayMessage(const QString &message);
+
 public slots:
     void resizeColumnsToFitContents();
 

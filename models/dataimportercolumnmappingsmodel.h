@@ -17,10 +17,15 @@ public:
         FileField,
         ColumnFormat
     };
+
+    Qt::ItemFlags flags ( const QModelIndex & index ) const;
+    virtual QVariant data ( const QModelIndex & index, int role = Qt::DisplayRole ) const;
+
+    void setColumnDataType(int row, const QString &dataType);
+    QString getColumnDataType(int row) const;
     
-signals:
-    
-public slots:
+private:
+    bool isFormatFieldEnabled(int row) const;
     
 };
 

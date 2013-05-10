@@ -47,6 +47,8 @@ private:
     void createForm(QVBoxLayout *mainLayout);
 
     void previewData();
+
+    QStringList createColumnNames(int count) const;
     
 };
 

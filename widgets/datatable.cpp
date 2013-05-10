@@ -178,19 +178,24 @@ void DataTable::deleteCurrentModel()
     WidgetHelper::deleteViewModel(this);
 }
 
+void DataTable::displayMessage(const QString &message)
+{
+    deleteCurrentModel();
+
+    QStandardItemModel *errModel=new QStandardItemModel(this);
+    errModel->setHorizontalHeaderLabels(QStringList() << tr("Error"));
+    QStandardItem *errItem=new QStandardItem(message);
+    errModel->appendRow(errItem);
+
+    setModel(errModel);
+    resizeColumnToContents(0);
+    resizeRowToContents(0);
+}
+
 void DataTable::displayError(const QString &prefix, const OciException &ex)
 {
     if(quietMode){
-        deleteCurrentModel();
-
-        QStandardItemModel *errModel=new QStandardItemModel(this);
-        errModel->setHorizontalHeaderLabels(QStringList() << tr("Error"));
-        QStandardItem *errItem=new QStandardItem(QString("%1 : %2").arg(prefix, ex.getErrorMessage()));
-        errModel->appendRow(errItem);
-
-        setModel(errModel);
-        resizeColumnToContents(0);
-        resizeRowToContents(0);
+        displayMessage(QString("%1 : %2").arg(prefix, ex.getErrorMessage()));
     }else{
         QMessageBox::critical(this->window(), prefix, ex.getErrorMessage());
     }

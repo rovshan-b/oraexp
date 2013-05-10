@@ -145,6 +145,17 @@ void DataImporterCsvOptionsPage::previewData()
     previewTable->resizeColumnsToFitContents();
 }
 
+QStringList DataImporterCsvOptionsPage::createColumnNames(int count) const
+{
+    QStringList result;
+
+    for(int i=1; i<=count; ++i){
+        result.append(QString("COLUMN%1").arg(i));
+    }
+
+    return result;
+}
+
 void DataImporterCsvOptionsPage::headerAvailable(const QStringList &headerTitles)
 {
     tableModel->setHorizontalHeaderLabels(headerTitles);
@@ -155,7 +166,7 @@ void DataImporterCsvOptionsPage::rowAvailable(const QStringList &values)
     QList<QStandardItem*> rowItems;
 
     if(tableModel->columnCount()==0){
-        tableModel->setColumnCount(values.size());
+        tableModel->setHorizontalHeaderLabels(createColumnNames(values.size()));
     }
 
     int columnCount = tableModel->columnCount();
