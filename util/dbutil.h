@@ -87,6 +87,10 @@ public:
     static QString getExtentSizeClause(bool unlimited, uint size, OraExp::ExtentUnit sizeUnit);
     static void parseExtentSize(const QString &textToParse, bool *unlimited, qulonglong *quota, OraExp::ExtentUnit *units);
 
+    static void getDateFormats(QList<QString> *dateFormats, QList<QString> *datePatterns);
+    static void getTimeFormats(QList<QString> *timeFormats, QList<QString> *timePatterns);
+    static QStringList getDateTimeFormats();
+
     //static DbTreeModel::DbTreeNodeType getPairNodeType(DbTreeModel::DbTreeNodeType nodeType);
 };
 

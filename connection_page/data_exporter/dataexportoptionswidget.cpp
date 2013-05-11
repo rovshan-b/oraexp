@@ -221,6 +221,7 @@ void DataExportOptionsWidget::createQuotingOptionsPane(QBoxLayout *layout)
 
     numberQuotingComboBox = new QComboBox();
     populateQuotingOptions(numberQuotingComboBox);
+    numberQuotingComboBox->setCurrentIndex(2);
     form->addRow(tr("Number quoting"), numberQuotingComboBox);
 
     quotingOptionsBox = new QGroupBox(tr("Quoting options"));

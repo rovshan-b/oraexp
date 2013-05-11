@@ -28,6 +28,8 @@ public:
     bool setSkipRows(int skipRows);
     bool setHeaderOption(HeaderOption headerOption);
     bool setEnclosures(const QStringList &enclosures);
+    bool setBackslashAsEscape(bool backslashAsEscape);
+    bool setNullIf(const QStringList &nullIf);
 
     void resetPosition();
 
@@ -44,6 +46,8 @@ private:
     int skipRows;
     HeaderOption headerOption;
     QStringList enclosures;
+    bool backslashAsEscape;
+    QStringList nullIf;
 
     QFile *file;
     QTextStream *textStream;

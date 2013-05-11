@@ -3,11 +3,12 @@
 #include "models/dataimportercolumnmappingsmodel.h"
 #include "delegates/indexbasedcomboboxdelegate.h"
 #include "util/iconutil.h"
+#include "util/dbutil.h"
 #include "../dataimporter.h"
 #include <QtGui>
 
 DataImporterColumnMappingsPage::DataImporterColumnMappingsPage(QWidget *parent) :
-    QWizardPage(parent), querySheduler(0)
+    QWizardPage(parent), querySheduler(0), loadInProgress(true)
 {
     setTitle(tr("Column mappings"));
     setSubTitle(tr("Define mappings between table columns and file fields"));
@@ -20,7 +21,13 @@ DataImporterColumnMappingsPage::DataImporterColumnMappingsPage(QWidget *parent) 
     mappingsModel->setColumnEnabled(DataImporterColumnMappingsModel::ColumnName, false);
     mappingsTable->setModel(mappingsModel);
     mappingsTable->horizontalHeader()->setDefaultSectionSize(170);
+
     mappingsTable->setItemDelegateForColumn(DataImporterColumnMappingsModel::FileField, new IndexBasedComboBoxDelegate(this, DataImporterColumnMappingsModel::FileField));
+    mappingsTable->setItemDelegateForColumn(DataImporterColumnMappingsModel::ColumnFormat, new ComboBoxDelegate(this, DataImporterColumnMappingsModel::ColumnFormat));
+
+    QStringList dateTimeFormats = DbUtil::getDateTimeFormats();
+    dateTimeFormats.prepend("");
+    mappingsModel->setList(DataImporterColumnMappingsModel::ColumnFormat, dateTimeFormats);
 
     previewTable = new DataTable();
     previewTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -31,6 +38,8 @@ DataImporterColumnMappingsPage::DataImporterColumnMappingsPage(QWidget *parent) 
     mainLayout->addWidget(tab);
 
     setLayout(mainLayout);
+
+    connect(mappingsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(mappingsModelDataChanged(QModelIndex,QModelIndex)));
 }
 
 void DataImporterColumnMappingsPage::setQueryScheduler(IQueryScheduler *queryScheduler)
@@ -78,17 +87,40 @@ void DataImporterColumnMappingsPage::columnFetched(const FetchResult &fetchResul
 
     QStringList fileFields = mappingsModel->getList(DataImporterColumnMappingsModel::FileField);
     QRegExp colMatchRegExp(columnName, Qt::CaseInsensitive);
-    int colIx = fileFields.indexOf(colMatchRegExp);
-    if(colIx!=-1){
+    int fileFieldIx = fileFields.indexOf(colMatchRegExp);
+    if(fileFieldIx!=-1){
         QModelIndex fileFieldIndex = mappingsModel->index(lastRowIx, DataImporterColumnMappingsModel::FileField);
-        mappingsModel->setData(fileFieldIndex, colIx, Qt::EditRole);
+        mappingsModel->setData(fileFieldIndex, fileFieldIx, Qt::EditRole);
         mappingsModel->setData(fileFieldIndex, columnName, Qt::DisplayRole);
     }
-    mappingsModel->setDateFormat(lastRowIx, getFirstNonEmptyDate(colIx - 1)); //colIx is 1 based, because first item is always empty
+    mappingsModel->setDateFormat(lastRowIx, getNonEmptyDates(fileFieldIx - 1)); //colIx is 1 based, because first item is always empty
 }
 
 void DataImporterColumnMappingsPage::columnFetchCompleted(const QString &)
 {
+    this->loadInProgress = false;
+    mappingsTable->resizeColumnToContents(DataImporterColumnMappingsModel::ColumnName);
+}
+
+void DataImporterColumnMappingsPage::mappingsModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+{
+    if(loadInProgress){
+        return;
+    }
+
+    for(int i=topLeft.row(); i<=bottomRight.row(); ++i){
+        for(int k=topLeft.column(); k<=bottomRight.column(); ++k){
+            if(k!=DataImporterColumnMappingsModel::FileField){
+                continue;
+            }
+            int fileFieldIx = mappingsModel->data(mappingsModel->index(i, DataImporterColumnMappingsModel::FileField), Qt::EditRole).toInt();
+            if(fileFieldIx <= 0){
+                mappingsModel->setData(mappingsModel->index(i, DataImporterColumnMappingsModel::ColumnFormat), "");
+            }else{
+                mappingsModel->setDateFormat(i, getNonEmptyDates(fileFieldIx - 1));
+            }
+        }
+    }
 }
 
 void DataImporterColumnMappingsPage::loadColumnList()
@@ -103,6 +135,9 @@ void DataImporterColumnMappingsPage::loadColumnList()
         mappingsModel->removeRows(0, mappingsModel->rowCount());
         mappingsModel->ensureRowCount(1);
         mappingsModel->setData(mappingsModel->index(0,0), tr("Loading..."));
+
+        this->loadInProgress = true;
+
         querySheduler->enqueueQuery("get_table_columns_for_editing",
                                     QList<Param*>()
                                     << new Param("owner", currentSchemaName)
@@ -138,15 +173,17 @@ void DataImporterColumnMappingsPage::setFileFieldList(QStandardItemModel *model)
     }
 }
 
-QString DataImporterColumnMappingsPage::getFirstNonEmptyDate(int previewTableColIx) const
+QStringList DataImporterColumnMappingsPage::getNonEmptyDates(int previewTableColIx) const
 {
+    QStringList results;
+
     QAbstractItemModel *model = previewTable->model();
     for(int i=0; i<model->rowCount(); ++i){
         QString date = model->index(i, previewTableColIx).data().toString().trimmed();
         if(!date.isEmpty() && date.compare("null", Qt::CaseInsensitive)!=0){
-            return date;
+            results.append(date);
         }
     }
 
-    return "";
+    return results;
 }

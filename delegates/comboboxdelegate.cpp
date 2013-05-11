@@ -93,6 +93,11 @@ void ComboBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
      }
      int selectedIndex = comboBox->currentIndex();
 
+     if(model->data(index, Qt::EditRole).toString() == value &&
+             model->data(index, Qt::UserRole+1).toInt() == selectedIndex){
+         return;
+     }
+
      model->setData(index, value.isEmpty() ? QIcon() : comboBox->itemIcon(selectedIndex), Qt::DecorationRole);
 
      model->setData(index, value, Qt::EditRole);

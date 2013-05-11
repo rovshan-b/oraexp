@@ -65,9 +65,9 @@ QVariant GenericEditableTableModel::data ( const QModelIndex & index, int role) 
     QVariant columnDataForRole = getDataWithoutChecks(index, role, roleDataFound);
 
     if(role==Qt::DisplayRole && !roleDataFound){
-        //if not data exists for DisplayRole, check EditRole as well
+        //if no data exists for DisplayRole, check EditRole as well
         columnDataForRole = getDataWithoutChecks(index, Qt::EditRole, roleDataFound);
-        if(columnLists.contains(index.column()) && columnDataForRole.canConvert(QVariant::Int)){
+        if(columnLists.contains(index.column()) && columnDataForRole.type()==QVariant::Int){
             int itemIx = columnDataForRole.toInt();
             QStringList columnListData = columnLists.value(index.column());
             if(itemIx>=0 && itemIx<columnListData.size()){
@@ -82,7 +82,7 @@ QVariant GenericEditableTableModel::data ( const QModelIndex & index, int role) 
 
         if(!columnDataForRole.isValid() && columnIconLists.contains(index.column())){
             QVariant editRoleData = getDataWithoutChecks(index, Qt::EditRole, roleDataFound);
-            if(editRoleData.isValid() && editRoleData.canConvert(QVariant::Int)){
+            if(editRoleData.isValid() && editRoleData.type()==QVariant::Int){
                 int itemIx = editRoleData.toInt();
                 QList<QPixmap> columnIconList = columnIconLists.value(index.column());
                 if(itemIx>=0 && itemIx<columnIconList.size()){

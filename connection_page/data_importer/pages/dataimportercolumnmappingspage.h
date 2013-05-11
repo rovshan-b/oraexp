@@ -2,6 +2,7 @@
 #define DATAIMPORTERCOLUMNMAPPINGSPAGE_H
 
 #include <QWizardPage>
+#include <QModelIndex>
 #include "connectivity/queryresult.h"
 #include "connectivity/fetchresult.h"
 
@@ -25,6 +26,8 @@ private slots:
     void columnFetched(const FetchResult &fetchResult);
     void columnFetchCompleted(const QString &);
 
+    void mappingsModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+
 private:
     IQueryScheduler *querySheduler;
 
@@ -40,7 +43,9 @@ private:
     void loadColumnList();
     void setFileFieldList(QStandardItemModel *model);
 
-    QString getFirstNonEmptyDate(int previewTableColIx) const;
+    QStringList getNonEmptyDates(int previewTableColIx) const;
+
+    bool loadInProgress;
     
 };
 

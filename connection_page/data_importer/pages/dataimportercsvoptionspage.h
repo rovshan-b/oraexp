@@ -9,6 +9,7 @@ class QVBoxLayout;
 class QComboBox;
 class QSpinBox;
 class QLineEdit;
+class QCheckBox;
 class DataTable;
 class QStandardItemModel;
 
@@ -31,6 +32,8 @@ private slots:
     void setEnclosure(bool refreshData = true);
     void setSkipRows(bool refreshData = true);
     void setHeaderOption(bool refreshData = true);
+    void setBackslashAsEscape(bool refreshData = true);
+    void setNullIf(bool refreshData = true);
     
 private:
     QComboBox *fileEncodingComboBox;
@@ -38,6 +41,8 @@ private:
     QSpinBox *skipRowsSpinBox;
     QComboBox *headerComboBox;
     QLineEdit *enclosureEditor;
+    QCheckBox *backslashAsEscapeCheckBox;
+    QLineEdit *nullIfEditor;
 
     DataTable *previewTable;
     QStandardItemModel *tableModel;

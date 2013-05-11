@@ -25,6 +25,11 @@ void IndexBasedComboBoxDelegate::setModelData(QWidget *editor, QAbstractItemMode
      int currentIndex=comboBox->currentIndex();
      QString currentText=comboBox->currentText();
 
+     if(model->data(index, Qt::EditRole).toInt() == currentIndex &&
+             model->data(index, Qt::DisplayRole).toString() == currentText){
+         return;
+     }
+
      model->setData(index, currentIndex, Qt::EditRole);
      model->setData(index, currentText, Qt::DisplayRole);
      model->setData(index, currentText.isEmpty() ? QVariant() : comboBox->itemIcon(currentIndex), Qt::DecorationRole);

@@ -1003,6 +1003,64 @@ void DbUtil::parseExtentSize(const QString &textToParse, bool *unlimited, qulong
     }
 }
 
+void DbUtil::getDateFormats(QList<QString> *dateFormats, QList<QString> *datePatterns)
+{
+    datePatterns->append("\\d{4}(/|-|.)\\d{2}(/|-|.)\\d{2}");
+    dateFormats->append("YYYY-MM-DD");
+
+    datePatterns->append("\\d{2}(/|-|.)\\d{2}(/|-|.)\\d{4}");
+    dateFormats->append("DD-MM-YYYY");
+
+    datePatterns->append("\\d{2}(/|-|.| )\\D{3}(/|-|.| )\\d{4}");
+    dateFormats->append("DD-MON-YYYY");
+
+    datePatterns->append("\\d{2}(/|-|.| )\\D{4,}(/|-|.| )\\d{4}");
+    dateFormats->append("DD-MONTH-YYYY");
+}
+
+void DbUtil::getTimeFormats(QList<QString> *timeFormats, QList<QString> *timePatterns)
+{
+    timePatterns->append("\\d{2}:\\d{2}");
+    timeFormats->append("HH24:MI");
+
+    timePatterns->append("\\d{2}:\\d{2}:\\d{2}");
+    timeFormats->append("HH24:MI:SS");
+
+    timePatterns->append("\\d{2}:\\d{2} (am|pm)");
+    timeFormats->append("HH:MI AM");
+
+    timePatterns->append("\\d{2}:\\d{2}:\\d{2} (am|pm)");
+    timeFormats->append("HH:MI:SS AM");
+}
+
+QStringList DbUtil::getDateTimeFormats()
+{
+    QList<QString> datePatterns;
+    QList<QString> dateFormats;
+
+    QList<QString> timePatterns;
+    QList<QString> timeFormats;
+
+    DbUtil::getDateFormats(&dateFormats, &datePatterns);
+    DbUtil::getTimeFormats(&timeFormats, &timePatterns);
+
+    timeFormats.append("HH24:MI:SS.FF9");
+    timeFormats.append("HH24:MI:SS.FF9TZH:TZM");
+
+    QStringList results;
+
+    for(int i=0; i<dateFormats.size(); ++i){
+
+        results.append(dateFormats.at(i));
+
+        for(int k=0; k<timeFormats.size(); ++k){
+            results.append(QString("%1 %2").arg(dateFormats.at(i), timeFormats.at(k)));
+        }
+    }
+
+    return results;
+}
+
 /*
 DbTreeModel::DbTreeNodeType DbUtil::getPairNodeType(DbTreeModel::DbTreeNodeType nodeType)
 {

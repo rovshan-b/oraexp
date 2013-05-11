@@ -56,8 +56,12 @@ QString DataImporterColumnMappingsModel::getColumnDataType(int row) const
     return index(row, ColumnName).data(COLUMN_DATA_TYPE_ROLE).toString();
 }
 
-void DataImporterColumnMappingsModel::setDateFormat(int row, const QString &date)
+void DataImporterColumnMappingsModel::setDateFormat(int row, const QStringList &dates)
 {
+    if(dates.isEmpty()){
+        return;
+    }
+
     if(isFormatFieldEnabled(row)){
         QString dateFormat;
         QString dataType = getColumnDataType(row);
@@ -70,7 +74,7 @@ void DataImporterColumnMappingsModel::setDateFormat(int row, const QString &date
                 dateFormat = DB_TIMESTAMP_FORMAT;
             }
         }else if(DbUtil::isDateType(dataType)){
-            dateFormat = detectDateFormat(date);
+            dateFormat = detectDateFormat(dates);
         }
 
         if(!dateFormat.isEmpty()){

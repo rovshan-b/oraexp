@@ -9,6 +9,7 @@ CsvImporter::CsvImporter() :
     encoding(QObject::tr("System")),
     skipRows(0),
     headerOption(NoHeader),
+    backslashAsEscape(true),
     file(0),
     textStream(0)
 {
@@ -144,11 +145,11 @@ QStringList CsvImporter::readValues()
 
         if(isEOF()){
             if(!field.isEmpty()){
-                values.append(field);
+                values.append(nullIf.contains(field, Qt::CaseInsensitive) ? "" : field);
             }
             break;
         }else{
-            values.append(field);
+            values.append(nullIf.contains(field, Qt::CaseInsensitive) ? "" : field);
         }
 
         if(values.size()>1500){ //in case user by accident selected large binary file
@@ -221,7 +222,7 @@ QString CsvImporter::readNextField(bool *readEndOfLine)
         }
 
         if(!currentFieldEnclosure.isEmpty() &&
-                (field.endsWith(currentFieldEnclosure) || field.endsWith('\\'))){
+                (field.endsWith(currentFieldEnclosure) || (field.endsWith('\\') && this->backslashAsEscape))){
 
             bool isBackslashEscape = field.endsWith('\\');
 
@@ -307,6 +308,26 @@ bool CsvImporter::setEnclosures(const QStringList &enclosures)
     }
 
     this->enclosures = enclosures;
+    return true;
+}
+
+bool CsvImporter::setBackslashAsEscape(bool backslashAsEscape)
+{
+    if(backslashAsEscape == this->backslashAsEscape){
+        return false;
+    }
+
+    this->backslashAsEscape = backslashAsEscape;
+    return true;
+}
+
+bool CsvImporter::setNullIf(const QStringList &nullIf)
+{
+    if(nullIf == this->nullIf){
+        return false;
+    }
+
+    this->nullIf = nullIf;
     return true;
 }
 

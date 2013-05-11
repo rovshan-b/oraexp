@@ -26,6 +26,8 @@ DataImporterCsvOptionsPage::DataImporterCsvOptionsPage(QWidget *parent) :
     connect(enclosureEditor, SIGNAL(editingFinished()), this, SLOT(setEnclosure()));
     connect(skipRowsSpinBox, SIGNAL(valueChanged(int)), this, SLOT(setSkipRows()));
     connect(headerComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setHeaderOption()));
+    connect(backslashAsEscapeCheckBox, SIGNAL(stateChanged(int)), this, SLOT(setBackslashAsEscape()));
+    connect(nullIfEditor, SIGNAL(editingFinished()), this, SLOT(setNullIf()));
 }
 
 void DataImporterCsvOptionsPage::initializePage()
@@ -35,6 +37,8 @@ void DataImporterCsvOptionsPage::initializePage()
     setEnclosure(false);
     setSkipRows(false);
     setHeaderOption(false);
+    setBackslashAsEscape(false);
+    setNullIf(false);
     importer.setFilename(field("fileName").toString());
 
     previewData();
@@ -85,6 +89,24 @@ void DataImporterCsvOptionsPage::setHeaderOption(bool refreshData)
     }
 }
 
+void DataImporterCsvOptionsPage::setBackslashAsEscape(bool refreshData)
+{
+    bool set = importer.setBackslashAsEscape(backslashAsEscapeCheckBox->isChecked());
+
+    if(set && refreshData){
+        previewData();
+    }
+}
+
+void DataImporterCsvOptionsPage::setNullIf(bool refreshData)
+{
+    bool set = importer.setNullIf(nullIfEditor->text().split(',', QString::SkipEmptyParts));
+
+    if(set && refreshData){
+        previewData();
+    }
+}
+
 void DataImporterCsvOptionsPage::createForm(QVBoxLayout *mainLayout)
 {
     QHBoxLayout *hBox = new QHBoxLayout();
@@ -104,27 +126,37 @@ void DataImporterCsvOptionsPage::createForm(QVBoxLayout *mainLayout)
     skipRowsSpinBox->setRange(0, 100000);
     form1->addRow(tr("Skip rows"), skipRowsSpinBox);
 
-    QFormLayout *form3 = new QFormLayout();
-
     headerComboBox = new QComboBox();
     headerComboBox->addItem(tr("None"));
     headerComboBox->addItem(tr("Before skip"));
     headerComboBox->addItem(tr("After skip"));
     headerComboBox->setCurrentIndex(2);
-    form3->addRow(tr("Header"), headerComboBox);
+    form1->addRow(tr("Header"), headerComboBox);
+
+    QFormLayout *form2 = new QFormLayout();
 
     enclosureEditor = new QLineEdit();
-    enclosureEditor->setToolTip(tr("Comma separated list of enclosing characters. For example: \", '"));
+    enclosureEditor->setToolTip(tr("Comma separated list of enclosing characters."));
     enclosureEditor->setText("\",'");
-    form3->addRow(tr("Fields enclosed by"), enclosureEditor);
+    form2->addRow(tr("Fields enclosed by"), enclosureEditor);
+
+    nullIfEditor = new QLineEdit();
+    nullIfEditor->setToolTip(tr("Comma separated list of strings to be treated as NULL."));
+    nullIfEditor->setText(tr("NULL"));
+    form2->addRow(tr("Null when"), nullIfEditor);
+
+    backslashAsEscapeCheckBox = new QCheckBox();
+    backslashAsEscapeCheckBox->setToolTip(tr("Use backslash (\\) as escape character inside enclosed fields."));
+    backslashAsEscapeCheckBox->setChecked(true);
+    form2->addRow(tr("Backslash as escape"), backslashAsEscapeCheckBox);
 
     form1->setContentsMargins(0,0,0,0);
-    form3->setContentsMargins(0,0,0,0);
+    form2->setContentsMargins(0,0,0,0);
     hBox->addLayout(form1);
-    hBox->addLayout(form3);
+    hBox->addLayout(form2);
 
     hBox->setStretchFactor(form1, 1);
-    hBox->setStretchFactor(form3, 1);
+    hBox->setStretchFactor(form2, 1);
 
     mainLayout->addLayout(hBox);
 }
