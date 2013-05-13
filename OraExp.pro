@@ -465,7 +465,11 @@ SOURCES += main.cpp\
     connection_page/data_importer/importers/csvimporter.cpp \
     code_parser/textstreamreader.cpp \
     connection_page/data_importer/pages/dataimportercolumnmappingspage.cpp \
-    models/dataimportercolumnmappingsmodel.cpp
+    models/dataimportercolumnmappingsmodel.cpp \
+    connection_page/data_importer/columnmapping.cpp \
+    connection_page/data_importer/pages/dataimporterqueriespage.cpp \
+    code_generators/dml/tabledmlgenerator.cpp \
+    connection_page/data_importer/pages/dataimporterreadypage.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -935,7 +939,11 @@ HEADERS  += mainwindow.h \
     code_parser/textstreamreader.h \
     interfaces/idataimportlistener.h \
     connection_page/data_importer/pages/dataimportercolumnmappingspage.h \
-    models/dataimportercolumnmappingsmodel.h
+    models/dataimportercolumnmappingsmodel.h \
+    connection_page/data_importer/columnmapping.h \
+    connection_page/data_importer/pages/dataimporterqueriespage.h \
+    code_generators/dml/tabledmlgenerator.h \
+    connection_page/data_importer/pages/dataimporterreadypage.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

@@ -219,9 +219,9 @@ bool GenericEditableTableModel::setData ( const QModelIndex & index, const QVari
         return false;
     }
 
-    if(!value.isValid()){
-        return false;
-    }
+    //if(!value.isValid()){
+    //    return false;
+    //}
 
     if(index.row()>=modelData.size() || index.row()<0){
         return false;

@@ -27,6 +27,8 @@ public:
     static QString showFileOpenDialog(QWidget *parent,
                                       const QString &filter = QObject::tr("All files (*.*)"));
 
+    static void centerWindow(QWidget *window);
+
 private:
     DialogHelper();
 };

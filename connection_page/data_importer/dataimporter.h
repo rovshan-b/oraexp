@@ -6,7 +6,10 @@
 class DataImporterFirstPage;
 class DataImporterCsvOptionsPage;
 class DataImporterColumnMappingsPage;
+class DataImporterQueriesPage;
+class DataImporterReadyPage;
 class QStandardItemModel;
+class ColumnMapping;
 
 class DataImporter : public ConnectionPageWizard
 {
@@ -22,6 +25,7 @@ public:
     virtual void setConnection(DbConnection *db);
 
     QStandardItemModel *getDataPreviewModel() const;
+    QList<ColumnMapping*> getColumnMappings() const;
     
 private:
     QString schemaName;
@@ -30,6 +34,8 @@ private:
     DataImporterFirstPage *firstPage;
     DataImporterCsvOptionsPage *csvOptionsPage;
     DataImporterColumnMappingsPage *mappingsPage;
+    DataImporterQueriesPage *queriesPage;
+    DataImporterReadyPage *readyPage;
     
 };
 

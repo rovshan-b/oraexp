@@ -116,3 +116,16 @@ QString DialogHelper::showFileOpenDialog(QWidget *parent, const QString &filter)
 
     return result;
 }
+
+void DialogHelper::centerWindow(QWidget *window)
+{
+    QWidgetList topLevelWidgets = qApp->topLevelWidgets();
+    if(topLevelWidgets.isEmpty()){
+        return;
+    }
+
+    QRect frect = window->frameGeometry();
+    QDesktopWidget *desktop=qApp->desktop();
+    frect.moveCenter(desktop->availableGeometry(topLevelWidgets.at(0)).center());
+    window->move(frect.topLeft());
+}

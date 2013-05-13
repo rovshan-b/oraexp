@@ -10,6 +10,7 @@ class IQueryScheduler;
 class DataTable;
 class DataImporterColumnMappingsModel;
 class QStandardItemModel;
+class ColumnMapping;
 
 class DataImporterColumnMappingsPage : public QWizardPage
 {
@@ -20,6 +21,10 @@ public:
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
     virtual void initializePage();
+
+    virtual bool validatePage();
+
+    QList<ColumnMapping*> getColumnMappings() const;
 
 private slots:
     void columnsQueryCompleted(const QueryResult &result);

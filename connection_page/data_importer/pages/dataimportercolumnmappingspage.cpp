@@ -5,6 +5,7 @@
 #include "util/iconutil.h"
 #include "util/dbutil.h"
 #include "../dataimporter.h"
+#include "../columnmapping.h"
 #include <QtGui>
 
 DataImporterColumnMappingsPage::DataImporterColumnMappingsPage(QWidget *parent) :
@@ -55,6 +56,50 @@ void DataImporterColumnMappingsPage::initializePage()
 
     setFileFieldList(importerWizard->getDataPreviewModel());
     loadColumnList();
+}
+
+bool DataImporterColumnMappingsPage::validatePage()
+{
+    QList<ColumnMapping *> columnMappings = getColumnMappings();
+
+    bool isValid = columnMappings.size() > 0;
+
+    qDeleteAll(columnMappings);
+
+    if(!isValid){
+        QMessageBox::critical(this,
+                              tr("Page not valid"),
+                              tr("Please, define at least one column to file field mapping"));
+    }
+
+    return isValid;
+}
+
+QList<ColumnMapping *> DataImporterColumnMappingsPage::getColumnMappings() const
+{
+    QList<ColumnMapping*> result;
+
+    QList<QString> fileFieldNames = mappingsModel->getList(DataImporterColumnMappingsModel::FileField);
+
+    for(int i=0; i<mappingsModel->rowCount(); ++i){
+        int fileFieldIx = mappingsModel->data(mappingsModel->index(i, DataImporterColumnMappingsModel::FileField), Qt::EditRole).toInt();
+        if(fileFieldIx <= 0){
+            continue;
+        }
+        QString columnName = mappingsModel->data(mappingsModel->index(i, DataImporterColumnMappingsModel::ColumnName)).toString();
+        QString dateFormat = mappingsModel->data(mappingsModel->index(i, DataImporterColumnMappingsModel::ColumnFormat)).toString();
+
+        ColumnMapping *mapping = new ColumnMapping();
+
+        mapping->columnName = columnName;
+        mapping->fileFieldIx = fileFieldIx - 1;
+        mapping->fileFieldName = fileFieldNames.at(fileFieldIx);
+        mapping->dateFormat = dateFormat;
+
+        result.append(mapping);
+    }
+
+    return result;
 }
 
 void DataImporterColumnMappingsPage::columnsQueryCompleted(const QueryResult &result)

@@ -1044,6 +1044,8 @@ QStringList DbUtil::getDateTimeFormats()
     DbUtil::getDateFormats(&dateFormats, &datePatterns);
     DbUtil::getTimeFormats(&timeFormats, &timePatterns);
 
+    dateFormats.insert(2, "MM-DD-YYYY");
+
     timeFormats.append("HH24:MI:SS.FF9");
     timeFormats.append("HH24:MI:SS.FF9TZH:TZM");
 
