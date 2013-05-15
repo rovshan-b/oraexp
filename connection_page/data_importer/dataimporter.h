@@ -8,7 +8,10 @@ class DataImporterCsvOptionsPage;
 class DataImporterColumnMappingsPage;
 class DataImporterQueriesPage;
 class DataImporterReadyPage;
+class DataImporterImportPage;
+class DataImporterWorksheetPage;
 class QStandardItemModel;
+class CsvImporter;
 class ColumnMapping;
 
 class DataImporter : public ConnectionPageWizard
@@ -25,6 +28,7 @@ public:
     virtual void setConnection(DbConnection *db);
 
     QStandardItemModel *getDataPreviewModel() const;
+    CsvImporter *getImporter() const;
     QList<ColumnMapping*> getColumnMappings() const;
     
 private:
@@ -36,6 +40,8 @@ private:
     DataImporterColumnMappingsPage *mappingsPage;
     DataImporterQueriesPage *queriesPage;
     DataImporterReadyPage *readyPage;
+    DataImporterImportPage *importPage;
+    DataImporterWorksheetPage *worksheetPage;
     
 };
 

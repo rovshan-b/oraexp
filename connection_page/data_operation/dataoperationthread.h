@@ -45,7 +45,7 @@ protected:
 #ifdef ORAEXP_USE_VARCHAR_FOR_BULK_TS_AND_INTERVAL
     QHash<QString, QString> allColumns;
 #endif
-    void prepareBindArrays();
+    void prepareBindArrays(bool datesAsVarchar = false);
     virtual void prepareBindArrayForColumn(const QString &colName, const QString &dataType, int length, int colOffset) = 0;
     QString toDynamicSqlValue(const QString &varName, const QString &dataType);
     QString getColumnsForSelect(const QStringList &columnList);

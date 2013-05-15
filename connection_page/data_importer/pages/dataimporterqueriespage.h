@@ -6,6 +6,7 @@
 class CodeEditor;
 class QGroupBox;
 class QVBoxLayout;
+class ColumnMapping;
 
 class DataImporterQueriesPage : public QWizardPage
 {
@@ -14,11 +15,12 @@ public:
     explicit DataImporterQueriesPage(QWidget *parent = 0);
     
     virtual void initializePage();
+    virtual void cleanupPage();
+    virtual bool validatePage();
 
 private:
     QString currentSchemaName;
     QString currentTableName;
-    QString currentFileName;
 
     QGroupBox *beforeImportGroupBox;
     CodeEditor *beforeImportQueryEditor;
@@ -31,6 +33,10 @@ private:
     void createBeforeImportQueryBox(QVBoxLayout *layout);
     void createImportQueryBox(QVBoxLayout *layout);
     void createAfterImportQueryBox(QVBoxLayout *layout);
+
+    static QString generateInsertStatement(const QString &schemaName, const QString &tableName,
+                                           const QList<ColumnMapping *> &columnMappings);
+
     
 };
 

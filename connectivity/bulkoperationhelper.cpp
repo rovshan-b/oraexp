@@ -169,6 +169,30 @@ void BulkOperationHelper::setArrayData(Statement *targetStmt, Resultset *sourceR
     }
 }
 
+void BulkOperationHelper::setArrayData(Statement *targetStmt, const QString &value, int column, int pos)
+{
+    if(value.isEmpty()){
+        targetStmt->setBindNullAtPos(column, pos+1);
+        nullifyStringAtPos(column-1, pos);
+    }else{
+        const QString &dataType=dataTypes.at(column-1);
+
+        if(DbUtil::isNumericType(dataType)){
+            bool conversionOk;
+            double numVal = QString(value.trimmed()).replace(",", ".").remove(',').toDouble(&conversionOk);
+            if(conversionOk){
+                ((double*)buffers.at(column-1))[pos] = numVal;
+            }else{
+                targetStmt->setBindNullAtPos(column, pos+1);
+            }
+        }else{ //try to set all other types as string
+
+            copyStringAtPos(column-1, pos, value.toStdWString().c_str());
+
+        }
+    }
+}
+
 void BulkOperationHelper::nullifyArrayData(Statement *targetStmt, int offset)
 {
     Q_ASSERT(this->bulkSize>0);

@@ -1,0 +1,141 @@
+#include "dataimporterthread.h"
+#include "columnmapping.h"
+#include "connectivity/dbconnection.h"
+#include "connectivity/statement.h"
+#include "importers/csvimporter.h"
+#include "util/strutil.h"
+#include "defines.h"
+#include <QDebug>
+
+#define BIND_VAR_PREFIX "B"
+
+DataImporterThread::DataImporterThread(const QString &sourceSchema,
+                                       DbConnection *sourceDb,
+                                       const QString &tableName,
+                                       const QList<ColumnMapping *> &columnMappings,
+                                       const QString &beforeImportQuery,
+                                       const QString &insertQuery,
+                                       const QString &afterImportQuery, CsvImporter *importer, QObject *parent) :
+    DataOperationThread(sourceSchema, sourceDb, "", 0, tableName,0, TableInfoForDataComparison(), parent),
+    columnMappings(columnMappings),
+    beforeImportQuery(beforeImportQuery),
+    insertQuery(insertQuery),
+    afterImportQuery(afterImportQuery),
+    importer(importer)
+{
+    bulkHelper.setBulkSize(BULK_DATA_OPERATION_CHUNK_SIZE);
+    bulkHelper.setDmlMode();
+}
+
+DataImporterThread::~DataImporterThread()
+{
+    qDeleteAll(columnMappings);
+    delete stmt;
+}
+
+void DataImporterThread::run()
+{
+    try{
+        stmt = sourceDb->createStatement();
+
+        currentTaskName = "start_data_import";
+        emit statusChanged(tr("Importing..."));
+
+        importData();
+
+        emitCompletedSignal();
+    }catch(OciException ex){
+        if(stmt->hasLockOnConnection()){
+            stmt->unlockConnection();
+        }
+
+        try{sourceDb->executeQueryAndCleanup("ROLLBACK");}catch(OciException&){}
+
+        emit compareError(currentTaskName, ex);
+    }
+}
+
+void DataImporterThread::importData()
+{
+    if(!beforeImportQuery.isEmpty()){
+        sourceDb->executeQueryAndCleanup(beforeImportQuery);
+    }
+
+    QStringList fileFieldNames;
+    for(int i=0; i<columnMappings.size(); ++i){
+        ColumnMapping *mapping = columnMappings.at(i);
+        tableOptions.addColumnToCompare(mapping->columnName);
+
+        fileFieldNames.append(mapping->fileFieldName);
+    }
+
+    QStringList originalFileFieldNames = fileFieldNames;
+
+    qSort(fileFieldNames.begin(), fileFieldNames.end(), stringLengthDescLessThan); //first sort by length in descending order to prevent in name replacements
+    for(int i=0; i<fileFieldNames.size(); ++i){
+        insertQuery.replace(QString(":%1").arg(fileFieldNames.at(i)),
+                            QString(":%1_%2").arg(BIND_VAR_PREFIX).arg(originalFileFieldNames.indexOf(fileFieldNames.at(i))), Qt::CaseInsensitive);
+    }
+
+
+    prepareBindArrays(true);
+
+    stmt->lockConnection();
+    stmt->prepare(insertQuery);
+    stmt->setBindArraySize(BULK_DATA_OPERATION_CHUNK_SIZE);
+    bulkHelper.bindArrays(stmt, BIND_VAR_PREFIX);
+    currentOffset = 0;
+
+    importer->resetPosition();
+    importer->readRows(this);
+
+    if(currentOffset>0){
+        if(currentOffset < BULK_DATA_OPERATION_CHUNK_SIZE){
+            bulkHelper.nullifyArrayData(stmt, currentOffset);
+            stmt->setBindArraySize(currentOffset);
+        }
+
+        stmt->execute();
+        emit chunkImported(currentOffset);
+    }
+
+    stmt->unlockConnection();
+
+    if(!afterImportQuery.isEmpty()){
+        sourceDb->executeQueryAndCleanup(afterImportQuery);
+    }
+}
+
+void DataImporterThread::prepareBindArrayForColumn(const QString & /*colName*/, const QString &dataType, int length, int /*colOffset*/)
+{
+    bulkHelper.createBufferForDataType(stmt, dataType, length);
+}
+
+void DataImporterThread::headerAvailable(const QStringList &headerTitles)
+{
+    Q_UNUSED(headerTitles);
+}
+
+void DataImporterThread::rowAvailable(const QStringList &values)
+{
+    int valueCount = values.size();
+    int colCount = tableOptions.columnsToCompare.size();
+
+    for(int colIx=0; colIx<colCount; ++colIx){
+        bulkHelper.setArrayData(stmt, colIx>=valueCount ? "" : values.at(colIx) , colIx+1, currentOffset);
+    }
+
+    ++currentOffset;
+
+    if(currentOffset==BULK_DATA_OPERATION_CHUNK_SIZE){
+        stmt->execute();
+
+        emit chunkImported(currentOffset);
+
+        currentOffset=0;
+
+        if(this->stopped){
+            importer->stop();
+        }
+    }
+}

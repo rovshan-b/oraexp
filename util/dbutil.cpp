@@ -24,10 +24,26 @@ void DbUtil::throwOciException(OCI_Error *error, OCI_Statement *stmt)
         std::wcout << errMsg << std::endl;
         QString errorMessage=toQString(errMsg);
         int errorCode=OCI_ErrorGetOCICode(error);
-        unsigned int errorRow=OCI_ErrorGetRow(error);
         unsigned int errorPos=stmt==0 ? 0 : OCI_GetSqlErrorPos(stmt);
 
-        throw OciException(errorMessage, errorCode, errorRow, errorPos);
+        if(stmt){
+            OCI_Error *batchError = OCI_GetBatchError(stmt);
+
+            int addedMessageCount = 0;
+            while (batchError)
+            {
+                errorMessage.append(QString("\nError at row: %1. %2").
+                                    arg(OCI_ErrorGetRow(batchError)).
+                                    arg(toQString(OCI_ErrorGetString(batchError))));
+                batchError = OCI_GetBatchError(stmt);
+
+                if(++addedMessageCount >= 5){
+                    break;
+                }
+            }
+        }
+
+        throw OciException(errorMessage, errorCode, -1, errorPos);
     }
 }
 
@@ -819,6 +835,11 @@ bool DbUtil::isTimestampType(OraExp::ColumnDataType dataType)
     return dataType==OraExp::CDTTimestamp;
 }
 
+QString DbUtil::toDate(const QString &columnName, const QString &format)
+{
+    return QString("to_date(%1,'%2')").arg(columnName, format.isEmpty() ? DB_DATE_FORMAT : format);
+}
+
 QString DbUtil::toInterval(const QString &columnName, OraExp::ColumnSubType intSubType)
 {
     QString result;
@@ -832,20 +853,30 @@ QString DbUtil::toInterval(const QString &columnName, OraExp::ColumnSubType intS
     return result;
 }
 
-QString DbUtil::toTimestamp(const QString &columnName, OraExp::ColumnSubType tsSubType)
+QString DbUtil::toTimestamp(const QString &columnName, OraExp::ColumnSubType tsSubType,
+                            const QString &format)
 {
     QString result;
 
     if(tsSubType==OraExp::CSTTimestampTz){
-        result = QString("to_timestamp_tz(%1,'%2')").arg(columnName, DB_TZ_TIMESTAMP_FORMAT);
+        result = QString("to_timestamp_tz(%1,'%2')").arg(columnName, format.isEmpty() ? DB_TZ_TIMESTAMP_FORMAT : format);
     }else{
-        result = QString("to_timestamp(%1,'%2')").arg(columnName, DB_TIMESTAMP_FORMAT);
+        result = QString("to_timestamp(%1,'%2')").arg(columnName, format.isEmpty() ? DB_TIMESTAMP_FORMAT : format);
     }
 
     return result;
 }
 
-QString DbUtil::toIntervalOrTimestamp(const QString &columnName, const QString &dataType)
+QString DbUtil::toDateOrIntervalOrTimestamp(const QString &columnName, const QString &dataType, const QString &format)
+{
+    if(DbUtil::isDateType(dataType)){
+        return DbUtil::toDate(columnName, format);
+    }else{
+        return DbUtil::toIntervalOrTimestamp(columnName, dataType, format);
+    }
+}
+
+QString DbUtil::toIntervalOrTimestamp(const QString &columnName, const QString &dataType, const QString &format)
 {
     QString result = columnName;
     if(DbUtil::isIntervalType(dataType)){
@@ -853,7 +884,7 @@ QString DbUtil::toIntervalOrTimestamp(const QString &columnName, const QString &
         result = toInterval(columnName, intervalSubType);
     }else if(DbUtil::isTimestampType(dataType)){
         OraExp::ColumnSubType timestampSubType=DbUtil::getTimestampSubType(dataType);
-        result = toTimestamp(columnName, timestampSubType);
+        result = toTimestamp(columnName, timestampSubType, format);
     }
     return result;
 }

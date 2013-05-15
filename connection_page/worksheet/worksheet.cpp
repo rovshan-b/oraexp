@@ -8,7 +8,7 @@ Worksheet::Worksheet(DbUiManager *uiManager, QWidget *parent) :
 {
     QVBoxLayout *mainLayout=new QVBoxLayout();
 
-    worksheetWidget=new WorksheetWidget(uiManager);
+    worksheetWidget=new WorksheetWidget();
     mainLayout->addWidget(worksheetWidget);
 
     mainLayout->setContentsMargins(0,0,0,0);

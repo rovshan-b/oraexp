@@ -9,7 +9,7 @@ class DataImporterColumnMappingsModel : public GenericEditableTableModel
 public:
     explicit DataImporterColumnMappingsModel(
             const QStringList &headerTitles,
-            QObject *parent = 0);
+            QObject *parent);
 
     enum ColumnOrder
     {

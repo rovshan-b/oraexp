@@ -54,6 +54,13 @@ void DataCopierThread::run()
         emitCompareInfo(tableName, tr("Completed"));
         emitCompletedSignal();
     }catch(OciException ex){
+        if(sourceStmt->hasLockOnConnection()){
+            sourceStmt->unlockConnection();
+        }
+        if(targetStmt->hasLockOnConnection()){
+            targetStmt->unlockConnection();
+        }
+
         emit compareError(currentTaskName, ex);
     }
 }

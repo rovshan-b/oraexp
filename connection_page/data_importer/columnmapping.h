@@ -9,6 +9,7 @@ public:
     ColumnMapping();
 
     QString columnName;
+    QString columnDataType;
     int fileFieldIx;
     QString fileFieldName;
     QString dateFormat;

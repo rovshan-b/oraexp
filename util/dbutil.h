@@ -71,10 +71,12 @@ public:
     static bool isTimestampType(const QString &dataTypeName);
     static bool isTimestampType(OraExp::ColumnDataType dataType);
 
+    static QString toDate(const QString &columnName, const QString &format = "");
     static QString toInterval(const QString &columnName, OraExp::ColumnSubType intSubType);
-    static QString toTimestamp(const QString &columnName, OraExp::ColumnSubType tsSubType);
+    static QString toTimestamp(const QString &columnName, OraExp::ColumnSubType tsSubType, const QString &format = "");
 
-    static QString toIntervalOrTimestamp(const QString &columnName, const QString &dataType);
+    static QString toDateOrIntervalOrTimestamp(const QString &columnName, const QString &dataType, const QString &format = "");
+    static QString toIntervalOrTimestamp(const QString &columnName, const QString &dataType, const QString &format = "");
     static QString intervalOrTimestampToChar(const QString &columnName, const QString &dataType);
 
     static bool isPLSQLProgramUnit(DbTreeModel::DbTreeNodeType itemType);

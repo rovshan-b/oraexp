@@ -14,7 +14,7 @@ class WorksheetWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit WorksheetWidget(DbUiManager *uiManager, QWidget *parent = 0);
+    explicit WorksheetWidget(QWidget *parent = 0);
     
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
@@ -43,7 +43,6 @@ private:
     WorksheetQueryPane *queryPane;
     WorksheetResultPane *resultPane;
 
-    DbUiManager *uiManager;
     IQueryScheduler *queryScheduler;
 
     void showResultPane();

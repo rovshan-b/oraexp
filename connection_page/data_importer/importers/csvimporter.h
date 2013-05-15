@@ -38,6 +38,7 @@ public:
     QStringList readValues();
 
     void readRows(IDataImportListener *importListener, int maxCount = -1);
+    void stop();
 
 private:
     QString filename;
@@ -61,6 +62,8 @@ private:
     QString buffer;
 
     int maxEnclosureLength;
+
+    bool stopped;
 
 };
 

@@ -4,9 +4,8 @@
 
 QByteArray WorksheetWidget::splitterSizes;
 
-WorksheetWidget::WorksheetWidget(DbUiManager *uiManager, QWidget *parent) :
+WorksheetWidget::WorksheetWidget(QWidget *parent) :
     QWidget(parent),
-    uiManager(uiManager),
     queryScheduler(0)
 {
     splitter=new QSplitter(Qt::Vertical);

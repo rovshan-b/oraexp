@@ -32,7 +32,7 @@ void DataOperationThread::emitCompareInfo(const QString &tableName, const QStrin
     emit compareInfoAvailable(info);
 }
 
-void DataOperationThread::prepareBindArrays()
+void DataOperationThread::prepareBindArrays(bool datesAsVarchar)
 {
     QString query=QueryUtil::getQuery("get_table_columns_for_buffer_allocation");
     QueryResult res=sourceDb->executeQuery(query, QList<Param*>() <<
@@ -61,6 +61,11 @@ void DataOperationThread::prepareBindArrays()
             length=50;
         }
 #endif
+        if(datesAsVarchar && DbUtil::isDateType(dataType)){
+            allColumns[colName] = dataType;
+            dataType = "VARCHAR2";
+            length = 50;
+        }
 
         if(!tableOptions.columnsToCompare.contains(colName)){ //column is not comparable
             continue;

@@ -9,9 +9,10 @@ CsvImporter::CsvImporter() :
     encoding(QObject::tr("System")),
     skipRows(0),
     headerOption(NoHeader),
-    backslashAsEscape(true),
+    backslashAsEscape(false),
     file(0),
-    textStream(0)
+    textStream(0),
+    stopped(false)
 {
 }
 
@@ -96,6 +97,8 @@ bool CsvImporter::setFilename(const QString &filename)
 
 void CsvImporter::readRows(IDataImportListener *importListener, int maxCount)
 {
+    this->stopped = false;
+
     int readCount = 0;
     int skippedCount = 0;
     bool readHeader = (headerOption==NoHeader);
@@ -126,7 +129,16 @@ void CsvImporter::readRows(IDataImportListener *importListener, int maxCount)
         }
 
         importListener->rowAvailable(values);
+
+        if(this->stopped){
+            break;
+        }
     }
+}
+
+void CsvImporter::stop()
+{
+    this->stopped = true;
 }
 
 QStringList CsvImporter::readValues()

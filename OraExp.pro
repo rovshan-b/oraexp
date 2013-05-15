@@ -469,7 +469,10 @@ SOURCES += main.cpp\
     connection_page/data_importer/columnmapping.cpp \
     connection_page/data_importer/pages/dataimporterqueriespage.cpp \
     code_generators/dml/tabledmlgenerator.cpp \
-    connection_page/data_importer/pages/dataimporterreadypage.cpp
+    connection_page/data_importer/pages/dataimporterreadypage.cpp \
+    connection_page/data_importer/pages/dataimporterimportpage.cpp \
+    connection_page/data_importer/dataimporterthread.cpp \
+    connection_page/data_importer/pages/dataimporterworksheetpage.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -943,7 +946,10 @@ HEADERS  += mainwindow.h \
     connection_page/data_importer/columnmapping.h \
     connection_page/data_importer/pages/dataimporterqueriespage.h \
     code_generators/dml/tabledmlgenerator.h \
-    connection_page/data_importer/pages/dataimporterreadypage.h
+    connection_page/data_importer/pages/dataimporterreadypage.h \
+    connection_page/data_importer/pages/dataimporterimportpage.h \
+    connection_page/data_importer/dataimporterthread.h \
+    connection_page/data_importer/pages/dataimporterworksheetpage.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

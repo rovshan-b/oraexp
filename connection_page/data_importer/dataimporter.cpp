@@ -5,6 +5,8 @@
 #include "pages/dataimportercolumnmappingspage.h"
 #include "pages/dataimporterqueriespage.h"
 #include "pages/dataimporterreadypage.h"
+#include "pages/dataimporterimportpage.h"
+#include "pages/dataimporterworksheetpage.h"
 #include "util/iconutil.h"
 #include "util/dialoghelper.h"
 #include <QtGui>
@@ -26,6 +28,8 @@ void DataImporter::setConnection(DbConnection *db)
 
     firstPage->setQueryScheduler(this);
     mappingsPage->setQueryScheduler(this);
+    importPage->setQueryScheduler(this);
+    worksheetPage->setQueryScheduler(this);
 
     emitInitCompletedSignal();
 }
@@ -33,6 +37,11 @@ void DataImporter::setConnection(DbConnection *db)
 QStandardItemModel *DataImporter::getDataPreviewModel() const
 {
     return csvOptionsPage->getDataPreviewModel();
+}
+
+CsvImporter *DataImporter::getImporter() const
+{
+    return csvOptionsPage->getImporter();
 }
 
 QList<ColumnMapping *> DataImporter::getColumnMappings() const
@@ -57,4 +66,10 @@ void DataImporter::createUi()
 
     readyPage = new DataImporterReadyPage();
     addPage(readyPage);
+
+    importPage = new DataImporterImportPage();
+    addPage(importPage);
+
+    worksheetPage = new DataImporterWorksheetPage();
+    addPage(worksheetPage);
 }

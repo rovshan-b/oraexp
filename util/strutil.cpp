@@ -247,6 +247,11 @@ bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
     return (QString::compare(s1, s2, Qt::CaseInsensitive) < 0);
 }
 
+bool stringLengthDescLessThan(const QString &s1, const QString &s2)
+{
+    return s1.length() > s2.length();
+}
+
 void setDbLinkName(QString &str, const QString &dbLinkName)
 {
     if(!dbLinkName.isEmpty()){

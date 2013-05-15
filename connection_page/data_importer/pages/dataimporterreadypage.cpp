@@ -20,6 +20,7 @@ DataImporterReadyPage::DataImporterReadyPage(QWidget *parent) :
     mainLayout->addRow(tr("Table"), tableNameLabel);
 
     fileNameLabel = new QLabel();
+    fileNameLabel->setWordWrap(true);
     fileNameLabel->setTextInteractionFlags(Qt::TextSelectableByMouse|Qt::TextSelectableByKeyboard);
     mainLayout->addRow(tr("Filename"), fileNameLabel);
 
@@ -46,7 +47,7 @@ void DataImporterReadyPage::initializePage()
     schemaNameLabel->setText(QString("<img src=':/images/user.png' /> %1").arg(field("schemaName").toString().trimmed().toUpper()));
     tableNameLabel->setText(QString("<img src=':/images/table.png' /> %1").arg(field("tableName").toString().trimmed().toUpper()));
     fileNameLabel->setText(QString("<img src=':/images/fileopen.png' /> %1").arg(field("fileName").toString()));
-    beforeImportQueryLabel->setText(field("beforeImportQuery").toString());
+    beforeImportQueryLabel->setText(field("beforeImportGroupBox").toBool() ? field("beforeImportQuery").toString().trimmed() : tr("Empty"));
     importQueryLabel->setText(field("importQuery").toString());
-    afterImportQueryLabel->setText(field("afterImportQuery").toString());
+    afterImportQueryLabel->setText(field("afterImportGroupBox").toBool() ? field("afterImportQuery").toString().trimmed() : tr("Empty"));
 }

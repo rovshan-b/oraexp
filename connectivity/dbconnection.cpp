@@ -184,9 +184,9 @@ void DbConnection::enqueueQuery(const QString &queryName, QList<Param*> params,
     task.isUserQuery=isUserQuery;
 
 
-    if(queryName=="create_object_hash_for_comparison"){
-        cout << task.query.toStdString() << endl;
-    }
+    //if(queryName=="create_object_hash_for_comparison"){
+    //    cout << task.query.toStdString() << endl;
+    //}
 
     queueManager->enqueueQuery(task);
 }

@@ -14,6 +14,7 @@ public:
 
     void setBulkSize(int size);
     void setArrayData(Statement *targetStmt, Resultset *sourceRs, int column, int pos);
+    void setArrayData(Statement *targetStmt, const QString &value, int column, int pos);
     void nullifyStringAtPos(int bufferIx, int dataIx);
     void copyStringAtPos(int bufferIx, int dataIx, const wchar_t *str);
     void nullifyArrayData(Statement *targetStmt, int offset);

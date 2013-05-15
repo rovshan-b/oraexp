@@ -25,6 +25,7 @@ public:
     virtual void rowAvailable(const QStringList &values);
 
     QStandardItemModel *getDataPreviewModel() const;
+    CsvImporter *getImporter();
 
 private slots:
     void setEncoding(bool refreshData = true);

@@ -18,7 +18,7 @@ DataImporterColumnMappingsPage::DataImporterColumnMappingsPage(QWidget *parent) 
 
     mappingsTable = new DataTable();
     mappingsTable->setEditTriggers(QAbstractItemView::AllEditTriggers);
-    mappingsModel = new DataImporterColumnMappingsModel(QStringList() << tr("Column") << tr("File field") << tr("Date format"));
+    mappingsModel = new DataImporterColumnMappingsModel(QStringList() << tr("Column") << tr("File field") << tr("Date format"), this);
     mappingsModel->setColumnEnabled(DataImporterColumnMappingsModel::ColumnName, false);
     mappingsTable->setModel(mappingsModel);
     mappingsTable->horizontalHeader()->setDefaultSectionSize(170);
@@ -87,11 +87,13 @@ QList<ColumnMapping *> DataImporterColumnMappingsPage::getColumnMappings() const
             continue;
         }
         QString columnName = mappingsModel->data(mappingsModel->index(i, DataImporterColumnMappingsModel::ColumnName)).toString();
+        QString columnDataType = mappingsModel->getColumnDataType(i);
         QString dateFormat = mappingsModel->data(mappingsModel->index(i, DataImporterColumnMappingsModel::ColumnFormat)).toString();
 
         ColumnMapping *mapping = new ColumnMapping();
 
         mapping->columnName = columnName;
+        mapping->columnDataType = columnDataType;
         mapping->fileFieldIx = fileFieldIx - 1;
         mapping->fileFieldName = fileFieldNames.at(fileFieldIx);
         mapping->dateFormat = dateFormat;

@@ -147,7 +147,6 @@ void DataImporterCsvOptionsPage::createForm(QVBoxLayout *mainLayout)
 
     backslashAsEscapeCheckBox = new QCheckBox();
     backslashAsEscapeCheckBox->setToolTip(tr("Use backslash (\\) as escape character inside enclosed fields."));
-    backslashAsEscapeCheckBox->setChecked(true);
     form2->addRow(tr("Backslash as escape"), backslashAsEscapeCheckBox);
 
     form1->setContentsMargins(0,0,0,0);
@@ -212,4 +211,9 @@ void DataImporterCsvOptionsPage::rowAvailable(const QStringList &values)
 QStandardItemModel *DataImporterCsvOptionsPage::getDataPreviewModel() const
 {
     return tableModel;
+}
+
+CsvImporter *DataImporterCsvOptionsPage::getImporter()
+{
+    return &this->importer;
 }

@@ -1,6 +1,8 @@
 #include "dataimporterqueriespage.h"
 #include "codeeditor/codeeditor.h"
 #include "util/widgethelper.h"
+#include "util/dbutil.h"
+#include "util/strutil.h"
 #include "../dataimporter.h"
 #include "../columnmapping.h"
 #include "code_generators/dml/tabledmlgenerator.h"
@@ -16,7 +18,7 @@ DataImporterQueriesPage::DataImporterQueriesPage(QWidget *parent) :
 
     QLabel *infoLabel = new QLabel();
     infoLabel->setWordWrap(true);
-    infoLabel->setText(tr("You can use PL/SQL anonymous block as before/after import query to perform multiple operations."
+    infoLabel->setText(tr("You can use PL/SQL anonymous block as before and after import query to perform multiple operations. "
                           "Import query must be kept as DML. Bind variable names used in import query must match file field names defined in Column mappings page."));
     mainLayout->addWidget(infoLabel);
 
@@ -26,8 +28,12 @@ DataImporterQueriesPage::DataImporterQueriesPage(QWidget *parent) :
 
     setLayout(mainLayout);
 
+    registerField("beforeImportGroupBox", beforeImportGroupBox, "checked");
     registerField("beforeImportQuery", beforeImportQueryEditor, "plainText");
+
     registerField("importQuery", importQueryEditor, "plainText");
+
+    registerField("afterImportGroupBox", afterImportGroupBox, "checked");
     registerField("afterImportQuery", afterImportQueryEditor, "plainText");
 }
 
@@ -35,10 +41,8 @@ void DataImporterQueriesPage::initializePage()
 {
     QString schemaName = field("schemaName").toString().trimmed().toUpper();
     QString tableName = field("tableName").toString().trimmed().toUpper();
-    QString fileName = field("fileName").toString();
 
     bool tableNameChanged = false;
-    bool fileNameChanged = false;
 
     if(schemaName != currentSchemaName || tableName != currentTableName){
         tableNameChanged = true;
@@ -46,33 +50,34 @@ void DataImporterQueriesPage::initializePage()
         this->currentTableName = tableName;
     }
 
-    if(fileName != currentFileName){
-        fileNameChanged = true;
-        this->currentFileName = fileName;
-    }
-
     if(beforeImportQueryEditor->toPlainText().isEmpty() || tableNameChanged){
         QString deleteDml = TableDmlGenerator::generateDeleteStatement(schemaName, tableName);
         beforeImportQueryEditor->setPlainText(deleteDml);
     }
 
-    if(importQueryEditor->toPlainText().isEmpty() || tableNameChanged || fileNameChanged){
-        DataImporter *importerWizard = static_cast<DataImporter*>(wizard());
-        QList<ColumnMapping*> columnMappings = importerWizard->getColumnMappings();
 
-        QStringList columnNames, bindVarNames;
+    DataImporter *importerWizard = static_cast<DataImporter*>(wizard());
+    QList<ColumnMapping*> columnMappings = importerWizard->getColumnMappings();
 
-        for(int i=0; i<columnMappings.size(); ++i){
-            ColumnMapping *mapping = columnMappings.at(i);
-            columnNames.append(mapping->columnName);
-            bindVarNames.append(QString(":%1").arg(mapping->fileFieldName));
-        }
+    QString insertDml = generateInsertStatement(schemaName, tableName, columnMappings);
+    importQueryEditor->setPlainText(insertDml);
 
-        QString insertDml = TableDmlGenerator::generateInsertStatement(schemaName, tableName, columnNames, bindVarNames);
-        importQueryEditor->setPlainText(insertDml);
+    qDeleteAll(columnMappings);
 
-        qDeleteAll(columnMappings);
+}
+
+void DataImporterQueriesPage::cleanupPage()
+{
+}
+
+bool DataImporterQueriesPage::validatePage()
+{
+    if(importQueryEditor->toPlainText().trimmed().isEmpty()){
+        QMessageBox::critical(this, tr("Page not valid"),
+                              tr("Please, enter import query"));
     }
+
+    return true;
 }
 
 void DataImporterQueriesPage::createBeforeImportQueryBox(QVBoxLayout *layout)
@@ -116,4 +121,30 @@ void DataImporterQueriesPage::createAfterImportQueryBox(QVBoxLayout *layout)
     layout->addWidget(afterImportGroupBox);
 
     afterImportQueryEditor->setPlainText("COMMIT");
+}
+
+QString DataImporterQueriesPage::generateInsertStatement(const QString &schemaName,
+                                                         const QString &tableName,
+                                                         const QList<ColumnMapping *> &columnMappings)
+{
+    QString dml = QString("INSERT INTO \"%1\".\"%2\" ").arg(schemaName, tableName);
+
+    QStringList columnNames;
+    QStringList values;
+
+    for(int i=0; i<columnMappings.size(); ++i){
+        ColumnMapping *mapping = columnMappings.at(i);
+        columnNames.append(mapping->columnName);
+
+        QString value = QString(":%1").arg(mapping->fileFieldName);
+        if(!mapping->dateFormat.isEmpty()){
+            value = DbUtil::toDateOrIntervalOrTimestamp(value, mapping->columnDataType, mapping->dateFormat);
+        }
+
+        values.append(value);
+    }
+
+    dml.append(QString("(%1)\nVALUES (%2)").arg(joinEnclosed(columnNames, ", "), values.join(", ")));
+
+    return dml;
 }
