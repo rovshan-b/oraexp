@@ -49,7 +49,7 @@ void DataImporterThread::run()
             stmt->unlockConnection();
         }
 
-        try{sourceDb->executeQueryAndCleanup("ROLLBACK");}catch(OciException&){}
+        rollback();
 
         emit compareError(currentTaskName, ex);
     }
@@ -101,9 +101,18 @@ void DataImporterThread::importData()
 
     stmt->unlockConnection();
 
-    if(!afterImportQuery.isEmpty()){
+    if(!afterImportQuery.isEmpty() && !stopped){
         sourceDb->executeQueryAndCleanup(afterImportQuery);
     }
+
+    if(stopped){
+        rollback();
+    }
+}
+
+void DataImporterThread::rollback()
+{
+    try{sourceDb->executeQueryAndCleanup("ROLLBACK");}catch(OciException&){}
 }
 
 void DataImporterThread::prepareBindArrayForColumn(const QString & /*colName*/, const QString &dataType, int length, int /*colOffset*/)

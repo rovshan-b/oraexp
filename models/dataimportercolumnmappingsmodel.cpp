@@ -77,9 +77,7 @@ void DataImporterColumnMappingsModel::setDateFormat(int row, const QStringList &
             dateFormat = detectDateFormat(dates);
         }
 
-        if(!dateFormat.isEmpty()){
-            setData(index(row, ColumnFormat), dateFormat);
-        }
+        setData(index(row, ColumnFormat), dateFormat.isEmpty() ? DB_DATE_FORMAT : dateFormat);
     }
 }
 

@@ -114,7 +114,7 @@ void DataImporterCsvOptionsPage::createForm(QVBoxLayout *mainLayout)
     QFormLayout *form1 = new QFormLayout();
 
     fileEncodingComboBox = new QComboBox();
-    WidgetHelper::fillAvailableTextCodecNames(fileEncodingComboBox, tr("System"));
+    WidgetHelper::fillAvailableTextCodecNames(fileEncodingComboBox);
     form1->addRow(tr("Encoding"), fileEncodingComboBox);
 
     delimiterComboBox = new QComboBox();

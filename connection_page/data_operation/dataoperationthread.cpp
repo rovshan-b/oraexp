@@ -53,18 +53,12 @@ void DataOperationThread::prepareBindArrays(bool datesAsVarchar)
         QString dataType=rs->getString(2);
         int length=rs->getString(4).toInt();
 
-#ifdef ORAEXP_USE_VARCHAR_FOR_BULK_TS_AND_INTERVAL
         allColumns[colName]=dataType;
 
-        if(DbUtil::isIntervalType(dataType) || DbUtil::isTimestampType(dataType)){
+        if(DbUtil::isIntervalType(dataType) || DbUtil::isTimestampType(dataType) ||
+                (datesAsVarchar && DbUtil::isDateType(dataType))){
             dataType="VARCHAR2";
             length=50;
-        }
-#endif
-        if(datesAsVarchar && DbUtil::isDateType(dataType)){
-            allColumns[colName] = dataType;
-            dataType = "VARCHAR2";
-            length = 50;
         }
 
         if(!tableOptions.columnsToCompare.contains(colName)){ //column is not comparable
@@ -92,34 +86,18 @@ QString DataOperationThread::toDynamicSqlValue(const QString &varName, const QSt
         result = QString("to_date('''||to_char(%1,'%2')||''',''%2'')").arg(varName, DB_DATE_FORMAT);
     }else if(DbUtil::isIntervalType(dataType)){
         OraExp::ColumnSubType intervalSubType=DbUtil::getIntervalSubType(dataType);
-#ifdef ORAEXP_USE_VARCHAR_FOR_BULK_TS_AND_INTERVAL
         if(intervalSubType==OraExp::CSTIntervalDs){
             result = QString("to_dsinterval('''||%1||''')").arg(varName);
         }else{
             result = QString("to_yminterval('''||%1||''')").arg(varName);
         }
-#else
-        if(intervalSubType==OraExp::CSTIntervalDs){
-            result = QString("to_dsinterval('''||to_char(%1)||''')").arg(varName);
-        }else{
-            result = QString("to_yminterval('''||to_char(%1)||''')").arg(varName);
-        }
-#endif
     }else if(DbUtil::isTimestampType(dataType)){
         OraExp::ColumnSubType timestampSubType=DbUtil::getTimestampSubType(dataType);
-#ifdef ORAEXP_USE_VARCHAR_FOR_BULK_TS_AND_INTERVAL
         if(timestampSubType==OraExp::CSTTimestampTz){
             result = QString("to_timestamp_tz('''||%1||''',''%2'')").arg(varName, DB_TZ_TIMESTAMP_FORMAT);
         }else{
             result = QString("to_timestamp('''||%1||''',''%2'')").arg(varName, DB_TIMESTAMP_FORMAT);
         }
-#else
-        if(timestampType==OCI_TIMESTAMP_TZ){
-            result = QString("to_timestamp_tz('''||to_char(%1,'%2')||''',''%2'')").arg(varName, DB_TZ_TIMESTAMP_FORMAT);
-        }else{
-            result = QString("to_timestamp('''||to_char(%1,'%2')||''',''%2'')").arg(varName, DB_TIMESTAMP_FORMAT);
-        }
-#endif
     }else{
         qDebug("Data type not supported in DataComparerThread::toDynamicSqlValue");
         Q_ASSERT(false);
@@ -130,8 +108,6 @@ QString DataOperationThread::toDynamicSqlValue(const QString &varName, const QSt
 
 QString DataOperationThread::getColumnsForSelect(const QStringList &columnList)
 {
-#ifdef ORAEXP_USE_VARCHAR_FOR_BULK_TS_AND_INTERVAL
-
     QString result;
     for(int i=0; i<columnList.size(); ++i){
         const QString &columnName = columnList.at(i);
@@ -152,7 +128,4 @@ QString DataOperationThread::getColumnsForSelect(const QStringList &columnList)
     }
 
     return result;
-#else
-    return joinEnclosed(columnList, ",", "\"");
-#endif
 }

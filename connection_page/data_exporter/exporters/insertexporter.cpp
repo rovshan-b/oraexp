@@ -33,7 +33,7 @@ void InsertExporter::startDocument(QTextStream & /*out*/)
 void InsertExporter::exportRow(const QStringList &oneRow, int rowIx, QTextStream &out)
 {
     if(rowIx!=0){
-        out << "\n";
+        out << lineEnding;
     }
 
     out << insertStatement;

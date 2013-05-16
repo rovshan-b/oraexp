@@ -91,11 +91,7 @@ void DataCopierThread::copyData()
         const QString &colName = tableOptions.columnsToCompare.at(i);
         bindVarName = QString(":B_%1").arg(i);
 
-#ifdef ORAEXP_USE_VARCHAR_FOR_BULK_TS_AND_INTERVAL
         bindVarNames.append(DbUtil::toIntervalOrTimestamp(bindVarName, allColumns[colName]));
-#else
-        bindVarNames.append(bindVarName);
-#endif
 
         if(i!=colCount-1){
             bindVarNames.append(",");

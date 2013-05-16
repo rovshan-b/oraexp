@@ -2,6 +2,7 @@
 #define DATAIMPORTERIMPORTPAGE_H
 
 #include <QWizardPage>
+#include <QTime>
 #include "connectivity/ociexception.h"
 
 class QLabel;
@@ -32,6 +33,7 @@ private:
     DataImporterThread *workerThread;
 
     int importedCount;
+    QTime timer;
 
     void startWorkerThread();
     void deleteWorkerThread();

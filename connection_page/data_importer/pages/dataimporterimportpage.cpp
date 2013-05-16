@@ -2,6 +2,7 @@
 #include "../dataimporter.h"
 #include "../dataimporterthread.h"
 #include "interfaces/iqueryscheduler.h"
+#include "util/strutil.h"
 #include <QtGui>
 
 DataImporterImportPage::DataImporterImportPage(QWidget *parent) :
@@ -46,9 +47,9 @@ void DataImporterImportPage::importCompleted()
 {
     deleteWorkerThread();
 
-    setStatus(tr("Data import successfully completed. %1 records were imported.\n"
+    setStatus(tr("Data import successfully completed. %1 records were imported in %2.\n"
                  "Press Next to review changes and COMMIT/ROLLBACK as necessary.\n"
-                 "Press Finish to exit wizard").arg(importedCount));
+                 "Press Finish to exit wizard").arg(importedCount).arg(formatMsecs(timer.elapsed(), true)));
 }
 
 void DataImporterImportPage::chunkImported(int chunkSize)
@@ -60,10 +61,11 @@ void DataImporterImportPage::chunkImported(int chunkSize)
 
 void DataImporterImportPage::importError(const QString &taskName, const OciException &ex)
 {
+    deleteWorkerThread();
+
     QMessageBox::critical(this, tr("Data import error"),
                           tr("Task name: %1\nError: %2").arg(taskName, ex.getErrorMessage()));
-
-    deleteWorkerThread();
+    setStatus(tr("Completed with error"));
 }
 
 void DataImporterImportPage::startWorkerThread()
@@ -88,6 +90,7 @@ void DataImporterImportPage::startWorkerThread()
     connect(workerThread, SIGNAL(comparisonCompleted()), this, SLOT(importCompleted()));
     connect(workerThread, SIGNAL(compareError(QString,OciException)), this, SLOT(importError(QString,OciException)));
 
+    timer.start();
     workerThread->start();
 }
 

@@ -162,9 +162,7 @@ void DataComparerThread::createComparisonScript()
         colVarDecl.append(";");
 
         //do not use dataType for variable declarations after this point
-#ifdef ORAEXP_USE_VARCHAR_FOR_BULK_TS_AND_INTERVAL
         dataType=allColumns.value(currentColumnName);
-#endif
 
 
         collName=QString(":coll_%1(i)").arg(i);
@@ -187,12 +185,8 @@ void DataComparerThread::createComparisonScript()
                     append("';");
             updateScript.append("\n\t end if;\n");
         }else{
-#ifdef ORAEXP_USE_VARCHAR_FOR_BULK_TS_AND_INTERVAL
             uqColumnsANDCollAll.append(QString("\"%1\" = %2").arg(currentColumnName,
                                                               DbUtil::toIntervalOrTimestamp(collName, dataType)));
-#else
-            uqColumnsANDCollAll.append(QString("\"%1\" = %2").arg(currentColumnName, collName));
-#endif
 
             uqColumnsANDCollValues.append(QString("\"%1\" = %2").arg(currentColumnName, toDynamicSqlValue(collName, dataType)));
         }

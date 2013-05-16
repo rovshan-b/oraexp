@@ -253,7 +253,7 @@ QString CsvImporter::readNextField(bool *readEndOfLine)
                 stopOnDelimiter = true;
                 field.chop(partToAppend.size()+currentFieldEnclosure.size());
 
-                if(field.isEmpty()){
+                if(!partToAppend.endsWith('\n')){
                     field.append(readString(delimiter.size()));
                 }
             }else{ //remove escape character

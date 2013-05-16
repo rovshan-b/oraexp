@@ -227,7 +227,7 @@ QStringList DataImporterColumnMappingsPage::getNonEmptyDates(int previewTableCol
     QAbstractItemModel *model = previewTable->model();
     for(int i=0; i<model->rowCount(); ++i){
         QString date = model->index(i, previewTableColIx).data().toString().trimmed();
-        if(!date.isEmpty() && date.compare("null", Qt::CaseInsensitive)!=0){
+        if(!date.isEmpty()){
             results.append(date);
         }
     }

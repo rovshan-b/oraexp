@@ -47,6 +47,7 @@ private:
     QString currentTaskName;
 
     void importData();
+    void rollback();
 
     int currentOffset;
     
