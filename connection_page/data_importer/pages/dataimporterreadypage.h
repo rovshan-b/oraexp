@@ -1,11 +1,11 @@
 #ifndef DATAIMPORTERREADYPAGE_H
 #define DATAIMPORTERREADYPAGE_H
 
-#include <QWizardPage>
+#include "connection_page/connectionpagewizardpage.h"
 
 class QLabel;
 
-class DataImporterReadyPage : public QWizardPage
+class DataImporterReadyPage : public ConnectionPageWizardPage
 {
     Q_OBJECT
 public:

@@ -38,9 +38,6 @@ void DataImporterThread::run()
     try{
         stmt = sourceDb->createStatement();
 
-        currentTaskName = "start_data_import";
-        emit statusChanged(tr("Importing..."));
-
         importData();
 
         emitCompletedSignal();
@@ -51,15 +48,18 @@ void DataImporterThread::run()
 
         rollback();
 
-        emit compareError(currentTaskName, ex);
+        emit compareError("import_data", ex);
     }
 }
 
 void DataImporterThread::importData()
 {
     if(!beforeImportQuery.isEmpty()){
+        emit statusChanged(tr("Executing before import query..."));
         sourceDb->executeQueryAndCleanup(beforeImportQuery);
     }
+
+    emit statusChanged(tr("Importing data"));
 
     QStringList fileFieldNames;
     for(int i=0; i<columnMappings.size(); ++i){
@@ -102,6 +102,7 @@ void DataImporterThread::importData()
     stmt->unlockConnection();
 
     if(!afterImportQuery.isEmpty() && !stopped){
+        emit statusChanged(tr("Executing after import query..."));
         sourceDb->executeQueryAndCleanup(afterImportQuery);
     }
 
@@ -112,6 +113,7 @@ void DataImporterThread::importData()
 
 void DataImporterThread::rollback()
 {
+    emit statusChanged(tr("Rolling back transaction..."));
     try{sourceDb->executeQueryAndCleanup("ROLLBACK");}catch(OciException&){}
 }
 

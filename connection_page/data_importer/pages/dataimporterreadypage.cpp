@@ -3,7 +3,7 @@
 #include <QtGui>
 
 DataImporterReadyPage::DataImporterReadyPage(QWidget *parent) :
-    QWizardPage(parent)
+    ConnectionPageWizardPage(parent)
 {
     setTitle(tr("Ready to start"));
     setSubTitle(tr("Review presented information and press Next button to start importing data"));

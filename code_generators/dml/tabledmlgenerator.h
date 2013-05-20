@@ -7,6 +7,7 @@ class TableDmlGenerator
 {
 public:
     static QString generateDeleteStatement(const QString &schemaName, const QString &tableName);
+    static QString generateSelectStatement(const QString &schemaName, const QString &tableName);
 
 private:
     TableDmlGenerator();

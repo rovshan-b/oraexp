@@ -11,6 +11,7 @@ public:
     virtual ~StopableThread(){}
 
     void stop() {this->stopped=true;}
+    bool isStopped() const {return this->stopped;}
     
 protected:
     bool stopped;

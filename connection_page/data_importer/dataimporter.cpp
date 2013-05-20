@@ -72,4 +72,6 @@ void DataImporter::createUi()
 
     worksheetPage = new DataImporterWorksheetPage();
     addPage(worksheetPage);
+
+    setOption(QWizard::DisabledBackButtonOnLastPage, true);
 }

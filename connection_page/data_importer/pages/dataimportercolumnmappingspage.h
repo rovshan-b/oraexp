@@ -1,7 +1,7 @@
 #ifndef DATAIMPORTERCOLUMNMAPPINGSPAGE_H
 #define DATAIMPORTERCOLUMNMAPPINGSPAGE_H
 
-#include <QWizardPage>
+#include "connection_page/connectionpagewizardpage.h"
 #include <QModelIndex>
 #include "connectivity/queryresult.h"
 #include "connectivity/fetchresult.h"
@@ -12,7 +12,7 @@ class DataImporterColumnMappingsModel;
 class QStandardItemModel;
 class ColumnMapping;
 
-class DataImporterColumnMappingsPage : public QWizardPage
+class DataImporterColumnMappingsPage : public ConnectionPageWizardPage
 {
     Q_OBJECT
 public:

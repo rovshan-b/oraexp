@@ -1,7 +1,7 @@
 #ifndef DATAIMPORTERCSVOPTIONSPAGE_H
 #define DATAIMPORTERCSVOPTIONSPAGE_H
 
-#include <QWizardPage>
+#include "connection_page/connectionpagewizardpage.h"
 #include "../importers/csvimporter.h"
 #include "interfaces/idataimportlistener.h"
 
@@ -13,7 +13,7 @@ class QCheckBox;
 class DataTable;
 class QStandardItemModel;
 
-class DataImporterCsvOptionsPage : public QWizardPage, public IDataImportListener
+class DataImporterCsvOptionsPage : public ConnectionPageWizardPage, public IDataImportListener
 {
     Q_OBJECT
 public:

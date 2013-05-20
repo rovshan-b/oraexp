@@ -9,7 +9,7 @@
 #include <QtGui>
 
 DataImporterColumnMappingsPage::DataImporterColumnMappingsPage(QWidget *parent) :
-    QWizardPage(parent), querySheduler(0), loadInProgress(true)
+    ConnectionPageWizardPage(parent), querySheduler(0), loadInProgress(true)
 {
     setTitle(tr("Column mappings"));
     setSubTitle(tr("Define mappings between table columns and file fields"));

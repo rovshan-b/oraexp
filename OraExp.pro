@@ -472,7 +472,8 @@ SOURCES += main.cpp\
     connection_page/data_importer/pages/dataimporterreadypage.cpp \
     connection_page/data_importer/pages/dataimporterimportpage.cpp \
     connection_page/data_importer/dataimporterthread.cpp \
-    connection_page/data_importer/pages/dataimporterworksheetpage.cpp
+    connection_page/data_importer/pages/dataimporterworksheetpage.cpp \
+    connection_page/connectionpagewizardpage.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -949,7 +950,8 @@ HEADERS  += mainwindow.h \
     connection_page/data_importer/pages/dataimporterreadypage.h \
     connection_page/data_importer/pages/dataimporterimportpage.h \
     connection_page/data_importer/dataimporterthread.h \
-    connection_page/data_importer/pages/dataimporterworksheetpage.h
+    connection_page/data_importer/pages/dataimporterworksheetpage.h \
+    connection_page/connectionpagewizardpage.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

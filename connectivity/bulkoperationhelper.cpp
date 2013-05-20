@@ -179,7 +179,7 @@ void BulkOperationHelper::setArrayData(Statement *targetStmt, const QString &val
 
         if(DbUtil::isNumericType(dataType)){
             bool conversionOk;
-            double numVal = QString(value.trimmed()).replace(",", ".").remove(',').toDouble(&conversionOk);
+            double numVal = QString(value.trimmed()).replace(",", ".").toDouble(&conversionOk);
             if(conversionOk){
                 ((double*)buffers.at(column-1))[pos] = numVal;
             }else{

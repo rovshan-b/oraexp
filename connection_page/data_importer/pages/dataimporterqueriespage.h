@@ -1,14 +1,14 @@
 #ifndef DATAIMPORTERQUERIESPAGE_H
 #define DATAIMPORTERQUERIESPAGE_H
 
-#include <QWizardPage>
+#include "connection_page/connectionpagewizardpage.h"
 
 class CodeEditor;
 class QGroupBox;
 class QVBoxLayout;
 class ColumnMapping;
 
-class DataImporterQueriesPage : public QWizardPage
+class DataImporterQueriesPage : public ConnectionPageWizardPage
 {
     Q_OBJECT
 public:

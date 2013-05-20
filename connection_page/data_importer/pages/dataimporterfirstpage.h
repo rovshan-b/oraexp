@@ -1,13 +1,13 @@
 #ifndef DATAIMPORTERFIRSTPAGE_H
 #define DATAIMPORTERFIRSTPAGE_H
 
-#include <QWizardPage>
+#include "connection_page/connectionpagewizardpage.h"
 
 class IQueryScheduler;
 class DbItemListComboBox;
 class FileSelectorWidget;
 
-class DataImporterFirstPage : public QWizardPage
+class DataImporterFirstPage : public ConnectionPageWizardPage
 {
     Q_OBJECT
 public:

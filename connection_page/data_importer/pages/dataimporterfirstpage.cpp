@@ -6,7 +6,7 @@
 #include <QtGui>
 
 DataImporterFirstPage::DataImporterFirstPage(const QString &schemaName, const QString &tableName, QWidget *parent) :
-    QWizardPage(parent)
+    ConnectionPageWizardPage(parent)
 {
     setTitle(tr("Table & File selection"));
     setSubTitle(tr("Select table and file name to import data from"));

@@ -5,7 +5,7 @@
 #include <QtGui>
 
 DataImporterCsvOptionsPage::DataImporterCsvOptionsPage(QWidget *parent) :
-    QWizardPage(parent)
+    ConnectionPageWizardPage(parent)
 {
     setTitle(tr("Format options"));
     setSubTitle(tr("Make sure data displayed in grid is in correct format"));

@@ -44,8 +44,6 @@ private:
     BulkOperationHelper bulkHelper;
     Statement *stmt;
 
-    QString currentTaskName;
-
     void importData();
     void rollback();
 

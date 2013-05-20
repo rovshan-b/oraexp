@@ -21,6 +21,14 @@ public slots:
     virtual void queryExecTaskCompleted(const QString &taskName);
     virtual void emitBusyStateChangedSignal();
     virtual void emitInitCompletedSignal();
+
+    virtual void reject ();
+
+protected:
+    virtual void closeEvent(QCloseEvent *e);
+
+private:
+    bool canClose();
     
 };
 

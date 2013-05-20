@@ -1,9 +1,10 @@
 #include "dataimporterworksheetpage.h"
 #include "connection_page/worksheet/worksheetwidget.h"
+#include "code_generators/dml/tabledmlgenerator.h"
 #include <QtGui>
 
 DataImporterWorksheetPage::DataImporterWorksheetPage(QWidget *parent) :
-    QWizardPage(parent)
+    ConnectionPageWizardPage(parent)
 {
     setTitle(tr("Check results"));
     setSubTitle(tr("Check data import results and COMMIT/ROLLBACK as necessary"));
@@ -11,6 +12,8 @@ DataImporterWorksheetPage::DataImporterWorksheetPage(QWidget *parent) :
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
     worksheetWidget = new WorksheetWidget();
+    worksheetWidget->setContents(TableDmlGenerator::generateSelectStatement(field("schemaName").toString().trimmed().toUpper(),
+                                                                            field("tableName").toString().trimmed().toUpper()));
     mainLayout->addWidget(worksheetWidget);
 
     setLayout(mainLayout);

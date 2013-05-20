@@ -9,7 +9,7 @@
 #include <QtGui>
 
 DataImporterQueriesPage::DataImporterQueriesPage(QWidget *parent) :
-    QWizardPage(parent)
+    ConnectionPageWizardPage(parent)
 {
     setTitle(tr("Queries"));
     setSubTitle(tr("Review and customize queries used to import data"));
