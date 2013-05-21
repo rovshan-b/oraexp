@@ -14,6 +14,8 @@ public:
 
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
+    virtual void initializePage();
+
 private:
     WorksheetWidget *worksheetWidget;
     

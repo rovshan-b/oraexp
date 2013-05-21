@@ -30,6 +30,8 @@ void WorksheetInfoTab::showQueryResults(IQueryScheduler*, const QueryResult &res
 {
     //WidgetHelper::appendToPlainTextEdit(infoBox, "\n");
 
+    this->deletedStatement = false;
+
     if(result.hasError){
         WidgetHelper::appendToPlainTextEdit(infoBox, result.exception.getErrorMessage(),
                                             false, redBrush);
@@ -63,12 +65,18 @@ void WorksheetInfoTab::showQueryResults(IQueryScheduler*, const QueryResult &res
 
     if(result.statement!=0 && result.statement->rsCount()==0){
         delete result.statement;
+        this->deletedStatement = true;
     }
 }
 
 void WorksheetInfoTab::showMessage(const QString &msg)
 {
     WidgetHelper::appendToPlainTextEdit(infoBox, msg, false, defaultBrush);
+}
+
+bool WorksheetInfoTab::resultReleased() const
+{
+    return this->deletedStatement;
 }
 
 void WorksheetInfoTab::printParamValues(Statement *stmt)

@@ -263,3 +263,18 @@ void ConnectionPage::setCurrentTab(QWidget *widget)
 {
     centralTab->setCurrentWidget(widget);
 }
+
+ConnectionPageTab *ConnectionPage::findTabById(const QString &tabId) const
+{
+    for(int i=0; i<centralTab->count(); ++i){
+        QWidget *tab = centralTab->widget(i);
+        ConnectionPageTab *cnPageTab=qobject_cast<ConnectionPageTab*>(tab);
+        Q_ASSERT(cnPageTab);
+
+        if(cnPageTab->getTabId() == tabId){
+            return cnPageTab;
+        }
+    }
+
+    return 0;
+}

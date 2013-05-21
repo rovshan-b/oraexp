@@ -12,8 +12,6 @@ DataImporterWorksheetPage::DataImporterWorksheetPage(QWidget *parent) :
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
     worksheetWidget = new WorksheetWidget();
-    worksheetWidget->setContents(TableDmlGenerator::generateSelectStatement(field("schemaName").toString().trimmed().toUpper(),
-                                                                            field("tableName").toString().trimmed().toUpper()));
     mainLayout->addWidget(worksheetWidget);
 
     setLayout(mainLayout);
@@ -22,4 +20,10 @@ DataImporterWorksheetPage::DataImporterWorksheetPage(QWidget *parent) :
 void DataImporterWorksheetPage::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
     worksheetWidget->setQueryScheduler(queryScheduler);
+}
+
+void DataImporterWorksheetPage::initializePage()
+{
+    worksheetWidget->setContents(TableDmlGenerator::generateSelectStatement(field("schemaName").toString().trimmed().toUpper(),
+                                                                            field("tableName").toString().trimmed().toUpper()));
 }

@@ -39,6 +39,8 @@ public:
     QList<CtrlTabData*> getCtrlTabData() const;
     void setCurrentTab(QWidget *widget);
 
+    ConnectionPageTab *findTabById(const QString &tabId) const;
+
     static QByteArray currentState;
 signals:
     void connectionPageStateChanged();

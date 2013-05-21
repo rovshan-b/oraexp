@@ -24,6 +24,9 @@ public:
     void setProperties(const QHash<QString,QString> &properties);
     QString propertyValue(const QString &propName) const;
 
+    QString getTabId() const;
+    void setTabId(const QString &tabId);
+
 signals:
     void busyStateChanged(ConnectionPageObject *tab, bool busy);
     void stateChanged();
@@ -42,6 +45,8 @@ protected:
 
     //returns all tabs of same type on same connection
     QList<ConnectionPageTab *> getPeerTabs(int limit = -1) const;
+
+    QString tabId;
 
 };
 

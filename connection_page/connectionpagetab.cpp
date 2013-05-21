@@ -20,6 +20,16 @@ QString ConnectionPageTab::propertyValue(const QString &propName) const
     return this->properties.value(propName);
 }
 
+QString ConnectionPageTab::getTabId() const
+{
+    return this->tabId;
+}
+
+void ConnectionPageTab::setTabId(const QString &tabId)
+{
+    this->tabId = tabId;
+}
+
 QList<ConnectionPageTab *> ConnectionPageTab::getPeerTabs(int limit) const
 {
     return uiManager->getTabsByConnection(getDb(), this->metaObject()->className(), limit);

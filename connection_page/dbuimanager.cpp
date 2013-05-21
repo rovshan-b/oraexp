@@ -71,10 +71,19 @@ void DbUiManager::createEditor(const QString &schemaName,
                                bool editMode,
                                QHash<QString,QString> properties)
 {
+    QString objectTypeName = DbUtil::getDbObjectTypeNameByNodeType(itemType).toLower();
+    QString tabId = QString("editor.%1.%2.%3").arg(objectTypeName, schemaName, objectName);
+    ConnectionPageTab * existingTab = cnPage->findTabById(tabId);
+    if(existingTab){
+        cnPage->setCurrentTab(existingTab);
+        return;
+    }
+
     ConnectionPageTab *editor = EditorCreatorUtil::createEditor(schemaName,
                                                       objectName,
                                                       itemType,
                                                       this);
+    editor->setTabId(tabId);
     editor->setProperties(properties);
 
     QString iconName = DbUtil::getDbObjectIconNameByParentNodeType(itemType);
@@ -83,7 +92,6 @@ void DbUiManager::createEditor(const QString &schemaName,
     }else{
         iconName.append("_add");
     }
-    QString objectTypeName = DbUtil::getDbObjectTypeNameByNodeType(itemType).toLower();
     cnPage->addTab(editor, IconUtil::getIcon(iconName), editMode ? objectName : QString("Create %1").arg(objectTypeName));
 }
 
@@ -95,10 +103,19 @@ void DbUiManager::createViewer()
 
 void DbUiManager::createViewer(const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType)
 {
+    QString objectTypeName = DbUtil::getDbObjectTypeNameByNodeType(itemType).toLower();
+    QString tabId = QString("viewer.%1.%2.%3").arg(objectTypeName, schemaName, objectName);
+    ConnectionPageTab * existingTab = cnPage->findTabById(tabId);
+    if(existingTab){
+        cnPage->setCurrentTab(existingTab);
+        return;
+    }
+
     ConnectionPageTab *viewer = EditorCreatorUtil::createViewer(schemaName,
                                                                 objectName,
                                                                 itemType,
                                                                 this);
+    viewer->setTabId(tabId);
     QString iconName = DbUtil::getDbObjectIconNameByParentNodeType(itemType);
     cnPage->addTab(viewer, IconUtil::getIcon(iconName), objectName);
 }

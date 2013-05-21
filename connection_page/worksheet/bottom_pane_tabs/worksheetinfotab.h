@@ -16,6 +16,8 @@ public:
 
     void showMessage(const QString &msg);
 
+    bool resultReleased() const;
+
 private:
     QPlainTextEdit *infoBox;
 
@@ -24,6 +26,8 @@ private:
     QBrush defaultBrush;
 
     void printParamValues(Statement *stmt);
+
+    bool deletedStatement;
 
 };
 

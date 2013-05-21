@@ -27,12 +27,18 @@ void WorksheetResultPane::displayQueryResults(IQueryScheduler *queryScheduler,
     OraExp::QueryType statementType = result.hasError ? OraExp::QueryTypeUnknown : result.statement->getStatementType();
     bool isExplainPlan = statementType == OraExp::QueryTypeExplainPlan;
 
+
+
     if((result.hasError) || (result.statement!=0 && statementType!=OraExp::QueryTypeSelect && !isExplainPlan)){
-        WorksheetBottomPaneTab *tab=getTabToDisplayResults(InfoTab);
+        WorksheetInfoTab *tab=static_cast<WorksheetInfoTab*>(getTabToDisplayResults(InfoTab));
         tab->showQueryResults(queryScheduler, result);
 
         if(rsCount!=1){
             setCurrentWidget(tab);
+        }
+
+        if(tab->resultReleased()){
+            return;
         }
     }
 
