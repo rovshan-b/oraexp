@@ -19,6 +19,7 @@ public:
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
     void setContents(const QString &contents);
+    QString getContents() const;
 
     void showSearchWidget(){queryPane->showSearchWidget();}
     void findNext() {queryPane->findNext();}
@@ -29,9 +30,13 @@ public:
     void setAutotraceEnabled(bool enabled);
     bool isAutotraceEnabled() const;
 
+    bool isModified() const;
+    void setModified(bool modified);
+
     static QByteArray splitterSizes;
 signals:
     void autotraceTriggered(bool checked);
+    void modificationChanged(bool changed);
 
 public slots:
     void queryCompleted(const QueryResult &result);

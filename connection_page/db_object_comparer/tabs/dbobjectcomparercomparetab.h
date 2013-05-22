@@ -43,13 +43,15 @@ public:
     QTabWidget *getBottomPaneTab() const {return this->bottomPaneTab;}
     void addToBottomPaneTab(QWidget *widget, const QString &title);
 
+    void setInitialSchemaAndObjectNames(const QString &initialSchemaName, const QString &initialObjectName);
+
 signals:
     void uiCreated();
     void connectionEstablished(DbConnection *db);
     void sourceSchemaChanged(const QString &newSchemaName);
     void busyStateChanged(bool busy);
 
-private slots:
+protected slots:
     void loadDbObjects();
     virtual void treeChildrenPopulated(const QModelIndex &parent);
     virtual void currentTreeItemChanged(const QModelIndex & current, const QModelIndex & previous);
@@ -83,6 +85,9 @@ protected:
     virtual void createItemsTable(QBoxLayout *layout);
 
     QTabWidget *bottomPaneTab;
+
+    QString initialSchemaName;
+    QString initialObjectName;
     
 };
 

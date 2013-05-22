@@ -86,6 +86,7 @@ void DataComparerCompareTab::treeChildrenPopulated(const QModelIndex &parent)
     if(!parent.isValid()){
         return;
     }
+
     DbTreeItem *item=static_cast<DbTreeItem *>(parent.internalPointer());
 
     Q_ASSERT(item);
@@ -103,10 +104,16 @@ void DataComparerCompareTab::treeChildrenPopulated(const QModelIndex &parent)
 
         item->getModel()->setCheckStateProvider(this);
     }
+
+    DbObjectComparerCompareTab::treeChildrenPopulated(parent);
 }
 
 void DataComparerCompareTab::commitWhereQuery(const QModelIndex &index)
 {
+    if(!index.isValid()){
+        return;
+    }
+
     DbTreeItem *prevItem=static_cast<DbTreeItem *>(index.internalPointer());
     if(prevItem && prevItem->getItemType()==DbTreeModel::Table){
         QString query=whereClauseEditor->editor()->toPlainText().trimmed();

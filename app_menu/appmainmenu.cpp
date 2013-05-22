@@ -40,7 +40,7 @@ ConnectionPageTab *AppMainMenu::currentConnectionPageTab() const
     AppMenu *appMenu=static_cast<AppMenu*>(this->parent());
     ConnectionPage *cnPage=appMenu->getConnectionsPane()->currentConnectionPage();
     Q_ASSERT(cnPage);
-    ConnectionPageTab *cnPageTab=cnPage->currentConnectionPage();
+    ConnectionPageTab *cnPageTab=cnPage->currentConnectionPageTab();
     Q_ASSERT(cnPageTab);
 
     return cnPageTab;

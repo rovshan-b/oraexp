@@ -68,6 +68,7 @@ void CodeCreatorWidget::createUi()
     setLayout(layout);
 
     connect(bottomSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(bottomSplitterMoved()));
+    connect(currentEditor()->editor()->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
 }
 
 void CodeCreatorWidget::setQueryScheduler(IQueryScheduler *queryScheduler)
@@ -105,6 +106,21 @@ void CodeCreatorWidget::setHasSpecBodySwitcher(bool hasSpecBodySwitcher, bool is
 void CodeCreatorWidget::focusAvailable()
 {
     currentEditor()->editor()->setFocus();
+}
+
+bool CodeCreatorWidget::isModified() const
+{
+    return currentEditor()->editor()->document()->isModified();
+}
+
+void CodeCreatorWidget::setModified(bool modified)
+{
+    currentEditor()->editor()->document()->setModified(modified);
+}
+
+QString CodeCreatorWidget::getContents() const
+{
+    return currentEditor()->editor()->toPlainText();
 }
 
 QWidget *CodeCreatorWidget::createRightPane()
@@ -314,7 +330,7 @@ void CodeCreatorWidget::loadCompilerMessages()
                        "get_compiler_messages",
                        "compilationCompleted",
                        "compilationErrorFetched",
-                                 "compilationErrorFirstTimeFetchCompleted");
+                       "compilationErrorFirstTimeFetchCompleted");
 }
 
 void CodeCreatorWidget::submitObjectCode()
@@ -365,8 +381,11 @@ void CodeCreatorWidget::objectCodeExecuted(const QueryResult &result)
     if(result.hasError){
         compilerMessagesPane->addCompilerMessage(result.exception.getErrorRow(), result.exception.getErrorPos(),
                                                  result.exception.getErrorMessage(), "ERROR");
+        stopProgress();
+        return;
     }
 
+    setModified(false);
     compileObject();
 }
 
@@ -415,6 +434,16 @@ void CodeCreatorWidget::compilerMessageActivated(int line, int position, const Q
 void CodeCreatorWidget::bottomSplitterMoved()
 {
     CodeCreatorWidget::bottomSplitterSizes = bottomSplitter->saveState();
+}
+
+QString CodeCreatorWidget::getCurrentFileName() const
+{
+    return this->currentFileName;
+}
+
+void CodeCreatorWidget::setCurrentFileName(const QString &fileName)
+{
+    this->currentFileName = fileName;
 }
 
 void CodeCreatorWidget::compilationErrorFetchCompleted(const QString &)

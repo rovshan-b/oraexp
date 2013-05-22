@@ -20,6 +20,7 @@ public:
     static DbConnection *getConnection(QWidget *dialogParent);
 
     static QString showFileSaveDialog(QWidget *parent,
+                                      const QString &defaultFileName,
                                       const QString &defaultSuffix,
                                       const QString &title = QObject::tr("Save file"),
                                       const QString &filter = QObject::tr("All files (*.*)"));

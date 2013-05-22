@@ -20,12 +20,24 @@ public:
     virtual void createUi();
     virtual void setConnection(DbConnection *db);
 
+    virtual bool canSave() const {return true;}
+
     virtual void focusAvailable();
+
+    virtual bool isModified() const;
+    virtual void setModified(bool modified);
+
+    virtual QString getCurrentFileName() const;
+    virtual void setCurrentFileName(const QString &fileName);
+
+protected:
+    virtual void saveToStream(QTextStream &out);
 
 private slots:
     void creatorInitialized();
     void switchToSpec();
     void switchToBody();
+    void modificationChanged(bool changed);
 
 private:
     CodeCreatorWidget *currentCreator() const;

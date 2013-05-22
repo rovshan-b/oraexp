@@ -34,6 +34,7 @@ public:
     virtual ~WorksheetQueryPane();
 
     void setContents(const QString &contents);
+    QString getContents() const;
 
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
@@ -53,6 +54,9 @@ public:
     QString getLastExplainPlanStatementId() const {return this->lastExpPlanStatementId;}
 
     bool isInScriptMode() const;
+
+    bool isModified() const;
+    void setModified(bool modified);
 signals:
     void queryDone(const QueryResult &result);
     void message(const QString &msg);
@@ -60,6 +64,8 @@ signals:
 
     void scriptModeStarted();
     void scriptModeCompleted();
+
+    void modificationChanged(bool changed);
 
 protected:
     virtual void timerEvent(QTimerEvent *event);

@@ -72,3 +72,18 @@ bool FileSystemUtil::tryRead(const QString &filename, QString *errorMessage)
 
     return true;
 }
+
+QString FileSystemUtil::readAsString(const QString &filename, QString *errorMessage)
+{
+    QFile file(filename);
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        *errorMessage = file.errorString();
+        return "";
+    }
+
+    QTextStream in(&file);
+    QString result = in.readAll();
+    file.close();
+
+    return result;
+}

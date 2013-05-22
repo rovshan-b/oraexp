@@ -38,11 +38,20 @@ public:
 
     void focusAvailable();
 
+    bool isModified() const;
+    void setModified(bool modified);
+
+    QString getContents() const;
+
+    virtual QString getCurrentFileName() const;
+    virtual void setCurrentFileName(const QString &fileName);
+
     static QByteArray bottomSplitterSizes;
 
 signals:
     void objectInfoLoaded();
     void specBodySwitchRequested();
+    void modificationChanged(bool changed);
 
 protected:
     void keyReleaseEvent (QKeyEvent * event);
@@ -114,6 +123,8 @@ private:
     bool stateRestored;
 
     MultiEditorWidget *multiEditor;
+
+    QString currentFileName;
 
 };
 

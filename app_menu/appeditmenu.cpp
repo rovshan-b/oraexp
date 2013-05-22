@@ -183,7 +183,7 @@ void AppEditMenu::focusWidgetChanged(QWidget * /*old*/, QWidget *now)
     currentAppWidget=now;
 
     ConnectionPage *cnPage=getConnectionsPane()->currentConnectionPage();
-    ConnectionPageTab *cnPageTab=cnPage ? cnPage->currentConnectionPage() : 0;
+    ConnectionPageTab *cnPageTab=cnPage ? cnPage->currentConnectionPageTab() : 0;
     updateActionStates(cnPage, cnPageTab);
 
     CodeEditor *editor = qobject_cast<CodeEditor*>(currentAppWidget);

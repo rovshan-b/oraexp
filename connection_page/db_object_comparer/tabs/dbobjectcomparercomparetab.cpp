@@ -59,7 +59,7 @@ void DbObjectComparerCompareTab::loadDbObjects()
         return;
     }
 
-    WidgetHelper::setComboBoxText(sourceSchemaComboBox, queryScheduler->getDb()->getUsername());
+    WidgetHelper::setComboBoxText(sourceSchemaComboBox, initialSchemaName.isEmpty() ? queryScheduler->getDb()->getUsername() : initialSchemaName);
     sourceSchemaComboBox->loadItems(queryScheduler, "get_schema_list");
 
     connect(sourceSchemaComboBox->lineEdit(), SIGNAL(editingFinished()), this, SLOT(loadSchemaObjects()));
@@ -69,8 +69,19 @@ void DbObjectComparerCompareTab::loadDbObjects()
     loadSchemaObjects();
 }
 
-void DbObjectComparerCompareTab::treeChildrenPopulated(const QModelIndex &)
+void DbObjectComparerCompareTab::treeChildrenPopulated(const QModelIndex &parent)
 {
+    if(!initialObjectName.isEmpty()){
+        DbTreeView *schemaObjectsTree = schemaObjectsPanel->tree();
+        DbTreeModel *model = schemaObjectsTree->getModel();
+        QModelIndex objectIndex = model->findByName(parent, initialObjectName);
+        if(objectIndex.isValid()){
+            model->checkItem(objectIndex, Qt::Checked, true);
+            schemaObjectsTree->selectionModel()->select(objectIndex, QItemSelectionModel::SelectCurrent);
+            schemaObjectsTree->scrollTo(objectIndex, QAbstractItemView::PositionAtCenter);
+            currentTreeItemChanged(objectIndex, QModelIndex());
+        }
+    }
 }
 
 void DbObjectComparerCompareTab::currentTreeItemChanged(const QModelIndex &, const QModelIndex &)
@@ -164,6 +175,12 @@ void DbObjectComparerCompareTab::addToBottomPaneTab(QWidget *widget, const QStri
     Q_ASSERT(bottomPaneTab);
 
     bottomPaneTab->addTab(widget, title);
+}
+
+void DbObjectComparerCompareTab::setInitialSchemaAndObjectNames(const QString &initialSchemaName, const QString &initialObjectName)
+{
+    this->initialSchemaName = initialSchemaName;
+    this->initialObjectName = initialObjectName;
 }
 
 void DbObjectComparerCompareTab::beforeEnqueueQuery()

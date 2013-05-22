@@ -27,6 +27,8 @@ public:
     static void setTextStreamProperties(QTextStream *textStream, const QString &encoding, bool bom);
 
     static bool tryRead(const QString &filename, QString *errorMessage);
+
+    static QString readAsString(const QString &filename, QString *errorMessage);
 };
 
 #endif // FILESYSTEMUTIL_H

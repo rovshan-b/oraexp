@@ -17,6 +17,7 @@ void CodeCreator::createUi()
 
     creatorWidget->createUi();
     connect(creatorWidget, SIGNAL(objectInfoLoaded()), this, SLOT(emitInitCompletedSignal()));
+    connect(creatorWidget, SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
 
     mainLayout->addWidget(creatorWidget);
     setLayout(mainLayout);
@@ -33,4 +34,34 @@ void CodeCreator::setConnection(DbConnection *db)
 void CodeCreator::focusAvailable()
 {
     creatorWidget->focusAvailable();
+}
+
+bool CodeCreator::isModified() const
+{
+    return creatorWidget->isModified();
+}
+
+void CodeCreator::setModified(bool modified)
+{
+    creatorWidget->setModified(modified);
+}
+
+QString CodeCreator::getCurrentFileName() const
+{
+    return creatorWidget->getCurrentFileName();
+}
+
+void CodeCreator::setCurrentFileName(const QString &fileName)
+{
+    creatorWidget->setCurrentFileName(fileName);
+}
+
+void CodeCreator::saveToStream(QTextStream &out)
+{
+    out << creatorWidget->getContents();
+}
+
+void CodeCreator::modificationChanged(bool changed)
+{
+    setModifiedStatusToCaption(changed);
 }

@@ -26,7 +26,7 @@ void FileSelectorWidget::selectFilename()
 {
     QString filename = (mode==Save)
                         ?
-                       DialogHelper::showFileSaveDialog(this, defaultSuffix)
+                       DialogHelper::showFileSaveDialog(this, tr("filename"), defaultSuffix)
                         :
                        DialogHelper::showFileOpenDialog(this, tr("Delimited file formats (*.csv *.tsv *.txt *.dsv);;All files (*.*)"));
     if(!filename.isEmpty()){

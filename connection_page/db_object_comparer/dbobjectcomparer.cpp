@@ -63,6 +63,7 @@ void DbObjectComparer::busyStateChanged(bool busy)
 DbObjectComparerCompareTab *DbObjectComparer::createCompareTab(DbUiManager *uiManager)
 {
     DbObjectComparerCompareTab *tab=doCreateCompareTab(uiManager);
+    tab->setInitialSchemaAndObjectNames(propertyValue("schemaName"), propertyValue("objectName"));
     tab->createUi();
     return tab;
 }

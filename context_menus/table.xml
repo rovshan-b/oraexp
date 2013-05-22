@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items>
+    <item caption="Shrink" handler="WindowLoader" window_name="shrink_table" />
+    <item caption="-" />
+    <item caption="Drop..." icon="delete" handler="WindowLoader" window_name="drop_table" />
+</items>

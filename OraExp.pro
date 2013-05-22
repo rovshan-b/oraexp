@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui xml
 
 TARGET = OraExp
 TEMPLATE = app
@@ -473,7 +473,10 @@ SOURCES += main.cpp\
     connection_page/data_importer/pages/dataimporterimportpage.cpp \
     connection_page/data_importer/dataimporterthread.cpp \
     connection_page/data_importer/pages/dataimporterworksheetpage.cpp \
-    connection_page/connectionpagewizardpage.cpp
+    connection_page/connectionpagewizardpage.cpp \
+    connection_page/connectionpagewindow.cpp \
+    connection_page/dynamic_window/dynamicconnectionpagewindow.cpp \
+    beans/dbitemdynamicaction.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -951,7 +954,10 @@ HEADERS  += mainwindow.h \
     connection_page/data_importer/pages/dataimporterimportpage.h \
     connection_page/data_importer/dataimporterthread.h \
     connection_page/data_importer/pages/dataimporterworksheetpage.h \
-    connection_page/connectionpagewizardpage.h
+    connection_page/connectionpagewizardpage.h \
+    connection_page/connectionpagewindow.h \
+    connection_page/dynamic_window/dynamicconnectionpagewindow.h \
+    beans/dbitemdynamicaction.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \
@@ -963,7 +969,9 @@ FORMS    += mainwindow.ui \
 RESOURCES += \
     images.qrc \
     queries.qrc \
-    misc.qrc
+    misc.qrc \
+    dynamic_windows.qrc \
+    context_menus.qrc
 
 #unix:INCLUDEPATH += /home/rovshan/Applications/instantclient_11_2/sdk/include
 

@@ -8,6 +8,7 @@ class DbConnection;
 class ConnectionPage;
 class DbItemAction;
 class ConnectionPageTab;
+class Worksheet;
 
 class DbUiManager : public QObject
 {
@@ -32,14 +33,19 @@ public slots:
     void createViewer();
     void createViewer(const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType);
 
-    void addWorksheet(const QString &contents="");
+    Worksheet *addWorksheet(const QString &contents="");
     void addSchemaComparer();
     void addSchemaExporter();
     void addDataComparer();
     void addDataCopier();
     void addDataExporter();
+    void setProperties(ConnectionPageTab *tab);
     void addDataImporter();
     void addDataImporter(const QString &schemaName, const QString &tableName);
+
+    void handleDynamicAction();
+
+    void openFile();
 
     DbItemAction *getSenderAction() const;
 

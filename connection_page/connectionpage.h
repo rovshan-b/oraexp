@@ -29,11 +29,12 @@ public:
 
     void closeTab(QWidget *widget);
 
-    ConnectionPageTab *currentConnectionPage() const;
+    ConnectionPageTab *currentConnectionPageTab() const;
     int tabCount() const{return this->centralTab->count();}
 
     bool isTreePaneVisible() const;
 
+    QList<ConnectionPageTab*> getTabsByType(const QString &className) const;
     QList<ConnectionPageTab*> getTabsByConnection(DbConnection *db, const QString &className=QString(), int limit = -1);
 
     QList<CtrlTabData*> getCtrlTabData() const;
@@ -53,6 +54,8 @@ public slots:
     void toggleTreePane();
     void windowStateChanged();
     void restoreWindowState();
+
+    void changeTabCaption(ConnectionPageTab *tab, const QString &caption);
 
 private:
     DbConnection *db;

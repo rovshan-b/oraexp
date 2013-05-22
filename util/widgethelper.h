@@ -114,6 +114,8 @@ public:
     static void fillFieldDelimiters(QComboBox *comboBox);
 
     static void deleteViewModel(QAbstractItemView *view);
+
+    static QAction *createSeparatorAction();
 };
 
 #endif // WIDGETHELPER_H

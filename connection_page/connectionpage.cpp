@@ -113,6 +113,7 @@ void ConnectionPage::prepareObject(ConnectionPageObject *obj)
 
 void ConnectionPage::addTab(ConnectionPageTab *tab, const QPixmap &icon, const QString &title)
 {
+    tab->setTitle(title);
     tab->setEnabled(false);
     connect(tab, SIGNAL(initCompleted(ConnectionPageObject*)), this, SLOT(tabInitializationCompleted(ConnectionPageObject*)));
 
@@ -124,8 +125,8 @@ void ConnectionPage::addTab(ConnectionPageTab *tab, const QPixmap &icon, const Q
     centralTab->setCurrentIndex(newTabIx);
     //centralTab->setTabBusy(newTabIx, true);
     connect(tab, SIGNAL(stateChanged()), this, SIGNAL(connectionPageStateChanged()));
-
     connect(tab, SIGNAL(busyStateChanged(ConnectionPageObject*,bool)), this, SLOT(tabBusyStateChanged(ConnectionPageObject*,bool)));
+    connect(tab, SIGNAL(captionChanged(ConnectionPageTab*,QString)), this, SLOT(changeTabCaption(ConnectionPageTab*,QString)));
 
     prepareObject(tab);
 }
@@ -186,7 +187,7 @@ void ConnectionPage::tabInitializationCompleted(ConnectionPageObject *obj)
     }
 }
 
-ConnectionPageTab *ConnectionPage::currentConnectionPage() const
+ConnectionPageTab *ConnectionPage::currentConnectionPageTab() const
 {
     ConnectionPageTab *cnPageTab=static_cast<ConnectionPageTab*>(centralTab->currentWidget());
     return cnPageTab;
@@ -213,6 +214,11 @@ void ConnectionPage::restoreWindowState()
     uiManager.addWorksheet();
 }
 
+void ConnectionPage::changeTabCaption(ConnectionPageTab *tab, const QString &caption)
+{
+    centralTab->setTabText(centralTab->indexOf(tab), caption);
+}
+
 void ConnectionPage::connectDockSignals(QDockWidget *dockWidget)
 {
     connect(dockWidget, SIGNAL(dockLocationChanged(Qt::DockWidgetArea)), this, SLOT(windowStateChanged()));
@@ -222,6 +228,23 @@ void ConnectionPage::connectDockSignals(QDockWidget *dockWidget)
 bool ConnectionPage::isTreePaneVisible() const
 {
     return treeDock->isVisible();
+}
+
+QList<ConnectionPageTab *> ConnectionPage::getTabsByType(const QString &className) const
+{
+    QList<ConnectionPageTab *> results;
+
+    for(int i=0; i<centralTab->count(); ++i){
+        QWidget *tab = centralTab->widget(i);
+        ConnectionPageTab *cnPageTab=qobject_cast<ConnectionPageTab*>(tab);
+        Q_ASSERT(cnPageTab);
+        if(cnPageTab->metaObject()->className()==className){
+            results.append(cnPageTab);
+        }
+
+    }
+
+    return results;
 }
 
 QList<ConnectionPageTab *> ConnectionPage::getTabsByConnection(DbConnection *db, const QString &className, int limit)

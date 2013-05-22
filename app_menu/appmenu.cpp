@@ -68,7 +68,7 @@ void AppMenu::setupMenu(MainWindow *mainWindow, ConnectionsPane *connectionsPane
 void AppMenu::connectionsPaneStateChanged()
 {
     ConnectionPage *cnPage=this->connectionsPane->currentConnectionPage();
-    ConnectionPageTab *cnPageTab=cnPage ? cnPage->currentConnectionPage() : 0;
+    ConnectionPageTab *cnPageTab=cnPage ? cnPage->currentConnectionPageTab() : 0;
 
     appFileMenu->updateActionStates(cnPage, cnPageTab);
     //appEditMenu->updateActionStates(cnPage, cnPageTab);

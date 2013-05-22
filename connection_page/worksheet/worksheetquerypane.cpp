@@ -79,11 +79,11 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
 
     WidgetHelper::updateActionTooltips(toolbar);
 
-    multiEditor->getCurrentEditor()->editor()->setPlainText("select * from smpp_outgoing");
-
     connect(&sequentialRunner, SIGNAL(beforeExecute(QString,int,int)), this, SLOT(beforeExecuteSequentialQuery(QString,int,int)));
     connect(&sequentialRunner, SIGNAL(queryResultAvailable(QueryResult)), this, SLOT(sequentialQueryCompleted(QueryResult)));
     connect(&sequentialRunner, SIGNAL(completed()), this, SLOT(sequentialExecutionCompleted()));
+
+    connect(multiEditor->getCurrentEditor()->editor()->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
 }
 
 WorksheetQueryPane::~WorksheetQueryPane()
@@ -271,6 +271,11 @@ void WorksheetQueryPane::setContents(const QString &contents)
     currentEditor()->editor()->setPlainText(contents);
 }
 
+QString WorksheetQueryPane::getContents() const
+{
+    return currentEditor()->editor()->toPlainText();
+}
+
 void WorksheetQueryPane::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
     this->queryScheduler=queryScheduler;
@@ -317,6 +322,16 @@ bool WorksheetQueryPane::isAutotraceEnabled() const
 bool WorksheetQueryPane::isInScriptMode() const
 {
     return sequentialRunner.isBusy();
+}
+
+bool WorksheetQueryPane::isModified() const
+{
+    return multiEditor->getCurrentEditor()->editor()->document()->isModified();
+}
+
+void WorksheetQueryPane::setModified(bool modified)
+{
+    currentEditor()->editor()->document()->setModified(modified);
 }
 
 void WorksheetQueryPane::emitMessage(const QString &msg)

@@ -12,6 +12,16 @@
 #include "dblinkcontextmenuutil.h"
 #include "usercontextmenuutil.h"
 
+#include "beans/dbitemdynamicaction.h"
+#include "util/dbutil.h"
+#include "util/filesystemutil.h"
+#include "util/iconutil.h"
+#include "util/widgethelper.h"
+#include "connection_page/dbuimanager.h"
+#include <QFile>
+#include <QDomDocument>
+#include <QDebug>
+
 ContextMenuUtil::ContextMenuUtil()
 {
 }
@@ -81,5 +91,76 @@ QList<QAction *> ContextMenuUtil::getActionsForObject(const QString &schemaName,
         break;
     }
 
+    QList<QAction *> configuredActions = ContextMenuUtil::getActionsForObjectFromConfiguration(schemaName, objectName,
+                                                          itemType, uiManager);
+    if(configuredActions.size() > 0){
+        results.append(WidgetHelper::createSeparatorAction());
+        results.append(configuredActions);
+    }
+
     return results;
+}
+
+QList<QAction *> ContextMenuUtil::getActionsForObjectFromConfiguration(const QString &schemaName,
+                                                                       const QString &objectName,
+                                                                       const DbTreeModel::DbTreeNodeType itemType,
+                                                                       DbUiManager *uiManager)
+{
+    QList<QAction *> results;
+
+    QString objectTypeName = DbUtil::getDbObjectTypeNameByNodeType(itemType);
+    QString fileName = QString(":/context_menus/%1.xml").arg(objectTypeName.toLower());
+
+    if(!QFile::exists(fileName)){
+        return results;
+    }
+
+    QString errorMessage;
+    QString fileContents = FileSystemUtil::readAsString(fileName, &errorMessage);
+
+    Q_ASSERT(!fileContents.isEmpty() && errorMessage.isEmpty());
+
+    QDomDocument doc;
+    if (!doc.setContent(fileContents)) {
+        Q_ASSERT(false);
+        return results;
+    }
+
+    QDomElement docElem = doc.documentElement();
+
+    QDomNode n = docElem.firstChild();
+    while(!n.isNull()) {
+        QDomElement e = n.toElement();
+        if(!e.isNull() && e.tagName() == "item") {
+            results.append(ContextMenuUtil::actionFromElement(e, schemaName, objectName, itemType, uiManager));
+        }
+        n = n.nextSibling();
+    }
+
+    return results;
+}
+
+QAction *ContextMenuUtil::actionFromElement(const QDomElement &e,
+                                            const QString &schemaName,
+                                            const QString &objectName,
+                                            const DbTreeModel::DbTreeNodeType itemType,
+                                            DbUiManager *uiManager)
+{
+    QString caption = e.attribute("caption");
+
+    if(caption == "-"){
+        return WidgetHelper::createSeparatorAction();
+    }else{
+        DbItemDynamicAction *action = new DbItemDynamicAction(IconUtil::getIcon(e.attribute("icon")),
+                                                              caption, schemaName, objectName,
+                                                              itemType, uiManager, SLOT(handleDynamicAction()));
+        QDomNamedNodeMap attributes = e.attributes();
+        for(int i=0; i<attributes.size(); ++i){
+            QDomAttr attribute = attributes.item(i).toAttr();
+            action->properties[QString("attribute.%1").arg(attribute.name())] = attribute.value();
+        }
+
+        return action;
+    }
+
 }

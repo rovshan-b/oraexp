@@ -26,7 +26,9 @@ private slots:
     void addWorksheet(){uiManager()->addWorksheet();}
     void showCreator();
 
-    void open(){}
+    void open(){uiManager()->openFile();}
+    void save(){currentConnectionPageTab()->saveContents();}
+    void saveAs(){currentConnectionPageTab()->saveContentsAs();}
 
 private:
     void setupMenu(QMenu *fileMenu, QToolBar *toolbar);

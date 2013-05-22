@@ -12,10 +12,12 @@ PairCodeCreator::PairCodeCreator(const QString &schemaName,
     specCreatorWidget = new CodeCreatorWidget(schemaName, objectName, DbUtil::getSpecType(objectType));
     specCreatorWidget->setHasSpecBodySwitcher(true, true);
     connect(specCreatorWidget, SIGNAL(specBodySwitchRequested()), this, SLOT(switchToBody()));
+    connect(specCreatorWidget, SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
 
     bodyCreatorWidget = new CodeCreatorWidget(schemaName, objectName, DbUtil::getBodyType(objectType));
     bodyCreatorWidget->setHasSpecBodySwitcher(true, false);
     connect(bodyCreatorWidget, SIGNAL(specBodySwitchRequested()), this, SLOT(switchToSpec()));
+    connect(bodyCreatorWidget, SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
 
     isSpecType = DbUtil::isSpecType(objectType);
 }
@@ -54,6 +56,31 @@ void PairCodeCreator::focusAvailable()
     currentCreator()->focusAvailable();
 }
 
+bool PairCodeCreator::isModified() const
+{
+    return specCreatorWidget->isModified() || bodyCreatorWidget->isModified();
+}
+
+void PairCodeCreator::setModified(bool modified)
+{
+    currentCreator()->setModified(modified);
+}
+
+QString PairCodeCreator::getCurrentFileName() const
+{
+    return currentCreator()->getCurrentFileName();
+}
+
+void PairCodeCreator::setCurrentFileName(const QString &fileName)
+{
+    currentCreator()->setCurrentFileName(fileName);
+}
+
+void PairCodeCreator::saveToStream(QTextStream &out)
+{
+    out << currentCreator()->getContents();
+}
+
 void PairCodeCreator::creatorInitialized()
 {
     if(++initializedCount==2){
@@ -69,6 +96,11 @@ void PairCodeCreator::switchToSpec()
 void PairCodeCreator::switchToBody()
 {
     tab->setCurrentIndex(1);
+}
+
+void PairCodeCreator::modificationChanged(bool)
+{
+    setModifiedStatusToCaption(isModified());
 }
 
 CodeCreatorWidget *PairCodeCreator::currentCreator() const

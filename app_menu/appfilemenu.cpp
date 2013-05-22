@@ -1,5 +1,6 @@
 #include "appfilemenu.h"
 #include "util/iconutil.h"
+#include "connectionspane.h"
 #include "connection_page/connectionpage.h"
 #include "connection_page/connectionpagetab.h"
 #include "util/widgethelper.h"
@@ -46,10 +47,10 @@ void AppFileMenu::setupMenu(QMenu *fileMenu, QToolBar *toolbar)
 
     fileMenu->addSeparator();
 
-    fileSaveAction=fileMenu->addAction(IconUtil::getIcon("filesave"), tr("&Save"));
+    fileSaveAction=fileMenu->addAction(IconUtil::getIcon("filesave"), tr("&Save"), this, SLOT(save()), QKeySequence(QKeySequence::Save));
     fileSaveAction->setStatusTip(tr("Save contents of current worksheet"));
     toolbar->addAction(fileSaveAction);
-    fileSaveAsAction=fileMenu->addAction(IconUtil::getIcon("filesaveas"), tr("S&ave as..."));
+    fileSaveAsAction=fileMenu->addAction(IconUtil::getIcon("filesaveas"), tr("S&ave as..."), this, SLOT(saveAs()), QKeySequence(QKeySequence::SaveAs));
     fileSaveAsAction->setStatusTip(tr("Save contents of current worksheet to specified file"));
     fileSaveAllAction=fileMenu->addAction(IconUtil::getIcon("filesaveall"), tr("Sa&ve all"));
     fileSaveAllAction->setStatusTip(tr("Save contents of all open worksheets"));
@@ -96,7 +97,7 @@ void AppFileMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *
         action->setEnabled(cnPage!=0);
     }
 
-    fileOpenAction->setEnabled(cnPageTab!=0 && cnPageTab->canOpen());
+    fileOpenAction->setEnabled(getConnectionsPane()->currentConnectionPage() != 0);
 
     fileSaveAction->setEnabled(cnPageTab!=0 && cnPageTab->canSave());
     fileSaveAllAction->setEnabled(cnPageTab!=0 && (cnPage->tabCount()>1 || cnPageTab->canSave()));

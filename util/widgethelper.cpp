@@ -683,4 +683,11 @@ void WidgetHelper::deleteViewModel(QAbstractItemView *view)
     }
 }
 
+QAction *WidgetHelper::createSeparatorAction()
+{
+    QAction *action = new QAction(0);
+    action->setSeparator(true);
+    return action;
+}
+
 

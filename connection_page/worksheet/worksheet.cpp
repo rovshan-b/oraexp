@@ -15,6 +15,7 @@ Worksheet::Worksheet(DbUiManager *uiManager, QWidget *parent) :
     setLayout(mainLayout);
 
     connect(worksheetWidget, SIGNAL(autotraceTriggered(bool)), this, SLOT(autotraceTriggered(bool)));
+    connect(worksheetWidget, SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
 }
 
 Worksheet::~Worksheet()
@@ -38,6 +39,11 @@ void Worksheet::setContents(const QString &contents)
     worksheetWidget->setContents(contents);
 }
 
+QString Worksheet::getContents() const
+{
+    return worksheetWidget->getContents();
+}
+
 void Worksheet::focusAvailable()
 {
     worksheetWidget->focusAvailable();
@@ -53,6 +59,36 @@ bool Worksheet::isAutotraceEnabled() const
     return worksheetWidget->isAutotraceEnabled();
 }
 
+bool Worksheet::isModified() const
+{
+    return worksheetWidget->isModified();
+}
+
+void Worksheet::setModified(bool modified)
+{
+    worksheetWidget->setModified(modified);
+}
+
+void Worksheet::saveToStream(QTextStream &out)
+{
+    out << worksheetWidget->getContents();
+}
+
+QString Worksheet::getCurrentFileName() const
+{
+    return this->currentFileName;
+}
+
+void Worksheet::setCurrentFileName(const QString &fileName)
+{
+    this->currentFileName = fileName;
+
+    QFileInfo fileInfo(fileName);
+    QString fileNamePart = fileInfo.fileName();
+    setTitle(fileNamePart);
+    setModifiedStatusToCaption(false);
+}
+
 void Worksheet::autotraceTriggered(bool checked)
 {
     QList<ConnectionPageTab*> tabs = getPeerTabs();
@@ -63,6 +99,11 @@ void Worksheet::autotraceTriggered(bool checked)
         }
         worksheet->setAutotraceEnabled(checked);
     }
+}
+
+void Worksheet::modificationChanged(bool changed)
+{
+    setModifiedStatusToCaption(changed);
 }
 
 bool Worksheet::shouldCheckAutotraceAction() const

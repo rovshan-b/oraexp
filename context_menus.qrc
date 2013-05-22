@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>context_menus/table.xml</file>
+    </qresource>
+</RCC>

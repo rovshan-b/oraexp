@@ -32,6 +32,8 @@ WorksheetWidget::WorksheetWidget(QWidget *parent) :
 
     connect(queryPane, SIGNAL(scriptModeStarted()), resultPane, SLOT(scriptModeStarted()));
     connect(queryPane, SIGNAL(scriptModeCompleted()), resultPane, SLOT(scriptModeCompleted()));
+
+    connect(queryPane, SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
 }
 
 void WorksheetWidget::setQueryScheduler(IQueryScheduler *queryScheduler)
@@ -44,6 +46,11 @@ void WorksheetWidget::setQueryScheduler(IQueryScheduler *queryScheduler)
 void WorksheetWidget::setContents(const QString &contents)
 {
     queryPane->setContents(contents);
+}
+
+QString WorksheetWidget::getContents() const
+{
+    return queryPane->getContents();
 }
 
 void WorksheetWidget::focusAvailable()
@@ -59,6 +66,16 @@ void WorksheetWidget::setAutotraceEnabled(bool enabled)
 bool WorksheetWidget::isAutotraceEnabled() const
 {
     return queryPane->isAutotraceEnabled();
+}
+
+bool WorksheetWidget::isModified() const
+{
+    return queryPane->isModified();
+}
+
+void WorksheetWidget::setModified(bool modified)
+{
+    queryPane->setModified(modified);
 }
 
 void WorksheetWidget::queryCompleted(const QueryResult &result)
