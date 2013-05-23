@@ -6,6 +6,7 @@
 #include "interfaces/iqueryscheduler.h"
 #include "nodepopulatorthread.h"
 #include "idbtreeitemcheckstateprovider.h"
+#include <QMetaEnum>
 #include <QDebug>
 
 using namespace std;
@@ -633,4 +634,12 @@ QModelIndex DbTreeModel::findByName(const QModelIndex &parent, const QString &na
     }
 
     return QModelIndex();
+}
+
+QString DbTreeModel::getDbTreeNodeName(DbTreeModel::DbTreeNodeType nodeType)
+{
+    const QMetaObject &mo = DbTreeModel::staticMetaObject;
+    int enumIx = mo.indexOfEnumerator("DbTreeNodeType");
+    QMetaEnum metaEnum = mo.enumerator(enumIx);
+    return metaEnum.valueToKey(nodeType);
 }

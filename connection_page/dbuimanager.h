@@ -7,6 +7,7 @@
 class DbConnection;
 class ConnectionPage;
 class DbItemAction;
+class ConnectionPageObject;
 class ConnectionPageTab;
 class Worksheet;
 
@@ -43,6 +44,7 @@ public slots:
     void addDataImporter();
     void addDataImporter(const QString &schemaName, const QString &tableName);
 
+    void addWindow(ConnectionPageObject *window, const QPixmap &icon, const QString &title);
     void handleDynamicAction();
 
     void openFile();

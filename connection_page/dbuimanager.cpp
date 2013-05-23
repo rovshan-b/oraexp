@@ -2,6 +2,7 @@
 #include "../navtree/dbtreeitem.h"
 #include "../navtree/nodeaction.h"
 #include "beans/dbitemaction.h"
+#include "beans/dbitemdynamicaction.h"
 #include "../navtree/dbtreeitem.h"
 #include "connectionpage.h"
 #include "connectivity/dbconnection.h"
@@ -206,11 +207,19 @@ void DbUiManager::addDataImporter()
 void DbUiManager::addDataImporter(const QString &schemaName, const QString &tableName)
 {
     DataImporter *dataImporter=new DataImporter(schemaName, tableName);
-    cnPage->addWindow(dataImporter, IconUtil::getIcon("import_data"), tr("Import data"));
+    addWindow(dataImporter, IconUtil::getIcon("import_data"), tr("Import data"));
+}
+
+void DbUiManager::addWindow(ConnectionPageObject *window, const QPixmap &icon, const QString &title)
+{
+    cnPage->addWindow(window, icon, title);
 }
 
 void DbUiManager::handleDynamicAction()
 {
+    DbItemDynamicAction *action = static_cast<DbItemDynamicAction*>(sender());
+    Q_ASSERT(action);
+    action->execute(this);
 }
 
 void DbUiManager::openFile()

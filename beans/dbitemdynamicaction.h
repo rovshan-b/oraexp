@@ -16,6 +16,8 @@ public:
                                  QObject *parent = 0);
 
     virtual ~DbItemDynamicAction();
+
+    void execute(DbUiManager *uiManager);
     
 };
 

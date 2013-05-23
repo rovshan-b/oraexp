@@ -13,11 +13,11 @@
 #include "usercontextmenuutil.h"
 
 #include "beans/dbitemdynamicaction.h"
-#include "util/dbutil.h"
 #include "util/filesystemutil.h"
 #include "util/iconutil.h"
 #include "util/widgethelper.h"
 #include "connection_page/dbuimanager.h"
+#include "navtree/dbtreemodel.h"
 #include <QFile>
 #include <QDomDocument>
 #include <QDebug>
@@ -108,8 +108,8 @@ QList<QAction *> ContextMenuUtil::getActionsForObjectFromConfiguration(const QSt
 {
     QList<QAction *> results;
 
-    QString objectTypeName = DbUtil::getDbObjectTypeNameByNodeType(itemType);
-    QString fileName = QString(":/context_menus/%1.xml").arg(objectTypeName.toLower());
+    QString nodeName = DbTreeModel::getDbTreeNodeName(itemType);
+    QString fileName = QString(":/context_menus/%1.xml").arg(nodeName);
 
     if(!QFile::exists(fileName)){
         return results;

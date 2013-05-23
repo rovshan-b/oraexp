@@ -9,6 +9,7 @@ ConnectionPageWindow::ConnectionPageWindow(QWidget *parent) :
     setWindowFlags(Qt::Window | Qt::WindowSystemMenuHint
                    | Qt::WindowMinMaxButtonsHint
                    | Qt::WindowCloseButtonHint);
+
 }
 
 ConnectionPageWindow::~ConnectionPageWindow()

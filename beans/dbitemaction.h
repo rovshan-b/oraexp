@@ -24,7 +24,7 @@ public:
 
     QHash<QString,QString> properties;
 
-private:
+protected:
     QString schemaName;
     QString objectName;
     DbTreeModel::DbTreeNodeType itemType;

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window caption="Drop table">
+    <widgets>
+        <widget caption="Schema" type="Label" value="prop:schemaName" />
+        <widget caption="Table" type="Label" value="prop:objectName" />
+        <widget caption="Cacade constraints" type="Label" value="Yes" />
+        <widget caption="Purge" type="Label" value="Yes" />
+    </widgets>
+</window>

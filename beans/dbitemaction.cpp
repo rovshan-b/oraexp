@@ -1,4 +1,5 @@
 #include "dbitemaction.h"
+#include <QMenu>
 
 DbItemAction::DbItemAction(const QIcon &icon, const QString &text,
                            const QString &schemaName,
@@ -19,5 +20,10 @@ DbItemAction::DbItemAction(const QIcon &icon, const QString &text,
 
 DbItemAction::~DbItemAction()
 {
+    QMenu *childMenu = menu();
+    if(childMenu){
+        qDeleteAll(childMenu->actions());
+        delete childMenu;
+    }
     qDebug("DbItemAction deleted");
 }

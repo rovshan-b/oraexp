@@ -1,3 +1,5 @@
 <RCC>
-    <qresource prefix="/"/>
+    <qresource prefix="/">
+        <file>dynamic_windows/drop_table.xml</file>
+    </qresource>
 </RCC>

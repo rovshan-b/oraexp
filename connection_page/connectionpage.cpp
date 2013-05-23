@@ -6,6 +6,7 @@
 #include  "dbuimanager.h"
 #include "util/iconutil.h"
 #include "util/settingshelper.h"
+#include "util/dialoghelper.h"
 #include "beans/ctrltabdata.h"
 #include <iostream>
 #include <QtGui>
@@ -138,7 +139,7 @@ void ConnectionPage::addWindow(ConnectionPageObject *window, const QPixmap &icon
     QWidget *widget = dynamic_cast<QWidget*>(window);
     Q_ASSERT(widget);
 
-    widget->setWindowIcon(icon);
+    widget->setWindowIcon(icon.isNull() ? IconUtil::getIcon("database") : icon);
     widget->setWindowTitle(title);
 
     widget->show();

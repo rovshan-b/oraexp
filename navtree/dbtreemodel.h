@@ -16,6 +16,7 @@ class IDbTreeItemCheckStateProvider;
 class DbTreeModel : public QAbstractItemModel
 {
     Q_OBJECT
+    Q_ENUMS(DbTreeNodeType)
 public:
 
     enum DbTreeNodeType
@@ -91,6 +92,8 @@ public:
         //    return DbTreeNodeTypes() <<
         //}
     };
+
+    static QString getDbTreeNodeName(DbTreeNodeType nodeType);
 
 
     explicit DbTreeModel(IQueryScheduler *m_queryScheduler, const QString &defaultSchemaName, QObject *parent = 0);

@@ -16,6 +16,8 @@
 #include "beans/objectgrantinfo.h"
 #include "beans/tableexternalinfo.h"
 
+#include "context_menu/handlers/windowloader.h"
+
 MetaTypesUtil::MetaTypesUtil()
 {
 }
@@ -43,4 +45,6 @@ void MetaTypesUtil::registerMetaTypes()
     qRegisterMetaType<TablePartitioningInfo>("TablePartitioningInfo");
     qRegisterMetaType<TableExternalInfo>("TableExternalInfo");
     qRegisterMetaType<DbTreeModel::DbTreeNodeType>("DbTreeModel::DbTreeNodeType");
+
+    qRegisterMetaType<WindowLoader>("WindowLoader");
 }

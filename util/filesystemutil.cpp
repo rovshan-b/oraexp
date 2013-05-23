@@ -82,6 +82,7 @@ QString FileSystemUtil::readAsString(const QString &filename, QString *errorMess
     }
 
     QTextStream in(&file);
+    in.setCodec("UTF-8");
     QString result = in.readAll();
     file.close();
 

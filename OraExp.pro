@@ -476,7 +476,10 @@ SOURCES += main.cpp\
     connection_page/connectionpagewizardpage.cpp \
     connection_page/connectionpagewindow.cpp \
     connection_page/dynamic_window/dynamicconnectionpagewindow.cpp \
-    beans/dbitemdynamicaction.cpp
+    beans/dbitemdynamicaction.cpp \
+    context_menu/handlers/windowloader.cpp \
+    context_menu/handlers/contextmenuhandler.cpp \
+    beans/dynamicwindowinfo.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -957,7 +960,10 @@ HEADERS  += mainwindow.h \
     connection_page/connectionpagewizardpage.h \
     connection_page/connectionpagewindow.h \
     connection_page/dynamic_window/dynamicconnectionpagewindow.h \
-    beans/dbitemdynamicaction.h
+    beans/dbitemdynamicaction.h \
+    context_menu/handlers/windowloader.h \
+    context_menu/handlers/contextmenuhandler.h \
+    beans/dynamicwindowinfo.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \
