@@ -154,8 +154,23 @@ void DbObjectViewerTabs::createToolbarButtons()
 
     if(actions.size()>0){
         foreach(QAction *action, actions){
-            toolbar->addAction(action);
-            action->setParent(toolbar);
+
+            if(action->menu()){ //convert action to QToolButton
+                QMenu *actionMenu = action->menu();
+                QToolButton *button = new QToolButton(toolbar);
+                button->setText(action->text());
+                button->setIcon(action->icon());
+                action->setMenu(0);
+                button->setMenu(actionMenu);
+                button->setPopupMode(QToolButton::InstantPopup);
+                actionMenu->setParent(this, Qt::Popup);
+                toolbar->addWidget(button);
+
+                delete action;
+            }else{
+                toolbar->addAction(action);
+                action->setParent(toolbar);
+            }
         }
         lastSeparatorBeforeProgressBar=toolbar->addSeparator();
     }

@@ -115,7 +115,10 @@ public:
 
     static void deleteViewModel(QAbstractItemView *view);
 
-    static QAction *createSeparatorAction();
+    static QAction *createSeparatorAction(QObject *parent = 0);
+
+    static void deleteMenu(QMenu *menu);
+    static void deleteActions(QList<QAction*> &actions);
 };
 
 #endif // WIDGETHELPER_H

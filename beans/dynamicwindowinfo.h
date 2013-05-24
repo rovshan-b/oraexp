@@ -11,6 +11,8 @@ public:
     DynamicWindowInfo();
 
     QString caption;
+    QString type;
+    QString scriptFileName;
 
     QList< QHash<QString,QString> > widgetInfos;
 };

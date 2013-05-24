@@ -28,6 +28,7 @@ void DbItemDynamicAction::execute(DbUiManager *uiManager)
 
     properties["schemaName"] = this->schemaName;
     properties["objectName"] = this->objectName;
+    properties["objectType"] = (int)this->itemType;
 
     void *handlerInstance = QMetaType::construct(handlerTypeId);
     ((ContextMenuHandler*)handlerInstance)->handle(uiManager, properties);

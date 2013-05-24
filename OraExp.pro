@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui xml
+QT       += core gui xml script
 
 TARGET = OraExp
 TEMPLATE = app
@@ -479,7 +479,8 @@ SOURCES += main.cpp\
     beans/dbitemdynamicaction.cpp \
     context_menu/handlers/windowloader.cpp \
     context_menu/handlers/contextmenuhandler.cpp \
-    beans/dynamicwindowinfo.cpp
+    beans/dynamicwindowinfo.cpp \
+    util/scriptrunner.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -963,7 +964,8 @@ HEADERS  += mainwindow.h \
     beans/dbitemdynamicaction.h \
     context_menu/handlers/windowloader.h \
     context_menu/handlers/contextmenuhandler.h \
-    beans/dynamicwindowinfo.h
+    beans/dynamicwindowinfo.h \
+    util/scriptrunner.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \
@@ -977,7 +979,8 @@ RESOURCES += \
     queries.qrc \
     misc.qrc \
     dynamic_windows.qrc \
-    context_menus.qrc
+    context_menus.qrc \
+    scripts.qrc
 
 #unix:INCLUDEPATH += /home/rovshan/Applications/instantclient_11_2/sdk/include
 

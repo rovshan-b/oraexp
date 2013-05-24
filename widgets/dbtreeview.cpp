@@ -1,6 +1,7 @@
 #include "dbtreeview.h"
 #include "navtree/dbtreeitem.h"
 #include "connectivity/dbconnection.h"
+#include "util/widgethelper.h"
 #include <QtGui>
 
 DbTreeView::DbTreeView(QWidget *parent) :
@@ -86,8 +87,7 @@ void DbTreeView::showContextMenu(const QPoint &pos)
         QMessageBox::critical(this, "Error while executing action", ex.what());
     }
 
-    qDeleteAll(nodeMenu->actions());
-    delete nodeMenu;
+    WidgetHelper::deleteMenu(nodeMenu);
 }
 
 void DbTreeView::checkAll(const QModelIndex &parent, bool check)

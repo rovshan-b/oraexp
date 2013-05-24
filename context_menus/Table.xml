@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <items>
     <item caption="Drop..." icon="delete" handler="WindowLoader" windowName="drop_table" />
+    <item caption="Generate DML">
+        <item caption="Insert..." handler="WindowLoader" windowName="drop_table" />
+    </item>
 </items>

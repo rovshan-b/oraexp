@@ -106,13 +106,11 @@ QList<QAction *> ContextMenuUtil::getActionsForObjectFromConfiguration(const QSt
                                                                        const DbTreeModel::DbTreeNodeType itemType,
                                                                        DbUiManager *uiManager)
 {
-    QList<QAction *> results;
-
     QString nodeName = DbTreeModel::getDbTreeNodeName(itemType);
     QString fileName = QString(":/context_menus/%1.xml").arg(nodeName);
 
     if(!QFile::exists(fileName)){
-        return results;
+        return QList<QAction *>();
     }
 
     QString errorMessage;
@@ -123,16 +121,27 @@ QList<QAction *> ContextMenuUtil::getActionsForObjectFromConfiguration(const QSt
     QDomDocument doc;
     if (!doc.setContent(fileContents)) {
         Q_ASSERT(false);
-        return results;
+        return QList<QAction *>();
     }
 
     QDomElement docElem = doc.documentElement();
 
-    QDomNode n = docElem.firstChild();
+    return ContextMenuUtil::actionsFromElement(docElem, schemaName, objectName, itemType, uiManager, 0);
+}
+
+QList<QAction *> ContextMenuUtil::actionsFromElement(const QDomElement &element,
+                                                     const QString &schemaName,
+                                                     const QString &objectName,
+                                                     const DbTreeModel::DbTreeNodeType itemType,
+                                                     DbUiManager *uiManager, QObject *parent)
+{
+    QList<QAction *> results;
+
+    QDomNode n = element.firstChild();
     while(!n.isNull()) {
         QDomElement e = n.toElement();
         if(!e.isNull() && e.tagName() == "item") {
-            results.append(ContextMenuUtil::actionFromElement(e, schemaName, objectName, itemType, uiManager));
+            results.append(ContextMenuUtil::actionFromElement(e, schemaName, objectName, itemType, uiManager, parent));
         }
         n = n.nextSibling();
     }
@@ -144,23 +153,33 @@ QAction *ContextMenuUtil::actionFromElement(const QDomElement &e,
                                             const QString &schemaName,
                                             const QString &objectName,
                                             const DbTreeModel::DbTreeNodeType itemType,
-                                            DbUiManager *uiManager)
+                                            DbUiManager *uiManager, QObject *parent)
 {
     QString caption = e.attribute("caption");
 
-    if(caption == "-"){
-        return WidgetHelper::createSeparatorAction();
-    }else{
-        DbItemDynamicAction *action = new DbItemDynamicAction(IconUtil::getIcon(e.attribute("icon")),
-                                                              caption, schemaName, objectName,
-                                                              itemType, uiManager, SLOT(handleDynamicAction()));
-        QDomNamedNodeMap attributes = e.attributes();
-        for(int i=0; i<attributes.size(); ++i){
-            QDomAttr attribute = attributes.item(i).toAttr();
-            action->properties[QString("attribute.%1").arg(attribute.name())] = attribute.value();
-        }
-
+    if(e.hasChildNodes()){
+        QAction *action = new QAction(caption, parent);
+        QMenu *actionMenu = new QMenu(caption);
+        actionMenu->addActions(ContextMenuUtil::actionsFromElement(e, schemaName, objectName, itemType, uiManager, actionMenu));
+        action->setMenu(actionMenu);
         return action;
+    }else{
+
+        if(caption == "-"){
+            return WidgetHelper::createSeparatorAction(parent);
+        }else{
+            DbItemDynamicAction *action = new DbItemDynamicAction(IconUtil::getIcon(e.attribute("icon")),
+                                                                  caption, schemaName, objectName,
+                                                                  itemType, uiManager, SLOT(handleDynamicAction()),
+                                                                  parent);
+            QDomNamedNodeMap attributes = e.attributes();
+            for(int i=0; i<attributes.size(); ++i){
+                QDomAttr attribute = attributes.item(i).toAttr();
+                action->properties[QString("attribute.%1").arg(attribute.name())] = attribute.value();
+            }
+
+            return action;
+        }
     }
 
 }

@@ -1,6 +1,8 @@
 #include "windowloader.h"
 #include "connection_page/dynamic_window/dynamicconnectionpagewindow.h"
 #include "util/filesystemutil.h"
+#include "util/iconutil.h"
+#include "util/dbutil.h"
 #include <QDomDocument>
 
 WindowLoader::WindowLoader() :
@@ -11,7 +13,9 @@ WindowLoader::WindowLoader() :
 void WindowLoader::handle(DbUiManager *uiManager, const QHash<QString, QString> &properties)
 {
     DynamicConnectionPageWindow *window = createDynamicWindow(properties);
-    uiManager->addWindow(window, QPixmap(), window->getWindowInfo()->caption);
+    QString itemType = properties.value("objectType");
+    QPixmap windowIcon = itemType.isEmpty() ? QPixmap() : IconUtil::getIcon(DbUtil::getDbObjectIconNameByParentNodeType((DbTreeModel::DbTreeNodeType)itemType.toInt()));
+    uiManager->addWindow(window, windowIcon, window->getWindowInfo()->caption);
 }
 
 DynamicConnectionPageWindow *WindowLoader::createDynamicWindow(const QHash<QString, QString> &properties)
@@ -47,6 +51,8 @@ DynamicWindowInfo WindowLoader::readWindowInfo(const QString windowName)
     QDomElement docElem = doc.documentElement();
 
     info.caption = docElem.attribute("caption");
+    info.type = docElem.attribute("type");
+    info.scriptFileName = docElem.attribute("scriptFileName");
 
     QDomNode n = docElem.firstChild();
     while(!n.isNull()) {

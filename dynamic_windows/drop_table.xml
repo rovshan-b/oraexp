@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<window caption="Drop table">
+<window caption="Drop table" type="script" scriptFileName="generate_drop_table">
     <widgets>
-        <widget caption="Schema" type="Label" value="prop:schemaName" />
-        <widget caption="Table" type="Label" value="prop:objectName" />
-        <widget caption="Cacade constraints" type="Label" value="Yes" />
-        <widget caption="Purge" type="Label" value="Yes" />
+        <widget name="schemaNameLabel" caption="Schema" type="Label" value="prop:schemaName" />
+        <widget name="tableNameLabel" caption="Table" type="Label" value="prop:objectName" />
+        <widget name="cascadeConstraintsCheckBox" caption="Cascade constraints" type="CheckBox" value="false" />
+        <widget name="purgeCheckBox" caption="Purge" type="CheckBox" value="false" />
     </widgets>
 </window>

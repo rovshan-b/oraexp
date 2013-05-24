@@ -141,5 +141,7 @@
         <file>images/commit.png</file>
         <file>images/rollback.png</file>
         <file>images/import_data.png</file>
+        <file>images/form.png</file>
+        <file>images/query.png</file>
     </qresource>
 </RCC>

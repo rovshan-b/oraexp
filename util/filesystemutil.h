@@ -7,6 +7,7 @@
 
 class QTextStream;
 class QFile;
+class DbConnection;
 
 class FileSystemUtil
 {
@@ -29,6 +30,14 @@ public:
     static bool tryRead(const QString &filename, QString *errorMessage);
 
     static QString readAsString(const QString &filename, QString *errorMessage);
+
+    static QString readTextResource(const QString &prefix, const QString &name, const QString &suffix,
+                                    DbConnection *db);
+
+private:
+    static QString getResourceFromFile(const QString &prefix, const QString &name, const QString &suffix, DbConnection *db, QStringList &replacedIncludes);
+    static QString getFileNameForResource(const QString &prefix, const QString &name, const QString &suffix, DbConnection *db);
+    static void replacePlaceholders(const QString &prefix, const QString &suffix, QString &queryText, DbConnection *db, QStringList &replacedIncludes);
 };
 
 #endif // FILESYSTEMUTIL_H

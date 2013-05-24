@@ -1,5 +1,9 @@
 #include "dynamicconnectionpagewindow.h"
+#include "codeeditor/codeeditor.h"
+#include "widgets/subtabwidget.h"
 #include "util/dialoghelper.h"
+#include "util/iconutil.h"
+#include "util/filesystemutil.h"
 #include <QtGui>
 
 DynamicConnectionPageWindow::DynamicConnectionPageWindow(QWidget *parent) :
@@ -11,18 +15,50 @@ void DynamicConnectionPageWindow::createUi()
 {
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
+    QLabel *captionLabel = new QLabel(QString("<h3>%1</h3>").arg(windowInfo.caption));
+    mainLayout->addWidget(captionLabel);
+
+    QTabWidget *tab = new SubTabWidget();
+    tab->setDocumentMode(false);
+
+    QWidget *formWidget = new QWidget();
     QFormLayout *form = new QFormLayout();
     createForm(form);
-    mainLayout->addLayout(form);
-    //mainLayout->setAlignment(form, Qt::AlignHCenter);
+    formWidget->setLayout(form);
+
+    tab->addTab(formWidget, IconUtil::getIcon("form"), tr("Options"));
+
+    editor = new CodeEditor();
+    editor->setWordWrapMode(QTextOption::WordWrap);
+    tab->addTab(editor, IconUtil::getIcon("query"), tr("Query"));
+
+    mainLayout->addWidget(tab);
+
 
     QDialogButtonBox *buttonBox=DialogHelper::createButtonBox(this);
     mainLayout->addWidget(buttonBox);
 
     setLayout(mainLayout);
 
-    resize(sizeHint());
+    QSize size = sizeHint();
+    if(size.width() < 350){
+        size.setWidth(350);
+    }
+    resize(size);
     DialogHelper::centerWindow(this);
+}
+
+void DynamicConnectionPageWindow::setConnection(DbConnection *db)
+{
+    ConnectionPageWindow::setConnection(db);
+
+    QString prefix = ":/scripts/";
+    QString script = FileSystemUtil::readTextResource(prefix, windowInfo.scriptFileName, "js", db);
+    if(scriptRunner.checkSyntax(script)){
+        scriptRunner.evaluate(script, windowInfo.scriptFileName);
+        registerScriptVariables();
+        updateQueryPane();
+    }
 }
 
 void DynamicConnectionPageWindow::createForm(QFormLayout *form)
@@ -72,10 +108,20 @@ QWidget *DynamicConnectionPageWindow::createDynamicWidget(WidgetType widgetType,
         widget = label;
         break;
     }
-    default:
-        Q_ASSERT(false);
+    case CheckBox:
+    {
+        QCheckBox *checkBox = new QCheckBox();
+        checkBox->setChecked(value == "true");
+        widget = checkBox;
         break;
     }
+    default:
+        Q_ASSERT(false);
+        return 0;
+        break;
+    }
+
+    widget->setObjectName(attributes.value("name"));
 
     return widget;
 }
@@ -87,4 +133,13 @@ QString DynamicConnectionPageWindow::getValue(const QString &attrValue) const
     }else{
         return attrValue;
     }
+}
+
+void DynamicConnectionPageWindow::registerScriptVariables()
+{
+}
+
+void DynamicConnectionPageWindow::updateQueryPane()
+{
+    editor->setPlainText(scriptRunner.callFunction("getScript").toString());
 }
