@@ -10,7 +10,7 @@ WindowLoader::WindowLoader() :
 {
 }
 
-void WindowLoader::handle(DbUiManager *uiManager, const QHash<QString, QString> &properties)
+void WindowLoader::handle(const QHash<QString, QString> &properties)
 {
     DynamicConnectionPageWindow *window = createDynamicWindow(properties);
     QString itemType = properties.value("objectType");
@@ -25,7 +25,7 @@ DynamicConnectionPageWindow *WindowLoader::createDynamicWindow(const QHash<QStri
 
     DynamicWindowInfo windowInfo = readWindowInfo(windowName);
 
-    DynamicConnectionPageWindow *window = new DynamicConnectionPageWindow();
+    DynamicConnectionPageWindow *window = new DynamicConnectionPageWindow(this->uiManager);
     window->setWindowInfo(windowInfo);
     window->setActionProperties(properties);
 

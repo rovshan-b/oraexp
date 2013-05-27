@@ -17,6 +17,7 @@
 #include "beans/tableexternalinfo.h"
 
 #include "context_menu/handlers/windowloader.h"
+#include "context_menu/handlers/uimanagerinvoker.h"
 
 MetaTypesUtil::MetaTypesUtil()
 {
@@ -47,4 +48,5 @@ void MetaTypesUtil::registerMetaTypes()
     qRegisterMetaType<DbTreeModel::DbTreeNodeType>("DbTreeModel::DbTreeNodeType");
 
     qRegisterMetaType<WindowLoader>("WindowLoader");
+    qRegisterMetaType<UiManagerInvoker>("UiManagerInvoker");
 }

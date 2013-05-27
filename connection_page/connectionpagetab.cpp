@@ -7,7 +7,7 @@
 using namespace std;
 
 ConnectionPageTab::ConnectionPageTab(DbUiManager *uiManager, QWidget *parent) :
-    QWidget(parent), uiManager(uiManager)
+    QWidget(parent), ConnectionPageObject(uiManager)
 {
 }
 

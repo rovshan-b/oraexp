@@ -21,6 +21,7 @@ public:
     explicit DataImporter(
             const QString &schemaName,
             const QString &tableName,
+            DbUiManager *uiManager,
             QWidget *parent = 0);
 
     virtual void createUi();

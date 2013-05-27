@@ -155,8 +155,7 @@ void ConnectionPage::asyncConnectionReady(DbConnection *db, void *data, bool err
         delete db;
         QMessageBox::critical(this->window(), tr("Error while connecting to database"), ex.getErrorMessage());
         //tab->decreaseRefCount();
-    }
-    else{
+    }else{
         ConnectionPageObject *obj = (ConnectionPageObject*)data;
         QWidget *widget = dynamic_cast<QWidget*>(obj);
 

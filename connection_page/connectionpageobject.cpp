@@ -1,8 +1,12 @@
 #include "connectionpageobject.h"
 #include "connectivity/dbconnection.h"
 
-ConnectionPageObject::ConnectionPageObject() :
-    db(0), requiresSeparateConnection(false), busy(false), activeQueryCount(0)
+ConnectionPageObject::ConnectionPageObject(DbUiManager *uiManager) :
+    uiManager(uiManager),
+    db(0),
+    requiresSeparateConnection(false),
+    busy(false),
+    activeQueryCount(0)
 {
 }
 

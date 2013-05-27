@@ -1,8 +1,8 @@
 #include "connectionpagewindow.h"
 #include <QtGui>
 
-ConnectionPageWindow::ConnectionPageWindow(QWidget *parent) :
-    QDialog(parent)
+ConnectionPageWindow::ConnectionPageWindow(DbUiManager *uiManager, QWidget *parent) :
+    QDialog(parent), ConnectionPageObject(uiManager), inProgress(false)
 {
     setAttribute(Qt::WA_DeleteOnClose);
 
@@ -48,5 +48,16 @@ void ConnectionPageWindow::closeEvent(QCloseEvent *e)
 
 bool ConnectionPageWindow::canClose()
 {
-    return true;
+    if(inProgress){
+        QMessageBox::information(this, tr("Window busy"),
+                                 tr("Cannot close window when it is busy."));
+        return false;
+    }else{
+        return true;
+    }
+}
+
+void ConnectionPageWindow::setInProgress(bool inProgress)
+{
+    this->inProgress = inProgress;
 }

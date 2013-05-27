@@ -6,7 +6,6 @@
 #include "connectionpageobject.h"
 
 class QLabel;
-class DbUiManager;
 
 class ConnectionPageTab : public QWidget, public ConnectionPageObject
 {
@@ -52,8 +51,6 @@ public slots:
     void saveContentsAs();
 
 protected:
-    DbUiManager *uiManager;
-
     QHash<QString,QString> properties;
 
     //returns all tabs of same type on same connection

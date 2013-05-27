@@ -1,7 +1,7 @@
 #include "scriptrunner.h"
 #include <QMessageBox>
 
-ScriptRunner::ScriptRunner() : isNull(true)
+ScriptRunner::ScriptRunner()
 {
 }
 
@@ -21,40 +21,38 @@ bool ScriptRunner::checkSyntax(const QString &program)
 
 void ScriptRunner::setProperty(const QString &name, QObject *value)
 {
-    Q_ASSERT(!isNull);
-
     QScriptValue obj = engine.newQObject(value);
     engine.globalObject().setProperty(name, obj);
 }
 
 QScriptValue ScriptRunner::evaluate(const QString &program, const QString &fileName)
 {
-    this->isNull = false;
-
     QScriptValue result = engine.evaluate(program, fileName);
-    if(engine.hasUncaughtException()){
-        QMessageBox::critical(0, tr("Script error occured"),
-                              engine.uncaughtException().toString());
-    }
+    checkForError();
     return result;
 }
 
 QScriptValue ScriptRunner::callFunction(const QString &functionName, const QScriptValueList &args)
 {
-    Q_ASSERT(!isNull);
-
     QScriptValue function = engine.globalObject().property(functionName);
 
     if(function.isError()){
-        QMessageBox::critical(0, tr("Script error occured"),
-                              engine.uncaughtException().toString());
+        checkForError();
         return function;
     }
 
     QScriptValue result = function.call(QScriptValue(), args);
+    checkForError();
+    return result;
+}
+
+bool ScriptRunner::checkForError()
+{
     if(engine.hasUncaughtException()){
         QMessageBox::critical(0, tr("Script error occured"),
                               engine.uncaughtException().toString());
+        return true;
+    }else{
+        return false;
     }
-    return result;
 }

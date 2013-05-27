@@ -3,10 +3,12 @@
 
 #include "../connectionpagewindow.h"
 #include "beans/dynamicwindowinfo.h"
-#include "util/scriptrunner.h"
+#include "scripting/scriptrunner.h"
+#include "connectivity/queryresult.h"
 
 class QFormLayout;
 class CodeEditor;
+class QDialogButtonBox;
 
 class DynamicConnectionPageWindow : public ConnectionPageWindow
 {
@@ -19,7 +21,7 @@ public:
         CheckBox
     };
 
-    explicit DynamicConnectionPageWindow(QWidget *parent = 0);
+    explicit DynamicConnectionPageWindow(DbUiManager *uiManager, QWidget *parent = 0);
 
     virtual void createUi();
 
@@ -29,12 +31,23 @@ public:
     DynamicWindowInfo *getWindowInfo();
 
     void setActionProperties(const QHash<QString, QString> &properties);
+
+private slots:
+    void tabIndexChanged(int index);
+
+    void queryCompleted(const QueryResult &result);
+
+protected:
+    virtual void setInProgress(bool inProgress);
+    virtual void accept();
     
 private:
     DynamicWindowInfo windowInfo;
     QHash<QString, QString> actionProperties;
 
+    QWidget *formWidget;
     CodeEditor *editor;
+    QDialogButtonBox *buttonBox;
 
     void createForm(QFormLayout *form);
     QWidget *createDynamicWidget(WidgetType widgetType, const QHash<QString,QString> &attributes) const;

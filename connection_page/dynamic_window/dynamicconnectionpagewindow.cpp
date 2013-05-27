@@ -4,10 +4,11 @@
 #include "util/dialoghelper.h"
 #include "util/iconutil.h"
 #include "util/filesystemutil.h"
+#include "connectivity/statement.h"
 #include <QtGui>
 
-DynamicConnectionPageWindow::DynamicConnectionPageWindow(QWidget *parent) :
-    ConnectionPageWindow(parent)
+DynamicConnectionPageWindow::DynamicConnectionPageWindow(DbUiManager *uiManager, QWidget *parent) :
+    ConnectionPageWindow(uiManager, parent)
 {
 }
 
@@ -21,7 +22,7 @@ void DynamicConnectionPageWindow::createUi()
     QTabWidget *tab = new SubTabWidget();
     tab->setDocumentMode(false);
 
-    QWidget *formWidget = new QWidget();
+    formWidget = new QWidget();
     QFormLayout *form = new QFormLayout();
     createForm(form);
     formWidget->setLayout(form);
@@ -35,10 +36,12 @@ void DynamicConnectionPageWindow::createUi()
     mainLayout->addWidget(tab);
 
 
-    QDialogButtonBox *buttonBox=DialogHelper::createButtonBox(this);
+    buttonBox=DialogHelper::createButtonBox(this);
     mainLayout->addWidget(buttonBox);
 
     setLayout(mainLayout);
+
+    connect(tab, SIGNAL(currentChanged(int)), this, SLOT(tabIndexChanged(int)));
 
     QSize size = sizeHint();
     if(size.width() < 350){
@@ -59,6 +62,8 @@ void DynamicConnectionPageWindow::setConnection(DbConnection *db)
         registerScriptVariables();
         updateQueryPane();
     }
+
+    emitInitCompletedSignal();
 }
 
 void DynamicConnectionPageWindow::createForm(QFormLayout *form)
@@ -73,8 +78,9 @@ void DynamicConnectionPageWindow::createForm(QFormLayout *form)
         QHash<QString,QString> attributes = widgetInfos.at(i);
         int widgetType = metaEnum.keyToValue(attributes["type"].toStdString().c_str());
         Q_ASSERT(widgetType != -1);
-        form->addRow(attributes.value("caption"),
-                     createDynamicWidget((WidgetType) widgetType, attributes));
+        QWidget *dynamicWidget = createDynamicWidget((WidgetType) widgetType, attributes);
+        form->addRow(attributes.value("caption"), dynamicWidget);
+        scriptRunner.setProperty(dynamicWidget->objectName(), dynamicWidget);
     }
 }
 
@@ -91,6 +97,48 @@ DynamicWindowInfo *DynamicConnectionPageWindow::getWindowInfo()
 void DynamicConnectionPageWindow::setActionProperties(const QHash<QString, QString> &properties)
 {
     this->actionProperties = properties;
+}
+
+void DynamicConnectionPageWindow::tabIndexChanged(int index)
+{
+    if(index == 1){ //Query tab
+        updateQueryPane();
+    }
+}
+
+void DynamicConnectionPageWindow::queryCompleted(const QueryResult &result)
+{
+    delete result.statement;
+
+    setInProgress(false);
+
+    if(result.hasError){
+        QMessageBox::critical(this, tr("Error executing query"),
+                              result.exception.getErrorMessage());
+    }else{
+        QDialog::accept();
+    }
+}
+
+void DynamicConnectionPageWindow::setInProgress(bool inProgress)
+{
+    ConnectionPageWindow::setInProgress(inProgress);
+
+    formWidget->setEnabled(!inProgress);
+    buttonBox->setEnabled(false);
+}
+
+void DynamicConnectionPageWindow::accept()
+{
+    setInProgress(true);
+
+    updateQueryPane();
+
+    this->enqueueQuery(QString("$%1").arg(editor->toPlainText()),
+                       QList<Param*>(),
+                       this,
+                       "execute_dynamic_query",
+                       "queryCompleted");
 }
 
 QWidget *DynamicConnectionPageWindow::createDynamicWidget(WidgetType widgetType, const QHash<QString, QString> &attributes) const
@@ -121,7 +169,8 @@ QWidget *DynamicConnectionPageWindow::createDynamicWidget(WidgetType widgetType,
         break;
     }
 
-    widget->setObjectName(attributes.value("name"));
+    QString widgetName = attributes.value("name");
+    widget->setObjectName(widgetName);
 
     return widget;
 }

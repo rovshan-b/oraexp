@@ -13,7 +13,7 @@ public:
     explicit WindowLoader();
     virtual ~WindowLoader(){}
     
-    virtual void handle(DbUiManager *uiManager, const QHash<QString,QString> &properties);
+    virtual void handle(const QHash<QString,QString> &properties);
 
 private:
     DynamicConnectionPageWindow *createDynamicWindow(const QHash<QString,QString> &properties);

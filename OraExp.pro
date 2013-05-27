@@ -480,7 +480,10 @@ SOURCES += main.cpp\
     context_menu/handlers/windowloader.cpp \
     context_menu/handlers/contextmenuhandler.cpp \
     beans/dynamicwindowinfo.cpp \
-    util/scriptrunner.cpp
+    scripting/scriptrunner.cpp \
+    dialogs/dmlgeneratordialog.cpp \
+    util/metaobjecthelper.cpp \
+    context_menu/handlers/uimanagerinvoker.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -965,7 +968,10 @@ HEADERS  += mainwindow.h \
     context_menu/handlers/windowloader.h \
     context_menu/handlers/contextmenuhandler.h \
     beans/dynamicwindowinfo.h \
-    util/scriptrunner.h
+    scripting/scriptrunner.h \
+    dialogs/dmlgeneratordialog.h \
+    util/metaobjecthelper.h \
+    context_menu/handlers/uimanagerinvoker.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

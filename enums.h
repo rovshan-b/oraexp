@@ -108,6 +108,13 @@ namespace OraExp
         CSTIntervalDs,
         CSTUnknown
     };
+
+    enum DmlType{
+        DmlTypeSelect,
+        DmlTypeInsert,
+        DmlTypeUpdate,
+        DmlTypeDelete
+    };
 }
 
 #endif // ENUMS_H

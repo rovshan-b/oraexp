@@ -2,8 +2,8 @@
 #include "connectionpagewizardpage.h"
 #include <QtGui>
 
-ConnectionPageWizard::ConnectionPageWizard(QWidget *parent) :
-    QWizard(parent)
+ConnectionPageWizard::ConnectionPageWizard(DbUiManager *uiManager, QWidget *parent) :
+    QWizard(parent), ConnectionPageObject(uiManager)
 {
     setAttribute(Qt::WA_DeleteOnClose);
 

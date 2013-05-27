@@ -11,8 +11,8 @@
 #include "util/dialoghelper.h"
 #include <QtGui>
 
-DataImporter::DataImporter(const QString &schemaName, const QString &tableName, QWidget *parent) :
-    ConnectionPageWizard(parent),
+DataImporter::DataImporter(const QString &schemaName, const QString &tableName, DbUiManager *uiManager, QWidget *parent) :
+    ConnectionPageWizard(uiManager, parent),
     schemaName(schemaName),
     tableName(tableName)
 {

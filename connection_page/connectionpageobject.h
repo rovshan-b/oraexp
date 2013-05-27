@@ -3,12 +3,13 @@
 
 #include "util/queryscheduler.h"
 
+class DbUiManager;
 class DbConnection;
 
 class ConnectionPageObject : public QueryScheduler
 {
 public:
-    ConnectionPageObject();
+    ConnectionPageObject(DbUiManager *uiManager);
     virtual ~ConnectionPageObject();
 
     //this function can be used to create user interface if tab wants
@@ -25,6 +26,7 @@ public:
     bool isBusy() const;
 
 protected:
+    DbUiManager *uiManager;
     DbConnection *db;
     bool requiresSeparateConnection;
     bool busy;

@@ -18,7 +18,8 @@ public:
 
 private:
     QScriptEngine engine;
-    bool isNull;
+
+    bool checkForError();
 };
 
 #endif // SCRIPTRUNNER_H

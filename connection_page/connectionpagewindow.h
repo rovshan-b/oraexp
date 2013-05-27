@@ -8,7 +8,7 @@ class ConnectionPageWindow : public QDialog, public ConnectionPageObject
 {
     Q_OBJECT
 public:
-    explicit ConnectionPageWindow(QWidget *parent = 0);
+    explicit ConnectionPageWindow(DbUiManager *uiManager, QWidget *parent = 0);
     ~ConnectionPageWindow();
 
     virtual QObject *getQueryEndMonitor() {return this;}
@@ -27,6 +27,11 @@ public slots:
 protected:
     virtual void closeEvent(QCloseEvent *e);
     virtual bool canClose();
+
+    virtual void setInProgress(bool inProgress);
+
+private:
+    bool inProgress;
     
 };
 

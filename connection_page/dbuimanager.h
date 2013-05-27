@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "../navtree/dbtreemodel.h"
+#include "enums.h"
 
 class DbConnection;
 class ConnectionPage;
@@ -43,6 +44,8 @@ public slots:
     void setProperties(ConnectionPageTab *tab);
     void addDataImporter();
     void addDataImporter(const QString &schemaName, const QString &tableName);
+
+    void addDmlGenerator(const QString &schemaName, const QString &tableName, int dmlType /*OraExp::DmlType*/);
 
     void addWindow(ConnectionPageObject *window, const QPixmap &icon, const QString &title);
     void handleDynamicAction();

@@ -31,6 +31,10 @@ void DbItemDynamicAction::execute(DbUiManager *uiManager)
     properties["objectType"] = (int)this->itemType;
 
     void *handlerInstance = QMetaType::construct(handlerTypeId);
-    ((ContextMenuHandler*)handlerInstance)->handle(uiManager, properties);
+
+    ContextMenuHandler* contextMenuHandler = static_cast<ContextMenuHandler*>(handlerInstance);
+    contextMenuHandler->setUiManager(uiManager);
+    contextMenuHandler->handle(properties);
+
     QMetaType::destroy(handlerTypeId, handlerInstance);
 }

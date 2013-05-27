@@ -8,7 +8,7 @@ class ConnectionPageWizard : public QWizard, public ConnectionPageObject
 {
     Q_OBJECT
 public:
-    explicit ConnectionPageWizard(QWidget *parent = 0);
+    explicit ConnectionPageWizard(DbUiManager *uiManager, QWidget *parent = 0);
     virtual ~ConnectionPageWizard();
     
     virtual QObject *getQueryEndMonitor() {return this;}

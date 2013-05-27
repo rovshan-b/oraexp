@@ -11,6 +11,11 @@ DataImporterReadyPage::DataImporterReadyPage(QWidget *parent) :
 
     QFormLayout *mainLayout = new QFormLayout();
 
+    fileNameLabel = new QLabel();
+    fileNameLabel->setWordWrap(true);
+    fileNameLabel->setTextInteractionFlags(Qt::TextSelectableByMouse|Qt::TextSelectableByKeyboard);
+    mainLayout->addRow(tr("Filename"), fileNameLabel);
+
     schemaNameLabel = new QLabel();
     schemaNameLabel->setTextInteractionFlags(Qt::TextSelectableByMouse|Qt::TextSelectableByKeyboard);
     mainLayout->addRow(tr("Schema"), schemaNameLabel);
@@ -18,11 +23,6 @@ DataImporterReadyPage::DataImporterReadyPage(QWidget *parent) :
     tableNameLabel = new QLabel();
     tableNameLabel->setTextInteractionFlags(Qt::TextSelectableByMouse|Qt::TextSelectableByKeyboard);
     mainLayout->addRow(tr("Table"), tableNameLabel);
-
-    fileNameLabel = new QLabel();
-    fileNameLabel->setWordWrap(true);
-    fileNameLabel->setTextInteractionFlags(Qt::TextSelectableByMouse|Qt::TextSelectableByKeyboard);
-    mainLayout->addRow(tr("Filename"), fileNameLabel);
 
     beforeImportQueryLabel = new QLabel();
     beforeImportQueryLabel->setWordWrap(true);

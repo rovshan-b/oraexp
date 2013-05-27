@@ -18,6 +18,7 @@
 #include "data_copier/datacopier.h"
 #include "data_exporter/dataexporter.h"
 #include "data_importer/dataimporter.h"
+#include "dialogs/dmlgeneratordialog.h"
 #include "editorcreatorutil.h"
 #include <QtGui>
 
@@ -206,8 +207,14 @@ void DbUiManager::addDataImporter()
 
 void DbUiManager::addDataImporter(const QString &schemaName, const QString &tableName)
 {
-    DataImporter *dataImporter=new DataImporter(schemaName, tableName);
+    DataImporter *dataImporter=new DataImporter(schemaName, tableName, this);
     addWindow(dataImporter, IconUtil::getIcon("import_data"), tr("Import data"));
+}
+
+void DbUiManager::addDmlGenerator(const QString &schemaName, const QString &tableName, int dmlType /*OraExp::DmlType*/)
+{
+    DmlGeneratorDialog *dmlGenerator = new DmlGeneratorDialog(this, schemaName, tableName, (OraExp::DmlType)dmlType);
+    addWindow(dmlGenerator, IconUtil::getIcon("query"), tr("Generate DML"));
 }
 
 void DbUiManager::addWindow(ConnectionPageObject *window, const QPixmap &icon, const QString &title)

@@ -15,22 +15,22 @@ DataImporterFirstPage::DataImporterFirstPage(const QString &schemaName, const QS
 
     QFormLayout *form = new QFormLayout();
 
+    fileSelector = new FileSelectorWidget(FileSelectorWidget::Open);
+    form->addRow(tr("Filename"), fileSelector);
+
     schemaList = new DbItemListComboBox(schemaName, "user", true, false);
     form->addRow(tr("Schema"), schemaList);
 
     tableList = new DbItemListComboBox(tableName, "table", true, false);
     form->addRow(tr("Table"), tableList);
 
-    fileSelector = new FileSelectorWidget(FileSelectorWidget::Open);
-    form->addRow(tr("Filename"), fileSelector);
-
     mainLayout->addLayout(form);
 
     setLayout(mainLayout);
 
+    registerField("fileName", fileSelector->lineEdit());
     registerField("schemaName", schemaList->lineEdit());
     registerField("tableName", tableList->lineEdit());
-    registerField("fileName", fileSelector->lineEdit());
 
     connect(schemaList->lineEdit(), SIGNAL(editingFinished()), this, SLOT(loadTableList()));
 }
