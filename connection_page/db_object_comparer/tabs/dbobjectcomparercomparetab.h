@@ -77,8 +77,8 @@ protected:
 
     DbTreeViewPanel *schemaObjectsPanel;
 
-    QPushButton *btnSelectAll;
-    QPushButton *btnSelectNone;
+    //QPushButton *btnSelectAll;
+    //QPushButton *btnSelectNone;
 
     void createConnectionOptionsPane(QBoxLayout *layout);
     //virtual void addModuleSpecificControls(QFormLayout *layout) {Q_UNUSED(layout);}

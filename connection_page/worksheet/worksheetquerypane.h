@@ -36,6 +36,8 @@ public:
     void setContents(const QString &contents);
     QString getContents() const;
 
+    void insertText(const QString &text);
+
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
     void showSearchWidget();

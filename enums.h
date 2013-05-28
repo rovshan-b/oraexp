@@ -115,6 +115,12 @@ namespace OraExp
         DmlTypeUpdate,
         DmlTypeDelete
     };
+
+    enum BindVarStyle{
+        BindVarStyleNamed,
+        BindVarStylePositioned,
+        BindVarStyleQuestionMark
+    };
 }
 
 #endif // ENUMS_H

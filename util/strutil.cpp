@@ -268,11 +268,11 @@ QString md5(const QString &str)
     return hash.result().toHex();
 }
 
-QString addNumericSuffix(const QString &str, const QStringList &excludeList)
+QString addNumericSuffix(const QString &str, const QStringList &excludeList, int startSuffix)
 {
     QString result;
 
-    int suffix=1;
+    int suffix=startSuffix;
 
     do{
         QString check=QString("%1_%2").arg(str).arg(++suffix);
@@ -432,4 +432,23 @@ QString dateFormatForLocale(const QString &dateFormat, const QStringList &dates)
     }
 
     return dateFormat;
+}
+
+QString formatBindVarName(const QString &varName, int position, OraExp::BindVarStyle bindStyle)
+{
+    QString result;
+
+    switch(bindStyle){
+    case OraExp::BindVarStyleNamed:
+        result = QString(":%1").arg(varName);
+        break;
+    case OraExp::BindVarStylePositioned:
+        result = QString(":%1").arg(position);
+        break;
+    case OraExp::BindVarStyleQuestionMark:
+        result = "?";
+        break;
+    }
+
+    return result;
 }

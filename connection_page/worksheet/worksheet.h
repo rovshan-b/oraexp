@@ -18,6 +18,8 @@ public:
     void setContents(const QString &contents);
     QString getContents() const;
 
+    void insertText(const QString &text);
+
     virtual bool canSave() const {return true;}
     virtual bool canPrint() const {return true;}
 

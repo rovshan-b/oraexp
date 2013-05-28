@@ -483,7 +483,8 @@ SOURCES += main.cpp\
     scripting/scriptrunner.cpp \
     dialogs/dmlgeneratordialog.cpp \
     util/metaobjecthelper.cpp \
-    context_menu/handlers/uimanagerinvoker.cpp
+    context_menu/handlers/uimanagerinvoker.cpp \
+    widgets/checkedlistboxwidget.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -971,7 +972,8 @@ HEADERS  += mainwindow.h \
     scripting/scriptrunner.h \
     dialogs/dmlgeneratordialog.h \
     util/metaobjecthelper.h \
-    context_menu/handlers/uimanagerinvoker.h
+    context_menu/handlers/uimanagerinvoker.h \
+    widgets/checkedlistboxwidget.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

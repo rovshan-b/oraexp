@@ -43,6 +43,7 @@ public:
     static DbTreeModel::DbTreeNodeType getDbObjectParentNodeType(DbTreeModel::DbTreeNodeType nodeType);
     static DbTreeModel::DbTreeNodeType getDbObjectNodeTypeByTypeName(const QString &typeName);
     static QString getDbObjectIconNameByParentNodeType(DbTreeModel::DbTreeNodeType nodeType);
+    static QString getTableIconName(bool isPk);
 
     static QString getSizeUnitText(OraExp::ExtentUnit unit);
     static OraExp::ExtentUnit getSizeUnitFromText(const QString &unit);

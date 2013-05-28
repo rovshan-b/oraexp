@@ -36,6 +36,7 @@ public slots:
     void createViewer(const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType);
 
     Worksheet *addWorksheet(const QString &contents="");
+    Worksheet *getWorksheet();
     void addSchemaComparer();
     void addSchemaExporter();
     void addDataComparer();

@@ -53,6 +53,11 @@ QString WorksheetWidget::getContents() const
     return queryPane->getContents();
 }
 
+void WorksheetWidget::insertText(const QString &text)
+{
+    queryPane->insertText(text);
+}
+
 void WorksheetWidget::focusAvailable()
 {
     queryPane->focusAvailable();

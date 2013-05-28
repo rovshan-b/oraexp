@@ -44,6 +44,11 @@ QString Worksheet::getContents() const
     return worksheetWidget->getContents();
 }
 
+void Worksheet::insertText(const QString &text)
+{
+    worksheetWidget->insertText(text);
+}
+
 void Worksheet::focusAvailable()
 {
     worksheetWidget->focusAvailable();

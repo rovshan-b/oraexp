@@ -129,7 +129,7 @@ void DataImporterColumnMappingsPage::columnFetched(const FetchResult &fetchResul
     QString dataType = fetchResult.colValue("DATA_TYPE");
 
     mappingsModel->setData(colNameIndex, columnName);
-    mappingsModel->setData(colNameIndex, IconUtil::getIcon(fetchResult.colValue("IS_PK")=="1" ? "column_pk" : "column"), Qt::DecorationRole);
+    mappingsModel->setData(colNameIndex, IconUtil::getIcon(DbUtil::getTableIconName(fetchResult.colValue("IS_PK")=="1")), Qt::DecorationRole);
     mappingsModel->setColumnDataType(lastRowIx, dataType);
 
     QStringList fileFields = mappingsModel->getList(DataImporterColumnMappingsModel::FileField);

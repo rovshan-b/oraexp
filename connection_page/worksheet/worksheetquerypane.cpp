@@ -276,6 +276,11 @@ QString WorksheetQueryPane::getContents() const
     return currentEditor()->editor()->toPlainText();
 }
 
+void WorksheetQueryPane::insertText(const QString &text)
+{
+    currentEditor()->editor()->insertPlainText(text);
+}
+
 void WorksheetQueryPane::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
     this->queryScheduler=queryScheduler;

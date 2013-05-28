@@ -8,6 +8,7 @@ UiManagerInvoker::UiManagerInvoker()
 void UiManagerInvoker::handle(const QHash<QString, QString> &properties)
 {
     QList<QGenericArgument> arguments;
+    QList<QString*> allocatedStrings;
 
     int i=0;
     while(++i){
@@ -27,11 +28,14 @@ void UiManagerInvoker::handle(const QHash<QString, QString> &properties)
         if(isNumeric){
             arguments.append(Q_ARG(int, numValue));
         }else{
-            arguments.append(Q_ARG(QString, propValue));
+            QString *strVal = new QString(propValue);
+            allocatedStrings.append(strVal);
+            arguments.append(Q_ARG(QString, *strVal));
         }
     }
 
     MetaObjectHelper::invokeMethod(uiManager,
                                    properties["attribute.slotName"],
                                    arguments);
+    qDeleteAll(allocatedStrings);
 }

@@ -21,6 +21,8 @@ public:
     void setContents(const QString &contents);
     QString getContents() const;
 
+    void insertText(const QString &text);
+
     void showSearchWidget(){queryPane->showSearchWidget();}
     void findNext() {queryPane->findNext();}
     void findPrevious() {queryPane->findPrevious();}

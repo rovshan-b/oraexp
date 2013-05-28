@@ -4,6 +4,7 @@
 #include <QString>
 #include <QStringList>
 #include <ocilib.h>
+#include "enums.h"
 
 QString toQString(const dtext *ociString);
 dtext* toOciString(const QString &qString);
@@ -58,7 +59,7 @@ void setDbLinkName(QString &str, const QString &dbLinkName);
 
 QString md5(const QString &str);
 
-QString addNumericSuffix(const QString &str, const QStringList &excludeList);
+QString addNumericSuffix(const QString &str, const QStringList &excludeList, int startSuffix = 1);
 
 void replaceGuiEscapeCharactersWithReal(QString &str);
 
@@ -73,5 +74,7 @@ QString toValidFilename(const QString &str);
 QString detectDateFormat(const QStringList &dates);
 
 QString dateFormatForLocale(const QString &dateFormat, const QStringList &dates);
+
+QString formatBindVarName(const QString &varName, int position, OraExp::BindVarStyle bindStyle);
 
 #endif // STRUTIL_H

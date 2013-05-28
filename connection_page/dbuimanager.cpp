@@ -135,6 +135,20 @@ Worksheet *DbUiManager::addWorksheet(const QString &contents)
     return worksheet;
 }
 
+Worksheet *DbUiManager::getWorksheet()
+{
+    ConnectionPageTab *currentTab = cnPage->currentConnectionPageTab();
+    if(currentTab == 0){
+        return addWorksheet();
+    }
+
+    if(currentTab != 0 && currentTab->metaObject()->className() == Worksheet::staticMetaObject.className()){
+        return static_cast<Worksheet*>(currentTab);
+    }else{
+        return addWorksheet();
+    }
+}
+
 DbItemAction *DbUiManager::getSenderAction() const
 {
     DbItemAction* itemAction=dynamic_cast<DbItemAction*>(sender());
@@ -266,7 +280,7 @@ void DbUiManager::openFile()
                 worksheet = currentWorksheet;
 
                 worksheet->setContents(contents);
-                cnPage->setCurrentTab(worksheet);
+                //cnPage->setCurrentTab(worksheet);
             }
         }
 

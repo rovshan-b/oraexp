@@ -655,6 +655,11 @@ QString DbUtil::getDbObjectIconNameByParentNodeType(DbTreeModel::DbTreeNodeType 
     return result;
 }
 
+QString DbUtil::getTableIconName(bool isPk)
+{
+    return isPk ? "column_pk" : "column";
+}
+
 QString DbUtil::getSizeUnitText(OraExp::ExtentUnit unit)
 {
     QString res;

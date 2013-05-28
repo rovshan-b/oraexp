@@ -31,6 +31,7 @@ void DynamicConnectionPageWindow::createUi()
 
     editor = new CodeEditor();
     editor->setWordWrapMode(QTextOption::WordWrap);
+    editor->setReadOnly(true);
     tab->addTab(editor, IconUtil::getIcon("query"), tr("Query"));
 
     mainLayout->addWidget(tab);
