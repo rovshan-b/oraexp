@@ -78,6 +78,7 @@ public:
     Qt::CheckState checkState() const;
 
     virtual DbTreeModel::DbTreeNodeType getItemType() const=0;
+    virtual DbTreeModel::DbTreeNodeType getParentItemType() const;
 
     virtual bool canGenerateDdlForItem() const;
 
@@ -90,6 +91,8 @@ protected:
     QList<DbTreeItem*> createNodeForEachRecord(const QString &select, Param *param1, Param *param2, Param *param3);
     QList<DbTreeItem*> createNodeForEachRecord(const QString &select, QList<Param*> parameters=QList<Param*>());
     virtual DbTreeItem *createNodeFromRecord(Resultset *);
+
+    virtual QString getParentItemNameForContextMenu() const;
 
 private:
     QList<DbTreeItem *> m_childItems;

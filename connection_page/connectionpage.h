@@ -11,6 +11,7 @@ class DbConnection;
 class QDockWidget;
 class TreePane;
 class ConnectionPageObject;
+class ConnectionPageWindowObject;
 class InfoPanel;
 class CtrlTabData;
 

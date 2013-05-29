@@ -13,7 +13,7 @@ public:
     static ConnectionPageTab *createEditor(const QString &schemaName,
                                  const QString &objectName,
                                  const DbTreeModel::DbTreeNodeType itemType,
-                                 DbUiManager *uiManager);
+                                 DbUiManager *uiManager, bool editMode);
 
     static ConnectionPageTab *createViewer(const QString &schemaName,
                                  const QString &objectName,

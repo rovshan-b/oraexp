@@ -484,7 +484,9 @@ SOURCES += main.cpp\
     dialogs/dmlgeneratordialog.cpp \
     util/metaobjecthelper.cpp \
     context_menu/handlers/uimanagerinvoker.cpp \
-    widgets/checkedlistboxwidget.cpp
+    widgets/checkedlistboxwidget.cpp \
+    dialogs/tablenamefinderdialog.cpp \
+    connection_page/connectionpagewindowobject.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -973,7 +975,9 @@ HEADERS  += mainwindow.h \
     dialogs/dmlgeneratordialog.h \
     util/metaobjecthelper.h \
     context_menu/handlers/uimanagerinvoker.h \
-    widgets/checkedlistboxwidget.h
+    widgets/checkedlistboxwidget.h \
+    dialogs/tablenamefinderdialog.h \
+    connection_page/connectionpagewindowobject.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

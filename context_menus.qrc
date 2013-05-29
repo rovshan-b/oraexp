@@ -1,5 +1,11 @@
 <RCC>
     <qresource prefix="/">
         <file>context_menus/Table.xml</file>
+        <file>context_menus/Columns.xml</file>
+        <file>context_menus/Column.xml</file>
+        <file>context_menus/Constraint.xml</file>
+        <file>context_menus/Constraints.xml</file>
+        <file>context_menus/Indexes.xml</file>
+        <file>context_menus/Index.xml</file>
     </qresource>
 </RCC>

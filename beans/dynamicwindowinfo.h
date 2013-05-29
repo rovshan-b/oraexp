@@ -11,6 +11,7 @@ public:
     DynamicWindowInfo();
 
     QString caption;
+    QString icon;
     QString type;
     QString scriptFileName;
 

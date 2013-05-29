@@ -2,9 +2,9 @@
 #define CONNECTIONPAGEWIZARD_H
 
 #include <QWizard>
-#include "connectionpageobject.h"
+#include "connectionpagewindowobject.h"
 
-class ConnectionPageWizard : public QWizard, public ConnectionPageObject
+class ConnectionPageWizard : public QWizard, public ConnectionPageWindowObject
 {
     Q_OBJECT
 public:

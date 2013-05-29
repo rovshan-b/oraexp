@@ -6,6 +6,9 @@
 #include <iostream>
 using namespace std;
 
+const char *ConnectionPageTab::TAB_NAME_KEY = "tabName";
+const char *ConnectionPageTab::CHILD_OBJECT_NAME_KEY = "childObjectName";
+
 ConnectionPageTab::ConnectionPageTab(DbUiManager *uiManager, QWidget *parent) :
     QWidget(parent), ConnectionPageObject(uiManager)
 {
@@ -14,6 +17,11 @@ ConnectionPageTab::ConnectionPageTab(DbUiManager *uiManager, QWidget *parent) :
 void ConnectionPageTab::setProperties(const QHash<QString, QString> &properties)
 {
     this->properties=properties;
+}
+
+void ConnectionPageTab::setPropertyValue(const QString &propName, const QString &propValue)
+{
+    this->properties[propName] = propValue;
 }
 
 QString ConnectionPageTab::propertyValue(const QString &propName) const

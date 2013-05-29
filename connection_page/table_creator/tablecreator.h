@@ -12,10 +12,16 @@ public:
     explicit TableCreator(const QString &schemaName,
                           const QString &objectName,
                           DbUiManager *uiManager,
+                          bool editMode,
                           QWidget *parent = 0);
+
+    virtual void highlightChildObject();
 
 protected:
     virtual DbObjectCreatorPane *createCreatorPane(DbObjectCreator *objectCreator);
+
+private:
+    bool editMode;
 };
 
 #endif // TABLECREATOR_H

@@ -32,6 +32,9 @@ public:
     QString getOriginalObjectName() const {return this->objectName;}
     DbTreeModel::DbTreeNodeType getObjectType() const {return this->objectType;}
 
+    void setOriginalSchemaName(const QString &schemaName) {this->schemaName = schemaName;}
+    void setOriginalObjectName(const QString &objectName) {this->objectName = objectName;}
+
 protected:
     virtual DbObjectCreatorPane *createCreatorPane(DbObjectCreator *objectCreator)=0;
 
@@ -48,12 +51,14 @@ private slots:
     void alterObject();
     void cancel();
 
+protected:
+    DbObjectCreatorPane *creatorPane;
+
 private:
     QString schemaName;
     QString objectName;
     DbTreeModel::DbTreeNodeType objectType;
 
-    DbObjectCreatorPane *creatorPane;
     DbObjectCreatorBottomPane *bottomPane;
     QSplitter *splitter;
 

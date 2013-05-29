@@ -14,7 +14,7 @@
 
 DataTable::DataTable(QWidget *parent) :
     QTableView(parent), queryScheduler(0), humanizeColumnNames(false), quietMode(true),
-    schemaNameCol(-1), objectNameCol(-1), objectTypeCol(-1)
+    schemaNameCol(-1), objectNameCol(-1), parentObjectNameCol(-1), objectTypeCol(-1)
 {
     verticalHeader()->setDefaultSectionSize(fontMetrics().height()+10);
     horizontalHeader()->setDefaultSectionSize(150);
@@ -125,9 +125,10 @@ void DataTable::showContextMenu(const QPoint &pos)
     int row=index.row();
     QString schemaName = schemaNameCol!=-1 ? model()->index(row, schemaNameCol).data().toString() : objectListSchemaName;
     QString objectName = model()->index(row, objectNameCol).data().toString();
+    QString parentObjectName = parentObjectNameCol!=-1 ? model()->index(row, parentObjectNameCol).data().toString() : objectListParentObjectName;
     QString objectType = objectTypeCol!=-1 ? model()->index(row, objectTypeCol).data().toString() : objectListObjectType;
 
-    QList<QAction*> actions=ContextMenuUtil::getActionsForObject(schemaName, objectName,
+    QList<QAction*> actions=ContextMenuUtil::getActionsForObject(schemaName, objectName, parentObjectName,
                                          DbUtil::getDbObjectNodeTypeByTypeName(objectType),
                                          this->uiManager);
 
@@ -254,13 +255,18 @@ void DataTable::setUiManager(DbUiManager *uiManager)
     this->uiManager=uiManager;
 }
 
-void DataTable::setObjectListMode(int schemaNameCol, int objectNameCol, int objectTypeCol,
-                                  const QString &objectListSchemaName, const QString &objectListObjectType)
+void DataTable::setObjectListMode(int schemaNameCol, int objectNameCol,
+                                  int parentObjectNameCol, int objectTypeCol,
+                                  const QString &objectListSchemaName,
+                                  const QString &objectListParentObjectName,
+                                  const QString &objectListObjectType)
 {
     this->schemaNameCol=schemaNameCol;
     this->objectNameCol=objectNameCol;
+    this->parentObjectNameCol=parentObjectNameCol;
     this->objectTypeCol=objectTypeCol;
     this->objectListSchemaName=objectListSchemaName;
+    this->objectListParentObjectName=objectListParentObjectName;
     this->objectListObjectType=objectListObjectType;
 
     setContextMenuPolicy(Qt::CustomContextMenu);

@@ -496,6 +496,12 @@ DbTreeModel::DbTreeNodeType DbUtil::getDbObjectParentNodeType(DbTreeModel::DbTre
     case DbTreeModel::Table:
         result=DbTreeModel::Tables;
         break;
+    case DbTreeModel::Column:
+        result=DbTreeModel::Columns;
+        break;
+    case DbTreeModel::Constraint:
+        result=DbTreeModel::Constraints;
+        break;
     case DbTreeModel::View:
         result=DbTreeModel::Views;
         break;
@@ -547,6 +553,10 @@ DbTreeModel::DbTreeNodeType DbUtil::getDbObjectNodeTypeByTypeName(const QString 
 
     if(typeName=="TABLE"){
         result = DbTreeModel::Table;
+    }else if(typeName=="COLUMN"){
+        result = DbTreeModel::Column;
+    }else if(typeName=="CONSTRAINT"){
+        result = DbTreeModel::Constraint;
     }else if(typeName=="VIEW"){
         result = DbTreeModel::View;
     }else if(typeName=="PACKAGE"){

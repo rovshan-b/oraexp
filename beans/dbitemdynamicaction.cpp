@@ -4,8 +4,9 @@
 
 typedef QHash<QString, QString> QStringHash;
 
-DbItemDynamicAction::DbItemDynamicAction(const QIcon &icon, const QString &text, const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType, const QObject *receiver, const char *slotName, QObject *parent) :
-    DbItemAction(icon, text, schemaName, objectName, itemType, receiver, slotName, parent)
+DbItemDynamicAction::DbItemDynamicAction(const QIcon &icon, const QString &text, const QString &schemaName, const QString &objectName, const QString &parentObjectName, const DbTreeModel::DbTreeNodeType itemType, const QObject *receiver, const char *slotName, QObject *parent) :
+    DbItemAction(icon, text, schemaName, objectName, itemType, receiver, slotName, parent),
+    parentObjectName(parentObjectName)
 {
 }
 
@@ -28,6 +29,7 @@ void DbItemDynamicAction::execute(DbUiManager *uiManager)
 
     properties["schemaName"] = this->schemaName;
     properties["objectName"] = this->objectName;
+    properties["parentObjectName"] = this->parentObjectName;
     properties["objectType"] = (int)this->itemType;
 
     void *handlerInstance = QMetaType::construct(handlerTypeId);
@@ -37,4 +39,9 @@ void DbItemDynamicAction::execute(DbUiManager *uiManager)
     contextMenuHandler->handle(properties);
 
     QMetaType::destroy(handlerTypeId, handlerInstance);
+}
+
+QString DbItemDynamicAction::getParentObjectName() const
+{
+    return this->parentObjectName;
 }

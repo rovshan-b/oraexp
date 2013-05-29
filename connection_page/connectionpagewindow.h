@@ -2,9 +2,9 @@
 #define CONNECTIONPAGEWINDOW_H
 
 #include <QDialog>
-#include "connectionpageobject.h"
+#include "connectionpagewindowobject.h"
 
-class ConnectionPageWindow : public QDialog, public ConnectionPageObject
+class ConnectionPageWindow : public QDialog, public ConnectionPageWindowObject
 {
     Q_OBJECT
 public:

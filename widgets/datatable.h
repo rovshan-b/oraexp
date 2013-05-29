@@ -38,8 +38,10 @@ public:
     void setUiManager(DbUiManager *uiManager);
     void setObjectListMode(int schemaNameCol,
                            int objectNameCol,
+                           int parentObjectNameCol,
                            int objectTypeCol,
                            const QString &objectListSchemaName=QString(),
+                           const QString &objectListParentObjectName=QString(),
                            const QString &objectListObjectType=QString());
 
     void getSelectedRange(int *startRow, int *startColumn, int *endRow, int *endColumn);
@@ -75,9 +77,11 @@ private:
     void copyToClipboard();
 
     QString objectListSchemaName;
+    QString objectListParentObjectName;
     QString objectListObjectType;
     int schemaNameCol;
     int objectNameCol;
+    int parentObjectNameCol;
     int objectTypeCol;
 
     DbUiManager *uiManager;

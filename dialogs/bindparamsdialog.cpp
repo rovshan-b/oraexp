@@ -64,6 +64,7 @@ void BindParamsDialog::createUi()
     QScrollArea *scrollArea = new QScrollArea;
     scrollArea->setWidget(createForm());
     scrollArea->setWidgetResizable(true);
+    scrollArea->setFocusPolicy(Qt::NoFocus);
 
     mainLayout->addWidget(scrollArea);
 
@@ -77,6 +78,10 @@ void BindParamsDialog::createUi()
     }else{
         buttonBox->button(QDialogButtonBox::Ok)->setFocus();
     }
+
+    QSize size = sizeHint();
+    size.setWidth(size.width()+(qApp->style()->pixelMetric(QStyle::PM_ScrollBarExtent)*3));
+    resize(size);
 }
 
 QWidget *BindParamsDialog::createForm()

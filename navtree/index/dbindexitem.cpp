@@ -34,6 +34,11 @@ QList<DbTreeItem*> DbIndexItem::populateChildren()
                                    new Param(":index_name", itemName()));
 }
 
+QString DbIndexItem::getParentItemNameForContextMenu() const
+{
+    return ""; //always return empty string. table creator will find out by itself
+}
+
 DbTreeItem *DbIndexItem::createNodeFromRecord(Resultset *rs)
 {
     QString columnName=rs->getString(1);

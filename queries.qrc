@@ -127,5 +127,6 @@
         <file>queries/disable_ref_constraints.sql</file>
         <file>queries/enable_ref_constraints.sql</file>
         <file>queries/func_get_source_code.sql</file>
+        <file>queries/get_table_name_by_child_object_name.sql</file>
     </qresource>
 </RCC>

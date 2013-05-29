@@ -538,3 +538,20 @@ void GenericEditableTableModel::setIconList(int columnIx, const QList<QPixmap> &
 
     columnIconLists[columnIx] = list;
 }
+
+QModelIndex GenericEditableTableModel::findItem(int column, const QRegExp &regexp)
+{
+    if(column < 0 || column >= this->columnCount()){
+        return QModelIndex();
+    }
+
+    for(int i=0; i<rowCount(); ++i){
+        const QModelIndex &ix = index(i, column);
+        QString columnValue = ix.data().toString();
+        if(regexp.exactMatch(columnValue)){
+            return ix;
+        }
+    }
+
+    return QModelIndex();
+}

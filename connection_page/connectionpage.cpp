@@ -8,6 +8,7 @@
 #include "util/settingshelper.h"
 #include "util/dialoghelper.h"
 #include "beans/ctrltabdata.h"
+#include "connectionpagewindowobject.h"
 #include <iostream>
 #include <QtGui>
 
@@ -142,9 +143,11 @@ void ConnectionPage::addWindow(ConnectionPageObject *window, const QPixmap &icon
     widget->setWindowIcon(icon.isNull() ? IconUtil::getIcon("database") : icon);
     widget->setWindowTitle(title);
 
-    widget->show();
-    widget->activateWindow();
-    widget->raise();
+    ConnectionPageWindowObject *windowObject = static_cast<ConnectionPageWindowObject*>(window);
+
+    if(windowObject->initiallyVisible()){
+        windowObject->showAndActivate();
+    }
 
     prepareObject(window);
 }

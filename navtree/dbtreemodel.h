@@ -62,6 +62,7 @@ public:
         PackageBody,
         TypeSpec,
         TypeBody,
+        IndexColumn,
 
         //fourth level
         Column,

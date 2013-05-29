@@ -32,27 +32,17 @@ QList<QAction *> TypeContextMenuUtil::getActionsForObject(const QString &schemaN
     }else if(itemType==DbTreeModel::Type){
 
         //view
-        QAction *viewSpecAction=new DbItemAction(IconUtil::getIcon("type_view"), QObject::tr("View Spec"),
+        QAction *viewSpecAction=new DbItemAction(IconUtil::getIcon("type_view"), QObject::tr("View"),
                                                        schemaName, objectName, DbTreeModel::TypeSpec,
-                                                       uiManager, SLOT(createViewer()));
-
-        QAction *viewBodyAction=new DbItemAction(IconUtil::getIcon("type_view"), QObject::tr("View Body"),
-                                                       schemaName, objectName, DbTreeModel::TypeBody,
                                                        uiManager, SLOT(createViewer()));
 
         //alter
-        QAction *alterSpecAction=new DbItemAction(IconUtil::getIcon("type_alter"), QObject::tr("Alter Spec"),
+        QAction *alterSpecAction=new DbItemAction(IconUtil::getIcon("type_alter"), QObject::tr("Alter"),
                                                        schemaName, objectName, DbTreeModel::TypeSpec,
                                                        uiManager, SLOT(createEditor()));
 
-        QAction *alterBodyAction=new DbItemAction(IconUtil::getIcon("type_alter"), QObject::tr("Alter Body"),
-                                                       schemaName, objectName, DbTreeModel::TypeBody,
-                                                       uiManager, SLOT(createEditor()));
-
         results.append(viewSpecAction);
-        results.append(viewBodyAction);
         results.append(alterSpecAction);
-        results.append(alterBodyAction);
     }
 
     return results;

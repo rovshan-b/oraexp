@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window caption="Drop column" icon="column" type="script" scriptFileName="generate_drop_column">
+    <widgets>
+        <widget name="schemaNameLabel" caption="Schema" type="Label" value="prop:schemaName" />
+        <widget name="tableNameLabel" caption="Table" type="Label" value="prop:parentObjectName" />
+        <widget name="columnNameLabel" caption="Column" type="Label" value="prop:objectName" />
+    </widgets>
+</window>

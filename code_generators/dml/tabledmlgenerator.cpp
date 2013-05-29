@@ -35,7 +35,7 @@ QString TableDmlGenerator::generateDeleteStatement(const QString &schemaName, co
 }
 
 QString TableDmlGenerator::generateDeleteStatement(const QString &schemaName, const QString &tableName,
-                                                   const QStringList &columns, const QStringList &whereColumns,
+                                                   const QStringList &whereColumns,
                                                    OraExp::BindVarStyle bindStyle, bool includeSchema)
 {
     QString dml;
@@ -45,7 +45,7 @@ QString TableDmlGenerator::generateDeleteStatement(const QString &schemaName, co
         dml.append(schemaName).append(".");
     }
     dml.append(tableName);
-    dml.append(TableDmlGenerator::generateWhereClause(columns, whereColumns, bindStyle));
+    dml.append(TableDmlGenerator::generateWhereClause(QStringList(), whereColumns, bindStyle));
 
     return dml;
 }

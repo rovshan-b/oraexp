@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>dynamic_windows/DropTable.xml</file>
+        <file>dynamic_windows/DropColumn.xml</file>
     </qresource>
 </RCC>

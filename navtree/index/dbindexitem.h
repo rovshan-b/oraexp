@@ -26,6 +26,8 @@ public:
 protected:
     virtual DbTreeItem *createNodeFromRecord(Resultset *);
 
+    QString getParentItemNameForContextMenu() const;
+
 private:
     bool isUnique;
 };

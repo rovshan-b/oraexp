@@ -23,14 +23,15 @@ EditorCreatorUtil::EditorCreatorUtil()
 ConnectionPageTab *EditorCreatorUtil::createEditor(const QString &schemaName,
                                          const QString &objectName,
                                          const DbTreeModel::DbTreeNodeType itemType,
-                                         DbUiManager *uiManager)
+                                         DbUiManager *uiManager,
+                                         bool editMode)
 {
     ConnectionPageTab *editor=0;
 
     switch(itemType){
     case DbTreeModel::Tables:
     case DbTreeModel::Table:
-        editor = new TableCreator(schemaName, objectName, uiManager);
+        editor = new TableCreator(schemaName, objectName, uiManager, editMode);
         break;
     case DbTreeModel::Views:
     case DbTreeModel::View:

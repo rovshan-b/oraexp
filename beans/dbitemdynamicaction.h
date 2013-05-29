@@ -10,6 +10,7 @@ public:
     explicit DbItemDynamicAction(const QIcon &icon, const QString &text,
                                  const QString &schemaName,
                                  const QString &objectName,
+                                 const QString &parentObjectName,
                                  const DbTreeModel::DbTreeNodeType itemType,
                                  const QObject *receiver=0,
                                  const char *slotName=0,
@@ -18,6 +19,11 @@ public:
     virtual ~DbItemDynamicAction();
 
     void execute(DbUiManager *uiManager);
+
+    QString getParentObjectName() const;
+
+private:
+    QString parentObjectName;
     
 };
 

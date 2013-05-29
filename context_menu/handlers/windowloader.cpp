@@ -14,7 +14,16 @@ void WindowLoader::handle(const QHash<QString, QString> &properties)
 {
     DynamicConnectionPageWindow *window = createDynamicWindow(properties);
     QString itemType = properties.value("objectType");
-    QPixmap windowIcon = itemType.isEmpty() ? QPixmap() : IconUtil::getIcon(DbUtil::getDbObjectIconNameByParentNodeType((DbTreeModel::DbTreeNodeType)itemType.toInt()));
+
+    QPixmap windowIcon;
+
+    DynamicWindowInfo *windowInfo = window->getWindowInfo();
+    if(!windowInfo->icon.isEmpty()){
+        windowIcon = IconUtil::getIcon(windowInfo->icon);
+    }else if(!itemType.isEmpty()){
+        windowIcon = IconUtil::getIcon(DbUtil::getDbObjectIconNameByParentNodeType((DbTreeModel::DbTreeNodeType)itemType.toInt()));
+    }
+
     uiManager->addWindow(window, windowIcon, window->getWindowInfo()->caption);
 }
 
@@ -51,6 +60,7 @@ DynamicWindowInfo WindowLoader::readWindowInfo(const QString windowName)
     QDomElement docElem = doc.documentElement();
 
     info.caption = docElem.attribute("caption");
+    info.icon = docElem.attribute("icon");
     info.type = docElem.attribute("type");
     info.scriptFileName = docElem.attribute("scriptFileName");
 

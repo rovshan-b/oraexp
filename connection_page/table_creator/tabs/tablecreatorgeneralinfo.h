@@ -37,6 +37,7 @@ public:
 
     QString getSchema() const;
     QString getTableName() const;
+    void setTableName(const QString &tableName);
 
     OraExp::TableType getTableType() const;
 

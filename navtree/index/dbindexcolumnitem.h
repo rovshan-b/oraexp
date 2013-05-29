@@ -15,6 +15,8 @@ public:
 
     virtual QList<DbTreeItem*> populateChildren();
 
+    virtual DbTreeModel::DbTreeNodeType getItemType() const {return DbTreeModel::IndexColumn;}
+
 private:
     QString tableOwner;
     QString tableName;

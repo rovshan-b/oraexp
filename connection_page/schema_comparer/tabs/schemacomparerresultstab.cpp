@@ -12,7 +12,7 @@ SchemaComparerResultsTab::SchemaComparerResultsTab(DbUiManager *uiManager, QWidg
 
 void SchemaComparerResultsTab::setCurrentSchema(const QString &currentSchemaName)
 {
-    changeListTable->setObjectListMode(-1, 0, 1, currentSchemaName);
+    changeListTable->setObjectListMode(-1, 0, -1, 1, currentSchemaName);
 }
 
 void SchemaComparerResultsTab::changedObjectDetected(const QString &objectName, DbTreeModel::DbTreeNodeType objectType, const QString &compareResult)

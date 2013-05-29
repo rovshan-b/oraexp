@@ -68,6 +68,8 @@ public:
     QList<QPixmap> getIconList(int columnIx) const;
     void setList(int columnIx, const QStringList &list);
     void setIconList(int columnIx, const QList<QPixmap> &list);
+
+    QModelIndex findItem(int column, const QRegExp &regexp);
 protected:
     QStringList headerTitles;
 

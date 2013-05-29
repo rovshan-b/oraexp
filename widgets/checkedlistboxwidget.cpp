@@ -24,6 +24,7 @@ CheckedListBoxWidget::CheckedListBoxWidget(QWidget *parent) :
 
     mainLayout->addLayout(buttonsLayout);
 
+    mainLayout->setContentsMargins(0,0,0,0);
     setLayout(mainLayout);
 
     connect(selectAllButton, SIGNAL(clicked()), this, SLOT(selectAll()));

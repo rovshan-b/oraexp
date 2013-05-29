@@ -2,7 +2,7 @@
 #include <QtGui>
 
 ConnectionPageWindow::ConnectionPageWindow(DbUiManager *uiManager, QWidget *parent) :
-    QDialog(parent), ConnectionPageObject(uiManager), inProgress(false)
+    QDialog(parent), ConnectionPageWindowObject(uiManager), inProgress(false)
 {
     setAttribute(Qt::WA_DeleteOnClose);
 

@@ -32,7 +32,7 @@ DataTable *DataComparerResultsTab::createChangeListTable()
 
 void DataComparerResultsTab::setCurrentSchema(const QString &currentSchemaName)
 {
-    changeListTable->setObjectListMode(-1, 0, -1, currentSchemaName, "TABLE");
+    changeListTable->setObjectListMode(-1, 0, -1, -1, currentSchemaName, "", "TABLE");
 }
 
 QStringList DataComparerResultsTab::getTableColumnNames() const

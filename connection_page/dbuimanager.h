@@ -35,6 +35,9 @@ public slots:
     void createViewer();
     void createViewer(const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType);
 
+    void addEditor(const QString &schemaName, const QString &objectName, const QString &objectTypeName,
+                   const QString &tabName, const QString &childObjectName);
+
     Worksheet *addWorksheet(const QString &contents="");
     Worksheet *getWorksheet();
     void addSchemaComparer();
@@ -63,6 +66,7 @@ private:
     ConnectionPage *cnPage;
 
     QString getCorrectSchemaNameForCurrentContext();
+    QString createTabId(const QString &prefix, const QString &objectTypeName, const QString &schemaName, const QString &objectName) const;
 };
 
 #endif // DBUIMANAGER_H

@@ -46,6 +46,8 @@ public:
         WidgetHelper::removeIncorrectRows(table);
     }
 
+    DataTable *getTable() const {return this->table;}
+
 protected:
     DataTable *table;
     QToolBar *toolbar;

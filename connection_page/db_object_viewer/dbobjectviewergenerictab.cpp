@@ -96,7 +96,8 @@ void DbObjectViewerGenericTab::setDynamicQuery(int colNum, StatementDesc *stmtDe
     dynamicQueries[colNum]=stmtDesc;
 }
 
-void DbObjectViewerGenericTab::setObjectListMode(int schemaNameCol, int objectNameCol, int objectTypeCol, const QString &objectListSchemaName, const QString &objectListObjectType)
+void DbObjectViewerGenericTab::setObjectListMode(int schemaNameCol, int objectNameCol, int objectTypeCol,
+                                                 const QString &objectListSchemaName, const QString &objectListObjectType)
 {
     this->schemaNameCol=schemaNameCol;
     this->objectNameCol=objectNameCol;
@@ -120,8 +121,10 @@ void DbObjectViewerGenericTab::createMainWidget(QLayout *layout)
     if(objectNameCol!=-1){
         dt->setObjectListMode(schemaNameCol,
                               objectNameCol,
+                              -1,
                               objectTypeCol,
                               objectListSchemaName,
+                              "",
                               objectListObjectType);
     }
 

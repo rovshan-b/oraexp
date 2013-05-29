@@ -149,7 +149,7 @@ void DbObjectViewerTabs::createToolbarButtons()
     lastSeparatorBeforeProgressBar=toolbar->addSeparator();
 
     QList<QAction*> actions=ContextMenuUtil::getActionsForObject(
-                               this->schemaName, this->objectName,
+                               this->schemaName, this->objectName, "",
                                itemType, uiManager);
 
     if(actions.size()>0){

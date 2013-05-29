@@ -11,6 +11,10 @@ class ConnectionPageTab : public QWidget, public ConnectionPageObject
 {
     Q_OBJECT
 public:
+    static const char *TAB_NAME_KEY;
+    static const char *CHILD_OBJECT_NAME_KEY;
+
+
     explicit ConnectionPageTab(DbUiManager *uiManager, QWidget *parent = 0);
 
     virtual QObject *getQueryEndMonitor() {return this;}
@@ -21,10 +25,14 @@ public:
     virtual void focusAvailable() {}
 
     void setProperties(const QHash<QString,QString> &properties);
+    void setPropertyValue(const QString &propName, const QString &propValue);
     QString propertyValue(const QString &propName) const;
+
+    virtual void highlightChildObject(){}
 
     QString getTitle() const;
     void setTitle(const QString &title);
+    void setCaption(const QString &caption);
 
     QString getTabId() const;
     void setTabId(const QString &tabId);
@@ -61,7 +69,6 @@ protected:
 
     virtual void saveToStream(QTextStream &out) {Q_UNUSED(out);}
 
-    void setCaption(const QString &caption);
     void setModifiedStatusToCaption(bool changed);
 
 private:

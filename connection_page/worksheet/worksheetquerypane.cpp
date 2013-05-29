@@ -279,6 +279,7 @@ QString WorksheetQueryPane::getContents() const
 void WorksheetQueryPane::insertText(const QString &text)
 {
     currentEditor()->editor()->insertPlainText(text);
+    currentEditor()->editor()->setFocus();
 }
 
 void WorksheetQueryPane::setQueryScheduler(IQueryScheduler *queryScheduler)

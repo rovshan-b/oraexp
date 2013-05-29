@@ -57,9 +57,10 @@ void DmlGeneratorDialog::createUi()
 
     mainLayout->addLayout(form);
 
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel, Qt::Horizontal, this);
+    buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel, Qt::Horizontal, this);
     copyToClipboardButton = new QPushButton(tr("Copy to clipboard"));
     buttonBox->addButton(copyToClipboardButton, QDialogButtonBox::AcceptRole);
+    copyToClipboardButton->setAutoDefault(false);
     mainLayout->addWidget(buttonBox);
 
     setLayout(mainLayout);
@@ -108,7 +109,7 @@ void DmlGeneratorDialog::columnFetched(const FetchResult &fetchResult)
     bool isPk = fetchResult.colValue("IS_PK")=="1";
     QPixmap pixmap = IconUtil::getIcon(DbUtil::getTableIconName(isPk));
 
-    columnsList->addItem(pixmap, columnName, !isPk || initialDmlType==OraExp::DmlTypeInsert);
+    columnsList->addItem(pixmap, columnName, !isPk || initialDmlType==OraExp::DmlTypeSelect || initialDmlType==OraExp::DmlTypeInsert);
     whereColumnsList->addItem(pixmap, columnName, isPk);
 }
 
@@ -120,11 +121,16 @@ void DmlGeneratorDialog::dmlTypeChanged(int newType)
 {
     OraExp::DmlType dmlType = (OraExp::DmlType)newType;
 
+    columnsList->setEnabled(dmlType!=OraExp::DmlTypeDelete);
     whereColumnsList->setEnabled(dmlType!=OraExp::DmlTypeInsert);
 }
 
 void DmlGeneratorDialog::acceptButtonPressed(QAbstractButton *button)
 {
+    if(button == buttonBox->button(QDialogButtonBox::Cancel)){
+        return;
+    }
+
     QString dml = generateDml();
     if(dml.isEmpty()){
         QMessageBox::information(this, tr("No column selected"),
@@ -146,11 +152,15 @@ QString DmlGeneratorDialog::generateDml()
     OraExp::DmlType dmlType = (OraExp::DmlType)dmlTypeCombo->currentIndex();
 
     QStringList columns = columnsList->getCheckedItemNames();
-    if(columns.isEmpty()){
+    if(columns.isEmpty() && dmlType!=OraExp::DmlTypeDelete){
         return "";
     }
 
     QStringList whereColumns = whereColumnsList->getCheckedItemNames();
+    if(whereColumns.isEmpty() && dmlType==OraExp::DmlTypeDelete){
+        return "";
+    }
+
     OraExp::BindVarStyle bindStyle = (OraExp::BindVarStyle)bindStyleCombo->currentIndex();
     bool includeSchema = includeSchemaCheckBox->isChecked();
 
@@ -167,7 +177,7 @@ QString DmlGeneratorDialog::generateDml()
         dml = TableDmlGenerator::generateUpdateStatement(schemaName, tableName, columns, whereColumns, bindStyle, includeSchema);
         break;
     case OraExp::DmlTypeDelete:
-        dml = TableDmlGenerator::generateDeleteStatement(schemaName, tableName, columns, whereColumns, bindStyle, includeSchema);
+        dml = TableDmlGenerator::generateDeleteStatement(schemaName, tableName, whereColumns, bindStyle, includeSchema);
         break;
     }
 

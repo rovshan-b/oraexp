@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>scripts/generate_drop_table.js</file>
+        <file>scripts/generate_drop_column.js</file>
     </qresource>
 </RCC>

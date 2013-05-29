@@ -17,18 +17,19 @@ using namespace std;
 
 TableCreatorTabs::TableCreatorTabs(const QString &schemaName,
                                    const QString &tableName,
-                                   QWidget *parent) :
+                                   bool editMode, QWidget *parent) :
             SubTabWidget(parent),
             queryScheduler(0),
             schemaName(schemaName),
             originalTableName(tableName),
+            editMode(editMode),
             originalTableInfo(0)
 
 {
-    editMode=!tableName.isEmpty();
 
     //general info pane
     generalInfoTab=new TableCreatorGeneralInfo(schemaName, tableName, this, editMode, this);
+    generalInfoTab->setObjectName("General");
     QScrollArea *scrollAreaForGeneralInfoTab=new QScrollArea();
     scrollAreaForGeneralInfoTab->setWidget(generalInfoTab);
     scrollAreaForGeneralInfoTab->setWidgetResizable(true);
@@ -36,20 +37,25 @@ TableCreatorTabs::TableCreatorTabs(const QString &schemaName,
 
     //column list
     columnsTab=new TableCreatorColumns(this, editMode, this);
+    columnsTab->setObjectName("Columns");
     addTab(columnsTab, IconUtil::getIcon("column"), tr("Columns"));
 
     //key constraints
     keyConstraintsTab=new TableCreatorConstraints(schemaName, this, editMode, this);
+    keyConstraintsTab->setObjectName("Keys");
 
     //check constraints
     checkConstraintsTab=new TableCreatorCheckConstraints(this, editMode, this);
+    checkConstraintsTab->setObjectName("Checks");
 
     //indexes
     indexesTab=new TableCreatorIndexes(this, editMode, this);
+    indexesTab->setObjectName("Indexes");
 
     //partitions
     partitionsTab=new TableCreatorPartitions(this, editMode);
     scrollAreaForPartitionsTab=new QScrollArea();
+    scrollAreaForPartitionsTab->setObjectName("Partitions");
     scrollAreaForPartitionsTab->setWidget(partitionsTab);
     scrollAreaForPartitionsTab->setWidgetResizable(true);
 
@@ -59,6 +65,7 @@ TableCreatorTabs::TableCreatorTabs(const QString &schemaName,
 
     //grants
     grantsTab=new TableCreatorGrants(schemaName, this, editMode, this);
+    grantsTab->setObjectName("Grants");
     addTab(grantsTab, IconUtil::getIcon("grants"), tr("Grants"));
 
     showTabsBasedOnTableType(OraExp::TableTypeHeap);
@@ -269,6 +276,11 @@ QString TableCreatorTabs::getTableName() const
     return generalInfoTab->getTableName();
 }
 
+void TableCreatorTabs::setTableName(const QString &tableName)
+{
+    generalInfoTab->setTableName(tableName);
+}
+
 QString TableCreatorTabs::getFullTableName() const
 {
     return QString("\"%1\".\"%2\"").arg(getSchemaName(), getTableName());
@@ -307,6 +319,7 @@ void TableCreatorTabs::showTabsBasedOnTableType(OraExp::TableType tableType)
         if(scrollAreaForExternalTableProps==0){
             externalTableProps=new TableCreatorExternalProperties(this->queryScheduler, this->getColumnsTab(), this, this->editMode, this);
             scrollAreaForExternalTableProps=new QScrollArea();
+            scrollAreaForExternalTableProps->setObjectName("External");
             scrollAreaForExternalTableProps->setWidget(externalTableProps);
             scrollAreaForExternalTableProps->setWidgetResizable(true);
             connect(externalTableProps, SIGNAL(ddlChanged()), this, SIGNAL(ddlChanged()));

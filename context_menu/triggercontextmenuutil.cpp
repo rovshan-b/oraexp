@@ -11,8 +11,8 @@ QList<QAction *> TriggerContextMenuUtil::getActionsForObject(const QString &sche
     QList<QAction *> results;
 
     if(itemType==DbTreeModel::SchemaTriggers || itemType==DbTreeModel::Triggers){
-        QAction *createTriggerAction=new DbItemAction(IconUtil::getIcon("trigger_add"), QObject::tr("Create trigger"),
-                                                       schemaName, objectName, itemType,
+        QAction *createTriggerAction=new DbItemAction(IconUtil::getIcon("trigger_add"), QObject::tr("Create trigger..."),
+                                                       schemaName, "", itemType,
                                                        uiManager, SLOT(createCreator()));
         results.append(createTriggerAction);
     }else if(itemType==DbTreeModel::Trigger){

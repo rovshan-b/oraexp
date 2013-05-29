@@ -26,6 +26,7 @@ void TableViewerTabs::createTabs()
 
     DbObjectViewerGenericTab *constraintInfo = new DbObjectViewerGenericTab("get_table_constraints_for_detailed_view", uiManager, this);
     constraintInfo->setIconColumn("CONSTRAINT_NAME", "TYPE_ICON");
+    constraintInfo->setObjectListMode(-1,0,-1,schemaName,"CONSTRAINT");
     addTab(constraintInfo, IconUtil::getIcon("constraint"), tr("Constraints"));
 
     DbObjectViewerGenericTab *indexInfo = new DbObjectViewerGenericTab("get_table_indexes_for_detailed_view", uiManager, this);

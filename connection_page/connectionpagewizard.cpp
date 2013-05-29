@@ -3,7 +3,7 @@
 #include <QtGui>
 
 ConnectionPageWizard::ConnectionPageWizard(DbUiManager *uiManager, QWidget *parent) :
-    QWizard(parent), ConnectionPageObject(uiManager)
+    QWizard(parent), ConnectionPageWindowObject(uiManager)
 {
     setAttribute(Qt::WA_DeleteOnClose);
 

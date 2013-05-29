@@ -28,6 +28,10 @@ public:
     virtual QString getSchemaName() const=0;
     virtual QString getObjectName() const=0;
 
+    virtual void highlightChildObject() {}
+
+    DbObjectCreator *getObjectCreator() const {return this->objectCreator;}
+
 signals:
     void ddlChanged();
     void objectInfoLoaded();

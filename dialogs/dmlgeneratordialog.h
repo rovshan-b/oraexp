@@ -11,6 +11,7 @@ class QComboBox;
 class CodeEditor;
 class CheckedListBoxWidget;
 class QCheckBox;
+class QDialogButtonBox;
 class QAbstractButton;
 
 class DmlGeneratorDialog : public ConnectionPageWindow
@@ -47,6 +48,7 @@ private:
     QComboBox *bindStyleCombo;
     QCheckBox *includeSchemaCheckBox;
 
+    QDialogButtonBox *buttonBox;
     QPushButton *copyToClipboardButton;
 
     QString generateDml();

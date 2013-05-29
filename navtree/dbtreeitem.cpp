@@ -12,6 +12,7 @@
 #include "connectivity/ociexception.h"
 #include "util/strutil.h"
 #include "util/iconutil.h"
+#include "util/dbutil.h"
 #include "connection_page/dbuimanager.h"
 #include "nodeaction.h"
 #include "context_menu/contextmenuutil.h"
@@ -287,6 +288,14 @@ void DbTreeItem::clearChildItems(bool resetPopulatedFlag)
     }
 }
 
+QString DbTreeItem::getParentItemNameForContextMenu() const
+{
+    DbTreeItem *parentItem = this->parent();
+    QString parentItemName = parentItem!=0 ? parentItem->itemName() : "";
+
+    return parentItemName;
+}
+
 QList<QAction*> DbTreeItem::getContextMenuItems(const QModelIndex &index) const
 {
     QList<QAction*> actions;
@@ -297,8 +306,11 @@ QList<QAction*> DbTreeItem::getContextMenuItems(const QModelIndex &index) const
         actions.append(refreshAction);
     }
 
+
+
     QList<QAction*> itemSpecificActions = ContextMenuUtil::getActionsForObject(schemaName(),
                                                                                itemName(),
+                                                                               getParentItemNameForContextMenu(),
                                                                                getItemType(),
                                                                                getModel()->getUiManager());
 
@@ -343,6 +355,16 @@ void DbTreeItem::setCheckState(Qt::CheckState checkState)
 Qt::CheckState DbTreeItem::checkState() const
 {
     return this->m_checkState;
+}
+
+DbTreeModel::DbTreeNodeType DbTreeItem::getParentItemType() const
+{
+    DbTreeItem *parentItem = this->parent();
+    if(parentItem){
+        return parentItem->getItemType();
+    }else{
+        return DbTreeModel::Unknown;
+    }
 }
 
 bool DbTreeItem::canGenerateDdlForItem() const

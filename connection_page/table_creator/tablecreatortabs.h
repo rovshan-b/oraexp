@@ -25,6 +25,7 @@ class TableCreatorTabs : public SubTabWidget
 public:
     explicit TableCreatorTabs(const QString &schemaName,
                               const QString &originalTableName,
+                              bool editMode,
                               QWidget *parent = 0);
 
     virtual ~TableCreatorTabs();
@@ -40,6 +41,7 @@ public:
 
     QString getSchemaName() const;
     QString getTableName() const;
+    void setTableName(const QString &tableName);
     QString getFullTableName() const;
     //used in edit mode
     QString getOriginalTableName() const;

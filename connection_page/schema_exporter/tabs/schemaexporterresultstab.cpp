@@ -38,5 +38,5 @@ void SchemaExporterResultsTab::objectExportCompleted(DbTreeModel::DbTreeNodeType
 
 void SchemaExporterResultsTab::setCurrentSchema(const QString &currentSchemaName)
 {
-    changeListTable->setObjectListMode(-1, 0, 1, currentSchemaName);
+    changeListTable->setObjectListMode(-1, 0, -1, 1, currentSchemaName);
 }

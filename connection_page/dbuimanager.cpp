@@ -19,6 +19,7 @@
 #include "data_exporter/dataexporter.h"
 #include "data_importer/dataimporter.h"
 #include "dialogs/dmlgeneratordialog.h"
+#include "dialogs/tablenamefinderdialog.h"
 #include "editorcreatorutil.h"
 #include <QtGui>
 
@@ -76,9 +77,13 @@ void DbUiManager::createEditor(const QString &schemaName,
                                QHash<QString,QString> properties)
 {
     QString objectTypeName = DbUtil::getDbObjectTypeNameByNodeType(itemType).toLower();
-    QString tabId = QString("editor.%1.%2.%3").arg(objectTypeName, schemaName, objectName);
-    ConnectionPageTab * existingTab = cnPage->findTabById(tabId);
+    QString tabId = createTabId("editor", objectTypeName, schemaName, objectName);
+    ConnectionPageTab * existingTab = editMode ? cnPage->findTabById(tabId) : 0;
     if(existingTab){
+        setProperties(existingTab);
+        existingTab->setPropertyValue(ConnectionPageTab::TAB_NAME_KEY, properties.value(ConnectionPageTab::TAB_NAME_KEY));
+        existingTab->setPropertyValue(ConnectionPageTab::CHILD_OBJECT_NAME_KEY, properties.value(ConnectionPageTab::CHILD_OBJECT_NAME_KEY));
+        existingTab->highlightChildObject();
         cnPage->setCurrentTab(existingTab);
         return;
     }
@@ -86,7 +91,8 @@ void DbUiManager::createEditor(const QString &schemaName,
     ConnectionPageTab *editor = EditorCreatorUtil::createEditor(schemaName,
                                                       objectName,
                                                       itemType,
-                                                      this);
+                                                      this,
+                                                      editMode);
     editor->setTabId(tabId);
     editor->setProperties(properties);
 
@@ -108,7 +114,7 @@ void DbUiManager::createViewer()
 void DbUiManager::createViewer(const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType)
 {
     QString objectTypeName = DbUtil::getDbObjectTypeNameByNodeType(itemType).toLower();
-    QString tabId = QString("viewer.%1.%2.%3").arg(objectTypeName, schemaName, objectName);
+    QString tabId = createTabId("viewer", objectTypeName, schemaName, objectName);
     ConnectionPageTab * existingTab = cnPage->findTabById(tabId);
     if(existingTab){
         cnPage->setCurrentTab(existingTab);
@@ -122,6 +128,29 @@ void DbUiManager::createViewer(const QString &schemaName, const QString &objectN
     viewer->setTabId(tabId);
     QString iconName = DbUtil::getDbObjectIconNameByParentNodeType(itemType);
     cnPage->addTab(viewer, IconUtil::getIcon(iconName), objectName);
+}
+
+QString DbUiManager::createTabId(const QString &prefix, const QString &objectTypeName, const QString &schemaName, const QString &objectName) const
+{
+    QString result = QString("%1.%2.%3.%4").arg(prefix, objectTypeName, schemaName, objectName);
+    result.remove(" SPEC").remove(" BODY"); //use same editor for package/type spec and body
+    return result;
+}
+
+//this function is called by UiManagerInvoker through context menus
+void DbUiManager::addEditor(const QString &schemaName, const QString &objectName, const QString &objectTypeName, const QString &tabName, const QString &childObjectName)
+{
+    QHash<QString,QString> properties;
+    properties[ConnectionPageTab::TAB_NAME_KEY] = tabName;
+    properties[ConnectionPageTab::CHILD_OBJECT_NAME_KEY] = childObjectName;
+
+    DbTreeModel::DbTreeNodeType itemType = DbUtil::getDbObjectNodeTypeByTypeName(objectTypeName);
+    if(itemType == DbTreeModel::Table && objectName.isEmpty()){ //indexes and constraints can call without table name set
+        TableNameFinderDialog *tableNameFinder = new TableNameFinderDialog(schemaName, tabName, childObjectName, this);
+        addWindow(tableNameFinder, IconUtil::getIcon("table"), tr("Loading..."));
+    }else{
+        createEditor(schemaName, objectName, itemType, true, properties);
+    }
 }
 
 Worksheet *DbUiManager::addWorksheet(const QString &contents)

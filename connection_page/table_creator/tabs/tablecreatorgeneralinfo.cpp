@@ -206,6 +206,11 @@ QString TableCreatorGeneralInfo::getTableName() const
     return tableNameEditor->text().trimmed().toUpper();
 }
 
+void TableCreatorGeneralInfo::setTableName(const QString &tableName)
+{
+    tableNameEditor->setText(tableName);
+}
+
 void TableCreatorGeneralInfo::tableTypeComboBoxChanged(int newTableType)
 {
     OraExp::TableType tableType=(OraExp::TableType)newTableType;
