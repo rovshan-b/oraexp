@@ -66,7 +66,7 @@ QLayout *SequenceCreatorPane::createForm()
 
     startWithEditor=new QLineEdit();
     startWithEditor->setValidator(intValidator);
-    form->addRow(editMode ? tr("Current value") : tr("Start with"), startWithEditor);
+    form->addRow((getCreatorMode() == DbObjectCreator::EditExisting) ? tr("Current value") : tr("Start with"), startWithEditor);
 
     enableControls();
     connect(cacheComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(enableControls()));
@@ -82,7 +82,7 @@ QLayout *SequenceCreatorPane::createForm()
     connect(cacheSizeEditor, SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
     connect(startWithEditor, SIGNAL(editingFinished()), this, SIGNAL(ddlChanged()));
 
-    if(!editMode){
+    if(getCreatorMode() != DbObjectCreator::EditExisting){
         minValueEditor->setPlaceholderText(PLACEHOLDER_DEFAULT);
         maxValueEditor->setPlaceholderText(PLACEHOLDER_DEFAULT);
         incrementByEditor->setPlaceholderText(PLACEHOLDER_DEFAULT);
@@ -104,7 +104,7 @@ QString SequenceCreatorPane::getObjectName() const
 
 bool SequenceCreatorPane::beforeAlter() const
 {
-    Q_ASSERT(editMode);
+    Q_ASSERT(getCreatorMode() == DbObjectCreator::EditExisting);
 
     SequenceInfo *originalSequenceInfo=getOriginalObjectInfo<SequenceInfo>();
     if(getSequenceInfo().needsRecreation(*originalSequenceInfo)){
@@ -166,7 +166,7 @@ SequenceInfo SequenceCreatorPane::getSequenceInfo() const
 
     int cacheIx = cacheComboBox->currentIndex();
     if(cacheIx==0){
-        info.cacheSize= editMode ? "0" : "";
+        info.cacheSize= (getCreatorMode() == DbObjectCreator::EditExisting) ? "0" : "";
     }else if(cacheIx==1){
         info.cacheSize=cacheSizeEditor->text();
     }else{

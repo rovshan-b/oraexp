@@ -4,8 +4,8 @@
 SynonymCreator::SynonymCreator(const QString &schemaName,
                                  const QString &objectName,
                                  DbUiManager *uiManager,
-                                 QWidget *parent) :
-    DbObjectCreator(schemaName, objectName, uiManager, DbTreeModel::Synonym, parent)
+                                 CreatorMode creatorMode, QWidget *parent) :
+    DbObjectCreator(schemaName, objectName, uiManager, DbTreeModel::Synonym, creatorMode, parent)
 {
 }
 

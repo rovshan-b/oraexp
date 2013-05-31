@@ -20,7 +20,7 @@ class UserCreatorGeneralInfo : public UserCreatorTab
 public:
     explicit UserCreatorGeneralInfo(const QString &objectName,
                                     UserCreatorTabs *objectCreator,
-                                    bool editMode,
+                                    DbObjectCreator::CreatorMode creatorMode,
                                     QWidget *parent = 0);
 
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);

@@ -24,7 +24,7 @@ QString TableDmlGenerator::generateSelectStatement(const QString &schemaName, co
         dml.append(schemaName).append(".");
     }
     dml.append(tableName);
-    dml.append(TableDmlGenerator::generateWhereClause(columns, whereColumns, bindStyle));
+    dml.append(TableDmlGenerator::generateWhereClause(QStringList(), whereColumns, bindStyle));
 
     return dml;
 }

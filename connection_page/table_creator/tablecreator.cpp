@@ -5,9 +5,9 @@
 TableCreator::TableCreator(const QString &schemaName,
                            const QString &objectName,
                            DbUiManager *uiManager,
-                           bool editMode, QWidget *parent) :
-    DbObjectCreator(schemaName, objectName, uiManager, DbTreeModel::Table, parent),
-    editMode(editMode)
+                           CreatorMode creatorMode,
+                           QWidget *parent) :
+    DbObjectCreator(schemaName, objectName, uiManager, DbTreeModel::Table, creatorMode, parent)
 {
 
 }
@@ -19,5 +19,5 @@ void TableCreator::highlightChildObject()
 
 DbObjectCreatorPane *TableCreator::createCreatorPane(DbObjectCreator *objectCreator)
 {
-    return new TableCreatorPane(objectCreator, editMode);
+    return new TableCreatorPane(objectCreator);
 }

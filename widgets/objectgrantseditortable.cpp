@@ -8,13 +8,13 @@
 #include "util/itemcreatorhelper.h"
 #include "util/widgethelper.h"
 
-ObjectGrantsEditorTable::ObjectGrantsEditorTable(bool editMode,
+ObjectGrantsEditorTable::ObjectGrantsEditorTable(DbObjectCreator::CreatorMode creatorMode,
                                                  OraExp::GrantsEditorPerspective perspective,
                                                  DbTreeModel::DbTreeNodeType objectType,
                                                  const QString &initialUserOrObjectName,
                                                  QWidget *parent) :
     DataTableAndToolBarWidget(0, Qt::Horizontal, parent),
-    editMode(editMode),
+    creatorMode(creatorMode),
     perspective(perspective),
     objectType(objectType),
     initialSchemaName(initialUserOrObjectName),
@@ -169,7 +169,7 @@ void ObjectGrantsEditorTable::customizeTable()
         tbl->setItemDelegateForColumn(colIx, privDelegate);
     }
 
-    if(this->editMode){
+    if(creatorMode == DbObjectCreator::EditExisting){
         connect(tblModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(tableDataChanged(QModelIndex,QModelIndex)));
 
         tblModel->setColumnEnabled(ObjectGrantsModel::GrantSchema, false);

@@ -78,13 +78,13 @@ protected slots:
         ParamClass param;
         if(params.isValid() && params.canConvert<ParamClass>()){
             param=params.value<ParamClass>();
-            dialog->setParams(param, originalParamsValid ? originalParams.value<ParamClass>() : ParamClass());
+            dialog->setParams(param, (isEditMode && originalParamsValid) ? originalParams.value<ParamClass>() : ParamClass());
         }
 
         if(dialog->exec()){
             ParamClass newParams=dialog->getParams();
             senderWidget->setProperty("additional_params", QVariant::fromValue(newParams));
-            senderWidget->lineEdit()->setText(originalParamsValid ?
+            senderWidget->lineEdit()->setText((isEditMode && originalParamsValid)?
                                                   generateDiffDdl(newParams, originalParams.value<ParamClass>()) :
                                                   generateDdl(newParams));
             senderWidget->lineEdit()->setCursorPosition(0);

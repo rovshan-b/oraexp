@@ -5,10 +5,10 @@
 #include "delegates/dbitemlistdelegate.h"
 #include "delegates/booleandelegate.h"
 
-UserRolesEditorTable::UserRolesEditorTable(bool editMode, QWidget *parent) :
+UserRolesEditorTable::UserRolesEditorTable(DbObjectCreator::CreatorMode creatorMode, QWidget *parent) :
     DataTableAndToolBarWidget(0, Qt::Horizontal, parent),
     queryScheduler(0),
-    editMode(editMode),
+    creatorMode(creatorMode),
     originalItemList(0)
 {
 }
@@ -140,7 +140,7 @@ void UserRolesEditorTable::customizeTable()
     BooleanDelegate *isDefaultDelegate=new BooleanDelegate(this, false);
     tbl->setItemDelegateForColumn(RoleGrantsModel::IsDefault, isDefaultDelegate);
 
-    if(editMode){
+    if(creatorMode == DbObjectCreator::EditExisting){
         connect(tableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(tableDataChanged(QModelIndex,QModelIndex)));
 
         tableModel->setColumnEnabled(0, false);

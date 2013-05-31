@@ -9,6 +9,7 @@
 #include "models/partitionsmodel.h"
 #include "widgets/datatable.h"
 #include "datatableandtoolbarwidget.h"
+#include "connection_page/db_object_creator/dbobjectcreator.h"
 
 class IQueryScheduler;
 class QComboBox;
@@ -41,7 +42,7 @@ public:
 
     void tablespaceListAvailable();
 
-    void setEditMode();
+    void setCreatorMode(DbObjectCreator::CreatorMode creatorMode);
     void setInterval(const QString &interval);
 
     void addToOriginalPartitionList(const FetchResult &fetchResult);
@@ -118,7 +119,7 @@ private:
     bool supportsIntervalAndReferencePartitioning;
 
     //edit mode variables and functions
-    bool editMode;
+    DbObjectCreator::CreatorMode creatorMode;
     void disableColumnsForFrozenRows(int rowIx);
     //PartitioningInfo originalPartitionginInfo;
 };

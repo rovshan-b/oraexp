@@ -4,6 +4,7 @@
 #include "widgets/subtabwidget.h"
 #include "connectivity/ociexception.h"
 #include "beans/querylistitem.h"
+#include "connection_page/db_object_creator/dbobjectcreator.h"
 
 class IQueryScheduler;
 class UserCreatorGeneralInfo;
@@ -16,7 +17,7 @@ class UserCreatorTabs : public SubTabWidget
 {
     Q_OBJECT
 public:
-    explicit UserCreatorTabs(const QString &objectName, QWidget *parent = 0);
+    explicit UserCreatorTabs(const QString &objectName, DbObjectCreator::CreatorMode creatorMode, QWidget *parent = 0);
     
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
@@ -41,7 +42,7 @@ private slots:
 private:
     QString objectName;
     UserInfo *originalUserInfo;
-    bool editMode;
+    DbObjectCreator::CreatorMode creatorMode;
     IQueryScheduler *queryScheduler;
 
     UserCreatorGeneralInfo *generalInfoTab;

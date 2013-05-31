@@ -4,8 +4,8 @@
 DbLinkCreator::DbLinkCreator(const QString &schemaName,
                                  const QString &objectName,
                                  DbUiManager *uiManager,
-                                 QWidget *parent) :
-    DbObjectCreator(schemaName, objectName, uiManager, DbTreeModel::DatabaseLink, parent)
+                                 CreatorMode creatorMode, QWidget *parent) :
+    DbObjectCreator(schemaName, objectName, uiManager, DbTreeModel::DatabaseLink, creatorMode, parent)
 {
 }
 

@@ -6,6 +6,7 @@
 #include "util/param.h"
 #include "beans/querylistitem.h"
 #include "beans/tableinfo.h"
+#include "connection_page/db_object_creator/dbobjectcreator.h"
 
 class IQueryScheduler;
 class TableCreatorGeneralInfo;
@@ -25,7 +26,7 @@ class TableCreatorTabs : public SubTabWidget
 public:
     explicit TableCreatorTabs(const QString &schemaName,
                               const QString &originalTableName,
-                              bool editMode,
+                              DbObjectCreator::CreatorMode creatorMode,
                               QWidget *parent = 0);
 
     virtual ~TableCreatorTabs();
@@ -65,7 +66,7 @@ private:
     QString schemaName;
     QString originalTableName;
 
-    bool editMode;
+    DbObjectCreator::CreatorMode creatorMode;
 
     TableCreatorGeneralInfo *generalInfoTab;
     TableCreatorColumns *columnsTab;

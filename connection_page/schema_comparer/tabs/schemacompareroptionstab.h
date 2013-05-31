@@ -9,6 +9,7 @@ class QGroupBox;
 class QCheckBox;
 class QBoxLayout;
 class QLineEdit;
+class ExistingTableOptionsWidget;
 class TableDdlExportOptionsWidget;
 class StorageDdlExportOptionsWidget;
 class SourceDdlExportOptionsWidget;
@@ -27,11 +28,6 @@ public:
     virtual void targetConnectionEstablished(DbConnection *sourceDb, DbConnection *targetDb);
     virtual DbObjectComparisonOptions *getOptions();
 
-signals:
-
-private slots:
-    void etOptionsChanged(int);
-
 private:
     void createExistingTableOptionsPane(QBoxLayout *layout);
     void createNewTableOptionsPane(QBoxLayout *layout);
@@ -42,19 +38,7 @@ private:
     void createOptionsPane(QBoxLayout *layout);
 
     QGroupBox *existingTableOptionsGroupBox;
-    QCheckBox *etComments;
-    QCheckBox *etProperties;
-    QCheckBox *etFlashbackArchive;
-    QCheckBox *etStorage;
-    QCheckBox *etIOTProperties;
-    QCheckBox *etLOBProperties;
-    QCheckBox *etColumns;
-    QCheckBox *etConstraints;
-    QCheckBox *etIndexes;
-    QCheckBox *etPartitions;
-    QCheckBox *etExternalProperties;
-    QCheckBox *etTriggers;
-    QCheckBox *etGrants;
+    ExistingTableOptionsWidget *etOptionsWidget;
 
     QGroupBox *newTableOptionsGroupBox;
     TableDdlExportOptionsWidget *ntOptionsWidget;

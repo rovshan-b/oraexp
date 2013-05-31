@@ -17,9 +17,9 @@
 TableCreatorGeneralInfo::TableCreatorGeneralInfo(const QString &schemaName,
                                                  const QString &tableName,
                                                  TableCreatorTabs *tableCreator,
-                                                 bool editMode,
+                                                 DbObjectCreator::CreatorMode creatorMode,
                                                  QWidget *parent) :
-    TableCreatorTab(tableCreator, editMode, parent), originalGeneralInfo(0)
+    TableCreatorTab(tableCreator, creatorMode, parent), originalGeneralInfo(0)
 {
     QVBoxLayout *layout=new QVBoxLayout();
 
@@ -77,7 +77,7 @@ TableCreatorGeneralInfo::TableCreatorGeneralInfo(const QString &schemaName,
     connect(tableTypeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(tableTypeComboBoxChanged(int)));
 
 
-    if(editMode){
+    if(creatorMode == DbObjectCreator::EditExisting){
         disableControlsForEditMode();
     }
 }
@@ -86,7 +86,7 @@ void TableCreatorGeneralInfo::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
     TableCreatorTab::setQueryScheduler(queryScheduler);
 
-    if(!isEditMode()){
+    if(getCreatorMode() != DbObjectCreator::EditExisting){
         schemaList->loadItems(this->queryScheduler, "get_schema_list");
     }else{
         schemaList->addItem(IconUtil::getIcon("user"), schemaList->currentText());
@@ -140,9 +140,9 @@ void TableCreatorGeneralInfo::storageParamsButtonClicked(LineEditWithButton *lin
         return;
     }
 
-    if(DialogHelper::showStorageParamsDialog(this->window(), queryScheduler, isEditMode(), true, this->storageParams)){
+    if(DialogHelper::showStorageParamsDialog(this->window(), queryScheduler, (getCreatorMode() == DbObjectCreator::EditExisting), true, this->storageParams)){
         lineEditWithButton->lineEdit()->setText(
-                    isEditMode()
+                    (getCreatorMode() == DbObjectCreator::EditExisting)
                       ? storageParams.generateDiffDdl(originalGeneralInfo->storageParams)
                       : storageParams.generateDdl().trimmed()
                     );
@@ -158,13 +158,13 @@ void TableCreatorGeneralInfo::additionalAttributesButtonClicked(LineEditWithButt
         return;
     }
 
-    TableAdditionalAttributesDialog dialog(this->queryScheduler, getTableType(), isEditMode(), this->window());
+    TableAdditionalAttributesDialog dialog(this->queryScheduler, getTableType(), (getCreatorMode() == DbObjectCreator::EditExisting), this->window());
     dialog.setAttributes(additionalAttributes);
 
     if(dialog.exec()){
         additionalAttributes=dialog.getAttributes();
         lineEditWithButton->lineEdit()->setText(
-                    isEditMode()
+                    (getCreatorMode() == DbObjectCreator::EditExisting)
                       ? additionalAttributes.generateDiffDdl(originalGeneralInfo->additionalAttributes)
                       : additionalAttributes.generateDdl(getTableType(), true).trimmed()
                     );
@@ -180,13 +180,13 @@ void TableCreatorGeneralInfo::indexOrganizedPropertiesButtonClicked(LineEditWith
         return;
     }
 
-    IndexOrganizedTablePropertiesDialog dialog(this->queryScheduler, this->columnListRetriever, isEditMode(), this->window());
-    dialog.setAttributes(indexOrganizedProperties, isEditMode() ? originalGeneralInfo->indexOrganizedProperties : IndexOrganizedTableProperties());
+    IndexOrganizedTablePropertiesDialog dialog(this->queryScheduler, this->columnListRetriever, (getCreatorMode() == DbObjectCreator::EditExisting), this->window());
+    dialog.setAttributes(indexOrganizedProperties, (getCreatorMode() == DbObjectCreator::EditExisting) ? originalGeneralInfo->indexOrganizedProperties : IndexOrganizedTableProperties());
 
     if(dialog.exec()){
         indexOrganizedProperties=dialog.getAttributes();
         lineEditWithButton->lineEdit()->setText(
-                    isEditMode()
+                    (getCreatorMode() == DbObjectCreator::EditExisting)
                       ? indexOrganizedProperties.generateDiffDdl(originalGeneralInfo->indexOrganizedProperties)
                       : indexOrganizedProperties.generateDdl().trimmed()
                     );
@@ -229,7 +229,7 @@ void TableCreatorGeneralInfo::tableTypeComboBoxChanged(int newTableType)
     indexOrganizedTablePropertiesEditor->setEnabled(enableIndexOrganizedPropertiesWidget);
 
     //regenerate additional attributes ddl, because it might change depending on table type
-    additionalAttributesEditor->lineEdit()->setText(isEditMode() ?
+    additionalAttributesEditor->lineEdit()->setText((getCreatorMode() == DbObjectCreator::EditExisting) ?
                                                         additionalAttributes.generateDiffDdl(originalGeneralInfo->additionalAttributes) :
                                                         additionalAttributes.generateDdl(getTableType(), true));
     additionalAttributesEditor->lineEdit()->setCursorPosition(0);

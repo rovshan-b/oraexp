@@ -8,10 +8,10 @@
 #include "delegates/numericdelegate.h"
 #include "delegates/indexbasedcomboboxdelegate.h"
 
-TablespaceQuotasEditorTable::TablespaceQuotasEditorTable(bool editMode, QWidget *parent) :
+TablespaceQuotasEditorTable::TablespaceQuotasEditorTable(DbObjectCreator::CreatorMode creatorMode, QWidget *parent) :
     DataTableAndToolBarWidget(0, Qt::Horizontal, parent),
     queryScheduler(0),
-    editMode(editMode),
+    creatorMode(creatorMode),
     originalItemList(0)
 {
 }
@@ -123,7 +123,7 @@ void TablespaceQuotasEditorTable::customizeTable()
     tableModel->setList(TablespaceQuotasModel::Unit, DbUtil::getSizeUnitTexts());
     table->setItemDelegateForColumn(TablespaceQuotasModel::Unit, quotaUnitDelegate);
 
-    if(editMode){
+    if(creatorMode == DbObjectCreator::EditExisting){
         connect(tableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(tableDataChanged(QModelIndex,QModelIndex)));
 
         tableModel->setColumnEnabled(0, false);

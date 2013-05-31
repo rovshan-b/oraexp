@@ -3,13 +3,13 @@
 #include "widgets/objectgrantseditortable.h"
 #include <QtGui>
 
-TableCreatorGrants::TableCreatorGrants(const QString &schemaName, TableCreatorTabs *tableCreator, bool editMode, QWidget *parent) :
-    DbObjectCreatorTab<TableCreatorTabs>(tableCreator, editMode, parent),
+TableCreatorGrants::TableCreatorGrants(const QString &schemaName, TableCreatorTabs *tableCreator, DbObjectCreator::CreatorMode creatorMode, QWidget *parent) :
+    DbObjectCreatorTab<TableCreatorTabs>(tableCreator, creatorMode, parent),
     schemaName(schemaName)
 {
     QVBoxLayout *layout=new QVBoxLayout();
 
-    grantsEditor=new ObjectGrantsEditorTable(editMode,
+    grantsEditor=new ObjectGrantsEditorTable(creatorMode,
                                              OraExp::ObjectGrants,
                                              DbTreeModel::Table,
                                              schemaName);

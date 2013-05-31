@@ -4,8 +4,8 @@
 SequenceCreator::SequenceCreator(const QString &schemaName,
                                  const QString &objectName,
                                  DbUiManager *uiManager,
-                                 QWidget *parent) :
-    DbObjectCreator(schemaName, objectName, uiManager, DbTreeModel::Sequence, parent)
+                                 CreatorMode creatorMode, QWidget *parent) :
+    DbObjectCreator(schemaName, objectName, uiManager, DbTreeModel::Sequence, creatorMode, parent)
 {
 }
 

@@ -19,7 +19,7 @@ class TableCreatorPartitions : public TableCreatorTab
 {
     Q_OBJECT
 public:
-    explicit TableCreatorPartitions(TableCreatorTabs* objectCreator, bool editMode, bool configureForIndex=false, QWidget *parent = 0);
+    explicit TableCreatorPartitions(TableCreatorTabs* objectCreator, DbObjectCreator::CreatorMode creatorMode, bool configureForIndex=false, QWidget *parent = 0);
     virtual ~TableCreatorPartitions();
 
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
@@ -75,7 +75,7 @@ private:
     void removeSubpartitionTemplateTab();
 
     //functions and variables for edit mode
-    void setEditMode();
+    void setChildrenCreatorMode(DbObjectCreator::CreatorMode creatorMode);
     TablePartitioningInfo *originalPartitioningInfo;
     bool originalPartitioningInfoIsOnHeap;
 };

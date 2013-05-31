@@ -17,7 +17,7 @@
 #include <QtGui>
 
 TableCreatorExternalPropertiesGeneralInfoWidget::TableCreatorExternalPropertiesGeneralInfoWidget(IQueryScheduler *queryScheduler,
-                                                                                                 bool editMode,
+                                                                                                 DbObjectCreator::CreatorMode creatorMode,
                                                                                                  TableCreatorTabs *tableCreator,
                                                                                                  QWidget *parent) :
     QWidget(parent), originalExternalInfo(0), tableCreator(tableCreator)
@@ -29,7 +29,7 @@ TableCreatorExternalPropertiesGeneralInfoWidget::TableCreatorExternalPropertiesG
     externalTableTypeComboBox->addItem(engineIcon, "ORACLE_LOADER");
     externalTableTypeComboBox->addItem(engineIcon, "ORACLE_DATAPUMP");
     externalTableTypeComboBox->setCurrentIndex(0);
-    if(editMode){
+    if(creatorMode == DbObjectCreator::EditExisting){
         externalTableTypeComboBox->setEnabled(false);
     }
     layout->addRow(tr("Type"), externalTableTypeComboBox);
@@ -56,7 +56,7 @@ TableCreatorExternalPropertiesGeneralInfoWidget::TableCreatorExternalPropertiesG
     layout->addRow(tr("Project column"), projectColumnComboBox);
 
     usingClobCheckBox=new QCheckBox();
-    if(editMode){
+    if(creatorMode == DbObjectCreator::EditExisting){
         usingClobCheckBox->setEnabled(false);
     }
     layout->addRow(tr("Using CLOB subquery"), usingClobCheckBox);

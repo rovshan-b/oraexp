@@ -268,7 +268,6 @@ SOURCES += main.cpp\
     info_panel/infopanel.cpp \
     beans/dbitemaction.cpp \
     context_menu/contextmenuutil.cpp \
-    context_menu/tablecontextmenuutil.cpp \
     context_menu/procedurecontextmenuutil.cpp \
     context_menu/viewcontextmenuutil.cpp \
     connection_page/editorcreatorutil.cpp \
@@ -486,7 +485,8 @@ SOURCES += main.cpp\
     context_menu/handlers/uimanagerinvoker.cpp \
     widgets/checkedlistboxwidget.cpp \
     dialogs/tablenamefinderdialog.cpp \
-    connection_page/connectionpagewindowobject.cpp
+    connection_page/connectionpagewindowobject.cpp \
+    widgets/existingtableoptionswidget.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -745,7 +745,6 @@ HEADERS  += mainwindow.h \
     info_panel/infopanel.h \
     beans/dbitemaction.h \
     context_menu/contextmenuutil.h \
-    context_menu/tablecontextmenuutil.h \
     context_menu/procedurecontextmenuutil.h \
     context_menu/viewcontextmenuutil.h \
     connection_page/editorcreatorutil.h \
@@ -977,7 +976,8 @@ HEADERS  += mainwindow.h \
     context_menu/handlers/uimanagerinvoker.h \
     widgets/checkedlistboxwidget.h \
     dialogs/tablenamefinderdialog.h \
-    connection_page/connectionpagewindowobject.h
+    connection_page/connectionpagewindowobject.h \
+    widgets/existingtableoptionswidget.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

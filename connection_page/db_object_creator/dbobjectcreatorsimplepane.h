@@ -4,6 +4,7 @@
 #include "dbobjectcreatorpane.h"
 #include "beans/dbobjectinfo.h"
 #include "connectivity/ociexception.h"
+#include "connection_page/db_object_creator/dbobjectcreator.h"
 
 class DbItemListComboBox;
 class MetadataLoader;
@@ -20,6 +21,8 @@ public:
 
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
 
+    DbObjectCreator::CreatorMode getCreatorMode() const;
+
 private slots:
     void objectInfoReady(DbObjectInfo *objectInfo, MetadataLoader *loader);
     void loadError(const QString &taskName, const OciException &ex, MetadataLoader *loader);
@@ -28,7 +31,6 @@ protected:
     virtual DbItemListComboBox *schemaListCombo() const=0;
 
     virtual void disableControlsForEditMode(){}
-    bool editMode;
 
     DbObjectInfo *originalObjectInfo;
 

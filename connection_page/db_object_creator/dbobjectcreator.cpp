@@ -12,13 +12,14 @@
 DbObjectCreator::DbObjectCreator(const QString &schemaName,
                                  const QString &objectName,
                                  DbUiManager *uiManager,
-                                 DbTreeModel::DbTreeNodeType objectType, QWidget *parent) :
+                                 DbTreeModel::DbTreeNodeType objectType,
+                                 CreatorMode creatorMode, QWidget *parent) :
     ConnectionPageTab(uiManager, parent),
     schemaName(schemaName),
     objectName(objectName),
-    objectType(objectType)
+    objectType(objectType),
+    creatorMode(creatorMode)
 {
-    editMode=!objectName.isEmpty();
 }
 
 void DbObjectCreator::createUi()
@@ -71,7 +72,7 @@ void DbObjectCreator::setConnection(DbConnection *db)
 void DbObjectCreator::updateDdlText(bool force)
 {
     if(bottomPane->isVisible() || force){
-        if(editMode){
+        if(creatorMode == EditExisting){
             bottomPane->setEditorText("");
             QList< QueryListItem > ddlList = creatorPane->generateAlterDdl();
             QueryListItem item;
@@ -98,7 +99,7 @@ void DbObjectCreator::ddlViewerToggled(bool visible)
 void DbObjectCreator::createOrAlterObject()
 {
     updateDdlText(true);
-    if(editMode){
+    if(creatorMode == EditExisting){
         alterObject();
     }else{
         createObject();

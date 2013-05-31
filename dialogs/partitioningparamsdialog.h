@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "beans/tablepartitioninginfo.h"
+#include "connection_page/db_object_creator/dbobjectcreator.h"
 
 class TableCreatorPartitions;
 class TableCreatorTabs;
@@ -12,7 +13,7 @@ class PartitioningParamsDialog : public QDialog
     Q_OBJECT
 public:
     explicit PartitioningParamsDialog(QWidget *parent,
-                                      bool isEditMode,
+                                      DbObjectCreator::CreatorMode creatorMode,
                                       bool configureForIndex,
                                       TableCreatorTabs *tableCreator);
 

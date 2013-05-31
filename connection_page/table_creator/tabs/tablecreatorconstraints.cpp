@@ -22,9 +22,9 @@ using namespace std;
 
 TableCreatorConstraints::TableCreatorConstraints(const QString &schemaName,
                                                  TableCreatorTabs *tableCreator,
-                                                 bool editMode,
+                                                 DbObjectCreator::CreatorMode creatorMode,
                                                  QWidget *parent) :
-    TableCreatorTabWithTableView(tableCreator, editMode, parent),
+    TableCreatorTabWithTableView(tableCreator, creatorMode, parent),
     schemaName(schemaName),
     originalConstraintList(0)
 {
@@ -106,7 +106,7 @@ void TableCreatorConstraints::customizeTableWidget(const QString &schemaName)
 
     showAdvancedOptions(false);
 
-    if(isEditMode()){
+    if(getCreatorMode() == DbObjectCreator::EditExisting){
         connect(tableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(tableDataChanged(QModelIndex,QModelIndex)));
     }
 
@@ -209,8 +209,10 @@ void TableCreatorConstraints::populateTableWithConstraints()
 
     table->setUpdatesEnabled(true);
 
-    int lastRowIx=model->rowCount()-1;
-    model->freezeRow(lastRowIx);
+    if(getCreatorMode() == DbObjectCreator::EditExisting){
+        int lastRowIx=model->rowCount()-1;
+        model->freezeRow(lastRowIx);
+    }
 }
 
 QList<ConstraintInfo> TableCreatorConstraints::getConstraintsInfo() const

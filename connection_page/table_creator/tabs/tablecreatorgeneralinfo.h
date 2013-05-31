@@ -26,7 +26,7 @@ public:
     explicit TableCreatorGeneralInfo(const QString &schemaName,
                                      const QString &tableName,
                                      TableCreatorTabs *objectCreator,
-                                     bool editMode,
+                                     DbObjectCreator::CreatorMode creatorMode,
                                      QWidget *parent = 0);
 
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);

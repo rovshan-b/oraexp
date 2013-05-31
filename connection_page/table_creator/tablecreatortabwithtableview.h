@@ -8,8 +8,8 @@ class TableCreatorTabWithTableView : public DbObjectCreatorTabWithTableView<Tabl
 {
     Q_OBJECT
 public:
-    explicit TableCreatorTabWithTableView(TableCreatorTabs *objectCreator, bool editMode, QWidget *parent = 0) :
-        DbObjectCreatorTabWithTableView<TableCreatorTabs>(objectCreator, editMode, parent)
+    explicit TableCreatorTabWithTableView(TableCreatorTabs *objectCreator, DbObjectCreator::CreatorMode creatorMode, QWidget *parent = 0) :
+        DbObjectCreatorTabWithTableView<TableCreatorTabs>(objectCreator, creatorMode, parent)
     {
         connect(advancedOptionsAction, SIGNAL(toggled(bool)), this, SLOT(showAdvancedOptions(bool)));
     }

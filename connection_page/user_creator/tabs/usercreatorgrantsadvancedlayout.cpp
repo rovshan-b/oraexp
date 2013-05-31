@@ -6,7 +6,7 @@
 #include "widgets/objectgrantseditortable.h"
 #include <QtGui>
 
-UserCreatorGrantsAdvancedLayout::UserCreatorGrantsAdvancedLayout(bool editMode, QWidget *parent) :
+UserCreatorGrantsAdvancedLayout::UserCreatorGrantsAdvancedLayout(DbObjectCreator::CreatorMode creatorMode, QWidget *parent) :
     QWidget(parent)
 {
     QVBoxLayout *mainLayout=new QVBoxLayout();
@@ -14,16 +14,16 @@ UserCreatorGrantsAdvancedLayout::UserCreatorGrantsAdvancedLayout(bool editMode, 
     tab = new QTabWidget();
     tab->setTabPosition(QTabWidget::South);
 
-    rolesTable = new UserRolesEditorTable(editMode);
+    rolesTable = new UserRolesEditorTable(creatorMode);
     tab->addTab(rolesTable, tr("Roles"));
 
-    sysPrivsTable = new UserSysPrivsEditorTable(editMode);
+    sysPrivsTable = new UserSysPrivsEditorTable(creatorMode);
     tab->addTab(sysPrivsTable, tr("System privileges"));
 
-    quotasTable = new TablespaceQuotasEditorTable(editMode);
+    quotasTable = new TablespaceQuotasEditorTable(creatorMode);
     tab->addTab(quotasTable, tr("Quotas"));
 
-    objectPrivsTable = new ObjectGrantsEditorTable(editMode, OraExp::UserGrants, DbTreeModel::Schema, "");
+    objectPrivsTable = new ObjectGrantsEditorTable(creatorMode, OraExp::UserGrants, DbTreeModel::Schema, "");
     tab->addTab(objectPrivsTable, tr("Object privileges"));
 
     mainLayout->addWidget(tab);

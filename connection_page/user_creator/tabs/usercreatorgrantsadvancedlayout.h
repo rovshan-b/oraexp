@@ -5,6 +5,7 @@
 #include <QModelIndex>
 
 #include "beans/objectgrantinfo.h"
+#include "connection_page/db_object_creator/dbobjectcreator.h"
 
 class IQueryScheduler;
 class QTabWidget;
@@ -23,7 +24,7 @@ class UserCreatorGrantsAdvancedLayout : public QWidget
 {
     Q_OBJECT
 public:
-    explicit UserCreatorGrantsAdvancedLayout(bool editMode, QWidget *parent = 0);
+    explicit UserCreatorGrantsAdvancedLayout(DbObjectCreator::CreatorMode creatorMode, QWidget *parent = 0);
 
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
 

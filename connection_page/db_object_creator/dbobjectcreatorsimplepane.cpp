@@ -9,7 +9,7 @@
 DbObjectCreatorSimplePane::DbObjectCreatorSimplePane(DbObjectCreator *objectCreator, QWidget *parent) :
     DbObjectCreatorPane(objectCreator, parent), originalObjectInfo(0)
 {
-    editMode=!objectCreator->getOriginalObjectName().isEmpty();
+
 }
 
 DbObjectCreatorSimplePane::~DbObjectCreatorSimplePane()
@@ -36,7 +36,7 @@ void DbObjectCreatorSimplePane::createUi()
     mainLayout->setContentsMargins(0,0,0,0);
     setLayout(mainLayout);
 
-    if(editMode){
+    if(getCreatorMode() == DbObjectCreator::EditExisting){
         disableControlsForEditMode();
     }
 }
@@ -67,7 +67,7 @@ void DbObjectCreatorSimplePane::setQueryScheduler(IQueryScheduler *querySchedule
 
     DbItemListComboBox *schemaList=schemaListCombo();
     if(schemaList){
-        if(editMode){
+        if(getCreatorMode() == DbObjectCreator::EditExisting){
             schemaList->addItem(IconUtil::getIcon("user"), schemaList->currentText());
             schemaList->setCurrentIndex(0);
         }else{
@@ -75,7 +75,7 @@ void DbObjectCreatorSimplePane::setQueryScheduler(IQueryScheduler *querySchedule
         }
     }
 
-    if(editMode){
+    if(getCreatorMode() == DbObjectCreator::EditExisting){
         MetadataLoader *metadataLoader=MetadataLoaderFactory::createMetadataLoader(objectCreator->getObjectType(),
                                                     this->queryScheduler,
                                                     objectCreator->getOriginalSchemaName(),
@@ -88,4 +88,9 @@ void DbObjectCreatorSimplePane::setQueryScheduler(IQueryScheduler *querySchedule
     }else{
         emit objectInfoLoaded();
     }
+}
+
+DbObjectCreator::CreatorMode DbObjectCreatorSimplePane::getCreatorMode() const
+{
+    return objectCreator->getCreatorMode();
 }

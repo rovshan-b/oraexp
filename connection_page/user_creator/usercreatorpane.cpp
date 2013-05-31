@@ -9,7 +9,7 @@ UserCreatorPane::UserCreatorPane(DbObjectCreator *objectCreator, QWidget *parent
     QVBoxLayout *mainLayout=new QVBoxLayout();
     mainLayout->setContentsMargins(0,0,0,0);
 
-    userCreatorTabs=new UserCreatorTabs(objectCreator->getOriginalObjectName());
+    userCreatorTabs=new UserCreatorTabs(objectCreator->getOriginalObjectName(), objectCreator->getCreatorMode());
 
     mainLayout->addWidget(userCreatorTabs);
     setLayout(mainLayout);

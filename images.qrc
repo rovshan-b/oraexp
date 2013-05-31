@@ -143,5 +143,6 @@
         <file>images/import_data.png</file>
         <file>images/form.png</file>
         <file>images/query.png</file>
+        <file>images/copy_small.png</file>
     </qresource>
 </RCC>

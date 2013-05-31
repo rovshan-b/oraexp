@@ -3,6 +3,7 @@
 
 #include "datatableandtoolbarwidget.h"
 #include "beans/privgrantinfo.h"
+#include "connection_page/db_object_creator/dbobjectcreator.h"
 
 class RoleGrantsModel;
 
@@ -10,7 +11,7 @@ class UserRolesEditorTable : public DataTableAndToolBarWidget
 {
     Q_OBJECT
 public:
-    explicit UserRolesEditorTable(bool editMode, QWidget *parent = 0);
+    explicit UserRolesEditorTable(DbObjectCreator::CreatorMode creatorMode, QWidget *parent = 0);
 
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
@@ -30,7 +31,7 @@ protected slots:
 private:
     IQueryScheduler *queryScheduler;
 
-    bool editMode;
+    DbObjectCreator::CreatorMode creatorMode;
     QList<PrivGrantInfo> *originalItemList;
 
     void customizeTable();

@@ -16,8 +16,8 @@ template <typename ParentWidgetType>
 class DbObjectCreatorTabWithTableView : public DbObjectCreatorTab<ParentWidgetType>
 {
 public:
-    explicit DbObjectCreatorTabWithTableView(ParentWidgetType *objectCreator, bool editMode, QWidget *parent = 0) :
-        DbObjectCreatorTab<ParentWidgetType>(objectCreator, editMode, parent)
+    explicit DbObjectCreatorTabWithTableView(ParentWidgetType *objectCreator, DbObjectCreator::CreatorMode creatorMode, QWidget *parent = 0) :
+        DbObjectCreatorTab<ParentWidgetType>(objectCreator, creatorMode, parent)
     {
         QVBoxLayout *layout=new QVBoxLayout();
 

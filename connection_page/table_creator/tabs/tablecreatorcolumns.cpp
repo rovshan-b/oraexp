@@ -15,8 +15,8 @@
 
 #include <QDebug>
 
-TableCreatorColumns::TableCreatorColumns(TableCreatorTabs *tableCreator, bool editMode, QWidget *parent) :
-    TableCreatorTabWithTableView(tableCreator, editMode, parent), originalColumnList(0)
+TableCreatorColumns::TableCreatorColumns(TableCreatorTabs *tableCreator, DbObjectCreator::CreatorMode creatorMode, QWidget *parent) :
+    TableCreatorTabWithTableView(tableCreator, creatorMode, parent), originalColumnList(0)
 {
 
 }
@@ -94,7 +94,7 @@ void TableCreatorColumns::customizeTableWidget()
 
     showAdvancedOptions(false);
 
-    if(isEditMode()){
+    if(getCreatorMode() == DbObjectCreator::EditExisting){
         connect(tableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(tableDataChanged(QModelIndex,QModelIndex)));
     }
 
@@ -191,9 +191,11 @@ void TableCreatorColumns::populateTableWithColumnList()
 
     table->setUpdatesEnabled(true);
 
-    int lastRowIx=model->rowCount()-1;
-    model->freezeRow(lastRowIx);
-    disableColumnsForFrozenRows(lastRowIx);
+    if(getCreatorMode() == DbObjectCreator::EditExisting){
+        int lastRowIx=model->rowCount()-1;
+        model->freezeRow(lastRowIx);
+        disableColumnsForFrozenRows(lastRowIx);
+    }
 }
 
 void TableCreatorColumns::disableColumnsForFrozenRows(int rowIx)

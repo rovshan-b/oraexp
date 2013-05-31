@@ -95,6 +95,7 @@ public:
     };
 
     static QString getDbTreeNodeName(DbTreeNodeType nodeType);
+    static DbTreeNodeType getDbTreeNodeType(const QString &nodeTypeName);
 
 
     explicit DbTreeModel(IQueryScheduler *m_queryScheduler, const QString &defaultSchemaName, QObject *parent = 0);

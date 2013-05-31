@@ -78,6 +78,6 @@ void TableNameFinderDialog::findTableNameRecordFetched(const FetchResult &result
 
 void TableNameFinderDialog::findTableNameFetchCompleted(const QString &)
 {
-    uiManager->addEditor(schemaName, tableName, "TABLE", tabName, childObjectName);
+    uiManager->createEditor(schemaName, tableName, "TABLE", tabName, childObjectName);
     accept();
 }

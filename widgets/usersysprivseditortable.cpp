@@ -5,10 +5,10 @@
 #include "delegates/dbitemlistdelegate.h"
 #include "delegates/booleandelegate.h"
 
-UserSysPrivsEditorTable::UserSysPrivsEditorTable(bool editMode, QWidget *parent) :
+UserSysPrivsEditorTable::UserSysPrivsEditorTable(DbObjectCreator::CreatorMode creatorMode, QWidget *parent) :
     DataTableAndToolBarWidget(0, Qt::Horizontal, parent),
     queryScheduler(0),
-    editMode(editMode),
+    creatorMode(creatorMode),
     originalItemList(0)
 {
 }
@@ -124,7 +124,7 @@ void UserSysPrivsEditorTable::customizeTable()
     BooleanDelegate *isGrantableDelegate=new BooleanDelegate(this, false);
     table->setItemDelegateForColumn(SysPrivGrantsModel::IsGrantable, isGrantableDelegate);
 
-    if(editMode){
+    if(creatorMode == DbObjectCreator::EditExisting){
         connect(tableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(tableDataChanged(QModelIndex,QModelIndex)));
 
         tableModel->setColumnEnabled(0, false);

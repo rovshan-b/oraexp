@@ -5,7 +5,7 @@
 #include "models/genericeditabletablemodel.h"
 #include <QtGui>
 
-TableCreatorPane::TableCreatorPane(DbObjectCreator *objectCreator, bool editMode, QWidget *parent) :
+TableCreatorPane::TableCreatorPane(DbObjectCreator *objectCreator, QWidget *parent) :
     DbObjectCreatorPane(objectCreator, parent)
 {
     QVBoxLayout *mainLayout=new QVBoxLayout();
@@ -13,7 +13,7 @@ TableCreatorPane::TableCreatorPane(DbObjectCreator *objectCreator, bool editMode
 
     tableCreatorTabs=new TableCreatorTabs(objectCreator->getOriginalSchemaName(),
                                           objectCreator->getOriginalObjectName(),
-                                          editMode);
+                                          objectCreator->getCreatorMode());
 
     mainLayout->addWidget(tableCreatorTabs);
     setLayout(mainLayout);

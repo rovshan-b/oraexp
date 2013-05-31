@@ -1,6 +1,7 @@
 #include "schemacompareroptionstab.h"
 #include "util/widgethelper.h"
 #include "connectivity/dbconnection.h"
+#include "widgets/existingtableoptionswidget.h"
 #include "widgets/tableddlexportoptionswidget.h"
 #include "widgets/storageddlexportoptionswidget.h"
 #include "widgets/sourceddlexportoptionswidget.h"
@@ -30,11 +31,7 @@ void SchemaComparerOptionsTab::setCanWrap(bool canWrap)
 void SchemaComparerOptionsTab::setCanFlashbackArchive(bool canFlashbackArchive)
 {
     QString notSupportedTooltip=tr("Not supported by source or target or both databases");
-    if(canFlashbackArchive){
-        etFlashbackArchive->setEnabled(true);
-    }else{
-        etFlashbackArchive->setToolTip(notSupportedTooltip);
-    }
+    etOptionsWidget->setFlashbackEnabled(canFlashbackArchive, canFlashbackArchive ? "" : notSupportedTooltip);
     ntOptionsWidget->setFlashbackEnabled(canFlashbackArchive, canFlashbackArchive ? "" : notSupportedTooltip);
 }
 
@@ -49,19 +46,7 @@ DbObjectComparisonOptions *SchemaComparerOptionsTab::getOptions()
 {
     SchemaComparisonOptions *opt=new SchemaComparisonOptions();
 
-    opt->tableDiffOptions.comments=etComments->isChecked();
-    opt->tableDiffOptions.properties=etProperties->isChecked();
-    opt->tableDiffOptions.flashbackArchive=etFlashbackArchive->isChecked();
-    opt->tableDiffOptions.storage=etStorage->isChecked();
-    opt->tableDiffOptions.iotProperties=etIOTProperties->isChecked();
-    opt->tableDiffOptions.lobProperties=etLOBProperties->isChecked();
-    opt->tableDiffOptions.columns=etColumns->isChecked();
-    opt->tableDiffOptions.constraints=etConstraints->isChecked();
-    opt->tableDiffOptions.indexes=etIndexes->isChecked();
-    opt->tableDiffOptions.partitions=etPartitions->isChecked();
-    opt->tableDiffOptions.externalProperties=etExternalProperties->isChecked();
-    opt->tableDiffOptions.triggers=etTriggers->isChecked();
-    opt->tableDiffOptions.grants=etGrants->isChecked();
+    opt->tableDiffOptions = etOptionsWidget->getOptions();
 
     opt->tableCreateOptions = ntOptionsWidget->getOptions();
 
@@ -76,11 +61,6 @@ DbObjectComparisonOptions *SchemaComparerOptionsTab::getOptions()
     opt->sequenceDiffOptions = seqDiffOptionsWidget->getOptions();
 
     return opt;
-}
-
-void SchemaComparerOptionsTab::etOptionsChanged(int)
-{
-    etLOBProperties->setEnabled(etColumns->isChecked());
 }
 
 void SchemaComparerOptionsTab::createOptionsPane(QBoxLayout *layout)
@@ -127,31 +107,11 @@ void SchemaComparerOptionsTab::createOptionsPane(QBoxLayout *layout)
 
 void SchemaComparerOptionsTab::createExistingTableOptionsPane(QBoxLayout *layout)
 {
-    existingTableOptionsGroupBox=new QGroupBox(tr("Existing tables"));
+    etOptionsWidget = new ExistingTableOptionsWidget();
+    existingTableOptionsGroupBox = WidgetHelper::createGroupBox(etOptionsWidget, tr("Existing tables"));
 
-    QGridLayout *tableOptionsLayout=new QGridLayout();
-
-    etComments=WidgetHelper::createCheckBox(tableOptionsLayout, 0, 0, tr("Comments"), true);
-    etProperties=WidgetHelper::createCheckBox(tableOptionsLayout, 1, 0, tr("Properties"), false);
-    etFlashbackArchive=WidgetHelper::createCheckBox(tableOptionsLayout, 2, 0, tr("Flashback archive"), false);
-    etFlashbackArchive->setEnabled(false);
-    etFlashbackArchive->setToolTip(tr("Will be enabled if both databases are version 11g or higher"));
-    etStorage=WidgetHelper::createCheckBox(tableOptionsLayout, 3, 0, tr("Storage"), false);
-    etIOTProperties=WidgetHelper::createCheckBox(tableOptionsLayout, 4, 0, tr("IOT Properties"), false);
-    etColumns=WidgetHelper::createCheckBox(tableOptionsLayout, 5, 0, tr("Columns"), true);
-    etLOBProperties=WidgetHelper::createCheckBox(tableOptionsLayout, 6, 0, tr("LOB Properties"), false);
-    etConstraints=WidgetHelper::createCheckBox(tableOptionsLayout, 0, 1, tr("Constraints"), true);
-    etIndexes=WidgetHelper::createCheckBox(tableOptionsLayout, 1, 1, tr("Indexes"), true);
-    etPartitions=WidgetHelper::createCheckBox(tableOptionsLayout, 2, 1, tr("Partitions"), true);
-    etExternalProperties=WidgetHelper::createCheckBox(tableOptionsLayout, 3, 1, tr("External properties"), true);
-    etTriggers=WidgetHelper::createCheckBox(tableOptionsLayout, 4, 1, tr("Triggers"), true);
-    etGrants=WidgetHelper::createCheckBox(tableOptionsLayout, 5, 1, tr("Grants"), false);
-
-    existingTableOptionsGroupBox->setLayout(tableOptionsLayout);
     layout->addWidget(existingTableOptionsGroupBox);
     layout->setAlignment(existingTableOptionsGroupBox, Qt::AlignTop|Qt::AlignLeft);
-
-    connect(etColumns, SIGNAL(stateChanged(int)), this, SLOT(etOptionsChanged(int)));
 }
 
 void SchemaComparerOptionsTab::createNewTableOptionsPane(QBoxLayout *layout)

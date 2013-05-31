@@ -5,14 +5,14 @@
 #include <QtGui>
 
 PartitioningParamsDialog::PartitioningParamsDialog(QWidget *parent,
-                                                   bool isEditMode,
+                                                   DbObjectCreator::CreatorMode creatorMode,
                                                    bool configureForIndex,
                                                    TableCreatorTabs *tableCreator) :
     QDialog(parent)
 {
     QVBoxLayout *mainLayout=new QVBoxLayout(this);
 
-    partitionsWidget=new TableCreatorPartitions(tableCreator, isEditMode, configureForIndex, this);
+    partitionsWidget=new TableCreatorPartitions(tableCreator, creatorMode, configureForIndex, this);
     partitionsWidget->setQueryScheduler(tableCreator->getQueryScheduler());
     partitionsWidget->layout()->setContentsMargins(0,0,0,0);
     mainLayout->addWidget(partitionsWidget);

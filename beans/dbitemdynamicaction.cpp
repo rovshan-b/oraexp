@@ -30,7 +30,7 @@ void DbItemDynamicAction::execute(DbUiManager *uiManager)
     properties["schemaName"] = this->schemaName;
     properties["objectName"] = this->objectName;
     properties["parentObjectName"] = this->parentObjectName;
-    properties["objectType"] = (int)this->itemType;
+    properties["objectType"] = QString::number((int)this->itemType);
 
     void *handlerInstance = QMetaType::construct(handlerTypeId);
 

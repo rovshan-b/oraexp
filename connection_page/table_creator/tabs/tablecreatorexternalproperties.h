@@ -22,7 +22,7 @@ public:
     explicit TableCreatorExternalProperties(IQueryScheduler *queryScheduler,
                                             IStringListRetriever *columnListRetriever,
                                             TableCreatorTabs *objectCreator,
-                                            bool editMode,
+                                            DbObjectCreator::CreatorMode creatorMode,
                                             QWidget *parent);
     virtual ~TableCreatorExternalProperties();
 

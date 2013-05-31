@@ -14,7 +14,7 @@ class TableCreatorCheckConstraints : public TableCreatorTabWithTableView
 {
     Q_OBJECT
 public:
-    explicit TableCreatorCheckConstraints(TableCreatorTabs *objectCreator, bool editMode, QWidget *parent);
+    explicit TableCreatorCheckConstraints(TableCreatorTabs *objectCreator, DbObjectCreator::CreatorMode creatorMode, QWidget *parent);
 
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
 

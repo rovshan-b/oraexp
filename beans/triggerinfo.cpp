@@ -58,6 +58,11 @@ QString TriggerInfo::generateDdl(const QString &fullTableName, bool sqlTerminato
     return ddl;
 }
 
+QString TriggerInfo::generateEnableDdl(const QString &fullTableName) const
+{
+    return QString("ALTER TRIGGER %1 %2;").arg(fullTableName, enabled ? "ENABLE" : "DISABLE");
+}
+
 QString TriggerInfo::generateDropDdl() const
 {
     return QString("DROP TRIGGER \"%1\".\"%2\";").arg(owner, name);
@@ -75,12 +80,13 @@ QString TriggerInfo::generateDiffDdl(const TriggerInfo &other, const QString &fu
         columnName!=other.columnName ||
         referencingNames!=other.referencingNames ||
         whenClause!=other.whenClause ||
-        enabled!=other.enabled ||
         follows!=other.follows ||
         actionType!=other.actionType ||
         body!=other.body){
 
         ddl=generateDdl(fullTableName, true);
+    }else if(enabled!=other.enabled){
+        ddl=generateEnableDdl(fullTableName);
     }
 
     return ddl;

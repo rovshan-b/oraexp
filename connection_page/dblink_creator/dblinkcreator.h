@@ -8,9 +8,10 @@ class DbLinkCreator : public DbObjectCreator
     Q_OBJECT
 public:
     explicit DbLinkCreator(const QString &schemaName,
-                             const QString &objectName,
-                             DbUiManager *uiManager,
-                             QWidget *parent = 0);
+                           const QString &objectName,
+                           DbUiManager *uiManager,
+                           CreatorMode creatorMode,
+                           QWidget *parent = 0);
     
 protected:
     virtual DbObjectCreatorPane *createCreatorPane(DbObjectCreator *objectCreator);

@@ -38,7 +38,7 @@ TableCreatorPartitionsTab::TableCreatorPartitionsTab(TableCreatorTabs* tableCrea
     currentPartitionType(OraExp::PartitionTypeRange),
     configureForIndex(configureForIndex),
     supportsIntervalAndReferencePartitioning(false),
-    editMode(false)
+    creatorMode(DbObjectCreator::CreateNew)
 {
     QVBoxLayout *layout=new QVBoxLayout();
 
@@ -210,23 +210,24 @@ void TableCreatorPartitionsTab::tablespaceListAvailable()
     }
 }
 
-void TableCreatorPartitionsTab::setEditMode()
+void TableCreatorPartitionsTab::setCreatorMode(DbObjectCreator::CreatorMode creatorMode)
 {
-    Q_ASSERT(!editMode);
+    if(creatorMode == DbObjectCreator::EditExisting){
+        Q_ASSERT(this->creatorMode != creatorMode);
 
-    editMode=true;
+        if(partitioningStrategy!=0){partitioningStrategy->setEnabled(false);}
+        if(partitionType!=0){partitionType->setEnabled(false);}
+        if(columnSelector!=0){columnSelector->setEnabled(false);}
+        if(foreignKeySelector!=0){foreignKeySelector->setEnabled(false);}
 
-    if(partitioningStrategy!=0){partitioningStrategy->setEnabled(false);}
-    if(partitionType!=0){partitionType->setEnabled(false);}
-    if(columnSelector!=0){columnSelector->setEnabled(false);}
-    if(foreignKeySelector!=0){foreignKeySelector->setEnabled(false);}
+        if(configureFor!=OraExp::PartitionPartSubpartitionTemplate){
+            specifiedBySelector->setEnabled(false);
+            storeInSelector->setEnabled(false);
+        }
 
-    if(configureFor!=OraExp::PartitionPartSubpartitionTemplate){
-        specifiedBySelector->setEnabled(false);
-        storeInSelector->setEnabled(false);
+        connect(table->table()->model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(tableDataChanged(QModelIndex,QModelIndex)));
     }
-
-    connect(table->table()->model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(tableDataChanged(QModelIndex,QModelIndex)));
+    this->creatorMode = creatorMode;
 }
 
 void TableCreatorPartitionsTab::setInterval(const QString &interval)
@@ -271,7 +272,7 @@ void TableCreatorPartitionsTab::populateTableWithPartitionList(const Partitionin
 
     table->table()->setUpdatesEnabled(true);
 
-    if(configureFor!=OraExp::PartitionPartSubpartitionTemplate && editMode){
+    if(configureFor!=OraExp::PartitionPartSubpartitionTemplate && creatorMode==DbObjectCreator::EditExisting){
         int lastRowIx=(frozenRowIx==-1 ? model->rowCount()-1 : frozenRowIx);
         model->freezeRow(lastRowIx);
         disableColumnsForFrozenRows(lastRowIx);

@@ -5,6 +5,7 @@
 #include "beans/objectgrantinfo.h"
 #include "navtree/dbtreemodel.h"
 #include "models/objectgrantsmodel.h"
+#include "connection_page/db_object_creator/dbobjectcreator.h"
 
 class ObjectGrantsModel;
 class SchemaSelectorDelegate;
@@ -13,7 +14,7 @@ class ObjectGrantsEditorTable : public DataTableAndToolBarWidget
 {
     Q_OBJECT
 public:
-    explicit ObjectGrantsEditorTable(bool editMode,
+    explicit ObjectGrantsEditorTable(DbObjectCreator::CreatorMode creatorMode,
                                      OraExp::GrantsEditorPerspective perspective,
                                      DbTreeModel::DbTreeNodeType objectType,
                                      const QString &initialSchemaName ,
@@ -41,7 +42,7 @@ protected slots:
 private:
     IQueryScheduler *queryScheduler;
 
-    bool editMode;
+    DbObjectCreator::CreatorMode creatorMode;
     OraExp::GrantsEditorPerspective perspective;
     DbTreeModel::DbTreeNodeType objectType;
     QString initialSchemaName;

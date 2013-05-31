@@ -6,6 +6,7 @@
 #include "connectivity/queryresult.h"
 #include "connectivity/fetchresult.h"
 #include "beans/tableexternalinfo.h"
+#include "connection_page/db_object_creator/dbobjectcreator.h"
 
 class QComboBox;
 class DataTableAndToolBarWidget;
@@ -23,7 +24,7 @@ class TableCreatorExternalPropertiesGeneralInfoWidget : public QWidget
     Q_OBJECT
 public:
     explicit TableCreatorExternalPropertiesGeneralInfoWidget(IQueryScheduler *queryScheduler,
-                                                             bool editMode,
+                                                             DbObjectCreator::CreatorMode creatorMode,
                                                              TableCreatorTabs *tableCreator,
                                                              QWidget *parent = 0);
 

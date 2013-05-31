@@ -19,8 +19,8 @@
 #include "dialogs/partitioningparamsdialog.h"
 #include <QtGui>
 
-TableCreatorIndexes::TableCreatorIndexes(TableCreatorTabs* tableCreator, bool editMode, QWidget *parent) :
-    TableCreatorTabWithTableView(tableCreator, editMode, parent), originalIndexList(0)
+TableCreatorIndexes::TableCreatorIndexes(TableCreatorTabs* tableCreator, DbObjectCreator::CreatorMode creatorMode, QWidget *parent) :
+    TableCreatorTabWithTableView(tableCreator, creatorMode, parent), originalIndexList(0)
 {
 }
 
@@ -105,7 +105,7 @@ void TableCreatorIndexes::customizeTableWidget(const QString &schemaName)
 
     showAdvancedOptions(false);
 
-    if(isEditMode()){
+    if(getCreatorMode() == DbObjectCreator::EditExisting){
         connect(tableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(tableDataChanged(QModelIndex,QModelIndex)));
     }
 
@@ -194,8 +194,10 @@ void TableCreatorIndexes::populateTableWithIndexList()
 
     table->setUpdatesEnabled(true);
 
-    int lastRowIx=model->rowCount()-1;
-    model->freezeRow(lastRowIx);
+    if(getCreatorMode() == DbObjectCreator::EditExisting){
+        int lastRowIx=model->rowCount()-1;
+        model->freezeRow(lastRowIx);
+    }
 }
 
 void TableCreatorIndexes::saveStorageParamsToModel(TableIndexesModel *model, int rowIx, const IndexInfo &ixInfo)

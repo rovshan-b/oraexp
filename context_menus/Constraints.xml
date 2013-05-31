@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <items>
-   <item caption="Create constraint..." icon="constraint_add" handler="UiManagerInvoker" slotName="addEditor" 
-         param1="arg:schemaName" param2="arg:objectName" param3="TABLE" param4="Keys" param5="" />
+   <item caption="Create primary key" icon="column_pk" handler="UiManagerInvoker" slotName="createEditor" 
+              param1="arg:schemaName" param2="arg:objectName" param3="Table" param4="Keys" param5="" />
+   <item caption="Create foreign key" icon="column_fk" handler="UiManagerInvoker" slotName="createEditor" 
+              param1="arg:schemaName" param2="arg:objectName" param3="Table" param4="Keys" param5="" />
+   <item caption="Create unique key" icon="column_uq" handler="UiManagerInvoker" slotName="createEditor" 
+              param1="arg:schemaName" param2="arg:objectName" param3="Table" param4="Keys" param5="" />
+   <item caption="Create check" icon="constraint" handler="UiManagerInvoker" slotName="createEditor" 
+              param1="arg:schemaName" param2="arg:objectName" param3="Table" param4="Checks" param5="" />
 </items>

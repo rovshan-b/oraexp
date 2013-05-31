@@ -2,7 +2,7 @@
         {@replace_with:func_wrap_code}
     {}
 
-    {@replace_with:func_clob_replace}
+    {@replace_with:func_clear_whitespace}
     {@replace_with:func_replace_source_owner}
     {@replace_with:func_trim_str}
     {@replace_with:func_get_source_code}
@@ -28,9 +28,7 @@
          replace_source_owner(p_owner, p_new_owner, p_object_name, p_object_type, l_code);
          
          if l_will_wrap = 0 and p_remove_whitespace = 1 then
-            l_code := clob_replace(l_code, ' ', '');
-            l_code := clob_replace(l_code, chr(10), '');
-            l_code := clob_replace(l_code, chr(13), '');
+            clear_whitespace(l_code);
          end if;
          
          {@keep_if:>=10}

@@ -118,7 +118,7 @@ QList<QueryListItem> SynonymCreatorPane::generateAlterDdl()
 bool SynonymCreatorPane::beforeCreate() const
 {
     SynonymInfo info=getSynonymInfo();
-    return WidgetHelper::validate(&info, editMode, this->window());
+    return WidgetHelper::validate(&info, (getCreatorMode() == DbObjectCreator::EditExisting), this->window());
 }
 
 bool SynonymCreatorPane::beforeAlter() const
@@ -171,14 +171,14 @@ void SynonymCreatorPane::setObjectInfo(DbObjectInfo *objectInfo)
 
 
     QString currentDbSchema = queryScheduler->getDb()->getSchemaName();
-    if(editMode && currentDbSchema!=schemaList->currentText() && !publicCheckBox->isChecked()){
+    if((getCreatorMode() == DbObjectCreator::EditExisting) && currentDbSchema!=schemaList->currentText() && !publicCheckBox->isChecked()){
         synonymNameEditor->setEnabled(false);
     }
 }
 
 void SynonymCreatorPane::enableControls()
 {
-    schemaList->setEnabled(!publicCheckBox->isChecked() && !editMode);
+    schemaList->setEnabled(!publicCheckBox->isChecked() && getCreatorMode() != DbObjectCreator::EditExisting);
     dbLinkComboBox->setEnabled(isOverDbLinkCheckBox->isChecked());
 }
 

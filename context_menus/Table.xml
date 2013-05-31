@@ -1,12 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <items>
+    <item caption="View" icon="table_view" handler="UiManagerInvoker" slotName="createViewer" param1="arg:schemaName" param2="arg:objectName" param3="arg:objectType" />
+    <item caption="Modify" icon="table_alter" handler="UiManagerInvoker" slotName="createEditor" param1="arg:schemaName" param2="arg:objectName" param3="arg:objectType" />
+    <item caption="Create like" icon="table_copy" handler="UiManagerInvoker" slotName="createLikeEditor" param1="arg:schemaName" param2="arg:objectName" param3="arg:objectType" />
+    <item caption="-" />
+    <item caption="Compare data" icon="compare_data" handler="UiManagerInvoker" slotName="addDataComparer" param1="arg:schemaName" param2="arg:objectName" />
+    <item caption="Copy data" icon="copy_data" handler="UiManagerInvoker" slotName="addDataCopier" param1="arg:schemaName" param2="arg:objectName" />
+    <item caption="Export data" icon="export" handler="UiManagerInvoker" slotName="addDataExporter" param1="arg:schemaName" param2="arg:objectName" />
+    <item caption="Import data" icon="import_data" handler="UiManagerInvoker" slotName="addDataImporter" param1="arg:schemaName" param2="arg:objectName" />
+    <item caption="-" />
+    <item caption="Add">
+        <item caption="Column" icon="column" handler="UiManagerInvoker" slotName="createEditor" 
+              param1="arg:schemaName" param2="arg:objectName" param3="arg:objectType" param4="Columns" param5="" />
+        <item caption="Primary key" icon="column_pk" handler="UiManagerInvoker" slotName="createEditor" 
+              param1="arg:schemaName" param2="arg:objectName" param3="arg:objectType" param4="Keys" param5="" />
+        <item caption="Foreign key" icon="column_fk" handler="UiManagerInvoker" slotName="createEditor" 
+              param1="arg:schemaName" param2="arg:objectName" param3="arg:objectType" param4="Keys" param5="" />
+        <item caption="Unique key" icon="column_uq" handler="UiManagerInvoker" slotName="createEditor" 
+              param1="arg:schemaName" param2="arg:objectName" param3="arg:objectType" param4="Keys" param5="" />
+        <item caption="Check" icon="constraint" handler="UiManagerInvoker" slotName="createEditor" 
+              param1="arg:schemaName" param2="arg:objectName" param3="arg:objectType" param4="Checks" param5="" />
+        <item caption="Index" icon="index" handler="UiManagerInvoker" slotName="createEditor" 
+              param1="arg:schemaName" param2="arg:objectName" param3="arg:objectType" param4="Indexes" param5="" />
+    </item>
+    <item caption="-" />
     <item caption="Generate DML">
-        <item caption="Select..." handler="UiManagerInvoker" slotName="addDmlGenerator" param1="arg:schemaName" param2="arg:objectName" param3="0" />
-        <item caption="Insert..." handler="UiManagerInvoker" slotName="addDmlGenerator" param1="arg:schemaName" param2="arg:objectName" param3="1" />
-        <item caption="Update..." handler="UiManagerInvoker" slotName="addDmlGenerator" param1="arg:schemaName" param2="arg:objectName" param3="2" />
-        <item caption="Delete..." handler="UiManagerInvoker" slotName="addDmlGenerator" param1="arg:schemaName" param2="arg:objectName" param3="3" />
+        <item caption="Select" handler="UiManagerInvoker" slotName="addDmlGenerator" param1="arg:schemaName" param2="arg:objectName" param3="0" />
+        <item caption="Insert" handler="UiManagerInvoker" slotName="addDmlGenerator" param1="arg:schemaName" param2="arg:objectName" param3="1" />
+        <item caption="Update" handler="UiManagerInvoker" slotName="addDmlGenerator" param1="arg:schemaName" param2="arg:objectName" param3="2" />
+        <item caption="Delete" handler="UiManagerInvoker" slotName="addDmlGenerator" param1="arg:schemaName" param2="arg:objectName" param3="3" />
     </item>
     <item caption="Generate DDL" handler="UiManagerInvoker" />
     <item caption="-" />
-    <item caption="Drop..." icon="delete" handler="WindowLoader" windowName="DropTable" />
+    <item caption="Drop" icon="delete" handler="WindowLoader" windowName="DropTable" />
 </items>

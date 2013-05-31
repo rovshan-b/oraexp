@@ -39,7 +39,7 @@ void DbUiManager::refreshTreeNodeChildren()
 
 void DbUiManager::createCreator()
 {
-    createEditor(false);
+    createEditor(DbObjectCreator::CreateNew);
 }
 
 //called by top level menu items
@@ -49,7 +49,7 @@ void DbUiManager::createCreator(DbItemAction *action)
     createEditor(actionSchema.isEmpty() ? db->getSchemaName() : actionSchema,
                  action->getObjectName(),
                  action->getItemType(),
-                 false,
+                 DbObjectCreator::CreateNew,
                  action->properties);
 }
 
@@ -57,28 +57,28 @@ void DbUiManager::createCreator(const QString &schemaName,
                                const QString &objectName,
                                const DbTreeModel::DbTreeNodeType itemType)
 {
-    createEditor(schemaName, objectName, itemType, false);
+    createEditor(schemaName, objectName, itemType, DbObjectCreator::CreateNew);
 }
 
-void DbUiManager::createEditor(bool editMode)
+void DbUiManager::createEditor(DbObjectCreator::CreatorMode creatorMode)
 {
     DbItemAction *action=getSenderAction();
     QString schemaName=action->getSchemaName();
     if(schemaName.isEmpty()){
         schemaName=db->getSchemaName();
     }
-    createEditor(schemaName, action->getObjectName(), action->getItemType(), editMode, action->properties);
+    createEditor(schemaName, action->getObjectName(), action->getItemType(), creatorMode, action->properties);
 }
 
 void DbUiManager::createEditor(const QString &schemaName,
                                const QString &objectName,
                                const DbTreeModel::DbTreeNodeType itemType,
-                               bool editMode,
+                               DbObjectCreator::CreatorMode creatorMode,
                                QHash<QString,QString> properties)
 {
     QString objectTypeName = DbUtil::getDbObjectTypeNameByNodeType(itemType).toLower();
     QString tabId = createTabId("editor", objectTypeName, schemaName, objectName);
-    ConnectionPageTab * existingTab = editMode ? cnPage->findTabById(tabId) : 0;
+    ConnectionPageTab * existingTab = (creatorMode == DbObjectCreator::EditExisting) ? cnPage->findTabById(tabId) : 0;
     if(existingTab){
         setProperties(existingTab);
         existingTab->setPropertyValue(ConnectionPageTab::TAB_NAME_KEY, properties.value(ConnectionPageTab::TAB_NAME_KEY));
@@ -92,17 +92,53 @@ void DbUiManager::createEditor(const QString &schemaName,
                                                       objectName,
                                                       itemType,
                                                       this,
-                                                      editMode);
+                                                      creatorMode);
     editor->setTabId(tabId);
     editor->setProperties(properties);
 
     QString iconName = DbUtil::getDbObjectIconNameByParentNodeType(itemType);
-    if(editMode){
+    if(creatorMode == DbObjectCreator::EditExisting){
         iconName.append("_alter");
     }else{
         iconName.append("_add");
     }
-    cnPage->addTab(editor, IconUtil::getIcon(iconName), editMode ? objectName : QString("Create %1").arg(objectTypeName));
+    cnPage->addTab(editor, IconUtil::getIcon(iconName), (creatorMode == DbObjectCreator::EditExisting) ? objectName : QString("Create %1").arg(objectTypeName));
+}
+
+//this function is called by UiManagerInvoker through context menus
+void DbUiManager::createEditor(const QString &schemaName, const QString &objectName, const QString &objectTypeName,
+                               const QString &tabName, const QString &childObjectName)
+{
+    createEditor(schemaName, objectName, DbTreeModel::getDbTreeNodeType(objectTypeName),
+                 tabName, childObjectName);
+}
+
+void DbUiManager::createLikeEditor(const QString &schemaName, const QString &objectName, int itemType)
+{
+    createEditor(schemaName,
+                 objectName,
+                 (DbTreeModel::DbTreeNodeType)itemType,
+                 DbObjectCreator::CreateLike);
+}
+
+void DbUiManager::createEditor(const QString &schemaName, const QString &objectName, int itemType,
+                               const QString &tabName, const QString &childObjectName)
+{
+    QHash<QString,QString> properties;
+    if(!tabName.isEmpty()){
+        properties[ConnectionPageTab::TAB_NAME_KEY] = tabName;
+
+        if(!childObjectName.isEmpty()){
+            properties[ConnectionPageTab::CHILD_OBJECT_NAME_KEY] = childObjectName;
+        }
+    }
+
+    if(((DbTreeModel::DbTreeNodeType)itemType) == DbTreeModel::Table && objectName.isEmpty()){ //indexes and constraints can call without table name set
+        TableNameFinderDialog *tableNameFinder = new TableNameFinderDialog(schemaName, tabName, childObjectName, this);
+        addWindow(tableNameFinder, IconUtil::getIcon("table"), tr("Loading..."));
+    }else{
+        createEditor(schemaName, objectName, (DbTreeModel::DbTreeNodeType)itemType, DbObjectCreator::EditExisting, properties);
+    }
 }
 
 void DbUiManager::createViewer()
@@ -111,9 +147,9 @@ void DbUiManager::createViewer()
     createViewer(action->getSchemaName(), action->getObjectName(), action->getItemType());
 }
 
-void DbUiManager::createViewer(const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType)
+void DbUiManager::createViewer(const QString &schemaName, const QString &objectName, int itemType /*DbTreeModel::DbTreeNodeType*/)
 {
-    QString objectTypeName = DbUtil::getDbObjectTypeNameByNodeType(itemType).toLower();
+    QString objectTypeName = DbUtil::getDbObjectTypeNameByNodeType((DbTreeModel::DbTreeNodeType)itemType).toLower();
     QString tabId = createTabId("viewer", objectTypeName, schemaName, objectName);
     ConnectionPageTab * existingTab = cnPage->findTabById(tabId);
     if(existingTab){
@@ -123,10 +159,10 @@ void DbUiManager::createViewer(const QString &schemaName, const QString &objectN
 
     ConnectionPageTab *viewer = EditorCreatorUtil::createViewer(schemaName,
                                                                 objectName,
-                                                                itemType,
+                                                                (DbTreeModel::DbTreeNodeType)itemType,
                                                                 this);
     viewer->setTabId(tabId);
-    QString iconName = DbUtil::getDbObjectIconNameByParentNodeType(itemType);
+    QString iconName = DbUtil::getDbObjectIconNameByParentNodeType((DbTreeModel::DbTreeNodeType)itemType);
     cnPage->addTab(viewer, IconUtil::getIcon(iconName), objectName);
 }
 
@@ -135,22 +171,6 @@ QString DbUiManager::createTabId(const QString &prefix, const QString &objectTyp
     QString result = QString("%1.%2.%3.%4").arg(prefix, objectTypeName, schemaName, objectName);
     result.remove(" SPEC").remove(" BODY"); //use same editor for package/type spec and body
     return result;
-}
-
-//this function is called by UiManagerInvoker through context menus
-void DbUiManager::addEditor(const QString &schemaName, const QString &objectName, const QString &objectTypeName, const QString &tabName, const QString &childObjectName)
-{
-    QHash<QString,QString> properties;
-    properties[ConnectionPageTab::TAB_NAME_KEY] = tabName;
-    properties[ConnectionPageTab::CHILD_OBJECT_NAME_KEY] = childObjectName;
-
-    DbTreeModel::DbTreeNodeType itemType = DbUtil::getDbObjectNodeTypeByTypeName(objectTypeName);
-    if(itemType == DbTreeModel::Table && objectName.isEmpty()){ //indexes and constraints can call without table name set
-        TableNameFinderDialog *tableNameFinder = new TableNameFinderDialog(schemaName, tabName, childObjectName, this);
-        addWindow(tableNameFinder, IconUtil::getIcon("table"), tr("Loading..."));
-    }else{
-        createEditor(schemaName, objectName, itemType, true, properties);
-    }
 }
 
 Worksheet *DbUiManager::addWorksheet(const QString &contents)
@@ -200,25 +220,47 @@ void DbUiManager::addSchemaExporter()
     cnPage->addTab(schemaExporter, IconUtil::getIcon("export_schema"), tr("Export schema"));
 }
 
-void DbUiManager::addDataComparer()
+void DbUiManager::addDataComparer(const QString &schemaName, const QString &objectName)
 {
     DataComparer *dataComparer=new DataComparer(this);
-    setProperties(dataComparer);
+    setProperties(dataComparer, schemaName, objectName);
     cnPage->addTab(dataComparer, IconUtil::getIcon("compare_data"), tr("Compare data"));
 }
 
-void DbUiManager::addDataCopier()
+void DbUiManager::addDataCopier(const QString &schemaName, const QString &objectName)
 {
     DataCopier *dataCopier=new DataCopier(this);
-    setProperties(dataCopier);
+    setProperties(dataCopier, schemaName, objectName);
     cnPage->addTab(dataCopier, IconUtil::getIcon("copy_data"), tr("Copy data"));
 }
 
-void DbUiManager::addDataExporter()
+void DbUiManager::addDataExporter(const QString &schemaName, const QString &objectName)
 {
     DataExporter *dataExporter=new DataExporter(this);
-    setProperties(dataExporter);
+    setProperties(dataExporter, schemaName, objectName);
     cnPage->addTab(dataExporter, IconUtil::getIcon("export"), tr("Export data"));
+}
+
+void DbUiManager::addDataImporter()
+{
+    if(sender()){
+        DbItemAction *action=getSenderAction();
+        addDataImporter(action->getSchemaName(), action->getObjectName());
+    }else{
+        addDataImporter(db->getSchemaName(), "");
+    }
+}
+
+void DbUiManager::addDataImporter(const QString &schemaName, const QString &tableName)
+{
+    DataImporter *dataImporter=new DataImporter(schemaName, tableName, this);
+    addWindow(dataImporter, IconUtil::getIcon("import_data"), tr("Import data"));
+}
+
+void DbUiManager::setProperties(ConnectionPageTab *tab, const QString &schemaName, const QString &objectName)
+{
+    tab->setPropertyValue("schemaName", schemaName);
+    tab->setPropertyValue("objectName", objectName);
 }
 
 void DbUiManager::setProperties(ConnectionPageTab *tab)
@@ -236,22 +278,6 @@ void DbUiManager::setProperties(ConnectionPageTab *tab)
 
          tab->setProperties(properties);
     }
-}
-
-void DbUiManager::addDataImporter()
-{
-    if(sender()){
-        DbItemAction *action=getSenderAction();
-        addDataImporter(action->getSchemaName(), action->getObjectName());
-    }else{
-        addDataImporter(db->getSchemaName(), "");
-    }
-}
-
-void DbUiManager::addDataImporter(const QString &schemaName, const QString &tableName)
-{
-    DataImporter *dataImporter=new DataImporter(schemaName, tableName, this);
-    addWindow(dataImporter, IconUtil::getIcon("import_data"), tr("Import data"));
 }
 
 void DbUiManager::addDmlGenerator(const QString &schemaName, const QString &tableName, int dmlType /*OraExp::DmlType*/)

@@ -2,8 +2,8 @@
 #include "usercreatorpane.h"
 #include <QtGui>
 
-UserCreator::UserCreator(const QString &schemaName, const QString &objectName, DbUiManager *uiManager, QWidget *parent) :
-    DbObjectCreator(schemaName, objectName, uiManager, DbTreeModel::Schema, parent)
+UserCreator::UserCreator(const QString &schemaName, const QString &objectName, DbUiManager *uiManager, CreatorMode creatorMode, QWidget *parent) :
+    DbObjectCreator(schemaName, objectName, uiManager, DbTreeModel::Schema, creatorMode, parent)
 {
 }
 

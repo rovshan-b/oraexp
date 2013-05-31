@@ -24,14 +24,14 @@ ConnectionPageTab *EditorCreatorUtil::createEditor(const QString &schemaName,
                                          const QString &objectName,
                                          const DbTreeModel::DbTreeNodeType itemType,
                                          DbUiManager *uiManager,
-                                         bool editMode)
+                                         DbObjectCreator::CreatorMode creatorMode)
 {
     ConnectionPageTab *editor=0;
 
     switch(itemType){
     case DbTreeModel::Tables:
     case DbTreeModel::Table:
-        editor = new TableCreator(schemaName, objectName, uiManager, editMode);
+        editor = new TableCreator(schemaName, objectName, uiManager, creatorMode);
         break;
     case DbTreeModel::Views:
     case DbTreeModel::View:
@@ -60,7 +60,7 @@ ConnectionPageTab *EditorCreatorUtil::createEditor(const QString &schemaName,
         break;
     case DbTreeModel::Sequences:
     case DbTreeModel::Sequence:
-        editor = new SequenceCreator(schemaName, objectName, uiManager);
+        editor = new SequenceCreator(schemaName, objectName, uiManager, creatorMode);
         break;
     case DbTreeModel::Types:
     case DbTreeModel::Type:
@@ -72,16 +72,16 @@ ConnectionPageTab *EditorCreatorUtil::createEditor(const QString &schemaName,
         break;
     case DbTreeModel::Synonyms:
     case DbTreeModel::Synonym:
-        editor = new SynonymCreator(schemaName, objectName, uiManager);
+        editor = new SynonymCreator(schemaName, objectName, uiManager, creatorMode);
         break;
     case DbTreeModel::DatabaseLinks:
     //case DbTreeModel::PublicDatabaseLinks:
     case DbTreeModel::DatabaseLink:
-        editor = new DbLinkCreator(schemaName, objectName, uiManager);
+        editor = new DbLinkCreator(schemaName, objectName, uiManager, creatorMode);
         break;
     case DbTreeModel::AllSchemas:
     case DbTreeModel::Schema:
-        editor = new UserCreator(schemaName, objectName, uiManager);
+        editor = new UserCreator(schemaName, objectName, uiManager, creatorMode);
         break;
     default:
         break;

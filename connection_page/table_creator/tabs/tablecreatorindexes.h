@@ -19,7 +19,7 @@ class TableCreatorIndexes : public TableCreatorTabWithTableView
     Q_OBJECT
 public:
     explicit TableCreatorIndexes(TableCreatorTabs* objectCreator,
-                                 bool editMode,
+                                 DbObjectCreator::CreatorMode creatorMode,
                                  QWidget *parent);
 
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);

@@ -7,8 +7,8 @@
 #include "util/itemcreatorhelper.h"
 #include <QtGui>
 
-TableCreatorCheckConstraints::TableCreatorCheckConstraints(TableCreatorTabs *tableCreator, bool editMode, QWidget *parent) :
-    TableCreatorTabWithTableView(tableCreator, editMode, parent), originalConstraintList(0)
+TableCreatorCheckConstraints::TableCreatorCheckConstraints(TableCreatorTabs *tableCreator, DbObjectCreator::CreatorMode creatorMode, QWidget *parent) :
+    TableCreatorTabWithTableView(tableCreator, creatorMode, parent), originalConstraintList(0)
 {
 
 }
@@ -58,7 +58,7 @@ void TableCreatorCheckConstraints::customizeTableWidget()
 
     showAdvancedOptions(false);
 
-    if(isEditMode()){
+    if(getCreatorMode() == DbObjectCreator::EditExisting){
         connect(tableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(tableDataChanged(QModelIndex,QModelIndex)));
     }
 
@@ -108,8 +108,10 @@ void TableCreatorCheckConstraints::populateTableWithConstraints()
 
     table->setUpdatesEnabled(true);
 
-    int lastRowIx=model->rowCount()-1;
-    model->freezeRow(lastRowIx);
+    if(getCreatorMode() == DbObjectCreator::EditExisting){
+        int lastRowIx=model->rowCount()-1;
+        model->freezeRow(lastRowIx);
+    }
 }
 
 

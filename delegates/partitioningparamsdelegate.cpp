@@ -14,7 +14,10 @@ PartitioningParamsDelegate::PartitioningParamsDelegate(IQueryScheduler *querySch
 
 PartitioningParamsDialog *PartitioningParamsDelegate::createEditorDialog(bool isEditMode, QWidget *parentWindow){
 
-    PartitioningParamsDialog *dialog=new PartitioningParamsDialog(parentWindow, isEditMode, configureForIndex, tableCreator);
+    PartitioningParamsDialog *dialog=new PartitioningParamsDialog(parentWindow,
+                                                                  isEditMode ? DbObjectCreator::EditExisting : DbObjectCreator::CreateNew,
+                                                                  configureForIndex,
+                                                                  tableCreator);
     return dialog;
 }
 

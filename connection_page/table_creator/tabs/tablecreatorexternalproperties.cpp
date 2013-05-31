@@ -16,9 +16,9 @@ using namespace std;
 TableCreatorExternalProperties::TableCreatorExternalProperties(IQueryScheduler *queryScheduler,
                                                                IStringListRetriever *columnListRetriever,
                                                                TableCreatorTabs *tableCreator,
-                                                               bool editMode,
+                                                               DbObjectCreator::CreatorMode creatorMode,
                                                                QWidget *parent) :
-    TableCreatorTab(tableCreator, editMode, parent), accessParamsEditor(0)
+    TableCreatorTab(tableCreator, creatorMode, parent), accessParamsEditor(0)
 {
     TableCreatorTab::setQueryScheduler(queryScheduler);
 
@@ -28,9 +28,9 @@ TableCreatorExternalProperties::TableCreatorExternalProperties(IQueryScheduler *
     tab->setTabPosition(QTabWidget::West);
     //tab->setDocumentMode(true);
 
-    generalInfo=new TableCreatorExternalPropertiesGeneralInfoWidget(queryScheduler, editMode, tableCreator);
+    generalInfo=new TableCreatorExternalPropertiesGeneralInfoWidget(queryScheduler, creatorMode, tableCreator);
 
-    if(editMode){
+    if(getCreatorMode() == DbObjectCreator::EditExisting){
         accessParamsEditor=new TableCreatorExternalAccessParametersEditorWidget();
     }else{
         recordProperties=new OracleLoaderDriverRecordPropertiesWidget();
@@ -49,7 +49,7 @@ TableCreatorExternalProperties::TableCreatorExternalProperties(IQueryScheduler *
 
     connect(generalInfo, SIGNAL(ddlChanged()), this, SIGNAL(ddlChanged()));
 
-    if(editMode){
+    if(getCreatorMode() == DbObjectCreator::EditExisting){
         tab->addTab(accessParamsEditor, tr("Access parameters"));
 
         connect(accessParamsEditor, SIGNAL(ddlChanged()), this, SIGNAL(ddlChanged()));
@@ -133,7 +133,7 @@ void TableCreatorExternalProperties::dirRecordFetched(const FetchResult &result)
 void TableCreatorExternalProperties::dirListFetchCompleted(const QString &/*taskName*/)
 {
     generalInfo->directoryListAvailable(this->directoryList);
-    if(!isEditMode()){
+    if(getCreatorMode() != DbObjectCreator::EditExisting){
         fieldProperties->directoryListAvailable(this->directoryList);
     }
 }
@@ -141,7 +141,7 @@ void TableCreatorExternalProperties::dirListFetchCompleted(const QString &/*task
 TableExternalInfo TableCreatorExternalProperties::getExternalInfo() const
 {
     TableExternalInfo info=generalInfo->itemInfoFromWidgets();
-    if(isEditMode()){
+    if(getCreatorMode() == DbObjectCreator::EditExisting){
         Q_ASSERT(accessParamsEditor);
 
         info.accessParameters=accessParamsEditor->getAccessParams();

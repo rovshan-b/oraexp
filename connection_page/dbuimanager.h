@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "../navtree/dbtreemodel.h"
+#include "db_object_creator/dbobjectcreator.h"
 #include "enums.h"
 
 class DbConnection;
@@ -26,25 +27,30 @@ public slots:
     void createCreator();
     void createCreator(DbItemAction *action);
     void createCreator(const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType);
-    void createEditor(bool editMode=true);
+    void createEditor(DbObjectCreator::CreatorMode creatorMode=DbObjectCreator::EditExisting);
     void createEditor(const QString &schemaName,
                       const QString &objectName,
                       const DbTreeModel::DbTreeNodeType itemType,
-                      bool editMode=true,
+                      DbObjectCreator::CreatorMode creatorMode=DbObjectCreator::EditExisting,
                       QHash<QString, QString> properties = QHash<QString, QString>());
     void createViewer();
-    void createViewer(const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType);
+    void createViewer(const QString &schemaName, const QString &objectName, int itemType /*DbTreeModel::DbTreeNodeType*/);
+    //void createViewer(const QString &schemaName, const QString &objectName, const QString &itemTypeName);
 
-    void addEditor(const QString &schemaName, const QString &objectName, const QString &objectTypeName,
-                   const QString &tabName, const QString &childObjectName);
+    void createEditor(const QString &schemaName, const QString &objectName, int itemType /*DbTreeModel::DbTreeNodeType*/,
+                      const QString &tabName = QString(), const QString &childObjectName = QString());
+    void createEditor(const QString &schemaName, const QString &objectName, const QString &objectTypeName,
+                      const QString &tabName = QString(), const QString &childObjectName = QString());
+    void createLikeEditor(const QString &schemaName, const QString &objectName, int itemType /*DbTreeModel::DbTreeNodeType*/);
 
     Worksheet *addWorksheet(const QString &contents="");
     Worksheet *getWorksheet();
     void addSchemaComparer();
     void addSchemaExporter();
-    void addDataComparer();
-    void addDataCopier();
-    void addDataExporter();
+    void addDataComparer(const QString &schemaName = QString(), const QString &objectName = QString());
+    void addDataCopier(const QString &schemaName = QString(), const QString &objectName = QString());
+    void addDataExporter(const QString &schemaName = QString(), const QString &objectName = QString());
+    void setProperties(ConnectionPageTab *tab, const QString &schemaName, const QString &objectName);
     void setProperties(ConnectionPageTab *tab);
     void addDataImporter();
     void addDataImporter(const QString &schemaName, const QString &tableName);

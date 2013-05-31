@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <items>
-    <item caption="Modify..." icon="column_alter" handler="UiManagerInvoker" slotName="addEditor" 
-              param1="arg:schemaName" param2="arg:parentObjectName" param3="TABLE" param4="Columns" param5="arg:objectName" />
-    <item caption="Drop..." icon="delete" handler="WindowLoader" windowName="DropColumn" />
+    <item caption="Modify" icon="column_alter" handler="UiManagerInvoker" slotName="createEditor" 
+              param1="arg:schemaName" param2="arg:parentObjectName" param3="Table" param4="Columns" param5="arg:objectName" />
+    <item caption="Drop" icon="delete" handler="WindowLoader" windowName="DropColumn" />
 </items>

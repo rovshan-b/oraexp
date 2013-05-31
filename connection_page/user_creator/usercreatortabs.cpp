@@ -10,12 +10,10 @@
 #include "widgets/datatableandtoolbarwidget.h"
 #include <QtGui>
 
-UserCreatorTabs::UserCreatorTabs(const QString &objectName, QWidget *parent) :
+UserCreatorTabs::UserCreatorTabs(const QString &objectName, DbObjectCreator::CreatorMode creatorMode, QWidget *parent) :
     SubTabWidget(parent), objectName(objectName), originalUserInfo(0), queryScheduler(0)
 {
-    editMode = !objectName.isEmpty();
-
-    generalInfoTab = new UserCreatorGeneralInfo(objectName, this, editMode);
+    generalInfoTab = new UserCreatorGeneralInfo(objectName, this, creatorMode);
     //generalInfoTab->setMaximumWidth(350);
     QScrollArea *scrollAreaForGeneralInfoTab=new QScrollArea();
     scrollAreaForGeneralInfoTab->setWidget(generalInfoTab);
@@ -23,7 +21,7 @@ UserCreatorTabs::UserCreatorTabs(const QString &objectName, QWidget *parent) :
     addTab(scrollAreaForGeneralInfoTab, IconUtil::getIcon("user"), tr("General"));
 
     QScrollArea *scrollAreaForGrantsTab=new QScrollArea();
-    grantsTab = new UserCreatorGrants(this, editMode);
+    grantsTab = new UserCreatorGrants(this, creatorMode);
     scrollAreaForGrantsTab->setWidget(grantsTab);
     scrollAreaForGrantsTab->setWidgetResizable(true);
     addTab(scrollAreaForGrantsTab, IconUtil::getIcon("grants"), tr("Grants"));
@@ -39,7 +37,7 @@ void UserCreatorTabs::setQueryScheduler(IQueryScheduler *queryScheduler)
     generalInfoTab->setQueryScheduler(queryScheduler);
     grantsTab->setQueryScheduler(queryScheduler);
 
-    if(editMode){
+    if(creatorMode == DbObjectCreator::EditExisting){
         UserInfoLoader *metadataLoader=new UserInfoLoader(this->queryScheduler, objectName, this);
         connect(metadataLoader, SIGNAL(objectInfoReady(DbObjectInfo*,MetadataLoader*)), this, SLOT(userInfoReady(DbObjectInfo*,MetadataLoader*)));
         connect(metadataLoader, SIGNAL(loadError(QString,OciException,MetadataLoader*)), this, SLOT(loadError(QString,OciException,MetadataLoader*)));
@@ -71,7 +69,7 @@ QList<QueryListItem> UserCreatorTabs::generateAlterDdl()
 bool UserCreatorTabs::beforeCreate() const
 {
     UserInfo info=getUserInfo();
-    return WidgetHelper::validate(&info, editMode, this->window());
+    return WidgetHelper::validate(&info, (creatorMode == DbObjectCreator::EditExisting), this->window());
 }
 
 bool UserCreatorTabs::beforeAlter() const

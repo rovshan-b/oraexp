@@ -28,6 +28,7 @@ public:
     bool isEmpty;
 
     QString generateDdl(const QString &fullTableName, bool sqlTerminator) const;
+    QString generateEnableDdl(const QString &fullTableName) const;
     QString generateDropDdl() const;
     QString generateDiffDdl(const TriggerInfo &other, const QString &fullTableName) const;
 

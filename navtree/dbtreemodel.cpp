@@ -643,3 +643,13 @@ QString DbTreeModel::getDbTreeNodeName(DbTreeModel::DbTreeNodeType nodeType)
     QMetaEnum metaEnum = mo.enumerator(enumIx);
     return metaEnum.valueToKey(nodeType);
 }
+
+DbTreeModel::DbTreeNodeType DbTreeModel::getDbTreeNodeType(const QString &nodeTypeName)
+{
+    const QMetaObject &mo = DbTreeModel::staticMetaObject;
+    int enumIx = mo.indexOfEnumerator("DbTreeNodeType");
+    QMetaEnum metaEnum = mo.enumerator(enumIx);
+    int result = metaEnum.keyToValue(nodeTypeName.toStdString().c_str());
+    Q_ASSERT(result != -1);
+    return (DbTreeModel::DbTreeNodeType)result;
+}

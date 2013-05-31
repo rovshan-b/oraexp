@@ -3,6 +3,7 @@
 
 #include "datatableandtoolbarwidget.h"
 #include "beans/tablespacequotainfo.h"
+#include "connection_page/db_object_creator/dbobjectcreator.h"
 
 class IQueryScheduler;
 class IndexBasedComboBoxDelegate;
@@ -12,7 +13,7 @@ class TablespaceQuotasEditorTable : public DataTableAndToolBarWidget
 {
     Q_OBJECT
 public:
-    explicit TablespaceQuotasEditorTable(bool editMode, QWidget *parent = 0);
+    explicit TablespaceQuotasEditorTable(DbObjectCreator::CreatorMode creatorMode, QWidget *parent = 0);
     
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
@@ -32,7 +33,7 @@ protected slots:
 private:
     IQueryScheduler *queryScheduler;
 
-    bool editMode;
+    DbObjectCreator::CreatorMode creatorMode;
     QList<TablespaceQuotaInfo> *originalItemList;
 
     void customizeTable();

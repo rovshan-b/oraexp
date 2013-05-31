@@ -46,11 +46,11 @@ declare
     
     {@replace_with:func_md5}
     
-    {@replace_with:func_create_compare_table_hash}
-    
     {@replace_with:func_get_source_with_new_owner}
     
     {@replace_with:func_create_compare_source_hash}
+    
+    {@replace_with:func_create_compare_table_hash}
     
     {@replace_with:func_create_compare_sequence_hash}
     

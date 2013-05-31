@@ -9,7 +9,7 @@ class TableCreatorPane : public DbObjectCreatorPane
 {
     Q_OBJECT
 public:
-    explicit TableCreatorPane(DbObjectCreator *objectCreator, bool editMode, QWidget *parent = 0);
+    explicit TableCreatorPane(DbObjectCreator *objectCreator, QWidget *parent = 0);
     
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
 

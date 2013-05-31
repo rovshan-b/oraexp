@@ -6,8 +6,8 @@
 #include "models/genericeditabletablemodel.h"
 #include <QtGui>
 
-UserCreatorGrants::UserCreatorGrants(UserCreatorTabs *userCreator, bool editMode, QWidget *parent) :
-    UserCreatorTab(userCreator, editMode, parent),
+UserCreatorGrants::UserCreatorGrants(UserCreatorTabs *userCreator, DbObjectCreator::CreatorMode creatorMode, QWidget *parent) :
+    UserCreatorTab(userCreator, creatorMode, parent),
     simpleModeRadio(0),
     advancedModeRadio(0),
     simpleLayout(0),
@@ -15,7 +15,7 @@ UserCreatorGrants::UserCreatorGrants(UserCreatorTabs *userCreator, bool editMode
 {
     QVBoxLayout *mainLayout=new QVBoxLayout();
 
-    if(!editMode){
+    if(creatorMode != DbObjectCreator::EditExisting){
         QHBoxLayout *modeSelectionLayout=new QHBoxLayout();
         simpleModeRadio=new QRadioButton(tr("&Simple mode"));
         simpleModeRadio->setChecked(true);
@@ -29,7 +29,7 @@ UserCreatorGrants::UserCreatorGrants(UserCreatorTabs *userCreator, bool editMode
 
     tab = new QStackedWidget();
 
-    if(!editMode){
+    if(creatorMode != DbObjectCreator::EditExisting){
         createSimpleLayout();
     }
     createAdvancedLayout();
@@ -37,7 +37,7 @@ UserCreatorGrants::UserCreatorGrants(UserCreatorTabs *userCreator, bool editMode
     mainLayout->addWidget(tab);
     setLayout(mainLayout);
 
-    if(!editMode){
+    if(creatorMode != DbObjectCreator::EditExisting){
         connect(simpleModeRadio, SIGNAL(toggled(bool)), this, SLOT(switchMode(bool)));
 
         foreach(QCheckBox *chk, simpleLayout->getRoleCheckBoxes()){
@@ -56,7 +56,7 @@ void UserCreatorGrants::setQueryScheduler(IQueryScheduler *queryScheduler)
 
     advancedLayout->setQueryScheduler(queryScheduler);
 
-    if(!isEditMode()){
+    if(getCreatorMode() != DbObjectCreator::EditExisting){
         syncAdvancedLayout();
     }
 }
@@ -112,7 +112,7 @@ void UserCreatorGrants::createSimpleLayout()
 
 void UserCreatorGrants::createAdvancedLayout()
 {
-    advancedLayout = new UserCreatorGrantsAdvancedLayout(isEditMode());
+    advancedLayout = new UserCreatorGrantsAdvancedLayout(getCreatorMode());
     connect(advancedLayout, SIGNAL(ddlChanged()), this, SIGNAL(ddlChanged()));
     tab->addWidget(advancedLayout);
 }

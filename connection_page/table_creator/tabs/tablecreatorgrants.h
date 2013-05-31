@@ -18,7 +18,7 @@ class TableCreatorGrants : public DbObjectCreatorTab<TableCreatorTabs>
 public:
     explicit TableCreatorGrants(const QString &schemaName,
                                 TableCreatorTabs *objectCreator,
-                                bool editMode,
+                                DbObjectCreator::CreatorMode creatorMode,
                                 QWidget *parent = 0);
 
     virtual void setQueryScheduler(IQueryScheduler *queryScheduler);

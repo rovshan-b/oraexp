@@ -1,5 +1,4 @@
 #include "contextmenuutil.h"
-#include "tablecontextmenuutil.h"
 #include "viewcontextmenuutil.h"
 #include "packagecontextmenuutil.h"
 #include "procedurecontextmenuutil.h"
@@ -35,10 +34,6 @@ QList<QAction *> ContextMenuUtil::getActionsForObject(const QString &schemaName,
     QList<QAction*> results;
 
     switch(itemType){
-    case DbTreeModel::Tables:
-    case DbTreeModel::Table:
-        results = TableContextMenuUtil::getActionsForObject(schemaName, objectName, itemType, uiManager);
-        break;
     case DbTreeModel::Views:
     case DbTreeModel::View:
         results = ViewContextMenuUtil::getActionsForObject(schemaName, objectName, itemType, uiManager);

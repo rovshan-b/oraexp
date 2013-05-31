@@ -7,10 +7,10 @@
 #include <QtGui>
 
 TableCreatorPartitions::TableCreatorPartitions(TableCreatorTabs* tableCreator,
-                                               bool editMode,
+                                               DbObjectCreator::CreatorMode creatorMode,
                                                bool configureForIndex,
                                                QWidget *parent) :
-    TableCreatorTab(tableCreator, editMode, parent), configureForIndex(configureForIndex), originalPartitioningInfo(0), originalPartitioningInfoIsOnHeap(false)
+    TableCreatorTab(tableCreator, creatorMode, parent), configureForIndex(configureForIndex), originalPartitioningInfo(0), originalPartitioningInfoIsOnHeap(false)
 {
     QVBoxLayout *layout=new QVBoxLayout();
 
@@ -113,7 +113,7 @@ void TableCreatorPartitions::tablespaceListFetchCompleted(const QString &/*taskN
 
 void TableCreatorPartitions::setTableInfo(TableInfo *tableInfo)
 {
-    setEditMode();
+    setChildrenCreatorMode(getCreatorMode());
 
     originalPartitioningInfo=&tableInfo->partitioningInfo;
     partitionsTab->loadFromPartitioningInfo(tableInfo->partitioningInfo.partitionInfo);
@@ -125,11 +125,11 @@ void TableCreatorPartitions::setTableInfo(TableInfo *tableInfo)
 
 }
 
-void TableCreatorPartitions::setEditMode()
+void TableCreatorPartitions::setChildrenCreatorMode(DbObjectCreator::CreatorMode creatorMode)
 {
-    partitionsTab->setEditMode();
-    subpartitionsTab->setEditMode();
-    subpartitionTemplateTab->setEditMode();
+    partitionsTab->setCreatorMode(creatorMode);
+    subpartitionsTab->setCreatorMode(creatorMode);
+    subpartitionTemplateTab->setCreatorMode(creatorMode);
 }
 
 void TableCreatorPartitions::tabIndexChanged(int tabIx)
@@ -261,9 +261,7 @@ TablePartitioningInfo TableCreatorPartitions::getPartitioningInfo(bool includeIn
 
 void TableCreatorPartitions::setPartitioningInfo(const TablePartitioningInfo &pInfo, const TablePartitioningInfo &originalPInfo)
 {
-    if(isEditMode()){
-        setEditMode();
-    }
+    setChildrenCreatorMode(getCreatorMode());
 
     Q_ASSERT(originalPartitioningInfo==0);
     originalPartitioningInfo=new TablePartitioningInfo();

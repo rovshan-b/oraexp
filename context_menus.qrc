@@ -7,5 +7,6 @@
         <file>context_menus/Constraints.xml</file>
         <file>context_menus/Indexes.xml</file>
         <file>context_menus/Index.xml</file>
+        <file>context_menus/Tables.xml</file>
     </qresource>
 </RCC>

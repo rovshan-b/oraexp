@@ -17,18 +17,19 @@ using namespace std;
 
 TableCreatorTabs::TableCreatorTabs(const QString &schemaName,
                                    const QString &tableName,
-                                   bool editMode, QWidget *parent) :
+                                   DbObjectCreator::CreatorMode creatorMode,
+                                   QWidget *parent) :
             SubTabWidget(parent),
             queryScheduler(0),
             schemaName(schemaName),
             originalTableName(tableName),
-            editMode(editMode),
+            creatorMode(creatorMode),
             originalTableInfo(0)
 
 {
 
     //general info pane
-    generalInfoTab=new TableCreatorGeneralInfo(schemaName, tableName, this, editMode, this);
+    generalInfoTab=new TableCreatorGeneralInfo(schemaName, tableName, this, creatorMode, this);
     generalInfoTab->setObjectName("General");
     QScrollArea *scrollAreaForGeneralInfoTab=new QScrollArea();
     scrollAreaForGeneralInfoTab->setWidget(generalInfoTab);
@@ -36,24 +37,24 @@ TableCreatorTabs::TableCreatorTabs(const QString &schemaName,
     addTab(scrollAreaForGeneralInfoTab, IconUtil::getIcon("table"), tr("General"));
 
     //column list
-    columnsTab=new TableCreatorColumns(this, editMode, this);
+    columnsTab=new TableCreatorColumns(this, creatorMode, this);
     columnsTab->setObjectName("Columns");
     addTab(columnsTab, IconUtil::getIcon("column"), tr("Columns"));
 
     //key constraints
-    keyConstraintsTab=new TableCreatorConstraints(schemaName, this, editMode, this);
+    keyConstraintsTab=new TableCreatorConstraints(schemaName, this, creatorMode, this);
     keyConstraintsTab->setObjectName("Keys");
 
     //check constraints
-    checkConstraintsTab=new TableCreatorCheckConstraints(this, editMode, this);
+    checkConstraintsTab=new TableCreatorCheckConstraints(this, creatorMode, this);
     checkConstraintsTab->setObjectName("Checks");
 
     //indexes
-    indexesTab=new TableCreatorIndexes(this, editMode, this);
+    indexesTab=new TableCreatorIndexes(this, creatorMode, this);
     indexesTab->setObjectName("Indexes");
 
     //partitions
-    partitionsTab=new TableCreatorPartitions(this, editMode);
+    partitionsTab=new TableCreatorPartitions(this, creatorMode);
     scrollAreaForPartitionsTab=new QScrollArea();
     scrollAreaForPartitionsTab->setObjectName("Partitions");
     scrollAreaForPartitionsTab->setWidget(partitionsTab);
@@ -64,7 +65,7 @@ TableCreatorTabs::TableCreatorTabs(const QString &schemaName,
     scrollAreaForExternalTableProps=0;
 
     //grants
-    grantsTab=new TableCreatorGrants(schemaName, this, editMode, this);
+    grantsTab=new TableCreatorGrants(schemaName, this, creatorMode, this);
     grantsTab->setObjectName("Grants");
     addTab(grantsTab, IconUtil::getIcon("grants"), tr("Grants"));
 
@@ -116,7 +117,8 @@ void TableCreatorTabs::setQueryScheduler(IQueryScheduler *queryScheduler)
     partitionsTab->setQueryScheduler(queryScheduler);
     grantsTab->setQueryScheduler(queryScheduler);
 
-    if(editMode){
+    if(creatorMode == DbObjectCreator::EditExisting ||
+            creatorMode == DbObjectCreator::CreateLike){
         TableInfoLoader *metadataLoader=new TableInfoLoader(this->queryScheduler, getSchemaName(), getTableName(), this);
         connect(metadataLoader, SIGNAL(objectInfoReady(DbObjectInfo*,MetadataLoader*)), this, SLOT(tableInfoReady(DbObjectInfo*,MetadataLoader*)));
         connect(metadataLoader, SIGNAL(loadError(QString,OciException,MetadataLoader*)), this, SLOT(loadError(QString,OciException,MetadataLoader*)));
@@ -317,7 +319,7 @@ void TableCreatorTabs::showTabsBasedOnTableType(OraExp::TableType tableType)
 
     if(tableType==OraExp::TableTypeExternal){
         if(scrollAreaForExternalTableProps==0){
-            externalTableProps=new TableCreatorExternalProperties(this->queryScheduler, this->getColumnsTab(), this, this->editMode, this);
+            externalTableProps=new TableCreatorExternalProperties(this->queryScheduler, this->getColumnsTab(), this, this->creatorMode, this);
             scrollAreaForExternalTableProps=new QScrollArea();
             scrollAreaForExternalTableProps->setObjectName("External");
             scrollAreaForExternalTableProps->setWidget(externalTableProps);
@@ -352,7 +354,7 @@ void TableCreatorTabs::showTabsBasedOnTableType(OraExp::TableType tableType)
         if(partitionsTabIx==-1 &&
                 tableType!=OraExp::TableTypeTemporarySession &&
                 tableType!=OraExp::TableTypeTemporaryTransaction &&
-                !editMode /*in edit mode partitions tab will be shown if table is partitioned in tableInfoReady slot*/){
+                (creatorMode != DbObjectCreator::EditExisting) /*in edit mode partitions tab will be shown if table is partitioned in tableInfoReady slot*/){
             insertTab(5, scrollAreaForPartitionsTab, IconUtil::getIcon("partition"), tr("Partitions"));
         }else if(partitionsTabIx!=-1 &&
                  tableType!=OraExp::TableTypeHeap &&

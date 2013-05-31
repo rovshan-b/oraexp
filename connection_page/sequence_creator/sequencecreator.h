@@ -10,6 +10,7 @@ public:
     explicit SequenceCreator(const QString &schemaName,
                              const QString &objectName,
                              DbUiManager *uiManager,
+                             CreatorMode creatorMode,
                              QWidget *parent = 0);
     
 protected:

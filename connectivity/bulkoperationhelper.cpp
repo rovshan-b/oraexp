@@ -115,6 +115,7 @@ void BulkOperationHelper::bindArrays(Statement *stmt, const QString& bindVarPref
 
         if(DbUtil::isStringType(dataType)){
 
+            Q_ASSERT(length > 0);
             stmt->bindArrayOfStrings(bindVarName, (dtext*)buffers.at(i), length, dmlMode ? 0 : this->bulkSize);
 
         }else if(DbUtil::isNumericType(dataType)){

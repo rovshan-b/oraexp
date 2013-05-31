@@ -346,7 +346,7 @@
             loop
               l_tmp_str := cur_triggers.trigger_name||cur_triggers.trigger_type||cur_triggers.triggering_event||cur_triggers.column_name||
                            cur_triggers.referencing_names||cur_triggers.when_clause||cur_triggers.status||
-                           cur_triggers.action_type||md5(cur_triggers.trigger_body);
+                           cur_triggers.action_type||md5(trim_str(cur_triggers.trigger_body));
               
               l_tmp_md5 := md5(l_tmp_md5 || md5(l_tmp_str));
             end loop;

@@ -18,11 +18,19 @@ class DbObjectCreator : public ConnectionPageTab
 {
     Q_OBJECT
 public:
+    enum CreatorMode
+    {
+        CreateNew,
+        EditExisting,
+        CreateLike
+    };
+
     explicit DbObjectCreator(const QString &schemaName,
                              const QString &objectName,
                              DbUiManager *uiManager,
                              DbTreeModel::DbTreeNodeType objectType,
-                             QWidget *parent = 0);
+                             CreatorMode creatorMode,
+                             QWidget *parent);
     
     virtual void createUi();
 
@@ -34,6 +42,8 @@ public:
 
     void setOriginalSchemaName(const QString &schemaName) {this->schemaName = schemaName;}
     void setOriginalObjectName(const QString &objectName) {this->objectName = objectName;}
+
+    CreatorMode getCreatorMode() const {return this->creatorMode;}
 
 protected:
     virtual DbObjectCreatorPane *createCreatorPane(DbObjectCreator *objectCreator)=0;
@@ -62,7 +72,7 @@ private:
     DbObjectCreatorBottomPane *bottomPane;
     QSplitter *splitter;
 
-    bool editMode;
+    CreatorMode creatorMode;
 
     void startProgress();
     void stopProgress();

@@ -11,9 +11,9 @@
 
 UserCreatorGeneralInfo::UserCreatorGeneralInfo(const QString &objectName,
                                                UserCreatorTabs *userCreator,
-                                               bool editMode,
+                                               DbObjectCreator::CreatorMode creatorMode,
                                                QWidget *parent) :
-    UserCreatorTab(userCreator, editMode, parent)
+    UserCreatorTab(userCreator, creatorMode, parent)
 {
     QVBoxLayout *mainLayout=new QVBoxLayout();
 
@@ -135,7 +135,7 @@ QLayout *UserCreatorGeneralInfo::createForm(const QString &objectName)
     connect(accountLockedCheckBox, SIGNAL(stateChanged(int)), this, SIGNAL(ddlChanged()));
     connect(enableEditionsCheckBox, SIGNAL(stateChanged(int)), this, SIGNAL(ddlChanged()));
 
-    if(isEditMode()){
+    if(getCreatorMode() == DbObjectCreator::EditExisting){
         disableControlsForEditMode();
     }
 
