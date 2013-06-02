@@ -55,6 +55,7 @@ public:
 
     void setBindArraySize(unsigned int size);
     void bindArrayOfStrings(const QString &bindVarName, dtext *data, int strLength, int plSqlTableLength);
+    void bindArrayOfRaws(const QString &bindVarName, void *data, int rawLength, int plSqlTableLength);
     void bindArrayOfDoubles(const QString &bindVarName, double *data, int plSqlTableLength);
     void bindArrayOfDates(const QString &bindVarName, OCI_Date **data, int plSqlTableLength);
     void bindArrayOfTimestamps(const QString &bindVarName, OCI_Timestamp **data, int type, int plSqlTableLength);

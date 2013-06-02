@@ -37,6 +37,8 @@ public:
 
     QString getString(unsigned int colIx) const;
 
+    void getRaw(unsigned int colIx, void *buffer, unsigned int length) const;
+
     int getInt(unsigned int colIx) const;
 
     double getDouble(unsigned int colIx) const;

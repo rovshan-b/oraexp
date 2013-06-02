@@ -153,8 +153,10 @@ void DataOperationHelper::tableSortRecordFetched(const FetchResult &fetchResult)
     }
 
     this->needToDisableRefConstraints = (options->disableRefConstraints==DataOperationOptions::Disable ||
-                                         options->disableRefConstraints==DataOperationOptions::DisableForAll) &&
-                                         !fullySorted;
+                                         options->disableRefConstraints==DataOperationOptions::DisableForAll)
+                                        ||
+                                        (options->disableRefConstraints==DataOperationOptions::Auto && !fullySorted);
+
     if(needToDisableRefConstraints){
         disableRefConstraints();
     }else{

@@ -10,6 +10,7 @@
 #include "triggerinfo.h"
 #include "objectgrantinfo.h"
 #include "beans/querylistitem.h"
+#include "beans/tablediffddloptions.h"
 #include "tablecreateddloptions.h"
 #include <QSharedPointer>
 
@@ -30,6 +31,7 @@ public:
     QList<ObjectGrantInfo> grants;
 
     void setSchemaName(const QString &newSchemaName);
+    void prepareForCreateLike(const TableDiffDdlOptions &options);
     ColumnInfo findColumnByName(const QString &columnName, bool &found) const;
     ConstraintInfo findConstraintByColumns(OraExp::ConstraintType constraintType, const QString &constraintColumns, bool &found) const;
     IndexInfo findIndexByColumns(const QString &indexColumns, bool &found) const;

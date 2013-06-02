@@ -25,7 +25,7 @@ TableNameFinderDialog::TableNameFinderDialog(const QString &schemaName,
     resize(sizeHint());
     DialogHelper::centerWindow(this);
 
-    QTimer::singleShot(1000, this, SLOT(showAndActivate()));
+    QTimer::singleShot(1000, this, SLOT(makeVisible()));
 }
 
 void TableNameFinderDialog::setConnection(DbConnection *db)
@@ -78,6 +78,6 @@ void TableNameFinderDialog::findTableNameRecordFetched(const FetchResult &result
 
 void TableNameFinderDialog::findTableNameFetchCompleted(const QString &)
 {
-    uiManager->createEditor(schemaName, tableName, "TABLE", tabName, childObjectName);
+    uiManager->createEditor(schemaName, tableName, "Table", tabName, childObjectName);
     accept();
 }

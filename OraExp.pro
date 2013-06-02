@@ -486,7 +486,8 @@ SOURCES += main.cpp\
     widgets/checkedlistboxwidget.cpp \
     dialogs/tablenamefinderdialog.cpp \
     connection_page/connectionpagewindowobject.cpp \
-    widgets/existingtableoptionswidget.cpp
+    widgets/existingtableoptionswidget.cpp \
+    dialogs/tablecreatelikeoptionsdialog.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -977,7 +978,8 @@ HEADERS  += mainwindow.h \
     widgets/checkedlistboxwidget.h \
     dialogs/tablenamefinderdialog.h \
     connection_page/connectionpagewindowobject.h \
-    widgets/existingtableoptionswidget.h
+    widgets/existingtableoptionswidget.h \
+    dialogs/tablecreatelikeoptionsdialog.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

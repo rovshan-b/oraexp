@@ -60,6 +60,8 @@ public:
 
     static bool isStringType(const QString &dataTypeName);
 
+    static bool isRawType(const QString &dataTypeName);
+
     static bool isNumericType(const QString &dataTypeName);
     static bool isNumericType(OraExp::ColumnDataType dataType);
 

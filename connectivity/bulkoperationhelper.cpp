@@ -32,7 +32,7 @@ void BulkOperationHelper::createBufferForDataType(Statement *stmt, const QString
     void *result;
 
 
-    if(DbUtil::isStringType(dataType)){
+    if(DbUtil::isStringType(dataType) || DbUtil::isRawType(dataType)){
 
         Q_ASSERT(length>0);
         result = new dtext[this->bulkSize*(length+1)];
@@ -44,7 +44,10 @@ void BulkOperationHelper::createBufferForDataType(Statement *stmt, const QString
         result = stmt->createTimestampArray(dataType, this->bulkSize);
     }else if(DbUtil::isIntervalType(dataType)){
         result = stmt->createIntervalArray(dataType, this->bulkSize);
-    }else{
+    }/*else if(DbUtil::isRawType(dataType)){
+        Q_ASSERT(length>0);
+        result = new dtext[this->bulkSize*(length)];
+    }*/else{
         qDebug() << "Unsupported column data type for comparison:" << dataType;
         result = 0;
         Q_ASSERT(false);
@@ -128,6 +131,9 @@ void BulkOperationHelper::bindArrays(Statement *stmt, const QString& bindVarPref
         }else if(DbUtil::isIntervalType(dataType)){
             OraExp::ColumnSubType intervalSubType=DbUtil::getIntervalSubType(dataType);
             stmt->bindArrayOfIntervals(bindVarName, (OCI_Interval**)buffers.at(i), DbUtil::toOciIntervalSubType(intervalSubType), dmlMode ? 0 : this->bulkSize);
+        }else if(DbUtil::isRawType(dataType)){
+            Q_ASSERT(length > 0);
+            stmt->bindArrayOfRaws(bindVarName, (dtext*)buffers.at(i), length, dmlMode ? 0 : this->bulkSize);
         }else{
             qDebug() << "Unsupported column data type for binding:" << dataType;
             Q_ASSERT(false);
@@ -163,6 +169,11 @@ void BulkOperationHelper::setArrayData(Statement *targetStmt, Resultset *sourceR
             if(!OCI_IntervalAssign(((OCI_Interval**)buffers.at(column-1))[pos], sourceRs->getInterval(column))){
                 throw OciException(QObject::tr("Failed to set interval type value"));
             }
+        }else if(DbUtil::isRawType(dataType)){
+            dtext *buffer = (dtext*)buffers.at(column-1);
+            dtext *currPosInBuffer = &buffer[pos*(lenghts.at(column-1)+1)];
+            sourceRs->getRaw(column, currPosInBuffer, lenghts.at(column-1));
+            currPosInBuffer[lenghts.at(column-1)] = L'\0';
         }else{
             qDebug() << "Unsupported column data type for populating array:" << dataType;
             Q_ASSERT(false);
@@ -236,7 +247,7 @@ void BulkOperationHelper::cleanup()
     for(int i=0; i<buffers.size(); ++i){
         const QString &dataType=dataTypes.at(i);
 
-        if(DbUtil::isStringType(dataType)){
+        if(DbUtil::isStringType(dataType) || DbUtil::isRawType(dataType)){
             delete[] (dtext*)buffers.at(i);
         }else if(DbUtil::isNumericType(dataType)){
             delete[] (double*)buffers.at(i);

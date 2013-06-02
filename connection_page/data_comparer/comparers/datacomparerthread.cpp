@@ -156,7 +156,7 @@ void DataComparerThread::createComparisonScript()
         int length = bulkHelper.lengthAt(i);
 
         colVarDecl=QString("%1 %2").arg(colVarName, dataType);
-        if(length>0){
+        if(length>0 && !DbUtil::isDateType(dataType)){
             colVarDecl.append("(").append(QString::number(length)).append(")");
         }
         colVarDecl.append(";");

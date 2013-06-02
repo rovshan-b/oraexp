@@ -10,6 +10,7 @@
 #include "tabs/tablecreatorexternalproperties.h"
 #include "tabs/tablecreatorgrants.h"
 #include "metadata_loaders/table/tableinfoloader.h"
+#include "dialogs/tablecreatelikeoptionsdialog.h"
 #include <QtGui>
 
 #include <iostream>
@@ -138,6 +139,12 @@ void TableCreatorTabs::tableInfoReady(DbObjectInfo *tableInfo, MetadataLoader *l
 {
     Q_ASSERT(originalTableInfo==0);
     originalTableInfo=static_cast<TableInfo*>(tableInfo);
+
+    if(creatorMode == DbObjectCreator::CreateLike){
+        TableCreateLikeOptionsDialog dialog(this->queryScheduler, this->window());
+        dialog.exec();
+        originalTableInfo->prepareForCreateLike(dialog.getOptions());
+    }
 
     generalInfoTab->setTableInfo(originalTableInfo);
     columnsTab->setTableInfo(originalTableInfo);

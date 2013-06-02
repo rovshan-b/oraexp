@@ -43,6 +43,93 @@ void TableInfo::setSchemaName(const QString &newSchemaName)
     }
 }
 
+void TableInfo::prepareForCreateLike(const TableDiffDdlOptions &options)
+{
+    if(!options.comments){
+        generalInfo.comments = "";
+    }
+
+    if(!options.properties){
+        generalInfo.additionalAttributes = TableAdditionalAttributes();
+    }
+
+    if(!options.flashbackArchive){
+        generalInfo.additionalAttributes.flashbackArchive = 0;
+        generalInfo.additionalAttributes.flashbackArchiveName = "";
+    }
+
+    if(!options.storage){
+        generalInfo.storageParams = StorageParams();
+
+        if(options.iotProperties){
+            generalInfo.indexOrganizedProperties.storageParams = StorageParams();
+        }
+    }
+
+    if(!options.iotProperties){
+        generalInfo.indexOrganizedProperties = IndexOrganizedTableProperties();
+    }
+
+    if(!options.columns){
+        columns.clear();
+    }
+
+    if(!options.constraints){
+        constraints.clear();
+        checkConstraints.clear();
+    }
+
+    if(!options.indexes){
+        indexes.clear();
+    }
+
+    if(!options.partitions){
+        partitioningInfo = TablePartitioningInfo();
+    }
+
+    if(!options.externalProperties){
+        externalInfo = TableExternalInfo();
+    }
+
+    if(!options.triggers){
+        triggers.clear();
+    }
+
+    if(!options.grants){
+        grants.clear();
+    }
+
+    for(int i=0; i<columns.size(); ++i){
+        ColumnInfo &colInfo = columns[i];
+        colInfo.isPrimaryKey = false; //will be created through Keys tab
+        colInfo.isUnique = false;
+        colInfo.lobParams.segment = ""; //must use different segment
+
+        if(!options.comments){
+            colInfo.comments = "";
+        }
+
+        if(!options.lobProperties){
+            colInfo.lobParams = LobParams();
+        }else if(!options.storage){
+            colInfo.lobParams.storageParams = StorageParams();
+        }
+    }
+
+    if(options.indexes && (!options.storage || !options.partitions)){
+        for(int i=0; i<indexes.size(); ++i){
+            IndexInfo &indexInfo = indexes[i];
+            if(!options.storage){
+                indexInfo.storageParams = StorageParams();
+            }
+            if(!options.partitions){
+                indexInfo.partitioning = 0;
+                indexInfo.partInfo = TablePartitioningInfo();
+            }
+        }
+    }
+}
+
 ColumnInfo TableInfo::findColumnByName(const QString &columnName, bool &found) const
 {
     foreach(const ColumnInfo &colInfo, columns){

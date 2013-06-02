@@ -287,6 +287,11 @@ QString Resultset::getString(unsigned int colIx) const
     }
 }
 
+void Resultset::getRaw(unsigned int colIx, void *buffer, unsigned int length) const
+{
+    OCI_GetRaw(ociResultset, colIx, buffer, length);
+}
+
 int Resultset::getInt(unsigned int colIx) const
 {
     return OCI_GetInt(ociResultset, colIx);

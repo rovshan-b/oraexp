@@ -806,7 +806,12 @@ unsigned int DbUtil::toOciIntervalSubType(OraExp::ColumnSubType intSubType)
 bool DbUtil::isStringType(const QString &dataTypeName)
 {
     return dataTypeName=="VARCHAR2" || dataTypeName=="NVARCHAR2" ||
-            dataTypeName=="RAW" || dataTypeName=="CHAR" || dataTypeName=="NCHAR";
+            dataTypeName=="CHAR" || dataTypeName=="NCHAR";
+}
+
+bool DbUtil::isRawType(const QString &dataTypeName)
+{
+    return dataTypeName=="RAW";
 }
 
 bool DbUtil::isNumericType(const QString &dataTypeName)

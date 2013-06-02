@@ -22,6 +22,11 @@ void ConnectionPageWindow::emitInitCompletedSignal()
     emit initCompleted(this);
 }
 
+void ConnectionPageWindow::makeVisible()
+{
+    showAndActivate();
+}
+
 void ConnectionPageWindow::queryExecTaskCompleted(const QString &/*taskName*/)
 {
     decreaseRefCount();

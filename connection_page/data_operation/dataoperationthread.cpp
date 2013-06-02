@@ -98,6 +98,8 @@ QString DataOperationThread::toDynamicSqlValue(const QString &varName, const QSt
         }else{
             result = QString("to_timestamp('''||%1||''',''%2'')").arg(varName, DB_TIMESTAMP_FORMAT);
         }
+    }else if(DbUtil::isRawType(dataType)){
+        result = QString("hextoraw('''||rawtohex(%1)||''')").arg(varName);
     }else{
         qDebug("Data type not supported in DataComparerThread::toDynamicSqlValue");
         Q_ASSERT(false);

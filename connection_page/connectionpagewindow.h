@@ -22,6 +22,8 @@ public slots:
     virtual void emitBusyStateChangedSignal();
     virtual void emitInitCompletedSignal();
 
+    void makeVisible();
+
     virtual void reject ();
 
 protected:

@@ -9,7 +9,7 @@ public:
     ConnectionPageWindowObject(DbUiManager *uiManager);
 
     virtual bool initiallyVisible() const{return true;}
-public slots:
+
     void showAndActivate();
 };
 

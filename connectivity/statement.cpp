@@ -521,6 +521,12 @@ void Statement::bindArrayOfStrings(const QString &bindVarName, dtext *data, int 
     DbUtil::checkForOciError(ociStmt);
 }
 
+void Statement::bindArrayOfRaws(const QString &bindVarName, void *data, int rawLength, int plSqlTableLength)
+{
+    OCI_BindArrayOfRaws(ociStmt, createOciString(bindVarName), data, rawLength, plSqlTableLength);
+    DbUtil::checkForOciError(ociStmt);
+}
+
 void Statement::bindArrayOfDoubles(const QString &bindVarName, double *data, int plSqlTableLength)
 {
     OCI_BindArrayOfDoubles(ociStmt, createOciString(bindVarName), data, plSqlTableLength);
