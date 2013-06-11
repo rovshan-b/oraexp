@@ -1,0 +1,1295 @@
+
+start_rule
+        :	(create_package)* PLS_E_O_F
+	;
+
+create_package
+        :	'CREATE' ( 'OR' 'REPLACE' )? ( package_spec | package_body )
+        |       'CREATE' ( package_spec | package_body )
+	;
+	
+package_spec
+	:	'PACKAGE' package_name ( 'IS' | 'AS' ) 
+		( package_obj_spec )*
+                'END' (package_name)? PLS_SEMI
+	;
+	
+package_body
+        :	'PACKAGE' ( 'BODY' ) package_name ( 'IS' | 'AS' )
+		( package_obj_body )*
+		( 'BEGIN' seq_of_statements )?  
+                'END' ( package_name )? PLS_SEMI
+	;
+
+package_name
+        :	( schema_name PLS_DOT )? identifier
+	;
+
+package_obj_spec
+	:	variable_declaration 
+	|	type_declaration
+	|	subtype_declaration 
+	|	record_declaration 
+	|	plsql_table_declaration 
+	|	varray_declaration
+	|	cursor_declaration 
+	|	cursor_spec 
+	|	procedure_spec 
+	|	function_spec 
+	|	exception_declaration 
+	|	pragma_declaration
+	;
+
+variable_declaration
+	:	variable_name ('CONSTANT')?
+		type_spec ('NOT' 'NULL')? 
+                ( ( PLS_ASSIGN | 'DEFAULT' ) plsql_expression)? PLS_SEMI
+	;	
+
+type_declaration 
+        :	'TYPE' type_spec 'IS' ( 'NEW' )? ( type_spec ( 'NOT' 'NULL' )? | PLS_LPAREN plsql_expressions PLS_RPAREN ) PLS_SEMI
+	;	
+
+subtype_declaration 
+        :	'SUBTYPE' type_spec 'IS' type_spec ( 'NOT' 'NULL' | 'RANGE' literal PLS_DOUBLEDOT literal )? PLS_SEMI
+	;	
+	
+cursor_declaration
+        :	'CURSOR' cursor_name
+                ( PLS_LPAREN parameter_specs PLS_RPAREN )?
+                'IS' select_command PLS_SEMI
+	;
+package_obj_body
+	:	variable_declaration 
+	|	subtype_declaration 
+	|	cursor_declaration 
+	|	exception_declaration 
+	|	record_declaration 
+	|	plsql_table_declaration 
+	|	varray_declaration
+	|	procedure_body 
+	|	function_body 
+	|	pragma_declaration
+	;
+
+seq_of_statements
+        :	statement PLS_SEMI ( statement PLS_SEMI )*
+	;
+	
+statement
+	:	assignment_statement
+	|	exit_statement
+	|	goto_statement
+	|	case_statement
+	|	if_statement 
+	|	loop_statement 
+	|	null_statement
+	|	raise_statement
+	|	return_statement
+	|	sql_statement
+	|	plsql_block
+
+	|	function_call
+	;
+		
+plsql_block
+        :	( PLS_LLABEL label_name PLS_RLABEL )?
+		( ( 'DECLARE' )? (declare_spec)+ )? 
+		( 'BEGIN' )
+		seq_of_statements
+		( 'EXCEPTION' ( exception_handler )+ )? 
+		( 'END' ( label_name )? )
+	;
+
+declare_spec
+	:	variable_declaration 
+	|	subtype_declaration 
+	|	cursor_declaration 
+	|	exception_declaration 
+	|	record_declaration 
+	|	plsql_table_declaration 
+	|	varray_declaration
+	|	procedure_declaration 
+	|	function_declaration
+	|	type_declaration 
+	|	pragma_declaration
+	;
+
+pragma_declaration
+        :	'PRAGMA'
+                (	'RESTRICT_REFERENCES' PLS_LPAREN ( 'DEFAULT' | function_name ) ( PLS_COMMA pragma_param )+ PLS_RPAREN
+                |	'EXCEPTION_INIT' PLS_LPAREN exception_name PLS_COMMA literal PLS_RPAREN
+                |	'AUTONOMOUS_TRANSACTION'
+                |	'SERIALLY_REUSABLE'
+                |	'BUILTIN' PLS_LPAREN pragma_params PLS_RPAREN
+                |	'FIPSFLAG' PLS_LPAREN pragma_params PLS_RPAREN
+                |	'INTERFACE' PLS_LPAREN pragma_params PLS_RPAREN
+                |	'NEW_NAMES' PLS_LPAREN pragma_params PLS_RPAREN
+                |	'TIMESTAMP' PLS_LPAREN pragma_params PLS_RPAREN
+		)
+                PLS_SEMI
+	;
+
+pragma_params
+        :	pragma_param ( PLS_COMMA pragma_param )*
+	;
+
+pragma_param
+        :	( PLS_PLUS | PLS_MINUS )? PLS_NUMBER
+        |	PLS_QUOTED_STRING
+	|	identifier
+	;
+
+assignment_statement
+        :
+
+                (lvalue PLS_ASSIGN plsql_expression)
+
+	;
+lvalues
+        :	lvalue ( PLS_COMMA lvalue )*
+	;
+lvalue
+	:	variable_name
+        |	record_name PLS_DOT field_name
+        |	plsql_table_name PLS_LPAREN subscript PLS_RPAREN ( PLS_DOT field_name )*
+        |	PLS_COLON host_variable ( PLS_COLON host_variable )?
+	;
+
+field_name
+	:	identifier
+	;
+	
+subscript
+	:	plsql_expression 
+	;
+	
+host_variable
+	:	identifier
+	;
+	
+goto_statement
+	:	'GOTO' label_name
+	;
+	
+label_name
+	:	identifier
+	;	
+
+exit_statement
+        :	'EXIT' ( label_name )? ( 'WHEN' plsql_condition )?
+	;
+	
+datatype
+	:	'BINARY_INTEGER' 
+	|	'BINARY_FLOAT'
+	|	'BINARY_DOUBLE'
+	|	'NATURAL' 
+	|	'POSITIVE' 
+        |	( 'PLS_NUMBER' | 'NUMERIC' | 'DECIMAL' | 'DEC' ) ( PLS_LPAREN PLS_NUMBER ( PLS_COMMA PLS_NUMBER )? PLS_RPAREN )?
+        |	'LONG' ( 'RAW')? ( PLS_LPAREN PLS_NUMBER PLS_RPAREN )?
+        |	'RAW' ( PLS_LPAREN PLS_NUMBER PLS_RPAREN )?
+	|	'BOOLEAN'
+	|	'DATE'
+        |	'INTERVAL' 'DAY' ( PLS_LPAREN PLS_NUMBER PLS_RPAREN )? 'TO' 'SECOND' ( PLS_LPAREN PLS_NUMBER PLS_RPAREN )?
+        |	'INTERVAL' 'YEAR' ( PLS_LPAREN PLS_NUMBER PLS_RPAREN )? 'TO' 'MONTH'
+        |	( 'TIME' | 'TIMESTAMP' ) ( PLS_LPAREN PLS_NUMBER PLS_RPAREN )? ( 'WITH' ( 'LOCAL' )? 'TIME' 'ZONE')?
+	|	'INTEGER'
+	|	'INT'
+	|	'SMALLINT'
+        |	'FLOAT' ( PLS_LPAREN PLS_NUMBER PLS_RPAREN )?
+	|	'REAL'
+        |	'DOUBLE' 'PRECISION'
+        |	'CHAR'      ( 'VARYING' )? ( PLS_LPAREN PLS_NUMBER ( 'BYTE' | 'CHAR' )? PLS_RPAREN )? ( 'CHARACTER' 'SET' ( identifier | column_spec CHARSET_ATTR ) )?
+        |	'VARCHAR'                   ( PLS_LPAREN PLS_NUMBER ( 'BYTE' | 'CHAR' )? PLS_RPAREN )? ( 'CHARACTER' 'SET' ( identifier | column_spec CHARSET_ATTR ) )?
+        |	'VARCHAR2'                  ( PLS_LPAREN PLS_NUMBER ( 'BYTE' | 'CHAR' )? PLS_RPAREN )? ( 'CHARACTER' 'SET' ( identifier | column_spec CHARSET_ATTR ) )?
+        |	'CHARACTER' ( 'VARYING' )? ( PLS_LPAREN PLS_NUMBER PLS_RPAREN )?
+        |	'NCHAR'     ( 'VARYING' )? ( PLS_LPAREN PLS_NUMBER PLS_RPAREN )?
+        |	'NVARCHAR'  ( PLS_LPAREN PLS_NUMBER PLS_RPAREN )?
+        |	'NVARCHAR2' ( PLS_LPAREN PLS_NUMBER PLS_RPAREN )?
+        |	'NATIONAL'  ( 'CHARACTER' | 'CHAR' ) ( 'VARYING' )? ( PLS_LPAREN PLS_NUMBER PLS_RPAREN )?
+	|	'MLSLABEL'
+	|	'PLS_INTEGER'
+	|	'BLOB'
+	|	'CLOB' ( 'CHARACTER' 'SET' ( identifier | column_spec CHARSET_ATTR ) )?
+	|	'NCLOB'
+	|	'BFILE'
+	|	'ROWID' 
+        |	'UROWID' ( PLS_LPAREN PLS_NUMBER PLS_RPAREN )?
+	;
+
+type_spec
+	:	datatype 
+
+	|	column_spec TYPE_ATTR
+
+	|	table_spec ROWTYPE_ATTR
+
+        |	type_name ( PLS_LPAREN PLS_NUMBER PLS_RPAREN )?
+	;
+
+type_name
+        :	identifier ( PLS_DOT identifier )*
+	;
+
+parameter_specs
+        :	parameter_spec ( PLS_COMMA parameter_spec )*
+	;
+
+parameter_spec
+	:	parameter_name ( 'IN' )? ( type_spec )?
+	;	
+
+parameter_name
+	:	identifier
+	;
+
+cursor_spec
+        :	'CURSOR' cursor_name
+                ( PLS_LPAREN parameter_specs PLS_RPAREN )?
+                'RETURN' return_type PLS_SEMI
+	;
+
+procedure_spec: 
+	'PROCEDURE' procedure_name 
+        ( PLS_LPAREN arguments PLS_RPAREN )? PLS_SEMI
+	;
+
+function_spec
+	:	'FUNCTION' function_name 
+                ( PLS_LPAREN arguments PLS_RPAREN )?
+                'RETURN' return_type PLS_SEMI
+	;
+
+exception_declaration
+        :	exception_name 'EXCEPTION' PLS_SEMI
+	;
+
+exception_names
+	:	exception_name ( 'OR' exception_name )*
+	;
+
+exception_name
+        :	( exception_package_name PLS_DOT )? identifier
+	;
+
+exception_package_name
+	:	identifier
+	;
+
+	
+
+
+
+
+	
+record_declaration
+	:	record_type_dec 
+
+	;
+
+record_type_dec
+        :	'TYPE' type_name 'IS' 'RECORD'
+                PLS_LPAREN field_specs PLS_RPAREN PLS_SEMI
+	;
+
+
+
+
+
+field_specs
+        :	field_spec ( PLS_COMMA field_spec )*
+	;
+field_spec
+	:	column_name type_spec
+		('NOT' 'NULL')? 
+                ( ( PLS_ASSIGN | 'DEFAULT' ) plsql_expression)?
+	;
+
+plsql_table_declaration
+	:	table_type_dec
+
+	;
+
+table_type_dec
+        :	'TYPE' type_name 'IS' 'TABLE'
+		'OF' type_spec ( 'NOT' 'NULL' )?
+		(	'INDEX' 'BY' 
+			(	'BINARY_INTEGER'
+			|	'PLS_INTEGER'
+                        |	'VARCHAR2' PLS_LPAREN integer PLS_RPAREN
+			)
+		)?
+                PLS_SEMI
+	;
+
+table_var_dec
+        :	plsql_table_name type_name PLS_SEMI
+        ;
+
+plsql_table_name
+        :	identifier ( PLS_DOT identifier )*
+	;
+
+varray_declaration
+        :	'TYPE' type_name 'IS'
+                ( 'VARRAY' | 'VARYING' 'ARRAY' ) PLS_LPAREN integer PLS_RPAREN
+		'OF' type_spec ( 'NOT' 'NULL' )?
+	;
+
+procedure_declaration
+	:	procedure_body
+	;
+
+procedure_body
+        :	( proc_fun_start )? 'PROCEDURE' procedure_name
+                ( PLS_LPAREN argument ( PLS_COMMA argument )* PLS_RPAREN )?
+		( 'IS' | 'AS' )
+
+                (  ( declare_spec )* )
+		( 'BEGIN' )
+		( seq_of_statements )
+		( 'EXCEPTION' ( exception_handler )* )?
+                'END' ( procedure_name )? PLS_SEMI
+	;
+
+begin_block
+	:	'BEGIN'
+		( seq_of_statements )
+		( 'EXCEPTION' ( exception_handler )+ )?
+		'END'
+	;
+
+
+exception_handler
+	:	'WHEN' exception_names 'THEN'
+		seq_of_statements
+	;
+
+proc_fun_start
+        :	'CREATE' ( 'OR' 'REPLACE' )?
+	;
+
+function_body
+:	( proc_fun_start )? 'FUNCTION' function_name
+                ( PLS_LPAREN arguments PLS_RPAREN )?
+                'RETURN' return_type ( 'IS' | 'AS' )
+
+                (  ( declare_spec )* )
+		( 'BEGIN' )
+		( seq_of_statements )
+		( 'EXCEPTION' ( exception_handler )+ )?
+                'END' ( function_name )? PLS_SEMI
+	;
+
+function_name
+        :	identifier | PLS_QUOTED_STRING
+	;
+
+procedure_name
+        :	identifier | PLS_QUOTED_STRING
+	;
+
+arguments
+        :	argument ( PLS_COMMA argument )*
+	;
+
+argument
+        :	argument_name ( 'OUT' | 'IN' 'OUT' | 'IN' )? (argument_type )?
+                ( ( PLS_ASSIGN | 'DEFAULT' ) plsql_expression )?
+	;
+
+argument_name
+	:	identifier
+	;
+
+argument_type
+	:	type_spec
+	;
+
+value
+        :	( PLS_PLUS | PLS_MINUS )? PLS_NUMBER
+	|	quoted_string
+	|	'TRUE' | 'FALSE'
+	|	'NULL'
+	;
+
+return_type
+	:	type_spec
+	;
+
+function_declaration
+	:	function_body
+	;
+
+function_call
+        :	user_defined_function ( PLS_LPAREN ( call_parameters )? PLS_RPAREN )?
+
+
+
+
+
+	;
+
+collection_function_call
+	:	plsql_table_name
+	;
+
+variable_names
+        :	variable_name ( PLS_COMMA variable_name )*
+	;
+variable_name
+	:	identifier
+	;
+
+null_statement
+	:	'NULL' 
+	;
+
+raise_statement
+        :	'RAISE' ( exception_name )?
+	;
+	
+return_statement
+        :	'RETURN' ( plsql_expression )?
+	;
+
+loop_statement
+        :	( PLS_LLABEL label_name PLS_RLABEL )?
+                (	'WHILE' plsql_condition
+                | 	(	'FOR'
+                                (	 numeric_loop_param
+                                |	 cursor_loop_param
+				)
+			)
+		)?
+                'LOOP'
+		seq_of_statements
+                'END' 'LOOP'
+		( label_name )?
+	;
+
+numeric_loop_param
+        :	index_name 'IN' ( 'REVERSE' )? integer_expr PLS_DOUBLEDOT integer_expr
+	;
+
+index_name
+	:	identifier
+	;
+
+
+integer_expr
+	:	sql_expression
+	;
+
+cursor_name
+	:	identifier
+	;
+
+cursor_loop_param
+	:	record_name 'IN'
+                (	cursor_name ( PLS_LPAREN plsql_expressions PLS_RPAREN )?
+                |	PLS_LPAREN select_statement PLS_RPAREN
+		)
+	;
+
+record_name
+	:	identifier
+	;
+
+commit_statement
+	:	'COMMIT'
+	;
+
+if_statement
+        :	'IF' plsql_condition 'THEN' seq_of_statements
+                (
+                        'ELSIF' plsql_condition 'THEN' seq_of_statements
+		)*
+		( 'ELSE' seq_of_statements )?
+		'END' 'IF'
+	;
+
+sql_statement
+	:	sql_command
+	;
+
+sql_command
+	:	to_modify_data
+	|	to_control_data
+	;
+
+to_modify_data
+	:	select_command
+	|	insert_command
+	|	update_command
+	|	delete_command
+	|	set_transaction_command
+	;
+
+to_control_data
+	:	close_statement
+	|	commit_statement
+	|	fetch_statement
+	|	lock_table_statement
+	|	open_statement
+	|	rollback_statement
+	|	savepoint_statement
+	;
+
+select_command
+        :	select_statement
+	;
+
+select_statement
+        :
+		select_expression 
+	;
+
+select_expression
+	:	
+                'SELECT' ( 'DISTINCT' | 'UNIQUE' | 'ALL' )? select_list
+                ( 'BULK' 'COLLECT' )?
+		( 'INTO' lvalues )?
+                'FROM' ( table_reference_list | join_clause | PLS_LPAREN join_clause PLS_RPAREN )
+		( where_clause )? ( hierarchical_query_clause )? ( group_by_clause )?
+		( 'HAVING' sql_condition )? ( model_clause )?
+		(	(	'UNION' ( 'ALL' )?
+			|	'INTERSECT'
+                        |	'PLS_MINUS'
+			)
+                        (	select_expression
+			|	subquery
+			)
+		)?
+		( order_by_clause )?
+	;
+
+select_list
+        :	PLS_ASTERISK
+        |	displayed_column ( PLS_COMMA displayed_column )*
+	;
+
+table_reference_list_from
+	:	'FROM' table_reference_list
+	;
+
+table_reference_list
+        :	selected_table ( PLS_COMMA selected_table )*
+	;
+
+join_clause
+	:	table_name ( inner_cross_join_clause | outer_join_clause )+
+	;
+inner_cross_join_clause
+        :	( 'INNER' )? 'JOIN' table_name ( 'ON' sql_condition | 'USING' PLS_LPAREN column_specs PLS_RPAREN )
+        |	( 'CROSS' | 'NATURAL' ( 'INNER' ) ) 'JOIN' table_name
+	;
+outer_join_clause
+	:	( query_partition_clause )?
+                (	outer_join_type 'JOIN'
+                |	'NATURAL' ( outer_join_type )? 'JOIN'
+		)
+		table_name ( query_partition_clause )?
+                ( 'ON' sql_condition | 'USING' PLS_LPAREN column_specs PLS_RPAREN )?
+	;
+query_partition_clause
+        :	'PARTITION' 'BY' expression_list
+	;
+outer_join_type
+        :	( 'FULL' | 'LEFT' | 'RIGHT' ) ( 'OUTER' )?
+	;
+outer_join_sign
+        :	PLS_LPAREN PLS_PLUS PLS_RPAREN
+	;
+where_clause
+	:	'WHERE' sql_condition
+	;
+hierarchical_query_clause
+        :	( 'START' 'WITH' sql_condition )? 'CONNECT' 'BY' ( 'NOCYCLE' )? sql_condition
+	;
+group_by_clause
+	:	'GROUP' 'BY' group_by_exprs
+	;
+group_by_exprs
+        :	group_by_expr ( PLS_COMMA group_by_expr )*
+	;
+group_by_expr
+	:	rollup_cube_clause
+	|	grouping_sets_clause
+	|	grouping_expression_list
+	;
+rollup_cube_clause
+        :	( 'ROLLUP' | 'CUBE' ) PLS_LPAREN grouping_expression_list PLS_RPAREN
+	;
+grouping_sets_clause
+        :	'GROUPING' 'SETS' PLS_LPAREN grouping_expression_list PLS_RPAREN
+	;
+grouping_sets_exprs
+        :	grouping_sets_expr ( PLS_COMMA grouping_sets_expr )*
+	;
+grouping_sets_expr
+	:	rollup_cube_clause | grouping_expression_list
+	;
+model_clause
+        :	'MODEL' ( cell_reference_options )
+		( return_rows_clause )?
+		( reference_model )+ main_model
+	;
+cell_reference_options
+        :	( ( 'IGNORE' | 'KEEP' ) 'NAV' )?
+                ( 'UNIQUE' ( 'DIMENSION' | 'SINGLE' 'REFERENCE' ) )?
+	;
+return_rows_clause
+        :	'RETURN' ( 'UPDATED' | 'ALL' ) 'ROWS'
+	;
+reference_model
+        :	'REFERENCE' reference_model_name 'ON' PLS_LPAREN subquery PLS_RPAREN
+		model_column_clauses ( cell_reference_options )
+	;
+reference_model_name
+	:	identifier
+	;
+main_model
+        :	( 'MAIN' main_model_name )? model_column_clauses
+		( cell_reference_options ) model_rules_clause
+	;
+main_model_name
+	:	identifier
+	;
+model_column_clauses
+	:	( query_partition_clause ( column_spec )? )?
+                'DIMENSION' 'BY' PLS_LPAREN model_columns PLS_RPAREN
+                'MEASURES' PLS_LPAREN model_columns PLS_RPAREN
+	;
+model_columns
+        :	model_column ( PLS_COMMA model_column )*
+	;
+model_column
+	:	sql_expression ( ( 'AS' )? column_spec )?
+	;
+model_rules_clause
+        :	( 'RULES' ( 'UPDATE' | 'UPSERT' ( 'ALL' )? )? ( ( 'AUTOMATIC' | 'SEQUENTIAL' ) 'ORDER' )? )?
+                ( 'ITERATE' PLS_LPAREN PLS_NUMBER PLS_RPAREN ( 'UNTIL' PLS_LPAREN sql_condition PLS_RPAREN )? )?
+                PLS_LPAREN model_rules_exprs PLS_RPAREN
+	;
+model_rules_exprs
+        :	model_rules_expr ( PLS_COMMA model_rules_expr )*
+	;
+model_rules_expr
+        :	( 'UPDATE' | 'UPSERT' ( 'ALL' )? )? cell_assignment ( order_by_clause )? PLS_EQ sql_expression
+	;
+cell_assignment
+        :	measure_column PLS_LBRACK ( multi_column_for_loop | cell_assignment_exprs ) PLS_RBRACK
+	;
+cell_assignment_exprs
+        :	cell_assignment_expr ( PLS_COMMA cell_assignment_expr )*
+	;
+cell_assignment_expr
+	:	sql_condition | sql_expression | single_column_for_loop
+	;
+measure_column
+	:	column_name
+	;
+single_column_for_loop
+	:	'FOR' column_name
+                (	'IN' PLS_LPAREN ( literals | subquery ) PLS_RPAREN
+                |	( 'LIKE' pattern )? 'FROM' literal 'TO' literal ( 'INCREMENT' | 'DECREMENT' ) literal
+		)
+	;
+literal
+        :	( PLS_PLUS | PLS_MINUS )? PLS_NUMBER
+        |	PLS_QUOTED_STRING
+	;
+literals
+        :	literal ( PLS_COMMA literal )*
+	;
+bracket_literals
+        :	PLS_LPAREN literals PLS_RPAREN
+	;
+bracket_literals_list
+        :	bracket_literals ( PLS_COMMA bracket_literals )*
+	;
+pattern
+        :	PLS_QUOTED_STRING
+	;
+multi_column_for_loop
+        :	'FOR' PLS_LPAREN column_specs PLS_RPAREN 'IN' PLS_LPAREN ( bracket_literals_list | subquery ) PLS_RPAREN
+	;
+order_by_clause
+        :	'ORDER' ( 'SIBLINGS' )? 'BY' order_by_exprs
+	;
+order_by_exprs
+        :	order_by_expr ( PLS_COMMA order_by_expr )*
+	;
+order_by_expr
+	:	(	sql_expression
+
+
+		)
+                ( 'ASC' | 'DESC' )? ( 'NULLS' 'FIRST' | 'NULLS' 'LAST' )?
+	;
+for_update_clause
+        :	'FOR' 'UPDATE' ( 'OF' column_specs )? ( 'WAIT' integer | 'NOWAIT' )?
+	;
+
+where_condition_whole
+	:	'WHERE' sql_condition
+	;
+
+where_condition
+	:	sql_condition
+	;
+
+displayed_column
+        :	(	column_spec PLS_DOT PLS_ASTERISK
+
+
+		|	sql_expression
+		)
+		( alias )?
+	;
+
+schema_name
+	:	sql_identifier
+	;
+
+table_name
+	:	sql_identifier
+	;
+
+nested_expressions
+        :	nested_expression ( PLS_COMMA nested_expression )*
+	;
+
+nested_expression
+        :	sql_expression
+        |	plsql_expression
+	;
+plsql_condition
+
+	:	expr_bool
+	;
+
+plsql_expressions
+        :	plsql_expression ( PLS_COMMA plsql_expression )*
+	;
+
+plsql_expression
+
+	:	expr_bool
+	;
+
+
+expr_bool
+	:	expr_or ( 'OR' expr_or )*
+	;
+expr_or
+	:	expr_and ( 'AND' expr_and )*
+	;
+expr_and
+	:	( 'NOT' )? expr_not
+	;
+expr_not
+	:	expr_add 
+		(	relational_op expr_add
+                |	'%FOUND' | '%NOTFOUND' | '%ISOPEN' | '%ROWCOUNT' | '%BULK_ROWCOUNT'
+		|	'IS' ( 'NOT' )? 'NULL'
+		|	( 'NOT' )? 'LIKE' expr_add
+		|	( 'NOT' )? 'BETWEEN' expr_add 'AND' expr_add
+                |	( 'NOT' )? 'IN' PLS_LPAREN nested_expressions PLS_RPAREN
+		)*
+	;
+
+boolean_literal
+	:	'TRUE' | 'FALSE'
+	;
+
+sql_expressions
+        :	sql_expression ( PLS_COMMA sql_expression )*
+	;
+sql_expression
+
+	:	expr_add
+	;
+expr_add
+        :	expr_mul ( ( PLS_PLUS | PLS_MINUS | PLS_DOUBLEVERTBAR ) expr_mul )*
+	;
+expr_mul
+        :	expr_sign ( ( PLS_ASTERISK | PLS_DIVIDE ) expr_sign )*
+	;
+expr_sign
+        :	( PLS_PLUS | PLS_MINUS )? expr_pow
+	;
+expr_pow
+        :	expr_expr ( PLS_EXPONENT expr_expr )*
+	;
+expr_expr
+        :	 expr_paren
+        |	 function_expression
+
+        |	 case_expression
+        |	 cursor_expression
+        |	 simple_expression
+        |	 select_expression
+
+
+
+
+
+
+
+
+
+	;
+simple_expression
+	:	boolean_literal
+        |	'SQL' ( '%FOUND' | '%NOTFOUND' | '%ISOPEN' | '%ROWCOUNT' | '%BULK_ROWCOUNT' )
+        |	 column_spec
+        |	PLS_QUOTED_STRING
+        |	PLS_NUMBER
+
+
+
+	|	'NULL'
+	;
+compound_expression
+
+
+	:	expr_prior
+
+
+	;
+expr_paren
+        :	PLS_LPAREN nested_expression PLS_RPAREN
+	;
+expr_prior
+	:	'PRIOR' expr_add
+	;
+case_expression
+	:	'CASE' ( simple_case_expression | searched_case_expression ) ( else_case_expression )? 'END'
+	;
+simple_case_expression
+	:	nested_expression ( 'WHEN' nested_expression 'THEN' nested_expression )+
+	;
+searched_case_expression
+	:	( 'WHEN' nested_condition 'THEN' nested_expression )+
+	;
+else_case_expression
+	:	'ELSE' nested_expression
+	;
+case_statement
+        :	( label_name )? 'CASE' ( simple_case_statement | searched_case_statement ) ( else_case_statement )? 'END' 'CASE' ( label_name )?
+	;
+simple_case_statement
+	:	plsql_expression ( 'WHEN' plsql_expression 'THEN' seq_of_statements )+
+	;
+searched_case_statement
+	:	( 'WHEN' plsql_expression 'THEN' seq_of_statements )+
+	;
+else_case_statement
+	:	'ELSE' seq_of_statements
+	;
+cursor_expression
+        :	'CURSOR' PLS_LPAREN subquery PLS_RPAREN
+	;
+datetime_expression
+	:	sql_expression 'AT'
+                (	'LOCAL'
+                |	'TIME' 'ZONE' ( 'DBTIMEZONE' | 'SESSIONTIMEZONE' | sql_expression )
+		)
+	;
+function_expression
+        :	function_call ( PLS_DOT nested_expression )?
+        |
+                (	'COUNT' PLS_LPAREN ( PLS_ASTERISK | nested_expression ) PLS_RPAREN
+                |	'DISTINCT' ( PLS_LPAREN nested_expression PLS_RPAREN | nested_expression )
+		)
+	;
+special_expression
+        :
+                (	'COUNT' PLS_LPAREN ( PLS_ASTERISK | nested_expression ) PLS_RPAREN
+                |	'DISTINCT' PLS_LPAREN nested_expression PLS_RPAREN
+		)
+	;
+interval_expression
+	:	sql_expression
+                (	'DAY' ( PLS_LPAREN leading_field_precision PLS_RPAREN )? 'TO' 'SECOND' ( PLS_LPAREN fractional_second_precision PLS_RPAREN )?
+                |	'YEAR' ( PLS_LPAREN leading_field_precision PLS_RPAREN )? 'TO' 'MONTH'
+		)
+	;
+leading_field_precision
+        :	integer
+	;
+fractional_second_precision
+        :	integer
+	;
+object_access_expression
+	:
+	;
+scalar_subquery_expression
+	:
+	;
+model_expression
+	:
+	;
+type_constructor_expression
+	:
+	;
+variable_expression
+	:
+	;
+sequence_name
+	:	identifier
+	;
+integer
+        :	PLS_NUMBER
+	;
+
+
+alias
+	:	( 'AS' )? sql_identifier
+	;
+
+column_specs
+        :	column_spec ( PLS_COMMA column_spec )*
+	;
+
+column_spec
+        :	sql_identifier ( PLS_DOT sql_identifier )*
+
+
+
+
+
+	;
+
+column_name
+	:	sql_identifier
+	;
+nested_table
+	:	sql_identifier
+	;
+nested_table_column_name
+        :	( schema_name PLS_DOT )? table_name PLS_DOT nested_table PLS_DOT column_name
+	;
+
+user_defined_function
+        :	sql_identifier ( PLS_DOT sql_identifier )* ( PLS_DOT ( 'EXISTS' | 'PRIOR' | 'DELETE' ) )?
+	;
+
+
+
+
+
+
+
+
+
+
+selected_table
+        :	( table_spec | ( 'TABLE' | 'THE' )? subquery ) ( alias )?
+	;
+
+table_spec
+        :	( schema_name PLS_DOT )? table_name ( PLS_AT_SIGN link_name )?
+	;
+
+table_alias
+        :	( schema_name PLS_DOT )? table_name ( PLS_AT_SIGN link_name )? ( alias )?
+	;
+
+link_name
+	:	sql_identifier
+	;
+nested_condition
+        :	condition_or
+        |	expr_bool
+	;
+sql_condition
+
+	:	condition_or
+
+	;
+condition_paren
+        :	PLS_LPAREN sql_condition PLS_RPAREN
+	;
+condition_or
+	:	condition_and ( 'OR' condition_and )*
+	;
+condition_and
+	:	condition_not ( 'AND' condition_not )*
+	;
+condition_not
+	:	'NOT' condition_expr
+	|	condition_expr
+	;
+condition_expr
+	:	condition_exists
+	|	condition_is
+	|	condition_comparison
+	|	condition_group_comparison
+	|	condition_in
+	|	condition_is_a_set
+	|	condition_is_any
+	|	condition_is_empty
+	|	condition_is_of_type
+	|	condition_is_present
+	|	condition_like
+	|	condition_memeber
+	|	condition_between
+	|	condition_regexp_like
+	|	condition_submultiset
+	|	condition_equals_path
+	|	condition_under_path
+	|	condition_paren
+	;
+condition_exists
+        :	'EXISTS' PLS_LPAREN select_command PLS_RPAREN
+	;
+condition_is
+        :	sql_expression 'IS' ( 'NOT' )? ( 'NAN' | 'INFINITE' | 'NULL' )
+	;
+condition_comparison
+        :	PLS_LPAREN sql_expressions PLS_RPAREN ( outer_join_sign )? ( PLS_EQ | PLS_NOT_EQ ) PLS_LPAREN select_command PLS_RPAREN ( outer_join_sign )?
+        |	( 'PRIOR' )? sql_expression ( outer_join_sign )? ( PLS_EQ | PLS_NOT_EQ | PLS_GREATER_THAN | PLS_GREATER_THAN_EQUAL | PLS_LESS_THAN | PLS_LESS_THAN_EQUAL ) ( 'PRIOR' )? ( sql_expression | PLS_LPAREN select_command PLS_RPAREN ) ( outer_join_sign )?
+	;
+condition_group_comparison
+        :	PLS_LPAREN sql_expressions PLS_RPAREN ( PLS_EQ | PLS_NOT_EQ ) ( 'ANY' | 'SOME' | 'ALL' ) PLS_LPAREN ( grouping_expression_list | select_command ) PLS_RPAREN
+        |	sql_expression ( PLS_EQ | PLS_NOT_EQ | PLS_GREATER_THAN | PLS_GREATER_THAN_EQUAL | PLS_LESS_THAN | PLS_LESS_THAN_EQUAL ) ( 'ANY' | 'SOME' | 'ALL' ) PLS_LPAREN ( sql_expressions | select_command ) PLS_RPAREN
+	;
+condition_in
+        :	PLS_LPAREN sql_expressions PLS_RPAREN ( 'NOT' )? 'IN' PLS_LPAREN ( grouping_expression_list | select_command ) PLS_RPAREN
+        |	sql_expression ( 'NOT' )? 'IN' PLS_LPAREN ( expression_list | select_command ) PLS_RPAREN
+	;
+condition_is_a_set
+        :	nested_table_column_name 'IS' ( 'NOT' )? 'A' 'SET'
+	;
+condition_is_any
+	:	( column_name 'IS' )? 'ANY'
+	;
+condition_is_empty
+        :	nested_table_column_name 'IS' ( 'NOT' )? 'EMPTY'
+	;
+condition_is_of_type
+        :	sql_expression 'IS' ( 'NOT' )? 'OF' ( 'TYPE' )? PLS_LPAREN type_name PLS_RPAREN
+	;
+condition_is_of_type_names
+        :	condition_is_of_type_name ( PLS_COMMA condition_is_of_type_name )*
+	;
+condition_is_of_type_name
+        :	( 'ONLY' )? type_name
+	;
+condition_is_present
+        :	cell_reference 'IS' 'PRESENT'
+	;
+condition_like
+        :	sql_expression ( 'NOT' )? ( 'LIKE' | 'LIKEC' | 'LIKE2' | 'LIKE4' ) sql_expression ( 'ESCAPE' sql_expression )?
+	;
+condition_memeber
+        :	sql_expression ( 'NOT' )? 'MEMBER' ( 'OF' )? nested_table_column_name
+	;
+condition_between
+	:	sql_expression ( 'NOT' )? 'BETWEEN' sql_expression 'AND' sql_expression
+	;
+condition_regexp_like
+        :	'REGEXP_LIKE' PLS_LPAREN call_parameters PLS_RPAREN
+	;
+condition_submultiset
+        :	nested_table_column_name ( 'NOT' )? 'SUBMULTISET' ( 'OF' )? nested_table_column_name
+	;
+condition_equals_path
+        :	'EQUALS_PATH' PLS_LPAREN column_name PLS_COMMA path_string ( PLS_COMMA correlation_integer )? PLS_RPAREN
+	;
+condition_under_path
+        :	'UNDER_PATH' PLS_LPAREN column_name ( PLS_COMMA levels )? PLS_COMMA path_string ( PLS_COMMA correlation_integer )? PLS_RPAREN
+	;
+levels
+	:	integer
+	;
+correlation_integer
+	:	integer
+	;
+path_string
+        :	PLS_QUOTED_STRING
+	;
+grouping_expression_list
+        :	expression_list ( PLS_COMMA expression_list )*
+	;
+expression_list
+        :	PLS_LPAREN sql_expressions PLS_RPAREN
+	|	sql_expressions
+	;
+cell_reference
+	:	sql_identifier
+	;
+call_parameters
+        :	call_parameter ( PLS_COMMA call_parameter )*
+	;
+call_parameter
+        :	( parameter_name PLS_ARROW )? nested_expression
+	;
+
+relational_op
+        :	PLS_EQ | PLS_LESS_THAN | PLS_GREATER_THAN | PLS_NOT_EQ | PLS_LESS_THAN_EQUAL | PLS_GREATER_THAN_EQUAL
+	;
+
+exp_set
+        :	 sql_expression
+	|	subquery
+	;
+
+subquery
+        :	PLS_LPAREN select_command PLS_RPAREN
+	;
+
+connect_clause
+	:	( 'START' 'WITH' sql_condition )?
+		'CONNECT' 'BY' 
+		(	'PRIOR' sql_expression relational_op sql_expression
+		|	sql_expression relational_op sql_expression 'PRIOR'
+		)
+                (	('PRIOR')? sql_condition
+		|	sql_expression relational_op ( 'PRIOR' )? sql_expression ( 'AND' sql_condition )?
+		)
+		( 'START' 'WITH' sql_condition )?
+	;
+
+group_clause
+        :	'GROUP' 'BY' sql_expression ( PLS_COMMA sql_expression )* ( 'HAVING' sql_condition )?
+	;
+
+set_clause
+        :	( ( 'UNION' 'ALL' ) | 'INTERSECT' | 'PLS_MINUS' ) select_command
+	;
+
+order_clause
+        :	'ORDER' 'BY' sorted_def ( PLS_COMMA sorted_def )*
+	;
+
+sorted_def
+        :	(  sql_expression |  PLS_NUMBER ) ( 'ASC' | 'DESC' )?
+	;
+
+update_clause
+        :	'FOR' 'UPDATE' ( 'OF' column_name ( PLS_COMMA column_name )* )? ( 'NOWAIT' )?
+	;
+
+insert_command
+	:	'INSERT' 'INTO' table_reference_list
+                ( PLS_LPAREN column_specs PLS_RPAREN )?
+                (	'VALUES' PLS_LPAREN plsql_expressions PLS_RPAREN
+		|	select_statement
+		)
+		( returning_clause )?
+	;
+
+update_command
+	:	'UPDATE' selected_table
+		'SET' 
+		(	update_nested_column_specs
+		|	update_column_specs
+		)
+		(	'WHERE'
+                        (	'CURRENT_OF' cursor_name
+			|	sql_condition
+			)
+		)?
+		( returning_clause )?
+	;
+
+update_column_specs
+        :	update_column_spec ( PLS_COMMA update_column_spec )*
+	;
+
+update_column_spec
+        :	column_spec PLS_EQ sql_expression
+	;
+
+update_nested_column_specs
+        :	update_nested_column_spec ( PLS_COMMA update_nested_column_spec )*
+	;
+
+update_nested_column_spec
+        :	PLS_LPAREN column_specs PLS_RPAREN PLS_EQ subquery
+	;
+
+delete_command
+	:	'DELETE' ( 'FROM' )? selected_table
+		(	'WHERE'
+                        (	'CURRENT_OF' cursor_name
+			|	sql_condition
+			)
+		)?
+		( returning_clause )?
+	;
+
+returning_clause
+        :	( 'RETURN' | 'RETURNING' ) select_list ( 'BULK' 'COLLECT' )? 'INTO' lvalues
+	;
+
+set_transaction_command
+        :	'SET' 'TRANSACTION' 'READ' 'ONLY'
+	;
+
+close_statement
+        :	'CLOSE' cursor_name
+	;
+
+fetch_statement
+	:	'FETCH' cursor_name 'INTO' 
+		(	variable_names
+		|	record_name
+		)
+	;
+
+lock_table_statement
+	:	'LOCK' 'TABLE' table_reference_list
+		'IN' lock_mode 'MODE' ( 'NOWAIT' )?
+	;
+
+lock_mode
+	:	'ROW' 'SHARE'
+	|	'ROW' 'EXCLUSIVE'
+	|	'SHARE' 'UPDATE'
+	|	'SHARE'
+	|	'SHARE' 'ROW' 'EXCLUSIVE'
+	|	'EXCLUSIVE'
+	;
+
+open_statement
+        :	'OPEN' cursor_name ( PLS_LPAREN plsql_expressions PLS_RPAREN )?
+	;
+
+rollback_statement
+        :	'ROLLBACK' ( 'WORK' )?
+		( 'TO' ( 'SAVEPOINT' )? savepoint_name )?
+		( 'COMMENT' quoted_string )?
+	;
+
+savepoint_statement
+	:	'SAVEPOINT' savepoint_name
+	;
+
+savepoint_name
+	:	identifier
+	;
+
+identifier
+        :	PLS_ID
+        |	PLS_DOUBLEQUOTED_STRING
+
+   	;
+
+quoted_string
+        :	PLS_QUOTED_STRING
+	;
+
+match_string
+        :	PLS_QUOTED_STRING
+	;
+sql_identifier
+	:	identifier
+	|	'ROWID'
+
+	;

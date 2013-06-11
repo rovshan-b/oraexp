@@ -37,7 +37,7 @@ void EBNFParser::parse()
 
     EBNFToken errToken;
     errToken.tokenType=EBNFToken::ERR;
-    errToken.lexeme="PLS_ERR";
+    errToken.lexeme="PLS_ERROR";
     errToken.isLiteralTerminal=false;
     registerTargetScannerToken(errToken);
 

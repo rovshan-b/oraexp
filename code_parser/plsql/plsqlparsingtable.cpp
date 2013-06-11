@@ -20,7 +20,13 @@ ParsingTable *PlSqlParsingTable::getInstance()
 
 void PlSqlParsingTable::populateTable()
 {
-    keywords.reserve(1807);
+    keywords.reserve(1843);
+    keywords.append("%BULK_ROWCOUNT");
+    keywords.append("%FOUND");
+    keywords.append("%ISOPEN");
+    keywords.append("%NOTFOUND");
+    keywords.append("%ROWCOUNT");
+    keywords.append("A");
     keywords.append("ABORT");
     keywords.append("ABS");
     keywords.append("ACCESS");
@@ -86,6 +92,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("AUTOALLOCATE");
     keywords.append("AUTOEXTEND");
     keywords.append("AUTOMATIC");
+    keywords.append("AUTONOMOUS_TRANSACTION");
     keywords.append("AVAILABILITY");
     keywords.append("AVG");
     keywords.append("BACKUP");
@@ -108,6 +115,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("BINARY_FLOAT");
     keywords.append("BINARY_FLOAT_INFINITY");
     keywords.append("BINARY_FLOAT_NAN");
+    keywords.append("BINARY_INTEGER");
     keywords.append("BINDING");
     keywords.append("BIND_AWARE");
     keywords.append("BIN_TO_NUM");
@@ -122,6 +130,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("BLOCKSIZE");
     keywords.append("BLOCK_RANGE");
     keywords.append("BODY");
+    keywords.append("BOOLEAN");
     keywords.append("BOTH");
     keywords.append("BOUND");
     keywords.append("BRANCH");
@@ -131,6 +140,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("BUFFER_CACHE");
     keywords.append("BUFFER_POOL");
     keywords.append("BUILD");
+    keywords.append("BUILTIN");
     keywords.append("BULK");
     keywords.append("BY");
     keywords.append("BYPASS_RECURSIVE_CHECK");
@@ -258,6 +268,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("CURRENT");
     keywords.append("CURRENTV");
     keywords.append("CURRENT_DATE");
+    keywords.append("CURRENT_OF");
     keywords.append("CURRENT_SCHEMA");
     keywords.append("CURRENT_TIME");
     keywords.append("CURRENT_TIMESTAMP");
@@ -362,6 +373,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("ELIMINATE_OBY");
     keywords.append("ELIMINATE_OUTER_JOIN");
     keywords.append("ELSE");
+    keywords.append("ELSIF");
     keywords.append("EMPTY");
     keywords.append("EMPTY_BLOB");
     keywords.append("EMPTY_CLOB");
@@ -378,6 +390,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("ENTERPRISE");
     keywords.append("ENTITYESCAPING");
     keywords.append("ENTRY");
+    keywords.append("EQUALS_PATH");
     keywords.append("ERROR");
     keywords.append("ERRORS");
     keywords.append("ERROR_ARGUMENT");
@@ -389,7 +402,9 @@ void PlSqlParsingTable::populateTable()
     keywords.append("EVENTS");
     keywords.append("EVERY");
     keywords.append("EXCEPT");
+    keywords.append("EXCEPTION");
     keywords.append("EXCEPTIONS");
+    keywords.append("EXCEPTION_INIT");
     keywords.append("EXCHANGE");
     keywords.append("EXCLUDE");
     keywords.append("EXCLUDING");
@@ -398,6 +413,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("EXEMPT");
     keywords.append("EXISTS");
     keywords.append("EXISTSNODE");
+    keywords.append("EXIT");
     keywords.append("EXP");
     keywords.append("EXPAND_GSET_TO_UNION");
     keywords.append("EXPAND_TABLE");
@@ -426,12 +442,14 @@ void PlSqlParsingTable::populateTable()
     keywords.append("FEATURE_ID");
     keywords.append("FEATURE_SET");
     keywords.append("FEATURE_VALUE");
+    keywords.append("FETCH");
     keywords.append("FILE");
     keywords.append("FILESYSTEM_LIKE_LOGGING");
     keywords.append("FILTER");
     keywords.append("FINAL");
     keywords.append("FINE");
     keywords.append("FINISH");
+    keywords.append("FIPSFLAG");
     keywords.append("FIRST");
     keywords.append("FIRSTM");
     keywords.append("FIRST_ROWS");
@@ -470,6 +488,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("GLOBALLY");
     keywords.append("GLOBAL_NAME");
     keywords.append("GLOBAL_TOPIC_ENABLED");
+    keywords.append("GOTO");
     keywords.append("GRANT");
     keywords.append("GREATEST");
     keywords.append("GROUP");
@@ -574,6 +593,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("INSTRC");
     keywords.append("INT");
     keywords.append("INTEGER");
+    keywords.append("INTERFACE");
     keywords.append("INTERMEDIATE");
     keywords.append("INTERNAL_CONVERT");
     keywords.append("INTERNAL_USE");
@@ -659,6 +679,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("LOGON");
     keywords.append("LOG_READ_ONLY_VIOLATIONS");
     keywords.append("LONG");
+    keywords.append("LOOP");
     keywords.append("LOW");
     keywords.append("LOWER");
     keywords.append("LPAD");
@@ -759,6 +780,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("NETWORK");
     keywords.append("NEVER");
     keywords.append("NEW");
+    keywords.append("NEW_NAMES");
     keywords.append("NEW_TIME");
     keywords.append("NEXT");
     keywords.append("NEXT_DAY");
@@ -922,6 +944,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("NUMTODSINTERVAL");
     keywords.append("NUMTOYMINTERVAL");
     keywords.append("NUM_INDEX_KEYS");
+    keywords.append("NVARCHAR");
     keywords.append("NVARCHAR2");
     keywords.append("NVL");
     keywords.append("NVL2");
@@ -977,6 +1000,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("OR_EXPAND");
     keywords.append("OR_PREDICATES");
     keywords.append("OTHER");
+    keywords.append("OUT");
     keywords.append("OUTER");
     keywords.append("OUTER_JOIN_TO_INNER");
     keywords.append("OUTLINE");
@@ -1045,8 +1069,12 @@ void PlSqlParsingTable::populateTable()
     keywords.append("PLSQL_DEBUG");
     keywords.append("PLSQL_OPTIMIZE_LEVEL");
     keywords.append("PLSQL_WARNINGS");
+    keywords.append("PLS_INTEGER");
+    keywords.append("PLS_MINUS");
+    keywords.append("PLS_NUMBER");
     keywords.append("POINT");
     keywords.append("POLICY");
+    keywords.append("POSITIVE");
     keywords.append("POST_TRANSACTION");
     keywords.append("POWER");
     keywords.append("POWERMULTISET");
@@ -1054,6 +1082,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("PQ_DISTRIBUTE");
     keywords.append("PQ_MAP");
     keywords.append("PQ_NOMAP");
+    keywords.append("PRAGMA");
     keywords.append("PREBUILT");
     keywords.append("PRECEDES");
     keywords.append("PRECEDING");
@@ -1104,6 +1133,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("QUIESCE");
     keywords.append("QUORUM");
     keywords.append("QUOTA");
+    keywords.append("RAISE");
     keywords.append("RANDOM");
     keywords.append("RANDOM_LOCAL");
     keywords.append("RANGE");
@@ -1122,6 +1152,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("REAL");
     keywords.append("REBALANCE");
     keywords.append("REBUILD");
+    keywords.append("RECORD");
     keywords.append("RECORDS_PER_BLOCK");
     keywords.append("RECOVER");
     keywords.append("RECOVERABLE");
@@ -1180,6 +1211,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("RESTRICT");
     keywords.append("RESTRICTED");
     keywords.append("RESTRICT_ALL_REF_CONS");
+    keywords.append("RESTRICT_REFERENCES");
     keywords.append("RESULT_CACHE");
     keywords.append("RESUMABLE");
     keywords.append("RESUME");
@@ -1247,6 +1279,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("SEQUENCED");
     keywords.append("SEQUENTIAL");
     keywords.append("SERIALIZABLE");
+    keywords.append("SERIALLY_REUSABLE");
     keywords.append("SERVERERROR");
     keywords.append("SESSION");
     keywords.append("SESSIONS_PER_USER");
@@ -1345,6 +1378,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("SUBSTR4");
     keywords.append("SUBSTRB");
     keywords.append("SUBSTRC");
+    keywords.append("SUBTYPE");
     keywords.append("SUCCESSFUL");
     keywords.append("SUM");
     keywords.append("SUMMARY");
@@ -1693,6 +1727,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("UNBOUND");
     keywords.append("UNBOUNDED");
     keywords.append("UNDER");
+    keywords.append("UNDER_PATH");
     keywords.append("UNDO");
     keywords.append("UNDROP");
     keywords.append("UNIFORM");
@@ -1781,6 +1816,7 @@ void PlSqlParsingTable::populateTable()
     keywords.append("WHEN");
     keywords.append("WHENEVER");
     keywords.append("WHERE");
+    keywords.append("WHILE");
     keywords.append("WHITESPACE");
     keywords.append("WIDTH_BUCKET");
     keywords.append("WITH");
@@ -1828,7 +1864,6 @@ void PlSqlParsingTable::populateTable()
     keywords.append("YEAR");
     keywords.append("YES");
     keywords.append("ZONE");
-
 
     ParsingTableAction * action_0_224 = new ParsingTableAction();
     action_0_224->actionType = ParsingTableAction::Shift;

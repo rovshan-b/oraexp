@@ -119,6 +119,9 @@ public:
 
     static void deleteMenu(QMenu *menu);
     static void deleteActions(QList<QAction*> &actions);
+
+    static QWidget *compactWidget(QWidget* widget);
+    static QWidget *compactWidgets(QList<QWidget *> widgets, Qt::Orientation orientation = Qt::Vertical);
 };
 
 #endif // WIDGETHELPER_H

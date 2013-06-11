@@ -4,7 +4,7 @@
 #include <QDialog>
 #include "beans/objectddloptions.h"
 
-class TableDdlOptionsWidget;
+class TableDbmsDdlOptionsWidget;
 
 class TableDdlOptionsDialog : public QDialog
 {
@@ -16,7 +16,7 @@ public:
     void setOptions(const ObjectDdlOptions &options);
 
 private:
-    TableDdlOptionsWidget *optionsWidget;
+    TableDbmsDdlOptionsWidget *optionsWidget;
 
 };
 

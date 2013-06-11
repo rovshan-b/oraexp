@@ -1,5 +1,5 @@
 #include "parsingtable.h"
-#include "util/strutil.h"
+#include "../util/strutil.h"
 
 ParsingTable::ParsingTable()
 {

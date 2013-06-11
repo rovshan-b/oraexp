@@ -16,7 +16,7 @@ TableCreateLikeOptionsDialog::TableCreateLikeOptionsDialog(IQueryScheduler *quer
 
     mainLayout->addWidget(new QLabel(tr("Select options to copy to new table")));
 
-    optionsWidget = new ExistingTableOptionsWidget();
+    optionsWidget = new ExistingTableOptionsWidget(false);
     bool flashbackSupported = queryScheduler->getDb()->supportsFlashbackArchive();
     optionsWidget->setFlashbackEnabled(flashbackSupported,
                                        flashbackSupported ? "" : tr("Not supported by current database version"));

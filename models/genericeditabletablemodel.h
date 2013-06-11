@@ -33,6 +33,7 @@ public:
 
     void setColumnEnabled(int section, bool enable, int disabledUntilRow=-1);
     bool isColumnEnabled(int section, int &disabledUntilRow) const;
+    bool isCellEnabled(int row, int column) const;
 
     bool boolVal(int rowIx, int role) const;
     void setBoolVal(int rowIx, int role, bool value);

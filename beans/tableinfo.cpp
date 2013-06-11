@@ -60,9 +60,11 @@ void TableInfo::prepareForCreateLike(const TableDiffDdlOptions &options)
 
     if(!options.storage){
         generalInfo.storageParams = StorageParams();
+        generalInfo.storageParams.isEmpty = true;
 
         if(options.iotProperties){
             generalInfo.indexOrganizedProperties.storageParams = StorageParams();
+            generalInfo.indexOrganizedProperties.storageParams.isEmpty = true;
         }
     }
 
@@ -85,6 +87,7 @@ void TableInfo::prepareForCreateLike(const TableDiffDdlOptions &options)
 
     if(!options.partitions){
         partitioningInfo = TablePartitioningInfo();
+        partitioningInfo.isEmpty = true;
     }
 
     if(!options.externalProperties){
@@ -111,8 +114,10 @@ void TableInfo::prepareForCreateLike(const TableDiffDdlOptions &options)
 
         if(!options.lobProperties){
             colInfo.lobParams = LobParams();
+            colInfo.lobParams.isEmpty = true;
         }else if(!options.storage){
             colInfo.lobParams.storageParams = StorageParams();
+            colInfo.lobParams.storageParams.isEmpty = true;
         }
     }
 
@@ -121,10 +126,12 @@ void TableInfo::prepareForCreateLike(const TableDiffDdlOptions &options)
             IndexInfo &indexInfo = indexes[i];
             if(!options.storage){
                 indexInfo.storageParams = StorageParams();
+                indexInfo.storageParams.isEmpty = true;
             }
             if(!options.partitions){
                 indexInfo.partitioning = 0;
                 indexInfo.partInfo = TablePartitioningInfo();
+                indexInfo.partInfo.isEmpty = true;
             }
         }
     }

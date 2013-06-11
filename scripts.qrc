@@ -2,5 +2,9 @@
     <qresource prefix="/">
         <file>scripts/generate_drop_table.js</file>
         <file>scripts/generate_drop_column.js</file>
+        <file>scripts/func_drop_table_object.js</file>
+        <file>scripts/generate_drop_constraint.js</file>
+        <file>scripts/func_drop_object.js</file>
+        <file>scripts/generate_drop_index.js</file>
     </qresource>
 </RCC>

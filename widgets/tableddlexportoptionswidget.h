@@ -10,7 +10,7 @@ class TableDdlExportOptionsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TableDdlExportOptionsWidget(QWidget *parent = 0);
+    explicit TableDdlExportOptionsWidget(bool triggersOptionVisible = true, QWidget *parent = 0);
 
     TableCreateDdlOptions getOptions() const;
 

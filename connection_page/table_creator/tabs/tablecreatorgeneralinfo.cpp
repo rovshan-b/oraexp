@@ -117,6 +117,12 @@ void TableCreatorGeneralInfo::setTableInfo(TableInfo *tableInfo)
     indexOrganizedProperties = tableInfo->generalInfo.indexOrganizedProperties;
 
     tableTypeComboBox->setCurrentIndex((int)tableInfo->generalInfo.tableType);
+
+    if(getCreatorMode() == DbObjectCreator::CreateLike){
+        updateStorageParamsDdl();
+        updateAdditionalAttributesDdl();
+        updateIOTPropertiesDdl();
+    }
 }
 
 void TableCreatorGeneralInfo::setColumnListRetriever(IStringListRetriever *columnListRetriever)
@@ -134,25 +140,50 @@ bool TableCreatorGeneralInfo::eventFilter(QObject *obj, QEvent *event)
     return TableCreatorTab::eventFilter(obj, event);
 }
 
-void TableCreatorGeneralInfo::storageParamsButtonClicked(LineEditWithButton *lineEditWithButton)
+void TableCreatorGeneralInfo::updateStorageParamsDdl()
+{
+    storageParamsEditor->lineEdit()->setText(
+                (getCreatorMode() == DbObjectCreator::EditExisting)
+                  ? storageParams.generateDiffDdl(originalGeneralInfo->storageParams)
+                  : storageParams.generateDdl().trimmed()
+                );
+    storageParamsEditor->lineEdit()->setCursorPosition(0);
+}
+
+void TableCreatorGeneralInfo::updateAdditionalAttributesDdl()
+{
+    additionalAttributesEditor->lineEdit()->setText(
+                (getCreatorMode() == DbObjectCreator::EditExisting)
+                  ? additionalAttributes.generateDiffDdl(originalGeneralInfo->additionalAttributes)
+                  : additionalAttributes.generateDdl(getTableType(), true).trimmed()
+                );
+    additionalAttributesEditor->lineEdit()->setCursorPosition(0);
+}
+
+void TableCreatorGeneralInfo::updateIOTPropertiesDdl()
+{
+    indexOrganizedTablePropertiesEditor->lineEdit()->setText(
+                (getCreatorMode() == DbObjectCreator::EditExisting)
+                  ? indexOrganizedProperties.generateDiffDdl(originalGeneralInfo->indexOrganizedProperties)
+                  : indexOrganizedProperties.generateDdl().trimmed()
+                );
+    indexOrganizedTablePropertiesEditor->lineEdit()->setCursorPosition(0);
+}
+
+void TableCreatorGeneralInfo::storageParamsButtonClicked(LineEditWithButton *)
 {
     if(queryScheduler==0){
         return;
     }
 
     if(DialogHelper::showStorageParamsDialog(this->window(), queryScheduler, (getCreatorMode() == DbObjectCreator::EditExisting), true, this->storageParams)){
-        lineEditWithButton->lineEdit()->setText(
-                    (getCreatorMode() == DbObjectCreator::EditExisting)
-                      ? storageParams.generateDiffDdl(originalGeneralInfo->storageParams)
-                      : storageParams.generateDdl().trimmed()
-                    );
-        lineEditWithButton->lineEdit()->setCursorPosition(0);
+        updateStorageParamsDdl();
 
         emit ddlChanged();
     }
 }
 
-void TableCreatorGeneralInfo::additionalAttributesButtonClicked(LineEditWithButton *lineEditWithButton)
+void TableCreatorGeneralInfo::additionalAttributesButtonClicked(LineEditWithButton *)
 {
     if(this->queryScheduler==0){
         return;
@@ -163,18 +194,13 @@ void TableCreatorGeneralInfo::additionalAttributesButtonClicked(LineEditWithButt
 
     if(dialog.exec()){
         additionalAttributes=dialog.getAttributes();
-        lineEditWithButton->lineEdit()->setText(
-                    (getCreatorMode() == DbObjectCreator::EditExisting)
-                      ? additionalAttributes.generateDiffDdl(originalGeneralInfo->additionalAttributes)
-                      : additionalAttributes.generateDdl(getTableType(), true).trimmed()
-                    );
-        lineEditWithButton->lineEdit()->setCursorPosition(0);
+        updateAdditionalAttributesDdl();
 
         emit ddlChanged();
     }
 }
 
-void TableCreatorGeneralInfo::indexOrganizedPropertiesButtonClicked(LineEditWithButton *lineEditWithButton)
+void TableCreatorGeneralInfo::indexOrganizedPropertiesButtonClicked(LineEditWithButton *)
 {
     if(this->queryScheduler==0){
         return;
@@ -185,12 +211,7 @@ void TableCreatorGeneralInfo::indexOrganizedPropertiesButtonClicked(LineEditWith
 
     if(dialog.exec()){
         indexOrganizedProperties=dialog.getAttributes();
-        lineEditWithButton->lineEdit()->setText(
-                    (getCreatorMode() == DbObjectCreator::EditExisting)
-                      ? indexOrganizedProperties.generateDiffDdl(originalGeneralInfo->indexOrganizedProperties)
-                      : indexOrganizedProperties.generateDdl().trimmed()
-                    );
-        lineEditWithButton->lineEdit()->setCursorPosition(0);
+        updateIOTPropertiesDdl();
 
         emit ddlChanged();
     }

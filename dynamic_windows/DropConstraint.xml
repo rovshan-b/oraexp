@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window caption="Drop constraint" icon="constraint" type="script" scriptFileName="generate_drop_constraint">
+    <widgets>
+        <widget name="schemaNameLabel" caption="Schema" type="Label" value="prop:schemaName" />
+        <widget name="tableNameLabel" caption="Table" type="Label" value="prop:parentObjectName" />
+        <widget name="constraintNameLabel" caption="Constraint" type="Label" value="prop:objectName" />
+    </widgets>
+</window>

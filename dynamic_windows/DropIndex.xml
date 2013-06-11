@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window caption="Drop index" type="script" scriptFileName="generate_drop_index">
+    <widgets>
+        <widget name="schemaNameLabel" caption="Schema" type="Label" value="prop:schemaName" />
+        <widget name="objectNameLabel" caption="Index" type="Label" value="prop:objectName" />
+    </widgets>
+</window>

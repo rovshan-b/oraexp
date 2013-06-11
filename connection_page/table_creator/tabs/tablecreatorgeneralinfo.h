@@ -70,6 +70,10 @@ private:
     //these variables are only used in edit mode
     TableGeneralInfo *originalGeneralInfo;
 
+    void updateStorageParamsDdl();
+    void updateAdditionalAttributesDdl();
+    void updateIOTPropertiesDdl();
+
 protected slots:
     void storageParamsButtonClicked(LineEditWithButton *);
     void additionalAttributesButtonClicked(LineEditWithButton *);

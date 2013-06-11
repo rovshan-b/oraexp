@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>dynamic_windows/DropTable.xml</file>
         <file>dynamic_windows/DropColumn.xml</file>
+        <file>dynamic_windows/DropConstraint.xml</file>
+        <file>dynamic_windows/DropIndex.xml</file>
     </qresource>
 </RCC>

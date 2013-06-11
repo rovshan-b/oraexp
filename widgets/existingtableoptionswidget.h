@@ -10,7 +10,7 @@ class ExistingTableOptionsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ExistingTableOptionsWidget(QWidget *parent = 0);
+    explicit ExistingTableOptionsWidget(bool triggersOptionVisible = true, QWidget *parent = 0);
 
     TableDiffDdlOptions getOptions() const;
 

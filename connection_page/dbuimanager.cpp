@@ -18,7 +18,9 @@
 #include "data_copier/datacopier.h"
 #include "data_exporter/dataexporter.h"
 #include "data_importer/dataimporter.h"
+#include "session_browser/sessionbrowser.h"
 #include "dialogs/dmlgeneratordialog.h"
+#include "dialogs/tableddlgeneratordialog.h"
 #include "dialogs/tablenamefinderdialog.h"
 #include "editorcreatorutil.h"
 #include <QtGui>
@@ -58,6 +60,11 @@ void DbUiManager::createCreator(const QString &schemaName,
                                const DbTreeModel::DbTreeNodeType itemType)
 {
     createEditor(schemaName, objectName, itemType, DbObjectCreator::CreateNew);
+}
+
+void DbUiManager::createCreator(const QString &schemaName, const QString &objectName, const QString &itemTypeName)
+{
+    createCreator(schemaName, objectName, DbTreeModel::getDbTreeNodeType(itemTypeName));
 }
 
 void DbUiManager::createEditor(DbObjectCreator::CreatorMode creatorMode)
@@ -284,6 +291,18 @@ void DbUiManager::addDmlGenerator(const QString &schemaName, const QString &tabl
 {
     DmlGeneratorDialog *dmlGenerator = new DmlGeneratorDialog(this, schemaName, tableName, (OraExp::DmlType)dmlType);
     addWindow(dmlGenerator, IconUtil::getIcon("query"), tr("Generate DML"));
+}
+
+void DbUiManager::addDdlGenerator(const QString &schemaName, const QString &tableName)
+{
+    TableDdlGeneratorDialog *ddlGenerator = new TableDdlGeneratorDialog(this, schemaName, tableName);
+    addWindow(ddlGenerator, IconUtil::getIcon("ddl"), tr("Generate DDL"));
+}
+
+void DbUiManager::addSessionBrowser()
+{
+    SessionBrowser *sessionBrowser = new SessionBrowser(this);
+    cnPage->addTab(sessionBrowser, IconUtil::getIcon("session_browser"), tr("Session browser"));
 }
 
 void DbUiManager::addWindow(ConnectionPageObject *window, const QPixmap &icon, const QString &title)

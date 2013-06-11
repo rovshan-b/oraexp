@@ -1,7 +1,7 @@
 #ifndef DMLGENERATORDIALOG_H
 #define DMLGENERATORDIALOG_H
 
-#include "connection_page/connectionpagewindow.h"
+#include "codegeneratordialog.h"
 #include "connectivity/queryresult.h"
 #include "connectivity/fetchresult.h"
 #include "enums.h"
@@ -11,10 +11,9 @@ class QComboBox;
 class CodeEditor;
 class CheckedListBoxWidget;
 class QCheckBox;
-class QDialogButtonBox;
 class QAbstractButton;
 
-class DmlGeneratorDialog : public ConnectionPageWindow
+class DmlGeneratorDialog : public CodeGeneratorDialog
 {
     Q_OBJECT
 public:
@@ -28,14 +27,15 @@ public:
 
     virtual void setConnection(DbConnection *db);
 
+protected:
+    virtual QString generateCode();
+
 private slots:
     void columnsQueryCompleted(const QueryResult &result);
     void columnFetched(const FetchResult &fetchResult);
     void columnFetchCompleted(const QString &);
 
     void dmlTypeChanged(int newType);
-
-    void acceptButtonPressed(QAbstractButton *button);
     
 private:
     QString schemaName;
@@ -47,11 +47,6 @@ private:
     QComboBox *dmlTypeCombo;
     QComboBox *bindStyleCombo;
     QCheckBox *includeSchemaCheckBox;
-
-    QDialogButtonBox *buttonBox;
-    QPushButton *copyToClipboardButton;
-
-    QString generateDml();
 
 };
 

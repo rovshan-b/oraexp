@@ -4,6 +4,6 @@ function getScript()
 {  
    return generateDropTableObject(schemaNameLabel.text, 
                                    tableNameLabel.text, 
-                                   'COLUMN',
-                                   columnNameLabel.text);
+                                   'CONSTRAINT',
+                                   constraintNameLabel.text);
 }

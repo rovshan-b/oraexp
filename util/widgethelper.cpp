@@ -709,4 +709,29 @@ void WidgetHelper::deleteActions(QList<QAction *> &actions)
     }
 }
 
+QWidget *WidgetHelper::compactWidget(QWidget *widget)
+{
+    return WidgetHelper::compactWidgets(QList<QWidget *>() << widget);
+}
+
+QWidget *WidgetHelper::compactWidgets(QList<QWidget *> widgets, Qt::Orientation orientation)
+{
+    QWidget *widget = new QWidget();
+    QBoxLayout *layout;
+    if(orientation==Qt::Horizontal){
+        layout = new QHBoxLayout();
+    }else{
+        layout = new QVBoxLayout();
+    }
+
+    foreach(QWidget *w, widgets){
+        layout->addWidget(w, 0, Qt::AlignLeft | Qt::AlignTop);
+    }
+
+    layout->setContentsMargins(0,0,0,0);
+    widget->setLayout(layout);
+
+    return widget;
+}
+
 

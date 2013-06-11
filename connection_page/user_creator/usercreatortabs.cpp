@@ -11,7 +11,7 @@
 #include <QtGui>
 
 UserCreatorTabs::UserCreatorTabs(const QString &objectName, DbObjectCreator::CreatorMode creatorMode, QWidget *parent) :
-    SubTabWidget(parent), objectName(objectName), originalUserInfo(0), queryScheduler(0)
+    SubTabWidget(parent), objectName(objectName), originalUserInfo(0), creatorMode(creatorMode), queryScheduler(0)
 {
     generalInfoTab = new UserCreatorGeneralInfo(objectName, this, creatorMode);
     //generalInfoTab->setMaximumWidth(350);

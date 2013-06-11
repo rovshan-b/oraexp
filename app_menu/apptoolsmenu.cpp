@@ -34,6 +34,11 @@ void AppToolsMenu::setupMenu(QMenu *toolsMenu, QToolBar *toolbar)
 
     toolsMenu->addSeparator();
 
+    toolsSessionBrowserAction=toolsMenu->addAction(IconUtil::getIcon("session_browser"), tr("&Session browser"), this, SLOT(addSessionBrowser()));
+    toolsSessionBrowserAction->setStatusTip(tr("View currently connected sessions"));
+
+    toolsMenu->addSeparator();
+
     toolsOptionsAction=toolsMenu->addAction(IconUtil::getIcon("settings"), tr("&Options..."));
     toolsOptionsAction->setStatusTip(tr("Application settings"));
 

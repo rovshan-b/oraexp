@@ -27,6 +27,7 @@ public slots:
     void createCreator();
     void createCreator(DbItemAction *action);
     void createCreator(const QString &schemaName, const QString &objectName, const DbTreeModel::DbTreeNodeType itemType);
+    void createCreator(const QString &schemaName, const QString &objectName, const QString &itemTypeName);
     void createEditor(DbObjectCreator::CreatorMode creatorMode=DbObjectCreator::EditExisting);
     void createEditor(const QString &schemaName,
                       const QString &objectName,
@@ -56,6 +57,9 @@ public slots:
     void addDataImporter(const QString &schemaName, const QString &tableName);
 
     void addDmlGenerator(const QString &schemaName, const QString &tableName, int dmlType /*OraExp::DmlType*/);
+    void addDdlGenerator(const QString &schemaName, const QString &tableName);
+
+    void addSessionBrowser();
 
     void addWindow(ConnectionPageObject *window, const QPixmap &icon, const QString &title);
     void handleDynamicAction();

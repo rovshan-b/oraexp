@@ -180,6 +180,11 @@ void TableCreatorColumns::populateTableWithColumnList()
 
         if(!colInfo.lobParams.isEmpty){
             saveLobParamsToModel(model, i, colInfo.lobParams);
+
+            if(getCreatorMode() == DbObjectCreator::CreateLike){
+                model->setData(model->index(i, TableColumnsModel::ColumnLobProperties),
+                               colInfo.lobParams.generateDdl(), Qt::DisplayRole);
+            }
         }
     }
 

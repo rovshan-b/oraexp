@@ -2,7 +2,7 @@
 #include "util/widgethelper.h"
 #include <QtGui>
 
-ExistingTableOptionsWidget::ExistingTableOptionsWidget(QWidget *parent) :
+ExistingTableOptionsWidget::ExistingTableOptionsWidget(bool triggersOptionVisible, QWidget *parent) :
     QWidget(parent)
 {
     QGridLayout *tableOptionsLayout=new QGridLayout();
@@ -20,13 +20,19 @@ ExistingTableOptionsWidget::ExistingTableOptionsWidget(QWidget *parent) :
     etIndexes=WidgetHelper::createCheckBox(tableOptionsLayout, 1, 1, tr("Indexes"), true);
     etPartitions=WidgetHelper::createCheckBox(tableOptionsLayout, 2, 1, tr("Partitions"), true);
     etExternalProperties=WidgetHelper::createCheckBox(tableOptionsLayout, 3, 1, tr("External properties"), true);
-    etTriggers=WidgetHelper::createCheckBox(tableOptionsLayout, 4, 1, tr("Triggers"), true);
-    etGrants=WidgetHelper::createCheckBox(tableOptionsLayout, 5, 1, tr("Grants"), false);
+
+    int rowIx=4;
+    if(triggersOptionVisible){
+        etTriggers=WidgetHelper::createCheckBox(tableOptionsLayout, rowIx++, 1, tr("Triggers"), true);
+    }else{
+        etTriggers=0;
+    }
+    etGrants=WidgetHelper::createCheckBox(tableOptionsLayout, rowIx, 1, tr("Grants"), false);
 
     tableOptionsLayout->setContentsMargins(0,0,0,0);
     setLayout(tableOptionsLayout);
 
-    connect(etColumns, SIGNAL(stateChanged(int)), this, SLOT(etOptionsChanged(int)));
+    connect(etColumns, SIGNAL(stateChanged(int)), this, SLOT(optionsChanged(int)));
 }
 
 TableDiffDdlOptions ExistingTableOptionsWidget::getOptions() const
@@ -44,7 +50,7 @@ TableDiffDdlOptions ExistingTableOptionsWidget::getOptions() const
     options.indexes=etIndexes->isChecked();
     options.partitions=etPartitions->isChecked();
     options.externalProperties=etExternalProperties->isChecked();
-    options.triggers=etTriggers->isChecked();
+    options.triggers=(etTriggers && etTriggers->isChecked());
     options.grants=etGrants->isChecked();
 
     return options;

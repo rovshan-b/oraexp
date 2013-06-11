@@ -166,7 +166,6 @@ SOURCES += main.cpp\
     connectivity/recordfetcherthread.cpp \
     connectivity/fetchresult.cpp \
     beans/objectddloptions.cpp \
-    widgets/tableddloptionswidget.cpp \
     dialogs/tableddloptionsdialog.cpp \
     connectivity/connectionpool.cpp \
     models/tablecheckconstraintsmodel.cpp \
@@ -487,7 +486,12 @@ SOURCES += main.cpp\
     dialogs/tablenamefinderdialog.cpp \
     connection_page/connectionpagewindowobject.cpp \
     widgets/existingtableoptionswidget.cpp \
-    dialogs/tablecreatelikeoptionsdialog.cpp
+    dialogs/tablecreatelikeoptionsdialog.cpp \
+    dialogs/tableddlgeneratordialog.cpp \
+    dialogs/codegeneratordialog.cpp \
+    widgets/tabledbmsddloptionswidget.cpp \
+    connection_page/session_browser/sessionbrowser.cpp \
+    widgets/groupeddataviewwidget.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -638,7 +642,6 @@ HEADERS  += mainwindow.h \
     connectivity/recordfetcherthread.h \
     connectivity/fetchresult.h \
     beans/objectddloptions.h \
-    widgets/tableddloptionswidget.h \
     dialogs/tableddloptionsdialog.h \
     connectivity/connectionpool.h \
     models/tablecheckconstraintsmodel.h \
@@ -979,7 +982,12 @@ HEADERS  += mainwindow.h \
     dialogs/tablenamefinderdialog.h \
     connection_page/connectionpagewindowobject.h \
     widgets/existingtableoptionswidget.h \
-    dialogs/tablecreatelikeoptionsdialog.h
+    dialogs/tablecreatelikeoptionsdialog.h \
+    dialogs/tableddlgeneratordialog.h \
+    dialogs/codegeneratordialog.h \
+    widgets/tabledbmsddloptionswidget.h \
+    connection_page/session_browser/sessionbrowser.h \
+    widgets/groupeddataviewwidget.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

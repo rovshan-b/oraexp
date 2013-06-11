@@ -8,7 +8,7 @@ TableDdlOptionsDialog::TableDdlOptionsDialog(QWidget *parent) :
 {
     QVBoxLayout *mainLayout=new QVBoxLayout(this);
 
-    optionsWidget=new TableDdlOptionsWidget();
+    optionsWidget=new TableDbmsDdlOptionsWidget();
     mainLayout->addWidget(optionsWidget);
 
     mainLayout->addWidget(DialogHelper::createButtonBox(this));

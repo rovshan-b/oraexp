@@ -9,6 +9,7 @@ QT       += core gui
 TARGET = CodeParser
 TEMPLATE = app
 
+DEFINES += OCI_IMPORT_LINKAGE OCI_CHARSET_WIDE CODE_PARSER_BUILD
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -22,7 +23,8 @@ SOURCES += main.cpp\
     ../parsingtable.cpp \
     ../../grammar_parser/parsingtableaction.cpp \
     ../../grammar_parser/parsingtablerow.cpp \
-    ../plsql/plsqlparsingtable.cpp
+    ../plsql/plsqlparsingtable.cpp \
+    ../../util/strutil.cpp
 
 HEADERS  += mainwindow.h \
     ../codeparser.h \
@@ -37,6 +39,13 @@ HEADERS  += mainwindow.h \
     ../../grammar_parser/parsingtableaction.h \
     ../../grammar_parser/parsingtablerow.h \
     ../plsql/plsqlparsingtable.h \
-    ../ireducelistener.h
+    ../ireducelistener.h \
+    ../../util/strutil.h \
+    ../../enums.h
 
 FORMS    += mainwindow.ui
+
+INCLUDEPATH += /home/rovshan/Projects/Qt/OraExp
+
+unix:INCLUDEPATH += /usr/local/include
+unix:LIBS += -L/usr/local/lib -locilib

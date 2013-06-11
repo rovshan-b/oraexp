@@ -155,6 +155,8 @@ void TableCreatorIndexes::populateTableWithIndexList()
 {
     Q_ASSERT(originalIndexList);
 
+    OraExp::TableType tableType = objectCreator->getTableType();
+
     table->setUpdatesEnabled(false);
 
     int colCount=originalIndexList->count();
@@ -179,12 +181,22 @@ void TableCreatorIndexes::populateTableWithIndexList()
             model->setData(model->index(i, TableIndexesModel::IndexParallelDegree), indexInfo.parallelDegree);
         }
         model->setData(model->index(i, TableIndexesModel::IndexReverse), indexInfo.reverse, Qt::EditRole);
+
         saveStorageParamsToModel(model, i, indexInfo);
+        if(getCreatorMode() == DbObjectCreator::CreateLike && !indexInfo.storageParams.isEmpty){
+            model->setData(model->index(i, TableIndexesModel::IndexStorage), indexInfo.storageParams.generateDdl(), Qt::DisplayRole);
+        }
+
         model->setData(model->index(i, TableIndexesModel::IndexPartitioningType), DbUtil::getIndexPartitioningTypeName(indexInfo.partitioning, true), Qt::EditRole);
         model->setData(model->index(i, TableIndexesModel::IndexPartitioningType), indexInfo.partitioning, Qt::UserRole+1);
 
         if(!indexInfo.partInfo.isEmpty){
             savePartitionParamsToModel(i, indexInfo.partInfo);
+
+            if(getCreatorMode() == DbObjectCreator::CreateLike){
+                model->setData(model->index(i, TableIndexesModel::IndexPartitionDefinition),
+                               indexInfo.partInfo.generateDdl(tableType), Qt::DisplayRole);
+            }
         }
     }
 

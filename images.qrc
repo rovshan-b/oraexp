@@ -144,5 +144,6 @@
         <file>images/form.png</file>
         <file>images/query.png</file>
         <file>images/copy_small.png</file>
+        <file>images/session_browser.png</file>
     </qresource>
 </RCC>

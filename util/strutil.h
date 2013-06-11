@@ -71,10 +71,12 @@ void copyStringToArray(dtext *array, int arrayPos, int arrayMaxStrLength, const 
 
 QString toValidFilename(const QString &str);
 
+#ifndef CODE_PARSER_BUILD
 QString detectDateFormat(const QStringList &dates);
 
 QString dateFormatForLocale(const QString &dateFormat, const QStringList &dates);
 
 QString formatBindVarName(const QString &varName, int position, OraExp::BindVarStyle bindStyle);
+#endif
 
 #endif // STRUTIL_H

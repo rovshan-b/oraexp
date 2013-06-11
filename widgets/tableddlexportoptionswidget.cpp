@@ -2,7 +2,7 @@
 #include "util/widgethelper.h"
 #include <QtGui>
 
-TableDdlExportOptionsWidget::TableDdlExportOptionsWidget(QWidget *parent) :
+TableDdlExportOptionsWidget::TableDdlExportOptionsWidget(bool triggersOptionVisible, QWidget *parent) :
     QWidget(parent)
 {
     QGridLayout *tableOptionsLayout=new QGridLayout();
@@ -15,8 +15,13 @@ TableDdlExportOptionsWidget::TableDdlExportOptionsWidget(QWidget *parent) :
     ntLobProperties=WidgetHelper::createCheckBox(tableOptionsLayout, 3, 0, tr("LOB properties"), false);
     ntIndexes=WidgetHelper::createCheckBox(tableOptionsLayout, 0, 1, tr("Indexes"), true);
 
-    ntTriggers=WidgetHelper::createCheckBox(tableOptionsLayout, 1, 1, tr("Triggers"), true);
-    ntGrants=WidgetHelper::createCheckBox(tableOptionsLayout, 2, 1, tr("Grants"), false);
+    int row = 1;
+    if(triggersOptionVisible){
+        ntTriggers=WidgetHelper::createCheckBox(tableOptionsLayout, row++, 1, tr("Triggers"), true);
+    }else{
+        ntTriggers=0;
+    }
+    ntGrants=WidgetHelper::createCheckBox(tableOptionsLayout, row, 1, tr("Grants"), false);
 
     tableOptionsLayout->setContentsMargins(0,0,0,0);
     setLayout(tableOptionsLayout);
@@ -31,7 +36,7 @@ TableCreateDdlOptions TableDdlExportOptionsWidget::getOptions() const
     options.iotProperties=ntIOTProperties->isChecked();
     options.lobProperties=ntLobProperties->isChecked();
     options.indexes=ntIndexes->isChecked();
-    options.triggers=ntTriggers->isChecked();
+    options.triggers=(ntTriggers && ntTriggers->isChecked());
     options.grants=ntGrants->isChecked();
 
     return options;

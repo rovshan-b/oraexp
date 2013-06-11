@@ -11,7 +11,7 @@ Qt::ItemFlags TableColumnsModel::flags ( const QModelIndex & index ) const
 {
     Qt::ItemFlags itemFlags=GenericEditableTableModel::flags(index);
 
-    if(itemFlags==Qt::NoItemFlags){
+    if((itemFlags & Qt::ItemIsEditable) == 0){
         return itemFlags;
     }
 
@@ -48,7 +48,7 @@ Qt::ItemFlags TableColumnsModel::flags ( const QModelIndex & index ) const
         return Qt::NoItemFlags;
     }
 
-    return (itemFlags | Qt::ItemIsEditable);
+    return itemFlags;
 }
 
 QVariant TableColumnsModel::data ( const QModelIndex & index, int role) const
@@ -63,10 +63,7 @@ QVariant TableColumnsModel::data ( const QModelIndex & index, int role) const
         if(tableType==OraExp::TableTypeTemporaryTransaction || tableType==OraExp::TableTypeTemporarySession){
             return QApplication::palette().background();
         }
-    }/*else if(columnIx==ColumnColumnType && role==Qt::DisplayRole){
-        int columnType=GenericEditableTableModel::data(index, role).toInt();
-        return getColumnTypeName(columnType);
-    }*/else if(columnIx==ColumnVirtualDefinition && role==Qt::BackgroundRole){
+    }else if(columnIx==ColumnVirtualDefinition && role==Qt::BackgroundRole){
         int columnType=this->index(index.row(), ColumnColumnType).data(Qt::EditRole).toInt();
         if(columnType==OraExp::ColumnTypeNormal){
             return QApplication::palette().background();

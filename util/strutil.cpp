@@ -3,7 +3,7 @@
 #include <iostream>
 #include <QCryptographicHash>
 #include <QLocale>
-#include "util/dbutil.h"
+#include "dbutil.h"
 
 using namespace std;
 
@@ -357,6 +357,8 @@ QString toValidFilename(const QString &str)
     return result;
 }
 
+#ifndef CODE_PARSER_BUILD
+
 QString detectDateFormat(const QStringList &dates)
 {
     Q_ASSERT(!dates.isEmpty());
@@ -452,3 +454,5 @@ QString formatBindVarName(const QString &varName, int position, OraExp::BindVarS
 
     return result;
 }
+
+#endif

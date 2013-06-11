@@ -42,13 +42,8 @@ QVariant GenericEditableTableModel::data ( const QModelIndex & index, int role) 
         return QVariant();
     }
 
-    if(role==Qt::BackgroundRole){
-        int disabledUntilRow;
-        if(!isColumnEnabled(index.column(), disabledUntilRow)){
-            if(index.row()<=disabledUntilRow){
-                return QApplication::palette().background();
-            }
-        }
+    if(role==Qt::BackgroundRole && !isCellEnabled(index.row(), index.column())){
+        return QApplication::palette().background();
     }
 
     if(role==Qt::FontRole && isRowDeleted(index.row())){
@@ -251,12 +246,9 @@ Qt::ItemFlags GenericEditableTableModel::flags ( const QModelIndex & index ) con
         return Qt::NoItemFlags;
     }
 
-    int disabledUntilRow;
-    if(!isColumnEnabled(index.column(), disabledUntilRow)){
-        if(index.row()<=disabledUntilRow){
-            //return Qt::NoItemFlags;
-            return (Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-        }
+    if(!isCellEnabled(index.row(), index.column())){
+        //return (Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+        return Qt::NoItemFlags;
     }
 
     return (QAbstractTableModel::flags(index) | Qt::ItemIsEditable);
@@ -369,6 +361,18 @@ bool GenericEditableTableModel::isColumnEnabled(int section, int &disabledUntilR
     }
 
     return !contains;
+}
+
+bool GenericEditableTableModel::isCellEnabled(int row, int column) const
+{
+    int disabledUntilRow;
+    if(!isColumnEnabled(column, disabledUntilRow)){
+        if(row<=disabledUntilRow){
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void GenericEditableTableModel::ensureRowCount(int minRowCount)

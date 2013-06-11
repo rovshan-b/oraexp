@@ -25,7 +25,7 @@ public:
     };
 
     Qt::ItemFlags flags ( const QModelIndex & index ) const;
-    QVariant data ( const QModelIndex & index, int role) const;
+    virtual QVariant data ( const QModelIndex & index, int role = Qt::DisplayRole) const;
 
     bool isLob(int rowIx) const;
 
