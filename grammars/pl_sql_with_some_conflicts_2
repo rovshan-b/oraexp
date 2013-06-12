@@ -2097,10 +2097,10 @@ datetime_expression
 
 full_timezone_spec
         :       'LOCAL'
-        |	'TIME' 'ZONE' dbtimezone_or_sessiontimezone_or_sql_expression
+        |	'TIME' 'ZONE' timezone_spec
         ;
 
-dbtimezone_or_sessiontimezone_or_sql_expression
+timezone_spec
         :       'DBTIMEZONE' | 'SESSIONTIMEZONE' | sql_expression
         ;
 

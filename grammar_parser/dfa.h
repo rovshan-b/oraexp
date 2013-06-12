@@ -40,6 +40,7 @@ private:
     void computeLookaheadPropagations();
     void setLookaheadPropagations(DFAState *state, DFAState *tmpState, DFAItem *keyItem);
     void propagateLookaheads();
+    void copyLookaheadsToEpsilonItems();
     void closeItems();
     DFAState *createTmpStateWithNonGrammarSymbol(DFAItem *item) const;
     void closure_lalr1(DFAState *state) const;
@@ -47,6 +48,7 @@ private:
     bool hasIntersectingLookaheads(DFAState *state, DFAItem *first, DFAItem *second) const;
 
     QList<DFAItem*> findAllInitialDFAItemsForRule(const QString &ruleName) const;
+    DFAItem *findEpsilonDFAItemForRule(const QString &ruleName) const;
     DFAItem *findDFAItem(BNFRule *rule, int altIx, int position) const;
     DFAItem *findNextDFAItem(DFAItem *currItem) const;
     DFAState* hasStateWithItems(QList<DFAItem*> items) const;

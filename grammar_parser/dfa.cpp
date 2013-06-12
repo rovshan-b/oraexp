@@ -278,6 +278,7 @@ void DFA::constructDFAforLALR1()
     }
 
     closeItems();
+    copyLookaheadsToEpsilonItems();
 }
 
 void DFA::computeLookaheadPropagations()
@@ -358,6 +359,7 @@ void DFA::propagateLookaheads()
         }
     }while(hasChanges);
 
+    /*
     //copy lookaheads to complete epsilon items
     for(int i=0; i<states.size(); ++i){
         DFAState *state=states.at(i);
@@ -383,7 +385,44 @@ void DFA::propagateLookaheads()
                 }
             }
         }
-    }
+    }*/
+}
+
+void DFA::copyLookaheadsToEpsilonItems()
+{
+        //copy lookaheads to complete epsilon items
+        for(int i=0; i<states.size(); ++i){
+            DFAState *state=states.at(i);
+            for(int k=0; k<state->dfaItems.size(); ++k){
+                DFAItem *dfaItem=state->dfaItems.at(k);
+                if(dfaItem->isCompleteItem() || dfaItem->currentRuleItem()->isTerminal){
+                    continue;
+                }
+
+                DFAItem *epsilonItem = findEpsilonDFAItemForRule(dfaItem->currentRuleItem()->pointsTo);
+                if(epsilonItem == 0){
+                    continue;
+                }
+
+                DFAItem *completeEpsilonItem=findNextDFAItem(epsilonItem);
+                if(!state->contains(completeEpsilonItem)){
+                    continue;
+                }
+
+                QList<DFAItem*> allInitItems = findAllInitialDFAItemsForRule(dfaItem->currentRuleItem()->pointsTo);
+                for(int j=0; j<allInitItems.size(); ++j){
+                    DFAItem* initItem = allInitItems.at(j);
+                    if(initItem->currentRuleItem()->isEpsilon()){
+                        continue;
+                    }
+
+                    QList<EBNFToken> currentLookaheads=state->lookaheads.value(initItem);
+                    for(int m=0; m<currentLookaheads.size(); ++m){
+                        state->addLookahead(completeEpsilonItem, currentLookaheads.at(m));
+                    }
+                }
+            }
+        }
 }
 
 void DFA::closeItems()
@@ -526,11 +565,13 @@ void DFA::checkForConflicts()
                     qDebug() << "State -" << state->stateId << "has reduce reduce conflict on items"
                              << dfaItem->toString(false) << "and" << dfaItemToCheck->toString(false);
                     if(!hasConflicts){hasConflicts=true;}
-                }else if((dfaItem->isCompleteItem() && !dfaItemToCheck->isCompleteItem() && dfaItemToCheck->currentRuleItem()->isTerminal) ||
+                }
+                /*do not print shift reduce conflicts
+                else if((dfaItem->isCompleteItem() && !dfaItemToCheck->isCompleteItem() && dfaItemToCheck->currentRuleItem()->isTerminal) ||
                          (!dfaItem->isCompleteItem() && dfaItemToCheck->isCompleteItem()  && dfaItem->currentRuleItem()->isTerminal)){ //shift reduce conflict
                     qDebug() << "State -" << state->stateId << "has shift reduce conflict on items"
                              << dfaItem->toString(false) << "and" << dfaItemToCheck->toString(false);
-                }
+                }*/
             }
         }
     }
@@ -564,6 +605,19 @@ QList<DFAItem*> DFA::findAllInitialDFAItemsForRule(const QString &ruleName) cons
         }
     }
     return results;
+}
+
+DFAItem *DFA::findEpsilonDFAItemForRule(const QString &ruleName) const
+{
+    QList<DFAItem*> initItems = findAllInitialDFAItemsForRule(ruleName);
+    for(int i=0; i<initItems.size(); ++i){
+        DFAItem *item = initItems.at(i);
+        if(item->currentRuleItem()->isEpsilon()){
+            return item;
+        }
+    }
+
+    return 0;
 }
 
 DFAItem *DFA::findDFAItem(BNFRule *rule, int altIx, int position) const

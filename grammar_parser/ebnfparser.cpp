@@ -82,6 +82,13 @@ void EBNFParser::doParse()
 
 BNFRule *EBNFParser::createRule(const QString &ruleName)
 {
+    for(int i=0; i<rules.size(); ++i){
+        if(rules.at(i)->ruleName == ruleName){
+            qDebug() << QString("Rule already exists: %1").arg(ruleName);
+            Q_ASSERT(false);
+        }
+    }
+
     BNFRule *r=new BNFRule();
     r->ruleName=ruleName;
     rules.append(r);
