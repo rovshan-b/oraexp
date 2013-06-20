@@ -2097,10 +2097,10 @@ datetime_expression
 
 full_timezone_spec
         :       'LOCAL'
-        |	'TIME' 'ZONE' timezone_spec
+        |	'TIME' 'ZONE' dbtimezone_or_sessiontimezone_or_sql_expression
         ;
 
-timezone_spec
+dbtimezone_or_sessiontimezone_or_sql_expression
         :       'DBTIMEZONE' | 'SESSIONTIMEZONE' | sql_expression
         ;
 
@@ -2258,7 +2258,6 @@ table_spec_or_opt_table_or_the_subquery
 
 opt_table_or_the_subquery
         :       opt_table_or_the subquery
-        |
         ;
 
 opt_table_or_the
@@ -2970,3 +2969,4 @@ rowtype_attr
 charset_attr
         :	'%CHARSET'
         ;
+

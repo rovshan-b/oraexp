@@ -64,49 +64,58 @@ void ConnectionPageTab::emitInitCompletedSignal()
     emit initCompleted(this);
 }
 
-void ConnectionPageTab::saveContents()
-{
-    QString fileName = getCurrentFileName();
+bool ConnectionPageTab::saveContents(int childIndex)
+{   
+    QString fileName = getCurrentFileName(childIndex);
 
     if(!fileName.isEmpty()){
-        saveToFile(fileName);
+        return saveToFile(fileName, childIndex);
     }else{
-        saveContentsAs();
+        return saveContentsAs();
     }
 }
 
-void ConnectionPageTab::saveContentsAs()
+bool ConnectionPageTab::saveContentsAs()
 {
     QString filenameToSuggest = getCurrentFileName();
     if(filenameToSuggest.isEmpty()){
-        filenameToSuggest = QString("%1.sql").arg(getTitle());
+        filenameToSuggest = QString("%1.%2").arg(getTitle(), getDefaultSaveSuffix());
     }
     QString fileName = DialogHelper::showFileSaveDialog(this->window(), filenameToSuggest, "sql");
     if(fileName.isEmpty()){
-        return;
+        return false;
     }
 
-    saveToFile(fileName);
+    bool result = saveToFile(fileName);
     setCurrentFileName(fileName);
+
+    return result;
 }
 
-void ConnectionPageTab::saveToFile(const QString &fileName)
+bool ConnectionPageTab::saveAll()
+{
+    return saveContents();
+}
+
+bool ConnectionPageTab::saveToFile(const QString &fileName, int childIndex)
 {
     QFile file(fileName);
     if(!file.open(QIODevice::WriteOnly | QIODevice::Text)){
         QMessageBox::critical(this->window(),
                               tr("Save failed"),
                               tr("Failed to save file. %1").arg(file.errorString()));
-        return;
+        return false;
     }
 
     QTextStream out(&file);
     out.setCodec("UTF-8");
-    saveToStream(out);
+    saveToStream(out, childIndex);
     out.flush();
     file.close();
 
-    setModified(false);
+    setModified(false, childIndex);
+
+    return true;
 }
 
 void ConnectionPageTab::setModifiedStatusToCaption(bool changed)

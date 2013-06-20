@@ -52,7 +52,7 @@ void AppFileMenu::setupMenu(QMenu *fileMenu, QToolBar *toolbar)
     toolbar->addAction(fileSaveAction);
     fileSaveAsAction=fileMenu->addAction(IconUtil::getIcon("filesaveas"), tr("S&ave as..."), this, SLOT(saveAs()), QKeySequence(QKeySequence::SaveAs));
     fileSaveAsAction->setStatusTip(tr("Save contents of current worksheet to specified file"));
-    fileSaveAllAction=fileMenu->addAction(IconUtil::getIcon("filesaveall"), tr("Sa&ve all"));
+    fileSaveAllAction=fileMenu->addAction(IconUtil::getIcon("filesaveall"), tr("Sa&ve all"), this, SLOT(saveAll()));
     fileSaveAllAction->setStatusTip(tr("Save contents of all open worksheets"));
     toolbar->addAction(fileSaveAllAction);
 

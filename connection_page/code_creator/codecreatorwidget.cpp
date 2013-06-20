@@ -118,6 +118,11 @@ void CodeCreatorWidget::setModified(bool modified)
     currentEditor()->editor()->document()->setModified(modified);
 }
 
+QString CodeCreatorWidget::getDefaultSaveSuffix() const
+{
+    return DbUtil::getSaveSuffixForItemType(this->objectType);
+}
+
 QString CodeCreatorWidget::getContents() const
 {
     return currentEditor()->editor()->toPlainText();

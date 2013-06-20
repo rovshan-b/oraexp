@@ -36,28 +36,38 @@ void CodeCreator::focusAvailable()
     creatorWidget->focusAvailable();
 }
 
-bool CodeCreator::isModified() const
+bool CodeCreator::isModified(int childIndex) const
 {
+    Q_UNUSED(childIndex);
     return creatorWidget->isModified();
 }
 
-void CodeCreator::setModified(bool modified)
+void CodeCreator::setModified(bool modified, int childIndex)
 {
+    Q_UNUSED(childIndex);
     creatorWidget->setModified(modified);
 }
 
-QString CodeCreator::getCurrentFileName() const
+QString CodeCreator::getDefaultSaveSuffix() const
 {
+    return creatorWidget->getDefaultSaveSuffix();
+}
+
+QString CodeCreator::getCurrentFileName(int childIndex) const
+{
+    Q_UNUSED(childIndex);
     return creatorWidget->getCurrentFileName();
 }
 
-void CodeCreator::setCurrentFileName(const QString &fileName)
+void CodeCreator::setCurrentFileName(const QString &fileName, int childIndex)
 {
+    Q_UNUSED(childIndex);
     creatorWidget->setCurrentFileName(fileName);
 }
 
-void CodeCreator::saveToStream(QTextStream &out)
+void CodeCreator::saveToStream(QTextStream &out, int childIndex)
 {
+    Q_UNUSED(childIndex);
     out << creatorWidget->getContents();
 }
 

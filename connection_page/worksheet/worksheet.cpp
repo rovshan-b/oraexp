@@ -64,28 +64,34 @@ bool Worksheet::isAutotraceEnabled() const
     return worksheetWidget->isAutotraceEnabled();
 }
 
-bool Worksheet::isModified() const
+bool Worksheet::isModified(int childIndex) const
 {
+    Q_UNUSED(childIndex);
     return worksheetWidget->isModified();
 }
 
-void Worksheet::setModified(bool modified)
+void Worksheet::setModified(bool modified, int childIndex)
 {
+    Q_UNUSED(childIndex);
     worksheetWidget->setModified(modified);
 }
 
-void Worksheet::saveToStream(QTextStream &out)
+void Worksheet::saveToStream(QTextStream &out, int childIndex)
 {
+    Q_UNUSED(childIndex);
     out << worksheetWidget->getContents();
 }
 
-QString Worksheet::getCurrentFileName() const
+QString Worksheet::getCurrentFileName(int childIndex) const
 {
+    Q_UNUSED(childIndex);
     return this->currentFileName;
 }
 
-void Worksheet::setCurrentFileName(const QString &fileName)
+void Worksheet::setCurrentFileName(const QString &fileName, int childIndex)
 {
+    Q_UNUSED(childIndex);
+
     this->currentFileName = fileName;
 
     QFileInfo fileInfo(fileName);

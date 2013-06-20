@@ -6,6 +6,7 @@
 #include "util/iconutil.h"
 #include "util/dialoghelper.h"
 #include "util/settingshelper.h"
+#include "util/savechangesutil.h"
 #include "connection_page/connectionpage.h"
 #include "app_menu/appmenu.h"
 #include <QtGui>
@@ -61,7 +62,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     SettingsHelper::saveWindowPosition(this, "MainWindow");
     SettingsHelper::saveStaticApplicationSettings();
-    event->accept();
+
+    bool changesSaved = SaveChangesUtil::saveAll(connectionsPane, true, true);
+    event->setAccepted(changesSaved);
 }
 
 /*

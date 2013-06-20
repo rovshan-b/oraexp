@@ -96,6 +96,8 @@ public:
     static void getTimeFormats(QList<QString> *timeFormats, QList<QString> *timePatterns);
     static QStringList getDateTimeFormats();
 
+    static QString getSaveSuffixForItemType(DbTreeModel::DbTreeNodeType itemType);
+
     //static DbTreeModel::DbTreeNodeType getPairNodeType(DbTreeModel::DbTreeNodeType nodeType);
 };
 

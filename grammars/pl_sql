@@ -441,8 +441,12 @@ character_set_spec
         ;
 
 charset_name_or_column_charset
-        :       identifier
-        |       multi_part_name charset_attr
+        :       multi_part_name opt_charset_attr
+        ;
+
+opt_charset_attr
+        :       charset_attr
+        |
         ;
 
 character_or_char
@@ -542,20 +546,6 @@ type_spec
         |	multi_part_name opt_datatype_precision
         ;
 
-opt_type_spec
-        :       type_spec
-        |
-        ;
-
-tail_identifier
-        :       PLS_DOT identifier
-        ;
-
-kleene_tail_identifiers
-        :       kleene_tail_identifiers tail_identifier
-        |
-        ;
-
 parameter_specs
         :	parameter_spec kleene_tail_parameter_specs
         ;
@@ -570,7 +560,12 @@ kleene_tail_parameter_specs
         ;
 
 parameter_spec
-        :	parameter_name opt_in opt_type_spec
+        :	parameter_name opt_in_type_spec
+        ;
+
+opt_in_type_spec
+        :       opt_in type_spec
+        |
         ;
 
 in
@@ -735,7 +730,7 @@ table_var_dec
         ;
 
 plsql_table_name
-        :	identifier kleene_tail_identifiers
+        :	identifiers
         ;
 
 varray_declaration
@@ -827,7 +822,7 @@ kleene_tail_arguments
         ;
 
 argument
-        :	argument_name opt_argument_direction opt_argument_type
+        :	argument_name opt_argument_direction_argument_type
                 opt_var_def_val
         ;
 
@@ -837,6 +832,11 @@ argument_direction
         |       'IN'
         ;
 
+opt_argument_direction_argument_type
+        :       opt_argument_direction argument_type
+        |
+        ;
+
 opt_argument_direction
         :       argument_direction
         |
@@ -844,11 +844,6 @@ opt_argument_direction
 
 argument_name
         :	identifier
-        ;
-
-opt_argument_type
-        :       argument_type
-        |
         ;
 
 argument_type
@@ -871,7 +866,7 @@ function_declaration
         ;
 
 function_call
-        :	user_defined_function opt_parenthesized_opt_call_parameters
+        :	multi_part_name opt_parenthesized_opt_call_parameters
         ;
 
 collection_function_call
@@ -1469,17 +1464,7 @@ tail_model_column
         ;
 
 model_column
-        :	sql_expression opt_opt_as_column_spec
-        ;
-
-opt_opt_as_column_spec
-        :       opt_as_column_spec
-        |
-        ;
-
-opt_as_column_spec
-        :       opt_as multi_part_name
-        |
+        :	sql_expression opt_alias
         ;
 
 opt_as
@@ -1775,11 +1760,11 @@ column_spec_dot_asterisk_or_sql_expression
         ;
 
 schema_name
-        :	sql_identifier
+        :	identifier
         ;
 
 table_name
-        :	sql_identifier
+        :	identifier
         ;
 
 nested_expressions
@@ -1998,7 +1983,6 @@ expr_expr
 simple_expression
         :	boolean_literal
         |	'SQL' cursor_attribute
-        |	multi_part_name
         |	PLS_QUOTED_STRING
         |	PLS_NUMBER
 
@@ -2187,7 +2171,7 @@ opt_alias
         ;
 
 alias
-        :	opt_as sql_identifier
+        :	opt_as identifier
         ;
 
 opt_parenthesized_column_specs
@@ -2218,33 +2202,13 @@ tail_column_spec
         ;
 
 column_name
-        :	sql_identifier
+        :	identifier
         ;
 nested_table
-        :	sql_identifier
+        :	identifier
         ;
 nested_table_column_name
         :	opt_schema_prefix table_name PLS_DOT nested_table PLS_DOT column_name
-        ;
-
-user_defined_function
-        :	sql_identifiers opt_dot_exists_or_prior_or_delete
-        ;
-
-
-opt_dot_exists_or_prior_or_delete
-        :       dot_exists_or_prior_or_delete
-        |
-        ;
-
-dot_exists_or_prior_or_delete
-        :       PLS_DOT exists_or_prior_or_delete
-        ;
-
-exists_or_prior_or_delete
-        :       'EXISTS'
-        |       prior
-        |       'DELETE'
         ;
 
 selected_table
@@ -2258,7 +2222,6 @@ table_spec_or_opt_table_or_the_subquery
 
 opt_table_or_the_subquery
         :       opt_table_or_the subquery
-        |
         ;
 
 opt_table_or_the
@@ -2289,7 +2252,7 @@ table_alias
         ;
 
 link_name
-        :	sql_identifier
+        :	identifier
         ;
 nested_condition
         :	condition_or
@@ -2478,7 +2441,7 @@ only
         ;
 
 condition_is_present
-        :	cell_reference 'IS' 'PRESENT'
+        :	identifier 'IS' 'PRESENT'
         ;
 condition_like
         :	sql_expression opt_not likes sql_expression opt_escape_sql_expression
@@ -2570,9 +2533,6 @@ tail_expression_list
 expression_list
         :	PLS_LPAREN sql_expressions PLS_RPAREN
         |	sql_expressions
-        ;
-cell_reference
-        :	sql_identifier
         ;
 
 opt_parenthesized_opt_call_parameters
@@ -2941,24 +2901,20 @@ match_string
         ;
 
 multi_part_name
-        :       sql_identifiers
+        :       identifiers
         ;
 
-sql_identifiers
-        :	sql_identifier kleene_tail_sql_identifiers
+identifiers
+        :	identifier kleene_tail_identifiers
         ;
 
-kleene_tail_sql_identifiers
-        :       kleene_tail_sql_identifiers tail_sql_identifier
+kleene_tail_identifiers
+        :       kleene_tail_identifiers tail_identifier
         |
         ;
 
-tail_sql_identifier
-        :       PLS_DOT sql_identifier
-        ;
-
-sql_identifier
-        :	identifier
+tail_identifier
+        :       PLS_DOT identifier
         ;
 
 type_attr

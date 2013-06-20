@@ -486,6 +486,18 @@ void WidgetHelper::createCheckUncheckButtons(QGridLayout *layout,
                                           const char *checkSlotName,
                                           const char *uncheckSlotName)
 {
+    QHBoxLayout *buttonsLayout = WidgetHelper::addCheckUncheckButtons(receiver, checkSlotName, uncheckSlotName);
+
+    int rowCount=layout->rowCount();
+    int columnCount=layout->columnCount();
+
+    layout->addLayout(buttonsLayout, rowCount, 0, 1, columnCount, Qt::AlignLeft);
+}
+
+QHBoxLayout *WidgetHelper::addCheckUncheckButtons(const QObject *receiver,
+                                             const char *checkSlotName,
+                                             const char *uncheckSlotName)
+{
     QPushButton *checkButton = new QPushButton(QObject::tr("Select all"));
     QPushButton *uncheckButton = new QPushButton(QObject::tr("Select none"));
 
@@ -495,11 +507,9 @@ void WidgetHelper::createCheckUncheckButtons(QGridLayout *layout,
     QHBoxLayout *buttonsLayout=new QHBoxLayout();
     buttonsLayout->addWidget(checkButton);
     buttonsLayout->addWidget(uncheckButton);
+    buttonsLayout->addStretch();
 
-    int rowCount=layout->rowCount();
-    int columnCount=layout->columnCount();
-
-    layout->addLayout(buttonsLayout, rowCount, 0, 1, columnCount, Qt::AlignLeft);
+    return buttonsLayout;
 }
 
 void WidgetHelper::deleteTableRow(DataTable *table, int rowIx, bool selection, bool prompt)

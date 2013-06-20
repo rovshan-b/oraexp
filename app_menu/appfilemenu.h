@@ -4,6 +4,7 @@
 #include "appmainmenu.h"
 #include "connection_page/dbuimanager.h"
 #include "connection_page/connectionpagetab.h"
+#include "util/savechangesutil.h"
 
 class QMenu;
 class QToolBar;
@@ -29,6 +30,7 @@ private slots:
     void open(){uiManager()->openFile();}
     void save(){currentConnectionPageTab()->saveContents();}
     void saveAs(){currentConnectionPageTab()->saveContentsAs();}
+    void saveAll(){SaveChangesUtil::saveAll(getConnectionsPane(), false, false);}
 
 private:
     void setupMenu(QMenu *fileMenu, QToolBar *toolbar);

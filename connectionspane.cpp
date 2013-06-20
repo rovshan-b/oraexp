@@ -3,6 +3,7 @@
 #include "util/iconutil.h"
 #include "connectivity/dbconnection.h"
 #include "util/widgethelper.h"
+#include "util/savechangesutil.h"
 #include "dialogs/ctrltabdialog.h"
 #include <QtGui>
 
@@ -62,6 +63,13 @@ void ConnectionsPane::ctrlTabPressed()
 void ConnectionsPane::closeTab(int index)
 {
     QWidget *widgetToDelete=widget(index);
+
+    ConnectionPage *cnPage = qobject_cast<ConnectionPage*>(widgetToDelete);
+    Q_ASSERT(cnPage);
+    if(!SaveChangesUtil::saveConnectionPage(this, index)){
+        return;
+    }
+
     removeTab(index);
     if(widgetToDelete!=0){
         delete widgetToDelete;

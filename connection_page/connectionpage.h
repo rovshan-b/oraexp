@@ -32,6 +32,9 @@ public:
 
     ConnectionPageTab *currentConnectionPageTab() const;
     int tabCount() const{return this->centralTab->count();}
+    ConnectionPageTab *tabAt(int index) const;
+    QIcon tabIcon(int index) const;
+    QString tabText(int index) const;
 
     bool isTreePaneVisible() const;
 

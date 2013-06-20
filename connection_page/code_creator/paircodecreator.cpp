@@ -56,29 +56,41 @@ void PairCodeCreator::focusAvailable()
     currentCreator()->focusAvailable();
 }
 
-bool PairCodeCreator::isModified() const
+bool PairCodeCreator::isModified(int childIndex) const
 {
+    Q_UNUSED(childIndex);
     return specCreatorWidget->isModified() || bodyCreatorWidget->isModified();
 }
 
-void PairCodeCreator::setModified(bool modified)
+void PairCodeCreator::setModified(bool modified, int childIndex)
 {
-    currentCreator()->setModified(modified);
+    childCreator(childIndex)->setModified(modified);
 }
 
-QString PairCodeCreator::getCurrentFileName() const
+QString PairCodeCreator::getDefaultSaveSuffix() const
 {
-    return currentCreator()->getCurrentFileName();
+    return currentCreator()->getDefaultSaveSuffix();
 }
 
-void PairCodeCreator::setCurrentFileName(const QString &fileName)
+bool PairCodeCreator::isSaved() const
 {
-    currentCreator()->setCurrentFileName(fileName);
+    return !specCreatorWidget->getCurrentFileName().isEmpty() &&
+           !bodyCreatorWidget->getCurrentFileName().isEmpty();
 }
 
-void PairCodeCreator::saveToStream(QTextStream &out)
+QString PairCodeCreator::getCurrentFileName(int childIndex) const
 {
-    out << currentCreator()->getContents();
+    return childCreator(childIndex)->getCurrentFileName();
+}
+
+void PairCodeCreator::setCurrentFileName(const QString &fileName, int childIndex)
+{
+    childCreator(childIndex)->setCurrentFileName(fileName);
+}
+
+void PairCodeCreator::saveToStream(QTextStream &out, int childIndex)
+{
+    out << childCreator(childIndex)->getContents();
 }
 
 void PairCodeCreator::creatorInitialized()
@@ -103,7 +115,35 @@ void PairCodeCreator::modificationChanged(bool)
     setModifiedStatusToCaption(isModified());
 }
 
+bool PairCodeCreator::saveAll()
+{
+    if(specCreatorWidget->isModified()){
+        if(!saveContents(1)){
+            return false;
+        }
+    }
+
+    if(bodyCreatorWidget->isModified()){
+        if(!saveContents(2)){
+            return false;
+        }
+    }
+
+    return true;
+}
+
 CodeCreatorWidget *PairCodeCreator::currentCreator() const
 {
     return tab->currentIndex()==0 ? specCreatorWidget : bodyCreatorWidget;
+}
+
+CodeCreatorWidget *PairCodeCreator::childCreator(int childIndex) const
+{
+    if(childIndex == 0){
+        return currentCreator();
+    }else if(childIndex == 1){
+        return specCreatorWidget;
+    }else{
+        return bodyCreatorWidget;
+    }
 }

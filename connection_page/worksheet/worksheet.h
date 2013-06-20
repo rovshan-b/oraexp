@@ -28,14 +28,14 @@ public:
     void setAutotraceEnabled(bool enabled);
     bool isAutotraceEnabled() const;
 
-    virtual bool isModified() const;
-    virtual void setModified(bool modified);
+    virtual bool isModified(int childIndex = 0) const;
+    virtual void setModified(bool modified, int childIndex = 0);
 
-    virtual QString getCurrentFileName() const;
-    virtual void setCurrentFileName(const QString &fileName);
+    virtual QString getCurrentFileName(int childIndex = 0) const;
+    virtual void setCurrentFileName(const QString &fileName, int childIndex = 0);
 
 protected:
-    virtual void saveToStream(QTextStream &out);
+    virtual void saveToStream(QTextStream &out, int childIndex = 0);
 
 private slots:
     void autotraceTriggered(bool checked);

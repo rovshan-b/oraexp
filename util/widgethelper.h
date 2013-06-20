@@ -91,6 +91,10 @@ public:
                                        const char *checkSlotName,
                                        const char *uncheckSlotName);
 
+    static QHBoxLayout *addCheckUncheckButtons(const QObject *receiver,
+                                                  const char *checkSlotName,
+                                                  const char *uncheckSlotName);
+
     static void deleteTableRow(DataTable *table, int rowIx=-1, bool selection=true, bool prompt=true);
     static void selectTableRowAfterDeletion(DataTable *table, GenericEditableTableModel *model, int prevRowIndex, int colIndex);
     static QRegExp createDateTimeRegExp();

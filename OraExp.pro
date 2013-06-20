@@ -491,7 +491,10 @@ SOURCES += main.cpp\
     dialogs/codegeneratordialog.cpp \
     widgets/tabledbmsddloptionswidget.cpp \
     connection_page/session_browser/sessionbrowser.cpp \
-    widgets/groupeddataviewwidget.cpp
+    widgets/groupeddataviewwidget.cpp \
+    dialogs/savechangesdialog.cpp \
+    util/savechangesutil.cpp \
+    models/checkablestandarditemmodel.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -987,7 +990,10 @@ HEADERS  += mainwindow.h \
     dialogs/codegeneratordialog.h \
     widgets/tabledbmsddloptionswidget.h \
     connection_page/session_browser/sessionbrowser.h \
-    widgets/groupeddataviewwidget.h
+    widgets/groupeddataviewwidget.h \
+    dialogs/savechangesdialog.h \
+    util/savechangesutil.h \
+    models/checkablestandarditemmodel.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

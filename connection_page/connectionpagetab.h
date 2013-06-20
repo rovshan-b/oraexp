@@ -37,11 +37,13 @@ public:
     QString getTabId() const;
     void setTabId(const QString &tabId);
 
-    virtual bool isModified() const {return false;}
-    virtual void setModified(bool modified) {Q_UNUSED(modified);}
+    virtual bool isModified(int childIndex = 0) const {return false; Q_UNUSED(childIndex);}
+    virtual void setModified(bool modified, int childIndex = 0) {Q_UNUSED(modified); Q_UNUSED(childIndex);}
+    virtual QString getDefaultSaveSuffix() const {return "sql";}
 
-    virtual QString getCurrentFileName() const {return "";}
-    virtual void setCurrentFileName(const QString &fileName) {Q_UNUSED(fileName);}
+    virtual bool isSaved() const {return !(getCurrentFileName().isEmpty());}
+    virtual QString getCurrentFileName(int childIndex = 0) const {Q_UNUSED(childIndex); return "";}
+    virtual void setCurrentFileName(const QString &fileName, int childIndex = 0) {Q_UNUSED(fileName); Q_UNUSED(childIndex);}
 
 signals:
     void busyStateChanged(ConnectionPageObject *tab, bool busy);
@@ -55,8 +57,9 @@ public slots:
     virtual void emitBusyStateChangedSignal();
     virtual void emitInitCompletedSignal();
 
-    void saveContents();
-    void saveContentsAs();
+    bool saveContents(int childIndex = 0);
+    bool saveContentsAs();
+    virtual bool saveAll();
 
 protected:
     QHash<QString,QString> properties;
@@ -67,12 +70,12 @@ protected:
     QString tabTitile;
     QString tabId;
 
-    virtual void saveToStream(QTextStream &out) {Q_UNUSED(out);}
+    virtual void saveToStream(QTextStream &out, int childIndex = 0) {Q_UNUSED(out); Q_UNUSED(childIndex);}
 
     void setModifiedStatusToCaption(bool changed);
 
 private:
-    void saveToFile(const QString &fileName);
+    bool saveToFile(const QString &fileName, int childIndex = 0);
 
 };
 

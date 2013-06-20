@@ -86,6 +86,19 @@ void ConnectionPage::closeTab(int index)
     }
 
     if(!tabPage->isBusy()){
+
+        if(tabPage->isModified()){
+            int pressedButton = QMessageBox::question(this->window(), tr("Save changes?"),
+                                  tr("Do you want to save changes?"),
+                                  QMessageBox::Yes|QMessageBox::Cancel|QMessageBox::Discard,
+                                  QMessageBox::Yes);
+            if(pressedButton==QMessageBox::Cancel){
+                return;
+            }else if(pressedButton==QMessageBox::Yes && !tabPage->saveAll()){
+                return;
+            }
+        }
+
         centralTab->removeTab(index);
         if(widgetToDelete!=0){
             widgetToDelete->deleteLater();
@@ -194,6 +207,23 @@ ConnectionPageTab *ConnectionPage::currentConnectionPageTab() const
 {
     ConnectionPageTab *cnPageTab=static_cast<ConnectionPageTab*>(centralTab->currentWidget());
     return cnPageTab;
+}
+
+ConnectionPageTab *ConnectionPage::tabAt(int index) const
+{
+    Q_ASSERT(index>=0 && index<centralTab->count());
+
+    return static_cast<ConnectionPageTab*>(centralTab->widget(index));
+}
+
+QIcon ConnectionPage::tabIcon(int index) const
+{
+    return centralTab->tabIcon(index);
+}
+
+QString ConnectionPage::tabText(int index) const
+{
+    return centralTab->tabText(index);
 }
 
 void ConnectionPage::toggleTreePane()

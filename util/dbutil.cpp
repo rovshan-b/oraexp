@@ -1114,6 +1114,40 @@ QStringList DbUtil::getDateTimeFormats()
     return results;
 }
 
+QString DbUtil::getSaveSuffixForItemType(DbTreeModel::DbTreeNodeType itemType)
+{
+    QString result;
+
+    switch(itemType){
+    case DbTreeModel::PackageSpec:
+        result = "pks";
+        break;
+    case DbTreeModel::PackageBody:
+        result = "pkb";
+        break;
+    case DbTreeModel::TypeSpec:
+        result = "ts";
+        break;
+    case DbTreeModel::TypeBody:
+        result = "tb";
+        break;
+    case DbTreeModel::Procedure:
+        result = "prc";
+        break;
+    case DbTreeModel::Function:
+        result = "fnc";
+        break;
+    case DbTreeModel::Trigger:
+        result = "trg";
+        break;
+    default:
+        result = "sql";
+        break;
+    }
+
+    return result;
+}
+
 /*
 DbTreeModel::DbTreeNodeType DbUtil::getPairNodeType(DbTreeModel::DbTreeNodeType nodeType)
 {

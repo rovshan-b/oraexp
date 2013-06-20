@@ -40,6 +40,7 @@ public:
 
     bool isModified() const;
     void setModified(bool modified);
+    QString getDefaultSaveSuffix() const;
 
     QString getContents() const;
 
