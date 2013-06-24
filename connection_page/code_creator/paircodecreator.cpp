@@ -72,6 +72,21 @@ QString PairCodeCreator::getDefaultSaveSuffix() const
     return currentCreator()->getDefaultSaveSuffix();
 }
 
+QList<QTextDocument *> PairCodeCreator::getSavePreviewDocuments() const
+{
+    QList<QTextDocument *> result;
+
+    if(specCreatorWidget->isModified()){
+        result.append(specCreatorWidget->getTextDocument());
+    }
+
+    if(bodyCreatorWidget->isModified()){
+        result.append(bodyCreatorWidget->getTextDocument());
+    }
+
+    return result;
+}
+
 bool PairCodeCreator::isSaved() const
 {
     return !specCreatorWidget->getCurrentFileName().isEmpty() &&

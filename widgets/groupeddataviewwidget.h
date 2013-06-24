@@ -1,16 +1,17 @@
 #ifndef GROUPEDDATAVIEWWIDGET_H
 #define GROUPEDDATAVIEWWIDGET_H
 
-#include <QWidget>
+#include "widgets/ondemandinfoviewerwidget.h"
 #include "connectivity/queryresult.h"
 #include "connectivity/fetchresult.h"
 
 class IQueryScheduler;
 class QTreeView;
 class QStandardItemModel;
+class QStandardItem;
 class QSortFilterProxyModel;
 
-class GroupedDataViewWidget : public QWidget
+class GroupedDataViewWidget : public OnDemandInfoViewerWidget
 {
     Q_OBJECT
 public:
@@ -18,11 +19,14 @@ public:
     
     void setQueryScheduler(IQueryScheduler *queryScheduler);
     void setSelectQuery(const QString &selectQuery);
-    void setGroupByColumn(const QString &groupByColumn);
+    void setGroupByColumns(const QStringList &groupByColumns);
+
+protected:
+    virtual void doLoadInfo();
 
 private slots:
     void queryCompleted(const QueryResult &result);
-    void recordFetched(const FetchResult &fetchResult);
+    void recordFetched(const FetchResult &result);
     void fetchCompleted(const QString &);
 
 private:
@@ -30,12 +34,18 @@ private:
 
     QTreeView *treeView;
     QStandardItemModel *treeModel;
-    QSortFilterProxyModel *filterModel;
+    //QSortFilterProxyModel *filterModel;
 
     QString selectQuery;
-    QString groupByColumn;
+    QStringList groupByColumns;
+
+    QStringList currentGroups;
+    QList<QStandardItem*> currentGroupHeaders;
 
     void runQuery();
+
+    QStandardItem *createGroup(const QString &groupTitle);
+    void addRecord(const QStringList &oneRow);
 };
 
 #endif // GROUPEDDATAVIEWWIDGET_H

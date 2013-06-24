@@ -26,6 +26,7 @@ public:
 
     ConnectionsPane *getConnectionsPane() const {return this->connectionsPane;}
 
+    AppFileMenu *getFileMenu() const {return this->appFileMenu;}
     AppEditMenu *getEditMenu() const {return this->appEditMenu;}
 
 private slots:

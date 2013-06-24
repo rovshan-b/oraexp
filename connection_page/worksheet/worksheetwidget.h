@@ -35,6 +35,8 @@ public:
     bool isModified() const;
     void setModified(bool modified);
 
+    QTextDocument *getTextDocument();
+
     static QByteArray splitterSizes;
 signals:
     void autotraceTriggered(bool checked);

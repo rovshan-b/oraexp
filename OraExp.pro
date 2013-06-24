@@ -494,7 +494,8 @@ SOURCES += main.cpp\
     widgets/groupeddataviewwidget.cpp \
     dialogs/savechangesdialog.cpp \
     util/savechangesutil.cpp \
-    models/checkablestandarditemmodel.cpp
+    models/checkablestandarditemmodel.cpp \
+    widgets/savepreviewwidget.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -993,7 +994,8 @@ HEADERS  += mainwindow.h \
     widgets/groupeddataviewwidget.h \
     dialogs/savechangesdialog.h \
     util/savechangesutil.h \
-    models/checkablestandarditemmodel.h
+    models/checkablestandarditemmodel.h \
+    widgets/savepreviewwidget.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

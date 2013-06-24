@@ -30,6 +30,7 @@ public:
 
     virtual bool isModified(int childIndex = 0) const;
     virtual void setModified(bool modified, int childIndex = 0);
+    virtual QList<QTextDocument*> getSavePreviewDocuments() const;
 
     virtual QString getCurrentFileName(int childIndex = 0) const;
     virtual void setCurrentFileName(const QString &fileName, int childIndex = 0);

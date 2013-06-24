@@ -25,6 +25,16 @@ CodeEditorAndSearchPaneWidget::CodeEditorAndSearchPaneWidget(QWidget *parent) :
     connect(codeEditor, SIGNAL(escapeKeyPressed()), this, SLOT(hideSearchPane()));
 }
 
+void CodeEditorAndSearchPaneWidget::setTextDocument(QTextDocument *document) const
+{
+    editor()->setDocument(document);
+}
+
+QTextDocument *CodeEditorAndSearchPaneWidget::getTextDocument() const
+{
+    return editor()->document();
+}
+
 void CodeEditorAndSearchPaneWidget::keyReleaseEvent ( QKeyEvent * event )
 {
     if(event->key()==Qt::Key_Escape){

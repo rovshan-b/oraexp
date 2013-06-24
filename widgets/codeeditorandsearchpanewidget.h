@@ -13,8 +13,11 @@ class CodeEditorAndSearchPaneWidget : public QWidget
 public:
     explicit CodeEditorAndSearchPaneWidget(QWidget *parent = 0);
 
-    CodeEditor *editor(){return this->codeEditor;}
-    SearchPane *pane(){return this->searchPane;}
+    CodeEditor *editor() const {return this->codeEditor;}
+    SearchPane *pane() const {return this->searchPane;}
+
+    void setTextDocument(QTextDocument *document) const;
+    QTextDocument *getTextDocument() const;
 
 public slots:
     void showSearchPane();

@@ -5,6 +5,7 @@
 #include "connection_page/connectionpagetab.h"
 #include "util/widgethelper.h"
 #include "util/dialoghelper.h"
+#include "util/settings.h"
 #include "beans/dbitemaction.h"
 #include <QtGui>
 
@@ -16,6 +17,7 @@ AppFileMenu::AppFileMenu(QMenu *fileMenu, QToolBar *toolbar, QObject *parent) : 
 AppFileMenu::~AppFileMenu()
 {
     delete fileNewMenu;
+    delete recentFilesMenu;
 }
 
 void AppFileMenu::setupMenu(QMenu *fileMenu, QToolBar *toolbar)
@@ -36,7 +38,16 @@ void AppFileMenu::setupMenu(QMenu *fileMenu, QToolBar *toolbar)
 
     fileOpenAction=fileMenu->addAction(IconUtil::getIcon("fileopen"), tr("&Open..."), this, SLOT(open()), QKeySequence(QKeySequence::Open));
     fileOpenAction->setStatusTip(tr("Open a file in worksheet"));
-    toolbar->addAction(fileOpenAction);
+
+    fileOpenRecentAction=fileMenu->addAction(tr("Recent files"));
+    createRecentFilesMenu();
+    fileOpenRecentAction->setMenu(recentFilesMenu);
+
+    fileOpenToolbarAction = new QAction(IconUtil::getIcon("fileopen"), tr("&Open..."), this);
+    connect(fileOpenToolbarAction, SIGNAL(triggered()), this, SLOT(open()));
+    fileOpenToolbarAction->setMenu(recentFilesMenu);
+
+    toolbar->addAction(fileOpenToolbarAction);
 
     fileMenu->addSeparator();
 
@@ -88,6 +99,20 @@ void AppFileMenu::createFileNewMenu()
     WidgetHelper::addDbItemAction(fileNewMenu, IconUtil::getIcon("user"), tr("&User"), "", "", DbTreeModel::Schema, this, SLOT(showCreator()));
 }
 
+void AppFileMenu::createRecentFilesMenu()
+{
+    recentFilesMenu = new QMenu(tr("Open recent file..."));
+
+    QStringList list = Settings::value("recentFiles").toStringList();
+    for(int i=0; i<qMin(list.size(), 20); ++i){
+        recentFilesMenu->addAction(list.at(i), this, SLOT(openRecent()));
+    }
+
+    if(list.size() == 0){
+        recentFilesMenu->addAction(tr("Empty"))->setEnabled(false);
+    }
+}
+
 void AppFileMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *cnPageTab)
 {
     QList<QAction*> fileNewMenuActions=fileNewMenu->actions();
@@ -108,6 +133,41 @@ void AppFileMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *
 
 }
 
+void AppFileMenu::addToRecentFileList(const QString &fileName)
+{
+    QList<QAction*> actions = recentFilesMenu->actions();
+    int actionCount = actions.size();
+    for(int i=actions.size()-1; i>=0; --i){
+        QAction *action = actions.at(i);
+        if(action->text()==fileName || action->text()==tr("Empty")){
+            recentFilesMenu->removeAction(action);
+            action->deleteLater();
+            --actionCount;
+        }
+    }
+
+    QAction *action=new QAction(fileName, this);
+    connect(action, SIGNAL(triggered()), this, SLOT(openRecent()));
+
+    if(actionCount > 0){
+        recentFilesMenu->insertAction(recentFilesMenu->actions().at(0), action);
+    }else{
+        recentFilesMenu->addAction(action);
+    }
+}
+
+void AppFileMenu::saveRecentFileList()
+{
+    QStringList list;
+
+    QList<QAction*> actions = recentFilesMenu->actions();
+    for(int i=0; i<actions.size(); ++i){
+        list.append(actions.at(i)->text());
+    }
+
+    Settings::setValue("recentFiles", list);
+}
+
 void AppFileMenu::showConnectDialog()
 {
     DialogHelper::showConnectDialog(getConnectionsPane());
@@ -119,4 +179,11 @@ void AppFileMenu::showCreator()
     Q_ASSERT(action);
 
     uiManager()->createCreator(action);
+}
+
+void AppFileMenu::openRecent()
+{
+    QAction *action = static_cast<QAction*>(sender());
+    Q_ASSERT(action);
+    uiManager()->openRecentFile(action->text());
 }

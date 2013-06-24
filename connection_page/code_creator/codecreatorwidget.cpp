@@ -451,6 +451,11 @@ void CodeCreatorWidget::setCurrentFileName(const QString &fileName)
     this->currentFileName = fileName;
 }
 
+QTextDocument *CodeCreatorWidget::getTextDocument() const
+{
+    return currentEditor()->getTextDocument();
+}
+
 void CodeCreatorWidget::compilationErrorFetchCompleted(const QString &)
 {
     stopProgress();

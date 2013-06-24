@@ -67,6 +67,16 @@ QString humanize(const QString &input)
     return result;
 }
 
+QStringList humanizeList(const QStringList &input)
+{
+    QStringList result;
+
+    foreach(const QString &str, input){
+        result.append(humanize(str));
+    }
+
+    return result;
+}
 
 QString humanizeSize(int size)
 {

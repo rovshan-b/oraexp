@@ -11,6 +11,7 @@ public:
     explicit SubTabWidget(QWidget *parent = 0);
 
     void hideTabBar(){tabBar()->hide();}
+    void setTabBarVisible(bool visible){tabBar()->setVisible(visible);}
 
 signals:
 

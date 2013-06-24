@@ -36,6 +36,7 @@ void SettingsHelper::restoreWindowPosition(QWidget *window, const QString &title
     }
     Settings::endGroup();
 }
+
 /*
 void SettingsHelper::saveMainWindowState(QMainWindow *window, const QString &title)
 {

@@ -47,6 +47,8 @@ public:
     virtual QString getCurrentFileName() const;
     virtual void setCurrentFileName(const QString &fileName);
 
+    QTextDocument *getTextDocument() const;
+
     static QByteArray bottomSplitterSizes;
 
 signals:

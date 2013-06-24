@@ -19,6 +19,8 @@ QStringList splitTrimmed(const QString &text, bool convertToUpperCase=true);
 
 QString humanize(const QString &input);
 
+QStringList humanizeList(const QStringList &input);
+
 QString humanizeSize(int size);
 
 QString optionText(int option,

@@ -132,6 +132,21 @@ QString DialogHelper::showFileOpenDialog(QWidget *parent, const QString &filter)
     return result;
 }
 
+QStringList DialogHelper::showFilesOpenDialog(QWidget *parent, const QString &filter)
+{
+    QString directory = Settings::value("saveFileDialogDirectory",
+                                             QDesktopServices::storageLocation(QDesktopServices::DesktopLocation)).toString();
+    QStringList result = QFileDialog::getOpenFileNames(parent,
+                                                  QObject::tr("Open file"),
+                                                  directory,
+                                                  filter);
+    if(!result.isEmpty()){
+        Settings::setValue("saveFileDialogDirectory", QFileInfo(result.at(0)).path());
+    }
+
+    return result;
+}
+
 void DialogHelper::centerWindow(QWidget *window)
 {
     QWidgetList topLevelWidgets = qApp->topLevelWidgets();

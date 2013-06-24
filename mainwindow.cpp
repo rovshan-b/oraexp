@@ -9,6 +9,7 @@
 #include "util/savechangesutil.h"
 #include "connection_page/connectionpage.h"
 #include "app_menu/appmenu.h"
+#include "app_menu/appfilemenu.h"
 #include <QtGui>
 #include <iostream>
 
@@ -62,6 +63,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     SettingsHelper::saveWindowPosition(this, "MainWindow");
     SettingsHelper::saveStaticApplicationSettings();
+    AppMenu::defaultInstance()->getFileMenu()->saveRecentFileList();
 
     bool changesSaved = SaveChangesUtil::saveAll(connectionsPane, true, true);
     event->setAccepted(changesSaved);

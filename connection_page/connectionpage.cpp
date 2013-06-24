@@ -90,11 +90,11 @@ void ConnectionPage::closeTab(int index)
         if(tabPage->isModified()){
             int pressedButton = QMessageBox::question(this->window(), tr("Save changes?"),
                                   tr("Do you want to save changes?"),
-                                  QMessageBox::Yes|QMessageBox::Cancel|QMessageBox::Discard,
-                                  QMessageBox::Yes);
+                                  QMessageBox::Save|QMessageBox::Cancel|QMessageBox::Discard,
+                                  QMessageBox::Save);
             if(pressedButton==QMessageBox::Cancel){
                 return;
-            }else if(pressedButton==QMessageBox::Yes && !tabPage->saveAll()){
+            }else if(pressedButton==QMessageBox::Save && !tabPage->saveAll()){
                 return;
             }
         }

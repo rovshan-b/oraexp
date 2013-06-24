@@ -27,6 +27,7 @@ public:
     virtual bool isModified(int childIndex = 0) const;
     virtual void setModified(bool modified, int childIndex = 0);
     virtual QString getDefaultSaveSuffix() const;
+    virtual QList<QTextDocument*> getSavePreviewDocuments() const;
 
     virtual bool isSaved() const;
     virtual QString getCurrentFileName(int childIndex = 0) const;

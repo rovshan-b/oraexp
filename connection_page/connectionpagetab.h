@@ -6,6 +6,7 @@
 #include "connectionpageobject.h"
 
 class QLabel;
+class QTextDocument;
 
 class ConnectionPageTab : public QWidget, public ConnectionPageObject
 {
@@ -40,6 +41,7 @@ public:
     virtual bool isModified(int childIndex = 0) const {return false; Q_UNUSED(childIndex);}
     virtual void setModified(bool modified, int childIndex = 0) {Q_UNUSED(modified); Q_UNUSED(childIndex);}
     virtual QString getDefaultSaveSuffix() const {return "sql";}
+    virtual QList<QTextDocument*> getSavePreviewDocuments() const {return QList<QTextDocument*>();}
 
     virtual bool isSaved() const {return !(getCurrentFileName().isEmpty());}
     virtual QString getCurrentFileName(int childIndex = 0) const {Q_UNUSED(childIndex); return "";}

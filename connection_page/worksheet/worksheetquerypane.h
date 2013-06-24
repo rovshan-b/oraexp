@@ -59,6 +59,8 @@ public:
 
     bool isModified() const;
     void setModified(bool modified);
+
+    QTextDocument *getTextDocument() const;
 signals:
     void queryDone(const QueryResult &result);
     void message(const QString &msg);

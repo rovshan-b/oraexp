@@ -1,5 +1,5 @@
 #include "tableddloptionsdialog.h"
-#include "widgets/tableddloptionswidget.h"
+#include "widgets/tabledbmsddloptionswidget.h"
 #include "util/dialoghelper.h"
 #include <QtGui>
 

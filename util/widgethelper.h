@@ -126,6 +126,8 @@ public:
 
     static QWidget *compactWidget(QWidget* widget);
     static QWidget *compactWidgets(QList<QWidget *> widgets, Qt::Orientation orientation = Qt::Vertical);
+
+    static QWidget *createMessageWidget(const QString &message);
 };
 
 #endif // WIDGETHELPER_H

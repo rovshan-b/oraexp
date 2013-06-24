@@ -340,6 +340,11 @@ void WorksheetQueryPane::setModified(bool modified)
     currentEditor()->editor()->document()->setModified(modified);
 }
 
+QTextDocument *WorksheetQueryPane::getTextDocument() const
+{
+    return currentEditor()->getTextDocument();
+}
+
 void WorksheetQueryPane::emitMessage(const QString &msg)
 {
     emit message(msg);

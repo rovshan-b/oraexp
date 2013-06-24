@@ -53,6 +53,17 @@ QString CodeCreator::getDefaultSaveSuffix() const
     return creatorWidget->getDefaultSaveSuffix();
 }
 
+QList<QTextDocument *> CodeCreator::getSavePreviewDocuments() const
+{
+    QList<QTextDocument *> result;
+
+    if(isModified()){
+        result.append(creatorWidget->getTextDocument());
+    }
+
+    return result;
+}
+
 QString CodeCreator::getCurrentFileName(int childIndex) const
 {
     Q_UNUSED(childIndex);

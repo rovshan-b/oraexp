@@ -76,6 +76,15 @@ void Worksheet::setModified(bool modified, int childIndex)
     worksheetWidget->setModified(modified);
 }
 
+QList<QTextDocument *> Worksheet::getSavePreviewDocuments() const
+{
+    QList<QTextDocument *> result;
+    if(isModified()){
+        result.append(worksheetWidget->getTextDocument());
+    }
+    return result;
+}
+
 void Worksheet::saveToStream(QTextStream &out, int childIndex)
 {
     Q_UNUSED(childIndex);

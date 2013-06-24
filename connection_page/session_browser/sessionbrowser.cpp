@@ -24,6 +24,10 @@ void SessionBrowser::setConnection(DbConnection *db)
     ConnectionPageTab::setConnection(db);
 
     sessionViewer->setSelectQuery(QueryUtil::getQuery("get_session_list", db));
-    sessionViewer->setGroupByColumn("USERNAME");
+    sessionViewer->setGroupByColumns(QStringList() << "SCHEMANAME" << "MACHINE");
     sessionViewer->setQueryScheduler(this);
+
+    sessionViewer->loadInfo();
+
+    emitInitCompletedSignal();
 }

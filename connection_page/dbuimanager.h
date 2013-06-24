@@ -64,7 +64,9 @@ public slots:
     void addWindow(ConnectionPageObject *window, const QPixmap &icon, const QString &title);
     void handleDynamicAction();
 
-    void openFile();
+    void openFiles();
+    void openFile(const QString &fileName);
+    void openRecentFile(const QString &filename);
 
     DbItemAction *getSenderAction() const;
 

@@ -23,6 +23,8 @@
 #include "dialogs/tableddlgeneratordialog.h"
 #include "dialogs/tablenamefinderdialog.h"
 #include "editorcreatorutil.h"
+#include "app_menu/appmenu.h"
+#include "app_menu/appfilemenu.h"
 #include <QtGui>
 
 DbUiManager::DbUiManager(DbConnection *db, QObject *parent) :
@@ -317,11 +319,17 @@ void DbUiManager::handleDynamicAction()
     action->execute(this);
 }
 
-void DbUiManager::openFile()
+void DbUiManager::openFiles()
 {
-    QString fileName = DialogHelper::showFileOpenDialog(cnPage->window(),
-                                     tr("Text files (*.sql *.pkc *.pks *.pkb *.prc *.fnc *.trg *.txt);;All files (*.*)"));
+    QStringList fileNames = DialogHelper::showFilesOpenDialog(cnPage->window(),
+                                                              tr("Text files (*.sql *.pkc *.pks *.pkb *.prc *.fnc *.trg *.txt);;All files (*.*)"));
+    foreach(const QString &fileName, fileNames){
+        openFile(fileName);
+    }
+}
 
+void DbUiManager::openFile(const QString &fileName)
+{
     if(fileName.isEmpty()){
         return;
     }
@@ -362,7 +370,13 @@ void DbUiManager::openFile()
             worksheet = addWorksheet(contents);
         }
         worksheet->setCurrentFileName(fileName);
+        AppMenu::defaultInstance()->getFileMenu()->addToRecentFileList(fileName);
     }
+}
+
+void DbUiManager::openRecentFile(const QString &filename)
+{
+    openFile(filename);
 }
 
 void DbUiManager::closeTab(QWidget *widget)

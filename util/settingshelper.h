@@ -5,6 +5,7 @@
 
 class QWidget;
 class QMainWindow;
+class QMenu;
 
 class SettingsHelper
 {

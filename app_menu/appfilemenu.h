@@ -21,13 +21,17 @@ public:
 
     void updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *cnPageTab);
 
+    void addToRecentFileList(const QString &fileName);
+    void saveRecentFileList();
+
 private slots:
     void showConnectDialog();
 
     void addWorksheet(){uiManager()->addWorksheet();}
     void showCreator();
 
-    void open(){uiManager()->openFile();}
+    void open(){uiManager()->openFiles();}
+    void openRecent();
     void save(){currentConnectionPageTab()->saveContents();}
     void saveAs(){currentConnectionPageTab()->saveContentsAs();}
     void saveAll(){SaveChangesUtil::saveAll(getConnectionsPane(), false, false);}
@@ -39,6 +43,8 @@ private:
 
     QAction *fileNewAction;
     QAction *fileOpenAction;
+    QAction *fileOpenToolbarAction;
+    QAction *fileOpenRecentAction;
     QAction *fileCloseAction;
     QAction *fileCloseAllAction;
     QAction *fileSaveAction;
@@ -49,6 +55,9 @@ private:
 
     QMenu *fileNewMenu;
     void createFileNewMenu();
+
+    QMenu *recentFilesMenu;
+    void createRecentFilesMenu();
 };
 
 #endif // APPFILEMENU_H

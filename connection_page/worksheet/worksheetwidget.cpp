@@ -83,6 +83,11 @@ void WorksheetWidget::setModified(bool modified)
     queryPane->setModified(modified);
 }
 
+QTextDocument *WorksheetWidget::getTextDocument()
+{
+    return queryPane->getTextDocument();
+}
+
 void WorksheetWidget::queryCompleted(const QueryResult &result)
 {
     showResultPane();
