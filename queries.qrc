@@ -130,5 +130,6 @@
         <file>queries/get_table_name_by_child_object_name.sql</file>
         <file>queries/func_clear_whitespace.sql</file>
         <file>queries/get_session_list.sql</file>
+        <file>queries/v_session_command.sql</file>
     </qresource>
 </RCC>

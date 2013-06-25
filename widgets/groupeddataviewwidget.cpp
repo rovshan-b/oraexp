@@ -13,6 +13,7 @@ GroupedDataViewWidget::GroupedDataViewWidget(QWidget *parent) :
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     treeView->setUniformRowHeights(true);
     treeView->setRootIsDecorated(true);
+    treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     treeModel = new QStandardItemModel(this);
     //filterModel = new QSortFilterProxyModel(this);
@@ -118,7 +119,15 @@ QStandardItem *GroupedDataViewWidget::createGroup(const QString &groupTitle)
 {
     QStandardItem *lastGroupHeader = currentGroupHeaders.size()==0 ? treeModel->invisibleRootItem() : currentGroupHeaders.last();
     QStandardItem *newGroupHeader = new QStandardItem(groupTitle);
-    lastGroupHeader->appendRow(newGroupHeader);
+
+    QList<QStandardItem*> row;
+    row.append(newGroupHeader);
+    //add placeholders to enable full row selection
+    for(int i=0; i<treeModel->columnCount()-1; ++i){
+        row.append(new QStandardItem());
+    }
+
+    lastGroupHeader->appendRow(row);
 
     currentGroups.append(groupTitle);
     currentGroupHeaders.append(newGroupHeader);
