@@ -12,6 +12,11 @@ QVariant Settings::value(const QString &key, const QVariant &defaultValue)
     return settings.value(key, defaultValue);
 }
 
+bool Settings::contains(const QString &key)
+{
+    return settings.contains(key);
+}
+
 void Settings::beginGroup(const QString &prefix)
 {
     settings.beginGroup(prefix);

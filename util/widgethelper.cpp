@@ -325,6 +325,13 @@ QAction* WidgetHelper::addProgressBarAction(QToolBar *toolbar, bool visible)
     return toolbar->addWidget(progressBar);
 }
 
+void WidgetHelper::enableToolBarActions(QToolBar *toolbar, bool enable)
+{
+    foreach(QAction *action, toolbar->actions()){
+        action->setEnabled(enable);
+    }
+}
+
 QLayout* WidgetHelper::layoutWidgetsInColumns(const QList< QPair<QString,QWidget*> > &widgets, int maxColumnCount)
 {
     int colCount=qMin(widgets.size(), maxColumnCount);
@@ -756,6 +763,24 @@ QWidget *WidgetHelper::createMessageWidget(const QString &message)
     widget->setLayout(layout);
 
     return widget;
+}
+
+QActionGroup *WidgetHelper::addSplitDirectionActions(QWidget *w)
+{
+    QActionGroup *splitDirectionGroup=new QActionGroup(w);
+
+    QAction *hoizontal = new QAction(IconUtil::getIcon("vertical"), QObject::tr("Horizontal layout"), splitDirectionGroup);
+    hoizontal->setCheckable(true);
+    hoizontal->setData(Qt::Horizontal);
+    hoizontal->setChecked(true);
+
+    QAction *vertical = new QAction(IconUtil::getIcon("horizontal"), QObject::tr("Vertical layout"), splitDirectionGroup);
+    vertical->setCheckable(true);
+    vertical->setData(Qt::Vertical);
+
+    w->addActions(splitDirectionGroup->actions());
+
+    return splitDirectionGroup;
 }
 
 

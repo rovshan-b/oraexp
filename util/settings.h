@@ -8,6 +8,7 @@ class Settings
 public:
     static void setValue ( const QString & key, const QVariant & value );
     static QVariant value ( const QString & key, const QVariant & defaultValue = QVariant() );
+    static bool contains (const QString & key);
 
     static void beginGroup ( const QString & prefix );
     static void endGroup ();

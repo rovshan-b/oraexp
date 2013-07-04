@@ -99,6 +99,7 @@ void ConnectionPage::closeTab(int index)
             }
         }
 
+        tabPage->beforeClose();
         centralTab->removeTab(index);
         if(widgetToDelete!=0){
             widgetToDelete->deleteLater();

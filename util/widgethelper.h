@@ -40,6 +40,7 @@ public:
     static void showConnectionBusyMessage();
 
     static QAction* addProgressBarAction(QToolBar *toolbar, bool visible=false);
+    static void enableToolBarActions(QToolBar *toolbar, bool enable);
 
     static QLayout* layoutWidgetsInColumns(const QList< QPair<QString,QWidget*> > &widgets, int maxColumnCount);
 
@@ -128,6 +129,8 @@ public:
     static QWidget *compactWidgets(QList<QWidget *> widgets, Qt::Orientation orientation = Qt::Vertical);
 
     static QWidget *createMessageWidget(const QString &message);
+
+    static QActionGroup *addSplitDirectionActions(QWidget *w);
 };
 
 #endif // WIDGETHELPER_H

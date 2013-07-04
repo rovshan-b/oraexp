@@ -47,6 +47,7 @@ public:
     virtual QString getCurrentFileName(int childIndex = 0) const {Q_UNUSED(childIndex); return "";}
     virtual void setCurrentFileName(const QString &fileName, int childIndex = 0) {Q_UNUSED(fileName); Q_UNUSED(childIndex);}
 
+    virtual void beforeClose() {}
 signals:
     void busyStateChanged(ConnectionPageObject *tab, bool busy);
     void stateChanged();

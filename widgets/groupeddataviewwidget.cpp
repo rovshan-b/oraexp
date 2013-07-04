@@ -1,15 +1,32 @@
 #include "groupeddataviewwidget.h"
 #include "interfaces/iqueryscheduler.h"
 #include "util/strutil.h"
+#include "util/iconutil.h"
+#include "widgets/treeview.h"
 #include <QDebug>
 #include <QtGui>
 
 GroupedDataViewWidget::GroupedDataViewWidget(QWidget *parent) :
-    OnDemandInfoViewerWidget(parent), queryScheduler(0)
+    OnDemandInfoViewerWidget(parent), queryScheduler(0), recordCount(0)
 {
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
-    treeView = new QTreeView();
+    createTree(mainLayout);
+
+    mainLayout->setContentsMargins(0,0,0,0);
+    setLayout(mainLayout);
+}
+
+void GroupedDataViewWidget::setQueryScheduler(IQueryScheduler *queryScheduler)
+{
+    this->queryScheduler = queryScheduler;
+
+    Q_ASSERT(!selectQuery.isEmpty());
+}
+
+void GroupedDataViewWidget::createTree(QVBoxLayout *mainLayout)
+{
+    treeView = new TreeView();
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     treeView->setUniformRowHeights(true);
     treeView->setRootIsDecorated(true);
@@ -21,16 +38,6 @@ GroupedDataViewWidget::GroupedDataViewWidget(QWidget *parent) :
     treeView->setModel(treeModel);
 
     mainLayout->addWidget(treeView);
-
-    mainLayout->setContentsMargins(0,0,0,0);
-    setLayout(mainLayout);
-}
-
-void GroupedDataViewWidget::setQueryScheduler(IQueryScheduler *queryScheduler)
-{
-    this->queryScheduler = queryScheduler;
-
-    Q_ASSERT(!selectQuery.isEmpty());
 }
 
 void GroupedDataViewWidget::setSelectQuery(const QString &selectQuery)
@@ -49,6 +56,11 @@ void GroupedDataViewWidget::setGroupByColumns(const QStringList &groupByColumns)
             this->groupByColumns.removeAt(i); //if repeated remove later occurence
         }
     }
+}
+
+QStringList GroupedDataViewWidget::getGroupByColumns() const
+{
+    return this->groupByColumns;
 }
 
 void GroupedDataViewWidget::doLoadInfo()
@@ -70,16 +82,27 @@ void GroupedDataViewWidget::queryCompleted(const QueryResult &result)
         setLoadingComplete();
         return;
     }
+
+    //cleanup
+    lastScrollPos = treeView->verticalScrollBar()->value();
+    treeView->setUpdatesEnabled(false);
+    treeModel->removeRows(0, treeModel->rowCount());
+    currentGroups.clear();
+    currentGroupHeaders.clear();
+    childCounts.clear();
+    recordCount = 0;
 }
 
 void GroupedDataViewWidget::recordFetched(const FetchResult &result)
 {
     if(result.hasError){
+        treeView->setUpdatesEnabled(true);
         return;
     }
 
     if(treeView->header()->count() == 0){
         treeModel->setHorizontalHeaderLabels(humanizeList(result.columnTitles));
+        emit headerReady(result.columnTitles);
     }
 
     Q_ASSERT(groupByColumns.size() >= currentGroups.size());
@@ -118,7 +141,7 @@ void GroupedDataViewWidget::recordFetched(const FetchResult &result)
 QStandardItem *GroupedDataViewWidget::createGroup(const QString &groupTitle)
 {
     QStandardItem *lastGroupHeader = currentGroupHeaders.size()==0 ? treeModel->invisibleRootItem() : currentGroupHeaders.last();
-    QStandardItem *newGroupHeader = new QStandardItem(groupTitle);
+    QStandardItem *newGroupHeader = new QStandardItem(IconUtil::getIcon(getNewGroupIconName()), groupTitle);
 
     QList<QStandardItem*> row;
     row.append(newGroupHeader);
@@ -129,10 +152,32 @@ QStandardItem *GroupedDataViewWidget::createGroup(const QString &groupTitle)
 
     lastGroupHeader->appendRow(row);
 
+    treeView->expand(newGroupHeader->index());
+
     currentGroups.append(groupTitle);
     currentGroupHeaders.append(newGroupHeader);
 
     return newGroupHeader;
+}
+
+QString GroupedDataViewWidget::getNewGroupIconName() const
+{
+    QString currentGroupBy = groupByColumns.at(currentGroups.size());
+
+    QString result;
+
+    if(currentGroupBy == "USERNAME" ||
+            currentGroupBy == "OSUSER"){
+        result = "user";
+    }else if(currentGroupBy == "MACHINE"){
+        result = "computer";
+    }else if(currentGroupBy == "MODULE"){
+        result = "green_flag";
+    }else{
+        result = "list_group";
+    }
+
+    return result;
 }
 
 void GroupedDataViewWidget::addRecord(const QStringList &oneRow)
@@ -145,6 +190,12 @@ void GroupedDataViewWidget::addRecord(const QStringList &oneRow)
     }
 
     lastGroupHeader->appendRow(items);
+
+    ++recordCount;
+
+    foreach(QStandardItem *groupHeader, currentGroupHeaders){
+        ++childCounts[groupHeader];
+    }
 }
 
 void GroupedDataViewWidget::fetchCompleted(const QString &)
@@ -152,11 +203,20 @@ void GroupedDataViewWidget::fetchCompleted(const QString &)
     setLoadingComplete();
 
     treeView->setUpdatesEnabled(false);
-    treeView->expandAll();
-    for(int i=0; i<treeView->header()->count(); ++i){
-        treeView->resizeColumnToContents(i);
-    }
+    //treeView->expandAll();
+    treeView->resizeColumnsToContents();
+    treeView->verticalScrollBar()->setValue(lastScrollPos);
     treeView->setUpdatesEnabled(true);
+
+    QHashIterator<QStandardItem*, int> i(childCounts);
+    while (i.hasNext()) {
+        i.next();
+
+        i.key()->setText(QString("%1 (%2)").arg(i.key()->text()).arg(i.value()));
+    }
+
+
+    emit dataReady();
 }
 
 void GroupedDataViewWidget::runQuery()

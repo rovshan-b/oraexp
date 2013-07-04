@@ -1,7 +1,7 @@
 decode(
 command 
 , 0
-, 'Unknown'
+, ''
 , 1
 , 'CREATE TABLE'
 , 2

@@ -1,5 +1,6 @@
 #include "multieditorwidget.h"
 #include "util/iconutil.h"
+#include "util/widgethelper.h"
 #include <QtGui>
 
 MultiEditorWidget::MultiEditorWidget(QWidget *parent) :
@@ -55,21 +56,10 @@ void MultiEditorWidget::addSplittingActions(QWidget *w)
     QAction *separator=new QAction(w);
     separator->setSeparator(true);
 
-    splitDirectionGroup=new QActionGroup(this);
-
-    QAction *hoizontal = new QAction(IconUtil::getIcon("vertical"), tr("Horizontal layout"), splitDirectionGroup);
-    hoizontal->setCheckable(true);
-    hoizontal->setData(Qt::Horizontal);
-    hoizontal->setChecked(true);
-
-    QAction *vertical = new QAction(IconUtil::getIcon("horizontal"), tr("Vertical layout"), splitDirectionGroup);
-    vertical->setCheckable(true);
-    vertical->setData(Qt::Vertical);
+    splitDirectionGroup = WidgetHelper::addSplitDirectionActions(w);
 
     splitDirectionGroup->setEnabled(false);
     connect(splitDirectionGroup, SIGNAL(triggered(QAction*)), this, SLOT(editorOrientationActionSelected(QAction*)));
-
-    w->addActions(splitDirectionGroup->actions());
 }
 
 QLabel *MultiEditorWidget::createInfoLabel()

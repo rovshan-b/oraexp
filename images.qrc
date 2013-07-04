@@ -145,5 +145,7 @@
         <file>images/query.png</file>
         <file>images/copy_small.png</file>
         <file>images/session_browser.png</file>
+        <file>images/list_group.png</file>
+        <file>images/computer.png</file>
     </qresource>
 </RCC>

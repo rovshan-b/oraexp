@@ -495,7 +495,9 @@ SOURCES += main.cpp\
     dialogs/savechangesdialog.cpp \
     util/savechangesutil.cpp \
     models/checkablestandarditemmodel.cpp \
-    widgets/savepreviewwidget.cpp
+    widgets/savepreviewwidget.cpp \
+    widgets/treeview.cpp \
+    widgets/toolbar.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -995,7 +997,9 @@ HEADERS  += mainwindow.h \
     dialogs/savechangesdialog.h \
     util/savechangesutil.h \
     models/checkablestandarditemmodel.h \
-    widgets/savepreviewwidget.h
+    widgets/savepreviewwidget.h \
+    widgets/treeview.h \
+    widgets/toolbar.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

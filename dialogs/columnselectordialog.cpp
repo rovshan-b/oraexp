@@ -6,9 +6,10 @@
 
 ColumnSelectorDialog::ColumnSelectorDialog(const QStringList &columnList,
                                            const QStringList &selColumnList,
-                                           QWidget *parent) :
+                                           QWidget *parent, bool changeCase) :
     QDialog(parent),
-    ui(new Ui::ColumnSelectorDialog)
+    ui(new Ui::ColumnSelectorDialog),
+    allowEmptySelection(false)
 {
     ui->setupUi(this);
 
@@ -31,7 +32,7 @@ ColumnSelectorDialog::ColumnSelectorDialog(const QStringList &columnList,
     QStandardItem *newItem=0;
     int colCount=columnList.size();
     for(int i=0; i<colCount; ++i){
-        newItem=new QStandardItem(columnList.at(i).toUpper().trimmed());
+        newItem=new QStandardItem(changeCase ? columnList.at(i).toUpper().trimmed() : columnList.at(i));
         newItem->setData(i, Qt::UserRole + 1); //remember position
         newItem->setEditable(false);
         allColumnsModel->appendRow(newItem);
@@ -90,11 +91,10 @@ void ColumnSelectorDialog::on_removeAllButton_clicked()
 
 void ColumnSelectorDialog::enableOkButton()
 {
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(
-                ui->selectedColumnsList->model()->rowCount()>0);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(allowEmptySelection || ui->selectedColumnsList->model()->rowCount()>0);
 }
 
-/*QStringList ColumnSelectorDialog::getSelectedColumns() const
+QStringList ColumnSelectorDialog::getSelectedColumns() const
 {
     QStringList result;
     int selectedCount=selectedColumnsModel->rowCount();
@@ -103,18 +103,14 @@ void ColumnSelectorDialog::enableOkButton()
     }
 
     return result;
-}*/
+}
 
 QString ColumnSelectorDialog::getSelectedColumnsCommaSeparated() const
 {
-    QString selectedColumnNames;
-    int selectedCount=selectedColumnsModel->rowCount();
-    for(int i=0; i<selectedCount; ++i){
-        selectedColumnNames.append(selectedColumnsModel->item(i)->text());
+    return getSelectedColumns().join(",");
+}
 
-        if(i!=selectedCount-1){
-            selectedColumnNames.append(',');
-        }
-    }
-    return selectedColumnNames;
+void ColumnSelectorDialog::setAllowEmptySelection()
+{
+    this->allowEmptySelection = true;
 }

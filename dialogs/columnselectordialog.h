@@ -17,11 +17,14 @@ class ColumnSelectorDialog : public QDialog
 public:
     explicit ColumnSelectorDialog(const QStringList &columnList,
                                   const QStringList &selColumnList,
-                                  QWidget *parent);
+                                  QWidget *parent,
+                                  bool changeCase = true);
     ~ColumnSelectorDialog();
 
-    //QStringList getSelectedColumns() const;
+    QStringList getSelectedColumns() const;
     QString getSelectedColumnsCommaSeparated() const;
+
+    void setAllowEmptySelection();
 
 private slots:
     void on_addOneButton_clicked();
@@ -34,6 +37,8 @@ private:
 
     QStandardItemModel *allColumnsModel;
     QStandardItemModel *selectedColumnsModel;
+
+    bool allowEmptySelection;
 
     void enableOkButton();
 };

@@ -67,12 +67,29 @@ QString humanize(const QString &input)
     return result;
 }
 
+QString unhumanize(const QString &input)
+{
+    QString result = input;
+    return result.toUpper().replace(' ', '_');
+}
+
 QStringList humanizeList(const QStringList &input)
 {
     QStringList result;
 
     foreach(const QString &str, input){
         result.append(humanize(str));
+    }
+
+    return result;
+}
+
+QStringList unhumanizeList(const QStringList &input)
+{
+    QStringList result;
+
+    foreach(const QString &str, input){
+        result.append(unhumanize(str));
     }
 
     return result;
