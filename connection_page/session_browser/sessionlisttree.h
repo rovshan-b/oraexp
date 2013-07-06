@@ -1,5 +1,7 @@
-#ifndef GROUPEDDATAVIEWWIDGET_H
-#define GROUPEDDATAVIEWWIDGET_H
+#ifndef SESSIONLISTTREE_H
+#define SESSIONLISTTREE_H
+
+#include <QModelIndex>
 
 #include "widgets/ondemandinfoviewerwidget.h"
 #include "connectivity/queryresult.h"
@@ -9,15 +11,15 @@ class IQueryScheduler;
 class QTreeView;
 class QStandardItemModel;
 class QStandardItem;
-class QSortFilterProxyModel;
+class TreeSortFilterProxyModel;
 class QVBoxLayout;
 class TreeView;
 
-class GroupedDataViewWidget : public OnDemandInfoViewerWidget
+class SessionListTree : public OnDemandInfoViewerWidget
 {
     Q_OBJECT
 public:
-    explicit GroupedDataViewWidget(QWidget *parent = 0);
+    explicit SessionListTree(QWidget *parent = 0);
     
     void setQueryScheduler(IQueryScheduler *queryScheduler);
     void setSelectQuery(const QString &selectQuery);
@@ -25,6 +27,8 @@ public:
     QStringList getGroupByColumns() const;
 
     int getRecordCount() const {return this->recordCount;}
+
+    void setFilter(const QString &filter);
 
 signals:
     void headerReady(const QStringList &columnTitles);
@@ -43,6 +47,7 @@ private:
 
     TreeView *treeView;
     QStandardItemModel *treeModel;
+    TreeSortFilterProxyModel *proxyModel;
 
     QString selectQuery;
     QStringList groupByColumns;
@@ -54,6 +59,10 @@ private:
 
     int recordCount;
 
+    bool firstLoad;
+
+    QString lastSelectedKey;
+
     void createTree(QVBoxLayout *mainLayout);
 
     void runQuery();
@@ -61,6 +70,9 @@ private:
     QStandardItem *createGroup(const QString &groupTitle);
     QString getNewGroupIconName() const;
     void addRecord(const QStringList &oneRow);
+
+    void saveSelection();
+    bool restoreSelection(const QModelIndex &index);
 };
 
-#endif // GROUPEDDATAVIEWWIDGET_H
+#endif // SESSIONLISTTREE_H

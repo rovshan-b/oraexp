@@ -3,10 +3,11 @@
 
 #include "connection_page/connectionpagetab.h"
 
-class GroupedDataViewWidget;
+class SessionListTree;
 class QVBoxLayout;
 class QToolBar;
 class QSplitter;
+class LineEditWithClearButton;
 
 class SessionBrowser : public ConnectionPageTab
 {
@@ -33,11 +34,14 @@ private slots:
 
     void changeSplitDirection(QAction *action);
 
+    void filterChanged(const QString &newFilter);
+
 private:
-    GroupedDataViewWidget *sessionViewer;
+    SessionListTree *sessionViewer;
 
     QToolBar *toolbar;
     QAction *groupAction;
+    LineEditWithClearButton *filterEditor;
     QLabel *statusLabel;
     QAction *progressBarAction;
 

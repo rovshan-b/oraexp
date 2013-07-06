@@ -491,13 +491,15 @@ SOURCES += main.cpp\
     dialogs/codegeneratordialog.cpp \
     widgets/tabledbmsddloptionswidget.cpp \
     connection_page/session_browser/sessionbrowser.cpp \
-    widgets/groupeddataviewwidget.cpp \
+    connection_page/session_browser/sessionlisttree.cpp \
     dialogs/savechangesdialog.cpp \
     util/savechangesutil.cpp \
     models/checkablestandarditemmodel.cpp \
     widgets/savepreviewwidget.cpp \
     widgets/treeview.cpp \
-    widgets/toolbar.cpp
+    widgets/toolbar.cpp \
+    models/treesortfilterproxymodel.cpp \
+    widgets/lineeditwithclearbutton.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -993,13 +995,15 @@ HEADERS  += mainwindow.h \
     dialogs/codegeneratordialog.h \
     widgets/tabledbmsddloptionswidget.h \
     connection_page/session_browser/sessionbrowser.h \
-    widgets/groupeddataviewwidget.h \
     dialogs/savechangesdialog.h \
     util/savechangesutil.h \
     models/checkablestandarditemmodel.h \
     widgets/savepreviewwidget.h \
     widgets/treeview.h \
-    widgets/toolbar.h
+    widgets/toolbar.h \
+    models/treesortfilterproxymodel.h \
+    connection_page/session_browser/sessionlisttree.h \
+    widgets/lineeditwithclearbutton.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

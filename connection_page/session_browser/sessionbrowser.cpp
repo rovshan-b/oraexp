@@ -1,11 +1,12 @@
 #include "sessionbrowser.h"
-#include "widgets/groupeddataviewwidget.h"
+#include "sessionlisttree.h"
 #include "util/queryutil.h"
 #include "util/iconutil.h"
 #include "util/widgethelper.h"
 #include "util/settings.h"
 #include "util/strutil.h"
 #include "widgets/toolbar.h"
+#include "widgets/lineeditwithclearbutton.h"
 #include "dialogs/columnselectordialog.h"
 #include <QtGui>
 
@@ -20,7 +21,7 @@ void SessionBrowser::createUi()
 {
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
-    sessionViewer = new GroupedDataViewWidget();
+    sessionViewer = new SessionListTree();
 
     createToolbar(mainLayout);
 
@@ -48,12 +49,7 @@ void SessionBrowser::setConnection(DbConnection *db)
 
     sessionViewer->setSelectQuery(QueryUtil::getQuery("get_session_list", db));
 
-    QStringList groupColumns;
-    if(Settings::contains(GROUP_COLS_SETTING_KEY)){
-        groupColumns = Settings::value(GROUP_COLS_SETTING_KEY).toStringList();
-    }else{
-        groupColumns.append("USERNAME");
-    }
+    QStringList groupColumns = Settings::value(GROUP_COLS_SETTING_KEY).toStringList();
     sessionViewer->setGroupByColumns(groupColumns);
 
     sessionViewer->setQueryScheduler(this);
@@ -73,18 +69,32 @@ void SessionBrowser::createToolbar(QVBoxLayout *mainLayout)
     toolbar = new ToolBar();
 
     toolbar->addAction(IconUtil::getIcon("refresh"), tr("Refresh"), sessionViewer, SLOT(refreshInfo()));
+
     groupAction = toolbar->addAction(IconUtil::getIcon("list_group"), tr("Groups"), this, SLOT(changeGroupingColumns()));
     groupAction->setEnabled(false);
+
+    toolbar->addSeparator();
+
+    filterEditor = new LineEditWithClearButton();
+    filterEditor->lineEdit()->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    filterEditor->setMaximumHeight(toolbar->sizeHint().height()-2);
+    toolbar->addWidget(filterEditor);
+
+    toolbar->addSeparator();
+
     statusLabel = new QLabel(tr("  Loading..."));
     toolbar->addWidget(statusLabel);
+
     progressBarAction = WidgetHelper::addProgressBarAction(toolbar);
 
     WidgetHelper::addStretchToToolbar(toolbar);
 
     QActionGroup *splitDirectionGroup = WidgetHelper::addSplitDirectionActions(toolbar);
-    connect(splitDirectionGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeSplitDirection(QAction*)));
 
     mainLayout->addWidget(toolbar);
+
+    connect(filterEditor->lineEdit(), SIGNAL(textChanged(QString)), this, SLOT(filterChanged(QString)));
+    connect(splitDirectionGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeSplitDirection(QAction*)));
 }
 
 void SessionBrowser::startProgress()
@@ -141,4 +151,9 @@ void SessionBrowser::changeSplitDirection(QAction *action)
     }
 
     splitter->setOrientation((Qt::Orientation)action->data().toInt());
+}
+
+void SessionBrowser::filterChanged(const QString &newFilter)
+{
+    sessionViewer->setFilter(newFilter);
 }

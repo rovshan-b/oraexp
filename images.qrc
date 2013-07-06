@@ -147,5 +147,6 @@
         <file>images/session_browser.png</file>
         <file>images/list_group.png</file>
         <file>images/computer.png</file>
+        <file>images/clear.png</file>
     </qresource>
 </RCC>
