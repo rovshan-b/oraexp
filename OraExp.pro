@@ -499,7 +499,8 @@ SOURCES += main.cpp\
     widgets/treeview.cpp \
     widgets/toolbar.cpp \
     models/treesortfilterproxymodel.cpp \
-    widgets/lineeditwithclearbutton.cpp
+    widgets/lineeditwithclearbutton.cpp \
+    widgets/treeviewverticalheader.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -1003,7 +1004,8 @@ HEADERS  += mainwindow.h \
     widgets/toolbar.h \
     models/treesortfilterproxymodel.h \
     connection_page/session_browser/sessionlisttree.h \
-    widgets/lineeditwithclearbutton.h
+    widgets/lineeditwithclearbutton.h \
+    widgets/treeviewverticalheader.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

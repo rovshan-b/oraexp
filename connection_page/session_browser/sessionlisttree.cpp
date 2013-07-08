@@ -8,7 +8,7 @@
 #include <QtGui>
 
 SessionListTree::SessionListTree(QWidget *parent) :
-    OnDemandInfoViewerWidget(parent), queryScheduler(0), recordCount(0), firstLoad(true)
+    OnDemandInfoViewerWidget(parent), queryScheduler(0), recordCount(0), autoFitColumns(true)
 {
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
@@ -61,6 +61,7 @@ void SessionListTree::setGroupByColumns(const QStringList &groupByColumns)
     }
 
     treeView->setRootIsDecorated(this->groupByColumns.size() > 0);
+    autoFitColumns = true;
 }
 
 QStringList SessionListTree::getGroupByColumns() const
@@ -157,6 +158,7 @@ QStandardItem *SessionListTree::createGroup(const QString &groupTitle)
 {
     QStandardItem *lastGroupHeader = currentGroupHeaders.size()==0 ? treeModel->invisibleRootItem() : currentGroupHeaders.last();
     QStandardItem *newGroupHeader = new QStandardItem(IconUtil::getIcon(getNewGroupIconName()), groupTitle);
+    newGroupHeader->setData(1);
 
     QList<QStandardItem*> row;
     row.append(newGroupHeader);
@@ -170,7 +172,9 @@ QStandardItem *SessionListTree::createGroup(const QString &groupTitle)
     QModelIndex newIndex = proxyModel->mapFromSource(newGroupHeader->index());
 
     treeView->expand(newIndex);
-    restoreSelection(newIndex);
+    if(newIndex.isValid() && !selectionRestored){
+        selectionRestored = restoreSelection(newIndex);
+    }
 
     currentGroups.append(groupTitle);
     currentGroupHeaders.append(newGroupHeader);
@@ -204,12 +208,20 @@ void SessionListTree::addRecord(const QStringList &oneRow)
 
     QList<QStandardItem*> items;
     for(int i=0; i<oneRow.size(); ++i){
-        items.append(new QStandardItem((oneRow.at(i))));
+        QStandardItem *newItem = new QStandardItem((oneRow.at(i)));
+        items.append(newItem);
+
+        if(i==0){
+            newItem->setData(2);
+        }
     }
 
     lastGroupHeader->appendRow(items);
 
-    restoreSelection(proxyModel->mapFromSource(items.at(0)->index()));
+    QModelIndex proxyModelIndex = proxyModel->mapFromSource(items.at(0)->index());
+    if(proxyModelIndex.isValid() && !selectionRestored){
+        selectionRestored = restoreSelection(proxyModelIndex);
+    }
 
     ++recordCount;
 
@@ -221,7 +233,13 @@ void SessionListTree::addRecord(const QStringList &oneRow)
 void SessionListTree::saveSelection()
 {
     lastSelectedKey = "";
-    QModelIndex currentIndex = treeView->selectionModel()->currentIndex();
+    selectionRestored = false;
+    QItemSelection selection = treeView->selectionModel()->selection();
+    QModelIndexList indexes = selection.indexes();
+    if(indexes.isEmpty()){
+        return;
+    }
+    QModelIndex currentIndex = indexes.at(0);
     const QAbstractItemModel *model = currentIndex.model();
     int row = currentIndex.row();
     QModelIndex parent = currentIndex.parent();
@@ -229,6 +247,10 @@ void SessionListTree::saveSelection()
         QString instId = model->index(row, 0, parent).data().toString();
         QString sid = model->index(row, 1, parent).data().toString();
         QString serial = model->index(row, 2, parent).data().toString();
+
+        if(instId.endsWith(")")){ //group header with child count in brackets
+            instId.remove(instId.lastIndexOf(" ("), 100);
+        }
 
         lastSelectedKey = QString("%1,%2,%3").arg(instId, sid, serial);
     }
@@ -267,9 +289,12 @@ void SessionListTree::fetchCompleted(const QString &)
 {
     setLoadingComplete();
 
-    treeView->setUpdatesEnabled(false);
-    if(firstLoad){
+    //treeView->setUpdatesEnabled(false);
+    if(autoFitColumns){
         treeView->resizeColumnsToContents();
+    }
+    if(treeView->verticalScrollBar()->maximum() < lastScrollPos){
+        treeView->verticalScrollBar()->setRange(0, lastScrollPos);
     }
     treeView->verticalScrollBar()->setValue(lastScrollPos);
     treeView->setUpdatesEnabled(true);
@@ -283,8 +308,8 @@ void SessionListTree::fetchCompleted(const QString &)
 
     proxyModel->setDynamicSortFilter(true);
 
-    if(firstLoad){
-        firstLoad = false;
+    if(autoFitColumns){
+        autoFitColumns = false;
     }
 
     emit dataReady();

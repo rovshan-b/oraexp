@@ -59,7 +59,8 @@ private:
 
     int recordCount;
 
-    bool firstLoad;
+    bool autoFitColumns;
+    bool selectionRestored;
 
     QString lastSelectedKey;
 
