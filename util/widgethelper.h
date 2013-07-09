@@ -131,6 +131,8 @@ public:
     static QWidget *createMessageWidget(const QString &message);
 
     static QActionGroup *addSplitDirectionActions(QWidget *w);
+
+    static void fillRefreshIntervals(QComboBox *comboBox);
 };
 
 #endif // WIDGETHELPER_H

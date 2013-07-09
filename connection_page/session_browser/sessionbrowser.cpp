@@ -41,6 +41,8 @@ void SessionBrowser::createUi()
     connect(sessionViewer, SIGNAL(afterLoadInfo()), this, SLOT(stopProgress()));
     connect(sessionViewer, SIGNAL(headerReady(QStringList)), this, SLOT(headerReady(QStringList)));
     connect(sessionViewer, SIGNAL(dataReady()), this, SLOT(dataReady()));
+
+    connect(&timer, SIGNAL(timeout()), sessionViewer, SLOT(refreshInfo()));
 }
 
 void SessionBrowser::setConnection(DbConnection *db)
@@ -75,6 +77,13 @@ void SessionBrowser::createToolbar(QVBoxLayout *mainLayout)
 
     toolbar->addSeparator();
 
+    toolbar->addWidget(new QLabel(tr("Refresh: ")));
+    refreshIntervalSelector = new QComboBox();
+    WidgetHelper::fillRefreshIntervals(refreshIntervalSelector);
+    toolbar->addWidget(refreshIntervalSelector);
+
+    toolbar->addSeparator();
+
     filterEditor = new LineEditWithClearButton();
     filterEditor->lineEdit()->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     filterEditor->setMaximumHeight(toolbar->sizeHint().height()-2);
@@ -93,6 +102,7 @@ void SessionBrowser::createToolbar(QVBoxLayout *mainLayout)
 
     mainLayout->addWidget(toolbar);
 
+    connect(refreshIntervalSelector, SIGNAL(currentIndexChanged(QString)), this, SLOT(refreshIntervalChanged(QString)));
     connect(filterEditor->lineEdit(), SIGNAL(textChanged(QString)), this, SLOT(filterChanged(QString)));
     connect(splitDirectionGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeSplitDirection(QAction*)));
 }
@@ -156,4 +166,17 @@ void SessionBrowser::changeSplitDirection(QAction *action)
 void SessionBrowser::filterChanged(const QString &newFilter)
 {
     sessionViewer->setFilter(newFilter);
+}
+
+void SessionBrowser::refreshIntervalChanged(const QString &newInterval)
+{
+    if(timer.isActive()){
+        timer.stop();
+    }
+
+    int interval = newInterval.toInt();
+
+    if(interval > 0){
+        timer.start(interval * 1000);
+    }
 }

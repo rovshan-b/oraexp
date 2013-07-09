@@ -783,4 +783,11 @@ QActionGroup *WidgetHelper::addSplitDirectionActions(QWidget *w)
     return splitDirectionGroup;
 }
 
+void WidgetHelper::fillRefreshIntervals(QComboBox *comboBox)
+{
+    for(int i=0; i<=120; i+=5){
+        comboBox->addItem(QString::number(i));
+    }
+}
+
 

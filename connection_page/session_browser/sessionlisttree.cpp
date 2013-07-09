@@ -7,6 +7,8 @@
 #include <QDebug>
 #include <QtGui>
 
+#define RESERVED_COL_COUNT 2
+
 SessionListTree::SessionListTree(QWidget *parent) :
     OnDemandInfoViewerWidget(parent), queryScheduler(0), recordCount(0), autoFitColumns(true)
 {
@@ -71,9 +73,9 @@ QStringList SessionListTree::getGroupByColumns() const
 
 void SessionListTree::setFilter(const QString &filter)
 {
-    QRegExp regExp(filter);
-    regExp.setCaseSensitivity(Qt::CaseInsensitive);
-    proxyModel->setFilterRegExp(regExp);
+    lastFilter = QRegExp(filter);
+    lastFilter.setCaseSensitivity(Qt::CaseInsensitive);
+    proxyModel->setFilterRegExp(lastFilter);
 }
 
 void SessionListTree::doLoadInfo()
@@ -105,6 +107,7 @@ void SessionListTree::queryCompleted(const QueryResult &result)
     currentGroupHeaders.clear();
     childCounts.clear();
     recordCount = 0;
+    proxyModel->setFilterRegExp("");
 
     proxyModel->setDynamicSortFilter(false);
 }
@@ -112,13 +115,18 @@ void SessionListTree::queryCompleted(const QueryResult &result)
 void SessionListTree::recordFetched(const FetchResult &result)
 {
     if(result.hasError){
+        proxyModel->setFilterRegExp(lastFilter);
         treeView->setUpdatesEnabled(true);
         return;
     }
 
     if(treeView->header()->count() == 0){
-        treeModel->setHorizontalHeaderLabels(humanizeList(result.columnTitles));
-        emit headerReady(result.columnTitles);
+        QStringList colTitles = result.columnTitles;
+        for(int i=0; i<RESERVED_COL_COUNT; ++i){
+            colTitles.removeLast();
+        }
+        treeModel->setHorizontalHeaderLabels(humanizeList(colTitles));
+        emit headerReady(colTitles);
     }
 
     Q_ASSERT(groupByColumns.size() >= currentGroups.size());
@@ -151,7 +159,7 @@ void SessionListTree::recordFetched(const FetchResult &result)
         }
     }
 
-    addRecord(result.oneRow);
+    addRecord(result);
 }
 
 QStandardItem *SessionListTree::createGroup(const QString &groupTitle)
@@ -163,7 +171,7 @@ QStandardItem *SessionListTree::createGroup(const QString &groupTitle)
     QList<QStandardItem*> row;
     row.append(newGroupHeader);
     //add placeholders to enable full row selection
-    for(int i=0; i<treeModel->columnCount()-1; ++i){
+    for(int i=0; i<treeModel->columnCount()-1-RESERVED_COL_COUNT; ++i){
         row.append(new QStandardItem());
     }
 
@@ -202,17 +210,24 @@ QString SessionListTree::getNewGroupIconName() const
     return result;
 }
 
-void SessionListTree::addRecord(const QStringList &oneRow)
+void SessionListTree::addRecord(const FetchResult &result)
 {
     QStandardItem *lastGroupHeader = currentGroupHeaders.size()==0 ? treeModel->invisibleRootItem() : currentGroupHeaders.last();
 
+    bool isCurrent = result.colValue("IS_CURRENT") == "1";
+
     QList<QStandardItem*> items;
-    for(int i=0; i<oneRow.size(); ++i){
+    const QStringList &oneRow = result.oneRow;
+    for(int i=0; i<oneRow.size()-RESERVED_COL_COUNT; ++i){
         QStandardItem *newItem = new QStandardItem((oneRow.at(i)));
         items.append(newItem);
 
         if(i==0){
             newItem->setData(2);
+        }
+
+        if(isCurrent){
+            newItem->setBackground(Qt::green);
         }
     }
 
@@ -296,6 +311,7 @@ void SessionListTree::fetchCompleted(const QString &)
     if(treeView->verticalScrollBar()->maximum() < lastScrollPos){
         treeView->verticalScrollBar()->setRange(0, lastScrollPos);
     }
+    proxyModel->setFilterRegExp(lastFilter);
     treeView->verticalScrollBar()->setValue(lastScrollPos);
     treeView->setUpdatesEnabled(true);
 

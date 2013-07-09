@@ -13,21 +13,23 @@ public:
     
     void resizeColumnsToContents();
 
-    void verticalHeaderPaintEvent(QPaintEvent *event);
+    void verticalHeaderPaintEvent(QPaintEvent *event = 0);
 
 protected:
-    void drawRow ( QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const;
+    //void drawRow ( QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const;
 
-    void drawVerticalHeaderCells(QStyleOptionHeader &opt, QPainter *painter, const QModelIndex &parent, QString &path);
+    void drawVerticalHeaderCells(QStyleOptionHeader &opt, QPainter *painter, const QModelIndex &parent, QString &path, bool *widthChanged);
     void drawVerticalHeaderCell(QStyleOptionHeader &opt, QPainter *painter, const QModelIndex &index);
 
     void resizeEvent(QResizeEvent *event);
 
+private slots:
+    void updateVerticalHeaderWidth();
+
 private:
     TreeViewVerticalHeader *verticalHeader;
-
-    void updateVerticalHeader();
-    int verticalHeaderWidth() const;
+    QString maxVertHeaderText;
+    int verticalHeaderWidth;
 };
 
 #endif // TREEVIEW_H

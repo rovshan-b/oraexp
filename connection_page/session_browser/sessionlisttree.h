@@ -70,10 +70,12 @@ private:
 
     QStandardItem *createGroup(const QString &groupTitle);
     QString getNewGroupIconName() const;
-    void addRecord(const QStringList &oneRow);
+    void addRecord(const FetchResult &result);
 
     void saveSelection();
     bool restoreSelection(const QModelIndex &index);
+
+    QRegExp lastFilter;
 };
 
 #endif // SESSIONLISTTREE_H

@@ -278,5 +278,5 @@ command
 , 'UPDATE INDEXES'
 , 183
 , 'ALTER OPERATOR'
-, command)
+, to_char(command))
 as command

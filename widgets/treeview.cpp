@@ -6,8 +6,12 @@ TreeView::TreeView(QWidget *parent) :
     QTreeView(parent)
 {
     verticalHeader = new TreeViewVerticalHeader(this);
+    connect(verticalScrollBar(), SIGNAL(valueChanged(int)), verticalHeader, SLOT(update()));
+    connect(this, SIGNAL(expanded(QModelIndex)), verticalHeader, SLOT(update()));
+    connect(this, SIGNAL(collapsed(QModelIndex)), verticalHeader, SLOT(update()));
 
     setUniformRowHeights(true);
+    setAlternatingRowColors(true);
 }
 
 void TreeView::resizeColumnsToContents()
@@ -21,6 +25,7 @@ void TreeView::resizeColumnsToContents()
     }
 }
 
+/*
 void TreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QTreeView::drawRow(painter, option, index);
@@ -46,23 +51,22 @@ void TreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option, co
             painter->setPen(pen);
             painter->drawRect(rect);
 
-            /*
-            if(s.column() == 0){
-                //painter->fillRect(0,rect.top(),10,rect.height(), Qt::green);
-                //style()->drawControl(QStyle::CE_Header, &option, painter, this);
-                QStyleOptionHeader opt;
-                opt.initFrom(this);
-                opt.orientation = Qt::Vertical;
-                opt.text = "1";
-                opt.textAlignment = Qt::AlignRight;
-                opt.rect = QRect(0,rect.top(),20,rect.height());
-                style()->drawControl(QStyle::CE_HeaderSection, &opt, painter, this);
-            }*/
+//            if(s.column() == 0){
+//                //painter->fillRect(0,rect.top(),10,rect.height(), Qt::green);
+//                //style()->drawControl(QStyle::CE_Header, &option, painter, this);
+//                QStyleOptionHeader opt;
+//                opt.initFrom(this);
+//                opt.orientation = Qt::Vertical;
+//                opt.text = "1";
+//                opt.textAlignment = Qt::AlignRight;
+//                opt.rect = QRect(0,rect.top(),20,rect.height());
+//                style()->drawControl(QStyle::CE_HeaderSection, &opt, painter, this);
+//            }
         }
     }
-}
+}*/
 
-void TreeView::drawVerticalHeaderCells(QStyleOptionHeader &opt, QPainter *painter, const QModelIndex &parent, QString &path)
+void TreeView::drawVerticalHeaderCells(QStyleOptionHeader &opt, QPainter *painter, const QModelIndex &parent, QString &path, bool *widthChanged)
 {
     int level = 0;
     for(int i=0; i<model()->rowCount(parent); ++i){
@@ -74,11 +78,16 @@ void TreeView::drawVerticalHeaderCells(QStyleOptionHeader &opt, QPainter *painte
         text.append(QString::number(++level));
         opt.text = text;
 
+        if(text.length() > maxVertHeaderText.length()){
+            maxVertHeaderText = text;
+            *widthChanged = true;
+        }
+
         QModelIndex childIndex = model()->index(i, 0, parent);
         drawVerticalHeaderCell(opt, painter, childIndex);
 
         if(model()->hasChildren(childIndex)){
-            drawVerticalHeaderCells(opt, painter, childIndex, text);
+            drawVerticalHeaderCells(opt, painter, childIndex, text, widthChanged);
         }
     }
     --level;
@@ -90,7 +99,7 @@ void TreeView::drawVerticalHeaderCell(QStyleOptionHeader &opt, QPainter *painter
     if(!indexRect.isValid()){
         return;
     }
-    opt.rect = QRect(0, indexRect.top(), verticalHeaderWidth(), indexRect.height());
+    opt.rect = QRect(0, indexRect.top(), verticalHeaderWidth, indexRect.height());
     style()->drawControl(QStyle::CE_HeaderSection, &opt, painter, verticalHeader);
     opt.rect.adjust(2,0,0,0);
     style()->drawControl(QStyle::CE_HeaderLabel, &opt, painter, verticalHeader);
@@ -108,27 +117,33 @@ void TreeView::verticalHeaderPaintEvent(QPaintEvent *event)
     opt.textAlignment = Qt::AlignLeft;
 
     QString text;
-    drawVerticalHeaderCells(opt, &painter, QModelIndex(), text);
+    bool widthChanged = false;
+    drawVerticalHeaderCells(opt, &painter, QModelIndex(), text, &widthChanged);
+
+    if(widthChanged){
+        updateVerticalHeaderWidth();
+    }
 }
 
 void TreeView::resizeEvent(QResizeEvent *event)
 {
     QTreeView::resizeEvent(event);
 
-    updateVerticalHeader();
+    updateVerticalHeaderWidth();
 }
 
-int TreeView::verticalHeaderWidth() const
+void TreeView::updateVerticalHeaderWidth()
 {
-    return 40;
-}
+    verticalHeaderWidth = fontMetrics().width(maxVertHeaderText) + 5;
 
-void TreeView::updateVerticalHeader()
-{
-    int vertHeaderWidth = verticalHeaderWidth();
+    //if(newWidth == verticalHeaderWidth){
+    //    verticalHeader->update();
+    //    return;
+    //}
+
     int top = header()->height()+1;
 
-    setViewportMargins(vertHeaderWidth, header()->height(), 0, 0);
+    setViewportMargins(verticalHeaderWidth, top, 0, 0);
     QRect cr = contentsRect();
-    verticalHeader->setGeometry(cr.left(),top,vertHeaderWidth,cr.height()-top);
+    verticalHeader->setGeometry(cr.left(),top,verticalHeaderWidth,cr.height()-top);
 }
