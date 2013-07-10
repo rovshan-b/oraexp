@@ -4,6 +4,7 @@
 #include "util/iconutil.h"
 #include "widgets/treeview.h"
 #include "models/treesortfilterproxymodel.h"
+#include "connectivity/dbconnection.h"
 #include <QDebug>
 #include <QtGui>
 
@@ -43,6 +44,8 @@ void SessionListTree::createTree(QVBoxLayout *mainLayout)
     treeView->setModel(proxyModel);
 
     mainLayout->addWidget(treeView);
+
+    connect(treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(selectionChanged(QModelIndex,QModelIndex)));
 }
 
 void SessionListTree::setSelectQuery(const QString &selectQuery)
@@ -294,6 +297,7 @@ bool SessionListTree::restoreSelection(const QModelIndex &index)
             serial == parts.at(2)){
         treeView->selectionModel()->select(index,
                                            QItemSelectionModel::ClearAndSelect|QItemSelectionModel::Current|QItemSelectionModel::Rows);
+        treeView->setCurrentIndex(index);
         return true;
     }
 
@@ -329,6 +333,41 @@ void SessionListTree::fetchCompleted(const QString &)
     }
 
     emit dataReady();
+}
+
+void SessionListTree::selectionChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    if(!queryScheduler){
+        return;
+    }
+
+    Q_UNUSED(previous);
+
+    if(!current.isValid()){
+        return;
+    }
+
+    const QAbstractItemModel *model = current.model();
+
+    QString instId, sid, serial;
+
+    if(queryScheduler->getDb()->supportsGlobalPerformanceViews()){
+        instId = model->index(current.row(), 0).data().toString();
+        sid = model->index(current.row(), 1).data().toString();
+        serial = model->index(current.row(), 2).data().toString();
+    }else{
+        instId = "-1";
+        sid = model->index(current.row(), 0).data().toString();
+        serial = model->index(current.row(), 1).data().toString();
+    }
+
+    if(sid.isEmpty() || serial.isEmpty()){ //selection is a group
+        return;
+    }
+
+    emit currentSessionChanged(instId.toInt(),
+                               sid.toInt(),
+                               serial.toInt());
 }
 
 void SessionListTree::runQuery()

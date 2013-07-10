@@ -34,6 +34,8 @@ signals:
     void headerReady(const QStringList &columnTitles);
     void dataReady();
 
+    void currentSessionChanged(int instId, int sid, int serial);
+
 protected:
     virtual void doLoadInfo();
 
@@ -42,6 +44,7 @@ private slots:
     void recordFetched(const FetchResult &result);
     void fetchCompleted(const QString &);
 
+    void selectionChanged(const QModelIndex & current, const QModelIndex & previous);
 private:
     IQueryScheduler *queryScheduler;
 
@@ -76,6 +79,11 @@ private:
     bool restoreSelection(const QModelIndex &index);
 
     QRegExp lastFilter;
+
+    /*
+    int instIdColumn() const;
+    int sidColumn() const;
+    int serialColumn() const;*/
 };
 
 #endif // SESSIONLISTTREE_H

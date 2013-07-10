@@ -5,6 +5,7 @@
 #include "connection_page/connectionpagetab.h"
 
 class SessionListTree;
+class SessionBrowserTabs;
 class QVBoxLayout;
 class QToolBar;
 class QSplitter;
@@ -38,14 +39,12 @@ private slots:
 
     void filterChanged(const QString &newFilter);
 
-    void refreshIntervalChanged(const QString &newInterval);
-
 private:
     SessionListTree *sessionViewer;
+    SessionBrowserTabs *infoTabs;
 
     QToolBar *toolbar;
     QAction *groupAction;
-    QComboBox *refreshIntervalSelector;
     LineEditWithClearButton *filterEditor;
     QLabel *statusLabel;
     QAction *progressBarAction;
@@ -55,8 +54,6 @@ private:
     QStringList columnTitles;
 
     void createToolbar(QVBoxLayout *mainLayout);
-
-    QTimer timer;
 };
 
 #endif // SESSIONBROWSER_H

@@ -132,7 +132,7 @@ public:
 
     static QActionGroup *addSplitDirectionActions(QWidget *w);
 
-    static void fillRefreshIntervals(QComboBox *comboBox);
+    static void createAutoRefreshComboBox(QToolBar *toolbar, QWidget *receiver);
 };
 
 #endif // WIDGETHELPER_H

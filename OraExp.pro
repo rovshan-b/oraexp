@@ -500,7 +500,13 @@ SOURCES += main.cpp\
     widgets/toolbar.cpp \
     models/treesortfilterproxymodel.cpp \
     widgets/lineeditwithclearbutton.cpp \
-    widgets/treeviewverticalheader.cpp
+    widgets/treeviewverticalheader.cpp \
+    widgets/genericqueryviewerwidget.cpp \
+    widgets/genericqueryviewertabs.cpp \
+    widgets/autorefreshcombobox.cpp \
+    connection_page/session_browser/sessionbrowsertabs.cpp \
+    connection_page/session_browser/sessionbrowsertab.cpp \
+    connection_page/session_browser/tabs/sessionbrowsercurrentquerytab.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -1005,7 +1011,13 @@ HEADERS  += mainwindow.h \
     models/treesortfilterproxymodel.h \
     connection_page/session_browser/sessionlisttree.h \
     widgets/lineeditwithclearbutton.h \
-    widgets/treeviewverticalheader.h
+    widgets/treeviewverticalheader.h \
+    widgets/genericqueryviewerwidget.h \
+    widgets/genericqueryviewertabs.h \
+    widgets/autorefreshcombobox.h \
+    connection_page/session_browser/sessionbrowsertabs.h \
+    connection_page/session_browser/sessionbrowsertab.h \
+    connection_page/session_browser/tabs/sessionbrowsercurrentquerytab.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

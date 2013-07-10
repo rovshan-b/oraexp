@@ -98,6 +98,7 @@ public:
     bool supportsAlteringDatabaseLinks() const {return this->serverMajorVersion>=11;}
     bool supportsSchemaEditions() const {return this->serverMajorVersion>=11;}
     bool supportsTimeColumnInExplainPlan() const {return this->serverMajorVersion>=10;}
+    bool supportsGlobalPerformanceViews() const {return this->serverMajorVersion>=10;}
 
     int compareVersion(unsigned int major, int minor);
     int compareVersion(DbConnection *other);

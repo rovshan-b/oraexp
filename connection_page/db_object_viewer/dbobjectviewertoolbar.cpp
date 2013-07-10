@@ -2,6 +2,6 @@
 #include "widgets/toolbar.h"
 
 DbObjectViewerToolBar::DbObjectViewerToolBar(QWidget *parent) :
-    QToolBar(parent)
+    ToolBar(parent)
 {
 }

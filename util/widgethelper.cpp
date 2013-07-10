@@ -5,6 +5,7 @@
 #include "util/iconutil.h"
 #include "models/genericeditabletablemodel.h"
 #include "widgets/datatable.h"
+#include "widgets/autorefreshcombobox.h"
 #include "codeeditor/codeeditor.h"
 #include <QLineEdit>
 #include <QListWidget>
@@ -783,11 +784,13 @@ QActionGroup *WidgetHelper::addSplitDirectionActions(QWidget *w)
     return splitDirectionGroup;
 }
 
-void WidgetHelper::fillRefreshIntervals(QComboBox *comboBox)
+void WidgetHelper::createAutoRefreshComboBox(QToolBar *toolbar, QWidget *receiver)
 {
-    for(int i=0; i<=120; i+=5){
-        comboBox->addItem(QString::number(i));
-    }
+    //toolbar->addWidget(new QLabel(QObject::tr("Refresh: ")));
+
+    AutoRefreshComboBox *comboBox = new AutoRefreshComboBox(receiver);
+    comboBox->setToolTip(QObject::tr("Auto refresh interval"));
+    toolbar->addWidget(comboBox);
 }
 
 

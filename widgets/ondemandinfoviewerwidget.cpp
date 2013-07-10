@@ -24,6 +24,10 @@ bool OnDemandInfoViewerWidget::isInfoLoaded() const
 
 void OnDemandInfoViewerWidget::refreshInfo()
 {
+    if(isLoading()){
+        return;
+    }
+
     clearInfo();
     doLoadInfo();
 }

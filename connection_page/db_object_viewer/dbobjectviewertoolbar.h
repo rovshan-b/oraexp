@@ -1,9 +1,9 @@
 #ifndef DBOBJECTVIEWERTOOLBAR_H
 #define DBOBJECTVIEWERTOOLBAR_H
 
-#include <QToolBar>
+#include "widgets/toolbar.h"
 
-class DbObjectViewerToolBar : public QToolBar
+class DbObjectViewerToolBar : public ToolBar
 {
     Q_OBJECT
 public:

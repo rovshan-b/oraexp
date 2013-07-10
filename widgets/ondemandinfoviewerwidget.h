@@ -22,8 +22,8 @@ protected:
     //these methods should be implemented by inherited classes
     virtual void doLoadInfo();
     virtual void clearInfo();
-    bool isLoading() const;
     void setLoadingComplete();
+    bool isLoading() const;
 
 private:
     volatile bool infoLoaded;

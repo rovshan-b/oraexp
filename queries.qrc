@@ -131,5 +131,6 @@
         <file>queries/func_clear_whitespace.sql</file>
         <file>queries/get_session_list.sql</file>
         <file>queries/v_session_command.sql</file>
+        <file>queries/get_session_current_query.sql</file>
     </qresource>
 </RCC>

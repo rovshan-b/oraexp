@@ -1,5 +1,6 @@
 #include "sessionbrowser.h"
 #include "sessionlisttree.h"
+#include "sessionbrowsertabs.h"
 #include "util/queryutil.h"
 #include "util/iconutil.h"
 #include "util/widgethelper.h"
@@ -28,9 +29,11 @@ void SessionBrowser::createUi()
     splitter = new QSplitter(Qt::Horizontal);
     splitter->addWidget(sessionViewer);
 
-    splitter->addWidget(new QWidget());
+    infoTabs = new SessionBrowserTabs(uiManager);
+    infoTabs->createUi();
+    splitter->addWidget(infoTabs);
 
-    splitter->setStretchFactor(0, 1);
+    //splitter->setStretchFactor(0, 1);
 
     mainLayout->addWidget(splitter);
 
@@ -42,7 +45,7 @@ void SessionBrowser::createUi()
     connect(sessionViewer, SIGNAL(headerReady(QStringList)), this, SLOT(headerReady(QStringList)));
     connect(sessionViewer, SIGNAL(dataReady()), this, SLOT(dataReady()));
 
-    connect(&timer, SIGNAL(timeout()), sessionViewer, SLOT(refreshInfo()));
+    connect(sessionViewer, SIGNAL(currentSessionChanged(int,int,int)), infoTabs, SLOT(setCurrentSession(int,int,int)));
 }
 
 void SessionBrowser::setConnection(DbConnection *db)
@@ -57,6 +60,8 @@ void SessionBrowser::setConnection(DbConnection *db)
     sessionViewer->setQueryScheduler(this);
 
     sessionViewer->loadInfo();
+
+    infoTabs->setQueryScheduler(this);
 
     emitInitCompletedSignal();
 }
@@ -77,10 +82,7 @@ void SessionBrowser::createToolbar(QVBoxLayout *mainLayout)
 
     toolbar->addSeparator();
 
-    toolbar->addWidget(new QLabel(tr("Refresh: ")));
-    refreshIntervalSelector = new QComboBox();
-    WidgetHelper::fillRefreshIntervals(refreshIntervalSelector);
-    toolbar->addWidget(refreshIntervalSelector);
+    WidgetHelper::createAutoRefreshComboBox(toolbar, sessionViewer);
 
     toolbar->addSeparator();
 
@@ -102,7 +104,6 @@ void SessionBrowser::createToolbar(QVBoxLayout *mainLayout)
 
     mainLayout->addWidget(toolbar);
 
-    connect(refreshIntervalSelector, SIGNAL(currentIndexChanged(QString)), this, SLOT(refreshIntervalChanged(QString)));
     connect(filterEditor->lineEdit(), SIGNAL(textChanged(QString)), this, SLOT(filterChanged(QString)));
     connect(splitDirectionGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeSplitDirection(QAction*)));
 }
@@ -166,17 +167,4 @@ void SessionBrowser::changeSplitDirection(QAction *action)
 void SessionBrowser::filterChanged(const QString &newFilter)
 {
     sessionViewer->setFilter(newFilter);
-}
-
-void SessionBrowser::refreshIntervalChanged(const QString &newInterval)
-{
-    if(timer.isActive()){
-        timer.stop();
-    }
-
-    int interval = newInterval.toInt();
-
-    if(interval > 0){
-        timer.start(interval * 1000);
-    }
 }
