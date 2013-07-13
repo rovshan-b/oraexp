@@ -15,10 +15,17 @@ SessionBrowserTabs::SessionBrowserTabs(DbUiManager *uiManager, QWidget *parent) 
 
 void SessionBrowserTabs::createTabs()
 {
-    SessionBrowserCurrentQueryTab *currentQueryTab = new SessionBrowserCurrentQueryTab("get_session_current_query",
-                                                                                       uiManager,
-                                                                                       this);
-    addTab(currentQueryTab, IconUtil::getIcon("query"), tr("Current query"));
+    QIcon noIcon;
+
+    SessionBrowserCurrentQueryTab *currentQueryTab = new SessionBrowserCurrentQueryTab(uiManager, this);
+    addTab(currentQueryTab, noIcon, tr("Current query"));
+
+    SessionBrowserTab *waitsTab = new SessionBrowserTab("get_session_waits", uiManager, this);
+    addTab(waitsTab, noIcon, tr("Waits"));
+
+    SessionBrowserTab *locksTab = new SessionBrowserTab("get_session_locks", uiManager, this);
+    locksTab->setMaxColumnWidth(1024);
+    addTab(locksTab, noIcon, tr("Locks"));
 }
 
 QList<Param *> SessionBrowserTabs::getQueryParams()
@@ -35,11 +42,13 @@ QList<Param *> SessionBrowserTabs::getQueryParams()
 
 void SessionBrowserTabs::setCurrentSession(int instId, int sid, int serial)
 {
-    setInstId(instId);
-    setSid(sid);
-    setSerial(serial);
+    if(this->instId != instId || this->sid != sid || this->serial != serial){
+        setInstId(instId);
+        setSid(sid);
+        setSerial(serial);
 
-    refresh();
+        refresh();
+    }
 }
 
 void SessionBrowserTabs::refresh()

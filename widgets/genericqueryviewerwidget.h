@@ -38,6 +38,9 @@ public:
                            const QString &objectListObjectType=QString());
 
     void setNeedsRefresh();
+    bool getNeedsRefresh() const {return this->needsRefresh;}
+
+    void setMaxColumnWidth(int maxColumnWidth);
 
 protected slots:
     void queryCompleted();
@@ -66,6 +69,8 @@ protected:
 
 private:
     bool needsRefresh;
+
+    int maxColumnWidth;
     
 };
 

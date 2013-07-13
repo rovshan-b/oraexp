@@ -352,13 +352,13 @@ void SessionListTree::selectionChanged(const QModelIndex &current, const QModelI
     QString instId, sid, serial;
 
     if(queryScheduler->getDb()->supportsGlobalPerformanceViews()){
-        instId = model->index(current.row(), 0).data().toString();
-        sid = model->index(current.row(), 1).data().toString();
-        serial = model->index(current.row(), 2).data().toString();
+        instId = model->index(current.row(), 0, current.parent()).data().toString();
+        sid = model->index(current.row(), 1, current.parent()).data().toString();
+        serial = model->index(current.row(), 2, current.parent()).data().toString();
     }else{
         instId = "-1";
-        sid = model->index(current.row(), 0).data().toString();
-        serial = model->index(current.row(), 1).data().toString();
+        sid = model->index(current.row(), 0, current.parent()).data().toString();
+        serial = model->index(current.row(), 1, current.parent()).data().toString();
     }
 
     if(sid.isEmpty() || serial.isEmpty()){ //selection is a group

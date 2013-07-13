@@ -13,6 +13,7 @@ public slots:
     void loadInfo(); //
     bool isInfoLoaded() const;
     void refreshInfo();
+    bool isLoading() const;
 
 signals:
     void beforeLoadInfo();
@@ -23,7 +24,6 @@ protected:
     virtual void doLoadInfo();
     virtual void clearInfo();
     void setLoadingComplete();
-    bool isLoading() const;
 
 private:
     volatile bool infoLoaded;

@@ -14,7 +14,8 @@
 
 DataTable::DataTable(QWidget *parent) :
     QTableView(parent), queryScheduler(0), humanizeColumnNames(false), quietMode(true),
-    schemaNameCol(-1), objectNameCol(-1), parentObjectNameCol(-1), objectTypeCol(-1)
+    schemaNameCol(-1), objectNameCol(-1), parentObjectNameCol(-1), objectTypeCol(-1),
+    maxColumnWidth(300)
 {
     verticalHeader()->setDefaultSectionSize(fontMetrics().height()+10);
     horizontalHeader()->setDefaultSectionSize(150);
@@ -72,7 +73,7 @@ void DataTable::resizeColumnsToFitContents()
     setUpdatesEnabled(false);
     for(int i=0; i<horizontalHeader()->count(); ++i){
         int sizeHint = qMax(sizeHintForColumn(i), horizontalHeader()->sectionSizeHint(i));
-        setColumnWidth(i, qMin(sizeHint+10, 300));
+        setColumnWidth(i, qMin(sizeHint+10, this->maxColumnWidth));
     }
     setUpdatesEnabled(true);
 }
@@ -191,6 +192,11 @@ void DataTable::displayMessage(const QString &message)
     setModel(errModel);
     resizeColumnToContents(0);
     resizeRowToContents(0);
+}
+
+void DataTable::setMaxColumnWidth(int maxColumnWidth)
+{
+    this->maxColumnWidth = maxColumnWidth;
 }
 
 void DataTable::displayError(const QString &prefix, const OciException &ex)

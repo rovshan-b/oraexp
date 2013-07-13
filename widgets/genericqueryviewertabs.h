@@ -26,11 +26,14 @@ public:
     IQueryScheduler *scheduler() const;
     
 public slots:
+    void currentTabChanged(int index);
     void loadTabData(int index);
     void refreshInfo();
 
     void beforeLoadTabInfo();
     void afterLoadTabInfo();
+
+    void showProgressBar();
 
 protected:
     DbUiManager *uiManager;
@@ -54,9 +57,6 @@ protected:
     void showTabSpecificActions(QWidget *currentTab);
 
     int currentJobCount;
-
-private:
-    bool needsRefresh;
     
 };
 

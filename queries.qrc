@@ -132,5 +132,7 @@
         <file>queries/get_session_list.sql</file>
         <file>queries/v_session_command.sql</file>
         <file>queries/get_session_current_query.sql</file>
+        <file>queries/get_session_waits.sql</file>
+        <file>queries/get_session_locks.sql</file>
     </qresource>
 </RCC>

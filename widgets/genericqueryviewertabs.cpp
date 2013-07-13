@@ -31,7 +31,7 @@ void GenericQueryViewerTabs::createUi()
 
     setLayout(layout);
 
-    connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(loadTabData(int)));
+    connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(currentTabChanged(int)));
 }
 
 void GenericQueryViewerTabs::addTab(GenericQueryViewerWidget *tab, const QIcon &icon, const QString &title)
@@ -39,6 +39,13 @@ void GenericQueryViewerTabs::addTab(GenericQueryViewerWidget *tab, const QIcon &
     tabWidget->addTab(tab, icon, title);
     connect(tab, SIGNAL(beforeLoadInfo()), this, SLOT(beforeLoadTabInfo()));
     connect(tab, SIGNAL(afterLoadInfo()), this, SLOT(afterLoadTabInfo()));
+}
+
+void GenericQueryViewerTabs::currentTabChanged(int index)
+{
+    showProgressBar();
+
+    loadTabData(index);
 }
 
 void GenericQueryViewerTabs::loadTabData(int index)
@@ -60,6 +67,10 @@ void GenericQueryViewerTabs::loadTabData(int index)
     showTabSpecificActions(selectedWidget);
 
     setUpdatesEnabled(true);
+
+    if(selectedWidget->getNeedsRefresh()){
+        selectedWidget->refreshInfo();
+    }
 }
 
 void GenericQueryViewerTabs::refreshInfo()
@@ -75,8 +86,7 @@ void GenericQueryViewerTabs::beforeLoadTabInfo()
 
     if(currentJobCount==1){ //disable only if actions are enabled
         toolbar->setEnabled(false);
-        progressBarAction->setVisible(true);
-        progressBarAction->setEnabled(true);
+        QTimer::singleShot(2000, this, SLOT(showProgressBar()));
     }
 }
 
@@ -154,4 +164,13 @@ void GenericQueryViewerTabs::showTabSpecificActions(QWidget *currentTab)
             button->setVisible(key==currentTab);
         }
     }
+}
+
+void GenericQueryViewerTabs::showProgressBar()
+{
+    OnDemandInfoViewerWidget *currentTab=qobject_cast<OnDemandInfoViewerWidget*>(tabWidget->currentWidget());
+    Q_ASSERT(currentTab);
+
+    progressBarAction->setVisible(currentTab->isLoading());
+    progressBarAction->setEnabled(currentTab->isLoading());
 }

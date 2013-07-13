@@ -48,6 +48,8 @@ public:
 
     void displayMessage(const QString &message);
 
+    void setMaxColumnWidth(int maxColumnWidth);
+
 public slots:
     void resizeColumnsToFitContents();
 
@@ -85,6 +87,8 @@ private:
     int objectTypeCol;
 
     DbUiManager *uiManager;
+
+    int maxColumnWidth;
 
     void deleteCurrentModel();
     void displayError(const QString &prefix, const OciException &ex);

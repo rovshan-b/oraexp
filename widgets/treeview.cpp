@@ -11,7 +11,7 @@ TreeView::TreeView(QWidget *parent) :
     connect(this, SIGNAL(collapsed(QModelIndex)), verticalHeader, SLOT(update()));
 
     setUniformRowHeights(true);
-    setAlternatingRowColors(true);
+    //setAlternatingRowColors(true);
 }
 
 void TreeView::resizeColumnsToContents()
@@ -25,7 +25,6 @@ void TreeView::resizeColumnsToContents()
     }
 }
 
-/*
 void TreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QTreeView::drawRow(painter, option, index);
@@ -64,7 +63,7 @@ void TreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option, co
 //            }
         }
     }
-}*/
+}
 
 void TreeView::drawVerticalHeaderCells(QStyleOptionHeader &opt, QPainter *painter, const QModelIndex &parent, QString &path, bool *widthChanged)
 {

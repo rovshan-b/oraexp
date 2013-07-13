@@ -17,7 +17,8 @@ GenericQueryViewerWidget::GenericQueryViewerWidget(const QString &queryName, DbU
     schemaNameCol(-1),
     objectNameCol(-1),
     objectTypeCol(-1),
-    needsRefresh(false)
+    needsRefresh(false),
+    maxColumnWidth(0)
 {
 }
 
@@ -88,6 +89,9 @@ void GenericQueryViewerWidget::createMainWidget(QLayout *layout)
     dt->setUiManager(this->uiManager);
     dt->setHumanizeColumnNames(true);
     dt->setIconColumns(iconColumns);
+    if(maxColumnWidth>0){
+        dt->setMaxColumnWidth(maxColumnWidth);
+    }
 
     if(objectNameCol!=-1){
         dt->setObjectListMode(schemaNameCol,
@@ -137,4 +141,9 @@ void GenericQueryViewerWidget::setObjectListMode(int schemaNameCol, int objectNa
 void GenericQueryViewerWidget::setNeedsRefresh()
 {
     this->needsRefresh = true;
+}
+
+void GenericQueryViewerWidget::setMaxColumnWidth(int maxColumnWidth)
+{
+    this->maxColumnWidth = maxColumnWidth;
 }
