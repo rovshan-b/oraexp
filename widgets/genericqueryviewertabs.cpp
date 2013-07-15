@@ -86,7 +86,7 @@ void GenericQueryViewerTabs::beforeLoadTabInfo()
 
     if(currentJobCount==1){ //disable only if actions are enabled
         toolbar->setEnabled(false);
-        QTimer::singleShot(2000, this, SLOT(showProgressBar()));
+        QTimer::singleShot(1000, this, SLOT(showProgressBar()));
     }
 }
 

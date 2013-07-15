@@ -314,7 +314,7 @@ void DbUiManager::addWindow(ConnectionPageObject *window, const QPixmap &icon, c
 
 void DbUiManager::handleDynamicAction()
 {
-    DbItemDynamicAction *action = static_cast<DbItemDynamicAction*>(sender());
+    DynamicAction *action = static_cast<DynamicAction*>(sender());
     Q_ASSERT(action);
     action->execute(this);
 }

@@ -26,6 +26,9 @@ void SessionBrowserTabs::createTabs()
     SessionBrowserTab *locksTab = new SessionBrowserTab("get_session_locks", uiManager, this);
     locksTab->setMaxColumnWidth(1024);
     addTab(locksTab, noIcon, tr("Locks"));
+
+    SessionBrowserTab *longopsTab = new SessionBrowserTab("get_session_longops", uiManager, this);
+    addTab(longopsTab, noIcon, tr("Long ops"));
 }
 
 QList<Param *> SessionBrowserTabs::getQueryParams()

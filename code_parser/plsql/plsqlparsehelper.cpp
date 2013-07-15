@@ -141,7 +141,7 @@ void PlSqlParseHelper::getNextQueryPos(const QString &query, int startFromPos, i
 
     bool isPlSql=false;
 
-    if(scanner->getTokenLexeme().compare("CREATE", Qt::CaseSensitive)==0){
+    if(scanner->getTokenLexeme().compare("CREATE", Qt::CaseInsensitive)==0){
         token = scanner->getNextToken();
         if(scanner->getTokenLexeme().compare("OR", Qt::CaseInsensitive)==0){
             token = scanner->getNextToken();

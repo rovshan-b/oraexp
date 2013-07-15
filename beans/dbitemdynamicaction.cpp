@@ -1,6 +1,4 @@
 #include "dbitemdynamicaction.h"
-#include "context_menu/handlers/contextmenuhandler.h"
-#include <QDebug>
 
 typedef QHash<QString, QString> QStringHash;
 
@@ -15,33 +13,17 @@ DbItemDynamicAction::~DbItemDynamicAction()
     qDebug("DbItemDynamicAction deleted");
 }
 
-void DbItemDynamicAction::execute(DbUiManager *uiManager)
+QString DbItemDynamicAction::getParentObjectName() const
 {
-    QString handlerName = properties["attribute.handler"];
-    Q_ASSERT(!handlerName.isEmpty());
+    return this->parentObjectName;
+}
 
-    qDebug() << "handler name =" << handlerName;
-
-    int handlerTypeId = QMetaType::type(handlerName.toStdString().c_str());
-    Q_ASSERT(handlerTypeId != 0);
-
-    qDebug() << "handlerTypeId =" << handlerTypeId;
+void DbItemDynamicAction::setProperties()
+{
+    DbItemAction::setProperties();
 
     properties["schemaName"] = this->schemaName;
     properties["objectName"] = this->objectName;
     properties["parentObjectName"] = this->parentObjectName;
     properties["objectType"] = QString::number((int)this->itemType);
-
-    void *handlerInstance = QMetaType::construct(handlerTypeId);
-
-    ContextMenuHandler* contextMenuHandler = static_cast<ContextMenuHandler*>(handlerInstance);
-    contextMenuHandler->setUiManager(uiManager);
-    contextMenuHandler->handle(properties);
-
-    QMetaType::destroy(handlerTypeId, handlerInstance);
-}
-
-QString DbItemDynamicAction::getParentObjectName() const
-{
-    return this->parentObjectName;
 }

@@ -130,7 +130,7 @@ public:
 
     static QWidget *createMessageWidget(const QString &message);
 
-    static QActionGroup *addSplitDirectionActions(QWidget *w);
+    static QActionGroup *addSplitDirectionActions(QWidget *w, Qt::Orientation defaultOrientation = Qt::Horizontal);
 
     static void createAutoRefreshComboBox(QToolBar *toolbar, QWidget *receiver);
 };

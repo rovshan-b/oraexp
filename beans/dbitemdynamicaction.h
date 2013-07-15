@@ -18,9 +18,10 @@ public:
 
     virtual ~DbItemDynamicAction();
 
-    void execute(DbUiManager *uiManager);
-
     QString getParentObjectName() const;
+
+protected:
+    virtual void setProperties();
 
 private:
     QString parentObjectName;

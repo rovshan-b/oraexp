@@ -22,12 +22,18 @@ void SessionBrowser::createUi()
 {
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
+    QWidget *leftPane = new QWidget();
+    QVBoxLayout *leftLayout = new QVBoxLayout();
+    leftLayout->setContentsMargins(0,0,0,0);
+    leftPane->setLayout(leftLayout);
+
     sessionViewer = new SessionListTree();
 
-    createToolbar(mainLayout);
+    createToolbar(leftLayout);
+    leftLayout->addWidget(sessionViewer);
 
-    splitter = new QSplitter(Qt::Horizontal);
-    splitter->addWidget(sessionViewer);
+    splitter = new QSplitter(Qt::Vertical);
+    splitter->addWidget(leftPane);
 
     infoTabs = new SessionBrowserTabs(uiManager);
     infoTabs->createUi();
@@ -100,7 +106,7 @@ void SessionBrowser::createToolbar(QVBoxLayout *mainLayout)
 
     WidgetHelper::addStretchToToolbar(toolbar);
 
-    QActionGroup *splitDirectionGroup = WidgetHelper::addSplitDirectionActions(toolbar);
+    QActionGroup *splitDirectionGroup = WidgetHelper::addSplitDirectionActions(toolbar, Qt::Vertical);
 
     mainLayout->addWidget(toolbar);
 

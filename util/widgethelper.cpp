@@ -766,18 +766,19 @@ QWidget *WidgetHelper::createMessageWidget(const QString &message)
     return widget;
 }
 
-QActionGroup *WidgetHelper::addSplitDirectionActions(QWidget *w)
+QActionGroup *WidgetHelper::addSplitDirectionActions(QWidget *w, Qt::Orientation defaultOrientation)
 {
     QActionGroup *splitDirectionGroup=new QActionGroup(w);
 
     QAction *hoizontal = new QAction(IconUtil::getIcon("vertical"), QObject::tr("Horizontal layout"), splitDirectionGroup);
     hoizontal->setCheckable(true);
     hoizontal->setData(Qt::Horizontal);
-    hoizontal->setChecked(true);
+    hoizontal->setChecked(defaultOrientation == Qt::Horizontal);
 
     QAction *vertical = new QAction(IconUtil::getIcon("horizontal"), QObject::tr("Vertical layout"), splitDirectionGroup);
     vertical->setCheckable(true);
     vertical->setData(Qt::Vertical);
+    vertical->setChecked(defaultOrientation == Qt::Vertical);
 
     w->addActions(splitDirectionGroup->actions());
 
@@ -789,7 +790,7 @@ void WidgetHelper::createAutoRefreshComboBox(QToolBar *toolbar, QWidget *receive
     //toolbar->addWidget(new QLabel(QObject::tr("Refresh: ")));
 
     AutoRefreshComboBox *comboBox = new AutoRefreshComboBox(receiver);
-    comboBox->setToolTip(QObject::tr("Auto refresh interval"));
+    comboBox->setToolTip(QObject::tr("Auto refresh interval (sec)"));
     toolbar->addWidget(comboBox);
 }
 

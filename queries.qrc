@@ -134,5 +134,6 @@
         <file>queries/get_session_current_query.sql</file>
         <file>queries/get_session_waits.sql</file>
         <file>queries/get_session_locks.sql</file>
+        <file>queries/get_session_longops.sql</file>
     </qresource>
 </RCC>

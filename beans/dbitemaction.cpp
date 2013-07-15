@@ -8,14 +8,11 @@ DbItemAction::DbItemAction(const QIcon &icon, const QString &text,
                            const QObject *receiver,
                            const char *slotName,
                            QObject *parent) :
-    QAction(icon, text, parent),
+    DynamicAction(icon, text, receiver, slotName, parent),
     schemaName(schemaName),
     objectName(objectName),
     itemType(itemType)
 {
-    if(receiver){
-        connect(this, SIGNAL(triggered()), receiver, slotName);
-    }
 }
 
 DbItemAction::~DbItemAction()

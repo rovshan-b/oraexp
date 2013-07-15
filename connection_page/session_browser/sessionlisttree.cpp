@@ -8,7 +8,7 @@
 #include <QDebug>
 #include <QtGui>
 
-#define RESERVED_COL_COUNT 2
+#define RESERVED_COL_COUNT 1
 
 SessionListTree::SessionListTree(QWidget *parent) :
     OnDemandInfoViewerWidget(parent), queryScheduler(0), recordCount(0), autoFitColumns(true)
@@ -35,6 +35,7 @@ void SessionListTree::createTree(QVBoxLayout *mainLayout)
     treeView->setUniformRowHeights(true);
     treeView->setRootIsDecorated(true);
     treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    treeView->setSelectionMode(QAbstractItemView::ContiguousSelection);
     treeView->setSortingEnabled(true);
 
     treeModel = new QStandardItemModel(this);
@@ -252,12 +253,12 @@ void SessionListTree::saveSelection()
 {
     lastSelectedKey = "";
     selectionRestored = false;
-    QItemSelection selection = treeView->selectionModel()->selection();
-    QModelIndexList indexes = selection.indexes();
-    if(indexes.isEmpty()){
+    QModelIndex currentIndex = treeView->currentIndex();
+
+    if(!currentIndex.isValid()){
         return;
     }
-    QModelIndex currentIndex = indexes.at(0);
+
     const QAbstractItemModel *model = currentIndex.model();
     int row = currentIndex.row();
     QModelIndex parent = currentIndex.parent();

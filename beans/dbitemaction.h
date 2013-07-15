@@ -1,10 +1,10 @@
 #ifndef DBITEMACTION_H
 #define DBITEMACTION_H
 
-#include <QAction>
+#include "dynamicaction.h"
 #include "navtree/dbtreemodel.h"
 
-class DbItemAction : public QAction
+class DbItemAction : public DynamicAction
 {
     Q_OBJECT
 public:
@@ -21,8 +21,6 @@ public:
     QString getSchemaName() const {return this->schemaName;}
     QString getObjectName() const {return this->objectName;}
     DbTreeModel::DbTreeNodeType getItemType() const {return this->itemType;}
-
-    QHash<QString,QString> properties;
 
 protected:
     QString schemaName;

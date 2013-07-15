@@ -506,7 +506,11 @@ SOURCES += main.cpp\
     widgets/autorefreshcombobox.cpp \
     connection_page/session_browser/sessionbrowsertabs.cpp \
     connection_page/session_browser/sessionbrowsertab.cpp \
-    connection_page/session_browser/tabs/sessionbrowsercurrentquerytab.cpp
+    connection_page/session_browser/tabs/sessionbrowsercurrentquerytab.cpp \
+    beans/dynamicaction.cpp \
+    context_menu/action_creators/dbitemdynamicactioncreator.cpp \
+    context_menu/action_creators/contextmenuactioncreator.cpp \
+    context_menu/action_creators/dynamicactioncreator.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -1017,7 +1021,11 @@ HEADERS  += mainwindow.h \
     widgets/autorefreshcombobox.h \
     connection_page/session_browser/sessionbrowsertabs.h \
     connection_page/session_browser/sessionbrowsertab.h \
-    connection_page/session_browser/tabs/sessionbrowsercurrentquerytab.h
+    connection_page/session_browser/tabs/sessionbrowsercurrentquerytab.h \
+    beans/dynamicaction.h \
+    context_menu/action_creators/dbitemdynamicactioncreator.h \
+    context_menu/action_creators/contextmenuactioncreator.h \
+    context_menu/action_creators/dynamicactioncreator.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

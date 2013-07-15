@@ -114,6 +114,8 @@ void TreeView::verticalHeaderPaintEvent(QPaintEvent *event)
     opt.initFrom(this);
     opt.orientation = Qt::Vertical;
     opt.textAlignment = Qt::AlignLeft;
+    opt.state = QStyle::State_None;
+    opt.position = QStyleOptionHeader::Middle;
 
     QString text;
     bool widthChanged = false;
