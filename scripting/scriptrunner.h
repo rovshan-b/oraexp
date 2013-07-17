@@ -12,6 +12,7 @@ public:
     bool checkSyntax(const QString &program);
 
     void setProperty(const QString &name, QObject *value);
+    void setVariable(const QString &name, const QScriptValue &value);
 
     QScriptValue evaluate(const QString &program, const QString &fileName);
     QScriptValue callFunction(const QString &functioName, const QScriptValueList &args = QScriptValueList());

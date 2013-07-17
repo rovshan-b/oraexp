@@ -187,9 +187,27 @@ QString DynamicConnectionPageWindow::getValue(const QString &attrValue) const
 
 void DynamicConnectionPageWindow::registerScriptVariables()
 {
+    QHashIterator<QString,QString> i(actionProperties);
+     while (i.hasNext()) {
+         i.next();
+
+         if(i.key().startsWith("var:g_")){
+            scriptRunner.setVariable(i.key().mid(4), i.value());
+         }
+     }
 }
 
 void DynamicConnectionPageWindow::updateQueryPane()
 {
-    editor->setPlainText(scriptRunner.callFunction("getScript").toString());
+    QScriptValue val = scriptRunner.callFunction("getScript");
+
+    QString script;
+
+    if(val.isArray()){
+        script = val.toVariant().toStringList().join("\n");
+    }else{
+        script = val.toString();
+    }
+
+    editor->setPlainText(script);
 }

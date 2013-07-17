@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window caption="Kill sessions" type="script" scriptFileName="generate_kill_sessions">
+    <widgets>
+        <widget name="immediateCheckBox" caption="Immediate" type="CheckBox" value="false" />
+    </widgets>
+</window>

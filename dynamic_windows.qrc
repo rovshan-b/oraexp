@@ -4,5 +4,6 @@
         <file>dynamic_windows/DropColumn.xml</file>
         <file>dynamic_windows/DropConstraint.xml</file>
         <file>dynamic_windows/DropIndex.xml</file>
+        <file>dynamic_windows/KillSessions.xml</file>
     </qresource>
 </RCC>

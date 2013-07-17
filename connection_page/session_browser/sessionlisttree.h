@@ -8,6 +8,7 @@
 #include "connectivity/fetchresult.h"
 
 class IQueryScheduler;
+class DbUiManager;
 class QTreeView;
 class QStandardItemModel;
 class QStandardItem;
@@ -19,7 +20,7 @@ class SessionListTree : public OnDemandInfoViewerWidget
 {
     Q_OBJECT
 public:
-    explicit SessionListTree(QWidget *parent = 0);
+    explicit SessionListTree(DbUiManager *uiManager, QWidget *parent = 0);
     
     void setQueryScheduler(IQueryScheduler *queryScheduler);
     void setSelectQuery(const QString &selectQuery);
@@ -45,7 +46,9 @@ private slots:
     void fetchCompleted(const QString &);
 
     void selectionChanged(const QModelIndex & current, const QModelIndex & previous);
+    void showContextMenu(const QPoint & pos);
 private:
+    DbUiManager *uiManager;
     IQueryScheduler *queryScheduler;
 
     TreeView *treeView;
@@ -79,6 +82,8 @@ private:
     bool restoreSelection(const QModelIndex &index);
 
     QRegExp lastFilter;
+
+    void getSelectedSessions(const QModelIndex &parent, QStringList &list, bool check = true) const;
 
     /*
     int instIdColumn() const;

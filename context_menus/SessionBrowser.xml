@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items>
+    <item caption="Kill" handler="WindowLoader" windowName="KillSessions" />
+    <item caption="Disconnect" handler="WindowLoader" windowName="DisconnectSessions" />
+    <item caption="-" />
+    <item caption="Start/Stop trace" handler="WindowLoader" windowName="StartStopSessionTrace" />
+</items>

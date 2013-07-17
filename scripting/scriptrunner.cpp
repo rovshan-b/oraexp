@@ -25,6 +25,11 @@ void ScriptRunner::setProperty(const QString &name, QObject *value)
     engine.globalObject().setProperty(name, obj);
 }
 
+void ScriptRunner::setVariable(const QString &name, const QScriptValue &value)
+{
+    engine.globalObject().setProperty(name, value);
+}
+
 QScriptValue ScriptRunner::evaluate(const QString &program, const QString &fileName)
 {
     QScriptValue result = engine.evaluate(program, fileName);

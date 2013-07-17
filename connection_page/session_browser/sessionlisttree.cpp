@@ -2,16 +2,18 @@
 #include "interfaces/iqueryscheduler.h"
 #include "util/strutil.h"
 #include "util/iconutil.h"
+#include "util/widgethelper.h"
 #include "widgets/treeview.h"
 #include "models/treesortfilterproxymodel.h"
 #include "connectivity/dbconnection.h"
+#include "context_menu/contextmenuutil.h"
 #include <QDebug>
 #include <QtGui>
 
 #define RESERVED_COL_COUNT 1
 
-SessionListTree::SessionListTree(QWidget *parent) :
-    OnDemandInfoViewerWidget(parent), queryScheduler(0), recordCount(0), autoFitColumns(true)
+SessionListTree::SessionListTree(DbUiManager *uiManager, QWidget *parent) :
+    OnDemandInfoViewerWidget(parent), uiManager(uiManager), queryScheduler(0), recordCount(0), autoFitColumns(true)
 {
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
@@ -37,6 +39,7 @@ void SessionListTree::createTree(QVBoxLayout *mainLayout)
     treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     treeView->setSelectionMode(QAbstractItemView::ContiguousSelection);
     treeView->setSortingEnabled(true);
+    treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
     treeModel = new QStandardItemModel(this);
     treeModel->sort(-1);
@@ -47,6 +50,7 @@ void SessionListTree::createTree(QVBoxLayout *mainLayout)
     mainLayout->addWidget(treeView);
 
     connect(treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(selectionChanged(QModelIndex,QModelIndex)));
+    connect(treeView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint &)));
 }
 
 void SessionListTree::setSelectQuery(const QString &selectQuery)
@@ -305,6 +309,41 @@ bool SessionListTree::restoreSelection(const QModelIndex &index)
     return false;
 }
 
+void SessionListTree::getSelectedSessions(const QModelIndex &parent, QStringList &list, bool check) const
+{
+    QAbstractItemModel *model = treeView->model();
+    QItemSelectionModel *selModel = treeView->selectionModel();
+
+    for(int i=0; i<model->rowCount(parent); ++i){
+
+        bool isSelected = selModel->isRowSelected(i, parent);
+        QModelIndex firstColIx = model->index(i, 0, parent);
+        bool hasChildren = model->hasChildren(firstColIx);
+
+        if(isSelected || hasChildren || !check){
+            if(!hasChildren){
+                QString sessionId;
+                if(queryScheduler->getDb()->supportsKillingRacSession()){
+                    sessionId = QString("%1,%2,@%3").
+                            arg(model->index(i, 1, parent).data().toString()).
+                            arg(model->index(i, 2, parent).data().toString()).
+                            arg(model->index(i, 0, parent).data().toString());
+                }else{
+                    sessionId = QString("%1,%2").
+                            arg(model->index(i, 0, parent).data().toString()).
+                            arg(model->index(i, 1, parent).data().toString());
+                }
+
+                if(!list.contains(sessionId)){
+                    list.append(sessionId);
+                }
+            }else{
+                getSelectedSessions(firstColIx, list, !isSelected && check);
+            }
+        }
+    }
+}
+
 void SessionListTree::fetchCompleted(const QString &)
 {
     setLoadingComplete();
@@ -369,6 +408,33 @@ void SessionListTree::selectionChanged(const QModelIndex &current, const QModelI
     emit currentSessionChanged(instId.toInt(),
                                sid.toInt(),
                                serial.toInt());
+}
+
+void SessionListTree::showContextMenu(const QPoint &pos)
+{
+    Q_ASSERT(queryScheduler);
+
+    QModelIndex ix=treeView->indexAt(pos);
+    if(!ix.isValid()){
+        return;
+    }
+
+    QStringList selectedSessions;
+    getSelectedSessions(QModelIndex(), selectedSessions);
+
+    if(selectedSessions.isEmpty()){
+        return;
+    }
+
+    QHash<QString,QString> actionProperties;
+    actionProperties["var:g_sessionList"] = selectedSessions.join(";");
+
+    QList<QAction*> actions = ContextMenuUtil::getActionsFromFile("SessionBrowser", uiManager, actionProperties);
+    QMenu *contextMenu = new QMenu();
+    contextMenu->addActions(actions);
+
+    contextMenu->exec(treeView->viewport()->mapToGlobal(pos));
+    WidgetHelper::deleteMenu(contextMenu);
 }
 
 void SessionListTree::runQuery()

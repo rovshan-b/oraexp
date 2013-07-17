@@ -16,6 +16,7 @@
 SessionBrowser::SessionBrowser(DbUiManager *uiManager, QWidget *parent) :
     ConnectionPageTab(uiManager, parent)
 {
+    this->requiresSeparateConnection = true;
 }
 
 void SessionBrowser::createUi()
@@ -27,7 +28,7 @@ void SessionBrowser::createUi()
     leftLayout->setContentsMargins(0,0,0,0);
     leftPane->setLayout(leftLayout);
 
-    sessionViewer = new SessionListTree();
+    sessionViewer = new SessionListTree(uiManager);
 
     createToolbar(leftLayout);
     leftLayout->addWidget(sessionViewer);

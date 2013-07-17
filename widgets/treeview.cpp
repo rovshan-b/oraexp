@@ -25,6 +25,7 @@ void TreeView::resizeColumnsToContents()
     }
 }
 
+/*
 void TreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QTreeView::drawRow(painter, option, index);
@@ -63,7 +64,7 @@ void TreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option, co
 //            }
         }
     }
-}
+}*/
 
 void TreeView::drawVerticalHeaderCells(QStyleOptionHeader &opt, QPainter *painter, const QModelIndex &parent, QString &path, bool *widthChanged)
 {

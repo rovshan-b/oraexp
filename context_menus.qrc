@@ -8,5 +8,6 @@
         <file>context_menus/Indexes.xml</file>
         <file>context_menus/Index.xml</file>
         <file>context_menus/Tables.xml</file>
+        <file>context_menus/SessionBrowser.xml</file>
     </qresource>
 </RCC>

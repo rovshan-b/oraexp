@@ -6,5 +6,6 @@
         <file>scripts/generate_drop_constraint.js</file>
         <file>scripts/func_drop_object.js</file>
         <file>scripts/generate_drop_index.js</file>
+        <file>scripts/generate_kill_sessions.js</file>
     </qresource>
 </RCC>
