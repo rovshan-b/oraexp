@@ -510,7 +510,9 @@ SOURCES += main.cpp\
     beans/dynamicaction.cpp \
     context_menu/action_creators/dbitemdynamicactioncreator.cpp \
     context_menu/action_creators/contextmenuactioncreator.cpp \
-    context_menu/action_creators/dynamicactioncreator.cpp
+    context_menu/action_creators/dynamicactioncreator.cpp \
+    beans/dynamicwidgetinfo.cpp \
+    widgets/radiobuttongroup.cpp
 
 HEADERS  += mainwindow.h \
     connectdialog.h \
@@ -1025,7 +1027,9 @@ HEADERS  += mainwindow.h \
     beans/dynamicaction.h \
     context_menu/action_creators/dbitemdynamicactioncreator.h \
     context_menu/action_creators/contextmenuactioncreator.h \
-    context_menu/action_creators/dynamicactioncreator.h
+    context_menu/action_creators/dynamicactioncreator.h \
+    beans/dynamicwidgetinfo.h \
+    widgets/radiobuttongroup.h
 
 FORMS    += mainwindow.ui \
     connectdialog.ui \

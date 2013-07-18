@@ -15,6 +15,9 @@ public slots:
     void refreshInfo();
     bool isLoading() const;
 
+    void setNeedsRefresh() {this->needsRefresh = true;}
+    bool getNeedsRefresh() const {return this->needsRefresh;}
+
 signals:
     void beforeLoadInfo();
     void afterLoadInfo();
@@ -28,6 +31,8 @@ protected:
 private:
     volatile bool infoLoaded;
     volatile bool infoLoading;
+
+    bool needsRefresh;
 };
 
 #endif // ONDEMANDINFOVIEWERWIDGET_H

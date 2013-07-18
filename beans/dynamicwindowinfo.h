@@ -3,19 +3,20 @@
 
 #include <QString>
 #include <QList>
-#include <QHash>
+#include "dynamicwidgetinfo.h"
 
 class DynamicWindowInfo
 {
 public:
     DynamicWindowInfo();
+    virtual ~DynamicWindowInfo();
 
     QString caption;
     QString icon;
     QString type;
     QString scriptFileName;
 
-    QList< QHash<QString,QString> > widgetInfos;
+    QList< DynamicWidgetInfo* > widgetInfos;
 };
 
 #endif // DYNAMICWINDOWINFO_H

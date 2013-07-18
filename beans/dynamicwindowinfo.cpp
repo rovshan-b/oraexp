@@ -3,3 +3,8 @@
 DynamicWindowInfo::DynamicWindowInfo()
 {
 }
+
+DynamicWindowInfo::~DynamicWindowInfo()
+{
+    qDeleteAll(widgetInfos);
+}

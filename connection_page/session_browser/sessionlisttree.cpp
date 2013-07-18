@@ -7,6 +7,7 @@
 #include "models/treesortfilterproxymodel.h"
 #include "connectivity/dbconnection.h"
 #include "context_menu/contextmenuutil.h"
+#include "errors.h"
 #include <QDebug>
 #include <QtGui>
 
@@ -102,7 +103,9 @@ void SessionListTree::doLoadInfo()
 void SessionListTree::queryCompleted(const QueryResult &result)
 {
     if(result.hasError){
+        emit dataReady();
         setLoadingComplete();
+        displayErrorMessage(result.exception);
         return;
     }
 
@@ -452,4 +455,27 @@ void SessionListTree::runQuery()
                                  "queryCompleted",
                                  "recordFetched",
                                  "fetchCompleted");
+}
+
+void SessionListTree::displayErrorMessage(const OciException &ex)
+{
+    QString errorMessage;
+    if(ex.getErrorCode() == ERR_TABLE_OR_VIEW_DOES_NOT_EXIST){
+        QString viewNames;
+        if(queryScheduler->getDb()->supportsGlobalPerformanceViews()){
+            viewNames = "GV$SESSION, GV$MYSTAT";
+        }else{
+            viewNames = "V$SESSION, V$MYSTAT";
+        }
+        errorMessage = tr("You must have SELECT access on following views: %1").arg(viewNames);
+    }else{
+        errorMessage = ex.getErrorMessage();
+    }
+
+    QStandardItem *errorItem = new QStandardItem(errorMessage);
+    errorItem->setIcon(IconUtil::getIcon("error"));
+    treeModel->clear();
+    treeModel->setHorizontalHeaderLabels(QStringList() << tr("Error"));
+    treeModel->appendRow(errorItem);
+    proxyModel->setDynamicSortFilter(true);
 }

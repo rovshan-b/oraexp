@@ -1,22 +1,32 @@
 #include "dynamicconnectionpagewindow.h"
 #include "codeeditor/codeeditor.h"
 #include "widgets/subtabwidget.h"
+#include "widgets/radiobuttongroup.h"
 #include "util/dialoghelper.h"
 #include "util/iconutil.h"
 #include "util/filesystemutil.h"
+#include "util/codeeditorutil.h"
 #include "connectivity/statement.h"
 #include <QtGui>
 
 DynamicConnectionPageWindow::DynamicConnectionPageWindow(DbUiManager *uiManager, QWidget *parent) :
-    ConnectionPageWindow(uiManager, parent)
+    ConnectionPageWindow(uiManager, parent), windowInfo(0)
 {
+    connect(&sequentialRunner, SIGNAL(beforeExecute(QString,int,int)), this, SLOT(beforeExecute(QString,int,int)));
+    connect(&sequentialRunner, SIGNAL(queryResultAvailable(QueryResult)), this, SLOT(queryResultAvailable(QueryResult)));
+    connect(&sequentialRunner, SIGNAL(completed(bool)), this, SLOT(completed(bool)));
+}
+
+DynamicConnectionPageWindow::~DynamicConnectionPageWindow()
+{
+    delete windowInfo;
 }
 
 void DynamicConnectionPageWindow::createUi()
 {
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
-    QLabel *captionLabel = new QLabel(QString("<h3>%1</h3>").arg(windowInfo.caption));
+    QLabel *captionLabel = new QLabel(QString("<h3>%1</h3>").arg(windowInfo->caption));
     mainLayout->addWidget(captionLabel);
 
     QTabWidget *tab = new SubTabWidget();
@@ -57,42 +67,51 @@ void DynamicConnectionPageWindow::setConnection(DbConnection *db)
     ConnectionPageWindow::setConnection(db);
 
     QString prefix = ":/scripts/";
-    QString script = FileSystemUtil::readTextResource(prefix, windowInfo.scriptFileName, "js", db);
+    QString script = FileSystemUtil::readTextResource(prefix, windowInfo->scriptFileName, "js", db);
     if(scriptRunner.checkSyntax(script)){
-        scriptRunner.evaluate(script, windowInfo.scriptFileName);
+        scriptRunner.evaluate(script, windowInfo->scriptFileName);
         registerScriptVariables();
         updateQueryPane();
     }
+
+    sequentialRunner.setQueryScheduler(this);
 
     emitInitCompletedSignal();
 }
 
 void DynamicConnectionPageWindow::createForm(QFormLayout *form)
 {
-    const QList< QHash<QString,QString> > &widgetInfos = windowInfo.widgetInfos;
+    const QList<DynamicWidgetInfo*> &widgetInfos = windowInfo->widgetInfos;
 
     const QMetaObject &mo = DynamicConnectionPageWindow::staticMetaObject;
     int enumIx = mo.indexOfEnumerator("WidgetType");
     QMetaEnum metaEnum = mo.enumerator(enumIx);
 
     for(int i=0; i<widgetInfos.size(); ++i){
-        QHash<QString,QString> attributes = widgetInfos.at(i);
+        DynamicWidgetInfo *widgetInfo = widgetInfos.at(i);
+        QHash<QString,QString> attributes = widgetInfo->attributes;
         int widgetType = metaEnum.keyToValue(attributes["type"].toStdString().c_str());
         Q_ASSERT(widgetType != -1);
-        QWidget *dynamicWidget = createDynamicWidget((WidgetType) widgetType, attributes);
-        form->addRow(attributes.value("caption"), dynamicWidget);
+        QWidget *dynamicWidget = createDynamicWidget((WidgetType) widgetType, widgetInfo);
+        QString caption = attributes.value("caption");
+        if(caption.isEmpty()){
+            form->addRow(dynamicWidget);
+            form->setAlignment(dynamicWidget, Qt::AlignCenter);
+        }else{
+            form->addRow(caption, dynamicWidget);
+        }
         scriptRunner.setProperty(dynamicWidget->objectName(), dynamicWidget);
     }
 }
 
-void DynamicConnectionPageWindow::setWindowInfo(const DynamicWindowInfo &windowInfo)
+void DynamicConnectionPageWindow::setWindowInfo(DynamicWindowInfo *windowInfo)
 {
     this->windowInfo = windowInfo;
 }
 
 DynamicWindowInfo *DynamicConnectionPageWindow::getWindowInfo()
 {
-    return &this->windowInfo;
+    return this->windowInfo;
 }
 
 void DynamicConnectionPageWindow::setActionProperties(const QHash<QString, QString> &properties)
@@ -107,6 +126,7 @@ void DynamicConnectionPageWindow::tabIndexChanged(int index)
     }
 }
 
+/*
 void DynamicConnectionPageWindow::queryCompleted(const QueryResult &result)
 {
     delete result.statement;
@@ -119,7 +139,7 @@ void DynamicConnectionPageWindow::queryCompleted(const QueryResult &result)
     }else{
         QDialog::accept();
     }
-}
+}*/
 
 void DynamicConnectionPageWindow::setInProgress(bool inProgress)
 {
@@ -135,17 +155,41 @@ void DynamicConnectionPageWindow::accept()
 
     updateQueryPane();
 
-    this->enqueueQuery(QString("$%1").arg(editor->toPlainText()),
+    sequentialRunner.execute(editor->toPlainText(), this->window());
+
+    /*this->enqueueQuery(QString("$%1").arg(editor->toPlainText()),
                        QList<Param*>(),
                        this,
                        "execute_dynamic_query",
-                       "queryCompleted");
+                       "queryCompleted");*/
 }
 
-QWidget *DynamicConnectionPageWindow::createDynamicWidget(WidgetType widgetType, const QHash<QString, QString> &attributes) const
+void DynamicConnectionPageWindow::beforeExecute(const QString &query, int startPos, int endPos)
+{
+    Q_UNUSED(query);
+    Q_UNUSED(endPos);
+
+    CodeEditorUtil::markPosition(editor, startPos);
+}
+
+void DynamicConnectionPageWindow::queryResultAvailable(const QueryResult &result)
+{
+    delete result.statement;
+}
+
+void DynamicConnectionPageWindow::completed(bool success)
+{
+    setInProgress(false);
+
+    if(success){
+        QDialog::accept();
+    }
+}
+
+QWidget *DynamicConnectionPageWindow::createDynamicWidget(WidgetType widgetType, DynamicWidgetInfo *widgetInfo) const
 {
     QWidget *widget = 0;
-    QString value = getValue(attributes.value("value"));
+    QString value = getValue(widgetInfo->attributes.value("value"));
 
     switch(widgetType){
     case Label:
@@ -164,13 +208,48 @@ QWidget *DynamicConnectionPageWindow::createDynamicWidget(WidgetType widgetType,
         widget = checkBox;
         break;
     }
+    case ComboBox:
+    {
+        QComboBox *comboBox = new QComboBox();
+        QDomNodeList childNodes = widgetInfo->childNodes;
+        for(int i=0; i<childNodes.size(); ++i){
+            QDomNode e = childNodes.at(i);
+            Q_ASSERT(e.nodeName() == "option");
+            comboBox->addItem(e.attributes().namedItem("text").toAttr().value());
+        }
+        if(!value.isEmpty()){
+            comboBox->setCurrentIndex(value.toInt());
+        }
+
+        widget = comboBox;
+        break;
+    }
+    case RadioButton:
+    {
+        RadioButtonGroup *radioButtonGroup = new RadioButtonGroup(widgetInfo->attributes.value("caption").isEmpty() ? Qt::Horizontal : Qt::Vertical);
+        QDomNodeList childNodes = widgetInfo->childNodes;
+        for(int i=0; i<childNodes.size(); ++i){
+            QDomNode e = childNodes.at(i);
+            Q_ASSERT(e.nodeName() == "option");
+            QString text = e.attributes().namedItem("text").toAttr().value();
+            QRadioButton *radio = new QRadioButton(text);
+            radioButtonGroup->addRadioButton(radio);
+        }
+
+        if(!value.isEmpty()){
+            radioButtonGroup->checkRadio(value.toInt());
+        }
+
+        widget = radioButtonGroup;
+        break;
+    }
     default:
         Q_ASSERT(false);
         return 0;
         break;
     }
 
-    QString widgetName = attributes.value("name");
+    QString widgetName = widgetInfo->attributes.value("name");
     widget->setObjectName(widgetName);
 
     return widget;

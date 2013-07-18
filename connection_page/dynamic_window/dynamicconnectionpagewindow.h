@@ -5,6 +5,7 @@
 #include "beans/dynamicwindowinfo.h"
 #include "scripting/scriptrunner.h"
 #include "connectivity/queryresult.h"
+#include "connectivity/sequentialqueryrunner.h"
 
 class QFormLayout;
 class CodeEditor;
@@ -18,16 +19,19 @@ public:
     enum WidgetType
     {
         Label,
-        CheckBox
+        CheckBox,
+        ComboBox,
+        RadioButton
     };
 
     explicit DynamicConnectionPageWindow(DbUiManager *uiManager, QWidget *parent = 0);
+    virtual ~DynamicConnectionPageWindow();
 
     virtual void createUi();
 
     virtual void setConnection(DbConnection *db);
 
-    void setWindowInfo(const DynamicWindowInfo &windowInfo);
+    void setWindowInfo(DynamicWindowInfo *windowInfo);
     DynamicWindowInfo *getWindowInfo();
 
     void setActionProperties(const QHash<QString, QString> &properties);
@@ -35,14 +39,18 @@ public:
 private slots:
     void tabIndexChanged(int index);
 
-    void queryCompleted(const QueryResult &result);
+    //void queryCompleted(const QueryResult &result);
+
+    void beforeExecute(const QString &query, int startPos, int endPos);
+    void queryResultAvailable(const QueryResult &result);
+    void completed(bool success);
 
 protected:
     virtual void setInProgress(bool inProgress);
     virtual void accept();
     
 private:
-    DynamicWindowInfo windowInfo;
+    DynamicWindowInfo *windowInfo;
     QHash<QString, QString> actionProperties;
 
     QWidget *formWidget;
@@ -50,11 +58,13 @@ private:
     QDialogButtonBox *buttonBox;
 
     void createForm(QFormLayout *form);
-    QWidget *createDynamicWidget(WidgetType widgetType, const QHash<QString,QString> &attributes) const;
+    QWidget *createDynamicWidget(WidgetType widgetType, DynamicWidgetInfo *widgetInfo) const;
 
     QString getValue(const QString &attrValue) const;
 
     ScriptRunner scriptRunner;
+
+    SequentialQueryRunner sequentialRunner;
 
     void registerScriptVariables();
     void updateQueryPane();

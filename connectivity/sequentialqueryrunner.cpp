@@ -10,7 +10,6 @@ SequentialQueryRunner::SequentialQueryRunner(QObject *parent) :
     lastErrorAction(SequantialExecutionErrorDialog::IgnoreCurrent),
     busy(false)
 {
-
 }
 
 void SequentialQueryRunner::setQueryScheduler(IQueryScheduler *queryScheduler)
@@ -58,7 +57,7 @@ void SequentialQueryRunner::stop()
 void SequentialQueryRunner::executeNextQuery()
 {
     if(queries.isEmpty() || stopped){
-        emitCompletedSignal();
+        emitCompletedSignal(true);
         return;
     }
 
@@ -75,9 +74,9 @@ void SequentialQueryRunner::executeNextQuery()
                                  "queryCompleted");
 }
 
-void SequentialQueryRunner::emitCompletedSignal()
+void SequentialQueryRunner::emitCompletedSignal(bool success)
 {
-    emit completed();
+    emit completed(success);
 
     queries.clear();
     queryPositions.clear();
@@ -97,7 +96,7 @@ void SequentialQueryRunner::queryCompleted(const QueryResult &result)
         dialog.setErrorAction(lastErrorAction);
 
         if(!dialog.exec()){ //dialog was closed by pressing close button or by pressing Escape key
-            emitCompletedSignal();
+            emitCompletedSignal(false);
             return;
         }
 
@@ -113,7 +112,7 @@ void SequentialQueryRunner::queryCompleted(const QueryResult &result)
             errorCodesToIgnore.append(result.exception.getErrorCode());
             break;
         case SequantialExecutionErrorDialog::Abort:
-            emitCompletedSignal();
+            emitCompletedSignal(false);
             return;
             break;
         default: //unhandled case

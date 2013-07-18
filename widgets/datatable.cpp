@@ -5,11 +5,13 @@
 #include "util/queryexectask.h"
 #include "util/dbutil.h"
 #include "util/widgethelper.h"
+#include "util/iconutil.h"
 #include "connectivity/dbconnection.h"
 #include "connectivity/statement.h"
 #include "interfaces/iqueryscheduler.h"
 #include "context_menu/contextmenuutil.h"
 #include "defines.h"
+#include "errors.h"
 #include <QtGui>
 
 DataTable::DataTable(QWidget *parent) :
@@ -180,13 +182,15 @@ void DataTable::deleteCurrentModel()
     WidgetHelper::deleteViewModel(this);
 }
 
-void DataTable::displayMessage(const QString &message)
+void DataTable::displayMessage(const QString &prefix, const OciException &ex)
 {
     deleteCurrentModel();
 
     QStandardItemModel *errModel=new QStandardItemModel(this);
     errModel->setHorizontalHeaderLabels(QStringList() << tr("Error"));
-    QStandardItem *errItem=new QStandardItem(message);
+
+    QStandardItem *errItem=new QStandardItem(QString("%1 - %2").arg(prefix, ex.getErrorMessage()));
+    errItem->setIcon(IconUtil::getIcon("error"));
     errModel->appendRow(errItem);
 
     setModel(errModel);
@@ -202,7 +206,7 @@ void DataTable::setMaxColumnWidth(int maxColumnWidth)
 void DataTable::displayError(const QString &prefix, const OciException &ex)
 {
     if(quietMode){
-        displayMessage(QString("%1 : %2").arg(prefix, ex.getErrorMessage()));
+        displayMessage(prefix, ex);
     }else{
         QMessageBox::critical(this->window(), prefix, ex.getErrorMessage());
     }

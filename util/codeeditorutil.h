@@ -9,6 +9,8 @@ class CodeEditorUtil
 public:
     static void highlightEditorError(CodeEditor *editor, int errorPos, const OciException &ex, bool append=false);
 
+    static void markPosition(CodeEditor *editor, int pos);
+
 private:
     CodeEditorUtil();
 };

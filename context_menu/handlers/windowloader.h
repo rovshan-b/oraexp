@@ -17,8 +17,8 @@ public:
 
 private:
     DynamicConnectionPageWindow *createDynamicWindow(const QHash<QString,QString> &properties);
-    DynamicWindowInfo readWindowInfo(const QString windowName);
-    void readWidgetList(DynamicWindowInfo &windowInfo, const QDomNodeList &widgetNodes);
+    DynamicWindowInfo *readWindowInfo(const QString windowName);
+    void readWidgetList(DynamicWindowInfo *windowInfo, const QDomNodeList &widgetNodes);
 
     
 };

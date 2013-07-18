@@ -3,6 +3,7 @@
 #include "util/filesystemutil.h"
 #include "util/iconutil.h"
 #include "util/dbutil.h"
+#include "beans/dynamicwidgetinfo.h"
 #include <QDomDocument>
 
 WindowLoader::WindowLoader() :
@@ -32,7 +33,7 @@ DynamicConnectionPageWindow *WindowLoader::createDynamicWindow(const QHash<QStri
     QString windowName = properties.value("attribute.windowName");
     Q_ASSERT(!windowName.isEmpty());
 
-    DynamicWindowInfo windowInfo = readWindowInfo(windowName);
+    DynamicWindowInfo *windowInfo = readWindowInfo(windowName);
 
     DynamicConnectionPageWindow *window = new DynamicConnectionPageWindow(this->uiManager);
     window->setWindowInfo(windowInfo);
@@ -41,9 +42,9 @@ DynamicConnectionPageWindow *WindowLoader::createDynamicWindow(const QHash<QStri
     return window;
 }
 
-DynamicWindowInfo WindowLoader::readWindowInfo(const QString windowName)
+DynamicWindowInfo *WindowLoader::readWindowInfo(const QString windowName)
 {
-    DynamicWindowInfo info;
+    DynamicWindowInfo *info = new DynamicWindowInfo();
 
     QString fileName = QString(":/dynamic_windows/%1.xml").arg(windowName);
 
@@ -59,10 +60,10 @@ DynamicWindowInfo WindowLoader::readWindowInfo(const QString windowName)
 
     QDomElement docElem = doc.documentElement();
 
-    info.caption = docElem.attribute("caption");
-    info.icon = docElem.attribute("icon");
-    info.type = docElem.attribute("type");
-    info.scriptFileName = docElem.attribute("scriptFileName");
+    info->caption = docElem.attribute("caption");
+    info->icon = docElem.attribute("icon");
+    info->type = docElem.attribute("type");
+    info->scriptFileName = docElem.attribute("scriptFileName");
 
     QDomNode n = docElem.firstChild();
     while(!n.isNull()) {
@@ -79,7 +80,7 @@ DynamicWindowInfo WindowLoader::readWindowInfo(const QString windowName)
     return info;
 }
 
-void WindowLoader::readWidgetList(DynamicWindowInfo &windowInfo, const QDomNodeList &widgetNodes)
+void WindowLoader::readWidgetList(DynamicWindowInfo *windowInfo, const QDomNodeList &widgetNodes)
 {
     for(int i=0; i<widgetNodes.size(); ++i){
         QDomNode n = widgetNodes.at(i);
@@ -93,6 +94,10 @@ void WindowLoader::readWidgetList(DynamicWindowInfo &windowInfo, const QDomNodeL
             widgetAttributes[attribute.name()] = attribute.value();
         }
 
-        windowInfo.widgetInfos.append(widgetAttributes);
+        DynamicWidgetInfo *widgetInfo = new DynamicWidgetInfo();
+        widgetInfo->attributes = widgetAttributes;
+        widgetInfo->childNodes = e.childNodes();
+
+        windowInfo->widgetInfos.append(widgetInfo);
     }
 }

@@ -7,5 +7,8 @@
         <file>scripts/func_drop_object.js</file>
         <file>scripts/generate_drop_index.js</file>
         <file>scripts/generate_kill_sessions.js</file>
+        <file>scripts/func_kill_disconnect_sessions.js</file>
+        <file>scripts/generate_disconnect_sessions.js</file>
+        <file>scripts/generate_start_stop_trace.js</file>
     </qresource>
 </RCC>

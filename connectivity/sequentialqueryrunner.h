@@ -27,7 +27,7 @@ public:
 signals:
     void beforeExecute(const QString &query, int startPos, int endPos);
     void queryResultAvailable(const QueryResult &result);
-    void completed();
+    void completed(bool success);
 
 private slots:
     void queryCompleted(const QueryResult &result);
@@ -51,7 +51,7 @@ private:
 
     void executeNextQuery();
 
-    void emitCompletedSignal();
+    void emitCompletedSignal(bool success);
     
 };
 

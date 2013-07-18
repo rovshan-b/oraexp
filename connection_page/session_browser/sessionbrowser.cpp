@@ -16,7 +16,6 @@
 SessionBrowser::SessionBrowser(DbUiManager *uiManager, QWidget *parent) :
     ConnectionPageTab(uiManager, parent)
 {
-    this->requiresSeparateConnection = true;
 }
 
 void SessionBrowser::createUi()

@@ -3,5 +3,5 @@
     <item caption="Kill" handler="WindowLoader" windowName="KillSessions" />
     <item caption="Disconnect" handler="WindowLoader" windowName="DisconnectSessions" />
     <item caption="-" />
-    <item caption="Start/Stop trace" handler="WindowLoader" windowName="StartStopSessionTrace" />
+    <item caption="Start/Stop SQL trace" handler="WindowLoader" windowName="StartStopSessionTrace" />
 </items>

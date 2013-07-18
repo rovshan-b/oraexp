@@ -1,11 +1,11 @@
 #include "ondemandinfoviewerwidget.h"
-#include <QMessageBox>
+#include <QTimer>
 
 #include <iostream>
 using namespace std;
 
 OnDemandInfoViewerWidget::OnDemandInfoViewerWidget(QWidget *parent) :
-    QWidget(parent), infoLoaded(false), infoLoading(false)
+    QWidget(parent), infoLoaded(false), infoLoading(false), needsRefresh(false)
 {
 
 }
@@ -38,6 +38,7 @@ void OnDemandInfoViewerWidget::doLoadInfo()
 
     infoLoaded=true;
     infoLoading=true;
+    needsRefresh = false;
 }
 
 void OnDemandInfoViewerWidget::clearInfo()
@@ -55,4 +56,10 @@ void OnDemandInfoViewerWidget::setLoadingComplete()
     infoLoading=false;
 
     emit afterLoadInfo();
+
+    if(needsRefresh){
+        needsRefresh = false;
+
+        QTimer::singleShot(0, this, SLOT(refreshInfo()));
+    }
 }

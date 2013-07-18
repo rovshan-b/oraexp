@@ -81,7 +81,7 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
 
     connect(&sequentialRunner, SIGNAL(beforeExecute(QString,int,int)), this, SLOT(beforeExecuteSequentialQuery(QString,int,int)));
     connect(&sequentialRunner, SIGNAL(queryResultAvailable(QueryResult)), this, SLOT(sequentialQueryCompleted(QueryResult)));
-    connect(&sequentialRunner, SIGNAL(completed()), this, SLOT(sequentialExecutionCompleted()));
+    connect(&sequentialRunner, SIGNAL(completed(bool)), this, SLOT(sequentialExecutionCompleted()));
 
     connect(multiEditor->getCurrentEditor()->editor()->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
 }
@@ -208,11 +208,7 @@ void WorksheetQueryPane::beforeExecuteSequentialQuery(const QString &query, int 
     this->currentQuery = query;
 
     CodeEditor *editor = currentEditor()->editor();
-    QTextCursor cur = editor->textCursor();
-    cur.setPosition(sequentialRunnerStartPos+startPos);
-    editor->setMarkedLine(cur.blockNumber());
-    editor->setTextCursor(cur);
-    editor->centerCursor();
+    CodeEditorUtil::markPosition(editor, sequentialRunnerStartPos+startPos);
 }
 
 void WorksheetQueryPane::sequentialQueryCompleted(const QueryResult &result)

@@ -17,7 +17,6 @@ GenericQueryViewerWidget::GenericQueryViewerWidget(const QString &queryName, DbU
     schemaNameCol(-1),
     objectNameCol(-1),
     objectTypeCol(-1),
-    needsRefresh(false),
     maxColumnWidth(0)
 {
 }
@@ -46,7 +45,6 @@ void GenericQueryViewerWidget::doLoadInfo()
     }
     OnDemandInfoViewerWidget::doLoadInfo();
 
-    this->needsRefresh = false;
     loadData();
 }
 
@@ -75,12 +73,6 @@ void GenericQueryViewerWidget::setDynamicQuery(int colNum, StatementDesc *stmtDe
 void GenericQueryViewerWidget::queryCompleted()
 {
     setLoadingComplete();
-
-    if(this->needsRefresh){
-        this->needsRefresh = false;
-
-        QTimer::singleShot(0, this, SLOT(refreshInfo()));
-    }
 }
 
 void GenericQueryViewerWidget::createMainWidget(QLayout *layout)
@@ -136,11 +128,6 @@ void GenericQueryViewerWidget::setObjectListMode(int schemaNameCol, int objectNa
     this->objectTypeCol=objectTypeCol;
     this->objectListSchemaName=objectListSchemaName;
     this->objectListObjectType=objectListObjectType;
-}
-
-void GenericQueryViewerWidget::setNeedsRefresh()
-{
-    this->needsRefresh = true;
 }
 
 void GenericQueryViewerWidget::setMaxColumnWidth(int maxColumnWidth)

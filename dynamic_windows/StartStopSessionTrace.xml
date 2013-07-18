@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window caption="Kill sessions" type="script" scriptFileName="generate_start_stop_trace">
+    <widgets>
+        <widget name="actionRadio" type="RadioButton" value="0">
+            <option text="Start" />
+            <option text="Stop" />
+        </widget>
+    </widgets>
+</window>

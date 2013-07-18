@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window caption="Kill sessions" type="script" scriptFileName="generate_disconnect_sessions">
+    <widgets>
+        <widget name="modeRadio" type="RadioButton" value="0">
+            <option text="Post transaction" />
+            <option text="Immediate" />
+        </widget>
+    </widgets>
+</window>

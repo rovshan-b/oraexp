@@ -96,3 +96,12 @@ void CodeEditorUtil::highlightEditorError(CodeEditor *editor, int errorPos, cons
 
     append ? editor->addErrorPosition(errorPositionCursor) : editor->setErrorPosition(errorPositionCursor);
 }
+
+void CodeEditorUtil::markPosition(CodeEditor *editor, int pos)
+{
+    QTextCursor cur = editor->textCursor();
+    cur.setPosition(pos);
+    editor->setMarkedLine(cur.blockNumber());
+    editor->setTextCursor(cur);
+    editor->centerCursor();
+}

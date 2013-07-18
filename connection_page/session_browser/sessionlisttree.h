@@ -85,6 +85,8 @@ private:
 
     void getSelectedSessions(const QModelIndex &parent, QStringList &list, bool check = true) const;
 
+    void displayErrorMessage(const OciException &ex);
+
     /*
     int instIdColumn() const;
     int sidColumn() const;

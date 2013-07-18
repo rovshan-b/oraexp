@@ -46,7 +46,7 @@ public:
 
     void getSelectedRange(int *startRow, int *startColumn, int *endRow, int *endColumn);
 
-    void displayMessage(const QString &message);
+    void displayMessage(const QString &prefix, const OciException &ex);
 
     void setMaxColumnWidth(int maxColumnWidth);
 
