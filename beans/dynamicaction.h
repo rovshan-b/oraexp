@@ -2,6 +2,7 @@
 #define DYNAMICACTION_H
 
 #include <QAction>
+#include <QPointer>
 
 class DbUiManager;
 
@@ -18,6 +19,8 @@ public:
     virtual ~DynamicAction() {}
     
     QHash<QString,QString> properties;
+
+    QPointer<QObject> resultListener;
     
     void execute(DbUiManager *uiManager);
 

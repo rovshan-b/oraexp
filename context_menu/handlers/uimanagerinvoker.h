@@ -8,7 +8,7 @@ class UiManagerInvoker : public ContextMenuHandler
 public:
     UiManagerInvoker();
 
-    virtual void handle(const QHash<QString,QString> &properties);
+    virtual void handle(QObject *resultListener, const QHash<QString,QString> &properties);
 };
 
 #endif // UIMANAGERINVOKER_H

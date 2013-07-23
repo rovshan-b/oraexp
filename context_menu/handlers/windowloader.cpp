@@ -11,9 +11,9 @@ WindowLoader::WindowLoader() :
 {
 }
 
-void WindowLoader::handle(const QHash<QString, QString> &properties)
+void WindowLoader::handle(QObject *resultListener, const QHash<QString, QString> &properties)
 {
-    DynamicConnectionPageWindow *window = createDynamicWindow(properties);
+    DynamicConnectionPageWindow *window = createDynamicWindow(resultListener, properties);
     QString itemType = properties.value("objectType");
 
     QPixmap windowIcon;
@@ -28,7 +28,7 @@ void WindowLoader::handle(const QHash<QString, QString> &properties)
     uiManager->addWindow(window, windowIcon, window->getWindowInfo()->caption);
 }
 
-DynamicConnectionPageWindow *WindowLoader::createDynamicWindow(const QHash<QString, QString> &properties)
+DynamicConnectionPageWindow *WindowLoader::createDynamicWindow(QObject *resultListener, const QHash<QString, QString> &properties)
 {
     QString windowName = properties.value("attribute.windowName");
     Q_ASSERT(!windowName.isEmpty());
@@ -37,6 +37,7 @@ DynamicConnectionPageWindow *WindowLoader::createDynamicWindow(const QHash<QStri
 
     DynamicConnectionPageWindow *window = new DynamicConnectionPageWindow(this->uiManager);
     window->setWindowInfo(windowInfo);
+    window->setResultListener(resultListener);
     window->setActionProperties(properties);
 
     return window;

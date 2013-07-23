@@ -114,6 +114,11 @@ DynamicWindowInfo *DynamicConnectionPageWindow::getWindowInfo()
     return this->windowInfo;
 }
 
+void DynamicConnectionPageWindow::setResultListener(QObject *resultListener)
+{
+    this->resultListener = resultListener;
+}
+
 void DynamicConnectionPageWindow::setActionProperties(const QHash<QString, QString> &properties)
 {
     this->actionProperties = properties;
@@ -182,6 +187,11 @@ void DynamicConnectionPageWindow::completed(bool success)
     setInProgress(false);
 
     if(success){
+
+        if(resultListener){
+            QMetaObject::invokeMethod(resultListener, "actionSucceeded");
+        }
+
         QDialog::accept();
     }
 }

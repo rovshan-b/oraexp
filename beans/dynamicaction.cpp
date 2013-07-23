@@ -29,7 +29,7 @@ void DynamicAction::execute(DbUiManager *uiManager)
 
     setProperties();
 
-    contextMenuHandler->handle(properties);
+    contextMenuHandler->handle(resultListener, properties);
 
     QMetaType::destroy(handlerTypeId, handlerInstance);
 }

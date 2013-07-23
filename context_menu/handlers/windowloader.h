@@ -13,10 +13,10 @@ public:
     explicit WindowLoader();
     virtual ~WindowLoader(){}
     
-    virtual void handle(const QHash<QString,QString> &properties);
+    virtual void handle(QObject *resultListener, const QHash<QString,QString> &properties);
 
 private:
-    DynamicConnectionPageWindow *createDynamicWindow(const QHash<QString,QString> &properties);
+    DynamicConnectionPageWindow *createDynamicWindow(QObject *resultListener, const QHash<QString, QString> &properties);
     DynamicWindowInfo *readWindowInfo(const QString windowName);
     void readWidgetList(DynamicWindowInfo *windowInfo, const QDomNodeList &widgetNodes);
 

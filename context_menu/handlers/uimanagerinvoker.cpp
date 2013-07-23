@@ -5,7 +5,7 @@ UiManagerInvoker::UiManagerInvoker()
 {
 }
 
-void UiManagerInvoker::handle(const QHash<QString, QString> &properties)
+void UiManagerInvoker::handle(QObject *resultListener, const QHash<QString, QString> &properties)
 {
     QList<QGenericArgument> arguments;
     QList<QString*> allocatedStrings;

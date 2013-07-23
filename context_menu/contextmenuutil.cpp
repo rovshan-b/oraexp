@@ -99,6 +99,7 @@ QList<QAction *> ContextMenuUtil::getActionsForObject(const QString &schemaName,
 
 QList<QAction *> ContextMenuUtil::getActionsFromFile(const QString &baseName,
                                                      DbUiManager *uiManager,
+                                                     QObject *resultListener,
                                                      const QHash<QString, QString> &properties)
 {
     QDomElement docElem;
@@ -108,7 +109,7 @@ QList<QAction *> ContextMenuUtil::getActionsFromFile(const QString &baseName,
 
     DynamicActionCreator actionCreator(uiManager, properties);
 
-    return ContextMenuUtil::actionsFromElement(docElem, &actionCreator, 0);
+    return ContextMenuUtil::actionsFromElement(docElem, &actionCreator, 0, resultListener);
 }
 
 bool ContextMenuUtil::readFromFile(const QString &baseName, QDomElement &rootElement)
@@ -150,10 +151,10 @@ QList<QAction *> ContextMenuUtil::getActionsForObjectFromConfiguration(const QSt
 
     DbItemDynamicActionCreator actionCreator(schemaName, objectName, parentObjectName, itemType, uiManager);
 
-    return ContextMenuUtil::actionsFromElement(docElem, &actionCreator, 0);
+    return ContextMenuUtil::actionsFromElement(docElem, &actionCreator, 0, 0);
 }
 
-QList<QAction *> ContextMenuUtil::actionsFromElement(const QDomElement &element, ContextMenuActionCreator *actionCreator, QObject *parent)
+QList<QAction *> ContextMenuUtil::actionsFromElement(const QDomElement &element, ContextMenuActionCreator *actionCreator, QObject *parent, QObject *resultListener)
 {
     QList<QAction *> results;
 
@@ -161,7 +162,7 @@ QList<QAction *> ContextMenuUtil::actionsFromElement(const QDomElement &element,
     while(!n.isNull()) {
         QDomElement e = n.toElement();
         if(!e.isNull() && e.tagName() == "item") {
-            results.append(ContextMenuUtil::actionFromElement(e, actionCreator, parent));
+            results.append(ContextMenuUtil::actionFromElement(e, actionCreator, parent, resultListener));
         }
         n = n.nextSibling();
     }
@@ -169,14 +170,14 @@ QList<QAction *> ContextMenuUtil::actionsFromElement(const QDomElement &element,
     return results;
 }
 
-QAction *ContextMenuUtil::actionFromElement(const QDomElement &e, ContextMenuActionCreator *actionCreator, QObject *parent)
+QAction *ContextMenuUtil::actionFromElement(const QDomElement &e, ContextMenuActionCreator *actionCreator, QObject *parent, QObject *resultListener)
 {
     QString caption = e.attribute("caption");
 
     if(e.hasChildNodes()){
         QAction *action = new QAction(caption, parent);
         QMenu *actionMenu = new QMenu(caption);
-        actionMenu->addActions(ContextMenuUtil::actionsFromElement(e, actionCreator, actionMenu));
+        actionMenu->addActions(ContextMenuUtil::actionsFromElement(e, actionCreator, actionMenu, resultListener));
         action->setMenu(actionMenu);
         return action;
     }else{
@@ -185,6 +186,7 @@ QAction *ContextMenuUtil::actionFromElement(const QDomElement &e, ContextMenuAct
             return WidgetHelper::createSeparatorAction(parent);
         }else{
             DynamicAction *action = actionCreator->create(IconUtil::getIcon(e.attribute("icon")), caption, parent);
+            action->resultListener = resultListener;
 
             QDomNamedNodeMap attributes = e.attributes();
             for(int i=0; i<attributes.size(); ++i){

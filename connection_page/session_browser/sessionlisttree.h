@@ -47,6 +47,8 @@ private slots:
 
     void selectionChanged(const QModelIndex & current, const QModelIndex & previous);
     void showContextMenu(const QPoint & pos);
+
+    void actionSucceeded();
 private:
     DbUiManager *uiManager;
     IQueryScheduler *queryScheduler;

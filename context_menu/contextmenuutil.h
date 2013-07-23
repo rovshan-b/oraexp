@@ -20,6 +20,7 @@ public:
 
     static QList<QAction*> getActionsFromFile(const QString &baseName,
                                               DbUiManager *uiManager,
+                                              QObject *resultListener,
                                               const QHash<QString, QString> &properties = QHash<QString,QString>());
 
 private:
@@ -29,8 +30,8 @@ private:
                                                const QString &objectName,
                                                const QString &parentObjectName,
                                                const DbTreeModel::DbTreeNodeType itemType, DbUiManager *uiManager);
-    static QList<QAction *> actionsFromElement(const QDomElement &element, ContextMenuActionCreator *actionCreator, QObject *parent);
-    static QAction *actionFromElement(const QDomElement &e, ContextMenuActionCreator *actionCreator, QObject *parent);
+    static QList<QAction *> actionsFromElement(const QDomElement &element, ContextMenuActionCreator *actionCreator, QObject *parent, QObject *resultListener);
+    static QAction *actionFromElement(const QDomElement &e, ContextMenuActionCreator *actionCreator, QObject *parent, QObject *resultListener);
 };
 
 #endif // CONTEXTMENUUTIL_H

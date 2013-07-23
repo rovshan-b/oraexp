@@ -34,6 +34,7 @@ public:
     void setWindowInfo(DynamicWindowInfo *windowInfo);
     DynamicWindowInfo *getWindowInfo();
 
+    void setResultListener(QObject *resultListener);
     void setActionProperties(const QHash<QString, QString> &properties);
 
 private slots:
@@ -51,6 +52,7 @@ protected:
     
 private:
     DynamicWindowInfo *windowInfo;
+    QPointer<QObject> resultListener;
     QHash<QString, QString> actionProperties;
 
     QWidget *formWidget;

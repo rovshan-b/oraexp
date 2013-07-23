@@ -432,12 +432,18 @@ void SessionListTree::showContextMenu(const QPoint &pos)
     QHash<QString,QString> actionProperties;
     actionProperties["var:g_sessionList"] = selectedSessions.join(";");
 
-    QList<QAction*> actions = ContextMenuUtil::getActionsFromFile("SessionBrowser", uiManager, actionProperties);
+    QList<QAction*> actions = ContextMenuUtil::getActionsFromFile("SessionBrowser", uiManager, this, actionProperties);
     QMenu *contextMenu = new QMenu();
     contextMenu->addActions(actions);
 
     contextMenu->exec(treeView->viewport()->mapToGlobal(pos));
     WidgetHelper::deleteMenu(contextMenu);
+}
+
+void SessionListTree::actionSucceeded()
+{
+    setNeedsRefresh();
+    refreshInfo();
 }
 
 void SessionListTree::runQuery()

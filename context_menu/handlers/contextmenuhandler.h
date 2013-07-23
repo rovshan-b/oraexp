@@ -11,7 +11,7 @@ public:
     explicit ContextMenuHandler();
     virtual ~ContextMenuHandler(){}
     
-    virtual void handle(const QHash<QString,QString> &properties) = 0;
+    virtual void handle(QObject *resultListener, const QHash<QString,QString> &properties) = 0;
 
     void setUiManager(DbUiManager *uiManager){this->uiManager = uiManager;}
 
