@@ -1,337 +1,157 @@
 #include "connectionpage.h"
-#include "connectionpagetab.h"
-#include "connectivity/dbconnection.h"
-#include "info_panel/infopanel.h"
-#include "navtree/treepane.h"
-#include  "dbuimanager.h"
-#include "util/iconutil.h"
-#include "util/settingshelper.h"
-#include "util/dialoghelper.h"
-#include "beans/ctrltabdata.h"
-#include "connectionpagewindowobject.h"
-#include <iostream>
+#include "connectionpageconnectwidget.h"
+#include "connectionpageconnectedwidget.h"
 #include <QtGui>
 
-using namespace std;
-
-QByteArray ConnectionPage::currentState;
-
-ConnectionPage::ConnectionPage(DbConnection *db, QWidget *parent) :
-    QMainWindow(parent), uiManager(db, this)
+ConnectionPage::ConnectionPage(QWidget *parent) :
+    QWidget(parent),
+    mainWidget(0),
+    uiManager(this)
 {
-    this->db=db;
+    QVBoxLayout *mainLayout = new QVBoxLayout();
 
-    //setWindowFlags(Qt::Widget);
+    connectWidget = new ConnectionPageConnectWidget();
+    mainLayout->addWidget(connectWidget);
 
-    setDockNestingEnabled(true);
-
-    treeDock=new QDockWidget(tr("Database objects"), this);
-    treeDock->setObjectName("TreeViewDock");
-    treeDock->setAllowedAreas(Qt::LeftDockWidgetArea |
-                              Qt::RightDockWidgetArea);
-    treeDock->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable);
-
-    treePane=new TreePane(&uiManager, treeDock);
-    treePane->setConnection(db);
-
-    treeDock->setWidget(treePane);
-    addDockWidget(Qt::LeftDockWidgetArea, treeDock);
-
-    centralTab=new ConnectionPageTabWidget();
-    centralTab->setTabsClosable(true);
-    centralTab->setDocumentMode(true);
-    centralTab->setMovable(true);
-
-    setCentralWidget(centralTab);
-    //QSplitter *splitter=new QSplitter(Qt::Horizontal);
-    //splitter->addWidget(treePane);
-    //splitter->addWidget(centralTab);
-    //splitter->setStretchFactor(1, 2);
-
-    //QHBoxLayout *layout=new QHBoxLayout();
-    //layout->setContentsMargins(0,0,0,0);
-    //layout->addWidget(splitter);
-    //layout->addWidget(centralTab);
-    //setLayout(layout);
-
-    connect(treeDock, SIGNAL(visibilityChanged(bool)), this, SIGNAL(connectionPageStateChanged()));
-    connect(centralTab, SIGNAL(currentChanged(int)), this, SIGNAL(connectionPageStateChanged()));
-    connect(centralTab, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
-    connect(&connectionPool, SIGNAL(asyncConnectionReady(DbConnection*,void*,bool,OciException)),
-            this, SLOT(asyncConnectionReady(DbConnection*,void*,bool,OciException)));
-
-    QTimer::singleShot(0, this, SLOT(restoreWindowState()));
+    setLayout(mainLayout);
 }
 
 ConnectionPage::~ConnectionPage()
 {
-    delete centralTab; //to ensure child tabs are not using connection
-    delete db;
+
+}
+
+bool ConnectionPage::isConnected() const
+{
+    return (mainWidget != 0);
 }
 
 DbUiManager *ConnectionPage::getUiManager()
 {
-    return &uiManager;
-}
-
-void ConnectionPage::closeTab(int index)
-{
-    QWidget *widgetToDelete=centralTab->widget(index);
-    ConnectionPageTab *tabPage=dynamic_cast<ConnectionPageTab *>(widgetToDelete);
-
-    if(tabPage==0){
-        QMessageBox::critical(this->window(), tr("Wrong parent"),
-                                 tr("Tabs must inherit from ConnectionPageTab"));
-        return;
-    }
-
-    if(!tabPage->isBusy()){
-
-        if(tabPage->isModified()){
-            int pressedButton = QMessageBox::question(this->window(), tr("Save changes?"),
-                                  tr("Do you want to save changes?"),
-                                  QMessageBox::Save|QMessageBox::Cancel|QMessageBox::Discard,
-                                  QMessageBox::Save);
-            if(pressedButton==QMessageBox::Cancel){
-                return;
-            }else if(pressedButton==QMessageBox::Save && !tabPage->saveAll()){
-                return;
-            }
-        }
-
-        tabPage->beforeClose();
-        centralTab->removeTab(index);
-        if(widgetToDelete!=0){
-            widgetToDelete->deleteLater();
-        }
-    }else{
-        QMessageBox::information(this->window(), tr("Tab busy"),
-                                 tr("Cannot close tab while it is busy."));
-    }
-}
-
-void ConnectionPage::closeTab(QWidget *widget)
-{
-    int tabIx=centralTab->indexOf(widget);
-    closeTab(tabIx);
-}
-
-void ConnectionPage::prepareObject(ConnectionPageObject *obj)
-{
-    if(obj->needsSeparateConnection()){
-        connectionPool.requestConnection(this->db, obj);
-    }else{
-        //tab->setUpdatesEnabled(false);
-        obj->setConnection(db);
-        //tab->setUpdatesEnabled(true);
-    }
+    return &this->uiManager;
 }
 
 void ConnectionPage::addTab(ConnectionPageTab *tab, const QPixmap &icon, const QString &title)
 {
-    tab->setTitle(title);
-    tab->setEnabled(false);
-    connect(tab, SIGNAL(initCompleted(ConnectionPageObject*)), this, SLOT(tabInitializationCompleted(ConnectionPageObject*)));
+    Q_ASSERT(mainWidget);
 
-    tab->createUi();
-
-    int newTabIx=centralTab->insertTab(centralTab->currentIndex()+1, tab, icon, title);
-    //int newTabIx=centralTab->addTab(tab, icon, title);
-
-    centralTab->setCurrentIndex(newTabIx);
-    //centralTab->setTabBusy(newTabIx, true);
-    connect(tab, SIGNAL(stateChanged()), this, SIGNAL(connectionPageStateChanged()));
-    connect(tab, SIGNAL(busyStateChanged(ConnectionPageObject*,bool)), this, SLOT(tabBusyStateChanged(ConnectionPageObject*,bool)));
-    connect(tab, SIGNAL(captionChanged(ConnectionPageTab*,QString)), this, SLOT(changeTabCaption(ConnectionPageTab*,QString)));
-
-    prepareObject(tab);
+    mainWidget->addTab(tab, icon, title);
 }
 
 void ConnectionPage::addWindow(ConnectionPageObject *window, const QPixmap &icon, const QString &title)
 {
-    window->createUi();
+    Q_ASSERT(mainWidget);
 
-    QWidget *widget = dynamic_cast<QWidget*>(window);
-    Q_ASSERT(widget);
-
-    widget->setWindowIcon(icon.isNull() ? IconUtil::getIcon("database") : icon);
-    widget->setWindowTitle(title);
-
-    ConnectionPageWindowObject *windowObject = static_cast<ConnectionPageWindowObject*>(window);
-
-    if(windowObject->initiallyVisible()){
-        windowObject->showAndActivate();
-    }
-
-    prepareObject(window);
+    mainWidget->addWindow(window, icon, title);
 }
 
-void ConnectionPage::asyncConnectionReady(DbConnection *db, void *data, bool error, const OciException &ex)
+void ConnectionPage::closeTab(QWidget *widget)
 {
-    if(error){
-        delete db;
-        QMessageBox::critical(this->window(), tr("Error while connecting to database"), ex.getErrorMessage());
-        //tab->decreaseRefCount();
-    }else{
-        ConnectionPageObject *obj = (ConnectionPageObject*)data;
-        QWidget *widget = dynamic_cast<QWidget*>(obj);
+    Q_ASSERT(mainWidget);
 
-        Q_ASSERT(widget);
-
-        widget->setUpdatesEnabled(false);
-        obj->setConnection(db);
-        widget->setUpdatesEnabled(true);
-    }
-}
-
-void ConnectionPage::tabBusyStateChanged(ConnectionPageObject *obj, bool busy)
-{
-    ConnectionPageTab *tab = dynamic_cast<ConnectionPageTab*>(obj);
-    if(tab){
-        centralTab->setTabBusy(tab, busy);
-    }
-}
-
-void ConnectionPage::tabInitializationCompleted(ConnectionPageObject *obj)
-{
-    ConnectionPageTab *tab = dynamic_cast<ConnectionPageTab*>(obj);
-
-    if(tab){
-        tab->setEnabled(true);
-        if(centralTab->currentWidget()==tab){
-            tab->focusAvailable();
-        }
-    }
+    mainWidget->closeTab(widget);
 }
 
 ConnectionPageTab *ConnectionPage::currentConnectionPageTab() const
 {
-    ConnectionPageTab *cnPageTab=static_cast<ConnectionPageTab*>(centralTab->currentWidget());
-    return cnPageTab;
+    if(mainWidget){
+        return mainWidget->currentConnectionPageTab();
+    }else{
+        return 0;
+    }
+}
+
+int ConnectionPage::tabCount() const
+{
+    if(mainWidget){
+        return mainWidget->tabCount();
+    }else{
+        return 0;
+    }
 }
 
 ConnectionPageTab *ConnectionPage::tabAt(int index) const
 {
-    Q_ASSERT(index>=0 && index<centralTab->count());
+    Q_ASSERT(mainWidget);
 
-    return static_cast<ConnectionPageTab*>(centralTab->widget(index));
+    return mainWidget->tabAt(index);
 }
 
 QIcon ConnectionPage::tabIcon(int index) const
 {
-    return centralTab->tabIcon(index);
+    Q_ASSERT(mainWidget);
+
+    return mainWidget->tabIcon(index);
 }
 
 QString ConnectionPage::tabText(int index) const
 {
-    return centralTab->tabText(index);
-}
+    Q_ASSERT(mainWidget);
 
-void ConnectionPage::toggleTreePane()
-{
-    treeDock->setVisible(!treeDock->isVisible());
-}
-
-void ConnectionPage::windowStateChanged()
-{
-    ConnectionPage::currentState=saveState();
-}
-
-void ConnectionPage::restoreWindowState()
-{
-    restoreState(ConnectionPage::currentState);
-
-    connectDockSignals(treeDock);
-
-    //also add an empty worksheet
-    //setting focus works correctly when adding from this slot
-    uiManager.addWorksheet();
-}
-
-void ConnectionPage::changeTabCaption(ConnectionPageTab *tab, const QString &caption)
-{
-    centralTab->setTabText(centralTab->indexOf(tab), caption);
-}
-
-void ConnectionPage::connectDockSignals(QDockWidget *dockWidget)
-{
-    connect(dockWidget, SIGNAL(dockLocationChanged(Qt::DockWidgetArea)), this, SLOT(windowStateChanged()));
-    connect(dockWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(windowStateChanged()));
+    return mainWidget->tabText(index);
 }
 
 bool ConnectionPage::isTreePaneVisible() const
 {
-    return treeDock->isVisible();
-}
+    Q_ASSERT(mainWidget);
 
-QList<ConnectionPageTab *> ConnectionPage::getTabsByType(const QString &className) const
-{
-    QList<ConnectionPageTab *> results;
-
-    for(int i=0; i<centralTab->count(); ++i){
-        QWidget *tab = centralTab->widget(i);
-        ConnectionPageTab *cnPageTab=qobject_cast<ConnectionPageTab*>(tab);
-        Q_ASSERT(cnPageTab);
-        if(cnPageTab->metaObject()->className()==className){
-            results.append(cnPageTab);
-        }
-
-    }
-
-    return results;
-}
-
-QList<ConnectionPageTab *> ConnectionPage::getTabsByConnection(DbConnection *db, const QString &className, int limit)
-{
-    QList<ConnectionPageTab *> results;
-
-    for(int i=0; i<centralTab->count(); ++i){
-        QWidget *tab = centralTab->widget(i);
-        ConnectionPageTab *cnPageTab=qobject_cast<ConnectionPageTab*>(tab);
-        Q_ASSERT(cnPageTab);
-        if(cnPageTab->getDb()==db && (className.isEmpty() || cnPageTab->metaObject()->className()==className)){
-            results.append(cnPageTab);
-        }
-
-        if(limit!=-1 && results.size()==limit){
-            break;
-        }
-    }
-
-    return results;
+    return mainWidget->isTreePaneVisible();
 }
 
 QList<CtrlTabData *> ConnectionPage::getCtrlTabData() const
 {
-    QList<CtrlTabData *> results;
-
-    QList<QWidget*> history = centralTab->getTabChangeHistory();
-    foreach(QWidget *tab, history){
-        int tabIndex = centralTab->indexOf(tab);
-        results.append(new CtrlTabData(centralTab->tabIcon(tabIndex),
-                                       centralTab->tabText(tabIndex),
-                                       tab));
+    if(mainWidget){
+        return mainWidget->getCtrlTabData();
+    }else{
+        return QList<CtrlTabData*>();
     }
-
-    return results;
 }
 
 void ConnectionPage::setCurrentTab(QWidget *widget)
 {
-    centralTab->setCurrentWidget(widget);
+    Q_ASSERT(mainWidget);
+
+    mainWidget->setCurrentTab(widget);
 }
 
 ConnectionPageTab *ConnectionPage::findTabById(const QString &tabId) const
 {
-    for(int i=0; i<centralTab->count(); ++i){
-        QWidget *tab = centralTab->widget(i);
-        ConnectionPageTab *cnPageTab=qobject_cast<ConnectionPageTab*>(tab);
-        Q_ASSERT(cnPageTab);
+    Q_ASSERT(mainWidget);
 
-        if(cnPageTab->getTabId() == tabId){
-            return cnPageTab;
-        }
-    }
+    return mainWidget->findTabById(tabId);
+}
 
-    return 0;
+QList<ConnectionPageTab *> ConnectionPage::getTabsByType(const QString &className) const
+{
+    Q_ASSERT(mainWidget);
+
+    return mainWidget->getTabsByType(className);
+}
+
+QList<ConnectionPageTab *> ConnectionPage::getTabsByConnection(DbConnection *db, const QString &className, int limit)
+{
+    Q_ASSERT(mainWidget);
+
+    return mainWidget->getTabsByConnection(db, className, limit);
+}
+
+void ConnectionPage::closeTab(int index)
+{
+    Q_ASSERT(mainWidget);
+
+    mainWidget->closeTab(index);
+}
+
+void ConnectionPage::toggleTreePane()
+{
+    Q_ASSERT(mainWidget);
+
+    mainWidget->toggleTreePane();
+}
+
+void ConnectionPage::changeTabCaption(ConnectionPageTab *tab, const QString &caption)
+{
+    Q_ASSERT(mainWidget);
+
+    mainWidget->changeTabCaption(tab, caption);
 }

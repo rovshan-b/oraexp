@@ -16,7 +16,7 @@ public:
     static QDialogButtonBox *createButtonBox(QDialog *dialog, QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     static bool showStorageParamsDialog(QWidget *parent, IQueryScheduler *scheduler, bool editMode, bool showPctUsedEditor, StorageParams &storageParams);
 
-    static void showConnectDialog(ConnectionsPane *connectionsPane);
+    //static void showConnectDialog(ConnectionsPane *connectionsPane);
     static DbConnection *getConnection(QWidget *dialogParent);
 
     static QString showFileSaveDialog(QWidget *parent,

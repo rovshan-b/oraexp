@@ -66,4 +66,6 @@ void AppToolsMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab 
     toolsCopyDataAction->setEnabled(cnPage!=0);
     toolsExportDataAction->setEnabled(cnPage!=0);
     toolsImportDataAction->setEnabled(cnPage!=0);
+
+    toolsSessionBrowserAction->setEnabled(cnPage!=0);
 }

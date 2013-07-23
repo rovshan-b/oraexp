@@ -39,6 +39,7 @@ bool DialogHelper::showStorageParamsDialog(QWidget *parent, IQueryScheduler *sch
     return false;
 }
 
+/*
 void DialogHelper::showConnectDialog(ConnectionsPane *connectionsPane)
 {
     ConnectDialog connectDialog(connectionsPane->window());
@@ -47,7 +48,7 @@ void DialogHelper::showConnectDialog(ConnectionsPane *connectionsPane)
         connectionsPane->addConnection(connectDialog.getConnection());
     }
     connectDialog.saveConnectionsToConfig();
-}
+}*/
 
 DbConnection *DialogHelper::getConnection(QWidget *dialogParent)
 {

@@ -125,7 +125,7 @@ void AppFileMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *
     fileOpenAction->setEnabled(getConnectionsPane()->currentConnectionPage() != 0);
 
     fileSaveAction->setEnabled(cnPageTab!=0 && cnPageTab->canSave());
-    fileSaveAllAction->setEnabled(cnPageTab!=0 && (cnPage->tabCount()>1 || cnPageTab->canSave()));
+    fileSaveAllAction->setEnabled(cnPageTab!=0 && (cnPage->tabCount()>0 || cnPageTab->canSave()));
     fileSaveAsAction->setEnabled(cnPageTab!=0 && cnPageTab->canSave());
 
     filePrintAction->setEnabled(cnPageTab!=0 && cnPageTab->canPrint());
@@ -170,7 +170,8 @@ void AppFileMenu::saveRecentFileList()
 
 void AppFileMenu::showConnectDialog()
 {
-    DialogHelper::showConnectDialog(getConnectionsPane());
+    //DialogHelper::showConnectDialog(getConnectionsPane());
+    getConnectionsPane()->addConnection();
 }
 
 void AppFileMenu::showCreator()

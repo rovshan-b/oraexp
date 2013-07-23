@@ -1,76 +1,58 @@
 #ifndef CONNECTIONPAGE_H
 #define CONNECTIONPAGE_H
 
-#include <QMainWindow>
+#include <QWidget>
 #include "dbuimanager.h"
-#include "connectivity/ociexception.h"
-#include "connectivity/connectionpool.h"
-#include "widgets/connectionpagetabwidget.h"
 
-class DbConnection;
-class QDockWidget;
-class TreePane;
-class ConnectionPageObject;
-class ConnectionPageWindowObject;
-class InfoPanel;
+class ConnectionPageConnectWidget;
+class ConnectionPageConnectedWidget;
 class CtrlTabData;
 
-class ConnectionPage : public QMainWindow
+class ConnectionPage : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ConnectionPage(DbConnection *db, QWidget *parent = 0);
+    explicit ConnectionPage(QWidget *parent = 0);
     virtual ~ConnectionPage();
 
-    void prepareObject(ConnectionPageObject *obj);
-    void addTab(ConnectionPageTab *tab, const QPixmap &icon, const QString &title);
-    void addWindow(ConnectionPageObject *window, const QPixmap &icon, const QString &title);
+    bool isConnected() const;
 
     DbUiManager *getUiManager();
+
+    void addTab(ConnectionPageTab *tab, const QPixmap &icon, const QString &title);
+    void addWindow(ConnectionPageObject *window, const QPixmap &icon, const QString &title);
 
     void closeTab(QWidget *widget);
 
     ConnectionPageTab *currentConnectionPageTab() const;
-    int tabCount() const{return this->centralTab->count();}
+    int tabCount() const;
     ConnectionPageTab *tabAt(int index) const;
     QIcon tabIcon(int index) const;
     QString tabText(int index) const;
 
     bool isTreePaneVisible() const;
 
-    QList<ConnectionPageTab*> getTabsByType(const QString &className) const;
-    QList<ConnectionPageTab*> getTabsByConnection(DbConnection *db, const QString &className=QString(), int limit = -1);
-
     QList<CtrlTabData*> getCtrlTabData() const;
     void setCurrentTab(QWidget *widget);
 
     ConnectionPageTab *findTabById(const QString &tabId) const;
 
-    static QByteArray currentState;
-signals:
-    void connectionPageStateChanged();
+    QList<ConnectionPageTab*> getTabsByType(const QString &className) const;
+    QList<ConnectionPageTab*> getTabsByConnection(DbConnection *db, const QString &className=QString(), int limit = -1);
 
 public slots:
     void closeTab(int index);
-    void asyncConnectionReady(DbConnection *db, void *data, bool error, const OciException &ex);
-    void tabBusyStateChanged(ConnectionPageObject *obj, bool busy);
-    void tabInitializationCompleted(ConnectionPageObject *obj);
     void toggleTreePane();
-    void windowStateChanged();
-    void restoreWindowState();
-
     void changeTabCaption(ConnectionPageTab *tab, const QString &caption);
 
+signals:
+    void connectionPageStateChanged();
+
 private:
-    DbConnection *db;
-    QDockWidget *treeDock;
-    ConnectionPageTabWidget *centralTab;
-    TreePane *treePane;
+    ConnectionPageConnectWidget *connectWidget;
+    ConnectionPageConnectedWidget *mainWidget;
+
     DbUiManager uiManager;
-
-    ConnectionPool connectionPool;
-
-    void connectDockSignals(QDockWidget *dockWidget);
 };
 
 #endif // CONNECTIONPAGE_H

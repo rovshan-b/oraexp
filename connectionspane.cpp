@@ -23,13 +23,11 @@ ConnectionsPane::ConnectionsPane(QWidget *parent) :
     new QShortcut(QKeySequence("Ctrl+Tab"), this, SLOT(ctrlTabPressed()));
 }
 
-void ConnectionsPane::addConnection(DbConnection *db)
+void ConnectionsPane::addConnection()
 {
-    ConnectionPage *cnPage=new ConnectionPage(db);
+    ConnectionPage *cnPage=new ConnectionPage();
     connect(cnPage, SIGNAL(connectionPageStateChanged()), this, SIGNAL(connectionPageStateChanged()));
-    setCurrentIndex(
-        addTab(cnPage, IconUtil::getEnvironmentIcon(db->getEnvironment()), db->getTitle())
-    );
+    setCurrentIndex(addTab(cnPage, IconUtil::getIcon("connect"), tr("Connect")));
 
     showTabBar();
 }
@@ -38,7 +36,10 @@ ConnectionPage *ConnectionsPane::currentConnectionPage() const
 {
     QWidget *w=currentWidget();
     if(w!=0){
-        return static_cast<ConnectionPage*>(w);
+        ConnectionPage *pane = static_cast<ConnectionPage*>(w);
+        if(pane->isConnected()){
+            return pane;
+        }
     }
 
     return 0;

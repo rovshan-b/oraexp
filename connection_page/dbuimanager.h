@@ -17,11 +17,13 @@ class DbUiManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit DbUiManager(DbConnection *db, QObject *parent = 0);
+    explicit DbUiManager(QObject *parent = 0);
 
 signals:
 
 public slots:
+    void setConnection(DbConnection *db);
+
     void refreshTreeNodeChildren();
 
     void createCreator();

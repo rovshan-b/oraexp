@@ -27,12 +27,17 @@
 #include "app_menu/appfilemenu.h"
 #include <QtGui>
 
-DbUiManager::DbUiManager(DbConnection *db, QObject *parent) :
-    QObject(parent)
+DbUiManager::DbUiManager(QObject *parent) :
+    QObject(parent), db(0)
 {
-    this->db=db;
-
     cnPage=(ConnectionPage*)parent;
+}
+
+void DbUiManager::setConnection(DbConnection *db)
+{
+    Q_ASSERT(this->db == 0);
+
+    this->db = db;
 }
 
 void DbUiManager::refreshTreeNodeChildren()

@@ -12,7 +12,7 @@ class ConnectionsPane : public QTabWidget
 public:
     explicit ConnectionsPane(QWidget *parent = 0);
 
-    void addConnection(DbConnection *db);
+    void addConnection();
     ConnectionPage *currentConnectionPage() const;
 
 signals:

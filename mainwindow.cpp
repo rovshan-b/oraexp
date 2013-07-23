@@ -37,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent) :
     SettingsHelper::loadStaticApplicationSettings();
 
     //connectionsPane->installEventFilter(this);
+
+    showConnectDialog();
 }
 
 MainWindow::~MainWindow()
@@ -56,7 +58,7 @@ void MainWindow::createMenu()
 
 void MainWindow::showConnectDialog()
 {
-    DialogHelper::showConnectDialog(this->connectionsPane);
+    this->connectionsPane->addConnection();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

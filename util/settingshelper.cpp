@@ -1,7 +1,7 @@
 #include "settingshelper.h"
 #include "util/settings.h"
 #include "util/widgethelper.h"
-#include "connection_page/connectionpage.h"
+#include "connection_page/connectionpageconnectedwidget.h"
 #include "connection_page/worksheet/worksheetwidget.h"
 #include "connection_page/code_creator/codecreatorwidget.h"
 #include "connection_page/worksheet/bottom_pane_tabs/worksheetexplainplantab.h"
@@ -54,7 +54,7 @@ void SettingsHelper::restoreMainWindowState(QMainWindow *window, const QString &
 
 void SettingsHelper::saveStaticApplicationSettings()
 {
-    Settings::setValue("ConnectionPage/windowState", ConnectionPage::currentState);
+    Settings::setValue("ConnectionPage/windowState", ConnectionPageConnectedWidget::currentState);
 
     Settings::setValue("WorksheetWidget/splitterSizes", WorksheetWidget::splitterSizes);
     Settings::setValue("WorksheetExplainPlanTab/advancedOptionsVisible", WorksheetExplainPlanTab::advancedOptionsVisible);
@@ -67,7 +67,7 @@ void SettingsHelper::saveStaticApplicationSettings()
 
 void SettingsHelper::loadStaticApplicationSettings()
 {
-    ConnectionPage::currentState = Settings::value("ConnectionPage/windowState").toByteArray();
+    ConnectionPageConnectedWidget::currentState = Settings::value("ConnectionPage/windowState").toByteArray();
 
     WorksheetWidget::splitterSizes = Settings::value("WorksheetWidget/splitterSizes").toByteArray();
     WorksheetExplainPlanTab::advancedOptionsVisible = Settings::value("WorksheetExplainPlanTab/advancedOptionsVisible", false).toBool();
