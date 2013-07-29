@@ -10,6 +10,7 @@
 #include "beans/dbconnectioninfo.h"
 #include "connectivity/dbconnection.h"
 #include "widgets/lineeditwithclearbutton.h"
+#include "passwordentrydialog.h"
 #include <QtGui>
 
 ConnectionPageConnectWidget::ConnectionPageConnectWidget(const QSharedPointer<ConnectionListModel> &model,
@@ -245,6 +246,15 @@ void ConnectionPageConnectWidget::connectToDb(bool test)
         deleteOnFail = false; //existing connection. will not delete
 
         updateCurrentConnection();
+    }
+
+    if(!connectionInfo->username.isEmpty() &&
+            connectionInfo->password.isEmpty()){
+        PasswordEntryDialog dialog(this->window());
+        if(dialog.exec()){
+            connectionInfo->password = dialog.password();
+            connectionInfo->savePassword = dialog.savePassword();
+        }
     }
 
     setEnabled(false);

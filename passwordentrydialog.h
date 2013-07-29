@@ -18,6 +18,9 @@ public:
 
     Ui::PasswordEntryDialog *ui;
 
+    QString password() const;
+    bool savePassword() const;
+
 public slots:
     void validateForm();
 

@@ -12,7 +12,7 @@ void DbConnectionInfo::saveToSettings()
     Settings::setValue("title", title);
     Settings::setValue("environment", (int)environment);
     Settings::setValue("username", username);
-    Settings::setValue("password", password);
+    Settings::setValue("password", savePassword ? password : QString());
     Settings::setValue("savePassword", savePassword);
     Settings::setValue("type", type);
     Settings::setValue("connectionString", connectionString);

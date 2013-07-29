@@ -19,6 +19,16 @@ PasswordEntryDialog::~PasswordEntryDialog()
     delete ui;
 }
 
+QString PasswordEntryDialog::password() const
+{
+    return ui->passwordLineEdit->text();
+}
+
+bool PasswordEntryDialog::savePassword() const
+{
+    return ui->savePasswordCheckBox->isChecked();
+}
+
 bool PasswordEntryDialog::isFormValid()
 {
     return ui->passwordLineEdit->text().trimmed().length()>0;
