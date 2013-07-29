@@ -45,6 +45,7 @@ void SessionListTree::createTree(QVBoxLayout *mainLayout)
     treeModel = new QStandardItemModel(this);
     treeModel->sort(-1);
     proxyModel = new TreeSortFilterProxyModel(this);
+    proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     proxyModel->setSourceModel(treeModel);
     treeView->setModel(proxyModel);
 
@@ -82,9 +83,8 @@ QStringList SessionListTree::getGroupByColumns() const
 
 void SessionListTree::setFilter(const QString &filter)
 {
-    lastFilter = QRegExp(filter);
-    lastFilter.setCaseSensitivity(Qt::CaseInsensitive);
-    proxyModel->setFilterRegExp(lastFilter);
+    lastFilter = filter;
+    proxyModel->setFilterWildcard(lastFilter);
 }
 
 void SessionListTree::doLoadInfo()
@@ -126,7 +126,7 @@ void SessionListTree::queryCompleted(const QueryResult &result)
 void SessionListTree::recordFetched(const FetchResult &result)
 {
     if(result.hasError){
-        proxyModel->setFilterRegExp(lastFilter);
+        proxyModel->setFilterWildcard(lastFilter);
         treeView->setUpdatesEnabled(true);
         return;
     }
@@ -358,7 +358,7 @@ void SessionListTree::fetchCompleted(const QString &)
     if(treeView->verticalScrollBar()->maximum() < lastScrollPos){
         treeView->verticalScrollBar()->setRange(0, lastScrollPos);
     }
-    proxyModel->setFilterRegExp(lastFilter);
+    proxyModel->setFilterWildcard(lastFilter);
     treeView->verticalScrollBar()->setValue(lastScrollPos);
     treeView->setUpdatesEnabled(true);
 

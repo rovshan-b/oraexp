@@ -3,22 +3,34 @@
 #include "connectionpageconnectedwidget.h"
 #include <QtGui>
 
-ConnectionPage::ConnectionPage(QWidget *parent) :
+ConnectionPage::ConnectionPage(const QSharedPointer<ConnectionListModel> &model, const QString &connectionUuid, QWidget *parent) :
     QWidget(parent),
     mainWidget(0),
-    uiManager(this)
+    uiManager(this),
+    busy(false)
 {
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
-    connectWidget = new ConnectionPageConnectWidget();
+    connectWidget = new ConnectionPageConnectWidget(model, connectionUuid);
     mainLayout->addWidget(connectWidget);
 
+    mainLayout->setContentsMargins(0,0,0,0);
     setLayout(mainLayout);
+
+    connect(connectWidget, SIGNAL(busyStateChanged(bool)), this, SLOT(childBusyStateChanged(bool)));
+    connect(connectWidget, SIGNAL(connected(DbConnection*,DbConnectionInfo*)), this, SLOT(connected(DbConnection*,DbConnectionInfo*)));
 }
 
 ConnectionPage::~ConnectionPage()
 {
 
+}
+
+void ConnectionPage::focusReady()
+{
+    Q_ASSERT(connectWidget);
+
+    connectWidget->focusReady();
 }
 
 bool ConnectionPage::isConnected() const
@@ -43,6 +55,10 @@ void ConnectionPage::addWindow(ConnectionPageObject *window, const QPixmap &icon
     Q_ASSERT(mainWidget);
 
     mainWidget->addWindow(window, icon, title);
+}
+
+void ConnectionPage::beforeClose()
+{
 }
 
 void ConnectionPage::closeTab(QWidget *widget)
@@ -135,6 +151,13 @@ QList<ConnectionPageTab *> ConnectionPage::getTabsByConnection(DbConnection *db,
     return mainWidget->getTabsByConnection(db, className, limit);
 }
 
+QSharedPointer<ConnectionListModel> ConnectionPage::getConnectionListModel() const
+{
+    Q_ASSERT(connectWidget);
+
+    return connectWidget->getConnectionListModel();
+}
+
 void ConnectionPage::closeTab(int index)
 {
     Q_ASSERT(mainWidget);
@@ -154,4 +177,32 @@ void ConnectionPage::changeTabCaption(ConnectionPageTab *tab, const QString &cap
     Q_ASSERT(mainWidget);
 
     mainWidget->changeTabCaption(tab, caption);
+}
+
+void ConnectionPage::connected(DbConnection *db, DbConnectionInfo *connectionInfo)
+{
+    setUpdatesEnabled(false);
+
+    emit setTitle(this, connectionInfo);
+
+    mainWidget = new ConnectionPageConnectedWidget(db, &uiManager);
+    uiManager.setConnection(db);
+
+    connectWidget->deleteLater();
+
+    layout()->addWidget(mainWidget);
+
+    connect(mainWidget, SIGNAL(connectionPageStateChanged()), this, SIGNAL(connectionPageStateChanged()));
+    connect(mainWidget, SIGNAL(busyStateChanged(bool)), this, SLOT(childBusyStateChanged(bool)));
+
+    setUpdatesEnabled(true);
+
+    emit connectionPageStateChanged();
+}
+
+void ConnectionPage::childBusyStateChanged(bool busy)
+{
+    this->busy = busy;
+
+    emit busyStateChanged(this, busy);
 }

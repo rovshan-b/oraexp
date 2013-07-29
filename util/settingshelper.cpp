@@ -6,6 +6,7 @@
 #include "connection_page/code_creator/codecreatorwidget.h"
 #include "connection_page/worksheet/bottom_pane_tabs/worksheetexplainplantab.h"
 #include "codeeditor/codeeditor.h"
+#include "beans/dbconnectioninfo.h"
 #include <QtGui>
 
 SettingsHelper::SettingsHelper()
@@ -76,4 +77,38 @@ void SettingsHelper::loadStaticApplicationSettings()
 
     CodeCreatorWidget::bottomSplitterSizes = Settings::value("CodeCreatorWidget/bottomSplitterSizes").toByteArray();
     CodeEditor::currentFont.fromString(Settings::value("CodeEditor/currentFont", WidgetHelper::getMonospaceFont()).toString());
+}
+
+
+QList<DbConnectionInfo*> SettingsHelper::loadConnectionList()
+{
+    QList<DbConnectionInfo*> connectionList;
+
+    int size = Settings::beginReadArray("ConnectionList");
+
+    for(int i=0; i<size; ++i){
+        Settings::setArrayIndex(i);
+
+        DbConnectionInfo *connection = new DbConnectionInfo();
+        connection->readFromSettings();
+
+        connectionList.append(connection);
+    }
+
+    Settings::endArray();
+
+    return connectionList;
+}
+
+void SettingsHelper::saveConnectionList(QList<DbConnectionInfo*> connectionList)
+{
+    Settings::beginWriteArray("ConnectionList", connectionList.size());
+
+    for(int i=0; i<connectionList.size(); ++i){
+        Settings::setArrayIndex(i);
+
+        connectionList.at(i)->saveToSettings();
+    }
+
+    Settings::endArray();
 }

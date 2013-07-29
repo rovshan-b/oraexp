@@ -1148,6 +1148,31 @@ QString DbUtil::getSaveSuffixForItemType(DbTreeModel::DbTreeNodeType itemType)
     return result;
 }
 
+QList<EnvironmentInfo> DbUtil::getEnvironmentList()
+{
+    EnvironmentInfo production;
+    production.title = QObject::tr("Production");
+    production.icon = IconUtil::getEnvironmentIcon(OraExp::Production);
+    production.environment = OraExp::Production;
+
+    EnvironmentInfo staging;
+    staging.title = QObject::tr("Staging");
+    staging.icon = IconUtil::getEnvironmentIcon(OraExp::Staging);
+    staging.environment = OraExp::Staging;
+
+    EnvironmentInfo development;
+    development.title = QObject::tr("Development");
+    development.icon = IconUtil::getEnvironmentIcon(OraExp::Development);
+    development.environment = OraExp::Development;
+
+    EnvironmentInfo test;
+    test.title = QObject::tr("Test");
+    test.icon = IconUtil::getEnvironmentIcon(OraExp::Test);
+    test.environment = OraExp::Test;
+
+    return QList<EnvironmentInfo>() << production << staging << development << test;
+}
+
 /*
 DbTreeModel::DbTreeNodeType DbUtil::getPairNodeType(DbTreeModel::DbTreeNodeType nodeType)
 {

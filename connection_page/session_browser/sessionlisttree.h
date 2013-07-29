@@ -83,7 +83,7 @@ private:
     void saveSelection();
     bool restoreSelection(const QModelIndex &index);
 
-    QRegExp lastFilter;
+    QString lastFilter;
 
     void getSelectedSessions(const QModelIndex &parent, QStringList &list, bool check = true) const;
 

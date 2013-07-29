@@ -10,14 +10,21 @@ IconUtil::IconUtil()
 {
 }
 
-QIcon IconUtil::getEnvironmentIcon(const QString &environmentName)
+QIcon IconUtil::getEnvironmentIcon(OraExp::ConnectionEnvironment environment)
 {
-    if(environmentName==QObject::tr("Test")){
-        return QIcon(":/images/green.png");
-    }else if(environmentName==QObject::tr("Development")){
-        return QIcon(":/images/yellow.png");
-    }else{
+    switch(environment){
+    case OraExp::Production:
         return QIcon(":/images/red.png");
+        break;
+    case OraExp::Staging:
+        return QIcon(":/images/yellow.png");
+        break;
+    case OraExp::Development:
+        return QIcon(":/images/blue.png");
+        break;
+    default:
+        return QIcon(":/images/green.png");
+        break;
     }
 }
 

@@ -113,7 +113,7 @@ void Connection::destroyEnvironment()
     }
 }
 
-void Connection::connect(QString tns, QString username, QString password)
+void Connection::connect(QString tns, QString username, QString password, OraExp::ConnectAs connectAs)
 {
     disconnect();
 
@@ -123,7 +123,21 @@ void Connection::connect(QString tns, QString username, QString password)
     dtext *ociUsername=toOciString(username);
     dtext *ociPassword=toOciString(password);
 
-    ociConnection=OCI_ConnectionCreate(ociTns, ociUsername, ociPassword, OCI_SESSION_DEFAULT);
+    unsigned int mode;
+
+    switch(connectAs){
+    case OraExp::ConnectAsSysdba:
+        mode = OCI_SESSION_SYSDBA;
+        break;
+    case OraExp::ConnectAsSysoper:
+        mode = OCI_SESSION_SYSOPER;
+        break;
+    default:
+        mode = OCI_SESSION_DEFAULT;
+        break;
+    }
+
+    ociConnection=OCI_ConnectionCreate(ociTns, ociUsername, ociPassword, mode);
 
     delete[] ociTns;
     delete[] ociUsername;

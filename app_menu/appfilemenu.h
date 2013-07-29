@@ -10,6 +10,7 @@ class QMenu;
 class QToolBar;
 class QAction;
 class ConnectionPageTab;
+class DbConnectionInfo;
 
 class AppFileMenu : public AppMainMenu
 {
@@ -36,10 +37,15 @@ private slots:
     void saveAs(){currentConnectionPageTab()->saveContentsAs();}
     void saveAll(){SaveChangesUtil::saveAll(getConnectionsPane(), false, false);}
 
+    void populateConnectionMenu();
+
+    QList<DbConnectionInfo*> getConnectionsByEnvironment(QList<DbConnectionInfo*> allConnections, OraExp::ConnectionEnvironment environment);
+
 private:
     void setupMenu(QMenu *fileMenu, QToolBar *toolbar);
 
     QAction *fileConnectAction;
+    QAction *fileConnectToolbarAction;
 
     QAction *fileNewAction;
     QAction *fileOpenAction;
@@ -52,6 +58,9 @@ private:
     QAction *fileSaveAllAction;
     QAction *filePrintAction;
     QAction *filePrintPreviewAction;
+
+    QMenu *connectionListMenu;
+    void createConnectionListMenu();
 
     QMenu *fileNewMenu;
     void createFileNewMenu();

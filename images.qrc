@@ -148,5 +148,7 @@
         <file>images/list_group.png</file>
         <file>images/computer.png</file>
         <file>images/clear.png</file>
+        <file>images/test_connection.png</file>
+        <file>images/blue.png</file>
     </qresource>
 </RCC>

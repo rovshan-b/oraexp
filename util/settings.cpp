@@ -27,6 +27,26 @@ void Settings::endGroup()
     settings.endGroup();
 }
 
+int Settings::beginReadArray(const QString &prefix)
+{
+    return settings.beginReadArray(prefix);
+}
+
+void Settings::beginWriteArray(const QString &prefix, int size)
+{
+    settings.beginWriteArray(prefix, size);
+}
+
+void Settings::setArrayIndex(int i)
+{
+    settings.setArrayIndex(i);
+}
+
+void Settings::endArray()
+{
+    settings.endArray();
+}
+
 Settings::Settings()
 {
 }

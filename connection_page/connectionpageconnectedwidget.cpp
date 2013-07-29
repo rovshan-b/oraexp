@@ -16,8 +16,8 @@ using namespace std;
 
 QByteArray ConnectionPageConnectedWidget::currentState;
 
-ConnectionPageConnectedWidget::ConnectionPageConnectedWidget(QWidget *parent) :
-    QMainWindow(parent)
+ConnectionPageConnectedWidget::ConnectionPageConnectedWidget(DbConnection *db, DbUiManager *uiManager, QWidget *parent) :
+    QMainWindow(parent), db(db), uiManager(uiManager), busyCounter(0)
 {
     setDockNestingEnabled(true);
 
@@ -27,7 +27,7 @@ ConnectionPageConnectedWidget::ConnectionPageConnectedWidget(QWidget *parent) :
                               Qt::RightDockWidgetArea);
     treeDock->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable);
 
-    treePane=new TreePane(&uiManager, treeDock);
+    treePane=new TreePane(uiManager, treeDock);
     treePane->setConnection(db);
 
     treeDock->setWidget(treePane);
@@ -72,28 +72,28 @@ void ConnectionPageConnectedWidget::closeTab(int index)
         return;
     }
 
-    if(!tabPage->isBusy()){
-
-        if(tabPage->isModified()){
-            int pressedButton = QMessageBox::question(this->window(), tr("Save changes?"),
-                                  tr("Do you want to save changes?"),
-                                  QMessageBox::Save|QMessageBox::Cancel|QMessageBox::Discard,
-                                  QMessageBox::Save);
-            if(pressedButton==QMessageBox::Cancel){
-                return;
-            }else if(pressedButton==QMessageBox::Save && !tabPage->saveAll()){
-                return;
-            }
-        }
-
-        tabPage->beforeClose();
-        centralTab->removeTab(index);
-        if(widgetToDelete!=0){
-            widgetToDelete->deleteLater();
-        }
-    }else{
+    if(tabPage->isBusy()){
         QMessageBox::information(this->window(), tr("Tab busy"),
                                  tr("Cannot close tab while it is busy."));
+        return;
+    }
+
+    if(tabPage->isModified()){
+        int pressedButton = QMessageBox::question(this->window(), tr("Save changes?"),
+                                                  tr("Do you want to save changes?"),
+                                                  QMessageBox::Save|QMessageBox::Cancel|QMessageBox::Discard,
+                                                  QMessageBox::Save);
+        if(pressedButton==QMessageBox::Cancel){
+            return;
+        }else if(pressedButton==QMessageBox::Save && !tabPage->saveAll()){
+            return;
+        }
+    }
+
+    tabPage->beforeClose();
+    centralTab->removeTab(index);
+    if(widgetToDelete!=0){
+        widgetToDelete->deleteLater();
     }
 }
 
@@ -177,6 +177,18 @@ void ConnectionPageConnectedWidget::tabBusyStateChanged(ConnectionPageObject *ob
     if(tab){
         centralTab->setTabBusy(tab, busy);
     }
+
+    if(busy){
+        ++busyCounter;
+    }else{
+        --busyCounter;
+    }
+
+    Q_ASSERT(busyCounter >= 0);
+
+    if(busyCounter ==0 || busyCounter == 1){ //just got free or just got busy
+        emit busyStateChanged(busy);
+    }
 }
 
 void ConnectionPageConnectedWidget::tabInitializationCompleted(ConnectionPageObject *obj)
@@ -232,7 +244,7 @@ void ConnectionPageConnectedWidget::restoreWindowState()
 
     //also add an empty worksheet
     //setting focus works correctly when adding from this slot
-    uiManager.addWorksheet();
+    uiManager->addWorksheet();
 }
 
 void ConnectionPageConnectedWidget::changeTabCaption(ConnectionPageTab *tab, const QString &caption)

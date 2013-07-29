@@ -123,7 +123,7 @@ public:
     static QAction *createSeparatorAction(QObject *parent = 0);
 
     static void deleteMenu(QMenu *menu);
-    static void deleteActions(QList<QAction*> &actions);
+    static void deleteActions(QList<QAction *> actions);
 
     static QWidget *compactWidget(QWidget* widget);
     static QWidget *compactWidgets(QList<QWidget *> widgets, Qt::Orientation orientation = Qt::Vertical);

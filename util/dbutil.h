@@ -5,6 +5,7 @@
 #include <QString>
 #include <QStringList>
 #include "navtree/dbtreemodel.h"
+#include "beans/environmentinfo.h"
 #include <ocilib.h>
 
 class DbUtil
@@ -97,6 +98,8 @@ public:
     static QStringList getDateTimeFormats();
 
     static QString getSaveSuffixForItemType(DbTreeModel::DbTreeNodeType itemType);
+
+    static QList<EnvironmentInfo> getEnvironmentList();
 
     //static DbTreeModel::DbTreeNodeType getPairNodeType(DbTreeModel::DbTreeNodeType nodeType);
 };

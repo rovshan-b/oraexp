@@ -121,6 +121,21 @@ namespace OraExp
         BindVarStylePositioned,
         BindVarStyleQuestionMark
     };
+
+    enum ConnectionEnvironment
+    {
+        Production,
+        Staging,
+        Development,
+        Test
+    };
+
+    enum ConnectAs
+    {
+        ConnectAsNormal,
+        ConnectAsSysdba,
+        ConnectAsSysoper
+    };
 }
 
 #endif // ENUMS_H

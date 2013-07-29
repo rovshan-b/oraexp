@@ -5,7 +5,9 @@
 
 class QLineEdit;
 class QComboBox;
+class QCheckBox;
 class QStackedWidget;
+class DbConnectionInfo;
 
 class ConnectionEditor : public QWidget
 {
@@ -19,15 +21,35 @@ public:
         TNS
     };
 
+    DbConnectionInfo *createConnection();
+
+    void setCurrentConnection(DbConnectionInfo *connectionInfo);
+    DbConnectionInfo *getCurrentConnection() const;
+    void updateCurrentConnection();
+
+    void deleteCurrentConnection();
+
+    bool validate(bool showErrors = true);
+
+    void focus();
+
+signals:
+    void hasConnection(bool has);
+
 private:
     void createUi();
     QWidget *createTnsPane();
     QWidget *createDirectPane();
 
+    void updateConnection(DbConnectionInfo *connection);
+
+    DbConnectionInfo *currentConnection;
+
     QLineEdit *titleEditor;
     QComboBox *environmentCombo;
     QLineEdit *usernameEditor;
     QLineEdit *passwordEditor;
+    QCheckBox *savePasswordCheckBox;
     QComboBox *connectionTypeCombo;
     QStackedWidget *connectionDetailsTab;
 

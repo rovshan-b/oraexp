@@ -1,7 +1,6 @@
 #include "dialoghelper.h"
 #include "dialogs/storageparamsdialog.h"
 #include "connectionspane.h"
-#include "connectdialog.h"
 #include "util/settings.h"
 #include <QtGui>
 
@@ -52,12 +51,6 @@ void DialogHelper::showConnectDialog(ConnectionsPane *connectionsPane)
 
 DbConnection *DialogHelper::getConnection(QWidget *dialogParent)
 {
-    ConnectDialog connectDialog(dialogParent);
-    if(connectDialog.exec())
-    {
-        return connectDialog.getConnection();
-    }
-
     return 0;
 }
 

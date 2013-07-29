@@ -5,10 +5,11 @@
 #include "util/widgethelper.h"
 #include "util/savechangesutil.h"
 #include "dialogs/ctrltabdialog.h"
+#include "beans/dbconnectioninfo.h"
 #include <QtGui>
 
 ConnectionsPane::ConnectionsPane(QWidget *parent) :
-    QTabWidget(parent)
+    TabWidget(parent)
 {
     setTabsClosable(true);
     setDocumentMode(true);
@@ -23,11 +24,26 @@ ConnectionsPane::ConnectionsPane(QWidget *parent) :
     new QShortcut(QKeySequence("Ctrl+Tab"), this, SLOT(ctrlTabPressed()));
 }
 
-void ConnectionsPane::addConnection()
+void ConnectionsPane::addConnection(const QString &uuid)
 {
-    ConnectionPage *cnPage=new ConnectionPage();
+    QSharedPointer<ConnectionListModel> connectionListModel;
+
+    for(int i=0; i<count(); ++i){
+        ConnectionPage *page = static_cast<ConnectionPage*>(widget(i));
+        if(!page->isConnected()){
+            connectionListModel = page->getConnectionListModel();
+            break;
+        }
+
+    }
+
+    ConnectionPage *cnPage=new ConnectionPage(connectionListModel, uuid);
+    connect(cnPage, SIGNAL(busyStateChanged(ConnectionPage*,bool)), this, SLOT(tabBusyStateChanged(ConnectionPage*,bool)));
     connect(cnPage, SIGNAL(connectionPageStateChanged()), this, SIGNAL(connectionPageStateChanged()));
+    connect(cnPage, SIGNAL(setTitle(QWidget*,DbConnectionInfo*)), this, SLOT(setTabTitle(QWidget*,DbConnectionInfo*)));
     setCurrentIndex(addTab(cnPage, IconUtil::getIcon("connect"), tr("Connect")));
+
+    cnPage->focusReady();
 
     showTabBar();
 }
@@ -61,16 +77,39 @@ void ConnectionsPane::ctrlTabPressed()
     }
 }
 
+void ConnectionsPane::setTabTitle(QWidget *tab, DbConnectionInfo *connectionInfo)
+{
+    int tabIx = indexOf(tab);
+
+    setTabText(tabIx, connectionInfo->title);
+    setTabIcon(tabIx, IconUtil::getEnvironmentIcon(connectionInfo->environment));
+
+    updateMainWindowTitle();
+}
+
+void ConnectionsPane::tabBusyStateChanged(ConnectionPage *cnPage, bool busy)
+{
+    setTabBusy(cnPage, busy);
+}
+
 void ConnectionsPane::closeTab(int index)
 {
     QWidget *widgetToDelete=widget(index);
 
     ConnectionPage *cnPage = qobject_cast<ConnectionPage*>(widgetToDelete);
     Q_ASSERT(cnPage);
+
+    if(cnPage->isBusy()){
+        QMessageBox::information(this->window(), tr("Connection busy"),
+                                 tr("Cannot close connection while it is busy."));
+        return;
+    }
+
     if(!SaveChangesUtil::saveConnectionPage(this, index)){
         return;
     }
 
+    cnPage->beforeClose();
     removeTab(index);
     if(widgetToDelete!=0){
         delete widgetToDelete;
@@ -119,10 +158,14 @@ void ConnectionsPane::popOutTab()
 
 void ConnectionsPane::showTabBar()
 {
-    int tabCount=count();
-    tabBar()->setVisible(tabCount>1);
+    tabBar()->setVisible(count()>1);
+    updateMainWindowTitle();
+}
+
+void ConnectionsPane::updateMainWindowTitle()
+{
     QWidget *window=this->window();
-    if(tabCount==1){
+    if(count()==1){
         window->setWindowIcon(tabIcon(0));
         window->setWindowTitle(tabText(0)+" - Oracle Explorer");
     }else{

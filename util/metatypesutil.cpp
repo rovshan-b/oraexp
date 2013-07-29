@@ -26,7 +26,7 @@ MetaTypesUtil::MetaTypesUtil()
 void MetaTypesUtil::registerMetaTypes()
 {
     qRegisterMetaType<DbConnection>("DbConnection");
-    qRegisterMetaTypeStreamOperators<DbConnection>("DbConnection");
+    //qRegisterMetaTypeStreamOperators<DbConnection>("DbConnection");
 
     qRegisterMetaType<QueryResult>("QueryResult");
     qRegisterMetaType<FetchResult>("FetchResult");

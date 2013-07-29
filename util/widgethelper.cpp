@@ -716,7 +716,7 @@ void WidgetHelper::deleteMenu(QMenu *menu)
     delete menu;
 }
 
-void WidgetHelper::deleteActions(QList<QAction *> &actions)
+void WidgetHelper::deleteActions(QList<QAction *> actions)
 {
     for(int i=actions.size()-1; i>=0; --i){
         QAction *action = actions.at(i);

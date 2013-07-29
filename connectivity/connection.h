@@ -23,7 +23,7 @@ public:
     static void initEnvironment();
     static void destroyEnvironment();
 
-    void connect(QString tns, QString username, QString password);
+    void connect(QString tns, QString username, QString password, OraExp::ConnectAs connectAs);
     void disconnect();
 
     OCI_Connection *getOciConnection(){return this->ociConnection;}

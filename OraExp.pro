@@ -22,8 +22,6 @@ CONFIG(debug) {
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    connectdialog.cpp \
-    connectioneditordialog.cpp \
     connectivity/dbconnection.cpp \
     mytablewidgetitem.cpp \
     util/iconutil.cpp \
@@ -515,11 +513,12 @@ SOURCES += main.cpp\
     widgets/radiobuttongroup.cpp \
     connection_page/connectionpageconnectwidget.cpp \
     connection_page/connectionpageconnectedwidget.cpp \
-    widgets/connectioneditor.cpp
+    widgets/connectioneditor.cpp \
+    beans/dbconnectioninfo.cpp \
+    models/connectionlistmodel.cpp \
+    beans/environmentinfo.cpp
 
 HEADERS  += mainwindow.h \
-    connectdialog.h \
-    connectioneditordialog.h \
     connectivity/dbconnection.h \
     mytablewidgetitem.h \
     util/iconutil.h \
@@ -1035,11 +1034,12 @@ HEADERS  += mainwindow.h \
     widgets/radiobuttongroup.h \
     connection_page/connectionpageconnectwidget.h \
     connection_page/connectionpageconnectedwidget.h \
-    widgets/connectioneditor.h
+    widgets/connectioneditor.h \
+    beans/dbconnectioninfo.h \
+    models/connectionlistmodel.h \
+    beans/environmentinfo.h
 
 FORMS    += mainwindow.ui \
-    connectdialog.ui \
-    connectioneditordialog.ui \
     passwordentrydialog.ui \
     dialogs/columnselectordialog.ui \
     dialogs/plaintexteditordialog.ui

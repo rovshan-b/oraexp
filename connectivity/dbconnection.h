@@ -17,15 +17,15 @@ class QueryQueueManager;
 class DbConnection
 {
 
-friend QDataStream &operator<<(QDataStream &out, const DbConnection &myObj);
-friend QDataStream &operator>>(QDataStream &in, DbConnection &myObj);
+//friend QDataStream &operator<<(QDataStream &out, const DbConnection &myObj);
+//friend QDataStream &operator>>(QDataStream &in, DbConnection &myObj);
 
 //friend class QueryRunner;
 
 public:
     DbConnection();
-    DbConnection(const QString title, const QString environment, const QString tnsName,
-                 const QString username, const QString password, const bool savePassword);
+    DbConnection(const QString title, const QString tnsName, const QString username,
+                 const QString password, OraExp::ConnectAs connectAs);
     DbConnection(const DbConnection &other);
 
     ~DbConnection();
@@ -37,13 +37,10 @@ public:
     void disconnect();
 
     QString getTitle() const;
-    QString getEnvironment() const;
     QString getTnsName() const;
     QString getUsername() const;
     QString getPassword() const;
     void setPassword(const QString &password);
-    bool getSavePassword() const;
-    void setSavePassword(const bool savePassword);
 
     void setOciOwner(bool);
     bool isOciOwner();
@@ -105,11 +102,10 @@ public:
     int compareVersion(DbConnection *other);
 private:
     QString title;
-    QString environment;
     QString tnsName;
     QString username;
     QString password;
-    bool savePassword;
+    OraExp::ConnectAs connectAs;
 
     Connection connection;
 

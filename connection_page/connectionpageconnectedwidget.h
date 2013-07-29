@@ -19,7 +19,7 @@ class ConnectionPageConnectedWidget : public QMainWindow
 {
     Q_OBJECT
 public:
-    explicit ConnectionPageConnectedWidget(QWidget *parent = 0);
+    explicit ConnectionPageConnectedWidget(DbConnection *db, DbUiManager *uiManager, QWidget *parent = 0);
     virtual ~ConnectionPageConnectedWidget();
 
     void prepareObject(ConnectionPageObject *obj);
@@ -51,6 +51,8 @@ public:
 signals:
     void connectionPageStateChanged();
 
+    void busyStateChanged(bool busy);
+
 public slots:
     void closeTab(int index);
     void asyncConnectionReady(DbConnection *db, void *data, bool error, const OciException &ex);
@@ -67,9 +69,11 @@ private:
     QDockWidget *treeDock;
     ConnectionPageTabWidget *centralTab;
     TreePane *treePane;
-    DbUiManager uiManager;
+    DbUiManager *uiManager;
 
     ConnectionPool connectionPool;
+
+    int busyCounter;
 
     void connectDockSignals(QDockWidget *dockWidget);
     

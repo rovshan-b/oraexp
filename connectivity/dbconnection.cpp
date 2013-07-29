@@ -14,10 +14,10 @@ DbConnection::DbConnection() : queueManager(0)
 
 }
 
-DbConnection::DbConnection(const QString title, const QString environment, const QString tnsName,
-                           const QString username, const QString password, const bool savePassword) :
-                           title(title), environment(environment), tnsName(tnsName), username(username),
-                           password(password), savePassword(savePassword), queueManager(0),
+DbConnection::DbConnection(const QString title, const QString tnsName,
+                           const QString username, const QString password, OraExp::ConnectAs connectAs) :
+                           title(title), tnsName(tnsName), username(username),
+                           password(password), connectAs(connectAs), queueManager(0),
                            serverMajorVersion(0), serverMinorVersion(0)
 
 { 
@@ -27,11 +27,10 @@ DbConnection::DbConnection(const QString title, const QString environment, const
 DbConnection::DbConnection(const DbConnection &other)
 {
     this->title=other.title;
-    this->environment=other.environment;
     this->tnsName=other.tnsName;
     this->username=other.username;
     this->password=other.password;
-    this->savePassword=other.savePassword;
+    this->connectAs=other.connectAs;
 
     this->queueManager=0;
 }
@@ -87,7 +86,7 @@ void DbConnection::destroyEnvironment()
 void DbConnection::connect()
 {
     connection.disconnect();
-    connection.connect(tnsName, username, password);
+    connection.connect(tnsName, username, password, connectAs);
 
     //determineServerFeatures();
     serverMajorVersion=connection.getServerMajorVersion();
@@ -152,7 +151,7 @@ int DbConnection::getMaxIdentifierLength()
 
 DbConnection *DbConnection::clone()
 {
-    DbConnection *newDb=new DbConnection(this->title, this->environment, this->tnsName, this->username, this->password, this->savePassword);
+    DbConnection *newDb=new DbConnection(this->title, this->tnsName, this->username, this->password, this->connectAs);
     return newDb;
 }
 
@@ -212,11 +211,6 @@ QString DbConnection::getTitle() const
     return title;
 }
 
-QString DbConnection::getEnvironment() const
-{
-    return environment;
-}
-
 QString DbConnection::getTnsName() const
 {
     return tnsName;
@@ -237,26 +231,18 @@ void DbConnection::setPassword(const QString &password)
     this->password=password;
 }
 
-bool DbConnection::getSavePassword() const
-{
-    return savePassword;
-}
-
-void DbConnection::setSavePassword(const bool savePassword)
-{
-    this->savePassword=savePassword;
-}
-
+/*
 QDataStream &operator<<(QDataStream &out, const DbConnection &db)
 {
-    out << db.title << db.environment << db.tnsName << db.username << (db.savePassword ? db.password : QString("")) << db.savePassword;
+    out << db.title << db.tnsName << db.username << db.password;
 
     return out;
 }
 
 QDataStream &operator>>(QDataStream &in, DbConnection &db)
 {
-    in >> db.title >> db.environment >> db.tnsName >> db.username >> db.password >> db.savePassword;
+    in >> db.title >> db.tnsName >> db.username >> db.password;
 
     return in;
 }
+*/

@@ -1,18 +1,19 @@
 #ifndef CONNECTIONSPANE_H
 #define CONNECTIONSPANE_H
 
-#include <QTabWidget>
+#include "widgets/tabwidget.h"
 
 class DbConnection;
 class ConnectionPage;
+class DbConnectionInfo;
 
-class ConnectionsPane : public QTabWidget
+class ConnectionsPane : public TabWidget
 {
     Q_OBJECT
 public:
     explicit ConnectionsPane(QWidget *parent = 0);
 
-    void addConnection();
+    void addConnection(const QString &uuid = QString());
     ConnectionPage *currentConnectionPage() const;
 
 signals:
@@ -23,12 +24,16 @@ public slots:
     void closeTab(int index);
     void popOutTab();
     void ctrlTabPressed();
+    void setTabTitle(QWidget *tab, DbConnectionInfo *connectionInfo);
+
+    void tabBusyStateChanged(ConnectionPage *cnPage, bool busy);
 
 protected:
     void contextMenuEvent(QContextMenuEvent* pEvent);
 
 private:
     void showTabBar();
+    void updateMainWindowTitle();
 
 };
 

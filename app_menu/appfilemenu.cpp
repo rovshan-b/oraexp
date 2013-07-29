@@ -6,7 +6,11 @@
 #include "util/widgethelper.h"
 #include "util/dialoghelper.h"
 #include "util/settings.h"
+#include "util/settingshelper.h"
+#include "util/dbutil.h"
 #include "beans/dbitemaction.h"
+#include "beans/dbconnectioninfo.h"
+#include "beans/environmentinfo.h"
 #include <QtGui>
 
 AppFileMenu::AppFileMenu(QMenu *fileMenu, QToolBar *toolbar, QObject *parent) : AppMainMenu(parent)
@@ -16,16 +20,24 @@ AppFileMenu::AppFileMenu(QMenu *fileMenu, QToolBar *toolbar, QObject *parent) : 
 
 AppFileMenu::~AppFileMenu()
 {
+    WidgetHelper::deleteActions(connectionListMenu->actions());
+
+    delete connectionListMenu;
     delete fileNewMenu;
     delete recentFilesMenu;
 }
 
 void AppFileMenu::setupMenu(QMenu *fileMenu, QToolBar *toolbar)
 {
-    fileConnectAction=fileMenu->addAction(IconUtil::getIcon("connect"), tr("&Connect"), this, SLOT(showConnectDialog()));
+    fileConnectAction=fileMenu->addAction(IconUtil::getIcon("connect"), tr("Connect"), this, SLOT(showConnectDialog()));
     fileConnectAction->setStatusTip(tr("Connect to database server"));
 
-    toolbar->addAction(fileConnectAction);
+    fileConnectToolbarAction = new QAction(IconUtil::getIcon("connect"), tr("Connect"), this);
+    connect(fileConnectToolbarAction, SIGNAL(triggered()), this, SLOT(showConnectDialog()));
+    createConnectionListMenu();
+    fileConnectToolbarAction->setMenu(connectionListMenu);
+
+    toolbar->addAction(fileConnectToolbarAction);
 
     fileMenu->addSeparator();
     toolbar->addSeparator();
@@ -43,7 +55,7 @@ void AppFileMenu::setupMenu(QMenu *fileMenu, QToolBar *toolbar)
     createRecentFilesMenu();
     fileOpenRecentAction->setMenu(recentFilesMenu);
 
-    fileOpenToolbarAction = new QAction(IconUtil::getIcon("fileopen"), tr("&Open..."), this);
+    fileOpenToolbarAction = new QAction(IconUtil::getIcon("fileopen"), tr("Open..."), this);
     connect(fileOpenToolbarAction, SIGNAL(triggered()), this, SLOT(open()));
     fileOpenToolbarAction->setMenu(recentFilesMenu);
 
@@ -79,6 +91,13 @@ void AppFileMenu::setupMenu(QMenu *fileMenu, QToolBar *toolbar)
 
     QAction *exitAction=fileMenu->addAction(IconUtil::getIcon("exit"), tr("E&xit"));
     exitAction->setStatusTip(tr("Quit application"));
+}
+
+void AppFileMenu::createConnectionListMenu()
+{
+    connectionListMenu=new QMenu(tr("Connection list"));
+
+    connect(connectionListMenu, SIGNAL(aboutToShow()), this, SLOT(populateConnectionMenu()));
 }
 
 void AppFileMenu::createFileNewMenu()
@@ -122,7 +141,8 @@ void AppFileMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *
         action->setEnabled(cnPage!=0);
     }
 
-    fileOpenAction->setEnabled(getConnectionsPane()->currentConnectionPage() != 0);
+    fileOpenAction->setEnabled(cnPage != 0);
+    fileOpenToolbarAction->setEnabled(cnPage != 0);
 
     fileSaveAction->setEnabled(cnPageTab!=0 && cnPageTab->canSave());
     fileSaveAllAction->setEnabled(cnPageTab!=0 && (cnPage->tabCount()>0 || cnPageTab->canSave()));
@@ -170,8 +190,10 @@ void AppFileMenu::saveRecentFileList()
 
 void AppFileMenu::showConnectDialog()
 {
-    //DialogHelper::showConnectDialog(getConnectionsPane());
-    getConnectionsPane()->addConnection();
+    QAction *action = qobject_cast<QAction*>(sender());
+    Q_ASSERT(action);
+
+    getConnectionsPane()->addConnection(action->data().toString());
 }
 
 void AppFileMenu::showCreator()
@@ -187,4 +209,46 @@ void AppFileMenu::openRecent()
     QAction *action = static_cast<QAction*>(sender());
     Q_ASSERT(action);
     uiManager()->openRecentFile(action->text());
+}
+
+void AppFileMenu::populateConnectionMenu()
+{
+    WidgetHelper::deleteActions(connectionListMenu->actions());
+    connectionListMenu->actions().clear();
+
+    QList<DbConnectionInfo *> allConnections = SettingsHelper::loadConnectionList();
+
+    QList<EnvironmentInfo> environments = DbUtil::getEnvironmentList();
+    foreach(const EnvironmentInfo &env, environments){
+        QList<DbConnectionInfo *> connections = getConnectionsByEnvironment(allConnections, env.environment);
+
+        QAction *envAction = connectionListMenu->addAction(env.icon, env.title);
+        QMenu *cnListMenu = new QMenu();
+        envAction->setMenu(cnListMenu);
+
+        foreach(DbConnectionInfo *connection, connections){
+            QAction *action = cnListMenu->addAction(env.icon, connection->title, this, SLOT(showConnectDialog()));
+            action->setData(connection->uuid);
+        }
+
+        if(cnListMenu->actions().size() == 0){
+            cnListMenu->addAction(tr("Empty"))->setEnabled(false);
+        }
+    }
+
+    qDeleteAll(allConnections);
+}
+
+QList<DbConnectionInfo *> AppFileMenu::getConnectionsByEnvironment(QList<DbConnectionInfo *> allConnections, OraExp::ConnectionEnvironment environment)
+{
+    QList<DbConnectionInfo *> result;
+
+    for(int i=0; i<allConnections.size(); ++i){
+        DbConnectionInfo *connection = allConnections.at(i);
+        if(connection->environment == environment){
+            result.append(connection);
+        }
+    }
+
+    return result;
 }

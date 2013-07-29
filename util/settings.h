@@ -12,6 +12,11 @@ public:
 
     static void beginGroup ( const QString & prefix );
     static void endGroup ();
+
+    static int beginReadArray ( const QString & prefix );
+    static void beginWriteArray ( const QString & prefix, int size = -1 );
+    static void setArrayIndex ( int i );
+    static void endArray ();
 private:
     Settings();
 
