@@ -26,18 +26,7 @@ ConnectionsPane::ConnectionsPane(QWidget *parent) :
 
 void ConnectionsPane::addConnection(const QString &uuid)
 {
-    QSharedPointer<ConnectionListModel> connectionListModel;
-
-    for(int i=0; i<count(); ++i){
-        ConnectionPage *page = static_cast<ConnectionPage*>(widget(i));
-        if(!page->isConnected()){
-            connectionListModel = page->getConnectionListModel();
-            break;
-        }
-
-    }
-
-    ConnectionPage *cnPage=new ConnectionPage(connectionListModel, uuid);
+    ConnectionPage *cnPage=new ConnectionPage(uuid);
     connect(cnPage, SIGNAL(busyStateChanged(ConnectionPage*,bool)), this, SLOT(tabBusyStateChanged(ConnectionPage*,bool)));
     connect(cnPage, SIGNAL(connectionPageStateChanged()), this, SIGNAL(connectionPageStateChanged()));
     connect(cnPage, SIGNAL(setTitle(QWidget*,DbConnectionInfo*)), this, SLOT(setTabTitle(QWidget*,DbConnectionInfo*)));

@@ -9,11 +9,13 @@ class ParsingTable
 {
 public:
     QStringList keywords;
+    QStringList ruleNames;
     QList<ParsingTableRow *> rows;
 
     virtual ~ParsingTable();
 
     int getKeywordIx(const QString &possibleKeyword) const;
+    QString getRuleName(int ruleId);
 
 protected:
     ParsingTable();

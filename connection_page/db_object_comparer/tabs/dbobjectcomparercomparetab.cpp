@@ -50,6 +50,10 @@ void DbObjectComparerCompareTab::setQueryScheduler(IQueryScheduler *querySchedul
 {
     this->queryScheduler=queryScheduler;
 
+    if(targetConnection){
+        targetConnection->setQueryScheduler(queryScheduler);
+    }
+
     loadDbObjects();
 }
 

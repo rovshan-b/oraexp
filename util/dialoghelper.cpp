@@ -38,22 +38,6 @@ bool DialogHelper::showStorageParamsDialog(QWidget *parent, IQueryScheduler *sch
     return false;
 }
 
-/*
-void DialogHelper::showConnectDialog(ConnectionsPane *connectionsPane)
-{
-    ConnectDialog connectDialog(connectionsPane->window());
-    if(connectDialog.exec())
-    {
-        connectionsPane->addConnection(connectDialog.getConnection());
-    }
-    connectDialog.saveConnectionsToConfig();
-}*/
-
-DbConnection *DialogHelper::getConnection(QWidget *dialogParent)
-{
-    return 0;
-}
-
 QString DialogHelper::showFileSaveDialog(QWidget *parent,
                                          const QString &defaultFileName,
                                          const QString &defaultSuffix,
@@ -152,4 +136,11 @@ void DialogHelper::centerWindow(QWidget *window)
     QDesktopWidget *desktop=qApp->desktop();
     frect.moveCenter(desktop->availableGeometry(topLevelWidgets.at(0)).center());
     window->move(frect.topLeft());
+}
+
+void DialogHelper::showMaximizeMinimizeButtons(QWidget *dialog)
+{
+    dialog->setWindowFlags(Qt::Window | Qt::WindowSystemMenuHint
+                   | Qt::WindowMinMaxButtonsHint
+                   | Qt::WindowCloseButtonHint);
 }

@@ -5,6 +5,7 @@
 #include "../textcursorreader.h"
 #include "../codeparserfactory.h"
 #include "../codeparser.h"
+#include "../parsingtable.h"
 #include <QtGui>
 #include <QDebug>
 
@@ -99,7 +100,7 @@ void MainWindow::on_actionParse_triggered()
     delete parser;
 }
 
-void MainWindow::reduced(int ruleId, int symbolCount)
+void MainWindow::reduced(int ruleId, int symbolCount, ParsingTable *parsingTable)
 {
-    ui->output->appendPlainText(QString("reduced by rule %1, symbol count is %2").arg(ruleId).arg(symbolCount));
+    ui->output->appendPlainText(QString("reduced by rule %1, symbol count is %2. rule name: %3").arg(ruleId).arg(symbolCount).arg(parsingTable->getRuleName(ruleId)));
 }

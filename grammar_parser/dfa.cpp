@@ -6,6 +6,7 @@
 #include "dfatransition.h"
 #include "firstfollowsetcomputer.h"
 #include "ebnfscanner.h"
+#include "filewriter.h"
 #include <QtDebug>
 #include <QTime>
 
@@ -20,8 +21,10 @@ DFA::DFA(const QList<BNFRule*> &bnfRules, int eofTokenId) : bnfRules(bnfRules), 
         FirstFollowSetComputer(this->bnfRules);
         generateDFAItems();
         constructDFAforLR0();
+
         //printoutDFA();
-        //hasConflicts=true;
+        //return;
+
         if(hasConflicts){
             return;
         }
@@ -679,8 +682,18 @@ void DFA::printoutTargetParserRules()
         rule->ruleDefId=i+1;
 
         QString define=QString("#define R_%1 %2").arg(rule->ruleName.toUpper()).arg(i+1);
-        qDebug() << qPrintable(define);
+        FileWriter::writeLine(define, FileWriter::Rules);
     }
+
+    FileWriter::writeLine("//-----------rule string representations-----------------");
+    FileWriter::writeLine(QString("ruleNames.reserve( %1 );").arg(bnfRules.size()));
+    for(int i=0; i<bnfRules.size(); ++i){
+        BNFRule *rule=bnfRules.at(i);
+
+        QString addStmt=QString("ruleNames.append(\"%1\");").arg(rule->ruleName.toUpper());
+        FileWriter::writeLine(addStmt);
+    }
+    FileWriter::writeLine("//-------------------------------------------------------");
 }
 
 void DFA::printoutLookaheadsPropagationTable()

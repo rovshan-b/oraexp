@@ -13,10 +13,11 @@
 #include "passwordentrydialog.h"
 #include <QtGui>
 
-ConnectionPageConnectWidget::ConnectionPageConnectWidget(const QSharedPointer<ConnectionListModel> &model,
-                                                         const QString &connectionUuid,
+QWeakPointer<ConnectionListModel> ConnectionPageConnectWidget::globalModel;
+
+ConnectionPageConnectWidget::ConnectionPageConnectWidget(const QString &connectionUuid,
                                                          QWidget *parent) :
-    QWidget(parent), model(model), modifyingConnection(false), initialConnectionUuid(connectionUuid)
+    QWidget(parent), initialConnectionUuid(connectionUuid), modifyingConnection(false), busy(false)
 {
     createUi();
 }
@@ -60,9 +61,12 @@ void ConnectionPageConnectWidget::createConnectionList(QSplitter *splitter)
     table->setSelectionBehavior(QAbstractItemView::SelectRows);
     table->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    if(model.isNull()){
+    if(ConnectionPageConnectWidget::globalModel.isNull()){ //models can be deleted only on primary thread. so we can be confident that result of isNull will not be changed between calls
         model = QSharedPointer<ConnectionListModel>(new ConnectionListModel, &QObject::deleteLater);
+        ConnectionPageConnectWidget::globalModel = model;
         loadConnectionList();
+    }else{
+        model = ConnectionPageConnectWidget::globalModel.toStrongRef();
     }
 
     proxyModel = new QSortFilterProxyModel(this);
@@ -232,6 +236,10 @@ void ConnectionPageConnectWidget::deleteConnection()
 
 void ConnectionPageConnectWidget::connectToDb(bool test)
 {
+    if(this->busy){
+        return;
+    }
+
     testMode = test;
 
     DbConnectionInfo *connectionInfo = connectionEditor->getCurrentConnection();
@@ -257,6 +265,7 @@ void ConnectionPageConnectWidget::connectToDb(bool test)
         }
     }
 
+    this->busy = true;
     setEnabled(false);
 
     emit busyStateChanged(true);
@@ -307,6 +316,7 @@ void ConnectionPageConnectWidget::connectionEstablished(AsyncConnect *thread, Db
     thread->wait();
     thread->deleteLater();
 
+    this->busy = false;
     setEnabled(true);
 
     emit busyStateChanged(false);
@@ -322,6 +332,8 @@ void ConnectionPageConnectWidget::connectionEstablished(AsyncConnect *thread, Db
         if(deleteOnFail){
             connectionEditor->deleteCurrentConnection();
         }
+
+        selectInTable(currentConnection);
     }else{
         if(deleteOnFail){ //new connection
             model->addConnection(currentConnection);
@@ -407,11 +419,6 @@ void ConnectionPageConnectWidget::connectionModified(DbConnectionInfo *connectio
     if(!modifyingConnection && connectionEditor->getCurrentConnection() == connection){
         connectionEditor->setCurrentConnection(connection);
     }
-}
-
-QSharedPointer<ConnectionListModel> ConnectionPageConnectWidget::getConnectionListModel() const
-{
-    return this->model;
 }
 
 void ConnectionPageConnectWidget::focusReady()

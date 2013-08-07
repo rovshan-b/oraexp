@@ -4,6 +4,8 @@
 #include "lineeditwithbutton.h"
 
 class DbConnection;
+class DbConnectionInfo;
+class IQueryScheduler;
 
 class ConnectionSelectorWidget : public LineEditWithButton
 {
@@ -14,14 +16,23 @@ public:
 
     DbConnection *getDb() const {return this->db;}
 
+    void setQueryScheduler(IQueryScheduler *queryScheduler);
+
 signals:
     void connectionEstablished(DbConnection *db);
 
 private slots:
     void connectToServer();
 
+    void connected(DbConnection *db, DbConnectionInfo *connectionInfo);
+
+    void connectDialogClosed();
+
 private:
     DbConnection *db;
+
+    //used only for increasing and decreasing reference count in order to keep parent widget's busy status while connecting
+    IQueryScheduler *queryScheduler;
 
     void cleanup();
 

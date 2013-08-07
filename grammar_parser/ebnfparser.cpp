@@ -2,6 +2,7 @@
 #include "ebnfscanner.h"
 #include "bnfrule.h"
 #include "bnfruleitem.h"
+#include "filewriter.h"
 #include <QFile>
 #include <QTextStream>
 #include <stdlib.h>
@@ -436,31 +437,30 @@ void EBNFParser::registerTargetScannerKeywordsFromFile()
 
 void EBNFParser::printTargetScannerTokens()
 {
-    qDebug("---------target scanner tokens------------");
+    qDebug() << "---------target scanner tokens------------";
 
     foreach(const EBNFToken &token, targetScannerTokens){
-        qDebug() << "#define" << qPrintable(token.lexeme) << token.nonLiteralTerminalDefId;
+        qDebug() << "#define" << token.lexeme << token.nonLiteralTerminalDefId;
     }
 
-    qDebug("-------end target scanner tokens----------");
+    qDebug() << "-------end target scanner tokens----------";
 }
 
 void EBNFParser::printTargetScannerKeywords()
 {
-    qDebug("---------target scanner keywords------------");
+    FileWriter::writeLine("//---------target scanner keywords------------");
 
     if(targetScannerKeywords.size()>0){
-        //qDebug("QStringList keywords;");
-        qDebug() << qPrintable(QString("keywords.reserve(%1);").arg(targetScannerKeywords.size()));
+        FileWriter::writeLine(QString("keywords.reserve(%1);").arg(targetScannerKeywords.size()));
     }
     QString line;
 
     foreach(const QString &keyword, targetScannerKeywords){
         line = QString("keywords.append(\"%1\");").arg(keyword);
-        qDebug() << qPrintable(line);
+        FileWriter::writeLine(line);
     }
 
-    qDebug("-------end target scanner keywords----------");
+    FileWriter::writeLine("//-------end target scanner keywords----------");
 }
 
 QList<BNFRule*> EBNFParser::getBNFRules() const

@@ -19,6 +19,8 @@ private:
     bool addFollowSetFrom(BNFRule *target, BNFRuleItem *sourceRuleItem, bool *hasEpsilonInFirstSet);
     bool addToFollowSet(BNFRule *target, const EBNFToken &token);
 
+    bool hasEpsilonInFirstSet(const QString &ruleName);
+
     BNFRule *findRuleByName(const QString &ruleName);
 
     void printFirstSets();

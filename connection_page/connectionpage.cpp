@@ -3,7 +3,7 @@
 #include "connectionpageconnectedwidget.h"
 #include <QtGui>
 
-ConnectionPage::ConnectionPage(const QSharedPointer<ConnectionListModel> &model, const QString &connectionUuid, QWidget *parent) :
+ConnectionPage::ConnectionPage(const QString &connectionUuid, QWidget *parent) :
     QWidget(parent),
     mainWidget(0),
     uiManager(this),
@@ -11,7 +11,7 @@ ConnectionPage::ConnectionPage(const QSharedPointer<ConnectionListModel> &model,
 {
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
-    connectWidget = new ConnectionPageConnectWidget(model, connectionUuid);
+    connectWidget = new ConnectionPageConnectWidget(connectionUuid);
     mainLayout->addWidget(connectWidget);
 
     mainLayout->setContentsMargins(0,0,0,0);
@@ -149,13 +149,6 @@ QList<ConnectionPageTab *> ConnectionPage::getTabsByConnection(DbConnection *db,
     Q_ASSERT(mainWidget);
 
     return mainWidget->getTabsByConnection(db, className, limit);
-}
-
-QSharedPointer<ConnectionListModel> ConnectionPage::getConnectionListModel() const
-{
-    Q_ASSERT(connectWidget);
-
-    return connectWidget->getConnectionListModel();
 }
 
 void ConnectionPage::closeTab(int index)

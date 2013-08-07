@@ -128,7 +128,7 @@ void ConnectionEditor::updateConnection(DbConnectionInfo *connection)
 {
     QString title = titleEditor->text().trimmed();
     OraExp::ConnectionEnvironment environment = (OraExp::ConnectionEnvironment) environmentCombo->itemData(environmentCombo->currentIndex()).toInt();
-    QString username = usernameEditor->text().trimmed();
+    QString username = usernameEditor->text().trimmed().toUpper();
     QString password = passwordEditor->text();
     bool savePassword = savePasswordCheckBox->isChecked();
     int type = connectionTypeCombo->currentIndex();

@@ -7,6 +7,7 @@
 #include "bnfruleitem.h"
 #include "ebnfscanner.h"
 #include "ebnfparser.h"
+#include "filewriter.h"
 #include <QTime>
 #include <QDebug>
 
@@ -177,7 +178,7 @@ void ParsingTableBuilder::printoutTableRow(ParsingTableRow* row) const
 
 void ParsingTableBuilder::printoutForTargetParser()
 {
-    qDebug("----------------parsing table code for target parser---------------");
+    FileWriter::writeLine("//----------------parsing table code for target parser---------------");
 
     //first print out individual actions
     for(int i=0; i<tableRows.size(); ++i){
@@ -201,7 +202,7 @@ void ParsingTableBuilder::printoutForTargetParser()
 
     //now print out declarations for table rows
     //qDebug("QList<ParsingTableRow*> rows;");
-    qDebug() << "rows.reserve(" << tableRows.size() << ");\n";
+    FileWriter::writeLine(QString("rows.reserve( %1 );\n").arg(tableRows.size()));
 
     for(int i=0; i<tableRows.size(); ++i){
         ParsingTableRow *row=tableRows.at(i);
@@ -209,7 +210,7 @@ void ParsingTableBuilder::printoutForTargetParser()
         printoutRowCode(row);
     }
 
-    qDebug("--------------end parsing table code for target parser-------------");
+    FileWriter::writeLine("//--------------end parsing table code for target parser-------------");
 }
 
 void ParsingTableBuilder::printoutActionCode(const QString &varName, ParsingTableAction *action) const
@@ -219,7 +220,7 @@ void ParsingTableBuilder::printoutActionCode(const QString &varName, ParsingTabl
     decl.append(QString("%1->stateOrRuleId = %2;\n").arg(varName).arg(QString::number(action->stateOrRuleId)));
     decl.append(QString("%1->symbolCount = %2;\n").arg(varName).arg(QString::number(action->symbolCount)));
 
-    qDebug() << qPrintable(decl);
+    FileWriter::writeLine(decl);
 }
 
 void ParsingTableBuilder::printoutRowCode(ParsingTableRow *row) const
@@ -249,7 +250,7 @@ void ParsingTableBuilder::printoutRowCode(ParsingTableRow *row) const
 
     decl.append(QString("rows.append(%1);\n").arg(varName));
 
-    qDebug() << qPrintable(decl);
+    FileWriter::writeLine(decl);
 }
 
 QString ParsingTableBuilder::getTokenName(int tokenId) const

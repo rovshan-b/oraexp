@@ -32,7 +32,7 @@ void FirstFollowSetComputer::computeFirstSets()
                 QList < BNFRuleItem * > production=rule->alternatives.at(j);
 
                 while(doContinue && k<production.size()){
-                    bool hasEpsilon=false;
+                    //bool hasEpsilon=false;
 
                     BNFRuleItem *ruleItem=production.at(k);
                     if(!ruleItem->isEpsilon()){
@@ -40,12 +40,10 @@ void FirstFollowSetComputer::computeFirstSets()
                         if(hasChanges==false && added==true){
                             hasChanges=true;
                         }
-                    }else{
-                        hasEpsilon=true;
-                    }
 
-                    if(hasEpsilon==false){
-                        doContinue=false;
+                        if(ruleItem->isTerminal || !hasEpsilonInFirstSet(ruleItem->pointsTo)){
+                            doContinue=false;
+                        }
                     }
 
                     ++k;
@@ -82,7 +80,13 @@ bool FirstFollowSetComputer::addFirstSetFrom(BNFRule *target,
     bool hasChanges=false;
     for(int i=0; i<sourceRule->firstSet.size(); ++i){
         const EBNFToken &token=sourceRule->firstSet.at(i);
-        bool added=addToFirstSet(target, token);
+        bool added;
+
+        if(token.tokenType == EBNFToken::EPSILON){
+            added = false;
+        }else{
+            added = addToFirstSet(target, token);
+        }
 
         if(hasChanges==false && added==true){
             hasChanges=true;
@@ -227,6 +231,18 @@ bool FirstFollowSetComputer::addToFollowSet(BNFRule *target, const EBNFToken &to
     target->followSet.append(token);
 
     return true;
+}
+
+bool FirstFollowSetComputer::hasEpsilonInFirstSet(const QString &ruleName)
+{
+    BNFRule *rule = findRuleByName(ruleName);
+    foreach(const EBNFToken &token, rule->firstSet){
+        if(token.tokenType == EBNFToken::EPSILON){
+            return true;
+        }
+    }
+
+    return false;
 }
 
 BNFRule *FirstFollowSetComputer::findRuleByName(const QString &ruleName)

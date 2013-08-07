@@ -28,7 +28,8 @@ SOURCES += main.cpp \
     ../firstfollowsetcomputer.cpp \
     ../parsingtablebuilder.cpp \
     ../parsingtablerow.cpp \
-    ../parsingtableaction.cpp
+    ../parsingtableaction.cpp \
+    ../filewriter.cpp
 
 HEADERS += \
     ../bnfrule.h \
@@ -43,4 +44,5 @@ HEADERS += \
     ../firstfollowsetcomputer.h \
     ../parsingtablebuilder.h \
     ../parsingtablerow.h \
-    ../parsingtableaction.h
+    ../parsingtableaction.h \
+    ../filewriter.h

@@ -516,7 +516,8 @@ SOURCES += main.cpp\
     widgets/connectioneditor.cpp \
     beans/dbconnectioninfo.cpp \
     models/connectionlistmodel.cpp \
-    beans/environmentinfo.cpp
+    beans/environmentinfo.cpp \
+    dialogs/connectdialog.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1037,7 +1038,8 @@ HEADERS  += mainwindow.h \
     widgets/connectioneditor.h \
     beans/dbconnectioninfo.h \
     models/connectionlistmodel.h \
-    beans/environmentinfo.h
+    beans/environmentinfo.h \
+    dialogs/connectdialog.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

@@ -20,13 +20,12 @@ class ConnectionPageConnectWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ConnectionPageConnectWidget(const QSharedPointer<ConnectionListModel> &model,
-                                         const QString &connectionUuid,
+    explicit ConnectionPageConnectWidget(const QString &connectionUuid = QString(),
                                          QWidget *parent = 0);
 
-    QSharedPointer<ConnectionListModel> getConnectionListModel() const;
-
     void focusReady();
+
+    bool isBusy() const {return this->busy;}
 
 signals:
     void connected(DbConnection *db, DbConnectionInfo *connectionInfo);
@@ -73,6 +72,9 @@ private:
 
     LineEditWithClearButton *filterEditor;
     DataTable *table;
+
+    static QWeakPointer<ConnectionListModel> globalModel;
+
     QSharedPointer<ConnectionListModel> model;
     QSortFilterProxyModel *proxyModel;
     ConnectionEditor *connectionEditor;
@@ -80,9 +82,11 @@ private:
     bool testMode;
     bool deleteOnFail;
 
-    bool modifyingConnection;
-
     QString initialConnectionUuid;
+
+    bool modifyingConnection;
+    bool busy;
+
     
 };
 

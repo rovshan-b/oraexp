@@ -16,7 +16,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    virtual void reduced(int ruleId, int symbolCount);
+    virtual void reduced(int ruleId, int symbolCount, ParsingTable *parsingTable);
 
 protected:
     void closeEvent ( QCloseEvent * event );

@@ -24,7 +24,7 @@ void DbConnectionInfo::readFromSettings()
     uuid = Settings::value("uuid").toString();
     title = Settings::value("title").toString();
     environment = (OraExp::ConnectionEnvironment) Settings::value("environment").toInt();
-    username = Settings::value("username").toString();
+    username = Settings::value("username").toString().toUpper();
     password = Settings::value("password").toString();
     savePassword = Settings::value("savePassword").toBool();
     type = Settings::value("type").toInt();

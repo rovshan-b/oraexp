@@ -14,6 +14,7 @@
 #define EDITOR_CURR_LINE_NAVBAR_COLOR palette().color(QPalette::Window).darker(130)
 
 QFont CodeEditor::currentFont;
+QHash<QString,QString> CodeEditor::textShortcuts;
 
 CodeEditor::CodeEditor(QWidget *parent) :
     QPlainTextEdit(parent), lineNumberArea(0), lineNavBar(0), markedLineIx(-1), lineMarkerUsed(false)
@@ -50,6 +51,9 @@ CodeEditor::CodeEditor(QWidget *parent) :
 
     new QShortcut(QKeySequence(tr("Ctrl+=", "CodeEditor|Increase font size")),
                   this, SLOT(increaseFontSize()), 0, Qt::WidgetWithChildrenShortcut);
+
+
+    CodeEditor::fillTextShortcuts();
 }
 
 //use only when sure that there's not lots of text in editor
@@ -462,7 +466,7 @@ int CodeEditor::lineMarkerAreaOffset() const
                          indentSelection();
                      }
                  }else{
-                     textCursor().insertText(strTab);
+                     insertTab();
                  }
              }
          }else if(key==Qt::Key_Backtab && textCursor().hasSelection()){
@@ -607,11 +611,12 @@ int CodeEditor::lineMarkerAreaOffset() const
      //cur.movePosition(QTextCursor::StartOfBlock);
      int blocksToMove=(inf.endBlock-inf.startBlock)+1;
      for(int i=0; i<blocksToMove; ++i){
+        int posInBlockBeforeMove = i==0 ? cur.positionInBlock() : -1; //needed only for first block
         moveToFirstNonSpaceCharacter(cur);
         for(int k=0; k<strTab.size(); ++k){
             if(cur.positionInBlock()>0){
                 cur.deletePreviousChar();
-                if(i==0){
+                if(i==0 && posInBlockBeforeMove > 0){
                     --inf.startPos;
                 }
 
@@ -626,6 +631,29 @@ int CodeEditor::lineMarkerAreaOffset() const
      cur.endEditBlock();
      inf.selectText(cur);
      setTextCursor(cur);
+ }
+
+ void CodeEditor::insertTab() const
+ {
+     QTextCursor cur = textCursor();
+     Q_ASSERT(!cur.hasSelection()); //this function is called only when there is no selection
+
+     if(cur.atBlockStart()){
+         cur.insertText(strTab);
+         return;
+     }
+
+     QList<QString> keys = CodeEditor::textShortcuts.keys();
+     for(int i=0; i<keys.size(); ++i){
+         const QString &key = keys.at(i);
+         cur.setPosition(cur.position() - key.size(), QTextCursor::KeepAnchor);
+         if(cur.selectedText().compare(key, Qt::CaseInsensitive) == 0){
+             cur.insertText(CodeEditor::textShortcuts[key]);
+             return;
+         }
+     }
+
+     textCursor().insertText(strTab);
  }
 
  void CodeEditor::handleHomeKey(bool keepSelection)
@@ -1157,4 +1185,13 @@ int CodeEditor::lineMarkerAreaOffset() const
              lineNumberArea->update();
          }
      }
+ }
+
+ void CodeEditor::fillTextShortcuts()
+ {
+     if(!CodeEditor::textShortcuts.isEmpty()){
+         return;
+     }
+
+     CodeEditor::textShortcuts["sf"] = "select * from ";
  }

@@ -144,6 +144,8 @@ void AppFileMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *
     fileOpenAction->setEnabled(cnPage != 0);
     fileOpenToolbarAction->setEnabled(cnPage != 0);
 
+    fileOpenRecentAction->setEnabled(cnPage != 0);
+
     fileSaveAction->setEnabled(cnPageTab!=0 && cnPageTab->canSave());
     fileSaveAllAction->setEnabled(cnPageTab!=0 && (cnPage->tabCount()>0 || cnPageTab->canSave()));
     fileSaveAsAction->setEnabled(cnPageTab!=0 && cnPageTab->canSave());
@@ -182,7 +184,10 @@ void AppFileMenu::saveRecentFileList()
 
     QList<QAction*> actions = recentFilesMenu->actions();
     for(int i=0; i<actions.size(); ++i){
-        list.append(actions.at(i)->text());
+
+        if(actions.at(i)->isEnabled()){
+            list.append(actions.at(i)->text());
+        }
     }
 
     Settings::setValue("recentFiles", list);
@@ -239,6 +244,11 @@ void AppFileMenu::populateConnectionMenu()
     qDeleteAll(allConnections);
 }
 
+bool titleLessThan(DbConnectionInfo *info1, DbConnectionInfo *info2)
+{
+    return info1->title.compare(info2->title, Qt::CaseInsensitive) < 0;
+}
+
 QList<DbConnectionInfo *> AppFileMenu::getConnectionsByEnvironment(QList<DbConnectionInfo *> allConnections, OraExp::ConnectionEnvironment environment)
 {
     QList<DbConnectionInfo *> result;
@@ -249,6 +259,8 @@ QList<DbConnectionInfo *> AppFileMenu::getConnectionsByEnvironment(QList<DbConne
             result.append(connection);
         }
     }
+
+    qSort(result.begin(), result.end(), titleLessThan);
 
     return result;
 }

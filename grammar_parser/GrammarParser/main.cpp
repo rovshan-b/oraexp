@@ -2,6 +2,7 @@
 #include "../ebnfparser.h"
 #include "../dfa.h"
 #include "../parsingtablebuilder.h"
+#include "../filewriter.h"
 
 int main(int argc, char *argv[])
 {
@@ -16,8 +17,11 @@ int main(int argc, char *argv[])
                                 parser.getTargetScannerKeywords(),
                                 parser.getTargetScannerTokens(),
                                 parser.eofTokenId);
+
+            FileWriter::flushToFiles();
         }
     }
+
     return 0;
 
     //QCoreApplication a(argc, argv);

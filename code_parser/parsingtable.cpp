@@ -24,3 +24,11 @@ int ParsingTable::getKeywordIx(const QString &possibleKeyword) const
 
     return ix;
 }
+
+QString ParsingTable::getRuleName(int ruleId)
+{
+    //ruleId-s are 1 based
+    Q_ASSERT(ruleNames.size() >= ruleId);
+
+    return ruleNames.at(ruleId - 1);
+}

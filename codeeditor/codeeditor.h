@@ -99,6 +99,7 @@ private:
     void autoIndentNewBlock();
     void indentSelection();
     void unindentSelection();
+    void insertTab() const;
     void handleHomeKey(bool keepSelection);
     int getFirstNonSpaceCharacterIndex(QTextCursor &cur, bool *onlySpaces=0);
     bool moveToFirstNonSpaceCharacter(QTextCursor &cur, QTextCursor::MoveMode moveMode=QTextCursor::MoveAnchor);
@@ -120,6 +121,9 @@ private:
     int lineMarkerAreaWidth() const;
     int lineMarkerAreaOffset() const;
 
+
+    static QHash<QString,QString> textShortcuts;
+    static void fillTextShortcuts();
 };
 
 #endif // CODEEDITOR_H

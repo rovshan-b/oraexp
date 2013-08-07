@@ -13,8 +13,7 @@ class ConnectionPage : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ConnectionPage(const QSharedPointer<ConnectionListModel> &model,
-                            const QString &connectionUuid,
+    explicit ConnectionPage(const QString &connectionUuid,
                             QWidget *parent = 0);
     virtual ~ConnectionPage();
 
@@ -45,8 +44,6 @@ public:
 
     QList<ConnectionPageTab*> getTabsByType(const QString &className) const;
     QList<ConnectionPageTab*> getTabsByConnection(DbConnection *db, const QString &className=QString(), int limit = -1);
-
-    QSharedPointer<ConnectionListModel> getConnectionListModel() const;
 
     bool isBusy() const {return this->busy;}
 
