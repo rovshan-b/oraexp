@@ -6,6 +6,7 @@
 #include "dfatransition.h"
 #include "firstfollowsetcomputer.h"
 #include "ebnfscanner.h"
+#include "ebnfparser.h"
 #include "filewriter.h"
 #include <QtDebug>
 #include <QTime>
@@ -311,6 +312,7 @@ void DFA::setLookaheadPropagations(DFAState *state, DFAState *tmpState, DFAItem 
 {
     for(int i=0; i<tmpState->dfaItems.size(); ++i){
         DFAItem *item=tmpState->dfaItems.at(i);
+
         DFATransition *transition=state->findTransitionOnDFAItem(item);
         if(transition==0){ //complete epsilon item
             continue;
@@ -506,8 +508,11 @@ void DFA::closure_lalr1(DFAState *state) const
                         bool added=state->addLookahead(initItem, nextRuleItem->token);
                         if(!hasChanges && added){hasChanges=true;}
                     }else if(!nextRuleItem->isTerminal && !nextRuleItem->isEpsilon()){
-                        for(int m=0; m<nextDFAItem->rule->firstSet.size(); ++m){
-                            const EBNFToken &firstSetToken=nextDFAItem->rule->firstSet.at(m);
+                        //burda nextDFAItem->rule evezine nextRuleItem->pointsTo istifade etmek lazimdir
+                        Q_ASSERT(!nextRuleItem->pointsTo.isEmpty());
+                        BNFRule *nextRule = EBNFParser::findRuleByName(this->bnfRules, nextRuleItem->pointsTo);
+                        for(int m=0; m<nextRule->firstSet.size(); ++m){
+                            const EBNFToken &firstSetToken=nextRule->firstSet.at(m);
                             if(firstSetToken.tokenType!=EBNFToken::EPSILON){
                                 bool added=state->addLookahead(initItem, firstSetToken);
                                 if(!hasChanges && added){hasChanges=true;}

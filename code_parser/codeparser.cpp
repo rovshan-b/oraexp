@@ -1,6 +1,5 @@
 #include "codeparser.h"
 #include "ireducelistener.h"
-#include <QDebug>
 
 CodeParser::CodeParser(CodeScanner *scanner) : scanner(scanner), errorRow(0), reduceListener(0)
 {
@@ -50,7 +49,6 @@ bool CodeParser::parse()
         switch(actionType){
         case ParsingTableAction::Shift:
             stack.push(actionOnCurrToken->stateOrRuleId);
-            qDebug() << "shifted" << scanner->getTokenLexeme();
             token=scanner->getNextToken();
             break;
         case ParsingTableAction::Reduce:
