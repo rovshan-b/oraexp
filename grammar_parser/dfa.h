@@ -44,6 +44,7 @@ private:
     void closeItems();
     DFAState *createTmpStateWithNonGrammarSymbol(DFAItem *item) const;
     void closure_lalr1(DFAState *state) const;
+    bool copyLookaheads(DFAState *fromState, DFAItem *fromDFAItem, DFAState *toState, DFAItem *toDFAItem) const;
     void checkForConflicts();
     bool hasIntersectingLookaheads(DFAState *state, DFAItem *first, DFAItem *second) const;
 

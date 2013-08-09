@@ -486,9 +486,6 @@ void DFA::closure_lalr1(DFAState *state) const
                 continue;
             }
 
-            DFAItem *nextDFAItem=findNextDFAItem(dfaItem);
-            BNFRuleItem *nextRuleItem=nextDFAItem->currentRuleItem();
-
             QString lookFor = dfaItem->currentRuleItem()->pointsTo;
             QList<DFAItem*> initItems=findAllInitialDFAItemsForRule(lookFor);
             for(int k=0; k<initItems.size(); ++k){
@@ -502,13 +499,22 @@ void DFA::closure_lalr1(DFAState *state) const
                     hasChanges=true;
                 }
 
-                bool nextDfaItemHasEpsilonInFirstSet=false;
-                if(!nextDFAItem->isCompleteItem()){
-                    if(nextRuleItem->isTerminal && !nextRuleItem->isEpsilon()){
+                DFAItem *nextDFAItem=findNextDFAItem(dfaItem);
+                BNFRuleItem *nextRuleItem=nextDFAItem->currentRuleItem();
+
+                bool nextDfaItemHasEpsilonInFirstSet;
+                while(true){
+                    nextDfaItemHasEpsilonInFirstSet = false;
+
+                    if(nextDFAItem->isCompleteItem()){
+                        bool added = copyLookaheads(state, dfaItem, state, initItem);
+                        if(!hasChanges && added){hasChanges=true;}
+                        break;
+                    }else if(nextRuleItem->isTerminal && !nextRuleItem->isEpsilon()){
                         bool added=state->addLookahead(initItem, nextRuleItem->token);
                         if(!hasChanges && added){hasChanges=true;}
+                        break;
                     }else if(!nextRuleItem->isTerminal && !nextRuleItem->isEpsilon()){
-                        //burda nextDFAItem->rule evezine nextRuleItem->pointsTo istifade etmek lazimdir
                         Q_ASSERT(!nextRuleItem->pointsTo.isEmpty());
                         BNFRule *nextRule = EBNFParser::findRuleByName(this->bnfRules, nextRuleItem->pointsTo);
                         for(int m=0; m<nextRule->firstSet.size(); ++m){
@@ -520,14 +526,13 @@ void DFA::closure_lalr1(DFAState *state) const
                                 nextDfaItemHasEpsilonInFirstSet=true;
                             }
                         }
-                    }
-                }else if(nextDFAItem->isCompleteItem() || nextDfaItemHasEpsilonInFirstSet){
-                    QList<EBNFToken> currentLookaheads=state->lookaheads.value(dfaItem);
-                    for(int m=0; m<currentLookaheads.size(); ++m){
-                        const EBNFToken &currentLookahead=currentLookaheads.at(m);
-                        Q_ASSERT(currentLookahead.tokenType!=EBNFToken::EPSILON);
-                        bool added=state->addLookahead(initItem, currentLookahead);
-                        if(!hasChanges && added){hasChanges=true;}
+
+                        if(nextDfaItemHasEpsilonInFirstSet==false){
+                            break;
+                        }
+
+                        nextDFAItem = findNextDFAItem(nextDFAItem);
+                        nextRuleItem = nextDFAItem->currentRuleItem();
                     }
                 }
             }
@@ -547,6 +552,21 @@ void DFA::closure_lalr1(DFAState *state) const
         state->lookaheads[slidedEpsilonItem]=state->lookaheads[dfaItem];
         state->lookaheads.remove(dfaItem);
     }*/
+}
+
+bool DFA::copyLookaheads(DFAState *fromState, DFAItem *fromDFAItem, DFAState *toState, DFAItem *toDFAItem) const
+{
+    bool hasChanges = false;
+
+    QList<EBNFToken> currentLookaheads=fromState->lookaheads.value(fromDFAItem);
+    for(int m=0; m<currentLookaheads.size(); ++m){
+        const EBNFToken &currentLookahead=currentLookaheads.at(m);
+        Q_ASSERT(currentLookahead.tokenType!=EBNFToken::EPSILON);
+        bool added=toState->addLookahead(toDFAItem, currentLookahead);
+        if(!hasChanges && added){hasChanges=true;}
+    }
+
+    return hasChanges;
 }
 
 void DFA::checkForConflicts()
