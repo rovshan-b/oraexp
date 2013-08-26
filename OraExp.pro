@@ -517,7 +517,12 @@ SOURCES += main.cpp\
     beans/dbconnectioninfo.cpp \
     models/connectionlistmodel.cpp \
     beans/environmentinfo.cpp \
-    dialogs/connectdialog.cpp
+    dialogs/connectdialog.cpp \
+    models/sortfilterproxymodel.cpp \
+    dialogs/objectlookupdialog.cpp \
+    connection_page/generic_viewer/genericobjectviewer.cpp \
+    connection_page/generic_viewer/genericobjectviewertabs.cpp \
+    context_menu/genericobjectcontextmenuutil.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1039,7 +1044,13 @@ HEADERS  += mainwindow.h \
     beans/dbconnectioninfo.h \
     models/connectionlistmodel.h \
     beans/environmentinfo.h \
-    dialogs/connectdialog.h
+    dialogs/connectdialog.h \
+    models/sortfilterproxymodel.h \
+    dialogs/objectlookupdialog.h \
+    connection_page/generic_viewer/genericobjectviewer.h \
+    connection_page/generic_viewer/genericobjectviewertabs.h \
+    beans/iactionpropertysetter.h \
+    context_menu/genericobjectcontextmenuutil.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

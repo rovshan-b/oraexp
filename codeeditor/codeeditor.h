@@ -5,6 +5,7 @@
 #include "cursorpositioninfo.h"
 
 class LineNavigationBar;
+class QCompleter;
 
 class CodeEditor : public QPlainTextEdit
 {
@@ -40,6 +41,9 @@ public:
     void addErrorPosition(const QTextCursor &cursor);
 
     void setMarkedLine(int line);
+
+    void setCompleter(QCompleter *completer);
+    //QCompleter *completer() const;
 
     static QFont currentFont;
 
@@ -84,6 +88,8 @@ private slots:
     void removePulsatePositions();
     void updateNavBar();
 
+    void insertCompletion(const QString &completion);
+
 private:
     QWidget *lineNumberArea;
     LineNavigationBar *lineNavBar;
@@ -124,6 +130,11 @@ private:
 
     static QHash<QString,QString> textShortcuts;
     static void fillTextShortcuts();
+
+    QString textUnderCursor() const;
+
+    QCompleter *completer;
+    void completerHandleKeyPress(QKeyEvent * event);
 };
 
 #endif // CODEEDITOR_H

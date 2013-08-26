@@ -480,7 +480,6 @@ QString DbUtil::getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeTy
         result="USER";
         break;
     default:
-        Q_ASSERT(false);
         result="UNSUPPORTED_TYPE";
         break;
     }
@@ -657,7 +656,6 @@ QString DbUtil::getDbObjectIconNameByParentNodeType(DbTreeModel::DbTreeNodeType 
         result="user";
         break;
     default:
-        Q_ASSERT(false);
         result="UNSUPPORTED_TYPE";
         break;
     }
@@ -946,7 +944,8 @@ bool DbUtil::isPLSQLProgramUnit(const QString &itemType)
             itemType.compare("TRIGGER", Qt::CaseInsensitive)==0 ||
             itemType.compare("TYPE", Qt::CaseInsensitive)==0 ||
             itemType.compare("TYPE SPEC", Qt::CaseInsensitive)==0 ||
-            itemType.compare("TYPE BODY", Qt::CaseInsensitive)==0;
+            itemType.compare("TYPE BODY", Qt::CaseInsensitive)==0 ||
+            itemType.compare("JAVA", Qt::CaseInsensitive)==0;
 }
 
 DbTreeModel::DbTreeNodeType DbUtil::getSpecType(DbTreeModel::DbTreeNodeType itemType)

@@ -15,9 +15,10 @@ QList<QAction *> IndexContextMenuUtil::getActionsForObject(const QString &schema
 
     if(itemType==DbTreeModel::Index){
         //view
-        QAction *viewIndexAction=new DbItemAction(IconUtil::getIcon("index_view"), QObject::tr("View"),
+        DbItemAction *viewIndexAction=new DbItemAction(IconUtil::getIcon("index_view"), QObject::tr("View"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createViewer()));
+        viewIndexAction->isDefault = true;
 
         //alter
         /*QAction *alterIndexAction=new DbItemAction(IconUtil::getIcon("index_alter"), QObject::tr("Alter"),

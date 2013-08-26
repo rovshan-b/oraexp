@@ -93,6 +93,7 @@ private:
     void addSpecBodySwitcher();
     QString getObjectTypeName() const;
     void setReadOnly(bool readOnly);
+    void loadCodeTemplate();
 
     CodeEditorAndSearchPaneWidget *currentEditor() const;
 

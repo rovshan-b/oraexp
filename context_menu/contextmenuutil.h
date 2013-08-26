@@ -6,6 +6,7 @@
 
 class QAction;
 class ContextMenuActionCreator;
+class IActionPropertySetter;
 
 class ContextMenuUtil
 {
@@ -16,7 +17,8 @@ public:
                                         const QString &objectName,
                                         const QString &parentObjectName,
                                         const DbTreeModel::DbTreeNodeType itemType,
-                                        DbUiManager *uiManager);
+                                        DbUiManager *uiManager,
+                                        IActionPropertySetter *propertySetter = 0);
 
     static QList<QAction*> getActionsFromFile(const QString &baseName,
                                               DbUiManager *uiManager,
@@ -29,9 +31,11 @@ private:
     static QList<QAction*> getActionsForObjectFromConfiguration(const QString &schemaName,
                                                const QString &objectName,
                                                const QString &parentObjectName,
-                                               const DbTreeModel::DbTreeNodeType itemType, DbUiManager *uiManager);
-    static QList<QAction *> actionsFromElement(const QDomElement &element, ContextMenuActionCreator *actionCreator, QObject *parent, QObject *resultListener);
-    static QAction *actionFromElement(const QDomElement &e, ContextMenuActionCreator *actionCreator, QObject *parent, QObject *resultListener);
+                                               const DbTreeModel::DbTreeNodeType itemType,
+                                               DbUiManager *uiManager,
+                                               IActionPropertySetter *propertySetter = 0);
+    static QList<QAction *> actionsFromElement(const QDomElement &element, ContextMenuActionCreator *actionCreator, QObject *parent, QObject *resultListener, IActionPropertySetter *propertySetter = 0);
+    static QAction *actionFromElement(const QDomElement &e, ContextMenuActionCreator *actionCreator, QObject *parent, QObject *resultListener, IActionPropertySetter *propertySetter = 0);
 };
 
 #endif // CONTEXTMENUUTIL_H

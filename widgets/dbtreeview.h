@@ -30,6 +30,7 @@ signals:
 
 private slots:
     void showContextMenu(const QPoint &);
+    void nodeActivated ( const QModelIndex & index );
     void handleChildrenPopulateError(const QModelIndex &parent, const OciException &exception);
 
 private:

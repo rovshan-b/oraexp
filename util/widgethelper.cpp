@@ -794,4 +794,16 @@ void WidgetHelper::createAutoRefreshComboBox(QToolBar *toolbar, QWidget *receive
     toolbar->addWidget(comboBox);
 }
 
+QAction *WidgetHelper::findDefaultAction(QList<QAction *> actions)
+{
+    foreach(QAction *action, actions){
+        DynamicAction *dAction = dynamic_cast<DynamicAction*>(action);
+        if(dAction && dAction->isDefault){
+            return action;
+        }
+    }
+
+    return 0;
+}
+
 

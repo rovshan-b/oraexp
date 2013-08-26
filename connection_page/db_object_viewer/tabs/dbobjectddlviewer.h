@@ -20,6 +20,8 @@ public:
 
     virtual QList<QAction*> getSpecificToolbarButtons();
 
+    void setDbObjectTypeName(const QString &dbObjectTypeName);
+
 private slots:
     void ddlQueryCompleted(const QueryResult &result);
     void ddlFetched(const FetchResult &fetchResult);
@@ -33,6 +35,8 @@ private:
     ObjectDdlOptions ddlOptions;
 
     bool addSettingsButton;
+
+    QString dbObjectTypeName;
 
 };
 

@@ -135,5 +135,14 @@
         <file>queries/get_session_waits.sql</file>
         <file>queries/get_session_locks.sql</file>
         <file>queries/get_session_longops.sql</file>
+        <file>queries/code_template_function.sql</file>
+        <file>queries/code_template_package_body.sql</file>
+        <file>queries/code_template_package_spec.sql</file>
+        <file>queries/code_template_procedure.sql</file>
+        <file>queries/code_template_trigger.sql</file>
+        <file>queries/code_template_type_body.sql</file>
+        <file>queries/code_template_type_spec.sql</file>
+        <file>queries/code_template_view.sql</file>
+        <file>queries/get_object_lookup_results.sql</file>
     </qresource>
 </RCC>

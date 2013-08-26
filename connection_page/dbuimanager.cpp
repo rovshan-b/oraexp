@@ -22,15 +22,24 @@
 #include "dialogs/dmlgeneratordialog.h"
 #include "dialogs/tableddlgeneratordialog.h"
 #include "dialogs/tablenamefinderdialog.h"
+#include "dialogs/objectlookupdialog.h"
 #include "editorcreatorutil.h"
 #include "app_menu/appmenu.h"
 #include "app_menu/appfilemenu.h"
 #include <QtGui>
 
 DbUiManager::DbUiManager(QObject *parent) :
-    QObject(parent), db(0)
+    QObject(parent), db(0), objectLookupDialog(0)
 {
     cnPage=(ConnectionPage*)parent;
+}
+
+DbUiManager::~DbUiManager()
+{
+    if(objectLookupDialog){
+        delete objectLookupDialog;
+        objectLookupDialog = 0;
+    }
 }
 
 void DbUiManager::setConnection(DbConnection *db)
@@ -116,7 +125,7 @@ void DbUiManager::createEditor(const QString &schemaName,
     }else{
         iconName.append("_add");
     }
-    cnPage->addTab(editor, IconUtil::getIcon(iconName), (creatorMode == DbObjectCreator::EditExisting) ? objectName : QString("Create %1").arg(objectTypeName));
+    cnPage->addTab(editor, IconUtil::getIcon(iconName), (creatorMode == DbObjectCreator::EditExisting) ? getViewerTitle(schemaName, objectName) : QString("Create %1").arg(objectTypeName));
 }
 
 //this function is called by UiManagerInvoker through context menus
@@ -133,6 +142,15 @@ void DbUiManager::createLikeEditor(const QString &schemaName, const QString &obj
                  objectName,
                  (DbTreeModel::DbTreeNodeType)itemType,
                  DbObjectCreator::CreateLike);
+}
+
+QString DbUiManager::getViewerTitle(const QString &schemaName, const QString &objectName) const
+{
+    if(schemaName == this->db->getSchemaName()){
+        return objectName;
+    }else{
+        return QString("%1.%2").arg(schemaName, objectName);
+    }
 }
 
 void DbUiManager::createEditor(const QString &schemaName, const QString &objectName, int itemType,
@@ -163,7 +181,16 @@ void DbUiManager::createViewer()
 
 void DbUiManager::createViewer(const QString &schemaName, const QString &objectName, int itemType /*DbTreeModel::DbTreeNodeType*/)
 {
-    QString objectTypeName = DbUtil::getDbObjectTypeNameByNodeType((DbTreeModel::DbTreeNodeType)itemType).toLower();
+    DbItemAction* itemAction=dynamic_cast<DbItemAction*>(sender());
+
+    QString objectTypeName;
+
+    if((DbTreeModel::DbTreeNodeType)itemType == DbTreeModel::Unknown && itemAction){
+        objectTypeName = itemAction->properties["DB_OBJECT_TYPE"];
+    }else{
+        objectTypeName = DbUtil::getDbObjectTypeNameByNodeType((DbTreeModel::DbTreeNodeType)itemType).toLower();
+    }
+
     QString tabId = createTabId("viewer", objectTypeName, schemaName, objectName);
     ConnectionPageTab * existingTab = cnPage->findTabById(tabId);
     if(existingTab){
@@ -176,8 +203,19 @@ void DbUiManager::createViewer(const QString &schemaName, const QString &objectN
                                                                 (DbTreeModel::DbTreeNodeType)itemType,
                                                                 this);
     viewer->setTabId(tabId);
-    QString iconName = DbUtil::getDbObjectIconNameByParentNodeType((DbTreeModel::DbTreeNodeType)itemType);
-    cnPage->addTab(viewer, IconUtil::getIcon(iconName), objectName);
+
+    QString iconName;
+    if((DbTreeModel::DbTreeNodeType)itemType == DbTreeModel::Unknown){
+        iconName = objectTypeName.toLower().replace(' ', '_');
+    }else{
+        iconName = DbUtil::getDbObjectIconNameByParentNodeType((DbTreeModel::DbTreeNodeType)itemType);
+    }
+
+    if(itemAction){
+        viewer->setProperties(itemAction->properties);
+    }
+
+    cnPage->addTab(viewer, IconUtil::getIcon(iconName), getViewerTitle(schemaName, objectName));
 }
 
 QString DbUiManager::createTabId(const QString &prefix, const QString &objectTypeName, const QString &schemaName, const QString &objectName) const
@@ -304,6 +342,16 @@ void DbUiManager::addDdlGenerator(const QString &schemaName, const QString &tabl
 {
     TableDdlGeneratorDialog *ddlGenerator = new TableDdlGeneratorDialog(this, schemaName, tableName);
     addWindow(ddlGenerator, IconUtil::getIcon("ddl"), tr("Generate DDL"));
+}
+
+void DbUiManager::showObjectLookupDialog()
+{
+    if(!objectLookupDialog){
+        objectLookupDialog = new ObjectLookupDialog(this, cnPage);
+        addWindow(objectLookupDialog, IconUtil::getIcon("lookup_object"), tr("Find object"));
+    }else{
+        objectLookupDialog->makeVisible();
+    }
 }
 
 void DbUiManager::addSessionBrowser()

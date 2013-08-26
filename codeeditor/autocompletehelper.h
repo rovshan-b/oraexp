@@ -15,8 +15,6 @@ public:
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
 protected:
-    CodeEditor *editor;
-
     IQueryScheduler *queryScheduler;
     
 };

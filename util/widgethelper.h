@@ -9,6 +9,7 @@ class QListWidget;
 class DataTable;
 class GenericEditableTableModel;
 class CodeEditor;
+class QAction;
 
 class WidgetHelper
 {
@@ -133,6 +134,8 @@ public:
     static QActionGroup *addSplitDirectionActions(QWidget *w, Qt::Orientation defaultOrientation = Qt::Horizontal);
 
     static void createAutoRefreshComboBox(QToolBar *toolbar, QWidget *receiver);
+
+    static QAction *findDefaultAction(QList<QAction *> actions);
 };
 
 #endif // WIDGETHELPER_H

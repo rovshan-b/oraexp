@@ -11,6 +11,7 @@
 #include "connectivity/dbconnection.h"
 #include "widgets/lineeditwithclearbutton.h"
 #include "passwordentrydialog.h"
+#include "models/sortfilterproxymodel.h"
 #include <QtGui>
 
 QWeakPointer<ConnectionListModel> ConnectionPageConnectWidget::globalModel;
@@ -69,7 +70,7 @@ void ConnectionPageConnectWidget::createConnectionList(QSplitter *splitter)
         model = ConnectionPageConnectWidget::globalModel.toStrongRef();
     }
 
-    proxyModel = new QSortFilterProxyModel(this);
+    proxyModel = new SortFilterProxyModel(this);
     proxyModel->setSourceModel(model.data());
     proxyModel->setFilterKeyColumn(-1);
     proxyModel->setDynamicSortFilter(true);

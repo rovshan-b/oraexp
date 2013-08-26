@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <items>
-    <item caption="View" icon="table_view" handler="UiManagerInvoker" slotName="createViewer" param1="arg:schemaName" param2="arg:objectName" param3="arg:objectType" />
+    <item caption="View" icon="table_view" isDefault="yes" handler="UiManagerInvoker" slotName="createViewer" param1="arg:schemaName" param2="arg:objectName" param3="arg:objectType" />
     <item caption="Modify" icon="table_alter" handler="UiManagerInvoker" slotName="createEditor" param1="arg:schemaName" param2="arg:objectName" param3="arg:objectType" />
     <item caption="Create like" icon="table_copy" handler="UiManagerInvoker" slotName="createLikeEditor" param1="arg:schemaName" param2="arg:objectName" param3="arg:objectType" />
     <item caption="-" />

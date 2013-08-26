@@ -4,6 +4,7 @@
 #include "util/dbutil.h"
 #include "util/iconutil.h"
 #include "util/widgethelper.h"
+#include "util/queryutil.h"
 #include "info_panel/infopanel.h"
 #include "info_panel/panes/compilermessagespane.h"
 #include "connectivity/dbconnection.h"
@@ -93,6 +94,8 @@ void CodeCreatorWidget::setQueryScheduler(IQueryScheduler *queryScheduler)
             loadObjectInfo();
         }
     }else{
+        loadCodeTemplate();
+
         emit objectInfoLoaded();
     }
 }
@@ -296,6 +299,13 @@ QString CodeCreatorWidget::getObjectTypeName() const
 void CodeCreatorWidget::setReadOnly(bool readOnly)
 {
     multiEditor->setReadOnly(readOnly);
+}
+
+void CodeCreatorWidget::loadCodeTemplate()
+{
+    QString typeName = getObjectTypeName().toLower().replace(' ','_');
+    QString codeTemplate = QueryUtil::getQuery(QString("code_template_%1").arg(typeName), this->queryScheduler->getDb());
+    currentEditor()->setInitialText(codeTemplate);
 }
 
 CodeEditorAndSearchPaneWidget *CodeCreatorWidget::currentEditor() const

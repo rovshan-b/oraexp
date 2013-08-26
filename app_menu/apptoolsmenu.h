@@ -27,6 +27,8 @@ private:
     QAction *toolsExportDataAction;
     QAction *toolsImportDataAction;
 
+    QAction *toolsObjectLookupAction;
+
     QAction *toolsSessionBrowserAction;
 
     QAction *toolsOptionsAction;
@@ -39,7 +41,10 @@ private slots:
     void addDataExporter(){uiManager()->addDataExporter();}
     void addDataImporter(){uiManager()->addDataImporter();}
 
+    void showObjectLookupDialog(){uiManager()->showObjectLookupDialog();}
+
     void addSessionBrowser(){uiManager()->addSessionBrowser();}
+
 
     void resize800x600();
     void resize1024x768();

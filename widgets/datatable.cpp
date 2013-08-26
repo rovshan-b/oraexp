@@ -10,20 +10,21 @@
 #include "connectivity/statement.h"
 #include "interfaces/iqueryscheduler.h"
 #include "context_menu/contextmenuutil.h"
+#include "beans/dynamicaction.h"
 #include "defines.h"
 #include "errors.h"
 #include <QtGui>
 
 DataTable::DataTable(QWidget *parent) :
     QTableView(parent), queryScheduler(0), humanizeColumnNames(false), quietMode(true),
-    schemaNameCol(-1), objectNameCol(-1), parentObjectNameCol(-1), objectTypeCol(-1),
+    schemaNameCol(-1), objectNameCol(-1), parentObjectNameCol(-1), objectTypeCol(-1), uiManager(0),
     maxColumnWidth(300)
 {
     verticalHeader()->setDefaultSectionSize(fontMetrics().height()+10);
     horizontalHeader()->setDefaultSectionSize(150);
     setSelectionMode(QAbstractItemView::ContiguousSelection);
 
-    connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
+    //connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
 }
 
 void DataTable::setResultset(IQueryScheduler *queryScheduler,
@@ -69,7 +70,6 @@ void DataTable::handleFirstFetchCompleted()
     emit firstFetchCompleted();
 }
 
-
 void DataTable::resizeColumnsToFitContents()
 {
     setUpdatesEnabled(false);
@@ -110,40 +110,66 @@ void DataTable::queryCompleted(const QueryResult &result)
     emit asyncQueryCompleted(result);
 }
 
-void DataTable::showContextMenu(const QPoint &pos)
+void DataTable::showContextMenu(const QPoint &pos, QModelIndex index) //pos is in global coordinates
 {
-    if(objectNameCol==-1){
-        return;
-    }
-
-    if(!model()){
-        return;
-    }
-
-    QModelIndex index=indexAt(pos);
     if(!index.isValid()){
         return;
     }
 
     int row=index.row();
-    QString schemaName = schemaNameCol!=-1 ? model()->index(row, schemaNameCol).data().toString() : objectListSchemaName;
-    QString objectName = model()->index(row, objectNameCol).data().toString();
-    QString parentObjectName = parentObjectNameCol!=-1 ? model()->index(row, parentObjectNameCol).data().toString() : objectListParentObjectName;
-    QString objectType = objectTypeCol!=-1 ? model()->index(row, objectTypeCol).data().toString() : objectListObjectType;
-
-    QList<QAction*> actions=ContextMenuUtil::getActionsForObject(schemaName, objectName, parentObjectName,
-                                         DbUtil::getDbObjectNodeTypeByTypeName(objectType),
-                                         this->uiManager);
+    QList<QAction*> actions = getActionsForObject(row);
 
     if(actions.size()==0){
         return;
     }
 
     QMenu *menu = new QMenu();
-    menu->exec(actions, viewport()->mapToGlobal(pos));
+    menu->addActions(actions);
+    menu->setDefaultAction(WidgetHelper::findDefaultAction(actions));
+    connect(menu, SIGNAL(triggered(QAction*)), this, SIGNAL(contextMenuTriggered(QAction*)));
+    menu->exec(pos);
 
     WidgetHelper::deleteMenu(menu);
+}
 
+void DataTable::invokeDefaultActionForObject(int row)
+{
+    QList<QAction*> actions = getActionsForObject(row);
+
+    if(actions.size()==0){
+        return;
+    }
+
+    QAction *action = WidgetHelper::findDefaultAction(actions);
+    QAction *actionToTrigger = action ? action : actions.at(0);
+    actionToTrigger->trigger();
+
+    WidgetHelper::deleteActions(actions);
+}
+
+
+QList<QAction *> DataTable::getActionsForObject(int row)
+{
+    if(objectNameCol==-1){
+        return QList<QAction*>();
+    }
+
+    if(!model()){
+        return QList<QAction*>();
+    }
+
+    QString schemaName = schemaNameCol!=-1 ? model()->index(row, schemaNameCol).data().toString() : objectListSchemaName;
+    QString objectName = model()->index(row, objectNameCol).data().toString();
+    QString parentObjectName = parentObjectNameCol!=-1 ? model()->index(row, parentObjectNameCol).data().toString() : objectListParentObjectName;
+    QString objectType = objectTypeCol!=-1 ? model()->index(row, objectTypeCol).data().toString() : objectListObjectType;
+
+    this->selectedObjectType = objectType;
+
+    QList<QAction*> actions=ContextMenuUtil::getActionsForObject(schemaName, objectName, parentObjectName,
+                                         DbUtil::getDbObjectNodeTypeByTypeName(objectType),
+                                         this->uiManager, this);
+
+    return actions;
 }
 
 void DataTable::copyToClipboard()
@@ -201,6 +227,11 @@ void DataTable::displayMessage(const QString &prefix, const OciException &ex)
 void DataTable::setMaxColumnWidth(int maxColumnWidth)
 {
     this->maxColumnWidth = maxColumnWidth;
+}
+
+void DataTable::setActionProperties(DynamicAction *action)
+{
+    action->properties["DB_OBJECT_TYPE"] = selectedObjectType;
 }
 
 void DataTable::displayError(const QString &prefix, const OciException &ex)
@@ -279,7 +310,8 @@ void DataTable::setObjectListMode(int schemaNameCol, int objectNameCol,
     this->objectListParentObjectName=objectListParentObjectName;
     this->objectListObjectType=objectListObjectType;
 
-    setContextMenuPolicy(Qt::CustomContextMenu);
+    //setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(pressed(QModelIndex)), this, SLOT(indexPressed(QModelIndex)));
 }
 
 void DataTable::getSelectedRange(int *startRow, int *startColumn, int *endRow, int *endColumn)
@@ -321,6 +353,44 @@ void DataTable::keyPressEvent(QKeyEvent *event)
     }else{
         QTableView::keyPressEvent(event);
     }
+}
+
+/*
+void DataTable::mousePressEvent(QMouseEvent *event)
+{
+    QTableView::mousePressEvent(event);
+
+    if(event->button()==Qt::RightButton){
+        showContextMenu(mapToGlobal(event->pos()), QModelIndex());
+    }
+}*/
+
+void DataTable::indexPressed(const QModelIndex &index)
+{
+    if(!index.isValid()){
+        return;
+    }
+
+    if(qApp->mouseButtons()==Qt::RightButton){
+        showContextMenu(QCursor::pos(), index);
+    }
+}
+
+
+void DataTable::keyReleaseEvent(QKeyEvent *event)
+{
+    if(event->key() == 16777301){
+        QModelIndex ix = currentIndex();
+        if(!ix.isValid()){
+            return;
+        }
+        scrollTo(ix);
+        QRect rect = visualRect(ix);
+        showContextMenu(viewport()->mapToGlobal(rect.center()), ix);
+        return;
+    }
+
+    QTableView::keyReleaseEvent(event);
 }
 
 /*

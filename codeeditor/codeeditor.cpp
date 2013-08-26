@@ -7,6 +7,7 @@
 #include "util/iconutil.h"
 #include "app_menu/appmenu.h"
 #include "app_menu/appeditmenu.h"
+#include "code_parser/plsql/plsqlparsingtable.h"
 #include <QPainter>
 
 #define EDITOR_SEARCH_BG_COLOR QColor(Qt::yellow)
@@ -17,7 +18,8 @@ QFont CodeEditor::currentFont;
 QHash<QString,QString> CodeEditor::textShortcuts;
 
 CodeEditor::CodeEditor(QWidget *parent) :
-    QPlainTextEdit(parent), lineNumberArea(0), lineNavBar(0), markedLineIx(-1), lineMarkerUsed(false)
+    QPlainTextEdit(parent), lineNumberArea(0), lineNavBar(0), markedLineIx(-1), lineMarkerUsed(false),
+    completer(0)
 {
     QFont monospaceFont("Monospace");
     setFont(monospaceFont);
@@ -54,6 +56,13 @@ CodeEditor::CodeEditor(QWidget *parent) :
 
 
     CodeEditor::fillTextShortcuts();
+
+    QCompleter *completer = new QCompleter(this);
+    completer->setModel(new QStringListModel(PlSqlParsingTable::getInstance()->getKeywords(), this));
+    completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    completer->setWrapAround(false);
+    setCompleter(completer);
 }
 
 //use only when sure that there's not lots of text in editor
@@ -447,7 +456,20 @@ int CodeEditor::lineMarkerAreaOffset() const
 
      if(!isReadOnly()){
          int key=event->key();
-         if((key==Qt::Key_Return || key==Qt::Key_Enter) && event->modifiers()==0){
+
+         if(completer->popup()->isVisible()){
+             switch (key) {
+             case Qt::Key_Enter:
+             case Qt::Key_Return:
+             case Qt::Key_Escape:
+             case Qt::Key_Tab:
+             case Qt::Key_Backtab:
+                 event->ignore();
+                 return; // let the completer do default behavior
+             default:
+                 break;
+             }
+         }else if((key==Qt::Key_Return || key==Qt::Key_Enter) && event->modifiers()==0){
             handled=true;
             textCursor().beginEditBlock();
             QPlainTextEdit::keyPressEvent(event);
@@ -488,6 +510,11 @@ int CodeEditor::lineMarkerAreaOffset() const
              handled=true;
              customCopy();
          }
+
+         if(!handled && key!=Qt::Key_Backspace){
+             completerHandleKeyPress(event);
+             handled = true;
+         }
      }
 
      if(!handled){
@@ -495,8 +522,45 @@ int CodeEditor::lineMarkerAreaOffset() const
      }
  }
 
+ void CodeEditor::completerHandleKeyPress(QKeyEvent *event)
+ {
+     bool isShortcut = ((event->modifiers() & Qt::ControlModifier) && event->key() == Qt::Key_Space); // CTRL+Space
+     if (!isShortcut){ // do not process the shortcut when we have a completer}
+        QPlainTextEdit::keyPressEvent(event);
+     }
+
+     const bool ctrlOrShift = event->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier);
+     if (ctrlOrShift && event->text().isEmpty())
+         return;
+
+     static QString eow("~!@#%^&*()_+{}|:\"<>?,./;'[]\\-="); // end of word
+     bool hasModifier = (event->modifiers() != Qt::NoModifier) && !ctrlOrShift;
+     QString completionPrefix = textUnderCursor();
+     //completionPrefix.append(event->text());
+
+     if (!isShortcut && (hasModifier || event->text().isEmpty()|| completionPrefix.length() < 1
+                         || eow.contains(event->text().right(1)))) {
+         completer->popup()->hide();
+         return;
+     }
+
+     if (completionPrefix != completer->completionPrefix()) {
+         completer->setCompletionPrefix(completionPrefix);
+         completer->popup()->setCurrentIndex(completer->completionModel()->index(0, 0));
+     }
+     QRect cr = cursorRect();
+     cr.setWidth(completer->popup()->sizeHintForColumn(0)
+                 + completer->popup()->verticalScrollBar()->sizeHint().width());
+     completer->complete(cr); // popup it up!
+ }
+
+
  void CodeEditor::focusInEvent(QFocusEvent *event)
  {
+     if (completer){
+         completer->setWidget(this);
+     }
+
      QPlainTextEdit::focusInEvent(event);
 
      emit gotFocus();
@@ -778,6 +842,31 @@ int CodeEditor::lineMarkerAreaOffset() const
  void CodeEditor::updateNavBar()
  {
      lineNavBar->update();
+ }
+
+ void CodeEditor::insertCompletion(const QString &completion)
+ {
+     if (completer->widget() != this){
+         return;
+     }
+
+     QString prefix = completer->completionPrefix();
+
+     QTextCursor tc = textCursor();
+     int extra = completion.length() - prefix.length();
+     tc.movePosition(QTextCursor::Left);
+     tc.movePosition(QTextCursor::EndOfWord);
+
+     QString textToInsert = completion.right(extra);
+
+     if(prefix.size()>0){
+         if(prefix.at(prefix.size()-1).isLower()){
+             textToInsert = textToInsert.toLower();
+         }
+     }
+
+     tc.insertText(textToInsert);
+     setTextCursor(tc);
  }
 
  void CodeEditor::commentBlocks()
@@ -1187,6 +1276,24 @@ int CodeEditor::lineMarkerAreaOffset() const
      }
  }
 
+ void CodeEditor::setCompleter(QCompleter *completer)
+ {
+     if (this->completer){
+         QObject::disconnect(this->completer, 0, this, 0);
+     }
+
+     this->completer = completer;
+
+     if (!completer)
+         return;
+
+     this->completer->setWidget(this);
+     this->completer->setCompletionMode(QCompleter::PopupCompletion);
+     this->completer->setCaseSensitivity(Qt::CaseInsensitive);
+     QObject::connect(this->completer, SIGNAL(activated(QString)),
+                      this, SLOT(insertCompletion(QString)));
+ }
+
  void CodeEditor::fillTextShortcuts()
  {
      if(!CodeEditor::textShortcuts.isEmpty()){
@@ -1194,4 +1301,11 @@ int CodeEditor::lineMarkerAreaOffset() const
      }
 
      CodeEditor::textShortcuts["sf"] = "select * from ";
+ }
+
+ QString CodeEditor::textUnderCursor() const
+ {
+     QTextCursor tc = textCursor();
+     tc.select(QTextCursor::WordUnderCursor);
+     return tc.selectedText();
  }

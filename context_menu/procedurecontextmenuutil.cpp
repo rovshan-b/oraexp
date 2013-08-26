@@ -25,9 +25,10 @@ QList<QAction *> ProcedureContextMenuUtil::getActionsForObject(const QString &sc
                                                        uiManager, SLOT(createViewer()));
 
         //alter
-        QAction *alterProcedureAction=new DbItemAction(IconUtil::getIcon("procedure_alter"), QObject::tr("Alter"),
+        DbItemAction *alterProcedureAction=new DbItemAction(IconUtil::getIcon("procedure_alter"), QObject::tr("Alter"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createEditor()));
+        alterProcedureAction->isDefault = true;
 
         results.append(viewProcedureAction);
         results.append(alterProcedureAction);

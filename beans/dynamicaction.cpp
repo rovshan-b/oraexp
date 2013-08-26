@@ -3,7 +3,7 @@
 #include <QDebug>
 
 DynamicAction::DynamicAction(const QIcon &icon, const QString &text, const QObject *receiver, const char *slotName, QObject *parent) :
-    QAction(icon, text, parent)
+    QAction(icon, text, parent), isDefault(false)
 {
     if(receiver){
         connect(this, SIGNAL(triggered()), receiver, slotName);

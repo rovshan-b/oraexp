@@ -20,9 +20,10 @@ QList<QAction *> DbLinkContextMenuUtil::getActionsForObject(const QString &schem
         results.append(createDbLinkAction);
     }else if(itemType==DbTreeModel::DatabaseLink){
         //view
-        QAction *viewDbLinkAction=new DbItemAction(IconUtil::getIcon("dblink_view"), QObject::tr("View"),
+        DbItemAction *viewDbLinkAction=new DbItemAction(IconUtil::getIcon("dblink_view"), QObject::tr("View"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createViewer()));
+        viewDbLinkAction->isDefault = true;
 
         //alter
         QAction *alterDbLinkAction=new DbItemAction(IconUtil::getIcon("dblink_alter"), QObject::tr("Alter"),

@@ -34,6 +34,11 @@ void AppToolsMenu::setupMenu(QMenu *toolsMenu, QToolBar *toolbar)
 
     toolsMenu->addSeparator();
 
+    toolsObjectLookupAction=toolsMenu->addAction(IconUtil::getIcon("lookup_object"), tr("&Find object"), this, SLOT(showObjectLookupDialog()), QKeySequence("Ctrl+K"));
+    toolbar->addAction(toolsObjectLookupAction);
+
+    toolsMenu->addSeparator();
+
     toolsSessionBrowserAction=toolsMenu->addAction(IconUtil::getIcon("session_browser"), tr("&Session browser"), this, SLOT(addSessionBrowser()));
     toolsSessionBrowserAction->setStatusTip(tr("View currently connected sessions"));
 
@@ -66,6 +71,8 @@ void AppToolsMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab 
     toolsCopyDataAction->setEnabled(cnPage!=0);
     toolsExportDataAction->setEnabled(cnPage!=0);
     toolsImportDataAction->setEnabled(cnPage!=0);
+
+    toolsObjectLookupAction->setEnabled(cnPage!=0);
 
     toolsSessionBrowserAction->setEnabled(cnPage!=0);
 }

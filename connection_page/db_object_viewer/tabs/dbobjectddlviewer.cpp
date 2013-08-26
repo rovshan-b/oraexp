@@ -46,7 +46,10 @@ void DbObjectDdlViewer::loadData()
                                     new Param("wrap", 0) <<
                                     new Param("sql_terminator", 1);
     }
-    params.append(new Param(":object_type", DbUtil::getDbObjectTypeNameByNodeType(this->itemType)));
+    params.append(new Param(":object_type", dbObjectTypeName.isEmpty() ?
+                                                DbUtil::getDbObjectTypeNameByNodeType(this->itemType)
+                                                :
+                                                dbObjectTypeName.replace(' ', '_')));
     params.append(getQueryParams());
 
     queryScheduler->enqueueQuery(queryName,
@@ -101,6 +104,11 @@ QList<QAction*> DbObjectDdlViewer::getSpecificToolbarButtons()
     }
 
     return list;
+}
+
+void DbObjectDdlViewer::setDbObjectTypeName(const QString &dbObjectTypeName)
+{
+    this->dbObjectTypeName = dbObjectTypeName;
 }
 
 void DbObjectDdlViewer::showDdlOptions()

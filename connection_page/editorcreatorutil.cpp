@@ -15,6 +15,7 @@
 #include "connection_page/synonym_viewer/synonymviewer.h"
 #include "connection_page/dblink_viewer/dblinkviewer.h"
 #include "connection_page/user_viewer/userviewer.h"
+#include "connection_page/generic_viewer/genericobjectviewer.h"
 
 EditorCreatorUtil::EditorCreatorUtil()
 {
@@ -131,6 +132,9 @@ ConnectionPageTab *EditorCreatorUtil::createViewer(const QString &schemaName,
         break;
     case DbTreeModel::Schema:
         viewer = new UserViewer(schemaName, objectName, uiManager);
+        break;
+    case DbTreeModel::Unknown:
+        viewer = new GenericObjectViewer(schemaName, objectName, uiManager);
         break;
     default:
         break;

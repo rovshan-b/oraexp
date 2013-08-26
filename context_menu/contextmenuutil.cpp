@@ -10,6 +10,7 @@
 #include "synonymcontextmenuutil.h"
 #include "dblinkcontextmenuutil.h"
 #include "usercontextmenuutil.h"
+#include "genericobjectcontextmenuutil.h"
 
 #include "action_creators/dbitemdynamicactioncreator.h"
 #include "action_creators/dynamicactioncreator.h"
@@ -17,6 +18,7 @@
 #include "util/iconutil.h"
 #include "util/widgethelper.h"
 #include "navtree/dbtreemodel.h"
+#include "beans/iactionpropertysetter.h"
 #include <QFile>
 #include <QDomDocument>
 #include <QDebug>
@@ -29,7 +31,8 @@ QList<QAction *> ContextMenuUtil::getActionsForObject(const QString &schemaName,
                                                       const QString &objectName,
                                                       const QString &parentObjectName,
                                                       const DbTreeModel::DbTreeNodeType itemType,
-                                                      DbUiManager *uiManager)
+                                                      DbUiManager *uiManager,
+                                                      IActionPropertySetter *propertySetter)
 {
     QList<QAction*> results;
 
@@ -83,12 +86,14 @@ QList<QAction *> ContextMenuUtil::getActionsForObject(const QString &schemaName,
     case DbTreeModel::Schema:
         results = UserContextMenuUtil::getActionsForObject(schemaName, objectName, itemType, uiManager);
         break;
+    case DbTreeModel::Unknown:
+        results = GenericObjectContextMenuUtil::getActionsForObject(schemaName, objectName, uiManager, propertySetter);
     default:
         break;
     }
 
     QList<QAction *> configuredActions = ContextMenuUtil::getActionsForObjectFromConfiguration(schemaName, objectName, parentObjectName,
-                                                          itemType, uiManager);
+                                                          itemType, uiManager, propertySetter);
     if(configuredActions.size() > 0){
         results.append(WidgetHelper::createSeparatorAction());
         results.append(configuredActions);
@@ -140,7 +145,8 @@ QList<QAction *> ContextMenuUtil::getActionsForObjectFromConfiguration(const QSt
                                                                        const QString &objectName,
                                                                        const QString &parentObjectName,
                                                                        const DbTreeModel::DbTreeNodeType itemType,
-                                                                       DbUiManager *uiManager)
+                                                                       DbUiManager *uiManager,
+                                                                       IActionPropertySetter *propertySetter)
 {
     QString nodeName = DbTreeModel::getDbTreeNodeName(itemType);
 
@@ -151,10 +157,11 @@ QList<QAction *> ContextMenuUtil::getActionsForObjectFromConfiguration(const QSt
 
     DbItemDynamicActionCreator actionCreator(schemaName, objectName, parentObjectName, itemType, uiManager);
 
-    return ContextMenuUtil::actionsFromElement(docElem, &actionCreator, 0, 0);
+    return ContextMenuUtil::actionsFromElement(docElem, &actionCreator, 0, 0, propertySetter);
 }
 
-QList<QAction *> ContextMenuUtil::actionsFromElement(const QDomElement &element, ContextMenuActionCreator *actionCreator, QObject *parent, QObject *resultListener)
+QList<QAction *> ContextMenuUtil::actionsFromElement(const QDomElement &element, ContextMenuActionCreator *actionCreator,
+                                                     QObject *parent, QObject *resultListener, IActionPropertySetter *propertySetter)
 {
     QList<QAction *> results;
 
@@ -162,7 +169,7 @@ QList<QAction *> ContextMenuUtil::actionsFromElement(const QDomElement &element,
     while(!n.isNull()) {
         QDomElement e = n.toElement();
         if(!e.isNull() && e.tagName() == "item") {
-            results.append(ContextMenuUtil::actionFromElement(e, actionCreator, parent, resultListener));
+            results.append(ContextMenuUtil::actionFromElement(e, actionCreator, parent, resultListener, propertySetter));
         }
         n = n.nextSibling();
     }
@@ -170,7 +177,8 @@ QList<QAction *> ContextMenuUtil::actionsFromElement(const QDomElement &element,
     return results;
 }
 
-QAction *ContextMenuUtil::actionFromElement(const QDomElement &e, ContextMenuActionCreator *actionCreator, QObject *parent, QObject *resultListener)
+QAction *ContextMenuUtil::actionFromElement(const QDomElement &e, ContextMenuActionCreator *actionCreator,
+                                            QObject *parent, QObject *resultListener, IActionPropertySetter *propertySetter)
 {
     QString caption = e.attribute("caption");
 
@@ -187,11 +195,16 @@ QAction *ContextMenuUtil::actionFromElement(const QDomElement &e, ContextMenuAct
         }else{
             DynamicAction *action = actionCreator->create(IconUtil::getIcon(e.attribute("icon")), caption, parent);
             action->resultListener = resultListener;
+            action->isDefault = (e.attribute("isDefault")=="yes");
 
             QDomNamedNodeMap attributes = e.attributes();
             for(int i=0; i<attributes.size(); ++i){
                 QDomAttr attribute = attributes.item(i).toAttr();
                 action->properties[QString("attribute.%1").arg(attribute.name())] = attribute.value();
+            }
+
+            if(propertySetter){
+                propertySetter->setActionProperties(action);
             }
 
             return action;

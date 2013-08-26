@@ -13,6 +13,7 @@
 #include "util/strutil.h"
 #include "util/iconutil.h"
 #include "util/dbutil.h"
+#include "util/widgethelper.h"
 #include "connection_page/dbuimanager.h"
 #include "nodeaction.h"
 #include "context_menu/contextmenuutil.h"
@@ -336,6 +337,7 @@ QMenu *DbTreeItem::getContextMenu(const QModelIndex &index) const
     QMenu *menu=new QMenu();
 
     menu->addActions(actions);
+    menu->setDefaultAction(WidgetHelper::findDefaultAction(actions));
 
     return menu;
 }

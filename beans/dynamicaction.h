@@ -21,6 +21,8 @@ public:
     QHash<QString,QString> properties;
 
     QPointer<QObject> resultListener;
+
+    bool isDefault;
     
     void execute(DbUiManager *uiManager);
 

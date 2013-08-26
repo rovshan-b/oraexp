@@ -17,9 +17,10 @@ QList<QAction *> UserContextMenuUtil::getActionsForObject(const QString &schemaN
         results.append(createUserAction);
     }else if(itemType==DbTreeModel::Schema){
         //view
-        QAction *viewUserAction=new DbItemAction(IconUtil::getIcon("user_view"), QObject::tr("View"),
+        DbItemAction *viewUserAction=new DbItemAction(IconUtil::getIcon("user_view"), QObject::tr("View"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createViewer()));
+        viewUserAction->isDefault = true;
 
         //alter
         QAction *alterUserAction=new DbItemAction(IconUtil::getIcon("user_alter"), QObject::tr("Alter"),

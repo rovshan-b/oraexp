@@ -22,9 +22,10 @@ QList<QAction *> SequenceContextMenuUtil::getActionsForObject(const QString &sch
                                                        uiManager, SLOT(createViewer()));
 
         //alter
-        QAction *alterSequenceAction=new DbItemAction(IconUtil::getIcon("sequence_alter"), QObject::tr("Alter"),
+        DbItemAction *alterSequenceAction=new DbItemAction(IconUtil::getIcon("sequence_alter"), QObject::tr("Alter"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createEditor()));
+        alterSequenceAction->isDefault = true;
         results.append(viewSequenceAction);
         results.append(alterSequenceAction);
     }

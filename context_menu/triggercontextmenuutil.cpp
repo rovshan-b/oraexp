@@ -22,9 +22,10 @@ QList<QAction *> TriggerContextMenuUtil::getActionsForObject(const QString &sche
                                                        uiManager, SLOT(createViewer()));
 
         //alter
-        QAction *alterTriggerAction=new DbItemAction(IconUtil::getIcon("trigger_alter"), QObject::tr("Alter"),
+        DbItemAction *alterTriggerAction=new DbItemAction(IconUtil::getIcon("trigger_alter"), QObject::tr("Alter"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createEditor()));
+        alterTriggerAction->isDefault = true;
         results.append(viewTriggerAction);
         results.append(alterTriggerAction);
     }

@@ -20,9 +20,10 @@ QList<QAction *> SynonymContextMenuUtil::getActionsForObject(const QString &sche
         results.append(createSynonymAction);
     }else if(itemType==DbTreeModel::Synonym){
         //view
-        QAction *viewSynonymAction=new DbItemAction(IconUtil::getIcon("synonym_view"), QObject::tr("View"),
+        DbItemAction *viewSynonymAction=new DbItemAction(IconUtil::getIcon("synonym_view"), QObject::tr("View"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createViewer()));
+        viewSynonymAction->isDefault = true;
 
         //alter
         QAction *alterSynonymAction=new DbItemAction(IconUtil::getIcon("synonym_alter"), QObject::tr("Alter"),

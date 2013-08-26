@@ -12,12 +12,14 @@ class DbItemAction;
 class ConnectionPageObject;
 class ConnectionPageTab;
 class Worksheet;
+class ObjectLookupDialog;
 
 class DbUiManager : public QObject
 {
     Q_OBJECT
 public:
     explicit DbUiManager(QObject *parent = 0);
+    virtual ~DbUiManager();
 
 signals:
 
@@ -46,6 +48,8 @@ public slots:
                       const QString &tabName = QString(), const QString &childObjectName = QString());
     void createLikeEditor(const QString &schemaName, const QString &objectName, int itemType /*DbTreeModel::DbTreeNodeType*/);
 
+    QString getViewerTitle(const QString &schemaName, const QString &objectName) const;
+
     Worksheet *addWorksheet(const QString &contents="");
     Worksheet *getWorksheet();
     void addSchemaComparer();
@@ -60,6 +64,8 @@ public slots:
 
     void addDmlGenerator(const QString &schemaName, const QString &tableName, int dmlType /*OraExp::DmlType*/);
     void addDdlGenerator(const QString &schemaName, const QString &tableName);
+
+    void showObjectLookupDialog();
 
     void addSessionBrowser();
 
@@ -78,6 +84,8 @@ public slots:
 private:
     DbConnection *db;
     ConnectionPage *cnPage;
+
+    ObjectLookupDialog *objectLookupDialog;
 
     QString getCorrectSchemaNameForCurrentContext();
     QString createTabId(const QString &prefix, const QString &objectTypeName, const QString &schemaName, const QString &objectName) const;

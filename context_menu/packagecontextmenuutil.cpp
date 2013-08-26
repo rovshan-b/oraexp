@@ -24,9 +24,10 @@ QList<QAction *> PackageContextMenuUtil::getActionsForObject(const QString &sche
                                                        uiManager, SLOT(createViewer()));
 
         //alter
-        QAction *alterPackageAction=new DbItemAction(IconUtil::getIcon("package_alter"), QObject::tr("Alter"),
+        DbItemAction *alterPackageAction=new DbItemAction(IconUtil::getIcon("package_alter"), QObject::tr("Alter"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createEditor()));
+        alterPackageAction->isDefault = true;
         results.append(viewPackageAction);
         results.append(alterPackageAction);
     }else if(itemType==DbTreeModel::Package){
@@ -44,9 +45,10 @@ QList<QAction *> PackageContextMenuUtil::getActionsForObject(const QString &sche
         QAction *alterSpecAction=new DbItemAction(IconUtil::getIcon("package_alter"), QObject::tr("Alter Spec"),
                                                        schemaName, objectName, DbTreeModel::PackageSpec,
                                                        uiManager, SLOT(createEditor()));
-        QAction *alterBodyAction=new DbItemAction(IconUtil::getIcon("package_alter"), QObject::tr("Alter Body"),
+        DbItemAction *alterBodyAction=new DbItemAction(IconUtil::getIcon("package_alter"), QObject::tr("Alter Body"),
                                                        schemaName, objectName, DbTreeModel::PackageBody,
                                                        uiManager, SLOT(createEditor()));
+        alterBodyAction->isDefault = true;
 
         results.append(viewSpecAction);
         results.append(viewBodyAction);

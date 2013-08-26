@@ -22,9 +22,10 @@ QList<QAction *> FunctionContextMenuUtil::getActionsForObject(const QString &sch
                                                        uiManager, SLOT(createViewer()));
 
         //alter
-        QAction *alterFunctionAction=new DbItemAction(IconUtil::getIcon("function_alter"), QObject::tr("Alter"),
+        DbItemAction *alterFunctionAction=new DbItemAction(IconUtil::getIcon("function_alter"), QObject::tr("Alter"),
                                                        schemaName, objectName, itemType,
                                                        uiManager, SLOT(createEditor()));
+        alterFunctionAction->isDefault = true;
 
         results.append(viewFunctionAction);
         results.append(alterFunctionAction);

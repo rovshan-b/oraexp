@@ -3,6 +3,7 @@
 
 #include <QTableView>
 #include "util/param.h"
+#include "beans/iactionpropertysetter.h"
 #include "connectivity/queryresult.h"
 
 class DbConnection;
@@ -13,7 +14,7 @@ class StatementDesc;
 class DbUiManager;
 class ResultsetTableModel;
 
-class DataTable : public QTableView
+class DataTable : public QTableView, public IActionPropertySetter
 {
     Q_OBJECT
 public:
@@ -50,6 +51,10 @@ public:
 
     void setMaxColumnWidth(int maxColumnWidth);
 
+    virtual void setActionProperties(DynamicAction *action);
+
+    void invokeDefaultActionForObject(int row);
+
 public slots:
     void resizeColumnsToFitContents();
 
@@ -59,14 +64,22 @@ signals:
     void asyncQueryError(const OciException &ex);
     void firstFetchCompleted();
 
+    void contextMenuTriggered(QAction *action);
+
 protected:
     void keyPressEvent ( QKeyEvent * event );
     //void resizeEvent ( QResizeEvent * event );
 
+    //void mousePressEvent ( QMouseEvent * event );
+    void keyReleaseEvent ( QKeyEvent * event );
+
 private slots:
     void queryCompleted(const QueryResult &result);
-    void showContextMenu(const QPoint &pos);
+    void showContextMenu(const QPoint &pos, QModelIndex index);
+    QList<QAction *> getActionsForObject(int row);
     void handleFirstFetchCompleted();
+
+    void indexPressed ( const QModelIndex & index );
 
 private:
     IQueryScheduler *queryScheduler;
@@ -89,6 +102,8 @@ private:
     DbUiManager *uiManager;
 
     int maxColumnWidth;
+
+    QString selectedObjectType;
 
     void deleteCurrentModel();
     void displayError(const QString &prefix, const OciException &ex);

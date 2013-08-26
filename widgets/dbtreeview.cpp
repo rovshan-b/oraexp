@@ -15,6 +15,7 @@ DbTreeView::DbTreeView(QWidget *parent) :
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showContextMenu(const QPoint &)));
+    connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(nodeActivated(QModelIndex)));
 }
 
 DbTreeModel *DbTreeView::getModel() const
@@ -90,6 +91,32 @@ void DbTreeView::showContextMenu(const QPoint &pos)
     WidgetHelper::deleteMenu(nodeMenu);
 }
 
+void DbTreeView::nodeActivated(const QModelIndex &index)
+{
+    if(!index.isValid()){
+        return;
+    }
+
+    DbTreeItem* node=(DbTreeItem*)index.internalPointer();
+
+    if(node->hasChildren()){
+        return;
+    }
+
+    QList<QAction*> actions = node->getContextMenuItems(index);
+
+    if(actions.size()==0){
+        return;
+    }
+
+    QAction *defaultAction = WidgetHelper::findDefaultAction(actions);
+    QAction *actionToTrigger = defaultAction ? defaultAction : actions.at(0);
+
+    actionToTrigger->trigger();
+
+    WidgetHelper::deleteActions(actions);
+}
+
 void DbTreeView::checkAll(const QModelIndex &parent, bool check)
 {
     DbTreeModel *currentModel=static_cast<DbTreeModel*>(model());
@@ -102,3 +129,4 @@ void DbTreeView::handleChildrenPopulateError(const QModelIndex &/*parent*/, cons
 {
     QMessageBox::critical(this->window(), tr("Error retrieving child nodes"), exception.getErrorMessage());
 }
+
