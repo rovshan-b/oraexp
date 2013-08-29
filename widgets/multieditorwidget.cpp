@@ -160,6 +160,11 @@ void MultiEditorWidget::setInfoLabelTextFormat(const QString &format)
     this->infoLabelTextFormat=format;
 }
 
+QList<CodeEditorAndSearchPaneWidget *> MultiEditorWidget::getEditors() const
+{
+    return this->editors;
+}
+
 int MultiEditorWidget::visibleEditorCount() const
 {
     int result=0;

@@ -522,7 +522,9 @@ SOURCES += main.cpp\
     dialogs/objectlookupdialog.cpp \
     connection_page/generic_viewer/genericobjectviewer.cpp \
     connection_page/generic_viewer/genericobjectviewertabs.cpp \
-    context_menu/genericobjectcontextmenuutil.cpp
+    context_menu/genericobjectcontextmenuutil.cpp \
+    code_parser/plsql/plsqltreebuilder.cpp \
+    beans/tokeninfo.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1050,7 +1052,9 @@ HEADERS  += mainwindow.h \
     connection_page/generic_viewer/genericobjectviewer.h \
     connection_page/generic_viewer/genericobjectviewertabs.h \
     beans/iactionpropertysetter.h \
-    context_menu/genericobjectcontextmenuutil.h
+    context_menu/genericobjectcontextmenuutil.h \
+    code_parser/plsql/plsqltreebuilder.h \
+    beans/tokeninfo.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

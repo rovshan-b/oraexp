@@ -421,7 +421,7 @@ void EBNFParser::registerTargetScannerKeyword(EBNFToken &token)
 
 void EBNFParser::registerTargetScannerKeywordsFromFile()
 {
-    QFile keywordsFile("/home/rovshan/Projects/Qt/OraExp/misc/keywords");
+    QFile keywordsFile("/home/rovshan/Projects/Qt/OraExp/misc/reserved_words");
     bool opened=keywordsFile.open(QIODevice::ReadOnly);
     Q_ASSERT(opened);
     QTextStream in(&keywordsFile);

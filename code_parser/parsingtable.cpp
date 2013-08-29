@@ -10,10 +10,11 @@ ParsingTable::~ParsingTable()
     qDeleteAll(rows);
 }
 
+/*
 QStringList ParsingTable::getKeywords() const
 {
     return this->keywords;
-}
+}*/
 
 int ParsingTable::getKeywordIx(const QString &possibleKeyword) const
 {

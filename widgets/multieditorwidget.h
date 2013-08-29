@@ -23,6 +23,8 @@ public:
     void setReadOnly(bool readOnly);
 
     void setInfoLabelTextFormat(const QString &format);
+
+    QList<CodeEditorAndSearchPaneWidget*> getEditors() const;
 signals:
     void escapeKeyPressed();
 

@@ -24,7 +24,10 @@ SOURCES += main.cpp\
     ../../grammar_parser/parsingtableaction.cpp \
     ../../grammar_parser/parsingtablerow.cpp \
     ../plsql/plsqlparsingtable.cpp \
-    ../../util/strutil.cpp
+    ../../util/strutil.cpp \
+    ../../beans/tokeninfo.cpp \
+    ../plsql/plsqltreebuilder.cpp \
+    ../../beans/parsetreenode.cpp
 
 HEADERS  += mainwindow.h \
     ../codeparser.h \
@@ -41,7 +44,11 @@ HEADERS  += mainwindow.h \
     ../plsql/plsqlparsingtable.h \
     ../ireducelistener.h \
     ../../util/strutil.h \
-    ../../enums.h
+    ../../enums.h \
+    ../../beans/tokeninfo.h \
+    ../plsql/plsqltreebuilder.h \
+    ../../beans/parsetreenode.h \
+    ../plsql/plsqlrules.h
 
 FORMS    += mainwindow.ui
 

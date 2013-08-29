@@ -1,16 +1,16 @@
 --varray type example
-CREATE TYPE phone_list_typ_demo AS VARRAY(5) OF VARCHAR2(25);
+CREATE OR REPLACE TYPE phone_list_typ_demo AS VARRAY(5) OF VARCHAR2(25);
 
 --nested table type example
-CREATE TYPE textdoc_typ AS OBJECT
+CREATE OR REPLACE TYPE textdoc_typ AS OBJECT
     ( document_typ      VARCHAR2(32)
     , formatted_doc     BLOB
     ) ;
 
-CREATE TYPE textdoc_tab AS TABLE OF textdoc_typ;
+CREATE OR REPLACE TYPE textdoc_tab AS TABLE OF textdoc_typ;
 
 --nested table type containing varray
-CREATE TYPE cust_address_typ2 AS OBJECT
+CREATE OR REPLACE TYPE cust_address_typ2 AS OBJECT
        ( street_address     VARCHAR2(40)
        , postal_code        VARCHAR2(10)
        , city               VARCHAR2(30)
@@ -19,20 +19,20 @@ CREATE TYPE cust_address_typ2 AS OBJECT
        , phone              phone_list_typ_demo
        );
 
-CREATE TYPE cust_nt_address_typ
+CREATE OR REPLACE TYPE cust_nt_address_typ
    AS TABLE OF cust_address_typ2;
    
 
 
 --constructor example
-CREATE TYPE demo_typ1 AS OBJECT (a1 NUMBER, a2 NUMBER);
+CREATE OR REPLACE TYPE demo_typ1 AS OBJECT (a1 NUMBER, a2 NUMBER);
 
-CREATE TABLE demo_tab1 (b1 NUMBER, b2 demo_typ1);
+CREATE OR REPLACE TABLE demo_tab1 (b1 NUMBER, b2 demo_typ1);
 
 INSERT INTO demo_tab1 VALUES (1, demo_typ1(2,3));
 
 --object type example
-CREATE TYPE customer_typ_demo AS OBJECT
+CREATE OR REPLACE TYPE customer_typ_demo AS OBJECT
     ( customer_id        NUMBER(6)
     , cust_first_name    VARCHAR2(20)
     , cust_last_name     VARCHAR2(20)
@@ -46,22 +46,22 @@ CREATE TYPE customer_typ_demo AS OBJECT
     ) ;
     
 --type with member function (implemented in type body)
-CREATE TYPE data_typ1 AS OBJECT 
+CREATE OR REPLACE TYPE data_typ1 AS OBJECT 
    ( year NUMBER, 
      MEMBER FUNCTION prod(invent NUMBER) RETURN NUMBER 
    ); 
    
 --subtype example
-CREATE TYPE corporate_customer_typ_demo UNDER customer_typ_demo
+CREATE OR REPLACE TYPE corporate_customer_typ_demo UNDER customer_typ_demo
     ( account_mgr_id     NUMBER(6)
     );
     
 
 --calling member method example
-CREATE TYPE demo_typ2 AS OBJECT (a1 NUMBER,  
+CREATE OR REPLACE TYPE demo_typ2 AS OBJECT (a1 NUMBER,  
    MEMBER FUNCTION get_square RETURN NUMBER);  --member implemented in type body
 
-CREATE TABLE demo_tab2(col demo_typ2); 
+CREATE OR REPLACE TABLE demo_tab2(col demo_typ2); 
 
 INSERT INTO demo_tab2 VALUES (demo_typ2(2));
 

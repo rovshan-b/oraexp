@@ -5,6 +5,7 @@
 #include "util/iconutil.h"
 #include "util/widgethelper.h"
 #include "util/queryutil.h"
+#include "util/codeeditorutil.h"
 #include "info_panel/infopanel.h"
 #include "info_panel/panes/compilermessagespane.h"
 #include "connectivity/dbconnection.h"
@@ -394,8 +395,11 @@ void CodeCreatorWidget::objectCodeExecuted(const QueryResult &result)
     delete result.statement;
 
     if(result.hasError){
-        compilerMessagesPane->addCompilerMessage(result.exception.getErrorRow(), result.exception.getErrorPos(),
-                                                 result.exception.getErrorMessage(), "ERROR");
+        addCompilerMessage(result.exception.getErrorRow(),
+                           result.exception.getErrorPos(),
+                           result.exception.getErrorCode(),
+                           result.exception.getErrorMessage(),
+                           "ERROR");
         stopProgress();
         return;
     }
@@ -420,6 +424,29 @@ void CodeCreatorWidget::compilationCompleted(const QueryResult &result)
     }
 }
 
+void CodeCreatorWidget::addCompilerMessage(int line, int position, int errorCode, const QString &message, const QString &attribute)
+{
+    if(line > 0 && compilerMessagesPane->isEmpty()){
+        QTextCursor cursor = currentEditor()->editor()->textCursor();
+        cursor.setPosition(0);
+
+        cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, line-1);
+
+        if(position > 0){
+            cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, position-1);
+        }
+
+        foreach(CodeEditorAndSearchPaneWidget *e, multiEditor->getEditors()){
+            CodeEditorUtil::highlightEditorError(e->editor(), cursor.position(), errorCode, message, true);
+        }
+    }
+
+    compilerMessagesPane->addCompilerMessage(line,
+                                             position,
+                                             message,
+                                             attribute);
+}
+
 void CodeCreatorWidget::compilationErrorFetched(const FetchResult &fetchResult)
 {
     if(fetchResult.hasError){
@@ -428,10 +455,11 @@ void CodeCreatorWidget::compilationErrorFetched(const FetchResult &fetchResult)
         return;
     }
 
-    compilerMessagesPane->addCompilerMessage(fetchResult.colValue("LINE",0),
-                                             fetchResult.colValue("POSITION",0),
-                                             fetchResult.colValue("TEXT"),
-                                             fetchResult.colValue("ATTRIBUTE"));
+    addCompilerMessage(fetchResult.colValue("LINE",0),
+                       fetchResult.colValue("POSITION",0),
+                       fetchResult.colValue("MESSAGE_NUMBER",0),
+                       fetchResult.colValue("TEXT"),
+                       fetchResult.colValue("ATTRIBUTE"));
 }
 
 void CodeCreatorWidget::compilationErrorFirstTimeFetchCompleted(const QString &)

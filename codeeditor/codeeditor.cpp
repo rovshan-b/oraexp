@@ -57,12 +57,12 @@ CodeEditor::CodeEditor(QWidget *parent) :
 
     CodeEditor::fillTextShortcuts();
 
-    QCompleter *completer = new QCompleter(this);
-    completer->setModel(new QStringListModel(PlSqlParsingTable::getInstance()->getKeywords(), this));
-    completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
-    completer->setCaseSensitivity(Qt::CaseInsensitive);
-    completer->setWrapAround(false);
-    setCompleter(completer);
+    //QCompleter *completer = new QCompleter(this);
+    //completer->setModel(new QStringListModel(PlSqlParsingTable::getInstance()->getKeywords(), this));
+    //completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+    //completer->setCaseSensitivity(Qt::CaseInsensitive);
+    //completer->setWrapAround(false);
+    //setCompleter(completer);
 }
 
 //use only when sure that there's not lots of text in editor
@@ -457,7 +457,7 @@ int CodeEditor::lineMarkerAreaOffset() const
      if(!isReadOnly()){
          int key=event->key();
 
-         if(completer->popup()->isVisible()){
+         if(completer && completer->popup()->isVisible()){
              switch (key) {
              case Qt::Key_Enter:
              case Qt::Key_Return:
@@ -511,7 +511,7 @@ int CodeEditor::lineMarkerAreaOffset() const
              customCopy();
          }
 
-         if(!handled && key!=Qt::Key_Backspace){
+         if(!handled && key!=Qt::Key_Backspace && completer){
              completerHandleKeyPress(event);
              handled = true;
          }

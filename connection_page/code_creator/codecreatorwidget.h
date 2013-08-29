@@ -115,6 +115,8 @@ private:
     InfoPanel *infoPanel;
     CompilerMessagesPane *compilerMessagesPane;
 
+    void addCompilerMessage(int line, int position,
+                            int errorCode, const QString &message, const QString &attribute);
     void compileObject();
     void startProgress();
     void stopProgress();

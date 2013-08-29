@@ -33,8 +33,6 @@ protected:
     ParsingTableRow *errorRow;
 
 private:
-    QStack<int> stack;
-
     IReduceListener *reduceListener;
 };
 

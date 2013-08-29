@@ -14,12 +14,23 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <widget class="QPlainTextEdit" name="codeEditor"/>
-    </item>
-    <item>
-     <widget class="QPlainTextEdit" name="output"/>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QTreeView" name="treeView"/>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QPlainTextEdit" name="codeEditor"/>
+        </item>
+        <item>
+         <widget class="QPlainTextEdit" name="output"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -29,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>737</width>
-     <height>25</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuActions">

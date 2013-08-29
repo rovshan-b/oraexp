@@ -1,5 +1,5 @@
 --body of data_typ1
-CREATE TYPE BODY data_typ1 IS   
+CREATE OR REPLACE TYPE BODY data_typ1 IS   
     MEMBER FUNCTION prod (invent NUMBER) RETURN NUMBER IS 
     BEGIN 
        RETURN (year + invent);
@@ -7,7 +7,7 @@ CREATE TYPE BODY data_typ1 IS
 END; 
 
 --body of demo typ2
-CREATE TYPE BODY demo_typ2 IS
+CREATE OR REPLACE TYPE BODY demo_typ2 IS
    MEMBER FUNCTION get_square
    RETURN NUMBER
    IS x NUMBER;

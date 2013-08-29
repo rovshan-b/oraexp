@@ -1,8 +1,8 @@
-start_rule :	create_package ;
+start_rule :	create_object ;
 
-create_package
+create_object
 	:	'CREATE' opt_or_replace
-		package_spec_or_body
+		obj_spec_or_body
 	;
 	
 opt_or_replace
@@ -10,110 +10,38 @@ opt_or_replace
    |  
    ;
    
-package_spec_or_body 
-   :  package_spec
-   |  package_body
+obj_spec_or_body 
+   :  'PACKAGE' object_name
+   |  'PACKAGE' 'BODY' object_name
+   |  'PROCEDURE' object_name
+   |  'FUNCTION' object_name
+   |  'TRIGGER' object_name
+   |  opt_force 'VIEW' object_name
    ;
-	
-package_spec
-	:	'PACKAGE' object_name is_or_as
-		kleene_package_obj_spec
-		'END' opt_object_name PLS_SEMI
-	;
-	
-package_body
-	:	'PACKAGE' 'BODY' object_name is_or_as
-		kleene_package_obj_body
-		opt_block_start  
-		'END' opt_object_name PLS_SEMI
-	;
-	
-opt_block_start
-   :  'BEGIN' seq_of_statements
+   
+opt_force
+   :  opt_no force
+   |  force
    |
    ;
-	
-seq_of_statements
-   :	statement_with_semi
-   |  seq_of_statements statement_with_semi
-   ;
-
-statement_with_semi
-   :  statement SEMI
-   ;
-	
-	
-kleene_package_obj_spec
-   :  package_obj_spec kleene_package_obj_spec
+   
+opt_no
+   :  no
    |
+   ;   
+   
+no 
+   :  'NO'
    ;
-	
-package_obj_spec
-	:	variable_declaration 
-	|	type_declaration
-	|	subtype_declaration 
-	|	record_declaration 
-	|	plsql_table_declaration 
-	|	varray_declaration
-	|	cursor_declaration 
-	|	cursor_spec 
-	|	procedure_spec 
-	|	function_spec 
-	|	exception_declaration 
-	|	pragma_declaration
-	;
-
-kleene_package_obj_body
-   :       package_obj_body kleene_package_obj_body
-   |
-   ;
-	
-package_obj_body
-	:	variable_declaration 
-	|	subtype_declaration 
-	|	cursor_declaration 
-	|	exception_declaration 
-	|	record_declaration 
-	|	plsql_table_declaration 
-	|	varray_declaration
-	|	procedure_body 
-	|	function_body 
-	|	pragma_declaration
-	;
-	
-statement
-	:	assignment_statement
-	|	exit_statement
-	|	goto_statement
-	|	case_statement
-	|	if_statement 
-	|	loop_statement 
-	|	null_statement
-	|	raise_statement
-	|	return_statement
-	|	sql_statement
-	|	plsql_block
-	|	function_call
-	;
-
-opt_object_name
-   :  object_name
-   |
+   
+force
+   :  'FORCE'
    ;
 
 object_name
-	:	opt_schema_name identifier 
+	:	identifier PLS_DOT identifier 
+	|  identifier
 	;
-	
-is_or_as
-   :  'IS'
-   |  'AS'
-   ;
-   
-opt_schema_name
-   :  identifier PLS_DOT
-   |
-   ;
    
 identifier
    :	PLS_ID

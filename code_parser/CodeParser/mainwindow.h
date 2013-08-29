@@ -4,19 +4,21 @@
 #include <QMainWindow>
 #include "../ireducelistener.h"
 
+class ParseTreeNode;
+class QStandardItemModel;
+class QStandardItem;
+
 namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QMainWindow, public IReduceListener
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
     
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-
-    virtual void reduced(int ruleId, int symbolCount, ParsingTable *parsingTable);
 
 protected:
     void closeEvent ( QCloseEvent * event );
@@ -28,6 +30,10 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    QStandardItemModel *model;
+
+    void buildTree(ParseTreeNode *rootNode);
+    void addChildNodes(ParseTreeNode *parseTreeNode, QStandardItem *treeViewNode);
 };
 
 #endif // MAINWINDOW_H

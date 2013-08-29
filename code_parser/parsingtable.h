@@ -14,7 +14,7 @@ public:
 
     virtual ~ParsingTable();
 
-    QStringList getKeywords() const;
+    //QStringList getKeywords() const;
     int getKeywordIx(const QString &possibleKeyword) const;
     QString getRuleName(int ruleId);
 

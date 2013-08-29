@@ -6,6 +6,10 @@
 #include "../codeparserfactory.h"
 #include "../codeparser.h"
 #include "../parsingtable.h"
+#include "../plsql/plsqlparsingtable.h"
+#include "../plsql/plsqltreebuilder.h"
+#include "beans/parsetreenode.h"
+#include "beans/tokeninfo.h"
 #include <QtGui>
 #include <QDebug>
 
@@ -17,6 +21,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QSettings settings;
     ui->codeEditor->setPlainText(settings.value("code").toString());
+
+    model = new QStandardItemModel(this);
+    ui->treeView->setModel(model);
 }
 
 MainWindow::~MainWindow()
@@ -66,7 +73,8 @@ void MainWindow::on_actionParse_triggered()
 
     TextCursorReader* reader=new TextCursorReader(ui->codeEditor->textCursor());
     CodeParser *parser=CodeParserFactory::createParser("plsql", reader);
-    parser->setReduceListener(this);
+    PlSqlTreeBuilder treeBulder;
+    parser->setReduceListener(&treeBulder);
     bool success=parser->parse();
 
     if(!success){
@@ -94,13 +102,34 @@ void MainWindow::on_actionParse_triggered()
             ui->output->appendPlainText(QString::number(rules.at(i)));
         }
     }else{
+        buildTree(treeBulder.getRootNode());
         ui->output->appendPlainText("Successfully completed parsing");
     }
 
     delete parser;
 }
 
-void MainWindow::reduced(int ruleId, int symbolCount, ParsingTable *parsingTable)
+void MainWindow::buildTree(ParseTreeNode *rootNode)
 {
-    ui->output->appendPlainText(QString("reduced by rule %1, symbol count is %2. rule name: %3").arg(ruleId).arg(symbolCount).arg(parsingTable->getRuleName(ruleId)));
+    model->clear();
+    addChildNodes(rootNode, model->invisibleRootItem());
+}
+
+void MainWindow::addChildNodes(ParseTreeNode *parseTreeNode, QStandardItem *treeViewNode)
+{
+    QString nodeTitle;
+    if(parseTreeNode->tokenInfo==0){
+        nodeTitle = "Root node";
+    }else if(parseTreeNode->tokenInfo->tokenType == TokenInfo::Rule){
+        nodeTitle = PlSqlParsingTable::getInstance()->getRuleName(parseTreeNode->tokenInfo->tokenOrRuleId);
+    }else{
+        nodeTitle = parseTreeNode->tokenInfo->lexeme;
+    }
+
+    QStandardItem *newItem = new QStandardItem(nodeTitle);
+    treeViewNode->appendRow(newItem);
+
+    for(int i=0; i<parseTreeNode->children.size(); ++i){
+        addChildNodes(parseTreeNode->children.at(i), newItem);
+    }
 }

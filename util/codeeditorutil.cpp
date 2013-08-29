@@ -11,11 +11,18 @@ CodeEditorUtil::CodeEditorUtil()
 
 void CodeEditorUtil::highlightEditorError(CodeEditor *editor, int errorPos, const OciException &ex, bool append)
 {
+    int errorCode = ex.getErrorCode();
+    QString errorMessage = ex.getErrorMessage();
+
+    CodeEditorUtil::highlightEditorError(editor, errorPos, errorCode,  errorMessage, append);
+}
+
+void CodeEditorUtil::highlightEditorError(CodeEditor *editor, int errorPos, int errorCode, const QString &errorMessage, bool append)
+{
     QTextCursor errorPositionCursor = editor->textCursor();
     errorPositionCursor.setPosition(errorPos); //errorPos is 1 based
 
-    int errorCode = ex.getErrorCode();
-    QString errMsg = ex.getErrorMessage();
+    QString errMsg = errorMessage;
 
     if(errorCode==ERR_PLS_ERROR_POSITION){ //second line contains real error description
         errMsg = errMsg.mid(errMsg.indexOf('\n')+1); //removed first line
