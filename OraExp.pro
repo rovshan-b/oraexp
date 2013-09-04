@@ -524,7 +524,9 @@ SOURCES += main.cpp\
     connection_page/generic_viewer/genericobjectviewertabs.cpp \
     context_menu/genericobjectcontextmenuutil.cpp \
     code_parser/plsql/plsqltreebuilder.cpp \
-    beans/tokeninfo.cpp
+    beans/tokeninfo.cpp \
+    beans/parsetreenode.cpp \
+    code_parser/plsql/plsqltokenfinder.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1054,7 +1056,11 @@ HEADERS  += mainwindow.h \
     beans/iactionpropertysetter.h \
     context_menu/genericobjectcontextmenuutil.h \
     code_parser/plsql/plsqltreebuilder.h \
-    beans/tokeninfo.h
+    beans/tokeninfo.h \
+    beans/parsetreenode.h \
+    code_parser/plsql/plsqltokenfinder.h \
+    code_parser/plsql/plsqlrules.h.tpl \
+    code_parser/plsql/plsqlparsingtable.cpp.tpl
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

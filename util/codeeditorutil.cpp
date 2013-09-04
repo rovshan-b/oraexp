@@ -78,6 +78,7 @@ void CodeEditorUtil::highlightEditorError(CodeEditor *editor, int errorPos, int 
         }
     }else if(errorCode == ERR_TABLE_OR_VIEW_DOES_NOT_EXIST ||
                 errorCode == ERR_COMPONENT_MUST_BE_DECALRED ||
+                errorCode == ERR_IDENTIFIER_MUST_BE_DECLARED ||
                 errorCode == ERR_AMBIGUOUS_COLUMN_NAME ||
                 errorCode == ERR_NAME_ALREADY_USED){
         QTextCursor editorReaderCursor = errorPositionCursor;

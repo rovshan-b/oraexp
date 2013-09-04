@@ -22,10 +22,15 @@ private:
         QTextCharFormat format;
     };
 
+    static QStringList keywords;
+    bool isKeyword(const QString &word) const;
+
     QVector <HighlightingRule> highlightingRules;
 
     QRegExp commentStartExpression;
     QRegExp commentEndExpression;
+
+    QRegExp singleQuotationExpression;
 
     QTextCharFormat keywordFormat;
     QTextCharFormat singleLineCommentFormat;
@@ -33,6 +38,8 @@ private:
     QTextCharFormat singleQuotationFormat;
     QTextCharFormat doubleQuotationFormat;
     QTextCharFormat numberFormat;
+
+    void highlightMultilineConstruct(const QString &text, const QRegExp &startExpression, const QRegExp &endExpression, const QTextCharFormat &format, int blockState);
 
 };
 

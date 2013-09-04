@@ -1,6 +1,7 @@
 #include "codeparser.h"
 #include "ireducelistener.h"
 #include "beans/tokeninfo.h"
+#include "plsql/plsqltokens.h"
 
 CodeParser::CodeParser(CodeScanner *scanner) : scanner(scanner), errorRow(0), reduceListener(0)
 {
@@ -42,11 +43,19 @@ bool CodeParser::parse()
         int stateOnTop = stack.top();
 
         row=table->rows.at(stateOnTop);
+
         actionOnCurrToken=(*row->actions).value(token, 0);
+
+        if(actionOnCurrToken==0){
+            actionOnCurrToken=(*row->actions).value(PLS_ANY, 0);
+        }
 
         if(actionOnCurrToken==0){ //parsing error
             //qDebug("parsing error");
             errorRow = row;
+            if(reduceListener){
+                reduceListener->error();
+            }
             return false;
             break;
         }

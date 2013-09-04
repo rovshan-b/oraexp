@@ -127,6 +127,10 @@ private:
     int lineMarkerAreaWidth() const;
     int lineMarkerAreaOffset() const;
 
+    void highlightMatchingBraces(QList<QTextEdit::ExtraSelection> &extraSelections);
+    QChar checkForBrace(int &pos);
+    int findMatchingBrace(const QChar &brace, const QChar &matching, int fromPos, int toPos);
+
 
     static QHash<QString,QString> textShortcuts;
     static void fillTextShortcuts();

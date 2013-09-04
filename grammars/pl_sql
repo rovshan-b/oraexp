@@ -2,6 +2,7 @@ start_rule :	create_object ;
 
 create_object
 	:	'CREATE' opt_or_replace
+	   obj_type_and_name
 		obj_spec_or_body
 	;
 	
@@ -9,14 +10,23 @@ opt_or_replace
    :  'OR' 'REPLACE'
    |  
    ;
-   
-obj_spec_or_body 
+    
+obj_type_and_name 
    :  'PACKAGE' object_name
    |  'PACKAGE' 'BODY' object_name
    |  'PROCEDURE' object_name
    |  'FUNCTION' object_name
    |  'TRIGGER' object_name
    |  opt_force 'VIEW' object_name
+   ;
+   
+obj_spec_or_body
+   :  any_tokens
+   ;
+   
+any_tokens
+   :  PLS_ANY any_tokens
+   |
    ;
    
 opt_force

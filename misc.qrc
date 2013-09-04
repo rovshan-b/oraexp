@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>misc/xlsx_template.xlsx</file>
+        <file>misc/keywords</file>
     </qresource>
 </RCC>

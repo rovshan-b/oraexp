@@ -11,6 +11,7 @@
 #include "connectivity/dbconnection.h"
 #include "connectivity/statement.h"
 #include "widgets/specbodyswitcherwidget.h"
+#include "code_parser/plsql/plsqlparsehelper.h"
 #include "errors.h"
 #include <QtGui>
 
@@ -401,7 +402,19 @@ void CodeCreatorWidget::objectCodeExecuted(const QueryResult &result)
                            result.exception.getErrorMessage(),
                            "ERROR");
         stopProgress();
+        infoPanel->setCurrentPane(compilerMessagesPane);
         return;
+    }
+
+    QString query = currentEditor()->editor()->toPlainText();
+    QString schema, name;
+    PlSqlParseHelper::findObjectName(query, &schema, &name, this->queryScheduler->getDb()->getUsername());
+    if(name.isEmpty() && objectName.isEmpty()){
+        QMessageBox::critical(this->window(), tr("Parse error"),
+                              tr("Could not parse object name. If you know that code is correct please, submit a bug report."));
+    }else{
+        this->schemaName = schema;
+        this->objectName = name;
     }
 
     setModified(false);
@@ -412,9 +425,12 @@ void CodeCreatorWidget::compilationCompleted(const QueryResult &result)
 {
     if(result.hasError){
         if(result.taskName=="compile_object"){
-            compilerMessagesPane->addCompilerMessage(result.exception.getErrorRow(), result.exception.getErrorPos(),
-                                                     QString("%1: %2").arg(tr("Error compiling object"), result.exception.getErrorMessage()),
-                                                     "ERROR");
+            addCompilerMessage(result.exception.getErrorRow(),
+                               result.exception.getErrorPos(),
+                               result.exception.getErrorCode(),
+                               QString("%1: %2").arg(tr("Error compiling object"),
+                               result.exception.getErrorMessage()),
+                               "ERROR");
             compilationErrorFetchCompleted("");
         }else{
             QMessageBox::critical(this->window(), tr("Error loading compiler messages"),

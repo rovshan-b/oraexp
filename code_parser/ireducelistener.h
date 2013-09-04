@@ -11,6 +11,8 @@ class IReduceListener
 public:
     virtual void reduced(TokenInfo* ruleInfo, int symbolCount, const QList<TokenInfo*> &reducedTokens, ParsingTable *parsingTable)=0;
     virtual void accepted(){}
+
+    virtual void error(){}
 };
 
 #endif // IREDUCELISTENER_H

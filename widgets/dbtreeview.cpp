@@ -99,9 +99,9 @@ void DbTreeView::nodeActivated(const QModelIndex &index)
 
     DbTreeItem* node=(DbTreeItem*)index.internalPointer();
 
-    if(node->hasChildren()){
-        return;
-    }
+    //if(node->hasChildren()){
+    //    return;
+    //}
 
     QList<QAction*> actions = node->getContextMenuItems(index);
 

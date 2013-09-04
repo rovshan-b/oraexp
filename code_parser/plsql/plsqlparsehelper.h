@@ -17,8 +17,13 @@ public:
 
     static void getNextQueryPos(const QString &query, int startFromPos, int *queryStartPos, int *queryEndPos);
 
+    static void findObjectName(const QString &query, QString *schema, QString *name, const QString &defaultSchema);
+
 private:
+    static QString cleanIdentifier(const QString &identifier);
+
     PlSqlParseHelper();
+
 };
 
 #endif // PLSQLPARSEHELPER_H

@@ -102,8 +102,25 @@ void MainWindow::on_actionParse_triggered()
             ui->output->appendPlainText(QString::number(rules.at(i)));
         }
     }else{
-        buildTree(treeBulder.getRootNode());
         ui->output->appendPlainText("Successfully completed parsing");
+    }
+
+    buildTree(treeBulder.getRootNode());
+
+    QList<int> objectNamePath = QList<int>() << R_START_RULE << R_CREATE_OBJECT << R_OBJ_TYPE_AND_NAME << R_OBJECT_NAME;
+    ParseTreeNode *objectNameNode = treeBulder.getNode(objectNamePath);
+
+    if(objectNameNode){
+        QString objectName;
+
+        if(objectNameNode->children.size()==1){
+            objectName = objectNameNode->children.at(1)->children.at(0)->tokenInfo->lexeme;
+        }else{
+            Q_ASSERT(objectNameNode->children.size()==3);
+            objectName = QString("%1.%2").arg(objectNameNode->children.at(0)->children.at(0)->tokenInfo->lexeme,
+                                              objectNameNode->children.at(2)->children.at(0)->tokenInfo->lexeme);
+            ui->output->appendPlainText(QString("Object name is: %1").arg(objectName));
+        }
     }
 
     delete parser;

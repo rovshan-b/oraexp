@@ -27,7 +27,8 @@ SOURCES += main.cpp\
     ../../util/strutil.cpp \
     ../../beans/tokeninfo.cpp \
     ../plsql/plsqltreebuilder.cpp \
-    ../../beans/parsetreenode.cpp
+    ../../beans/parsetreenode.cpp \
+    ../plsql/plsqltokenfinder.cpp
 
 HEADERS  += mainwindow.h \
     ../codeparser.h \
@@ -48,7 +49,8 @@ HEADERS  += mainwindow.h \
     ../../beans/tokeninfo.h \
     ../plsql/plsqltreebuilder.h \
     ../../beans/parsetreenode.h \
-    ../plsql/plsqlrules.h
+    ../plsql/plsqlrules.h \
+    ../plsql/plsqltokenfinder.h
 
 FORMS    += mainwindow.ui
 

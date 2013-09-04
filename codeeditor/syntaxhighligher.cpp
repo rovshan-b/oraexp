@@ -5,6 +5,8 @@
 #include "util/strutil.h"
 #include "code_parser/plsql/plsqlparsingtable.h"
 
+QStringList SyntaxHighligher::keywords;
+
 SyntaxHighligher::SyntaxHighligher(QTextDocument * parent) :
     QSyntaxHighlighter(parent)
 {
@@ -20,10 +22,10 @@ SyntaxHighligher::SyntaxHighligher(QTextDocument * parent) :
     highlightingRules.append(rule);
 
     singleQuotationFormat.setForeground(QColor(104,34,139));
-    rule.pattern = QRegExp("'.*'");
-    rule.pattern.setMinimal(true);
-    rule.format = singleQuotationFormat;
-    highlightingRules.append(rule);
+    //rule.pattern = QRegExp("'.*'");
+    //rule.pattern.setMinimal(true);
+    //rule.format = singleQuotationFormat;
+    //highlightingRules.append(rule);
 
     doubleQuotationFormat.setForeground(Qt::darkRed);
     rule.pattern = QRegExp("\".*\"");
@@ -40,6 +42,22 @@ SyntaxHighligher::SyntaxHighligher(QTextDocument * parent) :
 
     commentStartExpression = QRegExp("/\\*");
     commentEndExpression = QRegExp("\\*/");
+
+    singleQuotationExpression = QRegExp("'");
+
+    if(SyntaxHighligher::keywords.isEmpty()){
+        SyntaxHighligher::keywords.reserve(100);
+        QFile f(":/misc/keywords");
+        f.open(QIODevice::ReadOnly);
+        QTextStream in(&f);
+        QString line;
+        while(!in.atEnd()){
+            line=in.readLine().trimmed();
+            if(!line.isEmpty()){
+                SyntaxHighligher::keywords.append(line);
+            }
+        }
+    }
 }
 
 void SyntaxHighligher::highlightBlock(const QString &text)
@@ -47,8 +65,7 @@ void SyntaxHighligher::highlightBlock(const QString &text)
     //highlight keywords
     QSet<QString> allWords = text.split(QRegExp("\\W+")).toSet();
     foreach(const QString &word, allWords){
-        bool isKeyword=(PlSqlParsingTable::getInstance()->getKeywordIx(word)>=0);
-        if(isKeyword){
+        if(isKeyword(word)){
             QRegExp rx(QString("\\b%1\\b").arg(word));
             rx.setCaseSensitivity(Qt::CaseInsensitive);
 
@@ -72,21 +89,49 @@ void SyntaxHighligher::highlightBlock(const QString &text)
 
     setCurrentBlockState(0);
 
+    highlightMultilineConstruct(text, commentStartExpression, commentEndExpression, multiLineCommentFormat, 1);
+    highlightMultilineConstruct(text, singleQuotationExpression, singleQuotationExpression, singleQuotationFormat, 2);
+}
+
+bool SyntaxHighligher::isKeyword(const QString &word) const
+{
+    QStringList::const_iterator it=qBinaryFind(SyntaxHighligher::keywords.begin(),
+                                               SyntaxHighligher::keywords.end(),
+                                               word,
+                                               caseInsensitiveLessThan);
+    if(it==keywords.end()){
+        return false;
+    }else{
+        return true;
+    }
+}
+
+void SyntaxHighligher::highlightMultilineConstruct(const QString &text,
+                                                   const QRegExp &startExpression,
+                                                   const QRegExp &endExpression,
+                                                   const QTextCharFormat &format,
+                                                   int blockState)
+{
+    if(currentBlockState()>0){
+        return;
+    }
+
     int startIndex = 0;
-    if (previousBlockState() != 1)
-        startIndex = commentStartExpression.indexIn(text);
+    if (previousBlockState() != blockState){
+        startIndex = startExpression.indexIn(text);
+    }
 
     while (startIndex >= 0) {
-        int endIndex = commentEndExpression.indexIn(text, startIndex);
+        int endIndex = endExpression.indexIn(text, startIndex+1);
         int commentLength;
         if (endIndex == -1) {
-            setCurrentBlockState(1);
+            setCurrentBlockState(blockState);
             commentLength = text.length() - startIndex;
         } else {
             commentLength = endIndex - startIndex
-                    + commentEndExpression.matchedLength();
+                    + endExpression.matchedLength();
         }
-        setFormat(startIndex, commentLength, multiLineCommentFormat);
-        startIndex = commentStartExpression.indexIn(text, startIndex + commentLength);
+        setFormat(startIndex, commentLength, format);
+        startIndex = startExpression.indexIn(text, startIndex + commentLength);
     }
 }

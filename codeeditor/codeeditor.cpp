@@ -207,10 +207,92 @@ int CodeEditor::lineMarkerAreaOffset() const
          extraSelections.append(errorSelection);
      }
 
+     highlightMatchingBraces(extraSelections);
+
      setExtraSelections(extraSelections);
  }
 
+ void CodeEditor::highlightMatchingBraces(QList<QTextEdit::ExtraSelection> &extraSelections)
+ {
+     QTextCursor cur = textCursor();
+     int curPos = cur.position();
+     int characterCount = document()->characterCount();
+     QChar ch = checkForBrace(curPos);
 
+     if(ch.isNull()){
+         return;
+     }
+
+     if(cur.position() != curPos){
+         cur.setPosition(curPos);
+     }
+
+     int nextPos;
+
+     if(ch=='('){
+         nextPos = findMatchingBrace('(', ')', curPos+1, characterCount-1);
+     }else if(ch==')'){
+         nextPos = findMatchingBrace(')', '(', curPos-1, 0);
+     }
+
+     QTextEdit::ExtraSelection selection1, selection2;
+
+     cur.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+     selection1.cursor = cur;
+     selection1.format.setForeground(nextPos==-1 ? Qt::red : Qt::magenta);
+     selection1.format.setFontWeight(QFont::Bold);
+     extraSelections.append(selection1);
+
+     if(nextPos!=-1){
+         QTextCursor nextPosCursor = textCursor();
+         nextPosCursor.setPosition(nextPos);
+         nextPosCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+         selection2.cursor = nextPosCursor;
+         selection2.format.setForeground(Qt::magenta);
+         selection2.format.setFontWeight(QFont::Bold);
+         extraSelections.append(selection2);
+     }
+ }
+
+ QChar CodeEditor::checkForBrace(int &pos)
+ {
+     QChar ch = document()->characterAt(pos);
+
+     if(ch=='(' || ch==')'){
+        return ch;
+     }else{
+         ch = document()->characterAt(--pos);
+         if(ch=='(' || ch==')'){
+             return ch;
+         }/*else{
+             pos-=2;
+             ch = document()->characterAt(pos);
+             if(ch=='(' || ch==')'){
+                 return ch;
+             }
+         }*/
+     }
+
+     return QChar();
+ }
+
+ int CodeEditor::findMatchingBrace(const QChar &brace, const QChar &matching, int fromPos, int toPos)
+ {
+     int occurence = 0;
+     for(int i=fromPos; toPos>fromPos ? (i<=toPos) : (i>=toPos); toPos>fromPos ? ++i : --i){
+         QChar c = document()->characterAt(i);
+         if(c == brace){
+             --occurence;
+         }else if(c == matching){
+             if(occurence == 0){
+                 return i;
+             }
+             ++occurence;
+         }
+     }
+
+     return -1;
+ }
 
  void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
  {

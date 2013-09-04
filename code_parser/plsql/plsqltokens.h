@@ -39,5 +39,6 @@
 #define PLS_ML_COMMENT 100033
 #define PLS_E_O_F 100034
 #define PLS_ERROR 100035
+#define PLS_ANY 100036
 
 #endif // PLSQLTOKENS_H

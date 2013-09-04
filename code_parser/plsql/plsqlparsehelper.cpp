@@ -1,8 +1,12 @@
 #include "plsqlparsehelper.h"
 #include "plsqlscanner.h"
 #include "../stringreader.h"
+#include "../codeparser.h"
+#include "../codeparserfactory.h"
 #include "plsqltokens.h"
-#include "code_parser/plsql/plsqlparsingtable.h"
+#include "plsqlparsingtable.h"
+#include "plsqltokenfinder.h"
+#include "plsqltreebuilder.h"
 #include "util/dbutil.h"
 #include <QDebug>
 
@@ -183,6 +187,33 @@ void PlSqlParseHelper::getNextQueryPos(const QString &query, int startFromPos, i
     }while(token != PLS_E_O_F);
 
     *queryEndPos = scanner->getTokenEndPos() + startFromPos;
+}
+
+void PlSqlParseHelper::findObjectName(const QString &query, QString *schema, QString *name, const QString &defaultSchema)
+{
+    StringReader *reader = new StringReader(query);
+    QScopedPointer<CodeParser> parser(CodeParserFactory::createParser("plsql", reader));
+    PlSqlTreeBuilder treeBuilder;
+    parser->setReduceListener(&treeBuilder);
+    bool success = parser->parse();
+    if(success){
+        PlSqlTokenFinder::findObjectName(&treeBuilder, schema, name);
+        if(schema->isEmpty()){
+            *schema = defaultSchema;
+        }
+
+        *schema = PlSqlParseHelper::cleanIdentifier(*schema);
+        *name = PlSqlParseHelper::cleanIdentifier(*name);
+    }
+}
+
+QString PlSqlParseHelper::cleanIdentifier(const QString &identifier)
+{
+    if(identifier.startsWith('"') and identifier.endsWith('"')){
+        return identifier.mid(1, identifier.size()-2);
+    }else{
+        return identifier.toUpper();
+    }
 }
 
 PlSqlParseHelper::PlSqlParseHelper()

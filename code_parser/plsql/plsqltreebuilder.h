@@ -18,10 +18,16 @@ public:
     virtual void reduced(TokenInfo* ruleInfo, int symbolCount, const QList<TokenInfo*> &reducedTokens, ParsingTable *parsingTable);
     virtual void accepted();
 
+    virtual void error();
+
+    ParseTreeNode *getNode(const QList<int> rulesPath) const;
+
 private:
     ParseTreeNode *rootNode;
 
     QStack<ParseTreeNode*> ruleNodesStack;
+
+    ParseTreeNode *findNode(ParseTreeNode *parentNode, int ruleId) const;
 
 };
 

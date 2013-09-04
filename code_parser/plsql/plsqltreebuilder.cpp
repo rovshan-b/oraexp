@@ -13,6 +13,8 @@ PlSqlTreeBuilder::~PlSqlTreeBuilder()
 
 void PlSqlTreeBuilder::reduced(TokenInfo *ruleInfo, int symbolCount, const QList<TokenInfo *> &reducedTokens, ParsingTable *parsingTable)
 {
+    Q_UNUSED(parsingTable);
+
     ParseTreeNode *newNode = new ParseTreeNode();
     newNode->tokenInfo = ruleInfo;
     newNode->symbolCount = symbolCount;
@@ -40,4 +42,40 @@ void PlSqlTreeBuilder::accepted()
     while(!ruleNodesStack.isEmpty()){
         rootNode->children.prepend(ruleNodesStack.pop());
     }
+}
+
+void PlSqlTreeBuilder::error()
+{
+    accepted();
+}
+
+ParseTreeNode *PlSqlTreeBuilder::getNode(const QList<int> rulesPath) const
+{
+    if(!rootNode){
+        return 0;
+    }
+
+    ParseTreeNode *n = rootNode;
+    for(int i=0; i<rulesPath.size(); ++i){
+        n = findNode(n, rulesPath.at(i));
+        if(!n){
+            return 0;
+        }
+    }
+
+    return n;
+}
+
+ParseTreeNode *PlSqlTreeBuilder::findNode(ParseTreeNode *parentNode, int ruleId) const
+{
+    ParseTreeNode *n;
+    for(int i=0; i<parentNode->children.size(); ++i){
+        n = parentNode->children.at(i);
+        if(n->tokenInfo->tokenType == TokenInfo::Rule &&
+                n->tokenInfo->tokenOrRuleId == ruleId){
+            return n;
+        }
+    }
+
+    return 0;
 }
