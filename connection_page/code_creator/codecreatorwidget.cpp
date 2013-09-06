@@ -35,7 +35,7 @@ void CodeCreatorWidget::createUi()
     QSplitter *outerSplitter=new QSplitter(Qt::Horizontal);
 
     //create at top to enable further use
-    multiEditor=new MultiEditorWidget();
+    multiEditor=new MultiEditorWidget(true);
     infoPanel=new InfoPanel(this);
 
     //create left pane

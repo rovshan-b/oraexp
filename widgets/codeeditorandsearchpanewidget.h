@@ -11,7 +11,7 @@ class CodeEditorAndSearchPaneWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit CodeEditorAndSearchPaneWidget(QWidget *parent = 0);
+    explicit CodeEditorAndSearchPaneWidget(bool enableCodeCollapsing=false, QWidget *parent = 0);
 
     CodeEditor *editor() const {return this->codeEditor;}
     SearchPane *pane() const {return this->searchPane;}

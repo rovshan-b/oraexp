@@ -14,7 +14,7 @@ class MultiEditorWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MultiEditorWidget(QWidget *parent = 0);
+    explicit MultiEditorWidget(bool enableCodeCollapsing=false, QWidget *parent = 0);
     
     CodeEditorAndSearchPaneWidget *getCurrentEditor() const;
     void addSplittingActions(QWidget *w);
@@ -48,6 +48,8 @@ private:
 
     QLabel *infoLabel;
     QString infoLabelTextFormat;
+
+    bool enableCodeCollapsing;
     
 };
 

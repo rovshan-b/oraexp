@@ -32,12 +32,12 @@ void SchemaExporterHelper::stop()
 void SchemaExporterHelper::startComparer(DbTreeModel::DbTreeNodeType parentNodeType, const QStringList &checkedChildNames)
 {
     worker = new SchemaExporterWorker(parentNodeType,
-                                            sourceSchema,
-                                            checkedChildNames,
-                                            options,
-                                            justStarted ? QIODevice::WriteOnly : QIODevice::Append,
-                                            sourceScheduler,
-                                            0);
+                                      sourceSchema,
+                                      checkedChildNames,
+                                      options,
+                                      justStarted ? QIODevice::WriteOnly : QIODevice::Append,
+                                      sourceScheduler,
+                                      0);
 
     if(this->stopped){
         worker->stop();

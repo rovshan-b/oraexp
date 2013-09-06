@@ -3,11 +3,12 @@
 #include "util/widgethelper.h"
 #include <QtGui>
 
-MultiEditorWidget::MultiEditorWidget(QWidget *parent) :
+MultiEditorWidget::MultiEditorWidget(bool enableCodeCollapsing, QWidget *parent) :
     QWidget(parent),
     currentEditor(0),
     splitDirectionGroup(0),
-    infoLabel(0)
+    infoLabel(0),
+    enableCodeCollapsing(enableCodeCollapsing)
 {
     createUi();
 }
@@ -130,7 +131,7 @@ void MultiEditorWidget::setEditorCount(int count)
 
 QWidget *MultiEditorWidget::createEditor()
 {
-    CodeEditorAndSearchPaneWidget *editor=new CodeEditorAndSearchPaneWidget();
+    CodeEditorAndSearchPaneWidget *editor=new CodeEditorAndSearchPaneWidget(this->enableCodeCollapsing);
     connect(editor, SIGNAL(escapeKeyPressed()), this, SIGNAL(escapeKeyPressed()));
     editors.append(editor);
 

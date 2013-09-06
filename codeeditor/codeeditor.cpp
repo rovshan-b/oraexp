@@ -1,6 +1,7 @@
 #include "codeeditor.h"
 #include "syntaxhighligher.h"
 #include "linenumberarea.h"
+#include "codecollapsearea.h"
 #include "linenavigationbar.h"
 #include "dialogs/gotolinedialog.h"
 #include "util/widgethelper.h"
@@ -17,14 +18,22 @@
 QFont CodeEditor::currentFont;
 QHash<QString,QString> CodeEditor::textShortcuts;
 
-CodeEditor::CodeEditor(QWidget *parent) :
-    QPlainTextEdit(parent), lineNumberArea(0), lineNavBar(0), markedLineIx(-1), lineMarkerUsed(false),
+CodeEditor::CodeEditor(bool enableCodeCollapsing, QWidget *parent) :
+    QPlainTextEdit(parent),
+    lineNumberArea(0),
+    codeCollapseArea(0),
+    lineNavBar(0),
+    markedLineIx(-1),
+    lineMarkerUsed(false),
     completer(0)
 {
     QFont monospaceFont("Monospace");
     setFont(monospaceFont);
 
     lineNumberArea = new LineNumberArea(this);
+    if(enableCodeCollapsing){
+        codeCollapseArea = new CodeCollapseArea(this);
+    }
     lineNavBar = new LineNavigationBar(this);
 
     connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int)));
@@ -101,17 +110,21 @@ int CodeEditor::lineMarkerAreaOffset() const
      lineNavBar->setVisible(scrollbarVisible);
      int rightMargin = scrollbarVisible ? lineNavBar->width() : 0;
 
-     setViewportMargins(lineNumberAreaWidth(), 0, rightMargin, 0);
+     setViewportMargins(lineNumberAreaWidth()+codeCollapseAreaWidth(), 0, rightMargin, 0);
  }
 
 
 
  void CodeEditor::updateLineNumberArea(const QRect &rect, int dy)
  {
-     if (dy)
+     if (dy){
          lineNumberArea->scroll(0, dy);
-     else
+         if(codeCollapseArea){codeCollapseArea->scroll(0, dy);}
+     }
+     else{
          lineNumberArea->update(0, rect.y(), lineNumberArea->width(), rect.height());
+         if(codeCollapseArea){codeCollapseArea->update(0, rect.y(), codeCollapseArea->width(), rect.height());}
+     }
 
      if (rect.contains(viewport()->rect()))
          updateLineNumberAreaWidth(0);
@@ -150,6 +163,7 @@ int CodeEditor::lineMarkerAreaOffset() const
 
      QRect cr = contentsRect();
      lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+     if(codeCollapseArea){codeCollapseArea->setGeometry(QRect(cr.left()+lineNumberAreaWidth(), cr.top(), codeCollapseAreaWidth(), cr.height()));}
 
      QPoint viewportRight = viewport()->mapToParent(viewport()->rect().topRight());
      QRect navBarRect = QRect(viewportRight.x()+1, viewportRight.y(), lineNavBar->width(), viewport()->height());
@@ -353,6 +367,17 @@ int CodeEditor::lineMarkerAreaOffset() const
      painter.drawLine(rect.right(), rect.top(), rect.right(), rect.bottom());
  }
 
+ void CodeEditor::codeCollapseAreaPaintEvent(QPaintEvent *event)
+ {
+     QPainter painter(codeCollapseArea);
+
+     painter.fillRect(event->rect(), Qt::green);
+ }
+
+ int CodeEditor::codeCollapseAreaWidth() const
+ {
+     return codeCollapseArea ? 12 : 0;
+ }
 
  void CodeEditor::lineNavBarPaintEvent(QPaintEvent *event)
  {
@@ -511,10 +536,11 @@ int CodeEditor::lineMarkerAreaOffset() const
      return markedLineIx!=-1 || lineMarkerUsed;
  }
 
+ /*
  void CodeEditor::lineNumberAreaWheelEvent(QWheelEvent *event)
  {
      this->wheelEvent(event);
- }
+ }*/
 
  void CodeEditor::lineNavBarWheelEvent(QWheelEvent *event)
  {

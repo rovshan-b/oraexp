@@ -5,6 +5,7 @@
 #include "cursorpositioninfo.h"
 
 class LineNavigationBar;
+class CodeCollapseArea;
 class QCompleter;
 
 class CodeEditor : public QPlainTextEdit
@@ -12,11 +13,14 @@ class CodeEditor : public QPlainTextEdit
     Q_OBJECT
 
 public:
-    CodeEditor(QWidget *parent = 0);
+    CodeEditor(bool enableCodeCollapsing = false, QWidget *parent = 0);
 
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth() const;
-    void lineNumberAreaWheelEvent(QWheelEvent * event);
+    //void lineNumberAreaWheelEvent(QWheelEvent * event);
+
+    void codeCollapseAreaPaintEvent(QPaintEvent *event);
+    int codeCollapseAreaWidth() const;
 
     void lineNavBarPaintEvent(QPaintEvent *event);
     void lineNavBarMouseReleaseEvent(QMouseEvent * event);
@@ -92,6 +96,7 @@ private slots:
 
 private:
     QWidget *lineNumberArea;
+    CodeCollapseArea *codeCollapseArea;
     LineNavigationBar *lineNavBar;
 
     QList< QTextCursor > foundTextPositions;

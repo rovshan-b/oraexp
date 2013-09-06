@@ -1,12 +1,12 @@
 #include "codeeditorandsearchpanewidget.h"
 #include <QtGui>
 
-CodeEditorAndSearchPaneWidget::CodeEditorAndSearchPaneWidget(QWidget *parent) :
+CodeEditorAndSearchPaneWidget::CodeEditorAndSearchPaneWidget(bool enableCodeCollapsing, QWidget *parent) :
     QWidget(parent)
 {
     QVBoxLayout *layout=new QVBoxLayout();
 
-    codeEditor=new CodeEditor();
+    codeEditor=new CodeEditor(enableCodeCollapsing);
     searchPane=new SearchPane(codeEditor);
 
     codeEditor->installEventFilter(this);

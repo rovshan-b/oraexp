@@ -526,7 +526,8 @@ SOURCES += main.cpp\
     code_parser/plsql/plsqltreebuilder.cpp \
     beans/tokeninfo.cpp \
     beans/parsetreenode.cpp \
-    code_parser/plsql/plsqltokenfinder.cpp
+    code_parser/plsql/plsqltokenfinder.cpp \
+    codeeditor/codecollapsearea.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1060,7 +1061,8 @@ HEADERS  += mainwindow.h \
     beans/parsetreenode.h \
     code_parser/plsql/plsqltokenfinder.h \
     code_parser/plsql/plsqlrules.h.tpl \
-    code_parser/plsql/plsqlparsingtable.cpp.tpl
+    code_parser/plsql/plsqlparsingtable.cpp.tpl \
+    codeeditor/codecollapsearea.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

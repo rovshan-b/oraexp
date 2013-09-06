@@ -29,6 +29,18 @@ void PlSqlTreeBuilder::reduced(TokenInfo *ruleInfo, int symbolCount, const QList
         }else{
             newNode->children.prepend(ruleNodesStack.pop());
         }
+
+        if(i==0){
+            ParseTreeNode *lastChild = newNode->children.last();
+            newNode->tokenInfo->endPos = lastChild->tokenInfo->endPos;
+            newNode->tokenInfo->endLine = lastChild->tokenInfo->endLine;
+            newNode->tokenInfo->endLinePos = lastChild->tokenInfo->endLinePos;
+        }else if(i==reducedTokens.size()-1){
+            ParseTreeNode *firstChild = newNode->children.first();
+            newNode->tokenInfo->startPos = firstChild->tokenInfo->startPos;
+            newNode->tokenInfo->startLine = firstChild->tokenInfo->startLine;
+            newNode->tokenInfo->startLinePos = firstChild->tokenInfo->startLinePos;
+        }
     }
 
     ruleNodesStack.push(newNode);
