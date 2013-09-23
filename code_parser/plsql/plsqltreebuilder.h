@@ -29,6 +29,9 @@ private:
 
     ParseTreeNode *findNode(ParseTreeNode *parentNode, int ruleId) const;
 
+    void setStartEndPositions(ParseTreeNode *parentNode);
+    void firstLastNonNullChildren(ParseTreeNode *parentNode, ParseTreeNode **first, ParseTreeNode **last) const;
+
 };
 
 #endif // PLSQLTREEBUILDER_H

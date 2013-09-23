@@ -23,9 +23,9 @@ public:
 public slots:
     void setUndoEnabled(bool enabled);
     void setRedoEnabled(bool enabled);
+    void focusWidgetChanged(QWidget *old, QWidget *now);
 
 private slots:
-    void focusWidgetChanged(QWidget *old, QWidget *now);
 
     void undo();
     void redo();
@@ -60,7 +60,7 @@ public:
     QAction *editRedoAction;
     QAction *editCutAction;
     QAction *editCopyAction;
-    QAction *editCopyAsAction;
+    //QAction *editCopyAsAction;
     QAction *editPasteAction;
 
     QAction *editCommentAction;

@@ -34,8 +34,8 @@ void AppEditMenu::setupMenu(QMenu *editMenu, QToolBar *toolbar)
     editCopyAction=editMenu->addAction(IconUtil::getIcon("editcopy"), tr("&Copy"), this, SLOT(copy()), QKeySequence(QKeySequence::Copy));
     editCopyAction->setStatusTip(tr("Copy"));
     toolbar->addAction(editCopyAction);
-    editCopyAsAction=editMenu->addAction(IconUtil::getIcon("editcopy"), tr("Copy as"));
-    editCopyAsAction->setMenu(createCopyAsMenu(editMenu));
+    //editCopyAsAction=editMenu->addAction(IconUtil::getIcon("editcopy"), tr("Copy as"));
+    //editCopyAsAction->setMenu(createCopyAsMenu(editMenu));
     editPasteAction=editMenu->addAction(IconUtil::getIcon("editpaste"), tr("&Paste"), this, SLOT(paste()), QKeySequence(QKeySequence::Paste));
     editPasteAction->setStatusTip(tr("Paste"));
     toolbar->addAction(editPasteAction);
@@ -121,15 +121,16 @@ QWidget *AppEditMenu::findParentSearchPane() const
     return WidgetHelper::findParentWidget(currentAppWidget, "CodeEditorAndSearchPaneWidget");
 }
 
-void AppEditMenu::updateActionStates(ConnectionPage * /*cnPage*/, ConnectionPageTab *cnPageTab)
+void AppEditMenu::updateActionStates(ConnectionPage * /*cnPage*/, ConnectionPageTab * /*cnPageTab*/)
 {
-    bool enable = false;
+    /*bool enable = false;
     if(currentAppWidget!=0 && cnPageTab!=0){
         CodeEditor *editor = qobject_cast<CodeEditor*>(currentAppWidget);
         if(editor!=0){
             enable = (findParentSearchPane()!=0);
         }
-    }
+    }*/
+    bool enable = true;
 
     editFindAction->setEnabled(enable);
     editFindNextAction->setEnabled(enable);
@@ -145,7 +146,7 @@ void AppEditMenu::updateActionStatesForCodeEditor(CodeEditor *editor)
     editRedoAction->setEnabled(!isReadOnly && editor->document()->availableRedoSteps()>0);
     editCutAction->setEnabled(!isReadOnly);
     editCopyAction->setEnabled(true);
-    editCopyAsAction->setEnabled(true);
+    //editCopyAsAction->setEnabled(true);
     editPasteAction->setEnabled(!isReadOnly);
 
     editCommentAction->setEnabled(!isReadOnly);
@@ -205,7 +206,7 @@ void AppEditMenu::focusWidgetChanged(QWidget * /*old*/, QWidget *now)
 
     editCutAction->setEnabled(canCut);
     editCopyAction->setEnabled(canCopy);
-    editCopyAsAction->setEnabled(false);
+    //editCopyAsAction->setEnabled(false);
     editPasteAction->setEnabled(canPaste);
 
     editCommentAction->setEnabled(false);

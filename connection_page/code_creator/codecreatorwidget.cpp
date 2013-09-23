@@ -35,7 +35,7 @@ void CodeCreatorWidget::createUi()
     QSplitter *outerSplitter=new QSplitter(Qt::Horizontal);
 
     //create at top to enable further use
-    multiEditor=new MultiEditorWidget(true);
+    multiEditor=new MultiEditorWidget(DbUtil::isPLSQLProgramUnit(objectType));
     infoPanel=new InfoPanel(this);
 
     //create left pane
@@ -169,9 +169,7 @@ void CodeCreatorWidget::createToolbar()
 
         enableWarningsAction=toolbar->addAction(IconUtil::getIcon("warning"), tr("Enable warnings"));
         enableWarningsAction->setCheckable(true);
-        if(!editMode){
-            enableWarningsAction->setChecked(true);
-        }
+        enableWarningsAction->setChecked(false);
 
         enableNativeCodeAction=toolbar->addAction(IconUtil::getIcon("native_compilation"), tr("Enable native compilation for non-debug mode"));
         enableNativeCodeAction->setCheckable(true);
@@ -301,6 +299,7 @@ QString CodeCreatorWidget::getObjectTypeName() const
 void CodeCreatorWidget::setReadOnly(bool readOnly)
 {
     multiEditor->setReadOnly(readOnly);
+    emit stateChanged();
 }
 
 void CodeCreatorWidget::loadCodeTemplate()

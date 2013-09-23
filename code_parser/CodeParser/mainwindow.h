@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QModelIndex>
 #include "../ireducelistener.h"
 
 class ParseTreeNode;
@@ -28,12 +29,17 @@ private slots:
 
     void on_actionParse_triggered();
 
+    void nodeActivated(const QModelIndex &index);
+
+    void cursorPositionChanged();
+
 private:
     Ui::MainWindow *ui;
     QStandardItemModel *model;
 
     void buildTree(ParseTreeNode *rootNode);
     void addChildNodes(ParseTreeNode *parseTreeNode, QStandardItem *treeViewNode);
+
 };
 
 #endif // MAINWINDOW_H

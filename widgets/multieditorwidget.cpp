@@ -1,6 +1,8 @@
 #include "multieditorwidget.h"
 #include "util/iconutil.h"
 #include "util/widgethelper.h"
+#include "code_parser/plsql/plsqlparsehelper.h"
+#include "beans/codecollapseposition.h"
 #include <QtGui>
 
 MultiEditorWidget::MultiEditorWidget(bool enableCodeCollapsing, QWidget *parent) :
@@ -8,9 +10,16 @@ MultiEditorWidget::MultiEditorWidget(bool enableCodeCollapsing, QWidget *parent)
     currentEditor(0),
     splitDirectionGroup(0),
     infoLabel(0),
-    enableCodeCollapsing(enableCodeCollapsing)
+    enableCodeCollapsing(enableCodeCollapsing),
+    timerId(-1)
 {
     createUi();
+}
+
+MultiEditorWidget::~MultiEditorWidget()
+{
+    qDeleteAll(collapsePositions);
+    collapsePositions.clear();
 }
 
 void MultiEditorWidget::createUi()
@@ -94,11 +103,19 @@ void MultiEditorWidget::editorOrientationActionSelected(QAction *action)
     editorSplitter->setOrientation((Qt::Orientation)action->data().toInt());
 }
 
-void MultiEditorWidget::codeEditorFocusEvent(QWidget *object, bool)
+void MultiEditorWidget::codeEditorFocusEvent(QWidget *object, bool focusIn)
 {
     currentEditor = qobject_cast<CodeEditorAndSearchPaneWidget*>(object);
     Q_ASSERT(currentEditor);
     cursorPositionChanged();
+
+    if(enableCodeCollapsing){
+        if(focusIn){
+            timerId = startTimer(500);
+        }else{
+            killTimer(timerId);
+        }
+    }
 }
 
 void MultiEditorWidget::setEditorCount(int count)
@@ -141,6 +158,16 @@ QWidget *MultiEditorWidget::createEditor()
 
     if(editors.size()==1){
         currentEditor=editor;
+    }
+
+    if(enableCodeCollapsing){
+
+        editor->editor()->setCodeCollapsePositions(&this->collapsePositions);
+
+        if(editors.size() == 1){
+            connect(editor->editor()->document(), SIGNAL(contentsChanged()), this, SLOT(documentChanged()));
+            //connect(editor->editor()->document(), SIGNAL(blockCountChanged(int)), this, SLOT(recalculateCollapsePositions()));
+        }
     }
 
     connect(editor, SIGNAL(focusEvent(QWidget*,bool)), this, SLOT(codeEditorFocusEvent(QWidget*,bool)));
@@ -191,4 +218,34 @@ void MultiEditorWidget::cursorPositionChanged()
     int pos=cursor.position();
 
     infoLabel->setText(infoLabelTextFormat.arg(QString::number(block+1), QString::number(posInBlock+1), QString::number(pos+1)));
+}
+
+void MultiEditorWidget::documentChanged()
+{
+    lastChangeTime = QTime::currentTime();
+}
+
+void MultiEditorWidget::timerEvent(QTimerEvent *event)
+{
+    if(event->timerId() != timerId){
+        return;
+    }
+
+    if(!lastChangeTime.isNull() && lastChangeTime.msecsTo(QTime::currentTime())>=1000){
+        recalculateCollapsePositions();
+        lastChangeTime=QTime();
+    }
+}
+
+void MultiEditorWidget::recalculateCollapsePositions()
+{
+    qDeleteAll(collapsePositions);
+
+    QTextCursor cur = currentEditor->editor()->textCursor();
+    cur.setPosition(0);
+    collapsePositions = PlSqlParseHelper::findCodeCollapsePositions(cur);
+
+    for(int i=0; i<editors.size(); ++i){
+        editors.at(i)->editor()->refreshCodeCollapseArea();
+    }
 }

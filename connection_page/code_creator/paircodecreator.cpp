@@ -13,11 +13,13 @@ PairCodeCreator::PairCodeCreator(const QString &schemaName,
     specCreatorWidget->setHasSpecBodySwitcher(true, true);
     connect(specCreatorWidget, SIGNAL(specBodySwitchRequested()), this, SLOT(switchToBody()));
     connect(specCreatorWidget, SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
+    connect(specCreatorWidget, SIGNAL(stateChanged()), this, SIGNAL(stateChanged()));
 
     bodyCreatorWidget = new CodeCreatorWidget(schemaName, objectName, DbUtil::getBodyType(objectType));
     bodyCreatorWidget->setHasSpecBodySwitcher(true, false);
     connect(bodyCreatorWidget, SIGNAL(specBodySwitchRequested()), this, SLOT(switchToSpec()));
     connect(bodyCreatorWidget, SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
+    connect(bodyCreatorWidget, SIGNAL(stateChanged()), this, SIGNAL(stateChanged()));
 
     isSpecType = DbUtil::isSpecType(objectType);
 }

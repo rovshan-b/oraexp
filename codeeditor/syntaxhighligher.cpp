@@ -57,6 +57,8 @@ SyntaxHighligher::SyntaxHighligher(QTextDocument * parent) :
                 SyntaxHighligher::keywords.append(line);
             }
         }
+
+        SyntaxHighligher::keywords.sort();
     }
 }
 

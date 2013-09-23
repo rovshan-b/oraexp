@@ -77,6 +77,8 @@ QWidget *ConnectionEditor::createTnsPane()
     tnsCombo->setEditable(true);
     form->addRow(tr("TNS"), tnsCombo);
 
+    loadTnsList();
+
     //form->setContentsMargins(0,0,0,0);
     tnsPane->setLayout(form);
     return tnsPane;
@@ -103,6 +105,49 @@ QWidget *ConnectionEditor::createDirectPane()
     //form->setContentsMargins(0,0,0,0);
     directPane->setLayout(form);
     return directPane;
+}
+
+void ConnectionEditor::loadTnsList()
+{
+    QByteArray tnsnamesPathArr = qgetenv("TNS_ADMIN");
+    bool appendNetworkDir = false;
+    if(tnsnamesPathArr.isEmpty()){
+        tnsnamesPathArr = qgetenv("ORACLE_HOME");
+        appendNetworkDir = true;
+    }
+
+    QString path(tnsnamesPathArr);
+    if(!path.endsWith('\\') && !path.endsWith('/')){
+        path.append('/');
+    }
+    if(appendNetworkDir){
+        path.append("network/admin/");
+    }
+    path.append("tnsnames.ora");
+
+    if(!QFile::exists(path)){
+        return;
+    }
+
+    QFile file(path);
+    if(file.open(QIODevice::ReadOnly)){
+        QTextStream strm(&file);
+        QString contents=strm.readAll();
+        QRegExp tnsnameRegExp("([^\\s]+)\\s*=\\s*\\s\\(DESCRIPTION\\s*=", Qt::CaseInsensitive, QRegExp::RegExp2);
+
+        int pos = 0;
+
+        while ((pos = tnsnameRegExp.indexIn(contents, pos)) != -1) {
+            tnsCombo->addItem(tnsnameRegExp.cap(1));
+
+            pos += tnsnameRegExp.matchedLength();
+        }
+
+        if(tnsCombo->count()>0){
+            tnsCombo->model()->sort(0);
+            tnsCombo->setCurrentIndex(0);
+        }
+    }
 }
 
 DbConnectionInfo *ConnectionEditor::createConnection()

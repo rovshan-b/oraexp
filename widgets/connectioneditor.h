@@ -41,6 +41,8 @@ private:
     QWidget *createTnsPane();
     QWidget *createDirectPane();
 
+    void loadTnsList();
+
     void updateConnection(DbConnectionInfo *connection);
 
     DbConnectionInfo *currentConnection;

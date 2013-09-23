@@ -18,6 +18,7 @@ void CodeCreator::createUi()
     creatorWidget->createUi();
     connect(creatorWidget, SIGNAL(objectInfoLoaded()), this, SLOT(emitInitCompletedSignal()));
     connect(creatorWidget, SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
+    connect(creatorWidget, SIGNAL(stateChanged()), this, SIGNAL(stateChanged()));
 
     mainLayout->addWidget(creatorWidget);
     setLayout(mainLayout);

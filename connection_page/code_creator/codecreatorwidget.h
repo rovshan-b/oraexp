@@ -55,6 +55,7 @@ signals:
     void objectInfoLoaded();
     void specBodySwitchRequested();
     void modificationChanged(bool changed);
+    void stateChanged();
 
 protected:
     void keyReleaseEvent (QKeyEvent * event);

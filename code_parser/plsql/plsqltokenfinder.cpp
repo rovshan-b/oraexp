@@ -15,6 +15,7 @@ void PlSqlTokenFinder::findObjectName(PlSqlTreeBuilder *treeBuilder, QString *sc
 
     QList<int> objectNamePath = QList<int>() << R_START_RULE << R_CREATE_OBJECT << R_OBJ_TYPE_AND_NAME << R_OBJECT_NAME;
     ParseTreeNode *objectNameNode = treeBuilder->getNode(objectNamePath);
+
     if(objectNameNode){
         if(objectNameNode->children.size()==1){
             *name = objectNameNode->children.at(0)->children.at(0)->tokenInfo->lexeme;

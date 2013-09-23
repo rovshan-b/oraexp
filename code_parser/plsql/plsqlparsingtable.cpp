@@ -21,85 +21,18 @@ ParsingTable *PlSqlParsingTable::getInstance()
 void PlSqlParsingTable::populateTable()
 {
     //---------target scanner keywords------------
-keywords.reserve(78);
-keywords.append("AND");
-keywords.append("ANY");
-keywords.append("ASC");
-keywords.append("BETWEEN");
+keywords.reserve(11);
 keywords.append("BODY");
-keywords.append("CHAR");
-keywords.append("CHECK");
-keywords.append("CLUSTER");
-keywords.append("COMPRESS");
-keywords.append("CONNECT");
 keywords.append("CREATE");
-keywords.append("DATE");
-keywords.append("DECIMAL");
-keywords.append("DEFAULT");
-keywords.append("DELETE");
-keywords.append("DESC");
-keywords.append("DISTINCT");
-keywords.append("DROP");
-keywords.append("ELSE");
-keywords.append("EXCLUSIVE");
-keywords.append("EXISTS");
-keywords.append("FLOAT");
-keywords.append("FOR");
 keywords.append("FORCE");
-keywords.append("FROM");
 keywords.append("FUNCTION");
-keywords.append("GRANT");
-keywords.append("GROUP");
-keywords.append("HAVING");
-keywords.append("IDENTIFIED");
-keywords.append("INDEX");
-keywords.append("INSERT");
-keywords.append("INTEGER");
-keywords.append("INTERSECT");
-keywords.append("INTO");
-keywords.append("LIKE");
-keywords.append("LOCK");
-keywords.append("LONG");
-keywords.append("MINUS");
-keywords.append("MODE");
 keywords.append("NO");
-keywords.append("NOCOMPRESS");
-keywords.append("NOT");
-keywords.append("NOWAIT");
-keywords.append("NULL");
-keywords.append("NUMBER");
-keywords.append("OPTION");
 keywords.append("OR");
-keywords.append("ORDER");
 keywords.append("PACKAGE");
-keywords.append("PCTFREE");
-keywords.append("PRIOR");
 keywords.append("PROCEDURE");
-keywords.append("PUBLIC");
-keywords.append("RAW");
-keywords.append("RENAME");
 keywords.append("REPLACE");
-keywords.append("RESOURCE");
-keywords.append("REVOKE");
-keywords.append("SELECT");
-keywords.append("SET");
-keywords.append("SHARE");
-keywords.append("SIZE");
-keywords.append("SMALLINT");
-keywords.append("START");
-keywords.append("SYNONYM");
-keywords.append("TABLE");
-keywords.append("THEN");
 keywords.append("TRIGGER");
-keywords.append("UNION");
-keywords.append("UNIQUE");
-keywords.append("UPDATE");
-keywords.append("VALUES");
-keywords.append("VARCHAR");
-keywords.append("VARCHAR2");
 keywords.append("VIEW");
-keywords.append("WHERE");
-keywords.append("WITH");
 //-------end target scanner keywords----------
 //-----------rule string representations-----------------
 ruleNames.reserve( 13 );
@@ -118,10 +51,10 @@ ruleNames.append("OBJECT_NAME");
 ruleNames.append("IDENTIFIER");
 //-------------------------------------------------------
 //----------------parsing table code for target parser---------------
-ParsingTableAction * action_0_10 = new ParsingTableAction();
-action_0_10->actionType = ParsingTableAction::Shift;
-action_0_10->stateOrRuleId = 3;
-action_0_10->symbolCount = -1;
+ParsingTableAction * action_0_1 = new ParsingTableAction();
+action_0_1->actionType = ParsingTableAction::Shift;
+action_0_1->stateOrRuleId = 3;
+action_0_1->symbolCount = -1;
 
 ParsingTableAction * action_1_PLS_E_O_F = new ParsingTableAction();
 action_1_PLS_E_O_F->actionType = ParsingTableAction::Accept;
@@ -133,85 +66,85 @@ action_2_PLS_E_O_F->actionType = ParsingTableAction::Reduce;
 action_2_PLS_E_O_F->stateOrRuleId = 2;
 action_2_PLS_E_O_F->symbolCount = 1;
 
-ParsingTableAction * action_3_68 = new ParsingTableAction();
-action_3_68->actionType = ParsingTableAction::Reduce;
-action_3_68->stateOrRuleId = 4;
-action_3_68->symbolCount = 0;
+ParsingTableAction * action_3_2 = new ParsingTableAction();
+action_3_2->actionType = ParsingTableAction::Reduce;
+action_3_2->stateOrRuleId = 4;
+action_3_2->symbolCount = 0;
 
-ParsingTableAction * action_3_52 = new ParsingTableAction();
-action_3_52->actionType = ParsingTableAction::Reduce;
-action_3_52->stateOrRuleId = 4;
-action_3_52->symbolCount = 0;
+ParsingTableAction * action_3_3 = new ParsingTableAction();
+action_3_3->actionType = ParsingTableAction::Reduce;
+action_3_3->stateOrRuleId = 4;
+action_3_3->symbolCount = 0;
 
-ParsingTableAction * action_3_23 = new ParsingTableAction();
-action_3_23->actionType = ParsingTableAction::Reduce;
-action_3_23->stateOrRuleId = 4;
-action_3_23->symbolCount = 0;
+ParsingTableAction * action_3_4 = new ParsingTableAction();
+action_3_4->actionType = ParsingTableAction::Reduce;
+action_3_4->stateOrRuleId = 4;
+action_3_4->symbolCount = 0;
 
-ParsingTableAction * action_3_40 = new ParsingTableAction();
-action_3_40->actionType = ParsingTableAction::Reduce;
-action_3_40->stateOrRuleId = 4;
-action_3_40->symbolCount = 0;
+ParsingTableAction * action_3_5 = new ParsingTableAction();
+action_3_5->actionType = ParsingTableAction::Shift;
+action_3_5->stateOrRuleId = 5;
+action_3_5->symbolCount = -1;
 
-ParsingTableAction * action_3_75 = new ParsingTableAction();
-action_3_75->actionType = ParsingTableAction::Reduce;
-action_3_75->stateOrRuleId = 4;
-action_3_75->symbolCount = 0;
+ParsingTableAction * action_3_6 = new ParsingTableAction();
+action_3_6->actionType = ParsingTableAction::Reduce;
+action_3_6->stateOrRuleId = 4;
+action_3_6->symbolCount = 0;
 
-ParsingTableAction * action_3_25 = new ParsingTableAction();
-action_3_25->actionType = ParsingTableAction::Reduce;
-action_3_25->stateOrRuleId = 4;
-action_3_25->symbolCount = 0;
+ParsingTableAction * action_3_7 = new ParsingTableAction();
+action_3_7->actionType = ParsingTableAction::Reduce;
+action_3_7->stateOrRuleId = 4;
+action_3_7->symbolCount = 0;
 
-ParsingTableAction * action_3_47 = new ParsingTableAction();
-action_3_47->actionType = ParsingTableAction::Shift;
-action_3_47->stateOrRuleId = 5;
-action_3_47->symbolCount = -1;
+ParsingTableAction * action_3_9 = new ParsingTableAction();
+action_3_9->actionType = ParsingTableAction::Reduce;
+action_3_9->stateOrRuleId = 4;
+action_3_9->symbolCount = 0;
 
-ParsingTableAction * action_3_49 = new ParsingTableAction();
-action_3_49->actionType = ParsingTableAction::Reduce;
-action_3_49->stateOrRuleId = 4;
-action_3_49->symbolCount = 0;
+ParsingTableAction * action_3_10 = new ParsingTableAction();
+action_3_10->actionType = ParsingTableAction::Reduce;
+action_3_10->stateOrRuleId = 4;
+action_3_10->symbolCount = 0;
 
-ParsingTableAction * action_4_68 = new ParsingTableAction();
-action_4_68->actionType = ParsingTableAction::Shift;
-action_4_68->stateOrRuleId = 10;
-action_4_68->symbolCount = -1;
+ParsingTableAction * action_4_2 = new ParsingTableAction();
+action_4_2->actionType = ParsingTableAction::Shift;
+action_4_2->stateOrRuleId = 15;
+action_4_2->symbolCount = -1;
 
-ParsingTableAction * action_4_52 = new ParsingTableAction();
-action_4_52->actionType = ParsingTableAction::Shift;
-action_4_52->stateOrRuleId = 8;
-action_4_52->symbolCount = -1;
+ParsingTableAction * action_4_3 = new ParsingTableAction();
+action_4_3->actionType = ParsingTableAction::Shift;
+action_4_3->stateOrRuleId = 9;
+action_4_3->symbolCount = -1;
 
-ParsingTableAction * action_4_23 = new ParsingTableAction();
-action_4_23->actionType = ParsingTableAction::Shift;
-action_4_23->stateOrRuleId = 15;
-action_4_23->symbolCount = -1;
+ParsingTableAction * action_4_4 = new ParsingTableAction();
+action_4_4->actionType = ParsingTableAction::Shift;
+action_4_4->stateOrRuleId = 16;
+action_4_4->symbolCount = -1;
 
-ParsingTableAction * action_4_40 = new ParsingTableAction();
-action_4_40->actionType = ParsingTableAction::Shift;
-action_4_40->stateOrRuleId = 16;
-action_4_40->symbolCount = -1;
+ParsingTableAction * action_4_6 = new ParsingTableAction();
+action_4_6->actionType = ParsingTableAction::Shift;
+action_4_6->stateOrRuleId = 7;
+action_4_6->symbolCount = -1;
 
-ParsingTableAction * action_4_75 = new ParsingTableAction();
-action_4_75->actionType = ParsingTableAction::Reduce;
-action_4_75->stateOrRuleId = 8;
-action_4_75->symbolCount = 0;
+ParsingTableAction * action_4_7 = new ParsingTableAction();
+action_4_7->actionType = ParsingTableAction::Shift;
+action_4_7->stateOrRuleId = 8;
+action_4_7->symbolCount = -1;
 
-ParsingTableAction * action_4_25 = new ParsingTableAction();
-action_4_25->actionType = ParsingTableAction::Shift;
-action_4_25->stateOrRuleId = 9;
-action_4_25->symbolCount = -1;
+ParsingTableAction * action_4_9 = new ParsingTableAction();
+action_4_9->actionType = ParsingTableAction::Shift;
+action_4_9->stateOrRuleId = 10;
+action_4_9->symbolCount = -1;
 
-ParsingTableAction * action_4_49 = new ParsingTableAction();
-action_4_49->actionType = ParsingTableAction::Shift;
-action_4_49->stateOrRuleId = 7;
-action_4_49->symbolCount = -1;
+ParsingTableAction * action_4_10 = new ParsingTableAction();
+action_4_10->actionType = ParsingTableAction::Reduce;
+action_4_10->stateOrRuleId = 8;
+action_4_10->symbolCount = 0;
 
-ParsingTableAction * action_5_56 = new ParsingTableAction();
-action_5_56->actionType = ParsingTableAction::Shift;
-action_5_56->stateOrRuleId = 17;
-action_5_56->symbolCount = -1;
+ParsingTableAction * action_5_8 = new ParsingTableAction();
+action_5_8->actionType = ParsingTableAction::Shift;
+action_5_8->stateOrRuleId = 17;
+action_5_8->symbolCount = -1;
 
 ParsingTableAction * action_6_PLS_ANY = new ParsingTableAction();
 action_6_PLS_ANY->actionType = ParsingTableAction::Shift;
@@ -223,10 +156,10 @@ action_6_PLS_E_O_F->actionType = ParsingTableAction::Reduce;
 action_6_PLS_E_O_F->stateOrRuleId = 7;
 action_6_PLS_E_O_F->symbolCount = 0;
 
-ParsingTableAction * action_7_4 = new ParsingTableAction();
-action_7_4->actionType = ParsingTableAction::Shift;
-action_7_4->stateOrRuleId = 22;
-action_7_4->symbolCount = -1;
+ParsingTableAction * action_7_0 = new ParsingTableAction();
+action_7_0->actionType = ParsingTableAction::Shift;
+action_7_0->stateOrRuleId = 22;
+action_7_0->symbolCount = -1;
 
 ParsingTableAction * action_7_PLS_ID = new ParsingTableAction();
 action_7_PLS_ID->actionType = ParsingTableAction::Shift;
@@ -248,70 +181,70 @@ action_8_PLS_DOUBLEQUOTED_STRING->actionType = ParsingTableAction::Shift;
 action_8_PLS_DOUBLEQUOTED_STRING->stateOrRuleId = 25;
 action_8_PLS_DOUBLEQUOTED_STRING->symbolCount = -1;
 
-ParsingTableAction * action_11_75 = new ParsingTableAction();
-action_11_75->actionType = ParsingTableAction::Shift;
-action_11_75->stateOrRuleId = 29;
-action_11_75->symbolCount = -1;
+ParsingTableAction * action_11_10 = new ParsingTableAction();
+action_11_10->actionType = ParsingTableAction::Shift;
+action_11_10->stateOrRuleId = 29;
+action_11_10->symbolCount = -1;
 
-ParsingTableAction * action_12_23 = new ParsingTableAction();
-action_12_23->actionType = ParsingTableAction::Shift;
-action_12_23->stateOrRuleId = 15;
-action_12_23->symbolCount = -1;
+ParsingTableAction * action_12_2 = new ParsingTableAction();
+action_12_2->actionType = ParsingTableAction::Shift;
+action_12_2->stateOrRuleId = 15;
+action_12_2->symbolCount = -1;
 
-ParsingTableAction * action_13_75 = new ParsingTableAction();
-action_13_75->actionType = ParsingTableAction::Reduce;
-action_13_75->stateOrRuleId = 8;
-action_13_75->symbolCount = 1;
+ParsingTableAction * action_13_10 = new ParsingTableAction();
+action_13_10->actionType = ParsingTableAction::Reduce;
+action_13_10->stateOrRuleId = 8;
+action_13_10->symbolCount = 1;
 
-ParsingTableAction * action_14_23 = new ParsingTableAction();
-action_14_23->actionType = ParsingTableAction::Reduce;
-action_14_23->stateOrRuleId = 9;
-action_14_23->symbolCount = 1;
+ParsingTableAction * action_14_2 = new ParsingTableAction();
+action_14_2->actionType = ParsingTableAction::Reduce;
+action_14_2->stateOrRuleId = 9;
+action_14_2->symbolCount = 1;
 
-ParsingTableAction * action_15_75 = new ParsingTableAction();
-action_15_75->actionType = ParsingTableAction::Reduce;
-action_15_75->stateOrRuleId = 11;
-action_15_75->symbolCount = 1;
+ParsingTableAction * action_15_10 = new ParsingTableAction();
+action_15_10->actionType = ParsingTableAction::Reduce;
+action_15_10->stateOrRuleId = 11;
+action_15_10->symbolCount = 1;
 
-ParsingTableAction * action_16_23 = new ParsingTableAction();
-action_16_23->actionType = ParsingTableAction::Reduce;
-action_16_23->stateOrRuleId = 10;
-action_16_23->symbolCount = 1;
+ParsingTableAction * action_16_2 = new ParsingTableAction();
+action_16_2->actionType = ParsingTableAction::Reduce;
+action_16_2->stateOrRuleId = 10;
+action_16_2->symbolCount = 1;
 
-ParsingTableAction * action_17_68 = new ParsingTableAction();
-action_17_68->actionType = ParsingTableAction::Reduce;
-action_17_68->stateOrRuleId = 4;
-action_17_68->symbolCount = 2;
+ParsingTableAction * action_17_2 = new ParsingTableAction();
+action_17_2->actionType = ParsingTableAction::Reduce;
+action_17_2->stateOrRuleId = 4;
+action_17_2->symbolCount = 2;
 
-ParsingTableAction * action_17_52 = new ParsingTableAction();
-action_17_52->actionType = ParsingTableAction::Reduce;
-action_17_52->stateOrRuleId = 4;
-action_17_52->symbolCount = 2;
+ParsingTableAction * action_17_3 = new ParsingTableAction();
+action_17_3->actionType = ParsingTableAction::Reduce;
+action_17_3->stateOrRuleId = 4;
+action_17_3->symbolCount = 2;
 
-ParsingTableAction * action_17_23 = new ParsingTableAction();
-action_17_23->actionType = ParsingTableAction::Reduce;
-action_17_23->stateOrRuleId = 4;
-action_17_23->symbolCount = 2;
+ParsingTableAction * action_17_4 = new ParsingTableAction();
+action_17_4->actionType = ParsingTableAction::Reduce;
+action_17_4->stateOrRuleId = 4;
+action_17_4->symbolCount = 2;
 
-ParsingTableAction * action_17_40 = new ParsingTableAction();
-action_17_40->actionType = ParsingTableAction::Reduce;
-action_17_40->stateOrRuleId = 4;
-action_17_40->symbolCount = 2;
+ParsingTableAction * action_17_6 = new ParsingTableAction();
+action_17_6->actionType = ParsingTableAction::Reduce;
+action_17_6->stateOrRuleId = 4;
+action_17_6->symbolCount = 2;
 
-ParsingTableAction * action_17_75 = new ParsingTableAction();
-action_17_75->actionType = ParsingTableAction::Reduce;
-action_17_75->stateOrRuleId = 4;
-action_17_75->symbolCount = 2;
+ParsingTableAction * action_17_7 = new ParsingTableAction();
+action_17_7->actionType = ParsingTableAction::Reduce;
+action_17_7->stateOrRuleId = 4;
+action_17_7->symbolCount = 2;
 
-ParsingTableAction * action_17_25 = new ParsingTableAction();
-action_17_25->actionType = ParsingTableAction::Reduce;
-action_17_25->stateOrRuleId = 4;
-action_17_25->symbolCount = 2;
+ParsingTableAction * action_17_9 = new ParsingTableAction();
+action_17_9->actionType = ParsingTableAction::Reduce;
+action_17_9->stateOrRuleId = 4;
+action_17_9->symbolCount = 2;
 
-ParsingTableAction * action_17_49 = new ParsingTableAction();
-action_17_49->actionType = ParsingTableAction::Reduce;
-action_17_49->stateOrRuleId = 4;
-action_17_49->symbolCount = 2;
+ParsingTableAction * action_17_10 = new ParsingTableAction();
+action_17_10->actionType = ParsingTableAction::Reduce;
+action_17_10->stateOrRuleId = 4;
+action_17_10->symbolCount = 2;
 
 ParsingTableAction * action_18_PLS_E_O_F = new ParsingTableAction();
 action_18_PLS_E_O_F->actionType = ParsingTableAction::Reduce;
@@ -363,10 +296,10 @@ action_24_PLS_E_O_F->actionType = ParsingTableAction::Reduce;
 action_24_PLS_E_O_F->stateOrRuleId = 13;
 action_24_PLS_E_O_F->symbolCount = 1;
 
-ParsingTableAction * action_30_75 = new ParsingTableAction();
-action_30_75->actionType = ParsingTableAction::Reduce;
-action_30_75->stateOrRuleId = 8;
-action_30_75->symbolCount = 2;
+ParsingTableAction * action_30_10 = new ParsingTableAction();
+action_30_10->actionType = ParsingTableAction::Reduce;
+action_30_10->stateOrRuleId = 8;
+action_30_10->symbolCount = 2;
 
 ParsingTableAction * action_31_PLS_E_O_F = new ParsingTableAction();
 action_31_PLS_E_O_F->actionType = ParsingTableAction::Reduce;
@@ -398,7 +331,7 @@ rows.reserve( 36 );
 ParsingTableRow *row_0 = new ParsingTableRow();
 row_0->stateId = 0;
 row_0->ownsActions = true;
-(*row_0->actions)[10] = action_0_10;
+(*row_0->actions)[1] = action_0_1;
 row_0->gotos[2] = 1;
 row_0->gotos[3] = 2;
 rows.append(row_0);
@@ -418,27 +351,27 @@ rows.append(row_2);
 ParsingTableRow *row_3 = new ParsingTableRow();
 row_3->stateId = 3;
 row_3->ownsActions = true;
-(*row_3->actions)[68] = action_3_68;
-(*row_3->actions)[52] = action_3_52;
-(*row_3->actions)[23] = action_3_23;
-(*row_3->actions)[40] = action_3_40;
-(*row_3->actions)[75] = action_3_75;
-(*row_3->actions)[25] = action_3_25;
-(*row_3->actions)[47] = action_3_47;
-(*row_3->actions)[49] = action_3_49;
+(*row_3->actions)[2] = action_3_2;
+(*row_3->actions)[3] = action_3_3;
+(*row_3->actions)[4] = action_3_4;
+(*row_3->actions)[5] = action_3_5;
+(*row_3->actions)[6] = action_3_6;
+(*row_3->actions)[7] = action_3_7;
+(*row_3->actions)[9] = action_3_9;
+(*row_3->actions)[10] = action_3_10;
 row_3->gotos[4] = 4;
 rows.append(row_3);
 
 ParsingTableRow *row_4 = new ParsingTableRow();
 row_4->stateId = 4;
 row_4->ownsActions = true;
-(*row_4->actions)[68] = action_4_68;
-(*row_4->actions)[52] = action_4_52;
-(*row_4->actions)[23] = action_4_23;
-(*row_4->actions)[40] = action_4_40;
-(*row_4->actions)[75] = action_4_75;
-(*row_4->actions)[25] = action_4_25;
-(*row_4->actions)[49] = action_4_49;
+(*row_4->actions)[2] = action_4_2;
+(*row_4->actions)[3] = action_4_3;
+(*row_4->actions)[4] = action_4_4;
+(*row_4->actions)[6] = action_4_6;
+(*row_4->actions)[7] = action_4_7;
+(*row_4->actions)[9] = action_4_9;
+(*row_4->actions)[10] = action_4_10;
 row_4->gotos[5] = 6;
 row_4->gotos[8] = 11;
 row_4->gotos[9] = 12;
@@ -449,7 +382,7 @@ rows.append(row_4);
 ParsingTableRow *row_5 = new ParsingTableRow();
 row_5->stateId = 5;
 row_5->ownsActions = true;
-(*row_5->actions)[56] = action_5_56;
+(*row_5->actions)[8] = action_5_8;
 rows.append(row_5);
 
 ParsingTableRow *row_6 = new ParsingTableRow();
@@ -464,7 +397,7 @@ rows.append(row_6);
 ParsingTableRow *row_7 = new ParsingTableRow();
 row_7->stateId = 7;
 row_7->ownsActions = true;
-(*row_7->actions)[4] = action_7_4;
+(*row_7->actions)[0] = action_7_0;
 (*row_7->actions)[PLS_ID] = action_7_PLS_ID;
 (*row_7->actions)[PLS_DOUBLEQUOTED_STRING] = action_7_PLS_DOUBLEQUOTED_STRING;
 row_7->gotos[12] = 21;
@@ -501,50 +434,50 @@ rows.append(row_10);
 ParsingTableRow *row_11 = new ParsingTableRow();
 row_11->stateId = 11;
 row_11->ownsActions = true;
-(*row_11->actions)[75] = action_11_75;
+(*row_11->actions)[10] = action_11_10;
 rows.append(row_11);
 
 ParsingTableRow *row_12 = new ParsingTableRow();
 row_12->stateId = 12;
 row_12->ownsActions = true;
-(*row_12->actions)[23] = action_12_23;
+(*row_12->actions)[2] = action_12_2;
 row_12->gotos[11] = 30;
 rows.append(row_12);
 
 ParsingTableRow *row_13 = new ParsingTableRow();
 row_13->stateId = 13;
 row_13->ownsActions = true;
-(*row_13->actions)[75] = action_13_75;
+(*row_13->actions)[10] = action_13_10;
 rows.append(row_13);
 
 ParsingTableRow *row_14 = new ParsingTableRow();
 row_14->stateId = 14;
 row_14->ownsActions = true;
-(*row_14->actions)[23] = action_14_23;
+(*row_14->actions)[2] = action_14_2;
 rows.append(row_14);
 
 ParsingTableRow *row_15 = new ParsingTableRow();
 row_15->stateId = 15;
 row_15->ownsActions = true;
-(*row_15->actions)[75] = action_15_75;
+(*row_15->actions)[10] = action_15_10;
 rows.append(row_15);
 
 ParsingTableRow *row_16 = new ParsingTableRow();
 row_16->stateId = 16;
 row_16->ownsActions = true;
-(*row_16->actions)[23] = action_16_23;
+(*row_16->actions)[2] = action_16_2;
 rows.append(row_16);
 
 ParsingTableRow *row_17 = new ParsingTableRow();
 row_17->stateId = 17;
 row_17->ownsActions = true;
-(*row_17->actions)[68] = action_17_68;
-(*row_17->actions)[52] = action_17_52;
-(*row_17->actions)[23] = action_17_23;
-(*row_17->actions)[40] = action_17_40;
-(*row_17->actions)[75] = action_17_75;
-(*row_17->actions)[25] = action_17_25;
-(*row_17->actions)[49] = action_17_49;
+(*row_17->actions)[2] = action_17_2;
+(*row_17->actions)[3] = action_17_3;
+(*row_17->actions)[4] = action_17_4;
+(*row_17->actions)[6] = action_17_6;
+(*row_17->actions)[7] = action_17_7;
+(*row_17->actions)[9] = action_17_9;
+(*row_17->actions)[10] = action_17_10;
 rows.append(row_17);
 
 ParsingTableRow *row_18 = new ParsingTableRow();
@@ -640,7 +573,7 @@ rows.append(row_29);
 ParsingTableRow *row_30 = new ParsingTableRow();
 row_30->stateId = 30;
 row_30->ownsActions = true;
-(*row_30->actions)[75] = action_30_75;
+(*row_30->actions)[10] = action_30_10;
 rows.append(row_30);
 
 ParsingTableRow *row_31 = new ParsingTableRow();

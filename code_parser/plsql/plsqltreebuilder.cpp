@@ -1,6 +1,7 @@
 #include "plsqltreebuilder.h"
 #include "beans/tokeninfo.h"
 #include "beans/parsetreenode.h"
+#include "plsqlrules.h"
 
 PlSqlTreeBuilder::PlSqlTreeBuilder() : rootNode(0)
 {
@@ -29,21 +30,42 @@ void PlSqlTreeBuilder::reduced(TokenInfo *ruleInfo, int symbolCount, const QList
         }else{
             newNode->children.prepend(ruleNodesStack.pop());
         }
-
-        if(i==0){
-            ParseTreeNode *lastChild = newNode->children.last();
-            newNode->tokenInfo->endPos = lastChild->tokenInfo->endPos;
-            newNode->tokenInfo->endLine = lastChild->tokenInfo->endLine;
-            newNode->tokenInfo->endLinePos = lastChild->tokenInfo->endLinePos;
-        }else if(i==reducedTokens.size()-1){
-            ParseTreeNode *firstChild = newNode->children.first();
-            newNode->tokenInfo->startPos = firstChild->tokenInfo->startPos;
-            newNode->tokenInfo->startLine = firstChild->tokenInfo->startLine;
-            newNode->tokenInfo->startLinePos = firstChild->tokenInfo->startLinePos;
-        }
     }
 
+    setStartEndPositions(newNode);
+
     ruleNodesStack.push(newNode);
+}
+
+void PlSqlTreeBuilder::setStartEndPositions(ParseTreeNode *parentNode)
+{
+    ParseTreeNode *firstChild=0, *lastChild=0;
+    firstLastNonNullChildren(parentNode, &firstChild, &lastChild);
+
+    if(firstChild){
+        parentNode->tokenInfo->startPos = firstChild->tokenInfo->startPos;
+        parentNode->tokenInfo->startLine = firstChild->tokenInfo->startLine;
+        parentNode->tokenInfo->startLinePos = firstChild->tokenInfo->startLinePos;
+    }
+
+    if(lastChild){
+        parentNode->tokenInfo->endPos = lastChild->tokenInfo->endPos;
+        parentNode->tokenInfo->endLine = lastChild->tokenInfo->endLine;
+        parentNode->tokenInfo->endLinePos = lastChild->tokenInfo->endLinePos;
+    }
+}
+
+void PlSqlTreeBuilder::firstLastNonNullChildren(ParseTreeNode *parentNode, ParseTreeNode **first, ParseTreeNode **last) const
+{
+    for(int i=0; i<parentNode->children.size(); ++i){
+        ParseTreeNode *child = parentNode->children.at(i);
+        if(child->tokenInfo->startPos!=-1){
+            if(!(*first)){
+                *first = child;
+            }
+            *last = child;
+        }
+    }
 }
 
 void PlSqlTreeBuilder::accepted()
@@ -51,9 +73,13 @@ void PlSqlTreeBuilder::accepted()
     Q_ASSERT(rootNode==0);
 
     rootNode = new ParseTreeNode();
+    rootNode->tokenInfo = new TokenInfo();
+    rootNode->tokenInfo->tokenType = TokenInfo::Rule;
+    rootNode->tokenInfo->tokenOrRuleId = R_START_RULE_AUG;
     while(!ruleNodesStack.isEmpty()){
         rootNode->children.prepend(ruleNodesStack.pop());
     }
+    setStartEndPositions(rootNode);
 }
 
 void PlSqlTreeBuilder::error()

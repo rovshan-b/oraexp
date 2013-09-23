@@ -71,7 +71,7 @@ void AppMenu::connectionsPaneStateChanged()
     ConnectionPageTab *cnPageTab=cnPage ? cnPage->currentConnectionPageTab() : 0;
 
     appFileMenu->updateActionStates(cnPage, cnPageTab);
-    //appEditMenu->updateActionStates(cnPage, cnPageTab);
+    appEditMenu->focusWidgetChanged(0, qApp->focusWidget());
     appViewMenu->updateActionStates(cnPage, cnPageTab);
     appToolsMenu->updateActionStates(cnPage, cnPageTab);
 }

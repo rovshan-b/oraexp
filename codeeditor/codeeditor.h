@@ -7,6 +7,7 @@
 class LineNavigationBar;
 class CodeCollapseArea;
 class QCompleter;
+class CodeCollapsePosition;
 
 class CodeEditor : public QPlainTextEdit
 {
@@ -21,6 +22,7 @@ public:
 
     void codeCollapseAreaPaintEvent(QPaintEvent *event);
     int codeCollapseAreaWidth() const;
+    void refreshCodeCollapseArea();
 
     void lineNavBarPaintEvent(QPaintEvent *event);
     void lineNavBarMouseReleaseEvent(QMouseEvent * event);
@@ -49,6 +51,10 @@ public:
     void setCompleter(QCompleter *completer);
     //QCompleter *completer() const;
 
+    void setCodeCollapsePositions(QList<CodeCollapsePosition*> *collapsePositions);
+
+    virtual bool eventFilter ( QObject * watched, QEvent * event );
+
     static QFont currentFont;
 
 public slots:
@@ -64,6 +70,7 @@ public slots:
     void moveUp();
     void moveDown();
     void moveSelectedText(bool up);
+    void selectCurrentBlock();
 
     void customCut();
     void customCopy();
@@ -102,6 +109,7 @@ private:
     QList< QTextCursor > foundTextPositions;
     QList< QTextCursor > pulsatePositions;
     QList< QTextCursor > errorPositions;
+    QTextCursor collapsibleRegionPositions;
 
     QString strTab;
 
@@ -144,6 +152,11 @@ private:
 
     QCompleter *completer;
     void completerHandleKeyPress(QKeyEvent * event);
+
+    QList<CodeCollapsePosition*> *collapsePositions;
+    CodeCollapsePosition* findCollapsePosition(int blockNumber);
+    void highlightCollapsibleRegion(int blockNumber);
+    void selectBlocks(QTextCursor &cur, const QTextBlock &startBlock, const QTextBlock &endBlock);
 };
 
 #endif // CODEEDITOR_H

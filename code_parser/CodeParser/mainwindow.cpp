@@ -24,6 +24,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     model = new QStandardItemModel(this);
     ui->treeView->setModel(model);
+    ui->treeView->setEditTriggers(QTreeView::NoEditTriggers);
+
+    connect(ui->treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(nodeActivated(QModelIndex)));
+    connect(ui->codeEditor, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
 }
 
 MainWindow::~MainWindow()
@@ -107,21 +111,23 @@ void MainWindow::on_actionParse_triggered()
 
     buildTree(treeBulder.getRootNode());
 
-    QList<int> objectNamePath = QList<int>() << R_START_RULE << R_CREATE_OBJECT << R_OBJ_TYPE_AND_NAME << R_OBJECT_NAME;
+
+    /*
+    QList<int> objectNamePath = QList<int>() << R_START_RULE << R_CREATE_OBJECT << R_OBJ_TYPE_AND_NAME_AND_BODY << R_OBJECT_NAME;
     ParseTreeNode *objectNameNode = treeBulder.getNode(objectNamePath);
 
     if(objectNameNode){
         QString objectName;
 
         if(objectNameNode->children.size()==1){
-            objectName = objectNameNode->children.at(1)->children.at(0)->tokenInfo->lexeme;
+            objectName = objectNameNode->children.at(0)->children.at(0)->tokenInfo->lexeme;
         }else{
             Q_ASSERT(objectNameNode->children.size()==3);
             objectName = QString("%1.%2").arg(objectNameNode->children.at(0)->children.at(0)->tokenInfo->lexeme,
                                               objectNameNode->children.at(2)->children.at(0)->tokenInfo->lexeme);
             ui->output->appendPlainText(QString("Object name is: %1").arg(objectName));
         }
-    }
+    }*/
 
     delete parser;
 }
@@ -144,9 +150,34 @@ void MainWindow::addChildNodes(ParseTreeNode *parseTreeNode, QStandardItem *tree
     }
 
     QStandardItem *newItem = new QStandardItem(nodeTitle);
+    newItem->setData(QString("%1:%2").arg(parseTreeNode->tokenInfo->startPos).arg(parseTreeNode->tokenInfo->endPos));
     treeViewNode->appendRow(newItem);
 
     for(int i=0; i<parseTreeNode->children.size(); ++i){
         addChildNodes(parseTreeNode->children.at(i), newItem);
     }
+}
+
+void MainWindow::nodeActivated(const QModelIndex &index)
+{
+    if(!index.isValid()){
+        return;
+    }
+    QStandardItem *item = model->itemFromIndex(index);
+    if(!item){
+        return;
+    }
+
+    QString data = item->data().toString();
+    QList<QString> parts = data.split(':');
+    Q_ASSERT(parts.size()==2);
+    QTextCursor cur = ui->codeEditor->textCursor();
+    cur.setPosition(parts.at(0).toInt());
+    cur.setPosition(parts.at(1).toInt(), QTextCursor::KeepAnchor);
+    ui->codeEditor->setTextCursor(cur);
+}
+
+void MainWindow::cursorPositionChanged()
+{
+    ui->statusBar->showMessage(QString("Cursor position: %1").arg(ui->codeEditor->textCursor().position()));
 }

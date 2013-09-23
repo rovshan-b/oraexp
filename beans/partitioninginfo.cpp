@@ -17,7 +17,7 @@ QString PartitioningInfo::generateDdl(OraExp::PartitionPart configureFor) const
         colList.append(foreignKey);
     }
 
-    if(columns.isEmpty() && configureFor!=OraExp::PartitionPartSubpartitionTemplate){
+    if(colList.isEmpty() && configureFor!=OraExp::PartitionPartSubpartitionTemplate){
         return ddl;
     }
 
@@ -26,7 +26,7 @@ QString PartitioningInfo::generateDdl(OraExp::PartitionPart configureFor) const
         if(configureFor==OraExp::PartitionPartSubpartition){ddl.append("SUB");}
         ddl.append("PARTITION BY ").append(DbUtil::getPartitionTypeName(type));
         ddl.append(" (");
-        ddl.append(columns);
+        ddl.append(colList);
         ddl.append(")");
     }
 

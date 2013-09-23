@@ -11,12 +11,12 @@ TEMPLATE = app
 
 DEFINES += OCI_IMPORT_LINKAGE OCI_CHARSET_WIDE QUAZIP_STATIC
 
-CONFIG(debug) {
-     DEFINES += DEBUG
-     message(Debug build!)
+CONFIG(debug,debug|release) {
+    DEFINES += DEBUG
+    message(Debug build!)
 } else {
-     DEFINES += QT_NO_DEBUG QT_NO_DEBUG_OUTPUT
-     message(Release build!)
+    DEFINES += QT_NO_DEBUG QT_NO_DEBUG_OUTPUT
+    message(Release build!)
 }
 
 
@@ -527,7 +527,9 @@ SOURCES += main.cpp\
     beans/tokeninfo.cpp \
     beans/parsetreenode.cpp \
     code_parser/plsql/plsqltokenfinder.cpp \
-    codeeditor/codecollapsearea.cpp
+    codeeditor/codecollapsearea.cpp \
+    beans/codecollapseposition.cpp \
+    code_parser/plsql/plsqlcodecollapsepositionfinder.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1062,7 +1064,9 @@ HEADERS  += mainwindow.h \
     code_parser/plsql/plsqltokenfinder.h \
     code_parser/plsql/plsqlrules.h.tpl \
     code_parser/plsql/plsqlparsingtable.cpp.tpl \
-    codeeditor/codecollapsearea.h
+    codeeditor/codecollapsearea.h \
+    beans/codecollapseposition.h \
+    code_parser/plsql/plsqlcodecollapsepositionfinder.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

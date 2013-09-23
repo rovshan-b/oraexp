@@ -1,4 +1,4 @@
-start_rule :	create_object ;
+start_rule :	create_object;
 
 create_object
 	:	'CREATE' opt_or_replace
@@ -11,24 +11,27 @@ opt_or_replace
    ;
     
 obj_type_and_name_and_body 
-   :  'PACKAGE' object_name package_spec
-   |  'PACKAGE' 'BODY' object_name package_body
-   |  'PROCEDURE' object_name proc_body
-   |  'FUNCTION' object_name func_body
+   :  'PACKAGE' object_name package_spec_or_body
+   |  'PACKAGE' 'BODY' object_name package_spec_or_body
+   |  'PROCEDURE' object_name proc_spec_or_body
+   |  'FUNCTION' object_name func_spec_or_body
    |  'TRIGGER' object_name trigger_body
    |  opt_force 'VIEW' object_name view_body
    ;
    
-package_spec
-   :  any_tokens is_or_as declarations any_tokens
+package_spec_or_body
+   :  any_tokens is_or_as declarations 'END' opt_identifier PLS_SEMI
+   |  any_tokens is_or_as 'END' opt_identifier PLS_SEMI
    ;
    
-proc_body
+proc_spec_or_body
    :  any_tokens is_or_as plsql_subprogram_body
+   |  any_tokens PLS_SEMI
    ;
    
-func_body
+func_spec_or_body
    :  any_tokens 'RETURN' any_tokens is_or_as plsql_subprogram_body
+   |  any_tokens 'RETURN' any_tokens PLS_SEMI
    ;
    
 trigger_body
@@ -37,6 +40,40 @@ trigger_body
    
 view_body 
    :  as any_tokens
+   ;
+      
+plsql_subprogram_body
+   :  declarations 'BEGIN' statements 'END' opt_identifier PLS_SEMI
+   ;
+     
+plsql_block
+   :  'DECLARE' declarations 'BEGIN' statements 'END' opt_identifier PLS_SEMI
+   |  'BEGIN' statements 'END' opt_identifier PLS_SEMI
+   ;
+   
+declarations
+   :  statements opt_obj_type_and_name_and_bodies
+   ;
+   
+statements
+   :  statements statement
+   |  
+   ;
+   
+statement
+   :  statement_start any_tokens PLS_SEMI
+   |  plsql_block
+   ;
+   
+statement_start
+   :  sql_start
+   |  identifier
+   ;
+   
+opt_obj_type_and_name_and_bodies
+   :  obj_type_and_name_and_body opt_obj_type_and_name_and_bodies
+   |
+   ;
    
 as
    :  'AS'
@@ -48,7 +85,7 @@ is_or_as
    ;
    
 any_tokens
-   :  PLS_ANY any_tokens
+   :  any_tokens PLS_ANY
    |
    ;
    
@@ -75,8 +112,22 @@ object_name
 	:	identifier PLS_DOT identifier 
 	|  identifier
 	;
+	
+opt_identifier
+   :  identifier
+   |
+   ;
    
 identifier
    :	PLS_ID
    |	PLS_DOUBLEQUOTED_STRING
+   ;
+   
+sql_start
+   :  'INSERT'
+   |  'UPDATE'
+   |  'DELETE'
+   |  'SELECT'
+   |  'WITH'
+   |  'MERGE'
    ;

@@ -33,17 +33,19 @@ begin
     l_compile_statement := l_compile_statement || ' body';
   end if;
   
-  if l_enable_warnings = 1 then
-     l_compile_statement := l_compile_statement || ' PLSQL_WARNINGS=''ENABLE:ALL''';
-  elsif l_enable_warnings = 0 then
-     l_compile_statement := l_compile_statement || ' PLSQL_WARNINGS=''DISABLE:ALL''';
-  end if;
-  
-  if l_for_debug != 1 then
-     if l_native_code = 1 then
-       l_compile_statement := l_compile_statement || ' PLSQL_CODE_TYPE=NATIVE';
-     elsif l_native_code = 0 then
-       l_compile_statement := l_compile_statement || ' PLSQL_CODE_TYPE=INTERPRETED';
+  if l_object_type !='VIEW' then
+     if l_enable_warnings = 1 then
+        l_compile_statement := l_compile_statement || ' PLSQL_WARNINGS=''ENABLE:ALL''';
+     elsif l_enable_warnings = 0 then
+        l_compile_statement := l_compile_statement || ' PLSQL_WARNINGS=''DISABLE:ALL''';
+     end if;
+     
+     if l_for_debug != 1 then
+        if l_native_code = 1 then
+          l_compile_statement := l_compile_statement || ' PLSQL_CODE_TYPE=NATIVE';
+        elsif l_native_code = 0 then
+          l_compile_statement := l_compile_statement || ' PLSQL_CODE_TYPE=INTERPRETED';
+        end if;
      end if;
   end if;
 
