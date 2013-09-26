@@ -19,17 +19,17 @@ public:
     void updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *cnPageTab);
 
 private slots:
-    void setApplicationStyle();
+    //void setApplicationStyle();
     void toggleDbObjectsTree();
 
 private:
     void setupMenu(QMenu *viewMenu, QToolBar *toolbar);
 
     QAction *viewDatabaseObjectsAction;
-    QAction *viewApplicationStyleAction;
+    //QAction *viewApplicationStyleAction;
 
-    QMenu *viewAppStyleMenu;
-    void createAppStyleMenu();
+    //QMenu *viewAppStyleMenu;
+    //void createAppStyleMenu();
 
 };
 

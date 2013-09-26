@@ -183,7 +183,7 @@ bool ResultsetTableModel::isValidIndex(const QModelIndex &index, int role) const
         return false;
     }
 
-    if(role!=Qt::DisplayRole && role!=Qt::DecorationRole){
+    if(role!=Qt::DisplayRole && role!=Qt::EditRole && role!=Qt::DecorationRole){
         return false;
     }
 

@@ -1,133 +1,106 @@
-start_rule :	create_object;
+start_rule : create_object;
 
-create_object
-	:	'CREATE' opt_or_replace
-	   obj_type_and_name_and_body
-	;
-	
-opt_or_replace
-   :  'OR' 'REPLACE'
-   |  
+create_object : create_package ;
+
+create_package 
+   : 'CREATE' opt_or_replace package_spec_or_body
    ;
-    
-obj_type_and_name_and_body 
-   :  'PACKAGE' object_name package_spec_or_body
-   |  'PACKAGE' 'BODY' object_name package_spec_or_body
-   |  'PROCEDURE' object_name proc_spec_or_body
-   |  'FUNCTION' object_name func_spec_or_body
-   |  'TRIGGER' object_name trigger_body
-   |  opt_force 'VIEW' object_name view_body
+
+opt_or_replace 
+   :  'OR' 'REPLACE'
+   |
    ;
    
 package_spec_or_body
-   :  any_tokens is_or_as declarations 'END' opt_identifier PLS_SEMI
-   |  any_tokens is_or_as 'END' opt_identifier PLS_SEMI
+   :  package_spec
    ;
    
-proc_spec_or_body
-   :  any_tokens is_or_as plsql_subprogram_body
-   |  any_tokens PLS_SEMI
-   ;
+package_spec
+   :  'PACKAGE' object_name is_or_as package_obj_specs 'END' opt_object_name PLS_SEMI
    
-func_spec_or_body
-   :  any_tokens 'RETURN' any_tokens is_or_as plsql_subprogram_body
-   |  any_tokens 'RETURN' any_tokens PLS_SEMI
-   ;
-   
-trigger_body
-   :  any_tokens plsql_block
-   ;
-   
-view_body 
-   :  as any_tokens
-   ;
-      
-plsql_subprogram_body
-   :  declarations 'BEGIN' statements 'END' opt_identifier PLS_SEMI
-   ;
-     
-plsql_block
-   :  'DECLARE' declarations 'BEGIN' statements 'END' opt_identifier PLS_SEMI
-   |  'BEGIN' statements 'END' opt_identifier PLS_SEMI
-   ;
-   
-declarations
-   :  statements opt_obj_type_and_name_and_bodies
-   ;
-   
-statements
-   :  statements statement
-   |  
-   ;
-   
-statement
-   :  statement_start any_tokens PLS_SEMI
-   |  plsql_block
-   ;
-   
-statement_start
-   :  sql_start
-   |  identifier
-   ;
-   
-opt_obj_type_and_name_and_bodies
-   :  obj_type_and_name_and_body opt_obj_type_and_name_and_bodies
-   |
-   ;
-   
-as
-   :  'AS'
-   ;
-   
+
 is_or_as
    :  'IS'
-   |  as
+   |  'AS'
    ;
-   
-any_tokens
-   :  any_tokens PLS_ANY
+ 
+package_obj_specs
+   :  package_obj_spec package_obj_specs
    |
    ;
    
-opt_force
-   :  opt_no force
-   |  force
+package_obj_spec
+	:	variable_declaration 
+	;
+	
+variable_declaration
+	:	identifier opt_constant
+		type_spec opt_not_null
+		opt_assigment_or_default_plsql_expression PL_SEMI
+	;	
+	
+type_spec
+	:	multi_part_name '%TYPE'
+	|	multi_part_name '%ROWTYPE'
+	|	multi_part_name opt_length_spec
+	;
+	
+opt_length_spec
+   :  length_spec
    |
-   ;
-   
-opt_no
-   :  no
-   |
-   ;   
-   
-no 
-   :  'NO'
-   ;
-   
-force
-   :  'FORCE'
    ;
 
+length_spec
+   :  PLS_LPAREN PLS_NUMBER PLS_RPAREN;
+   ;
+	
+opt_constant
+   :  'CONSTANT'
+   |
+   ;
+   
+opt_not_null
+   :  'NOT' 'NULL'
+   |
+   ;
+   
+assigment_or_default
+   :  PLS_ASSIGN
+   |  'DEFAULT'
+   ;
+   
+opt_assigment_or_default_plsql_expression
+   :  assigment_or_default plsql_expression
+   |
+   ;
+   
+plsql_expression
+   :  
+   
+multi_part_name
+   :  identifier tail_identifiers
+   ;
+   
+tail_identifier
+   :  PLS_DOT identifier
+   ;
+   
+tail_identifiers
+   :  tail_identifier tail_identifiers
+   |
+   ;
+   
+opt_object_name
+   :  object_name
+   |
+   ;
+               
 object_name
 	:	identifier PLS_DOT identifier 
 	|  identifier
 	;
-	
-opt_identifier
-   :  identifier
-   |
-   ;
    
 identifier
    :	PLS_ID
    |	PLS_DOUBLEQUOTED_STRING
-   ;
-   
-sql_start
-   :  'INSERT'
-   |  'UPDATE'
-   |  'DELETE'
-   |  'SELECT'
-   |  'WITH'
-   |  'MERGE'
    ;

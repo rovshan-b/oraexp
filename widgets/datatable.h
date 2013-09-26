@@ -55,6 +55,8 @@ public:
 
     void invokeDefaultActionForObject(int row);
 
+    void setEditable(bool editable = true);
+
 public slots:
     void resizeColumnsToFitContents();
 
@@ -108,6 +110,8 @@ private:
     void deleteCurrentModel();
     void displayError(const QString &prefix, const OciException &ex);
     int getVisibleRecordCount() const;
+
+    bool editable;
 };
 
 #endif // DATATABLE_H

@@ -1,6 +1,7 @@
 #include "datatable.h"
 #include "models/resultsettablemodel.h"
 #include "models/scrollableresultsettablemodel.h"
+#include "models/editableresultsettablemodel.h"
 #include "util/queryqueuemanager.h"
 #include "util/queryexectask.h"
 #include "util/dbutil.h"
@@ -18,7 +19,7 @@
 DataTable::DataTable(QWidget *parent) :
     QTableView(parent), queryScheduler(0), humanizeColumnNames(false), quietMode(true),
     schemaNameCol(-1), objectNameCol(-1), parentObjectNameCol(-1), objectTypeCol(-1), uiManager(0),
-    maxColumnWidth(300)
+    maxColumnWidth(300), editable(false)
 {
     verticalHeader()->setDefaultSectionSize(fontMetrics().height()+10);
     horizontalHeader()->setDefaultSectionSize(150);
@@ -36,10 +37,18 @@ void DataTable::setResultset(IQueryScheduler *queryScheduler,
     deleteCurrentModel();
 
     if(rs!=0){
-        ResultsetTableModel *newModel=rs->isScrollable() ?
-                    new ScrollableResultsetTableModel(queryScheduler, rs, this, dynamicQueries, iconColumns, humanizeColumnNames)
-                  :
-                    new ResultsetTableModel(queryScheduler, rs, this, dynamicQueries, iconColumns, humanizeColumnNames);
+        ResultsetTableModel *newModel=0;
+
+        if(rs->isScrollable()){
+            newModel = new ScrollableResultsetTableModel(queryScheduler, rs, this, dynamicQueries, iconColumns, humanizeColumnNames);
+        }else{
+            if(editable){
+                newModel = new EditableResultsetTableModel(queryScheduler, rs, this, dynamicQueries, iconColumns, humanizeColumnNames);
+            }else{
+                newModel = new ResultsetTableModel(queryScheduler, rs, this, dynamicQueries, iconColumns, humanizeColumnNames);
+            }
+        }
+
         connect(newModel, SIGNAL(firstFetchCompleted()), this, SLOT(handleFirstFetchCompleted()));
 
         //newModel->setFetchSize(getVisibleRecordCount()+10);
@@ -145,6 +154,11 @@ void DataTable::invokeDefaultActionForObject(int row)
     actionToTrigger->trigger();
 
     WidgetHelper::deleteActions(actions);
+}
+
+void DataTable::setEditable(bool editable)
+{
+    this->editable = editable;
 }
 
 

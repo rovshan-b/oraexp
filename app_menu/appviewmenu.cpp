@@ -11,7 +11,7 @@ AppViewMenu::AppViewMenu(QMenu *viewMenu, QToolBar *toolbar, QObject *parent) : 
 
 AppViewMenu::~AppViewMenu()
 {
-    delete viewAppStyleMenu;
+    //delete viewAppStyleMenu;
 }
 
 void AppViewMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab * /*cnPageTab*/)
@@ -28,11 +28,11 @@ void AppViewMenu::setupMenu(QMenu *viewMenu, QToolBar */*toolbar*/)
     viewDatabaseObjectsAction->setCheckable(true);
     viewDatabaseObjectsAction->setEnabled(false);
 
-    viewApplicationStyleAction=viewMenu->addAction(tr("Style"));
-    createAppStyleMenu();
-    viewApplicationStyleAction->setMenu(viewAppStyleMenu);
+    //viewApplicationStyleAction=viewMenu->addAction(tr("Style"));
+    //createAppStyleMenu();
+    //viewApplicationStyleAction->setMenu(viewAppStyleMenu);
 }
-
+/*
 void AppViewMenu::createAppStyleMenu()
 {
     QString currentStyleName=qApp->style()->objectName();
@@ -59,7 +59,7 @@ void AppViewMenu::setApplicationStyle()
     qApp->setStyle(action->data().toString());
     action->setChecked(true);
 }
-
+*/
 void AppViewMenu::toggleDbObjectsTree()
 {
     ConnectionPage *cnPage=getConnectionsPane()->currentConnectionPage();

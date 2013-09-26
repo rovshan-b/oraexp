@@ -1,6 +1,6 @@
 #include "dbobjectdataviewer.h"
 #include "widgets/datatable.h"
-
+#include <QtGui>
 
 DbObjectDataViewer::DbObjectDataViewer(DbUiManager *uiManager, QWidget *parent) :
     DbObjectViewerGenericTab("", uiManager, parent)
@@ -19,7 +19,7 @@ void DbObjectDataViewer::setObjectName(const QString &schemaName,
 {
     DbObjectViewerGenericTab::setObjectName(schemaName, objectName, itemType);
 
-    query=QString("select * from \"%1\".\"%2\"").arg(schemaName).arg(objectName);
+    query=QString("select t.*, t.rowid from \"%1\".\"%2\" t").arg(schemaName).arg(objectName);
 }
 
 void DbObjectDataViewer::createMainWidget(QLayout *layout)
@@ -27,4 +27,6 @@ void DbObjectDataViewer::createMainWidget(QLayout *layout)
     DbObjectViewerGenericTab::createMainWidget(layout);
 
     dt->setHumanizeColumnNames(false);
+    dt->setEditable();
+    dt->setEditTriggers(QAbstractItemView::AllEditTriggers);
 }
