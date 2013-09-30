@@ -1,11 +1,16 @@
 #include "editableresultsettablemodel.h"
 #include "beans/resultsetcolumnmetadata.h"
 #include "util/iconutil.h"
-#include <QDebug>
+#include <QtGui>
 
 EditableResultsetTableModel::EditableResultsetTableModel(IQueryScheduler *queryScheduler, Resultset *rs, QObject *parent, const QHash<int, StatementDesc *> &dynamicQueries, const QHash<QString, QString> &iconColumns, bool humanizeColumnNames) :
     ResultsetTableModel(queryScheduler, rs, parent, dynamicQueries, iconColumns, humanizeColumnNames)
 {
+}
+
+int EditableResultsetTableModel::rowCount(const QModelIndex &parent) const
+{
+    return ResultsetTableModel::rowCount(parent) + insertedRows.size();
 }
 
 Qt::ItemFlags EditableResultsetTableModel::flags(const QModelIndex &index) const
@@ -16,7 +21,11 @@ Qt::ItemFlags EditableResultsetTableModel::flags(const QModelIndex &index) const
 
     Qt::ItemFlags result = ResultsetTableModel::flags(index);
 
-    if(index.column() != columnMetadata->columnTitles.size()-1){
+    int row = index.row() - insertedRows.size();
+
+    bool isDeleted = deletedRows.contains(row);
+
+    if(index.column() != columnMetadata->getColumnCount()-1 && !isDeleted){
         result |= Qt::ItemIsEditable;
     }
 
@@ -43,95 +52,252 @@ QVariant EditableResultsetTableModel::headerData(int section, Qt::Orientation or
     return QVariant();
 }*/
 
-QVariant EditableResultsetTableModel::data(const QModelIndex &index, int role) const
+QVariant EditableResultsetTableModel::data(const QModelIndex &ix, int role) const
 {
-    if(!index.isValid()){
+    if(!ix.isValid()){
         return QVariant();
     }
 
-    QVariant value = ResultsetTableModel::data(index, role);
+    if(ix.row()<insertedRows.size()){
+        if((role==Qt::DisplayRole || role==Qt::EditRole) && ix.column() < columnCount()){
+            return insertedRows.at(ix.row()).at(ix.column());
+        }else if(role==Qt::DecorationRole){
+            return IconUtil::getIcon("add_small");
+        }else{
+            return QVariant();
+        }
+    }
+
+    QModelIndex newIndex = insertedRows.size() == 0 ? ix : index(ix.row() - insertedRows.size(), ix.column());
+
+    QVariant value = ResultsetTableModel::data(newIndex, role);
     if(!value.isValid() && !role==Qt::DecorationRole){
         return value;
     }
 
-    bool changed = isChanged(index.row(), index.column());
+    bool isDeleted = deletedRows.contains(newIndex.row());
+    bool changed = !isDeleted && isChanged(newIndex.row(), newIndex.column());
 
     if(changed){
         if(role == Qt::DisplayRole || role == Qt::EditRole){
-            value = changedData[index.row()][index.column()];
+            value = changedData[newIndex.row()][newIndex.column()];
         }else if(role == Qt::DecorationRole){
             value = IconUtil::getIcon("edit_small");
         }
     }
 
-    if(role == Qt::DecorationRole && deletedRows.contains(index.row())){
-        value = IconUtil::getIcon("delete_small");
+    if(role == Qt::FontRole && isDeleted){
+        QFont f=qApp->font("QTableView");
+        f.setStrikeOut(true);
+        value = f;
     }
 
     return value;
 }
 
-bool EditableResultsetTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool EditableResultsetTableModel::setData(const QModelIndex &ix, const QVariant &value, int role)
 {
-    if(!isValidIndex(index, role)){
+    if(!isValidIndex(ix, role)){
         return false;
     }
+
+    if(ix.row()<insertedRows.size()){
+        if(role==Qt::DisplayRole || role==Qt::EditRole){
+            insertedRows[ix.row()][ix.column()] = value.toString();
+            emit dataChanged(ix, ix);
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    QModelIndex newIndex = insertedRows.size() == 0 ? ix : index(ix.row() - insertedRows.size(), ix.column());
 
     bool changed = false;
 
     //original - value in database/resultset
     //current value - old version of changed value
 
-    QString originalValue = modelData.at(index.row()).at(index.column());
+    QString originalValue = modelData.at(newIndex.row()).at(newIndex.column());
     QString newValue = value.toString();
 
     bool sameAsOriginal = (newValue.compare(originalValue) == 0);
 
     //check if hash contains entry for changed row
-    bool hasRow = changedData.contains(index.row());
+    bool hasRow = changedData.contains(newIndex.row());
     if(hasRow){
         //check if inner hash contains entry for changed column
-        QHash<int, QString> &innerHash = changedData[index.row()];
-        bool hasColumn = innerHash.contains(index.column());
+        QMap<int, QString> &innerHash = changedData[newIndex.row()];
+        bool hasColumn = innerHash.contains(newIndex.column());
 
         if(hasColumn){
-            QString currentValue = innerHash[index.column()];
+            QString currentValue = innerHash[newIndex.column()];
             if(newValue.compare(currentValue)==0){
                 changed = false;
             }else{
                 changed = true;
 
                 if(sameAsOriginal){ //same as original value. so there is no need to keep this value in hash
-                    innerHash.remove(index.column());
+                    innerHash.remove(newIndex.column());
                     if(innerHash.isEmpty()){
-                        changedData.remove(index.row());
+                        changedData.remove(newIndex.row());
                     }
                 }else{
-                    innerHash[index.column()] = newValue;
+                    innerHash[newIndex.column()] = newValue;
                 }
             }
         }else{
             if(!sameAsOriginal){
-                innerHash[index.column()] = newValue;
+                innerHash[newIndex.column()] = newValue;
                 changed = true;
             }
         }
     }else{
         if(!sameAsOriginal){
-            QHash<int, QString> &innerHash=changedData[index.row()];
-            innerHash[index.column()] = newValue;
+            QMap<int, QString> &innerHash=changedData[newIndex.row()];
+            innerHash[newIndex.column()] = newValue;
             changed = true;
         }
     }
 
     if(changed){
-        emit dataChanged(index, index);
+        emit dataChanged(ix, ix);
     }
 
     return changed;
 }
 
+bool EditableResultsetTableModel::insertRows(int row, int count, const QModelIndex &parent)
+{
+    Q_UNUSED(row);
+    Q_ASSERT(count > 0);
+
+    beginInsertRows(parent, insertedRows.size(), insertedRows.size()+count-1);
+
+    for(int i=0; i<count; ++i){
+        QStringList list;
+        list.reserve(columnMetadata->getColumnCount());
+
+        for(int k=0; k<columnMetadata->getColumnCount(); ++k){
+            list.append("");
+        }
+        insertedRows.append(list);
+    }
+
+    endInsertRows();
+
+    return true;
+}
+
+bool EditableResultsetTableModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    Q_ASSERT(row < insertedRows.size());
+
+    beginRemoveRows(parent, row, row+count-1);
+
+    for(int i=0; i<count; ++i){
+        insertedRows.removeAt(row);
+    }
+
+    endRemoveRows();
+
+    return true;
+}
+
+void EditableResultsetTableModel::resetChanges()
+{
+    beginResetModel();
+
+    insertedRows.clear();
+    changedData.clear();
+    deletedRows.clear();
+
+    endResetModel();
+}
+
+void EditableResultsetTableModel::markRowAsDeleted(int row, bool mark)
+{
+    Q_ASSERT(row >= 0 && row < rowCount());
+
+    if(row < insertedRows.size()){
+        removeRows(row, 1);
+        return;
+    }
+
+    if(mark){
+        deletedRows.append(row-insertedRows.size());
+    }else{
+        deletedRows.removeOne(row-insertedRows.size());
+    }
+
+    emit dataChanged(index(row, 0), index(row, columnCount()-1));
+}
+
+
+
 bool EditableResultsetTableModel::isChanged(int row, int column) const
 {
     return changedData.contains(row) && changedData.value(row).contains(column);
+}
+
+QString EditableResultsetTableModel::generateDmlAsString(const QString &schema, const QString &table) const
+{
+    QString result;
+
+    QMap<int, QString> dml = generateDml(schema, table);
+    QMapIterator< int, QString > i(dml);
+
+    while(i.hasNext()){
+        i.next();
+
+        if(!result.isEmpty()){
+            result.append("\n");
+        }
+
+        result.append(i.value()).append(";");
+    }
+
+    return result;
+}
+
+QMap<int, QString> EditableResultsetTableModel::generateDml(const QString &schema, const QString &table) const
+{
+    QMap<int, QString> result;
+    QString dml;
+    QString fullTableName = QString("\"%1\".\"%2\"").arg(schema, table);
+
+    QMapIterator< int, QMap<int, QString> > i(changedData);
+    while (i.hasNext()) {
+        i.next();
+        dml.clear();
+
+        if(deletedRows.contains(i.key())){
+            continue;
+        }
+
+        QMapIterator< int, QString > i2(i.value());
+        while (i2.hasNext()) {
+            i2.next();
+
+            if(!dml.isEmpty()){
+                dml.append(", ");
+            }
+
+            dml.append(QString("\"%1\" = '%2'").arg(columnMetadata->columnTitles.at(i2.key()), i2.value()));
+        }
+
+        Q_ASSERT(!dml.isEmpty());
+
+        dml.prepend(QString("UPDATE %1 SET %2").arg(fullTableName, dml));
+        dml.append(QString(" WHERE ROWID = '%1'").arg(index(i.key(), columnCount()-1).data().toString()));
+
+        result[i.key()] = dml;
+    }
+
+    for(int i=0; i<deletedRows.size(); ++i){
+        dml = QString("DELETE FROM %1 WHERE ROWID = '%2'").arg(fullTableName, index(i, columnCount()-1).data().toString());
+        result[i] = dml;
+    }
+
+    return result;
 }

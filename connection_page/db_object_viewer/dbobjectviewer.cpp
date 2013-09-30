@@ -20,6 +20,10 @@ void DbObjectViewer::createUi()
     viewerWidget=getViewerWidget();
     viewerWidget->createUi();
 
+    if(properties.contains("attribute.tabIndex")){
+        viewerWidget->setCurrentTab(properties["attribute.tabIndex"].toInt());
+    }
+
     layout->addWidget(viewerWidget);
     setLayout(layout);
 }

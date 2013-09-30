@@ -195,7 +195,7 @@ bool ResultsetTableModel::isValidIndex(const QModelIndex &index, int role) const
         return false;
     }
 
-    if(index.row()<0 || index.row()>=fetchedRowCount){
+    if(index.row()<0 || index.row()>=rowCount()){
         return false;
     }
 

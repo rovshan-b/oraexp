@@ -14,6 +14,17 @@ public:
     virtual void setObjectName(const QString &schemaName, const QString &objectName, DbTreeModel::DbTreeNodeType itemType);
 
     virtual void createMainWidget(QLayout *);
+
+    virtual QList<QAction*> getSpecificToolbarButtons();
+
+private slots:
+    void addRecord();
+    void deleteRecord();
+
+    void commit();
+    void reset();
+
+    void showDml();
 };
 
 #endif // DBOBJECTDATAVIEWER_H

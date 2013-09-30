@@ -13,7 +13,9 @@ class DataTableAndToolBarWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit DataTableAndToolBarWidget(QAbstractItemModel *model = 0, Qt::Orientation toolbarOrientation=Qt::Vertical, QWidget *parent = 0);
+    explicit DataTableAndToolBarWidget(QAbstractItemModel *model = 0,
+                                       Qt::Orientation toolbarOrientation=Qt::Vertical,
+                                       QWidget *parent=0);
 
     TableToolbar *toolBar() const;
     DataTable *table() const;

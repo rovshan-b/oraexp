@@ -710,6 +710,10 @@ QAction *WidgetHelper::createSeparatorAction(QObject *parent)
 
 void WidgetHelper::deleteMenu(QMenu *menu)
 {
+    if(!menu){
+        return;
+    }
+
     QList<QAction *> actions = menu->actions();
     WidgetHelper::deleteActions(actions);
 

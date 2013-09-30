@@ -6,6 +6,8 @@
 #include "interfaces/iqueryscheduler.h"
 #include "navtree/dbtreemodel.h"
 
+class QMenu;
+
 class DbObjectViewerTabs : public GenericQueryViewerTabs
 {
     Q_OBJECT
@@ -16,7 +18,11 @@ public:
                                 DbUiManager *uiManager,
                                 QWidget *parent);
 
+    virtual ~DbObjectViewerTabs();
+
     void setHasSpecBodySwitcher(bool hasSpecBodySwitcher);
+
+    void setCurrentTab(int ix);
 
 signals:
     void specBodySwitchRequested();
@@ -27,6 +33,8 @@ protected:
     DbTreeModel::DbTreeNodeType itemType;
 
     bool hasSpecBodySwitcher;
+
+    QMenu *objectActionsMenu;
 
     virtual void initTab(GenericQueryViewerWidget *tab);
     virtual void createToolbarButtons();

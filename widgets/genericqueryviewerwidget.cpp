@@ -78,6 +78,12 @@ void GenericQueryViewerWidget::queryCompleted()
 void GenericQueryViewerWidget::createMainWidget(QLayout *layout)
 {
     dt=new DataTable();
+    initDataTable();
+    layout->addWidget(dt);
+}
+
+void GenericQueryViewerWidget::initDataTable()
+{
     dt->setUiManager(this->uiManager);
     dt->setHumanizeColumnNames(true);
     dt->setIconColumns(iconColumns);
@@ -98,8 +104,8 @@ void GenericQueryViewerWidget::createMainWidget(QLayout *layout)
     //dt->setSelectionBehavior(QAbstractItemView::SelectRows);
     connect(dt, SIGNAL(firstFetchCompleted()), this, SLOT(queryCompleted()));
     connect(dt, SIGNAL(asyncQueryError(OciException)), this, SLOT(queryCompleted()));
-    layout->addWidget(dt);
 }
+
 
 void GenericQueryViewerWidget::createChildControls()
 {

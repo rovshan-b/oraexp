@@ -5,6 +5,7 @@
 #include "context_menu/contextmenuutil.h"
 #include "widgets/specbodyswitcherwidget.h"
 #include "util/dbutil.h"
+#include "util/widgethelper.h"
 #include <QtGui>
 
 DbObjectViewerTabs::DbObjectViewerTabs(const QString &schemaName,
@@ -15,14 +16,25 @@ DbObjectViewerTabs::DbObjectViewerTabs(const QString &schemaName,
     schemaName(schemaName),
     objectName(objectName),
     itemType(itemType),
-    hasSpecBodySwitcher(false)
+    hasSpecBodySwitcher(false),
+    objectActionsMenu(0)
 {   
+}
+
+DbObjectViewerTabs::~DbObjectViewerTabs()
+{
+    WidgetHelper::deleteMenu(objectActionsMenu);
 }
 
 
 void DbObjectViewerTabs::setHasSpecBodySwitcher(bool hasSpecBodySwitcher)
 {
     this->hasSpecBodySwitcher=hasSpecBodySwitcher;
+}
+
+void DbObjectViewerTabs::setCurrentTab(int ix)
+{
+    tabWidget->setCurrentIndex(ix);
 }
 
 void DbObjectViewerTabs::initTab(GenericQueryViewerWidget *tab)
@@ -50,25 +62,14 @@ void DbObjectViewerTabs::createToolbarButtons()
                                itemType, uiManager);
 
     if(actions.size()>0){
-        foreach(QAction *action, actions){
+        objectActionsMenu = new QMenu();
+        objectActionsMenu->addActions(actions);
 
-            if(action->menu()){ //convert action to QToolButton
-                QMenu *actionMenu = action->menu();
-                QToolButton *button = new QToolButton(toolbar);
-                button->setText(action->text());
-                button->setIcon(action->icon());
-                action->setMenu(0);
-                button->setMenu(actionMenu);
-                button->setPopupMode(QToolButton::InstantPopup);
-                actionMenu->setParent(this, Qt::Popup);
-                toolbar->addWidget(button);
-
-                delete action;
-            }else{
-                toolbar->addAction(action);
-                action->setParent(toolbar);
-            }
-        }
+        QToolButton *menuButton = new QToolButton(this);
+        menuButton->setText(tr("Object Menu"));
+        menuButton->setMenu(objectActionsMenu);
+        menuButton->setPopupMode(QToolButton::InstantPopup);
+        toolbar->addWidget(menuButton);
         lastSeparatorBeforeProgressBar=toolbar->addSeparator();
     }
 

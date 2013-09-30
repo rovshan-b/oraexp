@@ -43,6 +43,7 @@ protected slots:
     void queryCompleted();
 
 protected:
+    void initDataTable();
     virtual void doLoadInfo();
     virtual QList<Param*> getQueryParams() = 0;
 
