@@ -25,6 +25,8 @@ private slots:
     void reset();
 
     void showDml();
+
+    void setColumnDelegates();
 };
 
 #endif // DBOBJECTDATAVIEWER_H

@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QtGui>
 #include "defines.h"
+#include "beans/resultsetcolumnmetadata.h"
 
 #include <iostream>
 
@@ -739,6 +740,41 @@ QStringList DbUtil::getComparableDataTypes()
 
     return comparableDataTypes;
 }
+
+//colIx is 1 based
+void DbUtil::escapeFieldValue(QString &fieldValue,
+                              ResultsetColumnMetadata *metadata,
+                              int colIx, bool guessDateFormat)
+{
+    OraExp::ColumnDataType dataType = metadata->columnDataTypes.value(colIx);
+
+    DbUtil::escapeFieldValue(fieldValue, dataType, metadata->isTextColumn(colIx), metadata->columnSubTypes.value(colIx, OraExp::CSTUnknown), guessDateFormat);
+}
+
+void DbUtil::escapeFieldValue(QString &fieldValue, OraExp::ColumnDataType dataType, bool isTextField, OraExp::ColumnSubType subType, bool guessDateFormat)
+{
+    if(fieldValue.isEmpty()){
+        fieldValue = "NULL";
+    }else if(isTextField){
+        fieldValue.replace("'", "'||chr(39)||'").prepend("'").append("'");
+    }else if(DbUtil::isNumericType(dataType)){
+        //do nothing
+    }else if(DbUtil::isDateType(dataType)){
+        QString dateFormat = guessDateFormat ? detectDateFormat(QStringList() << fieldValue) : DB_DATE_FORMAT;
+        fieldValue.prepend("'").append("'");
+        fieldValue = DbUtil::toDate(fieldValue, dateFormat);
+    }else if(DbUtil::isIntervalType(dataType)){
+        fieldValue.prepend("'").append("'");
+        fieldValue = DbUtil::toInterval(fieldValue, subType);
+    }else if(DbUtil::isTimestampType(dataType)){
+        fieldValue.prepend("'").append("'");
+        fieldValue = DbUtil::toTimestamp(fieldValue, subType);
+    }else{
+        fieldValue.replace("'", "'||chr(39)||'").prepend("'").append("'");
+    }
+}
+
+
 
 OraExp::ColumnSubType DbUtil::getIntervalSubType(const QString &dataTypeName)
 {

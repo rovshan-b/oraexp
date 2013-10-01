@@ -1,6 +1,7 @@
 #include "editableresultsettablemodel.h"
 #include "beans/resultsetcolumnmetadata.h"
 #include "util/iconutil.h"
+#include "util/dbutil.h"
 #include <QtGui>
 
 EditableResultsetTableModel::EditableResultsetTableModel(IQueryScheduler *queryScheduler, Resultset *rs, QObject *parent, const QHash<int, StatementDesc *> &dynamicQueries, const QHash<QString, QString> &iconColumns, bool humanizeColumnNames) :
@@ -32,7 +33,6 @@ Qt::ItemFlags EditableResultsetTableModel::flags(const QModelIndex &index) const
     return result;
 }
 
-/*
 QVariant EditableResultsetTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if(orientation == Qt::Horizontal){
@@ -42,15 +42,24 @@ QVariant EditableResultsetTableModel::headerData(int section, Qt::Orientation or
     if(role == Qt::DisplayRole){
         return section + 1;
     }else if(role == Qt::DecorationRole){
-        if(deletedRows.contains(section)){
+
+        if(section < insertedRows.size()){
+            return IconUtil::getIcon("add_small");
+        }
+
+        int row = section - insertedRows.size();
+
+        if(deletedRows.contains(row)){
             return IconUtil::getIcon("delete_small");
-        }else if(changedData.contains(section)){
+        }else if(changedData.contains(row)){
             return IconUtil::getIcon("edit_small");
         }
+    }else if(role == Qt::SizeHintRole){
+        return QSize(qApp->fontMetrics().width(QString::number(section)) + 30, 0);
     }
 
     return QVariant();
-}*/
+}
 
 QVariant EditableResultsetTableModel::data(const QModelIndex &ix, int role) const
 {
@@ -61,8 +70,6 @@ QVariant EditableResultsetTableModel::data(const QModelIndex &ix, int role) cons
     if(ix.row()<insertedRows.size()){
         if((role==Qt::DisplayRole || role==Qt::EditRole) && ix.column() < columnCount()){
             return insertedRows.at(ix.row()).at(ix.column());
-        }else if(role==Qt::DecorationRole){
-            return IconUtil::getIcon("add_small");
         }else{
             return QVariant();
         }
@@ -283,19 +290,25 @@ QMap<int, QString> EditableResultsetTableModel::generateDml(const QString &schem
                 dml.append(", ");
             }
 
-            dml.append(QString("\"%1\" = '%2'").arg(columnMetadata->columnTitles.at(i2.key()), i2.value()));
+            QString columnName = columnMetadata->columnTitles.at(i2.key());
+            QString fieldValue = i2.value();
+            DbUtil::escapeFieldValue(fieldValue, columnMetadata.data(), i2.key()+1, true); //colIx is 1 based
+            dml.append(QString("\"%1\" = %2").arg(columnName, fieldValue));
         }
 
         Q_ASSERT(!dml.isEmpty());
 
-        dml.prepend(QString("UPDATE %1 SET %2").arg(fullTableName, dml));
-        dml.append(QString(" WHERE ROWID = '%1'").arg(index(i.key(), columnCount()-1).data().toString()));
+        dml.prepend(QString("UPDATE %1 SET ").arg(fullTableName));
 
-        result[i.key()] = dml;
+        int modelRow = i.key() + insertedRows.size();
+
+        dml.append(QString(" WHERE ROWID = '%1'").arg(index(modelRow, columnCount()-1).data().toString()));
+
+        result[modelRow] = dml;
     }
 
     for(int i=0; i<deletedRows.size(); ++i){
-        dml = QString("DELETE FROM %1 WHERE ROWID = '%2'").arg(fullTableName, index(i, columnCount()-1).data().toString());
+        dml = QString("DELETE FROM %1 WHERE ROWID = '%2'").arg(fullTableName, index(i+insertedRows.size(), columnCount()-1).data().toString());
         result[i] = dml;
     }
 

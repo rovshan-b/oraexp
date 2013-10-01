@@ -731,12 +731,12 @@ void WidgetHelper::deleteActions(QList<QAction *> actions)
     }
 }
 
-QWidget *WidgetHelper::compactWidget(QWidget *widget)
+QWidget *WidgetHelper::nestWidget(QWidget *widget, bool compact)
 {
-    return WidgetHelper::compactWidgets(QList<QWidget *>() << widget);
+    return WidgetHelper::nestWidgets(QList<QWidget *>() << widget, Qt::Vertical, compact);
 }
 
-QWidget *WidgetHelper::compactWidgets(QList<QWidget *> widgets, Qt::Orientation orientation)
+QWidget *WidgetHelper::nestWidgets(QList<QWidget *> widgets, Qt::Orientation orientation, bool compact)
 {
     QWidget *widget = new QWidget();
     QBoxLayout *layout;
@@ -747,7 +747,11 @@ QWidget *WidgetHelper::compactWidgets(QList<QWidget *> widgets, Qt::Orientation 
     }
 
     foreach(QWidget *w, widgets){
-        layout->addWidget(w, 0, Qt::AlignLeft | Qt::AlignTop);
+        if(compact){
+            layout->addWidget(w, 0, Qt::AlignLeft | Qt::AlignTop);
+        }else{
+            layout->addWidget(w);
+        }
     }
 
     layout->setContentsMargins(0,0,0,0);

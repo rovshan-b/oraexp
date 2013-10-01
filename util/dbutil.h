@@ -8,6 +8,8 @@
 #include "beans/environmentinfo.h"
 #include <ocilib.h>
 
+class ResultsetColumnMetadata;
+
 class DbUtil
 {
 public:
@@ -52,6 +54,9 @@ public:
 
     static bool isLob(const QString &dataType);
     static QStringList getComparableDataTypes();
+
+    static void escapeFieldValue(QString &fieldValue, ResultsetColumnMetadata *metadata, int colIx, bool guessDateFormat = false);
+    static void escapeFieldValue(QString &fieldValue, OraExp::ColumnDataType dataType, bool isTextField, OraExp::ColumnSubType subType = OraExp::CSTUnknown, bool guessDateFormat = false);
 
     static OraExp::ColumnSubType getIntervalSubType(const QString &dataTypeName);
     static OraExp::ColumnSubType getTimestampSubType(const QString &dataTypeName);

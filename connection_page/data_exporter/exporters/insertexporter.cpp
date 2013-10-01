@@ -53,25 +53,5 @@ void InsertExporter::prepareField(QString &fieldValue, int fieldIx)
 {
     unsigned int colIx = this->startColumn + fieldIx + 1;
 
-    OraExp::ColumnDataType dataType = columnMetadata->columnDataTypes.value(colIx);
-
-    ResultsetColumnMetadata *metadata = columnMetadata.data();
-
-    if(fieldValue.isEmpty()){
-        fieldValue = "NULL";
-    }else if(metadata->isTextColumn(colIx)){
-        fieldValue.replace("'", "'||chr(39)||'").prepend("'").append("'");
-    }else if(DbUtil::isNumericType(dataType)){
-        //do nothing
-    }else if(DbUtil::isDateType(dataType)){
-        fieldValue = QString("to_date('%1', '%2')").arg(fieldValue, DB_DATE_FORMAT);
-    }else if(DbUtil::isIntervalType(dataType)){
-        fieldValue.prepend("'").append("'");
-        fieldValue = DbUtil::toInterval(fieldValue, columnMetadata->columnSubTypes.value(colIx));
-    }else if(DbUtil::isTimestampType(dataType)){
-        fieldValue.prepend("'").append("'");
-        fieldValue = DbUtil::toTimestamp(fieldValue, columnMetadata->columnSubTypes.value(colIx));
-    }else{
-        fieldValue.replace("'", "'||chr(39)||'").prepend("'").append("'");
-    }
+    DbUtil::escapeFieldValue(fieldValue, columnMetadata.data(), colIx);
 }

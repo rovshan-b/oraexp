@@ -126,8 +126,8 @@ public:
     static void deleteMenu(QMenu *menu);
     static void deleteActions(QList<QAction *> actions);
 
-    static QWidget *compactWidget(QWidget* widget);
-    static QWidget *compactWidgets(QList<QWidget *> widgets, Qt::Orientation orientation = Qt::Vertical);
+    static QWidget *nestWidget(QWidget* widget, bool compact = false);
+    static QWidget *nestWidgets(QList<QWidget *> widgets, Qt::Orientation orientation = Qt::Vertical, bool compact = false);
 
     static QWidget *createMessageWidget(const QString &message);
 

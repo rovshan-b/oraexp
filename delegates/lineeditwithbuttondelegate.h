@@ -29,6 +29,8 @@ public:
 
     void setAutoConvertToUpperCase(bool convert);
 
+    void setAutoAppendRows(bool autoAppendRows);
+
 protected slots:
     virtual void buttonClicked(LineEditWithButton *senderWidget);
     void editingFinished();
@@ -36,6 +38,7 @@ protected slots:
 private:
     bool convertToUpperCase;
     QString tooltipText;
+    bool autoAppendRows;
 
 };
 

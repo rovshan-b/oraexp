@@ -7,6 +7,7 @@
 class DataTable;
 class IQueryScheduler;
 class Param;
+class CodeEditor;
 
 class GenericResultsetViewerDialog : public QDialog
 {
@@ -17,15 +18,24 @@ public:
                                           const QList<Param*> &params,
                                           const QString &dbLinkName,
                                           QWidget *parent,
-                                          const QPair<QString,QString> &iconColumn=QPair<QString,QString>());
+                                          const QPair<QString,QString> &iconColumn=QPair<QString,QString>(),
+                                          bool displayEditor = false);
 
     QString selectedText;
 
 private slots:
     void rowActivated(const QModelIndex &index);
+    void executeQuery();
+
+    void restoreQueryButtonText();
 
 private:
+    IQueryScheduler *queryScheduler;
+
     DataTable *table;
+
+    CodeEditor *editor;
+    QPushButton *runQueryButton;
 
 };
 

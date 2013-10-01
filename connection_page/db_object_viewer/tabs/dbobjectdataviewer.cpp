@@ -4,6 +4,8 @@
 #include "dialogs/codeviewerdialog.h"
 #include "util/iconutil.h"
 #include "util/widgethelper.h"
+#include "beans/resultsetcolumnmetadata.h"
+#include "delegates/plaintexteditordelegate.h"
 #include <QtGui>
 
 DbObjectDataViewer::DbObjectDataViewer(DbUiManager *uiManager, QWidget *parent) :
@@ -33,6 +35,8 @@ void DbObjectDataViewer::createMainWidget(QLayout *layout)
     dt->setHumanizeColumnNames(false);
     dt->setEditable();
     dt->setEditTriggers(QAbstractItemView::AllEditTriggers);
+
+    connect(dt, SIGNAL(firstFetchCompleted()), this, SLOT(setColumnDelegates()));
 }
 
 QList<QAction *> DbObjectDataViewer::getSpecificToolbarButtons()
@@ -123,4 +127,16 @@ void DbObjectDataViewer::showDml()
     dialog.setCode(model->generateDmlAsString(this->schemaName, this->objectName));
 
     dialog.exec();
+}
+
+void DbObjectDataViewer::setColumnDelegates()
+{
+    EditableResultsetTableModel *model = static_cast<EditableResultsetTableModel*>(dt->model());
+    ResultsetColumnMetadata *metadata = model->getColumnMetadata().data();
+    foreach(unsigned int textColIx, metadata->textColIndexes){
+        PlainTextEditorDelegate *plainTextDelegate = new PlainTextEditorDelegate(tr("Edit field value"), this);
+        plainTextDelegate->setAutoAppendRows(false);
+        dt->setItemDelegateForColumn(textColIx-1, plainTextDelegate);
+    }
+
 }

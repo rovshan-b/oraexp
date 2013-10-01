@@ -16,7 +16,7 @@ public:
     virtual int	rowCount ( const QModelIndex & parent = QModelIndex() ) const;
 
     virtual Qt::ItemFlags flags ( const QModelIndex & index ) const;
-    //virtual QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
+    virtual QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
     virtual QVariant data ( const QModelIndex & ix, int role = Qt::DisplayRole ) const;
     virtual bool setData ( const QModelIndex & ix, const QVariant & value, int role = Qt::EditRole );
 

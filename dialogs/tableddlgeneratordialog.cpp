@@ -49,7 +49,7 @@ void TableDdlGeneratorDialog::createUi()
     tab->addWidget(appTabWidget);
 
     dbmsOptionsWidget = new TableDbmsDdlOptionsWidget();
-    tab->addWidget(WidgetHelper::compactWidget(dbmsOptionsWidget));
+    tab->addWidget(WidgetHelper::nestWidget(dbmsOptionsWidget, true));
 
     mainLayout->addWidget(tab);
 
