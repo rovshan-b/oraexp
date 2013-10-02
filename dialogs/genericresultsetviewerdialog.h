@@ -23,6 +23,8 @@ public:
 
     QString selectedText;
 
+    QString currentQuery() const;
+
 private slots:
     void rowActivated(const QModelIndex &index);
     void executeQuery();

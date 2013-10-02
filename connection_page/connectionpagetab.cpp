@@ -1,6 +1,7 @@
 #include "connectionpagetab.h"
 #include "connection_page/dbuimanager.h"
 #include "util/dialoghelper.h"
+#include "util/widgethelper.h"
 #include <QtGui>
 
 #include <iostream>
@@ -12,6 +13,11 @@ const char *ConnectionPageTab::CHILD_OBJECT_NAME_KEY = "childObjectName";
 ConnectionPageTab::ConnectionPageTab(DbUiManager *uiManager, QWidget *parent) :
     QWidget(parent), ConnectionPageObject(uiManager)
 {
+}
+
+ConnectionPageTab::~ConnectionPageTab()
+{
+    WidgetHelper::deleteChildren(this);
 }
 
 void ConnectionPageTab::setProperties(const QHash<QString, QString> &properties)

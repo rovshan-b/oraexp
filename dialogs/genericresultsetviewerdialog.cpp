@@ -28,7 +28,7 @@ GenericResultsetViewerDialog::GenericResultsetViewerDialog(IQueryScheduler *quer
     table=new DataTable();
     splitter->addWidget(table);
 
-    table->setSelectionBehavior(QAbstractItemView::SelectRows);
+    //table->setSelectionBehavior(QAbstractItemView::SelectRows);
     table->setAlternatingRowColors(true);
 
     QString resQuery = query;
@@ -43,22 +43,26 @@ GenericResultsetViewerDialog::GenericResultsetViewerDialog(IQueryScheduler *quer
 
         editor = new CodeEditor();
         editor->setPlainText(resQuery);
-        runQueryButton = new QPushButton(tr("Execute"));
+        runQueryButton = new QPushButton(tr("&Execute"));
 
         splitter->addWidget(WidgetHelper::nestWidgets(QList<QWidget*>() << editor << runQueryButton));
     }
 
-
-    splitter->setStretchFactor(0, 1);
-    splitter->setStretchFactor(1, 0);
 
     layout->addWidget(splitter);
     setLayout(layout);
 
     resize(600, 400);
 
+    splitter->setSizes(QList<int>() << 300 << 80);
+
     connect(table, SIGNAL(activated(QModelIndex)), this, SLOT(rowActivated(QModelIndex)));
     connect(runQueryButton, SIGNAL(clicked()), this, SLOT(executeQuery()));
+}
+
+QString GenericResultsetViewerDialog::currentQuery() const
+{
+    return editor->toPlainText();
 }
 
 void GenericResultsetViewerDialog::rowActivated(const QModelIndex &index)
@@ -67,7 +71,7 @@ void GenericResultsetViewerDialog::rowActivated(const QModelIndex &index)
         return;
     }
 
-    selectedText = index.model()->index(index.row(), 0).data().toString();
+    selectedText = index.data().toString();
 
     accept();
 }
@@ -81,11 +85,11 @@ void GenericResultsetViewerDialog::executeQuery()
     }
 
     table->displayQueryResults(queryScheduler,
-                               editor->toPlainText(),
+                               currentQuery(),
                                QList<Param*>());
 }
 
 void GenericResultsetViewerDialog::restoreQueryButtonText()
 {
-    runQueryButton->setText(tr("Execute"));
+    runQueryButton->setText(tr("&Execute"));
 }

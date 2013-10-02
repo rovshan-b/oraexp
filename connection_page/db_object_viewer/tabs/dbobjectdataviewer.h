@@ -2,6 +2,7 @@
 #define DBOBJECTDATAVIEWER_H
 
 #include "../../db_object_viewer/dbobjectviewergenerictab.h"
+#include "connectivity/fetchresult.h"
 
 class DbObjectDataViewer : public DbObjectViewerGenericTab
 {
@@ -25,6 +26,15 @@ private slots:
     void reset();
 
     void showDml();
+
+    void filter();
+    void sort();
+
+    void loadConstraintInfo();
+
+    void constraintsQueryCompleted(const QueryResult &result);
+    void constraintFetched(const FetchResult &fetchResult);
+    void constraintsFetchCompleted(const QString &);
 
     void setColumnDelegates();
 };

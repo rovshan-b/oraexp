@@ -2,6 +2,7 @@
 #include "beans/resultsetcolumnmetadata.h"
 #include "util/iconutil.h"
 #include "util/dbutil.h"
+#include "util/strutil.h"
 #include <QtGui>
 
 EditableResultsetTableModel::EditableResultsetTableModel(IQueryScheduler *queryScheduler, Resultset *rs, QObject *parent, const QHash<int, StatementDesc *> &dynamicQueries, const QHash<QString, QString> &iconColumns, bool humanizeColumnNames) :
@@ -273,6 +274,26 @@ QMap<int, QString> EditableResultsetTableModel::generateDml(const QString &schem
     QString dml;
     QString fullTableName = QString("\"%1\".\"%2\"").arg(schema, table);
 
+    QString fieldValue;
+
+    for(int i=0; i<insertedRows.size(); ++i){
+        dml = QString("INSERT INTO %1 (%2) VALUES (").arg(fullTableName, joinEnclosed(columnMetadata->columnTitles));
+        for(int k=0; k<columnMetadata->columnTitles.size()-1; ++k){
+            fieldValue = index(i, k).data().toString();
+            DbUtil::escapeFieldValue(fieldValue, columnMetadata.data(), k+1, true); //colIx is 1 based
+
+            if(k>0){
+                dml.append(", ");
+            }
+
+            dml.append(fieldValue);
+        }
+
+        dml.append(")");
+
+        result[i] = dml;
+    }
+
     QMapIterator< int, QMap<int, QString> > i(changedData);
     while (i.hasNext()) {
         i.next();
@@ -291,7 +312,7 @@ QMap<int, QString> EditableResultsetTableModel::generateDml(const QString &schem
             }
 
             QString columnName = columnMetadata->columnTitles.at(i2.key());
-            QString fieldValue = i2.value();
+            fieldValue = i2.value();
             DbUtil::escapeFieldValue(fieldValue, columnMetadata.data(), i2.key()+1, true); //colIx is 1 based
             dml.append(QString("\"%1\" = %2").arg(columnName, fieldValue));
         }
@@ -308,9 +329,16 @@ QMap<int, QString> EditableResultsetTableModel::generateDml(const QString &schem
     }
 
     for(int i=0; i<deletedRows.size(); ++i){
-        dml = QString("DELETE FROM %1 WHERE ROWID = '%2'").arg(fullTableName, index(i+insertedRows.size(), columnCount()-1).data().toString());
-        result[i] = dml;
+        int modelRow = i + insertedRows.size();
+
+        dml = QString("DELETE FROM %1 WHERE ROWID = '%2'").arg(fullTableName, index(modelRow, columnCount()-1).data().toString());
+        result[modelRow] = dml;
     }
 
     return result;
+}
+
+int EditableResultsetTableModel::insertedRowCount() const
+{
+    return insertedRows.size();
 }

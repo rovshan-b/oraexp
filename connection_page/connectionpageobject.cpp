@@ -4,7 +4,7 @@
 ConnectionPageObject::ConnectionPageObject(DbUiManager *uiManager) :
     uiManager(uiManager),
     db(0),
-    requiresSeparateConnection(false),
+    requiresSeparateConnection(true),
     busy(false),
     activeQueryCount(0)
 {

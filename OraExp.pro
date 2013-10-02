@@ -531,7 +531,8 @@ SOURCES += main.cpp\
     beans/codecollapseposition.cpp \
     code_parser/plsql/plsqlcodecollapsepositionfinder.cpp \
     models/editableresultsettablemodel.cpp \
-    dialogs/codeviewerdialog.cpp
+    dialogs/codeviewerdialog.cpp \
+    delegates/dataselectordelegate.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1070,7 +1071,8 @@ HEADERS  += mainwindow.h \
     beans/codecollapseposition.h \
     code_parser/plsql/plsqlcodecollapsepositionfinder.h \
     models/editableresultsettablemodel.h \
-    dialogs/codeviewerdialog.h
+    dialogs/codeviewerdialog.h \
+    delegates/dataselectordelegate.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

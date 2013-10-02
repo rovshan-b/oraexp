@@ -387,6 +387,7 @@ int CodeEditor::lineMarkerAreaOffset() const
      }
 
      QPainter painter(codeCollapseArea);
+     painter.setRenderHint(QPainter::Antialiasing);
 
      //painter.fillRect(event->rect(), Qt::green);
      CodeCollapsePosition *collapsePos;

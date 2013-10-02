@@ -113,7 +113,12 @@ void DataTable::queryCompleted(const QueryResult &result)
 
         emit asyncQueryError(result.exception);
     }else{
-        setResultset(queryScheduler, result.statement->rsAt(0), this->dynamicQueries);
+        if(result.statement->rsCount() == 0){
+            clear();
+            delete result.statement;
+        }else{
+            setResultset(queryScheduler, result.statement->rsAt(0), this->dynamicQueries);
+        }
     }
 
     emit asyncQueryCompleted(result);
@@ -266,7 +271,7 @@ int DataTable::getVisibleRecordCount() const
 
 void DataTable::clear()
 {
-    setResultset(0, 0);
+    setResultset(this->queryScheduler, 0);
 }
 
 void DataTable::setIconColumn(const QString &displayColumnName, const QString &iconColumnName)

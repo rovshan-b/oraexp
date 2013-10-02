@@ -144,5 +144,6 @@
         <file>queries/code_template_type_spec.sql</file>
         <file>queries/code_template_view.sql</file>
         <file>queries/get_object_lookup_results.sql</file>
+        <file>queries/get_table_fk_constraints.sql</file>
     </qresource>
 </RCC>

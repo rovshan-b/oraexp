@@ -731,6 +731,14 @@ void WidgetHelper::deleteActions(QList<QAction *> actions)
     }
 }
 
+void WidgetHelper::deleteChildren(QObject *parent)
+{
+    const QObjectList &childObjects = parent->children();
+    foreach(QObject *obj, childObjects){
+        delete obj;
+    }
+}
+
 QWidget *WidgetHelper::nestWidget(QWidget *widget, bool compact)
 {
     return WidgetHelper::nestWidgets(QList<QWidget *>() << widget, Qt::Vertical, compact);

@@ -6,6 +6,7 @@
 #include "util/widgethelper.h"
 #include "beans/resultsetcolumnmetadata.h"
 #include "delegates/plaintexteditordelegate.h"
+#include "delegates/dataselectordelegate.h"
 #include <QtGui>
 
 DbObjectDataViewer::DbObjectDataViewer(DbUiManager *uiManager, QWidget *parent) :
@@ -36,7 +37,7 @@ void DbObjectDataViewer::createMainWidget(QLayout *layout)
     dt->setEditable();
     dt->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
-    connect(dt, SIGNAL(firstFetchCompleted()), this, SLOT(setColumnDelegates()));
+    connect(dt, SIGNAL(firstFetchCompleted()), this, SLOT(loadConstraintInfo()));
 }
 
 QList<QAction *> DbObjectDataViewer::getSpecificToolbarButtons()
@@ -67,6 +68,16 @@ QList<QAction *> DbObjectDataViewer::getSpecificToolbarButtons()
     connect(showDmlAction, SIGNAL(triggered()), this, SLOT(showDml()));
     actions.append(showDmlAction);
 
+    actions.append(WidgetHelper::createSeparatorAction(this));
+
+    QAction *filterAction = new QAction(IconUtil::getIcon("filter"), tr("Filter"), this);
+    connect(filterAction, SIGNAL(triggered()), this, SLOT(filter()));
+    actions.append(filterAction);
+
+    QAction *sortAction = new QAction(IconUtil::getIcon("sort"), tr("Sort"), this);
+    connect(sortAction, SIGNAL(triggered()), this, SLOT(sort()));
+    actions.append(sortAction);
+
     return actions;
 }
 
@@ -74,6 +85,7 @@ void DbObjectDataViewer::addRecord()
 {
     EditableResultsetTableModel *model = static_cast<EditableResultsetTableModel*>(dt->model());
     model->insertRows(0, 1);
+    dt->scrollTo(model->index(model->insertedRowCount()-1, 0));
 }
 
 void DbObjectDataViewer::deleteRecord()
@@ -129,11 +141,69 @@ void DbObjectDataViewer::showDml()
     dialog.exec();
 }
 
+void DbObjectDataViewer::filter()
+{
+}
+
+void DbObjectDataViewer::sort()
+{
+}
+
+void DbObjectDataViewer::loadConstraintInfo()
+{
+    queryScheduler->enqueueQuery("get_table_fk_constraints", QList<Param*>() <<
+                                                             new Param("owner", this->schemaName) <<
+                                                             new Param("object_name", this->objectName),
+                                 this,
+                                 "get_table_fk_constraints",
+                                 "constraintsQueryCompleted",
+                                 "constraintFetched",
+                                 "constraintsFetchCompleted");
+}
+
+void DbObjectDataViewer::constraintsQueryCompleted(const QueryResult &result)
+{
+    if(result.hasError){
+        QMessageBox::critical(this->window(), tr("Error retrieving constraint list"), result.exception.getErrorMessage());
+
+        setColumnDelegates();
+    }
+}
+
+void DbObjectDataViewer::constraintFetched(const FetchResult &fetchResult)
+{
+    if(fetchResult.hasError){
+        QMessageBox::critical(this->window(), tr("Error retrieving constraint list"), fetchResult.exception.getErrorMessage());
+        return;
+    }
+
+    EditableResultsetTableModel *model = static_cast<EditableResultsetTableModel*>(dt->model());
+    QStringList columns = fetchResult.colValue("COLUMNS").split(',', QString::SkipEmptyParts);
+    foreach(const QString &column, columns){
+        int colIx = model->getColumnMetadata()->getColumnIndexByName(column); //1 based
+        DataSelectorDelegate *delegate = new DataSelectorDelegate(this->queryScheduler,
+                                                                  fetchResult.colValue("R_OWNER"),
+                                                                  fetchResult.colValue("R_TABLE_NAME"),
+                                                                  this);
+        dt->setItemDelegateForColumn(colIx - 1, delegate);
+    }
+}
+
+void DbObjectDataViewer::constraintsFetchCompleted(const QString &)
+{
+    setColumnDelegates();
+}
+
 void DbObjectDataViewer::setColumnDelegates()
 {
     EditableResultsetTableModel *model = static_cast<EditableResultsetTableModel*>(dt->model());
     ResultsetColumnMetadata *metadata = model->getColumnMetadata().data();
     foreach(unsigned int textColIx, metadata->textColIndexes){
+
+        if(dt->itemDelegateForColumn(textColIx-1)!=0){
+            continue;
+        }
+
         PlainTextEditorDelegate *plainTextDelegate = new PlainTextEditorDelegate(tr("Edit field value"), this);
         plainTextDelegate->setAutoAppendRows(false);
         dt->setItemDelegateForColumn(textColIx-1, plainTextDelegate);

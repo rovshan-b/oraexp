@@ -17,6 +17,7 @@ public:
 
 
     explicit ConnectionPageTab(DbUiManager *uiManager, QWidget *parent = 0);
+    virtual ~ConnectionPageTab();
 
     virtual QObject *getQueryEndMonitor() {return this;}
 

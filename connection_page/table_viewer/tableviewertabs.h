@@ -11,7 +11,7 @@ public:
                              const QString &objectName,
                              DbUiManager *uiManager,
                              QWidget *parent=0);
-    
+
     virtual void createTabs();
 };
 

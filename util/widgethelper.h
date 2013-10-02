@@ -126,6 +126,8 @@ public:
     static void deleteMenu(QMenu *menu);
     static void deleteActions(QList<QAction *> actions);
 
+    static void deleteChildren(QObject *parent);
+
     static QWidget *nestWidget(QWidget* widget, bool compact = false);
     static QWidget *nestWidgets(QList<QWidget *> widgets, Qt::Orientation orientation = Qt::Vertical, bool compact = false);
 
@@ -136,6 +138,7 @@ public:
     static void createAutoRefreshComboBox(QToolBar *toolbar, QWidget *receiver);
 
     static QAction *findDefaultAction(QList<QAction *> actions);
+
 };
 
 #endif // WIDGETHELPER_H

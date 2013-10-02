@@ -28,6 +28,8 @@ public:
 
     QString generateDmlAsString(const QString &schema, const QString &table) const;
     QMap<int, QString> generateDml(const QString &schema, const QString &table) const;
+
+    int insertedRowCount() const;
     
 protected:
     //first hash: row, inner hash
