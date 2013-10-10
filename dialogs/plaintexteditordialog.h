@@ -3,23 +3,20 @@
 
 #include <QDialog>
 
-namespace Ui {
-    class PlainTextEditorDialog;
-}
+class QPlainTextEdit;
 
 class PlainTextEditorDialog : public QDialog
 {
     Q_OBJECT
-
 public:
-    explicit PlainTextEditorDialog(QWidget *parent = 0);
-    ~PlainTextEditorDialog();
+    explicit PlainTextEditorDialog(QWidget *parent, bool useCodeEditor = false);
 
-    QString getEditorText() const;
     void setEditorText(const QString &text);
-
+    QString getEditorText() const;
+    
 private:
-    Ui::PlainTextEditorDialog *ui;
+    QPlainTextEdit *editor;
+    
 };
 
 #endif // PLAINTEXTEDITORDIALOG_H

@@ -1,4 +1,5 @@
 #include "connectionpagewindow.h"
+#include "util/widgethelper.h"
 #include <QtGui>
 
 ConnectionPageWindow::ConnectionPageWindow(DbUiManager *uiManager, QWidget *parent) :
@@ -14,6 +15,8 @@ ConnectionPageWindow::ConnectionPageWindow(DbUiManager *uiManager, QWidget *pare
 
 ConnectionPageWindow::~ConnectionPageWindow()
 {
+    WidgetHelper::deleteChildren(this);
+
     qDebug("deleted ConnectionPageWindow");
 }
 

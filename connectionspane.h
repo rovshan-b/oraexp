@@ -21,6 +21,7 @@ signals:
     void connectionPageStateChanged();
 
 public slots:
+    bool closeAll();
     void closeTab(int index);
     void popOutTab();
     void ctrlTabPressed();

@@ -17,5 +17,4 @@ DbItemAction::DbItemAction(const QIcon &icon, const QString &text,
 
 DbItemAction::~DbItemAction()
 {
-    qDebug("DbItemAction deleted");
 }

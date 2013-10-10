@@ -39,9 +39,8 @@ int PlSqlScanner::doGetNextToken()
         c=getNextChar();
 
         if(currentLexeme.isEmpty() && tokenStartLine!=textReader->getCurrLineNo()){
-            tokenStartPos=textReader->getCurrPos();
             tokenStartLine=textReader->getCurrLineNo();
-            tokenStartLinePos=textReader->getCurrLinePos();
+            tokenStartLinePos=0;
         }
 
         save=true;

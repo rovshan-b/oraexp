@@ -2,11 +2,12 @@
 #include "dialogs/genericresultsetviewerdialog.h"
 #include "widgets/lineeditwithbutton.h"
 
-DataSelectorDelegate::DataSelectorDelegate(IQueryScheduler *queryScheduler, const QString &schema, const QString &objectName, QObject *parent) :
+DataSelectorDelegate::DataSelectorDelegate(IQueryScheduler *queryScheduler, const QString &schema, const QString &objectName, const QString &dblinkName, QObject *parent) :
     LineEditWithButtonDelegate(false, parent),
     queryScheduler(queryScheduler),
     schema(schema),
-    objectName(objectName)
+    objectName(objectName),
+    dblinkName(dblinkName)
 {
     setAutoAppendRows(false);
 }
@@ -24,6 +25,9 @@ void DataSelectorDelegate::buttonClicked(LineEditWithButton *senderWidget)
 
     if(lastQuery.isEmpty()){
         lastQuery = QString("SELECT * FROM \"%1\".\"%2\"").arg(schema, objectName);
+        if(!dblinkName.isEmpty()){
+            lastQuery.append("@").append(dblinkName);
+        }
     }
 
     GenericResultsetViewerDialog dialog(queryScheduler, lastQuery, QList<Param*>(), "", senderWidget->window(), QPair<QString,QString>(), true);

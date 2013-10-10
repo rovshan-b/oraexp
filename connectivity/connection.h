@@ -28,9 +28,6 @@ public:
 
     OCI_Connection *getOciConnection(){return this->ociConnection;}
 
-    void setOciOwner(bool);
-    bool isOciOwner() const;
-
     bool isBusy() const;
 
     void lock();
@@ -53,8 +50,6 @@ public:
 private:
     void init();
     void setBusy(volatile bool busy);
-
-    bool ociOwner; //whether this connection object will destroy oci handles in destructor
 
     static bool environmentInitialized;
     OCI_Connection *ociConnection;

@@ -113,3 +113,10 @@ void CodeEditorUtil::markPosition(CodeEditor *editor, int pos)
     editor->setTextCursor(cur);
     editor->centerCursor();
 }
+
+QString CodeEditorUtil::getCurrentObjectName(CodeEditor *editor)
+{
+    Q_UNUSED(editor);
+
+    return "languages";
+}

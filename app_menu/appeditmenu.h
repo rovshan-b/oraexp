@@ -4,6 +4,7 @@
 #include "appmainmenu.h"
 #include "connection_page/dbuimanager.h"
 #include "connection_page/connectionpagetab.h"
+#include "connectivity/fetchresult.h"
 
 class QMenu;
 class QToolBar;
@@ -17,6 +18,7 @@ class AppEditMenu : public AppMainMenu
     Q_OBJECT
 public:
     explicit AppEditMenu(QMenu *editMenu, QToolBar *toolbar, QObject *parent);
+    virtual ~AppEditMenu();
 
     void updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *cnPageTab);
 
@@ -47,6 +49,12 @@ private slots:
     void makeDuplicate();
     void removeEmptyLines();
 
+    void populateResolveMenu();
+
+    void resolveQueryCompleted(const QueryResult &result);
+    void resolveResultReady(const FetchResult &result);
+    void resolveFetchCompleted(const QString &taskName);
+
     void showSearchWidget();
     void findNext();
     void findPrevious();
@@ -72,6 +80,8 @@ public:
     QAction *editCreateDuplicateAction;
     QAction *editRemoveEmptyLinesAction;
 
+    QAction *editResolveAction;
+
 private:
     void setupMenu(QMenu *editMenu, QToolBar *toolbar);
     QMenu *createCopyAsMenu(QWidget *parent);
@@ -89,6 +99,11 @@ private:
     QWidget *currentAppWidget;
 
     QWidget *findParentSearchPane() const;
+
+    QMenu *editResolveMenu;
+    void createEditResolveMenu();
+
+    QObject *waitingForContextMenuObject;
 
 };
 

@@ -49,7 +49,7 @@ void WorksheetResultPane::displayQueryResults(IQueryScheduler *queryScheduler,
         }
         for(int i=0; i<tabs.size(); ++i){
             WorksheetResultsetTab *rsTab = static_cast<WorksheetResultsetTab *>(tabs.at(i));
-            rsTab->displayResultset(queryScheduler, result.statement->rsAt(i));
+            rsTab->displayResultset(queryScheduler, result.statement, i);
 
             if(rsCount==1){
                 if(statementType!=OraExp::QueryTypeDeclare && statementType!=OraExp::QueryTypeBegin){

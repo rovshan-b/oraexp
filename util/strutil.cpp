@@ -226,11 +226,13 @@ QString formatMsecs(int msecs, bool includeMsecs)
     }
 }
 
-QString joinEnclosed(const QStringList &list, const QString &join, const QString &enclose)
+QString joinEnclosed(const QStringList &list, const QString &join, const QString &enclose, int count)
 {
     QString result;
 
-    for(int i=0; i<list.size(); ++i){
+    int size = count == -1 ? list.size() : count;
+
+    for(int i=0; i<size; ++i){
         if(i>0){
             result.append(join);
         }

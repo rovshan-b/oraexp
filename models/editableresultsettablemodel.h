@@ -26,10 +26,12 @@ public:
     void resetChanges();
     void markRowAsDeleted(int row, bool mark = true);
 
-    QString generateDmlAsString(const QString &schema, const QString &table) const;
-    QMap<int, QString> generateDml(const QString &schema, const QString &table) const;
+    QString generateDmlAsString(const QString &schema, const QString &table, const QString &dblink) const;
+    QMap<int, QString> generateDml(const QString &schema, const QString &table, const QString &dblink) const;
 
     int insertedRowCount() const;
+
+    bool hasChanges() const;
     
 protected:
     //first hash: row, inner hash
@@ -39,6 +41,8 @@ protected:
     QList<QStringList> insertedRows;
 
     bool isChanged(int row, int column) const;
+
+    void escapeFieldValue(QString &fieldValue, ResultsetColumnMetadata *metadata, int colIx, bool guessDateFormat) const;
     
 };
 

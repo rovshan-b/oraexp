@@ -28,6 +28,7 @@ ConnectionPageConnectedWidget::ConnectionPageConnectedWidget(DbConnection *db, D
     treeDock->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable);
 
     treePane=new TreePane(uiManager, treeDock);
+    connect(treePane, SIGNAL(busyStateChanged(ConnectionPageObject*,bool)), this, SLOT(tabBusyStateChanged(ConnectionPageObject*,bool)));
     treePane->setConnection(db);
 
     treeDock->setWidget(treePane);
@@ -105,6 +106,10 @@ void ConnectionPageConnectedWidget::closeTab(QWidget *widget)
 
 void ConnectionPageConnectedWidget::prepareObject(ConnectionPageObject *obj)
 {
+    QObject *objRef = dynamic_cast<QObject*>(obj);
+    Q_ASSERT(objRef);
+    connect(objRef, SIGNAL(busyStateChanged(ConnectionPageObject*,bool)), this, SLOT(tabBusyStateChanged(ConnectionPageObject*,bool)));
+
     if(obj->needsSeparateConnection()){
         connectionPool.requestConnection(this->db, obj);
     }else{
@@ -128,7 +133,6 @@ void ConnectionPageConnectedWidget::addTab(ConnectionPageTab *tab, const QPixmap
     centralTab->setCurrentIndex(newTabIx);
     //centralTab->setTabBusy(newTabIx, true);
     connect(tab, SIGNAL(stateChanged()), this, SIGNAL(connectionPageStateChanged()));
-    connect(tab, SIGNAL(busyStateChanged(ConnectionPageObject*,bool)), this, SLOT(tabBusyStateChanged(ConnectionPageObject*,bool)));
     connect(tab, SIGNAL(captionChanged(ConnectionPageTab*,QString)), this, SLOT(changeTabCaption(ConnectionPageTab*,QString)));
 
     prepareObject(tab);
@@ -174,7 +178,7 @@ void ConnectionPageConnectedWidget::asyncConnectionReady(DbConnection *db, void 
 void ConnectionPageConnectedWidget::tabBusyStateChanged(ConnectionPageObject *obj, bool busy)
 {
     ConnectionPageTab *tab = dynamic_cast<ConnectionPageTab*>(obj);
-    if(tab){
+    if(tab && tab!=treePane){
         centralTab->setTabBusy(tab, busy);
     }
 
@@ -182,9 +186,8 @@ void ConnectionPageConnectedWidget::tabBusyStateChanged(ConnectionPageObject *ob
         ++busyCounter;
     }else{
         --busyCounter;
+        Q_ASSERT(busyCounter >= 0);
     }
-
-    Q_ASSERT(busyCounter >= 0);
 
     if(busyCounter ==0 || busyCounter == 1){ //just got free or just got busy
         emit busyStateChanged(busy);

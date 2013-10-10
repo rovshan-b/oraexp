@@ -8,6 +8,7 @@
 class CodeCollapsePosition;
 class PlSqlTreeBuilder;
 class TextReaderBase;
+class PlSqlScanner;
 
 class PlSqlParseHelper
 {
@@ -27,6 +28,14 @@ public:
     static QList<CodeCollapsePosition*> findCodeCollapsePositions(const QTextCursor &cur);
 
     static PlSqlTreeBuilder *createParseTree(TextReaderBase *reader, bool *success = 0);
+
+    static void findTableNameInSelectQuery(const QString &query, QString *schemaName, QString *tableName, QString *dblink, const QString &defaultSchemaName = "");
+
+    static void readTableName(PlSqlScanner *scanner, QString *schemaName, QString *tableName, QString *dblink, const QString &defaultSchemaName);
+
+    static QString readMultiPartNameAsOne(PlSqlScanner *scanner);
+
+    static QStringList readMultiPartName(PlSqlScanner *scanner);
 
 private:
     static QString cleanIdentifier(const QString &identifier);

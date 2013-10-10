@@ -1,18 +1,28 @@
 #include "dbobjectdataviewer.h"
 #include "widgets/datatable.h"
 #include "models/editableresultsettablemodel.h"
-#include "dialogs/codeviewerdialog.h"
 #include "util/iconutil.h"
 #include "util/widgethelper.h"
+#include "util/dbutil.h"
 #include "beans/resultsetcolumnmetadata.h"
-#include "delegates/plaintexteditordelegate.h"
-#include "delegates/dataselectordelegate.h"
+#include "dialogs/orderbyoptionsdialog.h"
+#include "dialogs/plaintexteditordialog.h"
+#include "controllers/datatableeditcontroller.h"
+#include "errors.h"
 #include <QtGui>
 
 DbObjectDataViewer::DbObjectDataViewer(DbUiManager *uiManager, QWidget *parent) :
-    DbObjectViewerGenericTab("", uiManager, parent)
+    DbObjectViewerGenericTab("", uiManager, parent), editController(0)
 {
 
+}
+
+void DbObjectDataViewer::setQueryScheduler(IQueryScheduler *queryScheduler)
+{
+    DbObjectViewerGenericTab::setQueryScheduler(queryScheduler);
+
+    editController->setObjectName(this->schemaName, this->objectName, "");
+    editController->setQueryScheduler(queryScheduler);
 }
 
 QList<Param *> DbObjectDataViewer::getQueryParams()
@@ -26,18 +36,46 @@ void DbObjectDataViewer::setObjectName(const QString &schemaName,
 {
     DbObjectViewerGenericTab::setObjectName(schemaName, objectName, itemType);
 
-    query=QString("select t.*, t.rowid from \"%1\".\"%2\" t").arg(schemaName).arg(objectName);
+    if(baseQuery.isEmpty()){
+        baseQuery = QString("select t.*, t.rowid from \"%1\".\"%2\" t").arg(schemaName).arg(objectName);
+        whereClause = QString("WHERE ROWNUM <= 50000");
+    }
+
+    rebuildQuery();
+}
+
+void DbObjectDataViewer::rebuildQuery()
+{
+    query = baseQuery;
+
+    if(!whereClause.isEmpty()){
+        query.append(QString(" %1").arg(whereClause));
+    }
+
+    if(!orderBy.isEmpty()){
+        query.append(QString(" %1").arg(orderBy));
+    }
+
+    if(editController){
+        editController->enableEditActions(true);
+    }
 }
 
 void DbObjectDataViewer::createMainWidget(QLayout *layout)
 {
     DbObjectViewerGenericTab::createMainWidget(layout);
 
+    Q_ASSERT(editController==0);
+
+    editController = new DataTableEditController(dt) ;
+
     dt->setHumanizeColumnNames(false);
     dt->setEditable();
     dt->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
-    connect(dt, SIGNAL(firstFetchCompleted()), this, SLOT(loadConstraintInfo()));
+    connect(dt->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(sort(int)));
+    connect(dt, SIGNAL(asyncQueryError(OciException)), this, SLOT(asyncQueryError(OciException)));
+    connect(editController, SIGNAL(refreshRequired()), this, SLOT(refreshInfo()));
 }
 
 QList<QAction *> DbObjectDataViewer::getSpecificToolbarButtons()
@@ -46,27 +84,7 @@ QList<QAction *> DbObjectDataViewer::getSpecificToolbarButtons()
 
     actions.append(WidgetHelper::createSeparatorAction(this));
 
-    QAction *addAction = new QAction(IconUtil::getIcon("add"), tr("Add record"), this);
-    connect(addAction, SIGNAL(triggered()), this, SLOT(addRecord()));
-    actions.append(addAction);
-
-    QAction *deleteAction = new QAction(IconUtil::getIcon("delete"), tr("Delete record"), this);
-    connect(deleteAction, SIGNAL(triggered()), this, SLOT(deleteRecord()));
-    actions.append(deleteAction);
-
-    actions.append(WidgetHelper::createSeparatorAction(this));
-
-    QAction *commitAction = new QAction(IconUtil::getIcon("commit"), tr("Commit changes"), this);
-    connect(commitAction, SIGNAL(triggered()), this, SLOT(commit()));
-    actions.append(commitAction);
-
-    QAction *rollbackAction = new QAction(IconUtil::getIcon("rollback"), tr("Reset changes"), this);
-    connect(rollbackAction, SIGNAL(triggered()), this, SLOT(reset()));
-    actions.append(rollbackAction);
-
-    QAction *showDmlAction = new QAction(IconUtil::getIcon("query"), tr("Show commit DML"), this);
-    connect(showDmlAction, SIGNAL(triggered()), this, SLOT(showDml()));
-    actions.append(showDmlAction);
+    actions.append(editController->createEditActions());
 
     actions.append(WidgetHelper::createSeparatorAction(this));
 
@@ -74,139 +92,64 @@ QList<QAction *> DbObjectDataViewer::getSpecificToolbarButtons()
     connect(filterAction, SIGNAL(triggered()), this, SLOT(filter()));
     actions.append(filterAction);
 
-    QAction *sortAction = new QAction(IconUtil::getIcon("sort"), tr("Sort"), this);
-    connect(sortAction, SIGNAL(triggered()), this, SLOT(sort()));
-    actions.append(sortAction);
-
     return actions;
-}
-
-void DbObjectDataViewer::addRecord()
-{
-    EditableResultsetTableModel *model = static_cast<EditableResultsetTableModel*>(dt->model());
-    model->insertRows(0, 1);
-    dt->scrollTo(model->index(model->insertedRowCount()-1, 0));
-}
-
-void DbObjectDataViewer::deleteRecord()
-{
-    QItemSelectionModel *selModel = dt->selectionModel();
-
-    QModelIndexList rows = selModel->selectedRows();
-    if(rows.isEmpty()){
-        QMessageBox::information(this->window(), tr("No selection"),
-                                 tr("Please, select one or more rows and try again"));
-        return;
-    }
-
-    if(QMessageBox::question(this->window(), tr("Confirm deletion"),
-                              tr("Delete selected rows?"),
-                              QMessageBox::Ok|QMessageBox::Cancel,
-                              QMessageBox::Ok)!=QMessageBox::Ok){
-        return;
-    }
-
-    EditableResultsetTableModel *model = static_cast<EditableResultsetTableModel*>(dt->model());
-
-    for(int i=rows.size()-1; i>=0; --i){
-        model->markRowAsDeleted(rows.at(i).row());
-    }
-}
-
-void DbObjectDataViewer::commit()
-{
-}
-
-void DbObjectDataViewer::reset()
-{
-    if(QMessageBox::question(this->window(), tr("Confirm reset"),
-                              tr("Reset all pending changes?"),
-                              QMessageBox::Ok|QMessageBox::Cancel,
-                              QMessageBox::Ok)!=QMessageBox::Ok){
-        return;
-    }
-
-    EditableResultsetTableModel *model = static_cast<EditableResultsetTableModel*>(dt->model());
-    model->resetChanges();
-}
-
-void DbObjectDataViewer::showDml()
-{
-    EditableResultsetTableModel *model = static_cast<EditableResultsetTableModel*>(dt->model());
-
-    CodeViewerDialog dialog(this->window());
-    dialog.setWindowTitle(tr("View commit DML"));
-    dialog.setCode(model->generateDmlAsString(this->schemaName, this->objectName));
-
-    dialog.exec();
 }
 
 void DbObjectDataViewer::filter()
 {
-}
-
-void DbObjectDataViewer::sort()
-{
-}
-
-void DbObjectDataViewer::loadConstraintInfo()
-{
-    queryScheduler->enqueueQuery("get_table_fk_constraints", QList<Param*>() <<
-                                                             new Param("owner", this->schemaName) <<
-                                                             new Param("object_name", this->objectName),
-                                 this,
-                                 "get_table_fk_constraints",
-                                 "constraintsQueryCompleted",
-                                 "constraintFetched",
-                                 "constraintsFetchCompleted");
-}
-
-void DbObjectDataViewer::constraintsQueryCompleted(const QueryResult &result)
-{
-    if(result.hasError){
-        QMessageBox::critical(this->window(), tr("Error retrieving constraint list"), result.exception.getErrorMessage());
-
-        setColumnDelegates();
-    }
-}
-
-void DbObjectDataViewer::constraintFetched(const FetchResult &fetchResult)
-{
-    if(fetchResult.hasError){
-        QMessageBox::critical(this->window(), tr("Error retrieving constraint list"), fetchResult.exception.getErrorMessage());
+    if(!dt->model()){
         return;
     }
 
-    EditableResultsetTableModel *model = static_cast<EditableResultsetTableModel*>(dt->model());
-    QStringList columns = fetchResult.colValue("COLUMNS").split(',', QString::SkipEmptyParts);
-    foreach(const QString &column, columns){
-        int colIx = model->getColumnMetadata()->getColumnIndexByName(column); //1 based
-        DataSelectorDelegate *delegate = new DataSelectorDelegate(this->queryScheduler,
-                                                                  fetchResult.colValue("R_OWNER"),
-                                                                  fetchResult.colValue("R_TABLE_NAME"),
-                                                                  this);
-        dt->setItemDelegateForColumn(colIx - 1, delegate);
+    if(!editController->reset()){
+        return;
+    }
+
+    PlainTextEditorDialog dialog(this, true);
+    dialog.setWindowTitle(tr("Edit filter"));
+    dialog.setEditorText(whereClause);
+    if(dialog.exec()){
+        whereClause = dialog.getEditorText();
+
+        rebuildQuery();
+        refreshInfo();
     }
 }
 
-void DbObjectDataViewer::constraintsFetchCompleted(const QString &)
+void DbObjectDataViewer::sort(int colIx)
 {
-    setColumnDelegates();
-}
+    if(!dt->model()){
+        return;
+    }
 
-void DbObjectDataViewer::setColumnDelegates()
-{
-    EditableResultsetTableModel *model = static_cast<EditableResultsetTableModel*>(dt->model());
-    ResultsetColumnMetadata *metadata = model->getColumnMetadata().data();
-    foreach(unsigned int textColIx, metadata->textColIndexes){
+    if(!editController->reset()){
+        return;
+    }
 
-        if(dt->itemDelegateForColumn(textColIx-1)!=0){
-            continue;
+    OrderByOptionsDialog dialog(this->window());
+
+    if(dialog.exec()){
+        orderBy = dialog.getOrderByClause();
+        if(!orderBy.isEmpty()){
+            orderBy = orderBy.arg(colIx+1);
         }
-
-        PlainTextEditorDelegate *plainTextDelegate = new PlainTextEditorDelegate(tr("Edit field value"), this);
-        plainTextDelegate->setAutoAppendRows(false);
-        dt->setItemDelegateForColumn(textColIx-1, plainTextDelegate);
+        rebuildQuery();
+        refreshInfo();
     }
+}
 
+void DbObjectDataViewer::asyncQueryError(const OciException &ex)
+{
+    editController->enableEditActions(false);
+
+    if(ex.getErrorCode() == ERR_CANNOT_SELECT_ROWID1 ||
+            ex.getErrorCode() == ERR_CANNOT_SELECT_ROWID2){
+
+        dt->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+        baseQuery = QString("select * from \"%1\".\"%2\"").arg(schemaName).arg(objectName);
+
+        rebuildQuery();
+        refreshInfo();
+    }
 }

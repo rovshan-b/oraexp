@@ -103,7 +103,6 @@ SOURCES += main.cpp\
     delegates/identifiernamedelegate.cpp \
     delegates/lineeditwithbuttondelegate.cpp \
     delegates/plaintexteditordelegate.cpp \
-    dialogs/plaintexteditordialog.cpp \
     connection_page/table_creator/tabs/tablecreatorcheckconstraints.cpp \
     connection_page/table_creator/tabs/tablecreatorindexes.cpp \
     models/tableindexesmodel.cpp \
@@ -532,7 +531,10 @@ SOURCES += main.cpp\
     code_parser/plsql/plsqlcodecollapsepositionfinder.cpp \
     models/editableresultsettablemodel.cpp \
     dialogs/codeviewerdialog.cpp \
-    delegates/dataselectordelegate.cpp
+    delegates/dataselectordelegate.cpp \
+    dialogs/orderbyoptionsdialog.cpp \
+    dialogs/plaintexteditordialog.cpp \
+    controllers/datatableeditcontroller.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -618,7 +620,6 @@ HEADERS  += mainwindow.h \
     delegates/identifiernamedelegate.h \
     delegates/lineeditwithbuttondelegate.h \
     delegates/plaintexteditordelegate.h \
-    dialogs/plaintexteditordialog.h \
     connection_page/table_creator/tabs/tablecreatorcheckconstraints.h \
     connection_page/table_creator/tabs/tablecreatorindexes.h \
     models/tableindexesmodel.h \
@@ -1072,12 +1073,14 @@ HEADERS  += mainwindow.h \
     code_parser/plsql/plsqlcodecollapsepositionfinder.h \
     models/editableresultsettablemodel.h \
     dialogs/codeviewerdialog.h \
-    delegates/dataselectordelegate.h
+    delegates/dataselectordelegate.h \
+    dialogs/orderbyoptionsdialog.h \
+    dialogs/plaintexteditordialog.h \
+    controllers/datatableeditcontroller.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \
-    dialogs/columnselectordialog.ui \
-    dialogs/plaintexteditordialog.ui
+    dialogs/columnselectordialog.ui
 
 RESOURCES += \
     images.qrc \

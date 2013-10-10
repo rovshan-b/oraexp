@@ -7,7 +7,6 @@ class ConnectionPageWindowObject : public ConnectionPageObject
 {
 public:
     ConnectionPageWindowObject(DbUiManager *uiManager);
-    virtual ~ConnectionPageWindowObject();
 
     virtual bool initiallyVisible() const{return true;}
 

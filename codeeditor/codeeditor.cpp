@@ -9,6 +9,7 @@
 #include "app_menu/appmenu.h"
 #include "app_menu/appeditmenu.h"
 #include "code_parser/plsql/plsqlparsingtable.h"
+#include "code_parser/plsql/plsqlparsehelper.h"
 #include "beans/codecollapseposition.h"
 #include <QPainter>
 
@@ -416,7 +417,7 @@ int CodeEditor::lineMarkerAreaOffset() const
         }
 
         int triangleTop = blockHeight/4 + top;
-        int triangleBottom = triangleTop + blockHeight/4;
+        int triangleBottom = triangleTop + blockHeight/3;
         QPolygon triangle;
         triangle <<
             QPoint(2, triangleTop) <<
@@ -811,6 +812,8 @@ int CodeEditor::lineMarkerAreaOffset() const
      menu->addAction(editMenu->editToLowerCaseAction);
      menu->addAction(editMenu->editCreateDuplicateAction);
      menu->addAction(editMenu->editRemoveEmptyLinesAction);
+     menu->addSeparator();
+     menu->addAction(editMenu->editResolveAction);
 
      menu->exec(event->globalPos());
      delete menu;
@@ -927,10 +930,16 @@ int CodeEditor::lineMarkerAreaOffset() const
      QList<QString> keys = CodeEditor::textShortcuts.keys();
      for(int i=0; i<keys.size(); ++i){
          const QString &key = keys.at(i);
-         cur.setPosition(cur.position() - key.size(), QTextCursor::KeepAnchor);
+         int posToSet = cur.position() - key.size();
+         if(posToSet<0){
+             continue;
+         }
+         cur.setPosition(posToSet, QTextCursor::KeepAnchor);
          if(cur.selectedText().compare(key, Qt::CaseInsensitive) == 0){
              cur.insertText(CodeEditor::textShortcuts[key]);
              return;
+         }else{
+             cur.setPosition(posToSet + key.size());
          }
      }
 
@@ -1363,6 +1372,17 @@ int CodeEditor::lineMarkerAreaOffset() const
      }else{
          if(!fullTextOnNoSelection){
             result = getCurrentTextSurroundedByEmptyLines(cursor);
+
+            if(!result.isEmpty()){
+                int queryStartPos, queryEndPos;
+                PlSqlParseHelper::getNextQueryPos(result, 0, &queryStartPos, &queryEndPos);
+
+                if(queryStartPos!=-1 && queryEndPos!=-1){
+                    result = result.mid(queryStartPos, queryEndPos-queryStartPos-1);
+                    cursor.setPosition(cursor.selectionStart() + queryStartPos, QTextCursor::MoveAnchor);
+                    cursor.setPosition(cursor.position() + queryEndPos-queryStartPos-1, QTextCursor::KeepAnchor);
+                }
+            }
          }else{
             result = this->toPlainText();
             cursor.movePosition(QTextCursor::Start);
@@ -1560,6 +1580,8 @@ int CodeEditor::lineMarkerAreaOffset() const
      }
 
      CodeEditor::textShortcuts["sf"] = "select * from ";
+     CodeEditor::textShortcuts["ii"] = "insert into ";
+     CodeEditor::textShortcuts["df"] = "delete from ";
  }
 
  QString CodeEditor::textUnderCursor() const

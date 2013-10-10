@@ -248,11 +248,23 @@ bool EditableResultsetTableModel::isChanged(int row, int column) const
     return changedData.contains(row) && changedData.value(row).contains(column);
 }
 
-QString EditableResultsetTableModel::generateDmlAsString(const QString &schema, const QString &table) const
+void EditableResultsetTableModel::escapeFieldValue(QString &fieldValue, ResultsetColumnMetadata *metadata, int colIx, bool guessDateFormat) const
+{
+    OraExp::ColumnDataType dataType = metadata->getColumnDataType(colIx);
+    if(!fieldValue.isEmpty() &&
+            (DbUtil::isDateType(dataType) || DbUtil::isTimestampType(dataType)) &&
+            !fieldValue.at(0).isDigit()){
+        //do nothing, keep value as is
+    }else{
+        DbUtil::escapeFieldValue(fieldValue, metadata, colIx, guessDateFormat); //colIx is 1 based
+    }
+}
+
+QString EditableResultsetTableModel::generateDmlAsString(const QString &schema, const QString &table, const QString &dblink) const
 {
     QString result;
 
-    QMap<int, QString> dml = generateDml(schema, table);
+    QMap<int, QString> dml = generateDml(schema, table, dblink);
     QMapIterator< int, QString > i(dml);
 
     while(i.hasNext()){
@@ -268,19 +280,24 @@ QString EditableResultsetTableModel::generateDmlAsString(const QString &schema, 
     return result;
 }
 
-QMap<int, QString> EditableResultsetTableModel::generateDml(const QString &schema, const QString &table) const
+QMap<int, QString> EditableResultsetTableModel::generateDml(const QString &schema, const QString &table, const QString &dblink) const
 {
     QMap<int, QString> result;
     QString dml;
-    QString fullTableName = QString("\"%1\".\"%2\"").arg(schema, table);
+    QString fullTableName = schema.isEmpty() ? QString("\"%1\"").arg(table) : QString("\"%1\".\"%2\"").arg(schema, table);
+    if(!dblink.isEmpty()){
+        fullTableName.append("@").append(dblink);
+    }
 
     QString fieldValue;
 
+    QString colNames = joinEnclosed(columnMetadata->columnTitles, ", ", "\"", columnMetadata->columnTitles.size()-1);
+
     for(int i=0; i<insertedRows.size(); ++i){
-        dml = QString("INSERT INTO %1 (%2) VALUES (").arg(fullTableName, joinEnclosed(columnMetadata->columnTitles));
+        dml = QString("INSERT INTO %1 (%2) VALUES (").arg(fullTableName, colNames);
         for(int k=0; k<columnMetadata->columnTitles.size()-1; ++k){
             fieldValue = index(i, k).data().toString();
-            DbUtil::escapeFieldValue(fieldValue, columnMetadata.data(), k+1, true); //colIx is 1 based
+            escapeFieldValue(fieldValue, columnMetadata.data(), k+1, true); //colIx is 1 based
 
             if(k>0){
                 dml.append(", ");
@@ -313,7 +330,7 @@ QMap<int, QString> EditableResultsetTableModel::generateDml(const QString &schem
 
             QString columnName = columnMetadata->columnTitles.at(i2.key());
             fieldValue = i2.value();
-            DbUtil::escapeFieldValue(fieldValue, columnMetadata.data(), i2.key()+1, true); //colIx is 1 based
+            escapeFieldValue(fieldValue, columnMetadata.data(), i2.key()+1, true); //colIx is 1 based
             dml.append(QString("\"%1\" = %2").arg(columnName, fieldValue));
         }
 
@@ -329,7 +346,7 @@ QMap<int, QString> EditableResultsetTableModel::generateDml(const QString &schem
     }
 
     for(int i=0; i<deletedRows.size(); ++i){
-        int modelRow = i + insertedRows.size();
+        int modelRow = deletedRows.at(i) + insertedRows.size();
 
         dml = QString("DELETE FROM %1 WHERE ROWID = '%2'").arg(fullTableName, index(modelRow, columnCount()-1).data().toString());
         result[modelRow] = dml;
@@ -341,4 +358,11 @@ QMap<int, QString> EditableResultsetTableModel::generateDml(const QString &schem
 int EditableResultsetTableModel::insertedRowCount() const
 {
     return insertedRows.size();
+}
+
+bool EditableResultsetTableModel::hasChanges() const
+{
+    return !insertedRows.isEmpty() ||
+            !deletedRows.isEmpty() ||
+            !changedData.isEmpty();
 }

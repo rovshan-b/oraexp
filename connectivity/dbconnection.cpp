@@ -5,13 +5,17 @@
 #include "util/queryutil.h"
 #include "defines.h"
 #include <memory>
+#include <QDebug>
 
 using namespace std;
 
+#ifdef DEBUG
+QAtomicInt DbConnection::objectCount;
+#endif
 
 DbConnection::DbConnection() : queueManager(0)
 {
-
+    ref();
 }
 
 DbConnection::DbConnection(const QString title, const QString tnsName,
@@ -21,7 +25,7 @@ DbConnection::DbConnection(const QString title, const QString tnsName,
                            serverMajorVersion(0), serverMinorVersion(0)
 
 { 
-
+    ref();
 }
 
 DbConnection::DbConnection(const DbConnection &other)
@@ -33,21 +37,15 @@ DbConnection::DbConnection(const DbConnection &other)
     this->connectAs=other.connectAs;
 
     this->queueManager=0;
+
+    ref();
 }
 
 DbConnection::~DbConnection()
 {
-    disconnect();
-}
+    disconnect(); //also deletes QueryQueueManager
 
-void DbConnection::setOciOwner(bool newVal)
-{
-    connection.setOciOwner(newVal);
-}
-
-bool DbConnection::isOciOwner()
-{
-    return connection.isOciOwner();
+    deref();
 }
 
 bool DbConnection::isBusy() const
@@ -78,6 +76,7 @@ void DbConnection::destroyEnvironment()
 {
     Connection::destroyEnvironment();
 
+    DbConnection::printObjectCount();
     Statement::printObjectCount();
     Resultset::printObjectCount();
     Param::printObjectCount();
@@ -101,6 +100,13 @@ void DbConnection::disconnect()
 
     delete queueManager;
     queueManager=0;
+}
+
+void DbConnection::printObjectCount()
+{
+#ifdef DEBUG
+    qDebug() << "Total number of connections:" << (int)DbConnection::objectCount;
+#endif
 }
 
 Statement *DbConnection::createStatement()

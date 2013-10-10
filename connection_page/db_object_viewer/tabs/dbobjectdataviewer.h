@@ -4,11 +4,15 @@
 #include "../../db_object_viewer/dbobjectviewergenerictab.h"
 #include "connectivity/fetchresult.h"
 
+class DataTableEditController;
+
 class DbObjectDataViewer : public DbObjectViewerGenericTab
 {
     Q_OBJECT
 public:
     explicit DbObjectDataViewer(DbUiManager *uiManager, QWidget *parent = 0);
+
+    virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
 
     virtual QList<Param *> getQueryParams();
 
@@ -19,24 +23,21 @@ public:
     virtual QList<QAction*> getSpecificToolbarButtons();
 
 private slots:
-    void addRecord();
-    void deleteRecord();
-
-    void commit();
-    void reset();
-
-    void showDml();
-
     void filter();
-    void sort();
+    void sort(int colIx);
 
-    void loadConstraintInfo();
+    void asyncQueryError(const OciException &ex);
+private:
+    DataTableEditController *editController;
 
-    void constraintsQueryCompleted(const QueryResult &result);
-    void constraintFetched(const FetchResult &fetchResult);
-    void constraintsFetchCompleted(const QString &);
+    QString baseQuery;
+    QString whereClause;
+    QString orderBy;
 
-    void setColumnDelegates();
+    QString commitDml;
+
+    void rebuildQuery();
+    QString getCommitDml() const;
 };
 
 #endif // DBOBJECTDATAVIEWER_H

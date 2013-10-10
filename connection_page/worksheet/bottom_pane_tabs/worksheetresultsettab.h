@@ -11,6 +11,7 @@ class Resultset;
 class DataExportDialog;
 class DataExporterBase;
 class QLabel;
+class DataTableEditController;
 
 class WorksheetResultsetTab : public WorksheetBottomPaneTab
 {
@@ -23,7 +24,7 @@ public:
 
     virtual WorksheetResultPane::WorksheetBottomPaneTabType getTabType() const;
     virtual void showQueryResults(IQueryScheduler *queryScheduler, const QueryResult &result);
-    void displayResultset(IQueryScheduler *queryScheduler, Resultset *rs);
+    void displayResultset(IQueryScheduler *queryScheduler, Statement *stmt, int rsIx);
 private slots:
     void firstFetchCompleted();
     void exportData();
@@ -33,6 +34,8 @@ private slots:
     void exportComplete();
     void exportError(const QString &errorMessage);
     void stopProgress();
+
+    void reloadQuery();
 
 private:
     IQueryScheduler *queryScheduler;
@@ -50,6 +53,12 @@ private:
     void setInProgress(bool inProgress, bool showsStatusMessage=false, bool cancellable=false);
 
     bool cursorClosed;
+
+    DataTableEditController *editController;
+
+    void makeEditable(const QString &query);
+
+    QString lastQuery;
 
 };
 

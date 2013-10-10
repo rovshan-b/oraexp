@@ -1,5 +1,6 @@
 #include "worksheetresultsettab.h"
 #include "connectivity/dbconnection.h"
+#include "connectivity/statement.h"
 #include "widgets/datatable.h"
 #include "util/iconutil.h"
 #include "connection_page/data_exporter/dataexportdialog.h"
@@ -7,6 +8,8 @@
 #include "connection_page/data_exporter/exporters/dataexporterbase.h"
 #include "models/resultsettablemodel.h"
 #include "interfaces/iqueryscheduler.h"
+#include "controllers/datatableeditcontroller.h"
+#include "code_parser/plsql/plsqlparsehelper.h"
 #include <QtGui>
 
 WorksheetResultsetTab::WorksheetResultsetTab(QWidget *parent) :
@@ -18,6 +21,10 @@ WorksheetResultsetTab::WorksheetResultsetTab(QWidget *parent) :
 {
     QVBoxLayout *layout=new QVBoxLayout();
 
+    resultsTable=new DataTable();
+    resultsTable->setAlternatingRowColors(true);
+    editController = new DataTableEditController(resultsTable);
+
     createToolbar();
     statusBarLabel = new QLabel();
     labelAction = toolbar->addWidget(statusBarLabel);
@@ -27,15 +34,13 @@ WorksheetResultsetTab::WorksheetResultsetTab(QWidget *parent) :
                                             SLOT(stopProgress()));
 
     layout->addWidget(toolbar);
-
-    resultsTable=new DataTable();
-    resultsTable->setAlternatingRowColors(true);
     layout->addWidget(resultsTable);
 
     layout->setContentsMargins(2, 0, 2, 0);
     setLayout(layout);
 
     connect(resultsTable, SIGNAL(firstFetchCompleted()), this, SLOT(firstFetchCompleted()));
+    connect(editController, SIGNAL(refreshRequired()), this, SLOT(reloadQuery()));
 }
 
 WorksheetResultsetTab::~WorksheetResultsetTab()
@@ -46,6 +51,13 @@ void WorksheetResultsetTab::addTabSpecificToolbarButtons()
 {
     dataExportAction = toolbar->addAction(IconUtil::getIcon("export"), tr("Export"), this, SLOT(exportData()));
     dataExportAction->setEnabled(false);
+
+    toolbar->addSeparator();
+
+    QList<QAction*> editingActions = editController->createEditActions();
+    foreach(QAction *action, editingActions){
+        toolbar->addAction(action);
+    }
 }
 
 WorksheetResultPane::WorksheetBottomPaneTabType WorksheetResultsetTab::getTabType() const
@@ -58,13 +70,25 @@ void WorksheetResultsetTab::showQueryResults(IQueryScheduler *, const QueryResul
     Q_ASSERT(false);
 }
 
-void WorksheetResultsetTab::displayResultset(IQueryScheduler *queryScheduler, Resultset *rs)
+void WorksheetResultsetTab::displayResultset(IQueryScheduler *queryScheduler, Statement *stmt, int rsIx)
 {
+    this->queryScheduler = queryScheduler;
+
+    Resultset *rs = stmt->rsAt(rsIx);
+
+    //check if we need to make table editable
+    QSharedPointer<ResultsetColumnMetadata> metadata = rs->getColumnMetadata();
+    if(metadata->getColumnCount()>1 && metadata->columnTitles.at(metadata->columnTitles.size()-1)=="ROWID" && //last column is named rowid
+            stmt->getStatementType()==OraExp::QueryTypeSelect &&
+            stmt->paramCount()==0){ //no parameters for now to be able to refresh when required
+        makeEditable(stmt->getQuery());
+    }else{
+        makeEditable("");
+    }
+
     cursorClosed = false;
     setInProgress(true);
     resultsTable->setResultset(queryScheduler, rs, QHash<int,StatementDesc*>());
-
-    this->queryScheduler = queryScheduler;
 }
 
 void WorksheetResultsetTab::firstFetchCompleted()
@@ -169,6 +193,11 @@ void WorksheetResultsetTab::stopProgress()
     }
 }
 
+void WorksheetResultsetTab::reloadQuery()
+{
+    resultsTable->displayQueryResults(this->queryScheduler, this->lastQuery, QList<Param*>());
+}
+
 void WorksheetResultsetTab::setInProgress(bool inProgress, bool showsStatusMessage, bool cancellable)
 {
     progressBarAction->setVisible(inProgress);
@@ -176,4 +205,30 @@ void WorksheetResultsetTab::setInProgress(bool inProgress, bool showsStatusMessa
 
     labelAction->setVisible(inProgress && showsStatusMessage);
     stopProgressButton->setVisible(inProgress && cancellable);
+}
+
+void WorksheetResultsetTab::makeEditable(const QString &query)
+{
+    this->lastQuery = query;
+
+    editController->clearColumnDelegates();
+    editController->setQueryScheduler(this->queryScheduler);
+
+    if(query.isEmpty()){
+        editController->enableEditActions(false);
+        editController->setObjectName("","","");
+        resultsTable->setEditable(false);
+        resultsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+        return;
+    }
+
+    QString schemaName, tableName, dblinkName;
+    PlSqlParseHelper::findTableNameInSelectQuery(query, &schemaName, &tableName, &dblinkName);
+    if(!tableName.isEmpty()){
+        editController->enableEditActions(true);
+        editController->setObjectName(schemaName, tableName, dblinkName);
+        resultsTable->setEditable(true);
+        resultsTable->setEditTriggers(QAbstractItemView::AllEditTriggers);
+    }
 }

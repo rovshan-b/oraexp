@@ -1,17 +1,25 @@
 #include "appeditmenu.h"
 #include "util/iconutil.h"
+#include "util/widgethelper.h"
+#include "util/codeeditorutil.h"
+#include "util/dbutil.h"
+#include "context_menu/contextmenuutil.h"
 #include "connectionspane.h"
 #include "connection_page/connectionpage.h"
 #include "connection_page/connectionpagetab.h"
 #include "codeeditor/codeeditor.h"
-#include "util/widgethelper.h"
 #include <QtGui>
 
-AppEditMenu::AppEditMenu(QMenu *editMenu, QToolBar *toolbar, QObject *parent) : AppMainMenu(parent), currentAppWidget(0)
+AppEditMenu::AppEditMenu(QMenu *editMenu, QToolBar *toolbar, QObject *parent) : AppMainMenu(parent), currentAppWidget(0), waitingForContextMenuObject(0)
 {
     setupMenu(editMenu, toolbar);
 
     connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(focusWidgetChanged(QWidget*,QWidget*)));
+}
+
+AppEditMenu::~AppEditMenu()
+{
+    WidgetHelper::deleteMenu(editResolveMenu);
 }
 
 void AppEditMenu::setupMenu(QMenu *editMenu, QToolBar *toolbar)
@@ -70,7 +78,11 @@ void AppEditMenu::setupMenu(QMenu *editMenu, QToolBar *toolbar)
     editRemoveEmptyLinesAction=editMenu->addAction(tr("Remove empty lines"), this, SLOT(removeEmptyLines()), QKeySequence("Ctrl+R"));
     editRemoveEmptyLinesAction->setStatusTip(tr("Remove empty lines"));
 
-    //toolbar->addAction(editSelectBlockAction);
+    editMenu->addSeparator();
+
+    editResolveAction=editMenu->addAction(tr("Object Menu"));
+    createEditResolveMenu();
+    editResolveAction->setMenu(editResolveMenu);
 
     editMenu->addSeparator();
     //toolbar->addSeparator();
@@ -102,6 +114,8 @@ void AppEditMenu::setupMenu(QMenu *editMenu, QToolBar *toolbar)
     editGoToLineAction=editMenu->addAction(IconUtil::getIcon("goto_line"), tr("&Go to line..."), this, SLOT(goToLine()), QKeySequence("Ctrl+G"));
     editGoToLineAction->setStatusTip(tr("Go to line"));
 
+
+    connect(editResolveMenu, SIGNAL(aboutToShow()), this, SLOT(populateResolveMenu()));
 }
 
 QMenu *AppEditMenu::createCopyAsMenu(QWidget *parent)
@@ -119,6 +133,11 @@ QMenu *AppEditMenu::createCopyAsMenu(QWidget *parent)
 QWidget *AppEditMenu::findParentSearchPane() const
 {
     return WidgetHelper::findParentWidget(currentAppWidget, "CodeEditorAndSearchPaneWidget");
+}
+
+void AppEditMenu::createEditResolveMenu()
+{
+    editResolveMenu = new QMenu(tr("Object Menu"));
 }
 
 void AppEditMenu::updateActionStates(ConnectionPage * /*cnPage*/, ConnectionPageTab * /*cnPageTab*/)
@@ -157,6 +176,8 @@ void AppEditMenu::updateActionStatesForCodeEditor(CodeEditor *editor)
     editToLowerCaseAction->setEnabled(!isReadOnly);
     editCreateDuplicateAction->setEnabled(!isReadOnly);
     editRemoveEmptyLinesAction->setEnabled(!isReadOnly);
+
+    editResolveAction->setEnabled(true);
 
     editIncreaseFontSize->setEnabled(true);
     editDecreaseFontSize->setEnabled(true);
@@ -217,6 +238,8 @@ void AppEditMenu::focusWidgetChanged(QWidget * /*old*/, QWidget *now)
     editToLowerCaseAction->setEnabled(false);
     editCreateDuplicateAction->setEnabled(false);
     editRemoveEmptyLinesAction->setEnabled(false);
+
+    editResolveAction->setEnabled(false);
 
     editIncreaseFontSize->setEnabled(false);
     editDecreaseFontSize->setEnabled(false);
@@ -311,6 +334,65 @@ void AppEditMenu::makeDuplicate()
 void AppEditMenu::removeEmptyLines()
 {
     WidgetHelper::invokeSlot(currentAppWidget, "removeEmptyLines");
+}
+
+void AppEditMenu::populateResolveMenu()
+{
+    CodeEditor *editor = qobject_cast<CodeEditor*>(currentAppWidget);
+    if(!editor){
+        return;
+    }
+
+    WidgetHelper::deleteActions(editResolveMenu->actions());
+
+    QString currentObjectName = CodeEditorUtil::getCurrentObjectName(editor);
+
+    QAction *statusAction = editResolveMenu->addAction(currentObjectName.isEmpty() ? tr("No object selected") : tr("Resolving..."));
+    statusAction->setEnabled(false);
+
+    if(!currentObjectName.isEmpty()){
+        waitingForContextMenuObject = currentAppWidget;
+
+        IQueryScheduler *queryScheduler = currentConnectionPageTab();
+        queryScheduler->enqueueQuery("resolve_name", QList<Param*>() << new Param("object_name", currentObjectName),
+                                     this, "resolve_name", "resolveQueryCompleted", "resolveResultReady", "resolveFetchCompleted",
+                                     true);
+    }
+}
+
+void AppEditMenu::resolveQueryCompleted(const QueryResult &result)
+{
+    if(result.hasError){
+        QMessageBox::critical(currentAppWidget->window(), tr("Error resolving name"),
+                              result.exception.getErrorMessage());
+    }
+}
+
+void AppEditMenu::resolveResultReady(const FetchResult &result)
+{
+    if(waitingForContextMenuObject != currentAppWidget){
+        return;
+    }
+
+    if(result.hasError){
+        QMessageBox::critical(currentAppWidget->window(), tr("Error retrieving resolve result"),
+                          result.exception.getErrorMessage());
+
+        return;
+    }
+
+    DbTreeModel::DbTreeNodeType objectType = DbUtil::getDbObjectNodeTypeByTypeName(result.colValue("OBJECT_TYPE"));
+    QList<QAction*> objectActions = ContextMenuUtil::getActionsForObject(result.colValue("SCHEMA_NAME"), result.colValue("PART1"), "", objectType, uiManager());
+
+    WidgetHelper::deleteActions(editResolveMenu->actions());
+
+    editResolveMenu->setUpdatesEnabled(false);
+    editResolveMenu->addActions(objectActions);
+    editResolveMenu->setUpdatesEnabled(true);
+}
+
+void AppEditMenu::resolveFetchCompleted(const QString &)
+{
 }
 
 void AppEditMenu::showSearchWidget()

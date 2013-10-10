@@ -6,7 +6,6 @@
 #include "util/iconutil.h"
 #include "util/dialoghelper.h"
 #include "util/settingshelper.h"
-#include "util/savechangesutil.h"
 #include "connection_page/connectionpage.h"
 #include "app_menu/appmenu.h"
 #include "app_menu/appfilemenu.h"
@@ -63,12 +62,15 @@ void MainWindow::showConnectDialog()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    SettingsHelper::saveWindowPosition(this, "MainWindow");
-    SettingsHelper::saveStaticApplicationSettings();
-    AppMenu::defaultInstance()->getFileMenu()->saveRecentFileList();
+    bool canClose = connectionsPane->closeAll();
 
-    bool changesSaved = SaveChangesUtil::saveAll(connectionsPane, true, true);
-    event->setAccepted(changesSaved);
+    if(canClose){
+        SettingsHelper::saveWindowPosition(this, "MainWindow");
+        SettingsHelper::saveStaticApplicationSettings();
+        AppMenu::defaultInstance()->getFileMenu()->saveRecentFileList();
+    }
+
+    event->setAccepted(canClose);
 }
 
 /*

@@ -307,6 +307,11 @@ Resultset *Statement::rsAt(int index) const
     return resultsets.at(index);
 }
 
+QString Statement::getQuery() const
+{
+    return toQString(ociQuery);
+}
+
 /*void Statement::addRs(Resultset *rs)
 {
     resultsets.append(rs);

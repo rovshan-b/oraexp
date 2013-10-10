@@ -4,8 +4,10 @@
 #include "connectivity/dbconnection.h"
 #include "util/widgethelper.h"
 #include "util/savechangesutil.h"
+#include "util/savechangesutil.h"
 #include "dialogs/ctrltabdialog.h"
 #include "beans/dbconnectioninfo.h"
+#include "app_menu/appmenu.h"
 #include <QtGui>
 
 ConnectionsPane::ConnectionsPane(QWidget *parent) :
@@ -79,6 +81,21 @@ void ConnectionsPane::setTabTitle(QWidget *tab, DbConnectionInfo *connectionInfo
 void ConnectionsPane::tabBusyStateChanged(ConnectionPage *cnPage, bool busy)
 {
     setTabBusy(cnPage, busy);
+}
+
+bool ConnectionsPane::closeAll()
+{
+    bool changesSaved = SaveChangesUtil::saveAll(this, true, true);
+
+    if(changesSaved){
+        //call beforeClose for each tab
+        for(int i=0; i<count(); ++i){
+            ConnectionPage *cnPage = qobject_cast<ConnectionPage*>(widget(i));
+            cnPage->beforeClose();
+        }
+    }
+
+    return changesSaved;
 }
 
 void ConnectionsPane::closeTab(int index)

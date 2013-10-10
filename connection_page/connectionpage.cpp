@@ -59,6 +59,16 @@ void ConnectionPage::addWindow(ConnectionPageObject *window, const QPixmap &icon
 
 void ConnectionPage::beforeClose()
 {
+    if(!mainWidget){ //not connected yet
+        return;
+    }
+
+    //call beforeClose method of each tab
+    int count = mainWidget->tabCount();
+    for(int i=0; i<count; ++i){
+        ConnectionPageTab *tab = tabAt(i);
+        tab->beforeClose();
+    }
 }
 
 void ConnectionPage::closeTab(QWidget *widget)

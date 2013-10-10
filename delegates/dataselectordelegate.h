@@ -9,7 +9,11 @@ class DataSelectorDelegate : public LineEditWithButtonDelegate
 {
     Q_OBJECT
 public:
-    explicit DataSelectorDelegate(IQueryScheduler *queryScheduler, const QString &schema, const QString &objectName, QObject *parent);
+    explicit DataSelectorDelegate(IQueryScheduler *queryScheduler,
+                                  const QString &schema,
+                                  const QString &objectName,
+                                  const QString &dblinkName,
+                                  QObject *parent);
 
     void setQueryScheduler(IQueryScheduler *queryScheduler);
     
@@ -20,6 +24,7 @@ private:
     IQueryScheduler *queryScheduler;
     QString schema;
     QString objectName;
+    QString dblinkName;
 
     QString lastQuery;
     

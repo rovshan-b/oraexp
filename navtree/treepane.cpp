@@ -7,6 +7,8 @@
 TreePane::TreePane(DbUiManager *uiManager, QWidget *parent) :
     ConnectionPageTab(uiManager, parent)
 {
+    this->requiresSeparateConnection = false;
+
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
 
     dbTree=new DbTreeView();

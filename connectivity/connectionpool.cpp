@@ -31,7 +31,7 @@ void ConnectionPool::requestConnection(DbConnection *cloneOf, void *data)
     }
 
     DbConnection *newDb=cloneOf->clone();
-    AsyncConnect *asyncConnect=new AsyncConnect(newDb, servedFromBackup ? 0: data, QThread::currentThread(), this);
+    AsyncConnect *asyncConnect=new AsyncConnect(newDb, servedFromBackup ? 0 : data, QThread::currentThread(), this);
     connect(asyncConnect, SIGNAL(connectionEstablished(AsyncConnect*,DbConnection*,void*,bool,OciException)),
              this, SLOT(asyncConnectionEstablished(AsyncConnect*,DbConnection*,void*,bool,OciException)));
     asyncConnect->start();

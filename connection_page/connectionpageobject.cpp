@@ -14,6 +14,7 @@ ConnectionPageObject::~ConnectionPageObject()
 {
     if(requiresSeparateConnection && db!=0){
         delete db;
+        db = 0;
     }
 }
 
@@ -44,7 +45,7 @@ void ConnectionPageObject::decreaseRefCount()
 
 bool ConnectionPageObject::isBusy() const
 {
-    if(db==NULL){
+    if(db==0){
         return this->busy;
     }else{
         if(requiresSeparateConnection){

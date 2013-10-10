@@ -1,5 +1,6 @@
 #include "connectionpagewizard.h"
 #include "connectionpagewizardpage.h"
+#include "util/widgethelper.h"
 #include <QtGui>
 
 ConnectionPageWizard::ConnectionPageWizard(DbUiManager *uiManager, QWidget *parent) :
@@ -14,6 +15,8 @@ ConnectionPageWizard::ConnectionPageWizard(DbUiManager *uiManager, QWidget *pare
 
 ConnectionPageWizard::~ConnectionPageWizard()
 {
+    //WidgetHelper::deleteChildren(this); --causes crash
+
     qDebug("deleted ConnectionPageWizard");
 }
 

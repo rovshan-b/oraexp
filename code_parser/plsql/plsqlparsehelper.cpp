@@ -241,6 +241,82 @@ PlSqlTreeBuilder *PlSqlParseHelper::createParseTree(TextReaderBase *reader, bool
     return treeBuilder;
 }
 
+void PlSqlParseHelper::findTableNameInSelectQuery(const QString &query, QString *schemaName, QString *tableName, QString *dblink, const QString &defaultSchemaName)
+{
+    QScopedPointer<PlSqlScanner> scanner(new PlSqlScanner(new StringReader(query)));
+
+    bool inParenthesis = false;
+
+    int token;
+    do{
+        token = scanner->getNextToken();
+
+        if(token == PLS_LPAREN){
+            inParenthesis = true;
+        }else if(token == PLS_RPAREN && inParenthesis){
+            inParenthesis = false;
+        }else if(scanner->getTokenLexeme().compare("FROM", Qt::CaseInsensitive)==0 && !inParenthesis){ //found first not nested FROM keyword. next comes table name
+            PlSqlParseHelper::readTableName(scanner.data(), schemaName, tableName, dblink, defaultSchemaName);
+            qDebug() << "schemaName =" << *schemaName << ", tableName =" << *tableName << ", dblink =" << *dblink;
+            break;
+        }
+
+    }while(token!=PLS_E_O_F);
+}
+
+void PlSqlParseHelper::readTableName(PlSqlScanner *scanner, QString *schemaName, QString *tableName, QString *dblink, const QString &defaultSchemaName)
+{
+    int token = scanner->getNextToken();
+
+    if(token == PLS_ID || token == PLS_DOUBLEQUOTED_STRING){
+        *tableName = scanner->getTokenLexeme();
+    }
+
+    token = scanner->getNextToken();
+    if(token != PLS_DOT){
+        *schemaName = defaultSchemaName;
+    }else{
+        token = scanner->getNextToken();
+        if(token == PLS_ID || token == PLS_DOUBLEQUOTED_STRING){
+            *schemaName = *tableName;
+            *tableName = scanner->getTokenLexeme();
+        }
+
+        token = scanner->getNextToken();
+    }
+
+    if(token==PLS_AT_SIGN){
+        *dblink = PlSqlParseHelper::readMultiPartNameAsOne(scanner);
+    }
+
+    *schemaName = PlSqlParseHelper::cleanIdentifier(*schemaName);
+    *tableName = PlSqlParseHelper::cleanIdentifier(*tableName);
+}
+
+QString PlSqlParseHelper::readMultiPartNameAsOne(PlSqlScanner *scanner)
+{
+    return PlSqlParseHelper::readMultiPartName(scanner).join(".");
+}
+
+QStringList PlSqlParseHelper::readMultiPartName(PlSqlScanner *scanner)
+{
+    QStringList parts;
+
+    int token = scanner->getNextToken();
+    while(token == PLS_ID || token == PLS_DOUBLEQUOTED_STRING){
+        parts.append(scanner->getTokenLexeme());
+
+        token = scanner->getNextToken();
+        if(token != PLS_DOT){
+            break;
+        }
+
+        token = scanner->getNextToken();
+    }
+
+    return parts;
+}
+
 
 PlSqlParseHelper::PlSqlParseHelper()
 {

@@ -9,7 +9,7 @@ class ConnectionPageWindow : public QDialog, public ConnectionPageWindowObject
     Q_OBJECT
 public:
     explicit ConnectionPageWindow(DbUiManager *uiManager, QWidget *parent = 0);
-    ~ConnectionPageWindow();
+    virtual ~ConnectionPageWindow();
 
     virtual QObject *getQueryEndMonitor() {return this;}
     

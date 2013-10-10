@@ -21,7 +21,6 @@ bool Connection::environmentInitialized=false;
 
 void Connection::init()
 {
-    ociOwner=true;
     ociConnection=0;
     busy=false;
 }
@@ -39,16 +38,6 @@ Connection::Connection(const Connection &)
 Connection::~Connection()
 {
     disconnect();
-}
-
-void Connection::setOciOwner(bool newVal)
-{
-    ociOwner=newVal;
-}
-
-bool Connection::isOciOwner() const
-{
-    return ociOwner;
 }
 
 bool Connection::isBusy() const
@@ -157,15 +146,11 @@ void Connection::connect(QString tns, QString username, QString password, OraExp
 
 void Connection::disconnect()
 {
-    if(!ociOwner){
-        return;
-    }
-
     QMutexLocker locker(&mutex);
 
     if(ociConnection){
         OCI_ConnectionFree(ociConnection);
-        ociConnection=NULL;
+        ociConnection=0;
         cout << "terminated connection" << endl;
     }
 }

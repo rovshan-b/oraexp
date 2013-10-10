@@ -36,14 +36,13 @@ public:
     void connect();
     void disconnect();
 
+    static void printObjectCount();
+
     QString getTitle() const;
     QString getTnsName() const;
     QString getUsername() const;
     QString getPassword() const;
     void setPassword(const QString &password);
-
-    void setOciOwner(bool);
-    bool isOciOwner();
 
     bool isBusy() const;
 //    void setBusy(volatile bool busy);
@@ -117,6 +116,24 @@ private:
 
     unsigned int serverMajorVersion;
     unsigned int serverMinorVersion;
+
+#ifdef DEBUG
+    static QAtomicInt objectCount;
+#endif
+
+    void ref()
+    {
+#ifdef DEBUG
+        DbConnection::objectCount.ref();
+#endif
+    }
+
+    void deref()
+    {
+#ifdef DEBUG
+        DbConnection::objectCount.deref();
+#endif
+    }
 
 };
 

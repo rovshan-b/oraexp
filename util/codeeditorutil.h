@@ -12,6 +12,8 @@ public:
 
     static void markPosition(CodeEditor *editor, int pos);
 
+    static QString getCurrentObjectName(CodeEditor *editor);
+
 private:
     CodeEditorUtil();
 };

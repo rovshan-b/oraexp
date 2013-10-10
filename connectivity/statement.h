@@ -29,6 +29,7 @@ public:
     Resultset *rsAt(int index) const;
     //void addRs(Resultset *rs);
 
+    QString getQuery() const;
     OraExp::QueryType getStatementType() const {return this->statementType;}
     QString getStatementVerb() const {return this->verb;}
     int getAffectedRecordCount() const {return this->affectedRecordCount;}

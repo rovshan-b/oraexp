@@ -1,26 +1,29 @@
 #include "plaintexteditordialog.h"
-#include "ui_plaintexteditordialog.h"
+#include "util/dialoghelper.h"
+#include "codeeditor/codeeditor.h"
+#include <QtGui>
 
-PlainTextEditorDialog::PlainTextEditorDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::PlainTextEditorDialog)
+PlainTextEditorDialog::PlainTextEditorDialog(QWidget *parent, bool useCodeEditor) :
+    QDialog(parent)
 {
-    ui->setupUi(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout();
 
-    ui->plainTextEdit->setTabChangesFocus(true);
-}
+    editor = useCodeEditor ?  new CodeEditor() : new QPlainTextEdit();
+    mainLayout->addWidget(editor);
 
-PlainTextEditorDialog::~PlainTextEditorDialog()
-{
-    delete ui;
-}
+    mainLayout->addWidget(DialogHelper::createButtonBox(this));
 
-QString PlainTextEditorDialog::getEditorText() const
-{
-    return ui->plainTextEdit->toPlainText();
+    setLayout(mainLayout);
+
+    resize(400, 300);
 }
 
 void PlainTextEditorDialog::setEditorText(const QString &text)
 {
-    ui->plainTextEdit->setPlainText(text);
+    editor->setPlainText(text);
+}
+
+QString PlainTextEditorDialog::getEditorText() const
+{
+    return editor->toPlainText();
 }

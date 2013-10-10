@@ -12,6 +12,7 @@ class AppMainMenu : public QObject
     Q_OBJECT
 public:
     explicit AppMainMenu(QObject *parent = 0);
+    virtual ~AppMainMenu(){}
 
     ConnectionsPane *getConnectionsPane() const;
     DbUiManager *getUiManager() const;

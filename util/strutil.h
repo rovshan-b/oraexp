@@ -49,7 +49,7 @@ QString formatSecs(int secs);
 
 QString formatMsecs(int msecs, bool includeMsecs = false);
 
-QString joinEnclosed(const QStringList &list, const QString &join = ",", const QString &enclose = "\"");
+QString joinEnclosed(const QStringList &list, const QString &join = ",", const QString &enclose = "\"", int count = -1);
 
 QString enclose(const QString &str, const QString &enclose = "\"");
 
