@@ -249,6 +249,11 @@ void DataTableEditController::constraintFetched(const FetchResult &fetchResult)
     QStringList columns = fetchResult.colValue("COLUMNS").split(',', QString::SkipEmptyParts);
     foreach(const QString &column, columns){
         int colIx = model->getColumnMetadata()->getColumnIndexByName(column); //1 based
+
+        if(colIx == -1){ //column not selected in resultset
+            continue;
+        }
+
         DataSelectorDelegate *delegate = new DataSelectorDelegate(this->queryScheduler,
                                                                   fetchResult.colValue("R_OWNER"),
                                                                   fetchResult.colValue("R_TABLE_NAME"),

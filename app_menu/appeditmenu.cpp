@@ -8,6 +8,7 @@
 #include "connection_page/connectionpage.h"
 #include "connection_page/connectionpagetab.h"
 #include "codeeditor/codeeditor.h"
+#include "errors.h"
 #include <QtGui>
 
 AppEditMenu::AppEditMenu(QMenu *editMenu, QToolBar *toolbar, QObject *parent) : AppMainMenu(parent), currentAppWidget(0), waitingForContextMenuObject(0)
@@ -362,9 +363,15 @@ void AppEditMenu::populateResolveMenu()
 
 void AppEditMenu::resolveQueryCompleted(const QueryResult &result)
 {
+    Q_ASSERT(editResolveMenu->actions().size() == 1);
+
     if(result.hasError){
-        QMessageBox::critical(currentAppWidget->window(), tr("Error resolving name"),
-                              result.exception.getErrorMessage());
+        if(result.exception.getErrorCode() == ERR_OBJECT_DOES_NOT_EXIST){
+            editResolveMenu->actions().at(0)->setText(tr("Object does not exist"));
+        }else{
+            editResolveMenu->actions().at(0)->setText(tr("Error resolving object"));
+            qDebug() << "resolveQueryCompleted" << result.exception.getErrorMessage();
+        }
     }
 }
 
@@ -375,8 +382,10 @@ void AppEditMenu::resolveResultReady(const FetchResult &result)
     }
 
     if(result.hasError){
-        QMessageBox::critical(currentAppWidget->window(), tr("Error retrieving resolve result"),
-                          result.exception.getErrorMessage());
+        Q_ASSERT(editResolveMenu->actions().size() == 1);
+
+        editResolveMenu->actions().at(0)->setText(tr("Error resolving object"));
+        qDebug() << "resolveResultReady" << result.exception.getErrorMessage();
 
         return;
     }

@@ -17,7 +17,7 @@ unsigned int ResultsetColumnMetadata::getColumnIndexByName(const QString &colNam
     if(columnTitles.contains(colName)){
         return columnTitles.indexOf(colName)+1;
     }else{
-        throw std::logic_error(QObject::tr("Column does not exist in resultset - %1").arg(colName).toStdString());
+        return -1;
     }
 }
 
