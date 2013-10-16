@@ -4,7 +4,7 @@
     <item caption="Modify" icon="table_alter" handler="UiManagerInvoker" slotName="createEditor" param1="arg:schemaName" param2="arg:objectName" param3="arg:objectType" />
     <item caption="Create like" icon="table_copy" handler="UiManagerInvoker" slotName="createLikeEditor" param1="arg:schemaName" param2="arg:objectName" param3="arg:objectType" />
     <item caption="-" />
-    <item caption="Edit data" icon="edit" handler="UiManagerInvoker" slotName="createViewer" param1="arg:schemaName" param2="arg:objectName" param3="arg:objectType" tabIndex="1" />
+    <item caption="View/Edit data" icon="edit" handler="UiManagerInvoker" slotName="createViewer" param1="arg:schemaName" param2="arg:objectName" param3="arg:objectType" tabIndex="1" />
     <item caption="Compare data" icon="compare_data" handler="UiManagerInvoker" slotName="addDataComparer" param1="arg:schemaName" param2="arg:objectName" />
     <item caption="Copy data" icon="copy_data" handler="UiManagerInvoker" slotName="addDataCopier" param1="arg:schemaName" param2="arg:objectName" />
     <item caption="Export data" icon="export" handler="UiManagerInvoker" slotName="addDataExporter" param1="arg:schemaName" param2="arg:objectName" />

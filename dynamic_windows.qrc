@@ -3,9 +3,12 @@
         <file>dynamic_windows/DropTable.xml</file>
         <file>dynamic_windows/DropColumn.xml</file>
         <file>dynamic_windows/DropConstraint.xml</file>
-        <file>dynamic_windows/DropIndex.xml</file>
         <file>dynamic_windows/KillSessions.xml</file>
         <file>dynamic_windows/DisconnectSessions.xml</file>
         <file>dynamic_windows/StartStopSessionTrace.xml</file>
+        <file>dynamic_windows/DropView.xml</file>
+        <file>dynamic_windows/DropObject.xml</file>
+        <file>dynamic_windows/DropSchema.xml</file>
+        <file>dynamic_windows/DropPublicDbLink.xml</file>
     </qresource>
 </RCC>

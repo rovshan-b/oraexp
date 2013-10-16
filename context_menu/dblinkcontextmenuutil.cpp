@@ -18,7 +18,7 @@ QList<QAction *> DbLinkContextMenuUtil::getActionsForObject(const QString &schem
             createDbLinkAction->properties["public"]="yes";
         }
         results.append(createDbLinkAction);
-    }else if(itemType==DbTreeModel::DatabaseLink){
+    }else if(itemType==DbTreeModel::DatabaseLink || itemType==DbTreeModel::PublicDatabaseLink){
         //view
         DbItemAction *viewDbLinkAction=new DbItemAction(IconUtil::getIcon("dblink_view"), QObject::tr("View"),
                                                        schemaName, objectName, itemType,

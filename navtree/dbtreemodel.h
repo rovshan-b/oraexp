@@ -51,6 +51,7 @@ public:
         Type,
         Synonym,
         DatabaseLink,
+        PublicDatabaseLink,
         Schema,
 
         //third level
@@ -94,6 +95,7 @@ public:
         //}
     };
 
+    static QMetaEnum getNodeTypesEnum();
     static QString getDbTreeNodeName(DbTreeNodeType nodeType);
     static DbTreeNodeType getDbTreeNodeType(const QString &nodeTypeName);
 

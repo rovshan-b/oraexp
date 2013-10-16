@@ -534,7 +534,8 @@ SOURCES += main.cpp\
     delegates/dataselectordelegate.cpp \
     dialogs/orderbyoptionsdialog.cpp \
     dialogs/plaintexteditordialog.cpp \
-    controllers/datatableeditcontroller.cpp
+    controllers/datatableeditcontroller.cpp \
+    navtree/dblink/dbpublicdblinkitem.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1076,7 +1077,8 @@ HEADERS  += mainwindow.h \
     delegates/dataselectordelegate.h \
     dialogs/orderbyoptionsdialog.h \
     dialogs/plaintexteditordialog.h \
-    controllers/datatableeditcontroller.h
+    controllers/datatableeditcontroller.h \
+    navtree/dblink/dbpublicdblinkitem.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

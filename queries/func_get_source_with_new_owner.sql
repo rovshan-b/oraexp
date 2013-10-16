@@ -11,18 +11,23 @@
                                        p_remove_whitespace number := 0, p_wrap number := 0, p_sql_terminator number := 1) return clob is
       l_code clob;
       l_will_wrap number := 0;
+      l_ddl_object_type varchar2(100) := p_object_type;
     begin
          {@keep_if:>=10}
          if p_wrap = 1 and p_object_type in ('PACKAGE BODY', 'FUNCTION', 'PROCEDURE') then
             l_will_wrap := 1;
          end if;
          {}
+         
+         if l_ddl_object_type = 'DATABASE LINK' then
+            l_ddl_object_type := 'DB_LINK';
+         end if;
     
          if p_object_type = 'USER' then
              l_code := trim_str(DBMS_METADATA.GET_DDL ('USER', p_object_name)) || ';';
          else
              --l_code := trim_str(DBMS_METADATA.GET_DDL (replace(p_object_type, ' ', '_'), p_object_name, p_owner));
-             l_code := get_source_code(replace(p_object_type, ' ', '_'), p_owner, p_object_name, p_sql_terminator);
+             l_code := get_source_code(replace(l_ddl_object_type, ' ', '_'), p_owner, p_object_name, p_sql_terminator);
          end if;
                   
          replace_source_owner(p_owner, p_new_owner, p_object_name, p_object_type, l_code);

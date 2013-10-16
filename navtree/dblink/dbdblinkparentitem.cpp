@@ -1,6 +1,7 @@
 #include "dbdblinkparentitem.h"
 #include "connectivity/resultset.h"
 #include "dbdblinkitem.h"
+#include "dbpublicdblinkitem.h"
 
 #include <QList>
 
@@ -28,7 +29,10 @@ DbTreeItem *DbDbLinkParentItem::createNodeFromRecord(Resultset *rs)
     QString username=rs->getString(3);
     QString host=rs->getString(4);
 
-    DbDbLinkItem *dbLink = new DbDbLinkItem(dbLinkName, dbLinkName, this->getModel(), this);
+    DbDbLinkItem *dbLink = schemaName()=="PUBLIC" ?
+                            new DbPublicDbLinkItem(dbLinkName, dbLinkName, this->getModel(), this)
+                                :
+                            new DbDbLinkItem(dbLinkName, dbLinkName, this->getModel(), this);
     dbLink->setSchemaName(owner);
 
     dbLink->setTooltip(QObject::tr("Username: %1\nHost: %2").

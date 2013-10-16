@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window caption="Drop view" type="script" scriptFileName="generate_drop_view">
+    <widgets>
+        <widget name="schemaNameLabel" caption="Schema" type="Label" value="prop:schemaName" />
+        <widget name="viewNameLabel" caption="Table" type="Label" value="prop:objectName" />
+        <widget name="cascadeConstraintsCheckBox" caption="Cascade constraints" type="CheckBox" value="false" />
+    </widgets>
+</window>

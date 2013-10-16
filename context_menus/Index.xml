@@ -2,5 +2,5 @@
 <items>
     <item caption="Modify" icon="index_alter" isDefault="yes" handler="UiManagerInvoker" slotName="createEditor" 
               param1="arg:schemaName" param2="arg:parentObjectName" param3="Table" param4="Indexes" param5="arg:objectName" />
-    <item caption="Drop" icon="delete" handler="WindowLoader" windowName="DropIndex" />
+    <item caption="Drop" icon="delete" handler="WindowLoader" windowName="DropObject" />
 </items>

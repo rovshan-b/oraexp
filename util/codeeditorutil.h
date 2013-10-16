@@ -16,6 +16,8 @@ public:
 
 private:
     CodeEditorUtil();
+
+    static bool isWordChar(const QChar &c);
 };
 
 #endif // CODEEDITORUTIL_H

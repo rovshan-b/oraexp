@@ -1,4 +1,5 @@
 #include "dbitemdynamicaction.h"
+#include "util/dbutil.h"
 
 typedef QHash<QString, QString> QStringHash;
 
@@ -26,4 +27,5 @@ void DbItemDynamicAction::setProperties()
     properties["objectName"] = this->objectName;
     properties["parentObjectName"] = this->parentObjectName;
     properties["objectType"] = QString::number((int)this->itemType);
+    properties["objectTypeName"] = DbUtil::getDbObjectTypeNameByNodeType((DbTreeModel::DbTreeNodeType)this->itemType);
 }

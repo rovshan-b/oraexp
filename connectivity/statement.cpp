@@ -123,7 +123,7 @@ void Statement::bindParam(Param *parameter)
         OCI_BindString(ociStmt,
                        parameter->getParamName().toStdWString().c_str(),
                        (dtext*)parameter->data,
-                       dtslen((dtext*)parameter->data));
+                       parameter->getMaxStringLength());
         break;
     case Param::Double:
         OCI_BindDouble(ociStmt,
@@ -158,7 +158,7 @@ void Statement::bindParam(Param *parameter)
         break;
     case Param::StringList:
         this->bindArrayOfStrings(parameter->getParamName(), (dtext*)parameter->data,
-                                 parameter->getArrayMaxStringLength(), parameter->getArraySize());
+                                 parameter->getMaxStringLength(), parameter->getArraySize());
         break;
     default:
         Q_ASSERT(false);

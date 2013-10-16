@@ -116,7 +116,58 @@ void CodeEditorUtil::markPosition(CodeEditor *editor, int pos)
 
 QString CodeEditorUtil::getCurrentObjectName(CodeEditor *editor)
 {
-    Q_UNUSED(editor);
+    QTextCursor cur = editor->textCursor();
 
-    return "languages";
+    if(cur.hasSelection()){
+        return cur.selectedText();
+    }
+
+    int cursorPos = cur.position();
+    QTextDocument *doc = editor->document();
+    QChar c = doc->characterAt(cursorPos);
+
+    while(c.isSpace() && cursorPos>0){
+        c = doc->characterAt(--cursorPos);
+    }
+
+    if(cursorPos<=0){
+        return "";
+    }
+
+    cur.setPosition(cursorPos);
+
+    bool isWordChar = CodeEditorUtil::isWordChar(c);
+
+    if(!isWordChar){
+        return "";
+    }
+
+    //first move left
+    QString fullWord;
+    while(isWordChar){
+        fullWord.prepend(c);
+
+        c = doc->characterAt(--cursorPos);
+        isWordChar = CodeEditorUtil::isWordChar(c);
+    }
+
+    cursorPos = cur.position();
+
+    //now move right
+    c = doc->characterAt(++cursorPos);
+    isWordChar = CodeEditorUtil::isWordChar(c);
+
+    while(isWordChar){
+        fullWord.append(c);
+
+        c = doc->characterAt(++cursorPos);
+        isWordChar = CodeEditorUtil::isWordChar(c);
+    }
+
+    return fullWord;
+}
+
+bool CodeEditorUtil::isWordChar(const QChar &c)
+{
+    return PlSqlScanner::isIdCharacter(c) || c=='.' || c=='"';
 }

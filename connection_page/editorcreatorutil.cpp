@@ -78,6 +78,7 @@ ConnectionPageTab *EditorCreatorUtil::createEditor(const QString &schemaName,
     case DbTreeModel::DatabaseLinks:
     //case DbTreeModel::PublicDatabaseLinks:
     case DbTreeModel::DatabaseLink:
+    case DbTreeModel::PublicDatabaseLink:
         editor = new DbLinkCreator(schemaName, objectName, uiManager, creatorMode);
         break;
     case DbTreeModel::AllSchemas:
@@ -128,6 +129,7 @@ ConnectionPageTab *EditorCreatorUtil::createViewer(const QString &schemaName,
         viewer = new SynonymViewer(schemaName, objectName, uiManager);
         break;
     case DbTreeModel::DatabaseLink:
+    case DbTreeModel::PublicDatabaseLink:
         viewer = new DbLinkViewer(schemaName, objectName, uiManager);
         break;
     case DbTreeModel::Schema:

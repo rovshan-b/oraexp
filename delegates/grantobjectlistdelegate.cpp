@@ -10,6 +10,8 @@ GrantObjectListDelegate::GrantObjectListDelegate(IQueryScheduler *queryScheduler
 
 QWidget *GrantObjectListDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+    Q_UNUSED(option);
+
     DbItemListComboBox *editor=new DbItemListComboBox(this->initialValue, iconName, true, true, parent);
     editor->setInDelegateMode();
     editor->setIconColumn(2);

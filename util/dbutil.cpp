@@ -391,6 +391,7 @@ QString DbUtil::getDbObjectDisplayNameByNodeType(DbTreeModel::DbTreeNodeType nod
         result=QObject::tr("Database links");
         break;
     case DbTreeModel::PublicDatabaseLinks:
+    case DbTreeModel::PublicDatabaseLink:
         result=QObject::tr("Public database links");
         break;
     case DbTreeModel::AllSchemas:
@@ -472,9 +473,10 @@ QString DbUtil::getDbObjectTypeNameByNodeType(DbTreeModel::DbTreeNodeType nodeTy
         result="SYNONYM";
         break;
     case DbTreeModel::DatabaseLinks:
-    case DbTreeModel::PublicDatabaseLinks:
     case DbTreeModel::DatabaseLink:
-        result="DB_LINK";
+    case DbTreeModel::PublicDatabaseLinks:
+    case DbTreeModel::PublicDatabaseLink:
+        result="DATABASE LINK";
         break;
     case DbTreeModel::AllSchemas:
     case DbTreeModel::Schema:
@@ -536,6 +538,9 @@ DbTreeModel::DbTreeNodeType DbUtil::getDbObjectParentNodeType(DbTreeModel::DbTre
     case DbTreeModel::DatabaseLink:
         result=DbTreeModel::DatabaseLinks;
         break;
+    case DbTreeModel::PublicDatabaseLink:
+        result=DbTreeModel::PublicDatabaseLinks;
+        break;
     case DbTreeModel::Schema:
         result=DbTreeModel::AllSchemas;
         break;
@@ -583,7 +588,7 @@ DbTreeModel::DbTreeNodeType DbUtil::getDbObjectNodeTypeByTypeName(const QString 
         result = DbTreeModel::TypeBody;
     }else if(typeName=="SYNONYM"){
         result = DbTreeModel::Synonym;
-    }else if(typeName=="DB_LINK"){
+    }else if(typeName=="DATABASE LINK"){
         result = DbTreeModel::DatabaseLink;
     }else if(typeName=="USER" || typeName=="SCHEMA"){
         result = DbTreeModel::Schema;
@@ -650,6 +655,7 @@ QString DbUtil::getDbObjectIconNameByParentNodeType(DbTreeModel::DbTreeNodeType 
     case DbTreeModel::DatabaseLinks:
     case DbTreeModel::PublicDatabaseLinks:
     case DbTreeModel::DatabaseLink:
+    case DbTreeModel::PublicDatabaseLink:
         result="dblink";
         break;
     case DbTreeModel::AllSchemas:

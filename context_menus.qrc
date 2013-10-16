@@ -9,5 +9,18 @@
         <file>context_menus/Index.xml</file>
         <file>context_menus/Tables.xml</file>
         <file>context_menus/SessionBrowser.xml</file>
+        <file>context_menus/View.xml</file>
+        <file>context_menus/Function.xml</file>
+        <file>context_menus/Procedure.xml</file>
+        <file>context_menus/Package.xml</file>
+        <file>context_menus/PackageBody.xml</file>
+        <file>context_menus/Sequence.xml</file>
+        <file>context_menus/Type.xml</file>
+        <file>context_menus/TypeBody.xml</file>
+        <file>context_menus/Synonym.xml</file>
+        <file>context_menus/DatabaseLink.xml</file>
+        <file>context_menus/Schema.xml</file>
+        <file>context_menus/PublicDatabaseLink.xml</file>
+        <file>context_menus/Trigger.xml</file>
     </qresource>
 </RCC>

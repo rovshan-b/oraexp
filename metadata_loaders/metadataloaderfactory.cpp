@@ -44,6 +44,7 @@ MetadataLoader *MetadataLoaderFactory::createMetadataLoader(DbTreeModel::DbTreeN
     case DbTreeModel::DatabaseLinks:
     //case DbTreeModel::PublicDatabaseLinks:
     case DbTreeModel::DatabaseLink:
+    case DbTreeModel::PublicDatabaseLink:
         result=new DbLinkInfoLoader(queryScheduler, schemaName, objectName, parent);
         break;
     default:

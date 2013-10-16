@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window caption="Drop schema" type="script" scriptFileName="generate_drop_schema">
+    <widgets>
+        <widget name="objectNameLabel" caption="Schema" type="Label" value="prop:objectName" />
+        <widget name="cascadeCheckBox" caption="Cascade" type="CheckBox" value="false" />
+    </widgets>
+</window>

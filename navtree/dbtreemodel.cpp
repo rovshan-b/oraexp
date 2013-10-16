@@ -636,20 +636,23 @@ QModelIndex DbTreeModel::findByName(const QModelIndex &parent, const QString &na
     return QModelIndex();
 }
 
-QString DbTreeModel::getDbTreeNodeName(DbTreeModel::DbTreeNodeType nodeType)
+QMetaEnum DbTreeModel::getNodeTypesEnum()
 {
     const QMetaObject &mo = DbTreeModel::staticMetaObject;
     int enumIx = mo.indexOfEnumerator("DbTreeNodeType");
     QMetaEnum metaEnum = mo.enumerator(enumIx);
-    return metaEnum.valueToKey(nodeType);
+
+    return metaEnum;
+}
+
+QString DbTreeModel::getDbTreeNodeName(DbTreeModel::DbTreeNodeType nodeType)
+{
+    return DbTreeModel::getNodeTypesEnum().valueToKey(nodeType);
 }
 
 DbTreeModel::DbTreeNodeType DbTreeModel::getDbTreeNodeType(const QString &nodeTypeName)
 {
-    const QMetaObject &mo = DbTreeModel::staticMetaObject;
-    int enumIx = mo.indexOfEnumerator("DbTreeNodeType");
-    QMetaEnum metaEnum = mo.enumerator(enumIx);
-    int result = metaEnum.keyToValue(nodeTypeName.toStdString().c_str());
+    int result = DbTreeModel::getNodeTypesEnum().keyToValue(nodeTypeName.toStdString().c_str());
     Q_ASSERT(result != -1);
     return (DbTreeModel::DbTreeNodeType)result;
 }

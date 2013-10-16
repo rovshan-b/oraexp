@@ -5,10 +5,12 @@
         <file>scripts/func_drop_table_object.js</file>
         <file>scripts/generate_drop_constraint.js</file>
         <file>scripts/func_drop_object.js</file>
-        <file>scripts/generate_drop_index.js</file>
         <file>scripts/generate_kill_sessions.js</file>
         <file>scripts/func_kill_disconnect_sessions.js</file>
         <file>scripts/generate_disconnect_sessions.js</file>
         <file>scripts/generate_start_stop_trace.js</file>
+        <file>scripts/generate_drop_view.js</file>
+        <file>scripts/generate_drop_object.js</file>
+        <file>scripts/generate_drop_schema.js</file>
     </qresource>
 </RCC>

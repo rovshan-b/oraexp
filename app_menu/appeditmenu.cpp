@@ -348,10 +348,14 @@ void AppEditMenu::populateResolveMenu()
 
     QString currentObjectName = CodeEditorUtil::getCurrentObjectName(editor);
 
-    QAction *statusAction = editResolveMenu->addAction(currentObjectName.isEmpty() ? tr("No object selected") : tr("Resolving..."));
+    qDebug() << "currentObjectName =" << currentObjectName;
+
+    bool willResolve = !currentObjectName.isEmpty() && currentObjectName.length() < 250;
+
+    QAction *statusAction = editResolveMenu->addAction(willResolve ? tr("Resolving...") : tr("No object selected"));
     statusAction->setEnabled(false);
 
-    if(!currentObjectName.isEmpty()){
+    if(willResolve){
         waitingForContextMenuObject = currentAppWidget;
 
         IQueryScheduler *queryScheduler = currentConnectionPageTab();

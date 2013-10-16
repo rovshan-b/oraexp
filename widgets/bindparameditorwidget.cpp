@@ -33,6 +33,7 @@ BindParamEditorWidget::BindParamEditorWidget(QWidget *parent) :
     paramDirectionCombo->addItem(IconUtil::getIcon("right_arrow"), tr("In"));
     paramDirectionCombo->addItem(IconUtil::getIcon("left_arrow"), tr("Out"));
     paramDirectionCombo->addItem(IconUtil::getIcon("left_right_arrows"), tr("InOut"));
+    paramDirectionCombo->setCurrentIndex((int)Param::InOut);
     mainLayout->addWidget(paramDirectionCombo);
 
     mainLayout->setStretchFactor(valueEditor, 1);

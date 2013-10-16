@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window caption="Drop object" type="script" scriptFileName="generate_drop_object">
+    <widgets>
+        <widget name="objectTypeLabel" caption="Object type" type="Label" value="prop:objectTypeName" />
+        <widget name="schemaNameLabel" caption="Schema" type="Label" value="prop:schemaName" />
+        <widget name="objectNameLabel" caption="Object name" type="Label" value="prop:objectName" />
+    </widgets>
+</window>

@@ -68,7 +68,6 @@ CodeEditor::CodeEditor(bool enableCodeCollapsing, QWidget *parent) :
     new QShortcut(QKeySequence(tr("Ctrl+=", "CodeEditor|Increase font size")),
                   this, SLOT(increaseFontSize()), 0, Qt::WidgetWithChildrenShortcut);
 
-
     CodeEditor::fillTextShortcuts();
 
     //QCompleter *completer = new QCompleter(this);
@@ -180,8 +179,6 @@ int CodeEditor::lineMarkerAreaOffset() const
          updateLineNumberAreaWidth(0);
      }
  }
-
-
 
  void CodeEditor::highlightCurrentLine()
  {

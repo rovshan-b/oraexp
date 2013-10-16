@@ -8,6 +8,8 @@
 QAtomicInt Param::objectCount;
 #endif
 
+#define MIN_STR_OUT_PARAM_SIZE 500
+
 Param::~Param()
 {
     cleanup();
@@ -87,7 +89,7 @@ Param::Param(const QString &paramName, const QStringList &paramValue, int maxLen
     }
     dtext *charArray = new dtext[paramValue.size()*(calcMaxLength+1)];
     this->arraySize = paramValue.size();
-    this->arrayMaxStringLength = calcMaxLength;
+    this->maxStringLength = calcMaxLength;
 
     for(int i=0; i<paramValue.size(); ++i){
         copyStringToArray(charArray, i, calcMaxLength, paramValue.at(i).toStdWString().c_str());
@@ -107,8 +109,20 @@ void Param::initParam(const QString &paramName,
 
     switch(paramType){
     case String:
-        data=toOciString(*((QString*)paramValue));
+    {
+        const QString &strVal = *((QString*)paramValue);
+        int strLength = strVal.length();
+        if(direction == Param::In || strLength >= MIN_STR_OUT_PARAM_SIZE){
+            data=toOciString(strVal);
+            maxStringLength = strLength;
+        }else if(strLength < MIN_STR_OUT_PARAM_SIZE){ //InOut or Out. Allocate 500 bytes
+            data = new dtext[MIN_STR_OUT_PARAM_SIZE + 1];
+            strVal.toWCharArray((dtext*)data);
+            ((dtext*)data)[strVal.size()]=L'\0';
+            maxStringLength = MIN_STR_OUT_PARAM_SIZE;
+        }
         break;
+    }
     case Integer:
         data=new int(*((int*)paramValue));
         break;

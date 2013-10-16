@@ -41,6 +41,7 @@ public:
 
     QString getStrValue() const;
     void setStrValue(const QString &paramValue);
+    int getMaxStringLength() const {return this->maxStringLength;}
 
     int getIntValue() const;
     void setIntValue(int paramValue);
@@ -61,7 +62,6 @@ public:
     QString toString() const;
 
     int getArraySize() const {return this->arraySize;}
-    int getArrayMaxStringLength() const {return this->arrayMaxStringLength;}
 
     void *data;
 
@@ -73,7 +73,7 @@ private:
     ParamType type;
 
     int arraySize;
-    int arrayMaxStringLength;
+    int maxStringLength;
 
     void cleanup();
 
