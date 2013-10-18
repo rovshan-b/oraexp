@@ -20,8 +20,10 @@ signals:
     void connectionPaneStateChanged();
     void connectionPageStateChanged();
 
+    void canClose();
+
 public slots:
-    bool closeAll();
+    void closeAll();
     void closeTab(int index);
     void popOutTab();
     void ctrlTabPressed();

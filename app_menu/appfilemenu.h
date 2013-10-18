@@ -27,6 +27,11 @@ public:
 
 private slots:
     void showConnectDialog();
+    void reconnectAll();
+    void reconnectCurrentConnection();
+    void reconnectCurrentTab();
+
+    void enableReconnectMenuActions();
 
     void addWorksheet(){uiManager()->addWorksheet();}
     void showCreator();
@@ -38,6 +43,8 @@ private slots:
     void saveAll(){SaveChangesUtil::saveAll(getConnectionsPane(), false, false);}
 
     void populateConnectionMenu();
+
+    void exitApplication();
 
     QList<DbConnectionInfo*> getConnectionsByEnvironment(QList<DbConnectionInfo*> allConnections, OraExp::ConnectionEnvironment environment);
 
@@ -61,6 +68,8 @@ private:
 
     QMenu *connectionListMenu;
     void createConnectionListMenu();
+
+    QMenu *reconnectMenu;
 
     QMenu *fileNewMenu;
     void createFileNewMenu();

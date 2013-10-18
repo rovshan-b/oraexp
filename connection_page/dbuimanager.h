@@ -76,6 +76,8 @@ public slots:
     void openFile(const QString &fileName);
     void openRecentFile(const QString &filename);
 
+    ConnectionPage *getConnectionPage() const {return this->cnPage;}
+
     DbItemAction *getSenderAction() const;
 
     void closeTab(QWidget *widget);

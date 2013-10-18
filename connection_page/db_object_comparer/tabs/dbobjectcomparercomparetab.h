@@ -16,6 +16,7 @@ class DbConnection;
 class DbUiManager;
 class QPushButton;
 class QTabWidget;
+class ConnectionPageObject;
 
 class DbObjectComparerCompareTab : public QWidget, public QueryScheduler
 {
@@ -66,6 +67,7 @@ protected:
     virtual DbTreeModel::DbTreeNodeTypes getCheckableNodeTypes() const;
 
     DbUiManager *uiManager;
+    ConnectionPageObject *parentTab;
     QObject *parentQueryEndMonitor;
     IQueryScheduler *queryScheduler;
 

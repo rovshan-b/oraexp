@@ -23,6 +23,7 @@ AppFileMenu::~AppFileMenu()
     WidgetHelper::deleteActions(connectionListMenu->actions());
 
     delete connectionListMenu;
+    delete reconnectMenu;
     delete fileNewMenu;
     delete recentFilesMenu;
 }
@@ -38,6 +39,14 @@ void AppFileMenu::setupMenu(QMenu *fileMenu, QToolBar *toolbar)
     fileConnectToolbarAction->setMenu(connectionListMenu);
 
     toolbar->addAction(fileConnectToolbarAction);
+
+    QAction *reconnectAction = fileMenu->addAction(tr("Check connections"));
+    reconnectMenu = new QMenu();
+    reconnectMenu->addAction(IconUtil::getIcon("connect"), tr("All"), this, SLOT(reconnectAll()));
+    reconnectMenu->addAction(tr("Current connection"), this, SLOT(reconnectCurrentConnection()));
+    reconnectMenu->addAction(tr("Current tab"), this, SLOT(reconnectCurrentTab()));
+    reconnectAction->setMenu(reconnectMenu);
+    connect(reconnectMenu, SIGNAL(aboutToShow()), this, SLOT(enableReconnectMenuActions()));
 
     fileMenu->addSeparator();
     toolbar->addSeparator();
@@ -89,7 +98,7 @@ void AppFileMenu::setupMenu(QMenu *fileMenu, QToolBar *toolbar)
 
     fileMenu->addSeparator();
 
-    QAction *exitAction=fileMenu->addAction(IconUtil::getIcon("exit"), tr("E&xit"));
+    QAction *exitAction=fileMenu->addAction(IconUtil::getIcon("exit"), tr("E&xit"), this, SLOT(exitApplication()));
     exitAction->setStatusTip(tr("Quit application"));
 }
 
@@ -201,6 +210,49 @@ void AppFileMenu::showConnectDialog()
     getConnectionsPane()->addConnection(action->data().toString());
 }
 
+void AppFileMenu::reconnectAll()
+{
+}
+
+void AppFileMenu::reconnectCurrentConnection()
+{
+}
+
+void AppFileMenu::reconnectCurrentTab()
+{
+}
+
+void AppFileMenu::enableReconnectMenuActions()
+{
+    ConnectionsPane *cnPane = getConnectionsPane();
+    ConnectionPage *cnPage = cnPane->currentConnectionPage();
+
+    bool hasCurrentConnection = (cnPage != 0 && cnPage->isConnected());
+
+    reconnectMenu->actions().at(1)->setEnabled(hasCurrentConnection);
+
+    if(hasCurrentConnection){
+        int cnPageIx = cnPane->indexOf(cnPage);
+        reconnectMenu->actions().at(1)->setText(cnPane->tabText(cnPageIx));
+        reconnectMenu->actions().at(1)->setIcon(cnPane->tabIcon(cnPageIx));
+    }else{
+        reconnectMenu->actions().at(1)->setText(tr("Current connection"));
+        reconnectMenu->actions().at(1)->setIcon(QIcon());
+    }
+
+    ConnectionPageTab *cnPageTab = hasCurrentConnection ? cnPage->currentConnectionPageTab() : 0;
+    reconnectMenu->actions().at(2)->setEnabled(cnPageTab != 0);
+    if(cnPageTab){
+        int cnPageTabIx = cnPage->indexOf(cnPageTab);
+        reconnectMenu->actions().at(2)->setText(cnPage->tabText(cnPageTabIx));
+        reconnectMenu->actions().at(2)->setIcon(cnPage->tabIcon(cnPageTabIx));
+    }else{
+        reconnectMenu->actions().at(2)->setText(tr("Current tab"));
+        reconnectMenu->actions().at(2)->setIcon(QIcon());
+    }
+
+}
+
 void AppFileMenu::showCreator()
 {
     DbItemAction *action=static_cast<DbItemAction*>(sender());
@@ -242,6 +294,11 @@ void AppFileMenu::populateConnectionMenu()
     }
 
     qDeleteAll(allConnections);
+}
+
+void AppFileMenu::exitApplication()
+{
+    getConnectionsPane()->window()->close();
 }
 
 bool titleLessThan(DbConnectionInfo *info1, DbConnectionInfo *info2)

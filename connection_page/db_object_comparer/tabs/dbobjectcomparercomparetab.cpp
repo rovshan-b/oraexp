@@ -1,9 +1,11 @@
 #include "dbobjectcomparercomparetab.h"
 #include "util/widgethelper.h"
+#include "util/appconnectionmanager.h"
 #include "widgets/connectionselectorwidget.h"
 #include "widgets/dbitemlistcombobox.h"
 #include "widgets/subtabwidget.h"
 #include "widgets/dbtreeviewpanel.h"
+#include "connection_page/dbuimanager.h"
 #include "connectivity/dbconnection.h"
 #include <QtGui>
 
@@ -11,6 +13,8 @@ DbObjectComparerCompareTab::DbObjectComparerCompareTab(DbUiManager *uiManager, Q
     QWidget(parent), uiManager(uiManager), parentQueryEndMonitor(parent),
     queryScheduler(0), sourceSchemaComboBox(0), bottomPaneTab(0)
 {
+    parentTab = dynamic_cast<ConnectionPageObject*>(parent);
+    Q_ASSERT(parentTab);
 }
 
 void DbObjectComparerCompareTab::createUi()
@@ -128,6 +132,8 @@ void DbObjectComparerCompareTab::createItemsTable(QBoxLayout *layout)
 
 void DbObjectComparerCompareTab::targetConnectionEstablished(DbConnection *db)
 {
+    AppConnectionManager::registerConnection(uiManager->getConnectionPage(), parentTab, db);
+
     WidgetHelper::setComboBoxText(targetSchemaComboBox, db->getUsername());
 
     targetSchemaComboBox->loadItems(this, "get_schema_list");

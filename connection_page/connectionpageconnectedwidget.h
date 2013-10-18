@@ -32,6 +32,7 @@ public:
 
     ConnectionPageTab *currentConnectionPageTab() const;
     int tabCount() const{return this->centralTab->count();}
+    int indexOf(ConnectionPageTab *tab);
     ConnectionPageTab *tabAt(int index) const;
     QIcon tabIcon(int index) const;
     QString tabText(int index) const;

@@ -1,5 +1,6 @@
 #include "connectionselectorwidget.h"
 #include "util/dialoghelper.h"
+#include "util/appconnectionmanager.h"
 #include "widgets/lineeditwithautocompleter.h"
 #include "connectivity/dbconnection.h"
 #include "dialogs/connectdialog.h"
@@ -63,6 +64,6 @@ void ConnectionSelectorWidget::connectDialogClosed()
 void ConnectionSelectorWidget::cleanup()
 {
     if(this->db!=0){
-        delete this->db;
+        AppConnectionManager::deleteConnection(db);
     }
 }

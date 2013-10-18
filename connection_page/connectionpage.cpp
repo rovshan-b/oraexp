@@ -96,6 +96,13 @@ int ConnectionPage::tabCount() const
     }
 }
 
+int ConnectionPage::indexOf(ConnectionPageTab *tab)
+{
+    Q_ASSERT(mainWidget);
+
+    return mainWidget->indexOf(tab);
+}
+
 ConnectionPageTab *ConnectionPage::tabAt(int index) const
 {
     Q_ASSERT(mainWidget);

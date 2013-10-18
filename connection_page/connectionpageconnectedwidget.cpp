@@ -7,6 +7,7 @@
 #include "util/iconutil.h"
 #include "util/settingshelper.h"
 #include "util/dialoghelper.h"
+#include "util/appconnectionmanager.h"
 #include "beans/ctrltabdata.h"
 #include "connectionpagewindowobject.h"
 #include <iostream>
@@ -30,6 +31,7 @@ ConnectionPageConnectedWidget::ConnectionPageConnectedWidget(DbConnection *db, D
     treePane=new TreePane(uiManager, treeDock);
     connect(treePane, SIGNAL(busyStateChanged(ConnectionPageObject*,bool)), this, SLOT(tabBusyStateChanged(ConnectionPageObject*,bool)));
     treePane->setConnection(db);
+    AppConnectionManager::registerConnection(uiManager->getConnectionPage(), treePane, db);
 
     treeDock->setWidget(treePane);
     addDockWidget(Qt::LeftDockWidgetArea, treeDock);
@@ -53,7 +55,7 @@ ConnectionPageConnectedWidget::ConnectionPageConnectedWidget(DbConnection *db, D
 ConnectionPageConnectedWidget::~ConnectionPageConnectedWidget()
 {
     delete centralTab; //to ensure child tabs are not using connection
-    delete db;
+    AppConnectionManager::deleteConnection(db);
 }
 
 /*
@@ -171,6 +173,7 @@ void ConnectionPageConnectedWidget::asyncConnectionReady(DbConnection *db, void 
 
         widget->setUpdatesEnabled(false);
         obj->setConnection(db);
+        AppConnectionManager::registerConnection(uiManager->getConnectionPage(), obj, db);
         widget->setUpdatesEnabled(true);
     }
 }
@@ -210,6 +213,11 @@ ConnectionPageTab *ConnectionPageConnectedWidget::currentConnectionPageTab() con
 {
     ConnectionPageTab *cnPageTab=static_cast<ConnectionPageTab*>(centralTab->currentWidget());
     return cnPageTab;
+}
+
+int ConnectionPageConnectedWidget::indexOf(ConnectionPageTab *tab)
+{
+    return centralTab->indexOf(tab);
 }
 
 ConnectionPageTab *ConnectionPageConnectedWidget::tabAt(int index) const

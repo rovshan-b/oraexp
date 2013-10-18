@@ -83,7 +83,7 @@ void ConnectionsPane::tabBusyStateChanged(ConnectionPage *cnPage, bool busy)
     setTabBusy(cnPage, busy);
 }
 
-bool ConnectionsPane::closeAll()
+void ConnectionsPane::closeAll()
 {
     bool changesSaved = SaveChangesUtil::saveAll(this, true, true);
 
@@ -93,9 +93,9 @@ bool ConnectionsPane::closeAll()
             ConnectionPage *cnPage = qobject_cast<ConnectionPage*>(widget(i));
             cnPage->beforeClose();
         }
-    }
 
-    return changesSaved;
+        emit canClose();
+    }
 }
 
 void ConnectionsPane::closeTab(int index)

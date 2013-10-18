@@ -1,5 +1,6 @@
 #include "connectionpool.h"
 #include "util/asyncconnect.h"
+#include "util/appconnectionmanager.h"
 #include "dbconnection.h"
 #include <QMutexLocker>
 #include <QtDebug>
@@ -13,7 +14,7 @@ ConnectionPool::ConnectionPool(QObject *parent) :
 ConnectionPool::~ConnectionPool()
 {
     if(backupConnection!=0){
-        delete backupConnection;
+        AppConnectionManager::deleteConnection(backupConnection, false); //it is not registered
     }
 }
 

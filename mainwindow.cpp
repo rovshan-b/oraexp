@@ -37,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //connectionsPane->installEventFilter(this);
 
+    connect(connectionsPane, SIGNAL(canClose()), this, SLOT(canClose()));
+
     showConnectDialog();
 }
 
@@ -62,15 +64,18 @@ void MainWindow::showConnectDialog()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    bool canClose = connectionsPane->closeAll();
+    event->setAccepted(false);
 
-    if(canClose){
-        SettingsHelper::saveWindowPosition(this, "MainWindow");
-        SettingsHelper::saveStaticApplicationSettings();
-        AppMenu::defaultInstance()->getFileMenu()->saveRecentFileList();
-    }
+    connectionsPane->closeAll();
+}
 
-    event->setAccepted(canClose);
+void MainWindow::canClose()
+{
+    SettingsHelper::saveWindowPosition(this, "MainWindow");
+    SettingsHelper::saveStaticApplicationSettings();
+    AppMenu::defaultInstance()->getFileMenu()->saveRecentFileList();
+
+    qApp->quit();
 }
 
 /*

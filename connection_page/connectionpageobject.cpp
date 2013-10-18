@@ -1,5 +1,6 @@
 #include "connectionpageobject.h"
 #include "connectivity/dbconnection.h"
+#include "util/appconnectionmanager.h"
 
 ConnectionPageObject::ConnectionPageObject(DbUiManager *uiManager) :
     uiManager(uiManager),
@@ -13,7 +14,7 @@ ConnectionPageObject::ConnectionPageObject(DbUiManager *uiManager) :
 ConnectionPageObject::~ConnectionPageObject()
 {
     if(requiresSeparateConnection && db!=0){
-        delete db;
+        AppConnectionManager::deleteConnection(db);
         db = 0;
     }
 }

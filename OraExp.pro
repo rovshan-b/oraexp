@@ -23,7 +23,6 @@ CONFIG(debug,debug|release) {
 SOURCES += main.cpp\
         mainwindow.cpp \
     connectivity/dbconnection.cpp \
-    mytablewidgetitem.cpp \
     util/iconutil.cpp \
     passwordentrydialog.cpp \
     connectionspane.cpp \
@@ -535,11 +534,11 @@ SOURCES += main.cpp\
     dialogs/orderbyoptionsdialog.cpp \
     dialogs/plaintexteditordialog.cpp \
     controllers/datatableeditcontroller.cpp \
-    navtree/dblink/dbpublicdblinkitem.cpp
+    navtree/dblink/dbpublicdblinkitem.cpp \
+    util/appconnectionmanager.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
-    mytablewidgetitem.h \
     util/iconutil.h \
     passwordentrydialog.h \
     connectionspane.h \
@@ -1078,7 +1077,8 @@ HEADERS  += mainwindow.h \
     dialogs/orderbyoptionsdialog.h \
     dialogs/plaintexteditordialog.h \
     controllers/datatableeditcontroller.h \
-    navtree/dblink/dbpublicdblinkitem.h
+    navtree/dblink/dbpublicdblinkitem.h \
+    util/appconnectionmanager.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

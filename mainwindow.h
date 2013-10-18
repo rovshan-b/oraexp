@@ -23,6 +23,9 @@ protected:
     virtual void closeEvent(QCloseEvent *event);
     //virtual bool eventFilter(QObject *obj, QEvent *ev);
 
+private slots:
+    void canClose();
+
 private:
     Ui::MainWindow *ui;
     void createMenu();
