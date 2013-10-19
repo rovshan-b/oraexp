@@ -6,6 +6,7 @@
 #include "connectivity/ociexception.h"
 #include "connectivity/connectionpool.h"
 #include "widgets/connectionpagetabwidget.h"
+#include "interfaces/ideletelistener.h"
 
 class DbConnection;
 class QDockWidget;
@@ -15,7 +16,7 @@ class ConnectionPageWindowObject;
 class InfoPanel;
 class CtrlTabData;
 
-class ConnectionPageConnectedWidget : public QMainWindow
+class ConnectionPageConnectedWidget : public QMainWindow, public IDeleteListener
 {
     Q_OBJECT
 public:
@@ -26,8 +27,11 @@ public:
     void addTab(ConnectionPageTab *tab, const QPixmap &icon, const QString &title);
     void addWindow(ConnectionPageObject *window, const QPixmap &icon, const QString &title);
 
+    void beforeDelete(ConnectionPageObject *obj);
+
     //DbUiManager *getUiManager();
 
+    void beforeClose();
     void closeTab(QWidget *widget);
 
     ConnectionPageTab *currentConnectionPageTab() const;
@@ -75,6 +79,8 @@ private:
     ConnectionPool connectionPool;
 
     int busyCounter;
+
+    QList<ConnectionPageObject*> childObjects;
 
     void connectDockSignals(QDockWidget *dockWidget);
     

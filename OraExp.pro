@@ -535,7 +535,9 @@ SOURCES += main.cpp\
     dialogs/plaintexteditordialog.cpp \
     controllers/datatableeditcontroller.cpp \
     navtree/dblink/dbpublicdblinkitem.cpp \
-    util/appconnectionmanager.cpp
+    util/appconnectionmanager.cpp \
+    util/asyncdisconnect.cpp \
+    widgets/messagewidget.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1078,7 +1080,10 @@ HEADERS  += mainwindow.h \
     dialogs/plaintexteditordialog.h \
     controllers/datatableeditcontroller.h \
     navtree/dblink/dbpublicdblinkitem.h \
-    util/appconnectionmanager.h
+    util/appconnectionmanager.h \
+    interfaces/ideletelistener.h \
+    util/asyncdisconnect.h \
+    widgets/messagewidget.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

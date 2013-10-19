@@ -29,6 +29,8 @@ ConnectionPageConnectedWidget::ConnectionPageConnectedWidget(DbConnection *db, D
     treeDock->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable);
 
     treePane=new TreePane(uiManager, treeDock);
+    childObjects.append(treePane);
+    treePane->setDeleteListener(this);
     connect(treePane, SIGNAL(busyStateChanged(ConnectionPageObject*,bool)), this, SLOT(tabBusyStateChanged(ConnectionPageObject*,bool)));
     treePane->setConnection(db);
     AppConnectionManager::registerConnection(uiManager->getConnectionPage(), treePane, db);
@@ -56,6 +58,12 @@ ConnectionPageConnectedWidget::~ConnectionPageConnectedWidget()
 {
     delete centralTab; //to ensure child tabs are not using connection
     AppConnectionManager::deleteConnection(db);
+
+    //register backup connection if there is one so that it can be properly unregistered and disconnected
+    DbConnection *backupConnection = connectionPool.getBackupConnection();
+    if(backupConnection){
+        AppConnectionManager::registerConnection(uiManager->getConnectionPage(), 0, backupConnection);
+    }
 }
 
 /*
@@ -63,6 +71,30 @@ DbUiManager *ConnectionPageConnectedWidget::getUiManager()
 {
     return &uiManager;
 }*/
+
+void ConnectionPageConnectedWidget::beforeClose()
+{
+    //call beforClose method of each child and then delete
+
+    int childCount = childObjects.size();
+    while(childCount-- > 0){
+        ConnectionPageObject *obj = childObjects.at(0);
+        obj->beforeClose();
+
+        if(!obj->isWindow()){
+            ConnectionPageTab *tab = dynamic_cast<ConnectionPageTab*>(obj);
+            Q_ASSERT(tab);
+            int ix = indexOf(tab);
+            if(ix != -1){ //not tree pane
+                centralTab->removeTab(ix);
+            }
+        }
+
+        delete obj;
+    }
+
+    childObjects.clear();
+}
 
 void ConnectionPageConnectedWidget::closeTab(int index)
 {
@@ -108,6 +140,9 @@ void ConnectionPageConnectedWidget::closeTab(QWidget *widget)
 
 void ConnectionPageConnectedWidget::prepareObject(ConnectionPageObject *obj)
 {
+    childObjects.append(obj);
+    obj->setDeleteListener(this);
+
     QObject *objRef = dynamic_cast<QObject*>(obj);
     Q_ASSERT(objRef);
     connect(objRef, SIGNAL(busyStateChanged(ConnectionPageObject*,bool)), this, SLOT(tabBusyStateChanged(ConnectionPageObject*,bool)));
@@ -157,6 +192,16 @@ void ConnectionPageConnectedWidget::addWindow(ConnectionPageObject *window, cons
     }
 
     prepareObject(window);
+}
+
+void ConnectionPageConnectedWidget::beforeDelete(ConnectionPageObject *obj)
+{
+    Q_ASSERT(obj);
+    Q_ASSERT(childObjects.contains(obj));
+
+    childObjects.removeOne(obj);
+
+    Q_ASSERT(childObjects.size() >= 0);
 }
 
 void ConnectionPageConnectedWidget::asyncConnectionReady(DbConnection *db, void *data, bool error, const OciException &ex)

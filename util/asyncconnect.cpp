@@ -11,11 +11,6 @@ AsyncConnect::AsyncConnect(DbConnection *db, void *data, QThread *guiThread, QOb
 
 }
 
-AsyncConnect::~AsyncConnect()
-{
-    cout << "deleted AsyncConnect" << endl;
-}
-
 void AsyncConnect::run()
 {
     try{

@@ -6,6 +6,8 @@
 class MainWindow;
 class ConnectionsPane;
 class QMenu;
+class QMenuBar;
+class QToolBar;
 class AppFileMenu;
 class AppEditMenu;
 class AppViewMenu;
@@ -20,6 +22,8 @@ public:
     ~AppMenu();
 
     void setupMenu(MainWindow *mainWindow, ConnectionsPane *connectionsPane);
+    static void disableAll();
+    static bool isAllDisabled();
     static void cleanUp();
 
     static AppMenu *defaultInstance();
@@ -39,11 +43,16 @@ private:
 
     ConnectionsPane *connectionsPane;
 
+    QMenuBar *menuBar;
+    QToolBar *toolBar;
+
     AppFileMenu *appFileMenu;
     AppEditMenu *appEditMenu;
     AppViewMenu *appViewMenu;
     AppToolsMenu *appToolsMenu;
     AppHelpMenu *appHelpMenu;
+
+    bool allDisabled;
 };
 
 #endif // APPMENU_H

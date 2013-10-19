@@ -1,11 +1,12 @@
 #include "appconnectionmanager.h"
 #include "connection_page/connectionpagetab.h"
 #include "connectivity/dbconnection.h"
+#include "util/asyncdisconnect.h"
 
-QHash<ConnectionPage*, QHash<ConnectionPageObject*, QList<DbConnection*> > > AppConnectionManager::connectionList;
+AppConnectionManager *AppConnectionManager::instance = 0;
 QMutex AppConnectionManager::mutex;
 
-AppConnectionManager::AppConnectionManager()
+AppConnectionManager::AppConnectionManager() : activeConnectionCount(0)
 {
 }
 
@@ -13,27 +14,50 @@ void AppConnectionManager::registerConnection(ConnectionPage *cnPage, Connection
 {
     QMutexLocker locker(&AppConnectionManager::mutex);
 
-    Q_ASSERT(!AppConnectionManager::connectionList[cnPage][cnPageTab].contains(db));
+    Q_ASSERT(!AppConnectionManager::defaultInstance()->connectionList[cnPage][cnPageTab].contains(db));
 
-    AppConnectionManager::connectionList[cnPage][cnPageTab].append(db);
+    AppConnectionManager::defaultInstance()->connectionList[cnPage][cnPageTab].append(db);
+    ++AppConnectionManager::defaultInstance()->activeConnectionCount;
 }
 
-void AppConnectionManager::deleteConnection(DbConnection *db, bool unregister)
+void AppConnectionManager::deleteConnection(DbConnection *db)
 {
-    if(unregister){
-        AppConnectionManager::unregisterConnection(db);
+    AppConnectionManager::unregisterConnection(db);
+
+    AsyncDisconnect *asyncDisconnect = new AsyncDisconnect(db);
+    connect(asyncDisconnect, SIGNAL(disconnected(DbConnection*)), AppConnectionManager::defaultInstance(), SLOT(disconnected(DbConnection*)));
+    asyncDisconnect->start();
+}
+
+int AppConnectionManager::getActiveConnectionCount()
+{
+    return defaultInstance()->activeConnectionCount;
+}
+
+void AppConnectionManager::cleanup()
+{
+    delete AppConnectionManager::instance;
+    AppConnectionManager::instance = 0;
+}
+
+AppConnectionManager *AppConnectionManager::defaultInstance()
+{
+    if(!AppConnectionManager::instance){
+        AppConnectionManager::instance = new AppConnectionManager();
     }
 
-    delete db;
+    return AppConnectionManager::instance;
 }
 
 void AppConnectionManager::unregisterConnection(DbConnection *db)
 {
     QMutexLocker locker(&AppConnectionManager::mutex);
 
+    Q_ASSERT(AppConnectionManager::defaultInstance());
+
     bool removed = false;
 
-    QHashIterator<ConnectionPage*, QHash<ConnectionPageObject*, QList<DbConnection*> > > i1(AppConnectionManager::connectionList);
+    QHashIterator<ConnectionPage*, QHash<ConnectionPageObject*, QList<DbConnection*> > > i1(AppConnectionManager::defaultInstance()->connectionList);
     while (i1.hasNext()) {
         i1.next();
 
@@ -51,13 +75,24 @@ void AppConnectionManager::unregisterConnection(DbConnection *db)
             int ix = dbList.indexOf(db);
 
             if(ix!=-1){
-                AppConnectionManager::connectionList[i1.key()][i2.key()].removeOne(db);
+                AppConnectionManager::defaultInstance()->connectionList[i1.key()][i2.key()].removeOne(db);
                 removed = true;
             }
         }
     }
 
     Q_ASSERT(removed);
+}
+
+void AppConnectionManager::disconnected(DbConnection *db)
+{
+    Q_UNUSED(db);
+
+    --AppConnectionManager::defaultInstance()->activeConnectionCount;
+
+    Q_ASSERT(AppConnectionManager::defaultInstance()->activeConnectionCount >= 0);
+
+    emit connectionDisconnected(db);
 }
 
 QList<DbConnection *> AppConnectionManager::getAll()
@@ -77,9 +112,11 @@ QList<DbConnection *> AppConnectionManager::getByConnectionPageObject(Connection
 
 QList<DbConnection *> AppConnectionManager::getConnections(ConnectionPage *cnPage, ConnectionPageObject *cnPageTab)
 {
+    Q_ASSERT(AppConnectionManager::defaultInstance());
+
     QList<DbConnection*> result;
 
-    QHashIterator<ConnectionPage*, QHash<ConnectionPageObject*, QList<DbConnection*> > > i1(AppConnectionManager::connectionList);
+    QHashIterator<ConnectionPage*, QHash<ConnectionPageObject*, QList<DbConnection*> > > i1(AppConnectionManager::defaultInstance()->connectionList);
     while (i1.hasNext()) {
         i1.next();
 

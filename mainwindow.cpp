@@ -6,6 +6,7 @@
 #include "util/iconutil.h"
 #include "util/dialoghelper.h"
 #include "util/settingshelper.h"
+#include "util/appconnectionmanager.h"
 #include "connection_page/connectionpage.h"
 #include "app_menu/appmenu.h"
 #include "app_menu/appfilemenu.h"
@@ -37,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //connectionsPane->installEventFilter(this);
 
-    connect(connectionsPane, SIGNAL(canClose()), this, SLOT(canClose()));
+    connect(connectionsPane, SIGNAL(canExit()), this, SLOT(canExit()));
 
     showConnectDialog();
 }
@@ -50,6 +51,8 @@ MainWindow::~MainWindow()
 
     delete connectionsPane; //to ensure that child DbConnection destructors will be called before destroyEnvironment
     DbConnection::destroyEnvironment();
+
+    AppConnectionManager::cleanup();
 }
 
 void MainWindow::createMenu()
@@ -66,10 +69,24 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     event->setAccepted(false);
 
-    connectionsPane->closeAll();
+    if(AppMenu::isAllDisabled()){ //exiting
+        return;
+    }
+
+    if(connectionsPane->isBusy()){
+        QMessageBox::information(this->window(), tr("Application busy"),
+                                 tr("Cannot exit when there are ongoing database operations."));
+        return;
+    }
+
+    bool exiting = connectionsPane->closeAndExit();
+
+    if(exiting){
+        AppMenu::disableAll();
+    }
 }
 
-void MainWindow::canClose()
+void MainWindow::canExit()
 {
     SettingsHelper::saveWindowPosition(this, "MainWindow");
     SettingsHelper::saveStaticApplicationSettings();

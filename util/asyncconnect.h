@@ -11,7 +11,6 @@ class AsyncConnect : public QThread
     Q_OBJECT
 public:
     explicit AsyncConnect(DbConnection *db, void *data, QThread *guiThread, QObject *parent);
-    ~AsyncConnect();
 
 protected:
     virtual void run();

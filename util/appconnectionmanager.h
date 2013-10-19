@@ -8,15 +8,28 @@ class ConnectionPage;
 class ConnectionPageObject;
 class DbConnection;
 
-class AppConnectionManager
+class AppConnectionManager : public QObject
 {
+    Q_OBJECT
 public:
     static void registerConnection(ConnectionPage *cnPage, ConnectionPageObject *cnPageTab, DbConnection *db);
-    static void deleteConnection(DbConnection *db, bool unregister = true);
+    static void deleteConnection(DbConnection *db);
+
+    static int getActiveConnectionCount();
+
+    static void cleanup();
 
     static QList<DbConnection*> getAll();
     static QList<DbConnection*> getByConnectionPage(ConnectionPage *cnPage);
     static QList<DbConnection*> getByConnectionPageObject(ConnectionPageObject *cnPageTab);
+
+    static AppConnectionManager *defaultInstance();
+
+signals:
+    void connectionDisconnected(DbConnection *db);
+
+private slots:
+    void disconnected(DbConnection *db);
 
 private:
     AppConnectionManager();
@@ -25,9 +38,11 @@ private:
 
     static void unregisterConnection(DbConnection *db);
 
-    static QHash<ConnectionPage*, QHash<ConnectionPageObject*, QList<DbConnection*> > > connectionList;
-
     static QMutex mutex;
+
+    static AppConnectionManager *instance;
+    QHash<ConnectionPage*, QHash<ConnectionPageObject*, QList<DbConnection*> > > connectionList;
+    int activeConnectionCount;
 };
 
 #endif // APPCONNECTIONMANAGER_H

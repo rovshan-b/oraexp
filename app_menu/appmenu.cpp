@@ -13,7 +13,7 @@
 
 AppMenu *AppMenu::singleInstance=0;
 
-AppMenu::AppMenu() : appFileMenu(0)
+AppMenu::AppMenu() : appFileMenu(0), allDisabled(false)
 {
 }
 
@@ -43,8 +43,8 @@ void AppMenu::setupMenu(MainWindow *mainWindow, ConnectionsPane *connectionsPane
     connect(connectionsPane, SIGNAL(connectionPaneStateChanged()), this, SLOT(connectionsPaneStateChanged()));
     connect(connectionsPane, SIGNAL(connectionPageStateChanged()), this, SLOT(connectionsPaneStateChanged()));
 
-    QMenuBar *menuBar=mainWindow->menuBar();
-    QToolBar *toolBar=new QToolBar(QObject::tr("Main toolbar"), mainWindow);
+    menuBar=mainWindow->menuBar();
+    toolBar=new QToolBar(QObject::tr("Main toolbar"), mainWindow);
     toolBar->setIconSize(QSize(16,16));
     mainWindow->addToolBar(Qt::TopToolBarArea, toolBar);
 
@@ -65,8 +65,25 @@ void AppMenu::setupMenu(MainWindow *mainWindow, ConnectionsPane *connectionsPane
     connectionsPaneStateChanged();
 }
 
+void AppMenu::disableAll()
+{
+    defaultInstance()->menuBar->setEnabled(false);
+    defaultInstance()->toolBar->setEnabled(false);
+
+    defaultInstance()->allDisabled = true;
+}
+
+bool AppMenu::isAllDisabled()
+{
+    return defaultInstance()->allDisabled;
+}
+
 void AppMenu::connectionsPaneStateChanged()
 {
+    if(allDisabled){
+        return;
+    }
+
     ConnectionPage *cnPage=this->connectionsPane->currentConnectionPage();
     ConnectionPageTab *cnPageTab=cnPage ? cnPage->currentConnectionPageTab() : 0;
 

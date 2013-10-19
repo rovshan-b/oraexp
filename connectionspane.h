@@ -16,20 +16,26 @@ public:
     void addConnection(const QString &uuid = QString());
     ConnectionPage *currentConnectionPage() const;
 
+    bool isBusy() const;
+
 signals:
     void connectionPaneStateChanged();
     void connectionPageStateChanged();
 
-    void canClose();
+    void canExit();
 
 public slots:
-    void closeAll();
+    bool closeAndExit();
     void closeTab(int index);
     void popOutTab();
     void ctrlTabPressed();
     void setTabTitle(QWidget *tab, DbConnectionInfo *connectionInfo);
 
     void tabBusyStateChanged(ConnectionPage *cnPage, bool busy);
+
+private slots:
+    void checkConnectionCountAndExit();
+    void disconnected(DbConnection *db);
 
 protected:
     void contextMenuEvent(QContextMenuEvent* pEvent);

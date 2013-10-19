@@ -131,8 +131,6 @@ public:
     static QWidget *nestWidget(QWidget* widget, bool compact = false);
     static QWidget *nestWidgets(QList<QWidget *> widgets, Qt::Orientation orientation = Qt::Vertical, bool compact = false);
 
-    static QWidget *createMessageWidget(const QString &message);
-
     static QActionGroup *addSplitDirectionActions(QWidget *w, Qt::Orientation defaultOrientation = Qt::Horizontal);
 
     static void createAutoRefreshComboBox(QToolBar *toolbar, QWidget *receiver);

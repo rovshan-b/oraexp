@@ -7,12 +7,16 @@ ConnectionPageObject::ConnectionPageObject(DbUiManager *uiManager) :
     db(0),
     requiresSeparateConnection(true),
     busy(false),
-    activeQueryCount(0)
+    activeQueryCount(0),
+    deleteListener(0)
 {
 }
 
 ConnectionPageObject::~ConnectionPageObject()
 {
+    Q_ASSERT(deleteListener);
+    deleteListener->beforeDelete(this);
+
     if(requiresSeparateConnection && db!=0){
         AppConnectionManager::deleteConnection(db);
         db = 0;
@@ -55,6 +59,11 @@ bool ConnectionPageObject::isBusy() const
             return this->busy;
         }
     }
+}
+
+void ConnectionPageObject::setDeleteListener(IDeleteListener *deleteListener)
+{
+    this->deleteListener = deleteListener;
 }
 
 void ConnectionPageObject::beforeEnqueueQuery()

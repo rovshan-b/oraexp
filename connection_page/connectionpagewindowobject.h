@@ -11,6 +11,8 @@ public:
     virtual bool initiallyVisible() const{return true;}
 
     void showAndActivate();
+
+    virtual bool isWindow() const {return true;}
 };
 
 #endif // CONNECTIONPAGEWINDOWOBJECT_H

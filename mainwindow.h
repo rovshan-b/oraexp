@@ -24,7 +24,7 @@ protected:
     //virtual bool eventFilter(QObject *obj, QEvent *ev);
 
 private slots:
-    void canClose();
+    void canExit();
 
 private:
     Ui::MainWindow *ui;

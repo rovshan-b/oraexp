@@ -768,20 +768,6 @@ QWidget *WidgetHelper::nestWidgets(QList<QWidget *> widgets, Qt::Orientation ori
     return widget;
 }
 
-QWidget *WidgetHelper::createMessageWidget(const QString &message)
-{
-    QWidget *widget = new QWidget();
-
-    QHBoxLayout *layout = new QHBoxLayout();
-    QLabel *label = new QLabel(message);
-    layout->addWidget(label);
-    layout->setAlignment(label, Qt::AlignCenter);
-
-    widget->setLayout(layout);
-
-    return widget;
-}
-
 QActionGroup *WidgetHelper::addSplitDirectionActions(QWidget *w, Qt::Orientation defaultOrientation)
 {
     QActionGroup *splitDirectionGroup=new QActionGroup(w);

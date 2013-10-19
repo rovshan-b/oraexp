@@ -75,6 +75,8 @@ void SessionBrowser::setConnection(DbConnection *db)
 void SessionBrowser::beforeClose()
 {
     Settings::setValue(GROUP_COLS_SETTING_KEY, sessionViewer->getGroupByColumns());
+
+    ConnectionPageTab::beforeClose();
 }
 
 void SessionBrowser::createToolbar(QVBoxLayout *mainLayout)

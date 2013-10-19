@@ -19,6 +19,8 @@ public:
     void requestConnection(DbConnection *cloneOf, void *data);
     bool isBusy(){return this->busy>0;}
 
+    DbConnection *getBackupConnection() const;
+
 signals:
     void asyncConnectionReady(DbConnection *db, void *data, bool error, const OciException &ex);
 

@@ -1,6 +1,7 @@
 #include "savepreviewwidget.h"
 #include "widgets/subtabwidget.h"
 #include "widgets/codeeditorandsearchpanewidget.h"
+#include "widgets/messagewidget.h"
 #include "util/iconutil.h"
 #include "util/widgethelper.h"
 #include <QtGui>
@@ -14,7 +15,7 @@ SavePreviewWidget::SavePreviewWidget(QWidget *parent) :
     tab->setDocumentMode(false);
     mainLayout->addWidget(tab);
 
-    noPreviewWidget = WidgetHelper::createMessageWidget(tr("No preview available"));
+    noPreviewWidget = new MessageWidget(tr("No preview available"));
     noPreviewWidget->setVisible(false);
     mainLayout->addWidget(noPreviewWidget);
 

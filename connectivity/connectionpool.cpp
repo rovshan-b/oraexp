@@ -5,6 +5,7 @@
 #include <QMutexLocker>
 #include <QtDebug>
 #include <QMutexLocker>
+#include <QApplication>
 
 ConnectionPool::ConnectionPool(QObject *parent) :
     QObject(parent), backupConnection(0), backupCreationInProgress(false), busy(0)
@@ -14,12 +15,14 @@ ConnectionPool::ConnectionPool(QObject *parent) :
 ConnectionPool::~ConnectionPool()
 {
     if(backupConnection!=0){
-        AppConnectionManager::deleteConnection(backupConnection, false); //it is not registered
+        AppConnectionManager::deleteConnection(backupConnection); //it is not registered
     }
 }
 
 void ConnectionPool::requestConnection(DbConnection *cloneOf, void *data)
 {  
+    //Q_ASSERT(QApplication::instance()->thread() == QThread::currentThread());
+
     busy++;
 
     bool servedFromBackup=false;
@@ -36,6 +39,11 @@ void ConnectionPool::requestConnection(DbConnection *cloneOf, void *data)
     connect(asyncConnect, SIGNAL(connectionEstablished(AsyncConnect*,DbConnection*,void*,bool,OciException)),
              this, SLOT(asyncConnectionEstablished(AsyncConnect*,DbConnection*,void*,bool,OciException)));
     asyncConnect->start();
+}
+
+DbConnection *ConnectionPool::getBackupConnection() const
+{
+    return this->backupConnection;
 }
 
 void ConnectionPool::asyncConnectionEstablished(AsyncConnect *thread, DbConnection *db, void *data, bool error, const OciException &ex)
@@ -61,13 +69,11 @@ void ConnectionPool::asyncConnectionEstablished(AsyncConnect *thread, DbConnecti
 
 void ConnectionPool::createBackupConnection(DbConnection *cloneOf)
 {
-    mutex.lock();//review this part
+    QMutexLocker locker(&mutex);
 
     if(backupConnection!=0 || backupCreationInProgress){
         return;
     }
     backupCreationInProgress=true;
     requestConnection(cloneOf, 0);
-
-    mutex.unlock();
 }

@@ -5,7 +5,9 @@
 #include "util/widgethelper.h"
 #include "util/savechangesutil.h"
 #include "util/savechangesutil.h"
+#include "util/appconnectionmanager.h"
 #include "dialogs/ctrltabdialog.h"
+#include "widgets/messagewidget.h"
 #include "beans/dbconnectioninfo.h"
 #include "app_menu/appmenu.h"
 #include <QtGui>
@@ -52,6 +54,19 @@ ConnectionPage *ConnectionsPane::currentConnectionPage() const
     return 0;
 }
 
+bool ConnectionsPane::isBusy() const
+{
+    for(int i=0; i<count(); ++i){
+        ConnectionPage *pane = static_cast<ConnectionPage*>(widget(i));
+
+        if(pane->isBusy()){
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void ConnectionsPane::ctrlTabPressed()
 {
     ConnectionPage *cnPage = currentConnectionPage();
@@ -83,20 +98,62 @@ void ConnectionsPane::tabBusyStateChanged(ConnectionPage *cnPage, bool busy)
     setTabBusy(cnPage, busy);
 }
 
-void ConnectionsPane::closeAll()
+bool ConnectionsPane::closeAndExit()
 {
     bool changesSaved = SaveChangesUtil::saveAll(this, true, true);
 
     if(changesSaved){
         //call beforeClose for each tab
-        for(int i=0; i<count(); ++i){
-            ConnectionPage *cnPage = qobject_cast<ConnectionPage*>(widget(i));
+
+        setUpdatesEnabled(false);
+
+        while(count()>0){
+            ConnectionPage *cnPage = qobject_cast<ConnectionPage*>(widget(0));
             cnPage->beforeClose();
+            removeTab(0);
+            delete cnPage;
         }
 
-        emit canClose();
+        setUpdatesEnabled(true);
+    }
+
+    QTimer::singleShot(0, this, SLOT(checkConnectionCountAndExit()));
+
+    return changesSaved;
+}
+
+void ConnectionsPane::checkConnectionCountAndExit()
+{
+    int connectionCount = AppConnectionManager::getActiveConnectionCount();
+
+    if(connectionCount == 0){
+        emit canExit();
+        return;
+    }
+
+    connect(AppConnectionManager::defaultInstance(), SIGNAL(connectionDisconnected(DbConnection*)), this, SLOT(disconnected(DbConnection*)));
+
+    bar()->hide();
+    addTab(new MessageWidget(tr("Closing database connections (%1) ...").arg(connectionCount)), IconUtil::getIcon("exit"), tr("Exiting"));
+    updateMainWindowTitle();
+}
+
+void ConnectionsPane::disconnected(DbConnection *db)
+{
+    Q_UNUSED(db);
+
+    MessageWidget *w = static_cast<MessageWidget*>(widget(0));
+    Q_ASSERT(w);
+
+    int connectionCount = AppConnectionManager::getActiveConnectionCount();
+
+    if(connectionCount == 0){
+        emit canExit();
+    }else{
+        w->setMessage(tr("Closing database connections (%1) ...").arg(connectionCount));
     }
 }
+
 
 void ConnectionsPane::closeTab(int index)
 {

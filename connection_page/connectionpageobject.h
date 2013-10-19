@@ -2,6 +2,7 @@
 #define CONNECTIONPAGEOBJECT_H
 
 #include "util/queryscheduler.h"
+#include "interfaces/ideletelistener.h"
 
 class DbUiManager;
 class DbConnection;
@@ -25,6 +26,12 @@ public:
 
     bool isBusy() const;
 
+    virtual void beforeClose() {}
+
+    virtual bool isWindow() const {return false;}
+
+    void setDeleteListener(IDeleteListener *deleteListener);
+
 protected:
     DbUiManager *uiManager;
     DbConnection *db;
@@ -32,6 +39,8 @@ protected:
     bool busy;
 
     int activeQueryCount;
+
+    IDeleteListener *deleteListener;
 
     void beforeEnqueueQuery();
 
