@@ -1,7 +1,10 @@
 #include "appconnectionmanager.h"
 #include "connection_page/connectionpagetab.h"
+#include "connection_page/connectionpage.h"
 #include "connectivity/dbconnection.h"
+#include "connectivity/connectionpool.h"
 #include "util/asyncdisconnect.h"
+#include <QDebug>
 
 AppConnectionManager *AppConnectionManager::instance = 0;
 QMutex AppConnectionManager::mutex;
@@ -76,6 +79,12 @@ void AppConnectionManager::unregisterConnection(DbConnection *db)
 
             if(ix!=-1){
                 AppConnectionManager::defaultInstance()->connectionList[i1.key()][i2.key()].removeOne(db);
+                if(AppConnectionManager::defaultInstance()->connectionList[i1.key()][i2.key()].size()==0){
+                    AppConnectionManager::defaultInstance()->connectionList[i1.key()].remove(i2.key());
+                }
+                if(AppConnectionManager::defaultInstance()->connectionList[i1.key()].isEmpty()){
+                    AppConnectionManager::defaultInstance()->connectionList.remove(i1.key());
+                }
                 removed = true;
             }
         }
@@ -95,26 +104,26 @@ void AppConnectionManager::disconnected(DbConnection *db)
     emit connectionDisconnected(db);
 }
 
-QList<DbConnection *> AppConnectionManager::getAll()
+QList< Triple<ConnectionPage *, ConnectionPageObject *, DbConnection*> * > AppConnectionManager::getAll()
 {
     return AppConnectionManager::getConnections(0, 0);
 }
 
-QList<DbConnection *> AppConnectionManager::getByConnectionPage(ConnectionPage *cnPage)
+QList< Triple<ConnectionPage *, ConnectionPageObject *, DbConnection*> * > AppConnectionManager::getByConnectionPage(ConnectionPage *cnPage)
 {
     return AppConnectionManager::getConnections(cnPage, 0);
 }
 
-QList<DbConnection *> AppConnectionManager::getByConnectionPageObject(ConnectionPageObject *cnPageTab)
+QList< Triple<ConnectionPage *, ConnectionPageObject *, DbConnection*> * > AppConnectionManager::getByConnectionPageObject(ConnectionPageObject *cnPageTab)
 {
     return AppConnectionManager::getConnections(0, cnPageTab);
 }
 
-QList<DbConnection *> AppConnectionManager::getConnections(ConnectionPage *cnPage, ConnectionPageObject *cnPageTab)
+QList< Triple<ConnectionPage *, ConnectionPageObject *, DbConnection*> * > AppConnectionManager::getConnections(ConnectionPage *cnPage, ConnectionPageObject *cnPageTab)
 {
     Q_ASSERT(AppConnectionManager::defaultInstance());
 
-    QList<DbConnection*> result;
+    QList< Triple<ConnectionPage *, ConnectionPageObject *, DbConnection*> * > result;
 
     QHashIterator<ConnectionPage*, QHash<ConnectionPageObject*, QList<DbConnection*> > > i1(AppConnectionManager::defaultInstance()->connectionList);
     while (i1.hasNext()) {
@@ -140,7 +149,15 @@ QList<DbConnection *> AppConnectionManager::getConnections(ConnectionPage *cnPag
             const QList<DbConnection*> &dbList = i2.value();
 
             foreach(DbConnection *db, dbList){
-                result.append(db);
+                result.append(new Triple<ConnectionPage *, ConnectionPageObject *, DbConnection*>(i1.key(), i2.key(), db));
+            }
+        }
+
+        if(cnPageTab == 0 && i1.key()->isConnected()){
+            const ConnectionPool *connectionPool = i1.key()->getConnectionPool();
+            DbConnection *backupConnection = connectionPool->getBackupConnection();
+            if(backupConnection){
+                result.append(new Triple<ConnectionPage *, ConnectionPageObject *, DbConnection*>(i1.key(), 0, backupConnection));
             }
         }
     }

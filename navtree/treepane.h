@@ -18,6 +18,9 @@ public:
 
     virtual QSize sizeHint () const;
 
+    virtual QString getDisplayName() const;
+    virtual QIcon getIcon() const;
+
 private:
     DbTreeView *dbTree;
     //QToolButton *refreshButton;

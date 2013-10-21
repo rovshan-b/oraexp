@@ -91,7 +91,7 @@ int ConnectionPage::tabCount() const
     }
 }
 
-int ConnectionPage::indexOf(ConnectionPageTab *tab)
+int ConnectionPage::indexOf(const ConnectionPageTab *tab) const
 {
     Q_ASSERT(mainWidget);
 
@@ -161,6 +161,13 @@ QList<ConnectionPageTab *> ConnectionPage::getTabsByConnection(DbConnection *db,
     Q_ASSERT(mainWidget);
 
     return mainWidget->getTabsByConnection(db, className, limit);
+}
+
+const ConnectionPool *ConnectionPage::getConnectionPool() const
+{
+    Q_ASSERT(mainWidget);
+
+    return mainWidget->getConnectionPool();
 }
 
 void ConnectionPage::closeTab(int index)

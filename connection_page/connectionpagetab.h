@@ -32,9 +32,12 @@ public:
 
     virtual void highlightChildObject(){}
 
-    QString getTitle() const;
+    virtual QString getTitle() const;
     void setTitle(const QString &title);
     void setCaption(const QString &caption);
+
+    virtual QString getDisplayName() const;
+    virtual QIcon getIcon() const;
 
     QString getTabId() const;
     void setTabId(const QString &tabId);

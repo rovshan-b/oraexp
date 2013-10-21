@@ -20,6 +20,16 @@ ConnectionPageWizard::~ConnectionPageWizard()
     qDebug("deleted ConnectionPageWizard");
 }
 
+QString ConnectionPageWizard::getDisplayName() const
+{
+    return windowTitle();
+}
+
+QIcon ConnectionPageWizard::getIcon() const
+{
+    return windowIcon();
+}
+
 void ConnectionPageWizard::emitInitCompletedSignal()
 {
     emit initCompleted(this);

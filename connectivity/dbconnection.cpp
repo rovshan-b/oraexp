@@ -18,9 +18,9 @@ DbConnection::DbConnection() : queueManager(0)
     ref();
 }
 
-DbConnection::DbConnection(const QString title, const QString tnsName,
-                           const QString username, const QString password, OraExp::ConnectAs connectAs) :
-                           title(title), tnsName(tnsName), username(username),
+DbConnection::DbConnection(const QString title, OraExp::ConnectionEnvironment environment,
+                           const QString tnsName, const QString username, const QString password, OraExp::ConnectAs connectAs) :
+                           title(title), environment(environment), tnsName(tnsName), username(username),
                            password(password), connectAs(connectAs), queueManager(0),
                            serverMajorVersion(0), serverMinorVersion(0)
 
@@ -142,6 +142,11 @@ QString DbConnection::retrieveDbmsOutput()
     return connection.retrieveDbmsOutput();
 }
 
+void DbConnection::breakCurrentQuery()
+{
+    connection.breakCurrentQuery();
+}
+
 int DbConnection::getMaxIdentifierLength()
 {
     return MAX_IDENTIFIER_LENGTH;
@@ -157,7 +162,7 @@ int DbConnection::getMaxIdentifierLength()
 
 DbConnection *DbConnection::clone()
 {
-    DbConnection *newDb=new DbConnection(this->title, this->tnsName, this->username, this->password, this->connectAs);
+    DbConnection *newDb=new DbConnection(this->title, this->environment, this->tnsName, this->username, this->password, this->connectAs);
     return newDb;
 }
 
@@ -215,6 +220,11 @@ int DbConnection::compareVersion(DbConnection *other)
 QString DbConnection::getTitle() const
 {
     return title;
+}
+
+OraExp::ConnectionEnvironment DbConnection::getEnvironment() const
+{
+    return environment;
 }
 
 QString DbConnection::getTnsName() const

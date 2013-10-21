@@ -231,6 +231,8 @@ void WorksheetQueryPane::stopCurrentQuery()
         sequentialRunner.stop();
         stopProgressAction->setVisible(false);
     }
+
+    queryScheduler->getDb()->breakCurrentQuery();
 }
 
 void WorksheetQueryPane::autotraceTriggeredByUser(bool checked)

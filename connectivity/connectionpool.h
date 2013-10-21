@@ -22,6 +22,9 @@ public:
     DbConnection *getBackupConnection() const;
 
 signals:
+    void working(bool isWorking);
+
+signals:
     void asyncConnectionReady(DbConnection *db, void *data, bool error, const OciException &ex);
 
 private slots:

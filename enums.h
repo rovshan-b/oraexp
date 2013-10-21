@@ -136,6 +136,13 @@ namespace OraExp
         ConnectAsSysdba,
         ConnectAsSysoper
     };
+
+    enum ReconnectMode
+    {
+        ReconnectModeAll,
+        ReconnectModeCurrentConnection,
+        ReconnectModeCurrentTab
+    };
 }
 
 #endif // ENUMS_H

@@ -1,4 +1,5 @@
 #include "connectionpagetab.h"
+#include "connectionpage.h"
 #include "connection_page/dbuimanager.h"
 #include "util/dialoghelper.h"
 #include "util/widgethelper.h"
@@ -63,6 +64,18 @@ QList<ConnectionPageTab *> ConnectionPageTab::getPeerTabs(int limit) const
 void ConnectionPageTab::setCaption(const QString &caption)
 {
     emit captionChanged(this, caption);
+}
+
+QString ConnectionPageTab::getDisplayName() const
+{
+    ConnectionPage *cnPage = uiManager->getConnectionPage();
+    return cnPage->tabText(cnPage->indexOf(this));
+}
+
+QIcon ConnectionPageTab::getIcon() const
+{
+    ConnectionPage *cnPage = uiManager->getConnectionPage();
+    return cnPage->tabIcon(cnPage->indexOf(this));
 }
 
 void ConnectionPageTab::emitInitCompletedSignal()

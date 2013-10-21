@@ -72,9 +72,9 @@ void AppFileMenu::setupMenu(QMenu *fileMenu, QToolBar *toolbar)
 
     fileMenu->addSeparator();
 
-    fileCloseAction=fileMenu->addAction(IconUtil::getIcon("fileclose"), tr("&Close"));
+    fileCloseAction=fileMenu->addAction(IconUtil::getIcon("fileclose"), tr("&Close"), this, SLOT(closeCurrent()));
     fileCloseAction->setStatusTip(tr("Close active tab"));
-    fileCloseAllAction=fileMenu->addAction(tr("Close &All"));
+    fileCloseAllAction=fileMenu->addAction(tr("Close &All"), this, SLOT(closeAll()));
     fileCloseAllAction->setStatusTip(tr("Close all tabs"));
 
     fileMenu->addSeparator();
@@ -162,6 +162,9 @@ void AppFileMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *
     filePrintAction->setEnabled(cnPageTab!=0 && cnPageTab->canPrint());
     filePrintPreviewAction->setEnabled(cnPageTab!=0 && cnPageTab->canPrint());
 
+    fileCloseAction->setEnabled(cnPage != 0);
+    fileCloseAllAction->setEnabled(cnPage != 0);
+
 }
 
 void AppFileMenu::addToRecentFileList(const QString &fileName)
@@ -212,14 +215,17 @@ void AppFileMenu::showConnectDialog()
 
 void AppFileMenu::reconnectAll()
 {
+    getConnectionsPane()->reconnect(OraExp::ReconnectModeAll);
 }
 
 void AppFileMenu::reconnectCurrentConnection()
 {
+    getConnectionsPane()->reconnect(OraExp::ReconnectModeCurrentConnection);
 }
 
 void AppFileMenu::reconnectCurrentTab()
 {
+    getConnectionsPane()->reconnect(OraExp::ReconnectModeCurrentTab);
 }
 
 void AppFileMenu::enableReconnectMenuActions()
@@ -294,6 +300,16 @@ void AppFileMenu::populateConnectionMenu()
     }
 
     qDeleteAll(allConnections);
+}
+
+void AppFileMenu::closeCurrent()
+{
+    getConnectionsPane()->closeCurrentTab();
+}
+
+void AppFileMenu::closeAll()
+{
+    getConnectionsPane()->closeAll(false);
 }
 
 void AppFileMenu::exitApplication()

@@ -68,3 +68,8 @@ void ExistingTableOptionsWidget::setFlashbackEnabled(bool enabled, const QString
 
     //etFlashbackArchive->setChecked(enabled);
 }
+
+void ExistingTableOptionsWidget::checkPartitionsBox(bool check)
+{
+    etPartitions->setChecked(check);
+}

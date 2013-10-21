@@ -22,7 +22,7 @@ void AppViewMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *
 
 void AppViewMenu::setupMenu(QMenu *viewMenu, QToolBar */*toolbar*/)
 {
-    viewDatabaseObjectsAction=viewMenu->addAction(IconUtil::getIcon("database"), tr("&Database objects"),
+    viewDatabaseObjectsAction=viewMenu->addAction(IconUtil::getIcon("tree"), tr("&Database objects"),
                                                   this, SLOT(toggleDbObjectsTree()), QKeySequence("F12"));
     viewDatabaseObjectsAction->setStatusTip(tr("Show/Hide database objects pane"));
     viewDatabaseObjectsAction->setCheckable(true);

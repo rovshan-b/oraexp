@@ -36,10 +36,11 @@ DbUiManager::DbUiManager(QObject *parent) :
 
 DbUiManager::~DbUiManager()
 {
-    if(objectLookupDialog){
-        delete objectLookupDialog;
-        objectLookupDialog = 0;
-    }
+    //will be deleted as one of child objects in ConnectionPage::beforeClose
+    //if(objectLookupDialog){
+    //    delete objectLookupDialog;
+    //    objectLookupDialog = 0;
+    //}
 }
 
 void DbUiManager::setConnection(DbConnection *db)

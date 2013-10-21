@@ -47,7 +47,7 @@ bool UserCreatorPane::beforeAlter() const
 
 QString UserCreatorPane::getSchemaName() const
 {
-    return "";
+    return userCreatorTabs->getUserName();
 }
 
 QString UserCreatorPane::getObjectName() const

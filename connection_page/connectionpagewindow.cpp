@@ -20,6 +20,16 @@ ConnectionPageWindow::~ConnectionPageWindow()
     qDebug("deleted ConnectionPageWindow");
 }
 
+QString ConnectionPageWindow::getDisplayName() const
+{
+    return windowTitle();
+}
+
+QIcon ConnectionPageWindow::getIcon() const
+{
+    return windowIcon();
+}
+
 void ConnectionPageWindow::emitInitCompletedSignal()
 {
     emit initCompleted(this);

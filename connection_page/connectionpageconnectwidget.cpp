@@ -272,6 +272,7 @@ void ConnectionPageConnectWidget::connectToDb(bool test)
     emit busyStateChanged(true);
 
     DbConnection *db = new DbConnection(connectionInfo->title,
+                                        connectionInfo->environment,
                                         connectionInfo->connectionString,
                                         connectionInfo->username,
                                         connectionInfo->password,

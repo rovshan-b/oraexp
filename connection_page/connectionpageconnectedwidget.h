@@ -36,7 +36,7 @@ public:
 
     ConnectionPageTab *currentConnectionPageTab() const;
     int tabCount() const{return this->centralTab->count();}
-    int indexOf(ConnectionPageTab *tab);
+    int indexOf(const ConnectionPageTab *tab) const;
     ConnectionPageTab *tabAt(int index) const;
     QIcon tabIcon(int index) const;
     QString tabText(int index) const;
@@ -50,6 +50,8 @@ public:
     void setCurrentTab(QWidget *widget);
 
     ConnectionPageTab *findTabById(const QString &tabId) const;
+
+    const ConnectionPool *getConnectionPool() const;
 
     static QByteArray currentState;
 
@@ -68,6 +70,9 @@ public slots:
     void restoreWindowState();
 
     void changeTabCaption(ConnectionPageTab *tab, const QString &caption);
+
+private slots:
+    void connectionPoolWorking(bool isWorking);
 
 private:
     DbConnection *db;

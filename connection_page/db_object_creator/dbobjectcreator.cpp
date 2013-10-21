@@ -135,7 +135,8 @@ void DbObjectCreator::executeNextCreateQuery()
        stopProgress();
 
        uiManager->createViewer(creatorPane->getSchemaName().toUpper(), creatorPane->getObjectName().toUpper(), this->objectType);
-       uiManager->closeTab(this);
+
+       QTimer::singleShot(0, this, SLOT(closeThis()));
 
        return;
     }
@@ -284,6 +285,11 @@ void DbObjectCreator::cancel()
     if(confirmed==QMessageBox::Yes){
         uiManager->closeTab(this);
     }
+}
+
+void DbObjectCreator::closeThis()
+{
+    uiManager->closeTab(this);
 }
 
 void DbObjectCreator::startProgress()

@@ -32,6 +32,9 @@ public:
 
     void setDeleteListener(IDeleteListener *deleteListener);
 
+    virtual QString getDisplayName() const = 0;
+    virtual QIcon getIcon() const = 0;
+
 protected:
     DbUiManager *uiManager;
     DbConnection *db;

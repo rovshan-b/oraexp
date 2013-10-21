@@ -138,6 +138,10 @@ void Connection::connect(QString tns, QString username, QString password, OraExp
 
     cout << "connected" << endl;
 
+    if(username.isEmpty()){ //domain authentication
+        this->dbSchemaName = toQString(OCI_GetUserName(ociConnection));
+    }
+
     cout << "turning on dbms_output" << endl;
     OCI_ServerEnableOutput(ociConnection, 32000, 5, 255);
 
@@ -204,6 +208,13 @@ QueryResult Connection::executeQuery(const QString &query,
     setBusy(false);
 
     return result;
+}
+
+void Connection::breakCurrentQuery()
+{
+    Q_ASSERT(this->ociConnection);
+
+    OCI_Break(this->ociConnection);
 }
 
 QString Connection::retrieveDbmsOutput()

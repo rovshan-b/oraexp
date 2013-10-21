@@ -2,6 +2,7 @@
 #include "widgets/dbtreeview.h"
 #include "interfaces/iqueryscheduler.h"
 #include "connectivity/dbconnection.h"
+#include "util/iconutil.h"
 #include <QtGui>
 
 TreePane::TreePane(DbUiManager *uiManager, QWidget *parent) :
@@ -34,6 +35,16 @@ void TreePane::setConnection(DbConnection *db)
 QSize TreePane::sizeHint() const
 {
     return QSize(200, 200);
+}
+
+QString TreePane::getDisplayName() const
+{
+    return tr("Objects tree");
+}
+
+QIcon TreePane::getIcon() const
+{
+    return IconUtil::getIcon("tree");
 }
 
 void TreePane::populateTree()

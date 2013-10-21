@@ -44,6 +44,9 @@ private slots:
 
     void populateConnectionMenu();
 
+    void closeCurrent();
+    void closeAll();
+
     void exitApplication();
 
     QList<DbConnectionInfo*> getConnectionsByEnvironment(QList<DbConnectionInfo*> allConnections, OraExp::ConnectionEnvironment environment);

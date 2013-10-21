@@ -50,6 +50,7 @@ ConnectionPageConnectedWidget::ConnectionPageConnectedWidget(DbConnection *db, D
     connect(centralTab, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
     connect(&connectionPool, SIGNAL(asyncConnectionReady(DbConnection*,void*,bool,OciException)),
             this, SLOT(asyncConnectionReady(DbConnection*,void*,bool,OciException)));
+    connect(&connectionPool, SIGNAL(working(bool)), this, SLOT(connectionPoolWorking(bool)));
 
     QTimer::singleShot(0, this, SLOT(restoreWindowState()));
 }
@@ -260,9 +261,15 @@ ConnectionPageTab *ConnectionPageConnectedWidget::currentConnectionPageTab() con
     return cnPageTab;
 }
 
-int ConnectionPageConnectedWidget::indexOf(ConnectionPageTab *tab)
+int ConnectionPageConnectedWidget::indexOf(const ConnectionPageTab *tab) const
 {
-    return centralTab->indexOf(tab);
+    for(int i=0; i<centralTab->count(); ++i){
+        if(centralTab->widget(i) == tab){
+            return i;
+        }
+    }
+
+    return -1;
 }
 
 ConnectionPageTab *ConnectionPageConnectedWidget::tabAt(int index) const
@@ -306,6 +313,11 @@ void ConnectionPageConnectedWidget::restoreWindowState()
 void ConnectionPageConnectedWidget::changeTabCaption(ConnectionPageTab *tab, const QString &caption)
 {
     centralTab->setTabText(centralTab->indexOf(tab), caption);
+}
+
+void ConnectionPageConnectedWidget::connectionPoolWorking(bool isWorking)
+{
+    tabBusyStateChanged(0, isWorking);
 }
 
 void ConnectionPageConnectedWidget::connectDockSignals(QDockWidget *dockWidget)
@@ -389,4 +401,9 @@ ConnectionPageTab *ConnectionPageConnectedWidget::findTabById(const QString &tab
     }
 
     return 0;
+}
+
+const ConnectionPool *ConnectionPageConnectedWidget::getConnectionPool() const
+{
+    return &this->connectionPool;
 }

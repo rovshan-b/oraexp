@@ -24,6 +24,7 @@ void ConnectionPool::requestConnection(DbConnection *cloneOf, void *data)
     //Q_ASSERT(QApplication::instance()->thread() == QThread::currentThread());
 
     busy++;
+    emit working(true);
 
     bool servedFromBackup=false;
 
@@ -32,6 +33,9 @@ void ConnectionPool::requestConnection(DbConnection *cloneOf, void *data)
         backupConnection=0;
         servedFromBackup=true;
         qDebug() << "served connection from backup";
+
+        //will be creating backup connection below
+        backupCreationInProgress = true;
     }
 
     DbConnection *newDb=cloneOf->clone();
@@ -65,6 +69,7 @@ void ConnectionPool::asyncConnectionEstablished(AsyncConnect *thread, DbConnecti
     thread->deleteLater();
 
     busy--;
+    emit working(false);
 }
 
 void ConnectionPool::createBackupConnection(DbConnection *cloneOf)

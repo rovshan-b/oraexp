@@ -13,6 +13,9 @@ public:
     
     virtual QObject *getQueryEndMonitor() {return this;}
 
+    virtual QString getDisplayName() const;
+    virtual QIcon getIcon() const;
+
 signals:
     void busyStateChanged(ConnectionPageObject *tab, bool busy);
     void initCompleted(ConnectionPageObject *tab);

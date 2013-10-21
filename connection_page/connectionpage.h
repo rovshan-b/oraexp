@@ -8,6 +8,7 @@
 class ConnectionPageConnectWidget;
 class ConnectionPageConnectedWidget;
 class CtrlTabData;
+class ConnectionPool;
 
 class ConnectionPage : public QWidget
 {
@@ -31,7 +32,7 @@ public:
 
     ConnectionPageTab *currentConnectionPageTab() const;
     int tabCount() const;
-    int indexOf(ConnectionPageTab *tab);
+    int indexOf(const ConnectionPageTab *tab) const;
     ConnectionPageTab *tabAt(int index) const;
     QIcon tabIcon(int index) const;
     QString tabText(int index) const;
@@ -47,6 +48,8 @@ public:
     QList<ConnectionPageTab*> getTabsByConnection(DbConnection *db, const QString &className=QString(), int limit = -1);
 
     bool isBusy() const {return this->busy;}
+
+    const ConnectionPool *getConnectionPool() const;
 
 signals:
     void busyStateChanged(ConnectionPage *cnPage, bool busy);

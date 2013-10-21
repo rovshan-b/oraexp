@@ -3,6 +3,7 @@
 
 #include <QHash>
 #include <QMutex>
+#include "util/triple.h"
 
 class ConnectionPage;
 class ConnectionPageObject;
@@ -19,9 +20,9 @@ public:
 
     static void cleanup();
 
-    static QList<DbConnection*> getAll();
-    static QList<DbConnection*> getByConnectionPage(ConnectionPage *cnPage);
-    static QList<DbConnection*> getByConnectionPageObject(ConnectionPageObject *cnPageTab);
+    static QList< Triple<ConnectionPage *, ConnectionPageObject *, DbConnection*> * > getAll();
+    static QList< Triple<ConnectionPage *, ConnectionPageObject *, DbConnection*> * > getByConnectionPage(ConnectionPage *cnPage);
+    static QList< Triple<ConnectionPage *, ConnectionPageObject *, DbConnection*> * > getByConnectionPageObject(ConnectionPageObject *cnPageTab);
 
     static AppConnectionManager *defaultInstance();
 
@@ -34,7 +35,7 @@ private slots:
 private:
     AppConnectionManager();
 
-    static QList<DbConnection*> getConnections(ConnectionPage *cnPage, ConnectionPageObject *cnPageTab);
+    static QList< Triple<ConnectionPage *, ConnectionPageObject *, DbConnection*> * > getConnections(ConnectionPage *cnPage, ConnectionPageObject *cnPageTab);
 
     static void unregisterConnection(DbConnection *db);
 

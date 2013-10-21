@@ -24,7 +24,7 @@ class DbConnection
 
 public:
     DbConnection();
-    DbConnection(const QString title, const QString tnsName, const QString username,
+    DbConnection(const QString title, OraExp::ConnectionEnvironment environment, const QString tnsName, const QString username,
                  const QString password, OraExp::ConnectAs connectAs);
     DbConnection(const DbConnection &other);
 
@@ -38,7 +38,9 @@ public:
 
     static void printObjectCount();
 
+
     QString getTitle() const;
+    OraExp::ConnectionEnvironment getEnvironment() const;
     QString getTnsName() const;
     QString getUsername() const;
     QString getPassword() const;
@@ -58,6 +60,8 @@ public:
     QueryResult executeNamedQuery(const QString &queryName, QList<Param*> parameters, bool retrieveResultsetAsBindParameter=false);
     void executeQueryAndCleanup(const QString &query, QList<Param*> parameters=QList<Param*>(), bool retrieveResultsetAsBindParameter=false);
     QString retrieveDbmsOutput();
+
+    void breakCurrentQuery();
 
     QString getSchemaName() const;
 
@@ -101,6 +105,7 @@ public:
     int compareVersion(DbConnection *other);
 private:
     QString title;
+    OraExp::ConnectionEnvironment environment;
     QString tnsName;
     QString username;
     QString password;

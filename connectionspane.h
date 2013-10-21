@@ -2,10 +2,13 @@
 #define CONNECTIONSPANE_H
 
 #include "widgets/tabwidget.h"
+#include <QPointer>
+#include "enums.h"
 
 class DbConnection;
 class ConnectionPage;
 class DbConnectionInfo;
+class ReconnectDialog;
 
 class ConnectionsPane : public TabWidget
 {
@@ -25,13 +28,16 @@ signals:
     void canExit();
 
 public slots:
-    bool closeAndExit();
+    bool closeAll(bool exiting = false);
+    void closeCurrentTab();
     void closeTab(int index);
     void popOutTab();
     void ctrlTabPressed();
     void setTabTitle(QWidget *tab, DbConnectionInfo *connectionInfo);
 
     void tabBusyStateChanged(ConnectionPage *cnPage, bool busy);
+
+    void reconnect(OraExp::ReconnectMode reconnectMode);
 
 private slots:
     void checkConnectionCountAndExit();
@@ -43,6 +49,8 @@ protected:
 private:
     void showTabBar();
     void updateMainWindowTitle();
+
+    QPointer<ReconnectDialog> reconnectDialog;
 
 };
 

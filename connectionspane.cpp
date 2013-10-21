@@ -7,6 +7,7 @@
 #include "util/savechangesutil.h"
 #include "util/appconnectionmanager.h"
 #include "dialogs/ctrltabdialog.h"
+#include "dialogs/reconnectdialog.h"
 #include "widgets/messagewidget.h"
 #include "beans/dbconnectioninfo.h"
 #include "app_menu/appmenu.h"
@@ -98,7 +99,37 @@ void ConnectionsPane::tabBusyStateChanged(ConnectionPage *cnPage, bool busy)
     setTabBusy(cnPage, busy);
 }
 
-bool ConnectionsPane::closeAndExit()
+void ConnectionsPane::reconnect(OraExp::ReconnectMode reconnectMode)
+{
+    if(reconnectDialog){
+        return;
+    }
+
+    reconnectDialog = new ReconnectDialog(this->window());
+    QList< Triple<ConnectionPage *, ConnectionPageObject *, DbConnection*> * > connections;
+
+    switch(reconnectMode){
+    case OraExp::ReconnectModeAll:
+        connections = AppConnectionManager::getAll();
+        break;
+    case OraExp::ReconnectModeCurrentConnection:
+        connections = AppConnectionManager::getByConnectionPage(currentConnectionPage());
+        break;
+    case OraExp::ReconnectModeCurrentTab:
+        connections = AppConnectionManager::getByConnectionPageObject(currentConnectionPage()->currentConnectionPageTab());
+        break;
+    }
+
+    reconnectDialog->setConnections(connections);
+
+    reconnectDialog->show();
+    reconnectDialog->raise();
+    reconnectDialog->activateWindow();
+
+    reconnectDialog->startChecking();
+}
+
+bool ConnectionsPane::closeAll(bool exiting)
 {
     bool changesSaved = SaveChangesUtil::saveAll(this, true, true);
 
@@ -117,7 +148,9 @@ bool ConnectionsPane::closeAndExit()
         setUpdatesEnabled(true);
     }
 
-    QTimer::singleShot(0, this, SLOT(checkConnectionCountAndExit()));
+    if(exiting){
+        QTimer::singleShot(0, this, SLOT(checkConnectionCountAndExit()));
+    }
 
     return changesSaved;
 }
@@ -154,6 +187,13 @@ void ConnectionsPane::disconnected(DbConnection *db)
     }
 }
 
+void ConnectionsPane::closeCurrentTab()
+{
+    int ix = currentIndex();
+    if(ix!=-1){
+        closeTab(ix);
+    }
+}
 
 void ConnectionsPane::closeTab(int index)
 {

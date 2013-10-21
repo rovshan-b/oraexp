@@ -537,7 +537,8 @@ SOURCES += main.cpp\
     navtree/dblink/dbpublicdblinkitem.cpp \
     util/appconnectionmanager.cpp \
     util/asyncdisconnect.cpp \
-    widgets/messagewidget.cpp
+    widgets/messagewidget.cpp \
+    dialogs/reconnectdialog.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1083,7 +1084,8 @@ HEADERS  += mainwindow.h \
     util/appconnectionmanager.h \
     interfaces/ideletelistener.h \
     util/asyncdisconnect.h \
-    widgets/messagewidget.h
+    widgets/messagewidget.h \
+    dialogs/reconnectdialog.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

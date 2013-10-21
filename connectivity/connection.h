@@ -41,6 +41,8 @@ public:
                              QList<Param *> parameters=QList<Param*>(),
                              bool scrollableResultsets=false);
 
+    void breakCurrentQuery();
+
     QString getSchemaName() const;
 
     static void checkForOciError(OCI_Statement *ociStatement, OCI_Statement *ociChildStatement=0);

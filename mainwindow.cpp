@@ -79,7 +79,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         return;
     }
 
-    bool exiting = connectionsPane->closeAndExit();
+    bool exiting = connectionsPane->closeAll(true);
 
     if(exiting){
         AppMenu::disableAll();

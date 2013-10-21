@@ -61,6 +61,8 @@ private slots:
     void alterObject();
     void cancel();
 
+    void closeThis();
+
 protected:
     DbObjectCreatorPane *creatorPane;
 

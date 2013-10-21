@@ -437,6 +437,8 @@ void DbTreeModel::clearChildren(const QModelIndex & parent, bool resetPopulatedF
         beginRemoveRows(parent, 0, childCount-1);
         node->clearChildItems(resetPopulatedFlag);
         endRemoveRows();
+    }else{
+        node->setChildrenPopulated(false);
     }
 }
 

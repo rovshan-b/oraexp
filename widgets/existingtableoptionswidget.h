@@ -16,6 +16,8 @@ public:
 
     void setFlashbackEnabled(bool enabled, const QString &tooltip);
 
+    void checkPartitionsBox(bool check);
+
 private slots:
     void optionsChanged(int);
     

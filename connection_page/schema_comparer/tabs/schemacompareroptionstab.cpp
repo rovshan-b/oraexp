@@ -108,6 +108,7 @@ void SchemaComparerOptionsTab::createOptionsPane(QBoxLayout *layout)
 void SchemaComparerOptionsTab::createExistingTableOptionsPane(QBoxLayout *layout)
 {
     etOptionsWidget = new ExistingTableOptionsWidget();
+    etOptionsWidget->checkPartitionsBox(false);
     existingTableOptionsGroupBox = WidgetHelper::createGroupBox(etOptionsWidget, tr("Existing tables"));
 
     layout->addWidget(existingTableOptionsGroupBox);
