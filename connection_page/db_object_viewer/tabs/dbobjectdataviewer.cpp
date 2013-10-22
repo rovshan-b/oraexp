@@ -12,7 +12,7 @@
 #include <QtGui>
 
 DbObjectDataViewer::DbObjectDataViewer(DbUiManager *uiManager, QWidget *parent) :
-    DbObjectViewerGenericTab("", uiManager, parent), editController(0)
+    DbObjectViewerGenericTab("", uiManager, parent), editController(0), isEditableResultset(true)
 {
 
 }
@@ -56,7 +56,7 @@ void DbObjectDataViewer::rebuildQuery()
         query.append(QString(" %1").arg(orderBy));
     }
 
-    if(editController){
+    if(editController && isEditableResultset){
         editController->enableEditActions(true);
     }
 }
@@ -146,6 +146,7 @@ void DbObjectDataViewer::asyncQueryError(const OciException &ex)
             ex.getErrorCode() == ERR_CANNOT_SELECT_ROWID2){
 
         dt->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        this->isEditableResultset = false;
 
         baseQuery = QString("select * from \"%1\".\"%2\"").arg(schemaName).arg(objectName);
 

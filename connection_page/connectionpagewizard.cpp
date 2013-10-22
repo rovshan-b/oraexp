@@ -1,6 +1,7 @@
 #include "connectionpagewizard.h"
 #include "connectionpagewizardpage.h"
 #include "util/widgethelper.h"
+#include "util/dialoghelper.h"
 #include <QtGui>
 
 ConnectionPageWizard::ConnectionPageWizard(DbUiManager *uiManager, QWidget *parent) :
@@ -8,9 +9,7 @@ ConnectionPageWizard::ConnectionPageWizard(DbUiManager *uiManager, QWidget *pare
 {
     setAttribute(Qt::WA_DeleteOnClose);
 
-    setWindowFlags(Qt::Window | Qt::WindowSystemMenuHint
-                   | Qt::WindowMinMaxButtonsHint
-                   | Qt::WindowCloseButtonHint);
+    DialogHelper::showMaximizeMinimizeButtons(this);
 }
 
 ConnectionPageWizard::~ConnectionPageWizard()

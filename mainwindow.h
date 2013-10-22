@@ -19,6 +19,10 @@ public:
 
     void showConnectDialog();
 
+    static MainWindow *defaultInstance() {return MainWindow::instance;}
+
+    ConnectionsPane *getConnectionsPane() const {return this->connectionsPane;}
+
 protected:
     virtual void closeEvent(QCloseEvent *event);
     //virtual bool eventFilter(QObject *obj, QEvent *ev);
@@ -30,6 +34,8 @@ private:
     Ui::MainWindow *ui;
     void createMenu();
     ConnectionsPane *connectionsPane;
+
+    static MainWindow *instance;
 };
 
 #endif // MAINWINDOW_H

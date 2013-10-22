@@ -119,6 +119,13 @@ QString ConnectionPage::tabText(int index) const
     return mainWidget->tabText(index);
 }
 
+bool ConnectionPage::activateChildWidget(ConnectionPageObject *obj)
+{
+    Q_ASSERT(mainWidget);
+
+    mainWidget->activateChildWidget(obj);
+}
+
 bool ConnectionPage::isTreePaneVisible() const
 {
     Q_ASSERT(mainWidget);
@@ -140,6 +147,13 @@ void ConnectionPage::setCurrentTab(QWidget *widget)
     Q_ASSERT(mainWidget);
 
     mainWidget->setCurrentTab(widget);
+}
+
+void ConnectionPage::setCurrentIndex(int ix)
+{
+    Q_ASSERT(mainWidget);
+
+    mainWidget->setCurrentIndex(ix);
 }
 
 ConnectionPageTab *ConnectionPage::findTabById(const QString &tabId) const

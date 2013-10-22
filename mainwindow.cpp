@@ -15,6 +15,8 @@
 
 using namespace std;
 
+MainWindow *MainWindow::instance = 0;
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -39,6 +41,9 @@ MainWindow::MainWindow(QWidget *parent) :
     //connectionsPane->installEventFilter(this);
 
     connect(connectionsPane, SIGNAL(canExit()), this, SLOT(canExit()));
+
+    Q_ASSERT(MainWindow::instance == 0);
+    MainWindow::instance = this;
 
     showConnectDialog();
 }

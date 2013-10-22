@@ -40,7 +40,7 @@ void AppFileMenu::setupMenu(QMenu *fileMenu, QToolBar *toolbar)
 
     toolbar->addAction(fileConnectToolbarAction);
 
-    QAction *reconnectAction = fileMenu->addAction(tr("Check connections"));
+    QAction *reconnectAction = fileMenu->addAction(tr("Reconnect"));
     reconnectMenu = new QMenu();
     reconnectMenu->addAction(IconUtil::getIcon("connect"), tr("All"), this, SLOT(reconnectAll()));
     reconnectMenu->addAction(tr("Current connection"), this, SLOT(reconnectCurrentConnection()));

@@ -68,6 +68,27 @@ bool ConnectionsPane::isBusy() const
     return false;
 }
 
+bool ConnectionsPane::activateChildWidget(ConnectionPage *cnPage, ConnectionPageObject *obj)
+{
+    int ix = indexOf(cnPage);
+
+    if(ix == -1){
+        return false;
+    }
+
+    if(obj->isWindow()){
+        QWidget *w = dynamic_cast<QWidget*>(obj);
+        Q_ASSERT(w);
+        w->raise();
+
+        return true;
+    }
+
+    setCurrentWidget(cnPage);
+
+    return cnPage->activateChildWidget(obj);
+}
+
 void ConnectionsPane::ctrlTabPressed()
 {
     ConnectionPage *cnPage = currentConnectionPage();
@@ -125,8 +146,6 @@ void ConnectionsPane::reconnect(OraExp::ReconnectMode reconnectMode)
     reconnectDialog->show();
     reconnectDialog->raise();
     reconnectDialog->activateWindow();
-
-    reconnectDialog->startChecking();
 }
 
 bool ConnectionsPane::closeAll(bool exiting)
@@ -162,6 +181,10 @@ void ConnectionsPane::checkConnectionCountAndExit()
     if(connectionCount == 0){
         emit canExit();
         return;
+    }
+
+    if(reconnectDialog){
+        reconnectDialog->hide();
     }
 
     connect(AppConnectionManager::defaultInstance(), SIGNAL(connectionDisconnected(DbConnection*)), this, SLOT(disconnected(DbConnection*)));

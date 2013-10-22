@@ -9,6 +9,7 @@ class DbConnection;
 class ConnectionPage;
 class DbConnectionInfo;
 class ReconnectDialog;
+class ConnectionPageObject;
 
 class ConnectionsPane : public TabWidget
 {
@@ -20,6 +21,8 @@ public:
     ConnectionPage *currentConnectionPage() const;
 
     bool isBusy() const;
+
+    bool activateChildWidget(ConnectionPage *cnPage, ConnectionPageObject *obj);
 
 signals:
     void connectionPaneStateChanged();

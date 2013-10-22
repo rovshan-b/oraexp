@@ -37,10 +37,13 @@ public:
     QIcon tabIcon(int index) const;
     QString tabText(int index) const;
 
+    bool activateChildWidget(ConnectionPageObject *obj);
+
     bool isTreePaneVisible() const;
 
     QList<CtrlTabData*> getCtrlTabData() const;
     void setCurrentTab(QWidget *widget);
+    void setCurrentIndex(int ix);
 
     ConnectionPageTab *findTabById(const QString &tabId) const;
 

@@ -538,7 +538,8 @@ SOURCES += main.cpp\
     util/appconnectionmanager.cpp \
     util/asyncdisconnect.cpp \
     widgets/messagewidget.cpp \
-    dialogs/reconnectdialog.cpp
+    dialogs/reconnectdialog.cpp \
+    util/asyncreconnect.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1085,7 +1086,8 @@ HEADERS  += mainwindow.h \
     interfaces/ideletelistener.h \
     util/asyncdisconnect.h \
     widgets/messagewidget.h \
-    dialogs/reconnectdialog.h
+    dialogs/reconnectdialog.h \
+    util/asyncreconnect.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

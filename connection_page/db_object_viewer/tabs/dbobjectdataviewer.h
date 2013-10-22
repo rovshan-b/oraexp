@@ -36,6 +36,8 @@ private:
 
     QString commitDml;
 
+    bool isEditableResultset;
+
     void rebuildQuery();
     QString getCommitDml() const;
 };

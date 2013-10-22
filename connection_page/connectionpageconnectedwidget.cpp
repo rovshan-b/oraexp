@@ -289,6 +289,30 @@ QString ConnectionPageConnectedWidget::tabText(int index) const
     return centralTab->tabText(index);
 }
 
+bool ConnectionPageConnectedWidget::activateChildWidget(ConnectionPageObject *obj)
+{
+    ConnectionPageTab *cnPageTab = dynamic_cast<ConnectionPageTab*>(obj);
+
+    if(!cnPageTab){
+        return false;
+    }
+
+    if(cnPageTab == treePane){
+        toggleTreePane();
+
+        return true;
+    }
+
+    int ix = indexOf(cnPageTab);
+    if(ix == -1){
+        return false;
+    }
+
+    setCurrentIndex(ix);
+
+    return true;
+}
+
 void ConnectionPageConnectedWidget::toggleTreePane()
 {
     treeDock->setVisible(!treeDock->isVisible());
@@ -386,6 +410,11 @@ QList<CtrlTabData *> ConnectionPageConnectedWidget::getCtrlTabData() const
 void ConnectionPageConnectedWidget::setCurrentTab(QWidget *widget)
 {
     centralTab->setCurrentWidget(widget);
+}
+
+void ConnectionPageConnectedWidget::setCurrentIndex(int ix)
+{
+    centralTab->setCurrentIndex(ix);
 }
 
 ConnectionPageTab *ConnectionPageConnectedWidget::findTabById(const QString &tabId) const

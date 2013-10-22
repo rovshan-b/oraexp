@@ -106,6 +106,8 @@ void Connection::connect(QString tns, QString username, QString password, OraExp
 {
     disconnect();
 
+    QMutexLocker locker(&mutex);
+
     this->dbSchemaName=username.toUpper();
 
     dtext *ociTns=toOciString(tns);
@@ -147,6 +149,26 @@ void Connection::connect(QString tns, QString username, QString password, OraExp
 
     qDebug() << toQString(OCI_GetVersionServer(ociConnection));
 }
+
+/*
+void Connection::reconnect(QString tns, QString username, QString password, OraExp::ConnectAs connectAs)
+{
+    QMutexLocker locker(&mutex);
+
+    OCI_Connection *currentOciConnection = ociConnection;
+
+    try{
+        connect(tns, username, password, connectAs);
+
+        //reconnected, delete old handle
+        OCI_ConnectionFree(currentOciConnection);
+
+    }catch(OciException &ex){ //could not reconnect
+        this->ociConnection = currentOciConnection; //restore old handle
+
+        throw ex; //rethrow exception
+    }
+}*/
 
 void Connection::disconnect()
 {
