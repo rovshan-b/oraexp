@@ -6,7 +6,8 @@ QByteArray WorksheetWidget::splitterSizes;
 
 WorksheetWidget::WorksheetWidget(QWidget *parent) :
     QWidget(parent),
-    queryScheduler(0)
+    queryScheduler(0),
+    resultPaneShownBefore(false)
 {
     splitter=new QSplitter(Qt::Vertical);
     splitter->setChildrenCollapsible(false);
@@ -34,6 +35,8 @@ WorksheetWidget::WorksheetWidget(QWidget *parent) :
     connect(queryPane, SIGNAL(scriptModeCompleted()), resultPane, SLOT(scriptModeCompleted()));
 
     connect(queryPane, SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
+
+    connect(resultPane, SIGNAL(allTabsClosed()), this, SLOT(hideResultPane()));
 }
 
 void WorksheetWidget::setQueryScheduler(IQueryScheduler *queryScheduler)
@@ -41,6 +44,7 @@ void WorksheetWidget::setQueryScheduler(IQueryScheduler *queryScheduler)
     this->queryScheduler=queryScheduler;
 
     queryPane->setQueryScheduler(queryScheduler);
+    resultPane->setQueryScheduler(queryScheduler);
 }
 
 void WorksheetWidget::setContents(const QString &contents)
@@ -108,13 +112,24 @@ void WorksheetWidget::handleQueryPaneMessage(const QString &msg)
 void WorksheetWidget::showResultPane()
 {
     if(!resultPane->isVisible()){
-        setUpdatesEnabled(false);
+        if(!resultPaneShownBefore){
+            resultPaneShownBefore = true;
 
-        resultPane->setVisible(true);
-        splitter->restoreState(WorksheetWidget::splitterSizes);
+            setUpdatesEnabled(false);
 
-        setUpdatesEnabled(true);
+            resultPane->setVisible(true);
+            splitter->restoreState(WorksheetWidget::splitterSizes);
 
-        connect(splitter, SIGNAL(splitterMoved(int,int)), this, SLOT(splitterMoved()));
+            setUpdatesEnabled(true);
+
+            connect(splitter, SIGNAL(splitterMoved(int,int)), this, SLOT(splitterMoved()));
+        }else{
+            resultPane->setVisible(true);
+        }
     }
+}
+
+void WorksheetWidget::hideResultPane()
+{
+    resultPane->setVisible(false);
 }

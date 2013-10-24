@@ -31,6 +31,12 @@ void ConnectionSelectorWidget::setQueryScheduler(IQueryScheduler *queryScheduler
 
 void ConnectionSelectorWidget::connectToServer()
 {
+    if(this->queryScheduler->getDb()->isBusy()){
+        QMessageBox::information(this->window(), tr("Connection busy"),
+                                 tr("Current connection is busy, please, try again a little later."));
+        return;
+    }
+
     browseButton()->setEnabled(false);
     queryScheduler->increaseRefCount();
 

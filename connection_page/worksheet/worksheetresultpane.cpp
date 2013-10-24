@@ -4,15 +4,24 @@
 #include "bottom_pane_tabs/worksheetresultsettab.h"
 #include "bottom_pane_tabs/worksheetexplainplantab.h"
 #include "util/iconutil.h"
+#include "connectivity/dbconnection.h"
 #include "connectivity/statement.h"
+#include "interfaces/iqueryscheduler.h"
 #include "code_parser/plsql/plsqlparsehelper.h"
 #include <QtGui>
 
 
-WorksheetResultPane::WorksheetResultPane(QWidget *parent) : SubTabWidget(parent), currentTabStartIx(0)
+WorksheetResultPane::WorksheetResultPane(QWidget *parent) : SubTabWidget(parent), queryScheduler(0), currentTabStartIx(0)
 {
     setTabsClosable(true);
     setMovable(true);
+
+    connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
+}
+
+void WorksheetResultPane::setQueryScheduler(IQueryScheduler *queryScheduler)
+{
+    this->queryScheduler = queryScheduler;
 }
 
 void WorksheetResultPane::displayQueryResults(IQueryScheduler *queryScheduler,
@@ -108,6 +117,30 @@ void WorksheetResultPane::scriptModeStarted()
 void WorksheetResultPane::scriptModeCompleted()
 {
     currentTabStartIx = 0;
+}
+
+void WorksheetResultPane::closeTab(int index)
+{
+    if(!queryScheduler){
+        return;
+    }
+
+    if(queryScheduler->getDb()->isBusy()){
+        QMessageBox::information(this->window(), tr("Connection busy"),
+                                 tr("Cannot close tab while connection is busy."));
+        return;
+    }
+
+    QWidget *tab = widget(index);
+
+    if(tab){
+        removeTab(index);
+        delete tab;
+    }
+
+    if(count() == 0){
+        emit allTabsClosed();
+    }
 }
 
 WorksheetBottomPaneTab *WorksheetResultPane::getTabToDisplayResults(WorksheetBottomPaneTabType tabType)

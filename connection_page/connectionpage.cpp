@@ -123,7 +123,7 @@ bool ConnectionPage::activateChildWidget(ConnectionPageObject *obj)
 {
     Q_ASSERT(mainWidget);
 
-    mainWidget->activateChildWidget(obj);
+    return mainWidget->activateChildWidget(obj);
 }
 
 bool ConnectionPage::isTreePaneVisible() const

@@ -12,7 +12,7 @@ SchemaExporter::SchemaExporter(DbUiManager *uiManager, QWidget *parent) :
 
 DbObjectComparerCompareTab *SchemaExporter::doCreateCompareTab(DbUiManager *uiManager)
 {
-    return new SchemaExporterCompareTab(uiManager);
+    return new SchemaExporterCompareTab(uiManager, this);
 }
 
 DbObjectComparerOptionsTab *SchemaExporter::doCreateOptionsTab()

@@ -47,12 +47,16 @@ public slots:
     void splitterMoved();
     void handleQueryPaneMessage(const QString &msg);
 
+    void hideResultPane();
+
 private:
     QSplitter *splitter;
     WorksheetQueryPane *queryPane;
     WorksheetResultPane *resultPane;
 
     IQueryScheduler *queryScheduler;
+
+    bool resultPaneShownBefore;
 
     void showResultPane();
     

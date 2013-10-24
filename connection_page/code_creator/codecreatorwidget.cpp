@@ -228,7 +228,16 @@ void CodeCreatorWidget::objectInfoReady(DbObjectInfo *objectInfo, MetadataLoader
     Q_ASSERT(currentEditor());
 
     SourceInfo *sourceInfo = static_cast<SourceInfo*>(objectInfo);
-    currentEditor()->setInitialText(sourceInfo->source);
+
+    QString source = sourceInfo->source;
+
+    if(objectType == DbTreeModel::View){
+        PlSqlParseHelper::prepareViewForEditing(source);
+    }else if(objectType == DbTreeModel::Trigger){
+        PlSqlParseHelper::prepareTriggerForEditing(source);
+    }
+
+    currentEditor()->setInitialText(source);
 
     delete sourceInfo;
 

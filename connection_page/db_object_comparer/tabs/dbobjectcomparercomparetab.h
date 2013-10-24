@@ -22,7 +22,7 @@ class DbObjectComparerCompareTab : public QWidget, public QueryScheduler
 {
     Q_OBJECT
 public:
-    explicit DbObjectComparerCompareTab(DbUiManager *uiManager, QWidget *parent = 0);
+    explicit DbObjectComparerCompareTab(DbUiManager *uiManager, QWidget *parent);
 
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 

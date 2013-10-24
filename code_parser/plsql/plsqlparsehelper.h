@@ -37,6 +37,12 @@ public:
 
     static QStringList readMultiPartName(PlSqlScanner *scanner);
 
+    static void prepareViewForEditing(QString &query);
+
+    static void prepareTriggerForEditing(QString &query);
+
+    static bool readToMatchingParentheses(PlSqlScanner *scanner);
+
 private:
     static QString cleanIdentifier(const QString &identifier);
 

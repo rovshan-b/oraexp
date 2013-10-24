@@ -151,5 +151,7 @@
         <file>images/test_connection.png</file>
         <file>images/blue.png</file>
         <file>images/lookup_object.png</file>
+        <file>images/about.png</file>
+        <file>images/database.ico</file>
     </qresource>
 </RCC>

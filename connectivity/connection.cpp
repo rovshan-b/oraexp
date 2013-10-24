@@ -104,9 +104,9 @@ void Connection::destroyEnvironment()
 
 void Connection::connect(QString tns, QString username, QString password, OraExp::ConnectAs connectAs)
 {
-    disconnect();
-
     QMutexLocker locker(&mutex);
+
+    doDisconnect();
 
     this->dbSchemaName=username.toUpper();
 
@@ -174,6 +174,11 @@ void Connection::disconnect()
 {
     QMutexLocker locker(&mutex);
 
+    doDisconnect();
+}
+
+void Connection::doDisconnect()
+{
     if(ociConnection){
         OCI_ConnectionFree(ociConnection);
         ociConnection=0;

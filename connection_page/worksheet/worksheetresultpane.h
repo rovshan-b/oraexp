@@ -24,14 +24,22 @@ public:
 
     explicit WorksheetResultPane(QWidget *parent=0);
 
+    void setQueryScheduler(IQueryScheduler *queryScheduler);
+
     void displayQueryResults(IQueryScheduler *queryScheduler, const QueryResult &result, WorksheetQueryPane *queryPane);
     void displayMessage(const QString &msg);
 
     void setResultsetTabNamesFromOutParams(Statement *stmt, QList<WorksheetBottomPaneTab *> tabs);
 
+signals:
+    void allTabsClosed();
+
 public slots:
     void scriptModeStarted();
     void scriptModeCompleted();
+
+private slots:
+    void closeTab(int index);
 
 private:
     WorksheetBottomPaneTab *getTabToDisplayResults(WorksheetBottomPaneTabType tabType);
@@ -39,7 +47,10 @@ private:
                                                             int countToReturn,
                                                             int startIx = 0);
 
+    IQueryScheduler *queryScheduler;
+
     int currentTabStartIx;
+
 };
 
 #endif // WORKSHEETRESULTPANE_H

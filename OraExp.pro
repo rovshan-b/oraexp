@@ -539,7 +539,10 @@ SOURCES += main.cpp\
     util/asyncdisconnect.cpp \
     widgets/messagewidget.cpp \
     dialogs/reconnectdialog.cpp \
-    util/asyncreconnect.cpp
+    util/asyncreconnect.cpp \
+    dialogs/aboutdialog.cpp \
+    dialogs/creditsdialog.cpp \
+    util/simplecrypt.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1087,11 +1090,16 @@ HEADERS  += mainwindow.h \
     util/asyncdisconnect.h \
     widgets/messagewidget.h \
     dialogs/reconnectdialog.h \
-    util/asyncreconnect.h
+    util/asyncreconnect.h \
+    dialogs/aboutdialog.h \
+    dialogs/creditsdialog.h \
+    util/simplecrypt.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \
-    dialogs/columnselectordialog.ui
+    dialogs/columnselectordialog.ui \
+    dialogs/aboutdialog.ui \
+    dialogs/creditsdialog.ui
 
 RESOURCES += \
     images.qrc \
@@ -1112,3 +1120,5 @@ windows:INCLUDEPATH += "C:/ocilib-3.9.4-windows/ocilib/include"
 windows:LIBS += -L"C:/ocilib-3.9.4-windows/ocilib/lib32" -locilibw
 
 windows:INCLUDEPATH += "C:/qt-everywhere-opensource-src-4.7.4/qt-everywhere-opensource-src-4.7.4/src/3rdparty/zlib"
+
+windows:RC_FILE = app.rc

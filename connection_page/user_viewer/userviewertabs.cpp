@@ -39,6 +39,6 @@ void UserViewerTabs::createTabs()
     grantInfo->setIconColumn("OWNER", "SCHEMA_ICON_COLUMN");
     addTab(grantInfo, IconUtil::getIcon("grants"), tr("Object privileges"));
 
-    DbObjectDdlViewer *ddlViewer = new DbObjectDdlViewer(true, uiManager, this);
+    DbObjectDdlViewer *ddlViewer = new DbObjectDdlViewer(false, uiManager, this);
     addTab(ddlViewer, IconUtil::getIcon("ddl"), tr("DDL"));
 }

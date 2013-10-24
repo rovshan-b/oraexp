@@ -245,17 +245,17 @@ void PlSqlParseHelper::findTableNameInSelectQuery(const QString &query, QString 
 {
     QScopedPointer<PlSqlScanner> scanner(new PlSqlScanner(new StringReader(query)));
 
-    bool inParenthesis = false;
-
     int token;
     do{
         token = scanner->getNextToken();
 
         if(token == PLS_LPAREN){
-            inParenthesis = true;
-        }else if(token == PLS_RPAREN && inParenthesis){
-            inParenthesis = false;
-        }else if(scanner->getTokenLexeme().compare("FROM", Qt::CaseInsensitive)==0 && !inParenthesis){ //found first not nested FROM keyword. next comes table name
+            bool foundMatching = PlSqlParseHelper::readToMatchingParentheses(scanner.data());
+
+            if(!foundMatching){ //something is wrong
+                return;
+            }
+        }else if(scanner->getTokenLexeme().compare("FROM", Qt::CaseInsensitive)==0){ //found first not nested FROM keyword. next comes table name
             PlSqlParseHelper::readTableName(scanner.data(), schemaName, tableName, dblink, defaultSchemaName);
             qDebug() << "schemaName =" << *schemaName << ", tableName =" << *tableName << ", dblink =" << *dblink;
             break;
@@ -315,6 +315,82 @@ QStringList PlSqlParseHelper::readMultiPartName(PlSqlScanner *scanner)
     }
 
     return parts;
+}
+
+void PlSqlParseHelper::prepareViewForEditing(QString &query)
+{
+    QString strToReplace = QString("CREATE OR REPLACE FORCE VIEW");
+    int forceClauseIx = query.indexOf(strToReplace);
+    if(forceClauseIx == 0){
+        query.replace(0, strToReplace.length(), "CREATE OR REPLACE VIEW");
+    }
+
+    //now remove list of columns in parentheses
+    QScopedPointer<PlSqlScanner> scanner(new PlSqlScanner(new StringReader(query)));
+
+    int token;
+
+    int firstOpeningParenIx = -1;
+    int firstClosingParenIx = -1;
+
+    do{
+        token = scanner->getNextToken();
+
+        if(token == PLS_LPAREN && firstOpeningParenIx==-1){
+            firstOpeningParenIx = scanner->getTokenStartPos();
+
+            bool foundMatching = PlSqlParseHelper::readToMatchingParentheses(scanner.data());
+
+            if(foundMatching){
+                firstClosingParenIx = scanner->getTokenEndPos();
+            }else{ //something is wrong
+                break;
+            }
+        }
+
+    }while(token != PLS_E_O_F && token != PLS_ERROR);
+
+    if(firstOpeningParenIx != -1 && firstClosingParenIx !=-1){
+        query.remove(firstOpeningParenIx, firstClosingParenIx - firstOpeningParenIx);
+
+        if(query.length() > firstOpeningParenIx + 1 && query.mid(firstOpeningParenIx-1, 2) == "  "){ //replace two spaces with one
+            query.remove(firstOpeningParenIx-1, 1);
+        }
+    }
+}
+
+void PlSqlParseHelper::prepareTriggerForEditing(QString &query)
+{
+    QRegExp regExp("ALTER TRIGGER \\\".*\\\"\\.\\\".*\\\" (ENABLE|DISABLE)", Qt::CaseSensitive, QRegExp::RegExp2);
+
+    query.replace(regExp, "");
+
+    query = query.trimmed();
+}
+
+bool PlSqlParseHelper::readToMatchingParentheses(PlSqlScanner *scanner)
+{
+    //this method will be called after meeting first parentheses, so setting nestingCount to 1
+    int nestingCount = 1;
+
+    int token;
+
+    do{
+        token = scanner->getNextToken();
+
+        if(token == PLS_LPAREN){
+            ++nestingCount;
+        }else if(token == PLS_RPAREN){
+            --nestingCount;
+
+            if(nestingCount == 0){ //found matching parenthesis
+                return true;
+            }
+        }
+
+    }while(token != PLS_E_O_F && token != PLS_ERROR);
+
+    return false;
 }
 
 

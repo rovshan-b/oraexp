@@ -94,6 +94,11 @@ void DbConnection::connect()
     queueManager=new QueryQueueManager(this);
 }
 
+void DbConnection::reconnect()
+{
+    connection.connect(tnsName, username, password, connectAs);
+}
+
 void DbConnection::disconnect()
 {
     connection.disconnect();

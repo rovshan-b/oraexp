@@ -52,6 +52,9 @@ public:
     QString retrieveDbmsOutput();
 private:
     void init();
+
+    void doDisconnect();
+
     void setBusy(volatile bool busy);
 
     static bool environmentInitialized;

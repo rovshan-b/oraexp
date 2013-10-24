@@ -4,6 +4,7 @@
 #include <QCryptographicHash>
 #include <QLocale>
 #include "dbutil.h"
+#include "util/simplecrypt.h"
 
 using namespace std;
 
@@ -384,6 +385,20 @@ QString toValidFilename(const QString &str)
     }
 
     return result;
+}
+
+QString encryptString(const QString &input)
+{
+    SimpleCrypt crypto(Q_UINT64_C(0x0c3ad4a4acb7f095));
+
+    return crypto.encryptToString(input);
+}
+
+QString decryptString(const QString &input)
+{
+    SimpleCrypt crypto(Q_UINT64_C(0x0c3ad4a4acb7f095));
+
+    return crypto.decryptToString(input);
 }
 
 #ifndef CODE_PARSER_BUILD

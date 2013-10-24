@@ -146,5 +146,6 @@
         <file>queries/get_object_lookup_results.sql</file>
         <file>queries/get_table_fk_constraints.sql</file>
         <file>queries/resolve_name.sql</file>
+        <file>queries/ping_query.sql</file>
     </qresource>
 </RCC>

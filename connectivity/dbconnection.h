@@ -34,6 +34,7 @@ public:
     static void destroyEnvironment();
 
     void connect();
+    void reconnect();
     void disconnect();
 
     static void printObjectCount();

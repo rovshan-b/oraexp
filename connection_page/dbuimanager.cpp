@@ -126,7 +126,7 @@ void DbUiManager::createEditor(const QString &schemaName,
     }else{
         iconName.append("_add");
     }
-    cnPage->addTab(editor, IconUtil::getIcon(iconName), (creatorMode == DbObjectCreator::EditExisting) ? getViewerTitle(schemaName, objectName) : QString("Create %1").arg(objectTypeName));
+    cnPage->addTab(editor, IconUtil::getIcon(iconName), (creatorMode == DbObjectCreator::EditExisting) ? getViewerTitle(itemType, schemaName, objectName) : QString("Create %1").arg(objectTypeName));
 }
 
 //this function is called by UiManagerInvoker through context menus
@@ -145,9 +145,9 @@ void DbUiManager::createLikeEditor(const QString &schemaName, const QString &obj
                  DbObjectCreator::CreateLike);
 }
 
-QString DbUiManager::getViewerTitle(const QString &schemaName, const QString &objectName) const
+QString DbUiManager::getViewerTitle(DbTreeModel::DbTreeNodeType objectType, const QString &schemaName, const QString &objectName) const
 {
-    if(schemaName == this->db->getSchemaName()){
+    if(schemaName == this->db->getSchemaName() || objectType == DbTreeModel::Schema){
         return objectName;
     }else{
         return QString("%1.%2").arg(schemaName, objectName);
@@ -216,7 +216,7 @@ void DbUiManager::createViewer(const QString &schemaName, const QString &objectN
         viewer->setProperties(itemAction->properties);
     }
 
-    cnPage->addTab(viewer, IconUtil::getIcon(iconName), getViewerTitle(schemaName, objectName));
+    cnPage->addTab(viewer, IconUtil::getIcon(iconName), getViewerTitle((DbTreeModel::DbTreeNodeType)itemType, schemaName, objectName));
 }
 
 QString DbUiManager::createTabId(const QString &prefix, const QString &objectTypeName, const QString &schemaName, const QString &objectName) const

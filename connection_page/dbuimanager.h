@@ -48,7 +48,7 @@ public slots:
                       const QString &tabName = QString(), const QString &childObjectName = QString());
     void createLikeEditor(const QString &schemaName, const QString &objectName, int itemType /*DbTreeModel::DbTreeNodeType*/);
 
-    QString getViewerTitle(const QString &schemaName, const QString &objectName) const;
+    QString getViewerTitle(DbTreeModel::DbTreeNodeType objectType, const QString &schemaName, const QString &objectName) const;
 
     Worksheet *addWorksheet(const QString &contents="");
     Worksheet *getWorksheet();

@@ -7,7 +7,7 @@ class SchemaExporterCompareTab : public DbObjectComparerCompareTab
 {
     Q_OBJECT
 public:
-    explicit SchemaExporterCompareTab(DbUiManager *uiManager, QWidget *parent = 0);
+    explicit SchemaExporterCompareTab(DbUiManager *uiManager, QWidget *parent);
 
     virtual bool needsTargetConnection() const;
     

@@ -77,6 +77,9 @@ void copyStringToArray(dtext *array, int arrayPos, int arrayMaxStrLength, const 
 
 QString toValidFilename(const QString &str);
 
+QString encryptString(const QString &input);
+QString decryptString(const QString &input);
+
 #ifndef CODE_PARSER_BUILD
 QString detectDateFormat(const QStringList &dates);
 
