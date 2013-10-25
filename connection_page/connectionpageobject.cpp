@@ -1,15 +1,16 @@
 #include "connectionpageobject.h"
 #include "connectivity/dbconnection.h"
 #include "util/appconnectionmanager.h"
+#include "util/settingshelper.h"
 
 ConnectionPageObject::ConnectionPageObject(DbUiManager *uiManager) :
     uiManager(uiManager),
     db(0),
-    requiresSeparateConnection(true),
     busy(false),
     activeQueryCount(0),
     deleteListener(0)
 {
+    requiresSeparateConnection = SettingsHelper::getUseSeparateSessions();
 }
 
 ConnectionPageObject::~ConnectionPageObject()

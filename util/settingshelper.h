@@ -23,6 +23,9 @@ public:
 
     static QList<DbConnectionInfo*> loadConnectionList();
     static void saveConnectionList(QList<DbConnectionInfo *> connectionList);
+
+    static bool getUseSeparateSessions();
+    static void setUseSeparateSessions(bool separateSessions);
 private:
     SettingsHelper();
 };

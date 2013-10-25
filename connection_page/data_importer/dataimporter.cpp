@@ -22,6 +22,12 @@ DataImporter::DataImporter(const QString &schemaName, const QString &tableName, 
     DialogHelper::centerWindow(this);
 }
 
+DataImporter::~DataImporter()
+{
+    removePage(pageIds().size()-1);
+    delete worksheetPage;
+}
+
 void DataImporter::setConnection(DbConnection *db)
 {
     ConnectionPageWizard::setConnection(db);

@@ -45,6 +45,8 @@ private slots:
 
     void addSessionBrowser(){uiManager()->addSessionBrowser();}
 
+    void showOptionsDialog();
+
 
     void resize800x600();
     void resize1024x768();

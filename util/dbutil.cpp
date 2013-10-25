@@ -5,6 +5,7 @@
 #include <QtGui>
 #include "defines.h"
 #include "beans/resultsetcolumnmetadata.h"
+#include "connectivity/statement.h"
 
 #include <iostream>
 
@@ -12,29 +13,31 @@ DbUtil::DbUtil()
 {
 }
 
-void DbUtil::checkForOciError(OCI_Statement *stmt)
+void DbUtil::checkForOciError(Statement *statement)
 {
     OCI_Error *err = OCI_GetLastError();
-    throwOciException(err, stmt);
+    throwOciException(err, statement);
 }
 
-void DbUtil::throwOciException(OCI_Error *error, OCI_Statement *stmt)
+void DbUtil::throwOciException(OCI_Error *error, Statement *statement)
 {
     if(error){
         const dtext *errMsg=OCI_ErrorGetString(error);
         std::wcout << errMsg << std::endl;
         QString errorMessage=toQString(errMsg);
         int errorCode=OCI_ErrorGetOCICode(error);
-        unsigned int errorPos=stmt==0 ? 0 : OCI_GetSqlErrorPos(stmt);
+        unsigned int errorPos=statement==0 ? 0 : OCI_GetSqlErrorPos(statement->ociStatement());
 
-        if(stmt){
+        if(statement){
+            OCI_Statement *stmt = statement->ociStatement();
             OCI_Error *batchError = OCI_GetBatchError(stmt);
 
             int addedMessageCount = 0;
             while (batchError)
             {
+                int errorRow = OCI_ErrorGetRow(batchError) + statement->getCurrentOffset();
                 errorMessage.append(QString("\nError at row: %1. %2").
-                                    arg(OCI_ErrorGetRow(batchError)).
+                                    arg(errorRow).
                                     arg(toQString(OCI_ErrorGetString(batchError))));
                 batchError = OCI_GetBatchError(stmt);
 

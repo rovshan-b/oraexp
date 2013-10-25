@@ -8,6 +8,8 @@
 #include "beans/environmentinfo.h"
 #include <ocilib.h>
 
+class Statement;
+
 class ResultsetColumnMetadata;
 
 class DbUtil
@@ -15,8 +17,8 @@ class DbUtil
 public:
     DbUtil();
 
-    static void checkForOciError(OCI_Statement *stmt=0);
-    static void throwOciException(OCI_Error *error, OCI_Statement *stmt);
+    static void checkForOciError(Statement *statement=0);
+    static void throwOciException(OCI_Error *error, Statement *statement);
 
     static QString getConstraintTypeLetter(OraExp::ConstraintType constraintType);
     static QString getConstraintTypeName(int constraintType, bool translate=true);

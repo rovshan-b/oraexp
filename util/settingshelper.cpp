@@ -112,3 +112,13 @@ void SettingsHelper::saveConnectionList(QList<DbConnectionInfo*> connectionList)
 
     Settings::endArray();
 }
+
+bool SettingsHelper::getUseSeparateSessions()
+{
+    return Settings::value("useSeparateSessions", true).toBool();
+}
+
+void SettingsHelper::setUseSeparateSessions(bool separateSessions)
+{
+    Settings::setValue("useSeparateSessions", separateSessions);
+}

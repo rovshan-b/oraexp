@@ -68,6 +68,9 @@ public:
     void releaseResultsets();
     void setUseScrollableResultsets(bool useScrollableResultsets);
     bool getUseScrollableResultsets() const;
+
+    int getCurrentOffset() const;
+    void setCurrentOffset(int offset);
 private:
     void setConnection(Connection *connection);
     QueryResult doExecute();
@@ -93,6 +96,8 @@ private:
     bool acquiredMutex;
 
     bool useScrollableResultsets;
+
+    int currentOffset; //for bulk operations
 
     void init();
     void createOciStatement(Connection *connection);

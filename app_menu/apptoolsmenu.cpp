@@ -1,6 +1,8 @@
 #include "apptoolsmenu.h"
 #include "util/iconutil.h"
 #include "connectionspane.h"
+#include "dialogs/options_dialog/optionsdialog.h"
+#include "mainwindow.h"
 #include <QtGui>
 
 AppToolsMenu::AppToolsMenu(QMenu *toolsMenu, QToolBar *toolbar, QObject *parent) : AppMainMenu(parent)
@@ -44,12 +46,18 @@ void AppToolsMenu::setupMenu(QMenu *toolsMenu, QToolBar *toolbar)
 
     toolsMenu->addSeparator();
 
-    toolsOptionsAction=toolsMenu->addAction(IconUtil::getIcon("settings"), tr("&Options..."));
+    toolsOptionsAction=toolsMenu->addAction(IconUtil::getIcon("settings"), tr("&Options..."), this, SLOT(showOptionsDialog()));
     toolsOptionsAction->setStatusTip(tr("Application settings"));
 
     toolsMenu->addSeparator();
     toolsOptionsAction=toolsMenu->addAction("800x600", this, SLOT(resize800x600()));
     toolsOptionsAction=toolsMenu->addAction("1024x768", this, SLOT(resize1024x768()));
+}
+
+void AppToolsMenu::showOptionsDialog()
+{
+    OptionsDialog dialog(MainWindow::defaultInstance());
+    dialog.exec();
 }
 
 void AppToolsMenu::resize800x600()

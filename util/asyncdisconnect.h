@@ -1,15 +1,16 @@
 #ifndef ASYNCDISCONNECT_H
 #define ASYNCDISCONNECT_H
 
-#include <QThread>
+#include <QRunnable>
+#include <QObject>
 
 class DbConnection;
 
-class AsyncDisconnect : public QThread
+class AsyncDisconnect : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
-    explicit AsyncDisconnect(DbConnection *db, QObject *parent = 0);
+    explicit AsyncDisconnect(DbConnection *db);
 
 signals:
     void disconnected(DbConnection *db);

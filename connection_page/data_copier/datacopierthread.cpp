@@ -141,6 +141,7 @@ void DataCopierThread::copyData()
         ++offset;
         if(offset==BULK_DATA_OPERATION_CHUNK_SIZE){
             targetStmt->execute();
+            targetStmt->setCurrentOffset(targetStmt->getCurrentOffset() + BULK_DATA_OPERATION_CHUNK_SIZE);
 
             emitCompareInfo(tableName, "", offset);
 

@@ -24,6 +24,8 @@ public:
             DbUiManager *uiManager,
             QWidget *parent = 0);
 
+    virtual ~DataImporter();
+
     virtual void createUi();
 
     virtual void setConnection(DbConnection *db);

@@ -5,6 +5,7 @@
 #include "util/strutil.h"
 #include "ociexception.h"
 #include "defines.h"
+#include <QUuid>
 #include <QDebug>
 
 #ifdef DEBUG
@@ -39,6 +40,7 @@ void Statement::init()
     affectedRecordCount=0;
     acquiredMutex=false;
     useScrollableResultsets=false;
+    currentOffset=0;
 }
 
 Statement::~Statement()
@@ -67,7 +69,7 @@ void Statement::createOciStatement(Connection *connection)
 {
     this->connection=connection;
     ociStmt = OCI_StatementCreate(connection->getOciConnection());
-    DbUtil::checkForOciError(ociStmt);
+    DbUtil::checkForOciError(this);
     OCI_AllowRebinding(ociStmt, true);
 }
 
@@ -85,7 +87,7 @@ void Statement::prepare(const QString &query)
     ociQuery=toOciString(query);
 
     if(!OCI_Prepare(ociStmt, ociQuery)){
-        DbUtil::checkForOciError(ociStmt);
+        DbUtil::checkForOciError(this);
     }
 }
 
@@ -165,7 +167,7 @@ void Statement::bindParam(Param *parameter)
         break;
     }
 
-    DbUtil::checkForOciError(ociStmt);
+    DbUtil::checkForOciError(this);
 
     setParamDirection(parameter);
 
@@ -173,7 +175,7 @@ void Statement::bindParam(Param *parameter)
         OCI_BindSetNull(OCI_GetBind2(ociStmt, parameter->getParamName().toStdWString().c_str()));
     }
 
-    DbUtil::checkForOciError(ociStmt);
+    DbUtil::checkForOciError(this);
 }
 
 QueryResult Statement::execute()
@@ -206,7 +208,7 @@ QueryResult Statement::doExecute()
     int execResult=OCI_Execute(ociStmt);
 
     if(!execResult){
-        DbUtil::checkForOciError(ociStmt);
+        DbUtil::checkForOciError(this);
     }
 
     QueryResult queryResult;
@@ -229,12 +231,12 @@ QueryResult Statement::doExecute()
 
     //}
 
-    DbUtil::checkForOciError(ociStmt);
+    DbUtil::checkForOciError(this);
 
     if(statementType==OraExp::QueryTypeSelect){
         OCI_Resultset *ociResultSet=OCI_GetResultset(ociStmt);
         if(ociResultSet==NULL){
-            DbUtil::checkForOciError(ociStmt);
+            DbUtil::checkForOciError(this);
         }
         OCI_SetPrefetchSize(ociStmt, DB_PREFETCH_SIZE);
         OCI_SetFetchSize(ociStmt, DB_PREFETCH_SIZE);
@@ -412,7 +414,7 @@ void Statement::collectParamResultsets()
             //OCI_SetFetchMode(childStmt->ociStatement(), OCI_SFM_SCROLLABLE);
             OCI_Resultset *ociResultSet=OCI_GetResultset(childStmt->ociStatement());
             if(!ociResultSet){
-                DbUtil::checkForOciError(ociStmt);
+                DbUtil::checkForOciError(this);
             }
             this->resultsets.append(new Resultset(ociResultSet, this->connection, this));
         }else if(paramType==Param::ReturningInto && !retrievedReturningIntoResultset){
@@ -461,6 +463,16 @@ void Statement::setUseScrollableResultsets(bool useScrollableResultsets)
 bool Statement::getUseScrollableResultsets() const
 {
     return this->useScrollableResultsets;
+}
+
+int Statement::getCurrentOffset() const
+{
+    return this->currentOffset;
+}
+
+void Statement::setCurrentOffset(int offset)
+{
+    this->currentOffset = offset;
 }
 
 bool Statement::isAnonymousBlock()
@@ -517,43 +529,43 @@ void *Statement::createIntervalArray(const QString &intervalTypeName, int size)
 void Statement::setBindArraySize(unsigned int size)
 {
     OCI_BindArraySetSize(ociStmt, size);
-    DbUtil::checkForOciError(ociStmt);
+    DbUtil::checkForOciError(this);
 }
 
 void Statement::bindArrayOfStrings(const QString &bindVarName, dtext *data, int strLength, int plSqlTableLength)
 {
     OCI_BindArrayOfStrings(ociStmt, createOciString(bindVarName), data, strLength, plSqlTableLength);
-    DbUtil::checkForOciError(ociStmt);
+    DbUtil::checkForOciError(this);
 }
 
 void Statement::bindArrayOfRaws(const QString &bindVarName, void *data, int rawLength, int plSqlTableLength)
 {
     OCI_BindArrayOfRaws(ociStmt, createOciString(bindVarName), data, rawLength, plSqlTableLength);
-    DbUtil::checkForOciError(ociStmt);
+    DbUtil::checkForOciError(this);
 }
 
 void Statement::bindArrayOfDoubles(const QString &bindVarName, double *data, int plSqlTableLength)
 {
     OCI_BindArrayOfDoubles(ociStmt, createOciString(bindVarName), data, plSqlTableLength);
-    DbUtil::checkForOciError(ociStmt);
+    DbUtil::checkForOciError(this);
 }
 
 void Statement::bindArrayOfDates(const QString &bindVarName, OCI_Date **data, int plSqlTableLength)
 {
     OCI_BindArrayOfDates(ociStmt, createOciString(bindVarName), data, plSqlTableLength);
-    DbUtil::checkForOciError(ociStmt);
+    DbUtil::checkForOciError(this);
 }
 
 void Statement::bindArrayOfTimestamps(const QString &bindVarName, OCI_Timestamp **data, int type, int plSqlTableLength)
 {
     OCI_BindArrayOfTimestamps(ociStmt, createOciString(bindVarName), data, type, plSqlTableLength);
-    DbUtil::checkForOciError(ociStmt);
+    DbUtil::checkForOciError(this);
 }
 
 void Statement::bindArrayOfIntervals(const QString &bindVarName, OCI_Interval **data, int type, int plSqlTableLength)
 {
     OCI_BindArrayOfIntervals(ociStmt, createOciString(bindVarName), data, type, plSqlTableLength);
-    DbUtil::checkForOciError(ociStmt);
+    DbUtil::checkForOciError(this);
 }
 
 dtext *Statement::createOciString(const QString &str)

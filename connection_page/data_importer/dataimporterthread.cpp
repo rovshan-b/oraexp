@@ -87,6 +87,7 @@ void DataImporterThread::importData()
     currentOffset = 0;
 
     importer->resetPosition();
+    importer->resetBuffer();
     importer->readRows(this);
 
     if(currentOffset>0){
@@ -140,6 +141,7 @@ void DataImporterThread::rowAvailable(const QStringList &values)
 
     if(currentOffset==BULK_DATA_OPERATION_CHUNK_SIZE){
         stmt->execute();
+        stmt->setCurrentOffset(stmt->getCurrentOffset() + BULK_DATA_OPERATION_CHUNK_SIZE);
 
         emit chunkImported(currentOffset);
 

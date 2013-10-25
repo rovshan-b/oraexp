@@ -74,9 +74,9 @@ QChar CsvImporter::readChar()
 
 bool CsvImporter::setFilename(const QString &filename)
 {
-    if(filename == this->filename){
-        return true;
-    }
+    //if(filename == this->filename){
+    //    return true;
+    //}
 
     this->filename = filename;
 
@@ -350,6 +350,11 @@ void CsvImporter::resetPosition()
     textStream->resetStatus();
     textStream->seek(0);
     buffer.clear();
+}
+
+void CsvImporter::resetBuffer()
+{
+    setFilename(this->filename);
 }
 
 bool CsvImporter::isEOF() const

@@ -33,6 +33,8 @@ public:
 
     void resetPosition();
 
+    void resetBuffer();
+
     bool isEOF() const;
 
     QStringList readValues();

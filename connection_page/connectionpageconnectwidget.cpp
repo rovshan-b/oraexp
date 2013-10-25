@@ -263,6 +263,11 @@ void ConnectionPageConnectWidget::connectToDb(bool test)
         if(dialog.exec()){
             connectionInfo->password = dialog.password();
             connectionInfo->savePassword = dialog.savePassword();
+        }else{
+            if(deleteOnFail){
+                connectionEditor->deleteCurrentConnection();
+            }
+            return;
         }
     }
 

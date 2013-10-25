@@ -14,7 +14,7 @@ ConnectionPageWizard::ConnectionPageWizard(DbUiManager *uiManager, QWidget *pare
 
 ConnectionPageWizard::~ConnectionPageWizard()
 {
-    //WidgetHelper::deleteChildren(this); --causes crash
+    //WidgetHelper::deleteChildren(this); //causes crash
 
     qDebug("deleted ConnectionPageWizard");
 }

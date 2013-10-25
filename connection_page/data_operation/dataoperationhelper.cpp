@@ -335,7 +335,7 @@ void DataOperationHelper::enableRefConstraints()
                                   "enable_all_ref_constraints",
                                   "refConstraintsEnabled");
     }else{
-        emit queryTextAvailable(enableRefContraintsQuery);
+        emit queryTextAvailable(QString("%1\n/").arg(enableRefContraintsQuery));
         emitCompletedSignal();
     }
 }

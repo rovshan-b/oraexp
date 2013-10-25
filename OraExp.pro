@@ -542,7 +542,8 @@ SOURCES += main.cpp\
     util/asyncreconnect.cpp \
     dialogs/aboutdialog.cpp \
     dialogs/creditsdialog.cpp \
-    util/simplecrypt.cpp
+    util/simplecrypt.cpp \
+    dialogs/options_dialog/optionsdialog.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1093,7 +1094,8 @@ HEADERS  += mainwindow.h \
     util/asyncreconnect.h \
     dialogs/aboutdialog.h \
     dialogs/creditsdialog.h \
-    util/simplecrypt.h
+    util/simplecrypt.h \
+    dialogs/options_dialog/optionsdialog.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

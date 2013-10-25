@@ -4,6 +4,7 @@
 #include "connectivity/dbconnection.h"
 #include "connectivity/connectionpool.h"
 #include "util/asyncdisconnect.h"
+#include <QThreadPool>
 #include <QDebug>
 
 AppConnectionManager *AppConnectionManager::instance = 0;
@@ -29,7 +30,7 @@ void AppConnectionManager::deleteConnection(DbConnection *db)
 
     AsyncDisconnect *asyncDisconnect = new AsyncDisconnect(db);
     connect(asyncDisconnect, SIGNAL(disconnected(DbConnection*)), AppConnectionManager::defaultInstance(), SLOT(disconnected(DbConnection*)));
-    asyncDisconnect->start();
+    QThreadPool::globalInstance()->start(asyncDisconnect);
 }
 
 int AppConnectionManager::getActiveConnectionCount()
