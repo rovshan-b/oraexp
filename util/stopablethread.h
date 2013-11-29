@@ -10,7 +10,7 @@ public:
     explicit StopableThread(QObject *parent);
     virtual ~StopableThread(){}
 
-    void stop() {this->stopped=true;}
+    virtual void stop() {this->stopped=true;}
     bool isStopped() const {return this->stopped;}
     
 protected:

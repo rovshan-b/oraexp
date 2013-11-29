@@ -288,21 +288,6 @@ void WorksheetQueryPane::setQueryScheduler(IQueryScheduler *queryScheduler)
     toolbar->setEnabled(true);
 }
 
-void WorksheetQueryPane::showSearchWidget()
-{
-    currentEditor()->showSearchPane();
-}
-
-void WorksheetQueryPane::findNext()
-{
-    currentEditor()->findNext();
-}
-
-void WorksheetQueryPane::findPrevious()
-{
-    currentEditor()->findPrevious();
-}
-
 CodeEditorAndSearchPaneWidget *WorksheetQueryPane::currentEditor() const
 {
     return multiEditor->getCurrentEditor();

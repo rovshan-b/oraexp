@@ -26,6 +26,7 @@ public slots:
     virtual void emitInitCompletedSignal();
 
     void makeVisible();
+    void makeVisibleIfInProgress();
 
     virtual void reject ();
 
@@ -34,6 +35,7 @@ protected:
     virtual bool canClose();
 
     virtual void setInProgress(bool inProgress);
+    bool isInProgress() const;
 
 private:
     bool inProgress;

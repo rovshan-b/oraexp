@@ -9,7 +9,7 @@ class DataImporterReadyPage : public ConnectionPageWizardPage
 {
     Q_OBJECT
 public:
-    explicit DataImporterReadyPage(QWidget *parent = 0);
+    explicit DataImporterReadyPage(DbUiManager *uiManager, QWidget *parent = 0);
     
     void initializePage();
 

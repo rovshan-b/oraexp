@@ -6,8 +6,8 @@
 #include "util/iconutil.h"
 #include <QtGui>
 
-DataImporterImportPage::DataImporterImportPage(QWidget *parent) :
-    ConnectionPageWizardPage(parent), queryScheduler(0), workerThread(0)
+DataImporterImportPage::DataImporterImportPage(DbUiManager *uiManager, QWidget *parent) :
+    ConnectionPageWizardPage(uiManager, parent), queryScheduler(0), workerThread(0)
 {
     setTitle(tr("Importing..."));
     setSubTitle(tr("Data import is in progress"));

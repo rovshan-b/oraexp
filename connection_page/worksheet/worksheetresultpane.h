@@ -4,6 +4,7 @@
 #include "widgets/subtabwidget.h"
 #include "connectivity/queryresult.h"
 
+class DbUiManager;
 class IQueryScheduler;
 class WorksheetBottomPaneTab;
 class WorksheetQueryPane;
@@ -22,7 +23,7 @@ public:
         AutotraceTab
     };
 
-    explicit WorksheetResultPane(QWidget *parent=0);
+    explicit WorksheetResultPane(DbUiManager *uiManager, QWidget *parent=0);
 
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
@@ -47,6 +48,7 @@ private:
                                                             int countToReturn,
                                                             int startIx = 0);
 
+    DbUiManager *uiManager;
     IQueryScheduler *queryScheduler;
 
     int currentTabStartIx;

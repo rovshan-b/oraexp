@@ -2,8 +2,8 @@
 #include "util/iconutil.h"
 #include <QtGui>
 
-DataImporterReadyPage::DataImporterReadyPage(QWidget *parent) :
-    ConnectionPageWizardPage(parent)
+DataImporterReadyPage::DataImporterReadyPage(DbUiManager *uiManager, QWidget *parent) :
+    ConnectionPageWizardPage(uiManager, parent)
 {
     setTitle(tr("Ready to start"));
     setSubTitle(tr("Review presented information and press Next button to start importing data"));

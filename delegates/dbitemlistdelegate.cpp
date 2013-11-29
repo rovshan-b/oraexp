@@ -28,7 +28,7 @@ QWidget *DbItemListDelegate::createEditor(QWidget *parent,
     if(iconColumn!=-1){
         editor->setIconColumn(iconColumn);
     }
-    editor->setInDelegateMode();
+    editor->setSilentMode();
     editor->loadItems(queryScheduler, queryName);
     editor->setFrame(false);
 

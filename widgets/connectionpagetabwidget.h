@@ -17,6 +17,7 @@ public:
     
 private slots:
     void currentTabChanged(int index);
+    //void cornerWidgetRequested(QWidget *w);
 
 private:
     QList<QWidget*> tabChangeHistory;

@@ -50,11 +50,13 @@ void ExcelExporter::reset()
 
     excelColumnTitles.clear();
     rowCount = 0;
+
+    DataExporterBase::reset();
 }
 
 void ExcelExporter::startDocument(QTextStream &out)
 {
-    out << QString("<?xml version=\"1.0\" encoding=\"%1\" standalone=\"yes\"?>").arg((QString)out.codec()->name());
+    out << QString("<?xml version=\"1.0\" encoding=\"%1\" standalone=\"yes\"?>").arg(this->encoding);
     out << "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" "
                "xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">";
 
@@ -127,6 +129,8 @@ void ExcelExporter::exportRow(const QStringList &oneRow, int rowIx, QTextStream 
 
 QTextStream *ExcelExporter::createOutputStream(QString &errorMessage)
 {   
+    Q_ASSERT(!this->filename.isEmpty());
+
     bool couldCopy = FileSystemUtil::copyFile(":/misc/xlsx_template.xlsx",
                                               this->filename,
                                               &errorMessage);

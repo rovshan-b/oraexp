@@ -64,6 +64,7 @@ signals:
     void busyStateChanged(bool busy);
 
 public slots:
+    void closeCurrentTab();
     void closeTab(int index);
     void asyncConnectionReady(DbConnection *db, void *data, bool error, const OciException &ex);
     void tabBusyStateChanged(ConnectionPageObject *obj, bool busy);

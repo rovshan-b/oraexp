@@ -44,6 +44,7 @@ public:
 
     int paramCount() const;
     Param *param(int i) const;
+    QList<Param*> getParams() const;
     bool isAnonymousBlock();
 
     void lockConnection();
@@ -61,7 +62,7 @@ public:
     void bindArrayOfDates(const QString &bindVarName, OCI_Date **data, int plSqlTableLength);
     void bindArrayOfTimestamps(const QString &bindVarName, OCI_Timestamp **data, int type, int plSqlTableLength);
     void bindArrayOfIntervals(const QString &bindVarName, OCI_Interval **data, int type, int plSqlTableLength);
-    int setBindNullAtPos(int bindIx, int position);
+    int setBindNullAtPos(int bindIx, int position, bool null);
 
     void printBindVars();
 

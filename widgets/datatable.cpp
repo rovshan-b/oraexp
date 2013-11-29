@@ -7,11 +7,14 @@
 #include "util/dbutil.h"
 #include "util/widgethelper.h"
 #include "util/iconutil.h"
+#include "util/modelutil.h"
 #include "connectivity/dbconnection.h"
 #include "connectivity/statement.h"
 #include "interfaces/iqueryscheduler.h"
 #include "context_menu/contextmenuutil.h"
 #include "beans/dynamicaction.h"
+#include "connection_page/data_exporter/dataexporterfactory.h"
+#include "connection_page/data_exporter/dataexporterobject.h"
 #include "defines.h"
 #include "errors.h"
 #include <QtGui>
@@ -26,6 +29,7 @@ DataTable::DataTable(QWidget *parent) :
     setSelectionMode(QAbstractItemView::ContiguousSelection);
 
     //connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
+    connect(this, SIGNAL(pressed(QModelIndex)), this, SLOT(indexPressed(QModelIndex)));
 }
 
 void DataTable::setResultset(IQueryScheduler *queryScheduler,
@@ -126,12 +130,20 @@ void DataTable::queryCompleted(const QueryResult &result)
 
 void DataTable::showContextMenu(const QPoint &pos, QModelIndex index) //pos is in global coordinates
 {
-    if(!index.isValid()){
+    if(!model() || !index.isValid()){
         return;
     }
 
+    QList<QAction*> actions;
+
+    //first add copy actions.
+    actions.append(createCopyMenu(false));
+    actions.append(createCopyMenu(true));
+
+    actions.append(WidgetHelper::createSeparatorAction());
+
     int row=index.row();
-    QList<QAction*> actions = getActionsForObject(row);
+    actions.append(getActionsForObject(row));
 
     if(actions.size()==0){
         return;
@@ -144,6 +156,21 @@ void DataTable::showContextMenu(const QPoint &pos, QModelIndex index) //pos is i
     menu->exec(pos);
 
     WidgetHelper::deleteMenu(menu);
+}
+
+QAction *DataTable::createCopyMenu(bool withHeader) const
+{
+    QAction *action = new QAction(IconUtil::getIcon("editcopy"), withHeader ? tr("Copy with header") : tr("Copy"), 0);
+    QMenu *menu = new QMenu();
+    QStringList formats;
+    formats << tr("TSV") << tr("CSV") << tr("HTML") << tr("XML");
+    foreach(const QString &format, formats){
+        menu->addAction(format, this, SLOT(copyAs()))->setData(withHeader);
+    }
+
+    action->setMenu(menu);
+
+    return action;
 }
 
 void DataTable::invokeDefaultActionForObject(int row)
@@ -161,15 +188,50 @@ void DataTable::invokeDefaultActionForObject(int row)
     WidgetHelper::deleteActions(actions);
 }
 
+void DataTable::copyAs()
+{
+    QAction *action = dynamic_cast<QAction*>(sender());
+    Q_ASSERT(action);
+
+    DataExporterBase *exporter = DataExporterFactory::createExporter(action->text());
+    exporter->includeColumnHeaders = action->data().toBool();
+
+    copyToClipboard(exporter);
+}
+
 void DataTable::setEditable(bool editable)
 {
     this->editable = editable;
 }
 
+void DataTable::closeEditors(bool commit)
+{
+    if(!model()){
+        return;
+    }
+
+    QModelIndex index = currentIndex();
+
+    if(!index.isValid()){
+        return;
+    }
+
+    if(commit){
+        QWidget* editor = indexWidget(index);
+        commitData(editor);
+    }
+    closePersistentEditor(index);
+}
+
+bool DataTable::objectListModeEnabled() const
+{
+    return objectNameCol==-1;
+}
+
 
 QList<QAction *> DataTable::getActionsForObject(int row)
 {
-    if(objectNameCol==-1){
+    if(objectListModeEnabled()){
         return QList<QAction*>();
     }
 
@@ -191,35 +253,43 @@ QList<QAction *> DataTable::getActionsForObject(int row)
     return actions;
 }
 
-void DataTable::copyToClipboard()
+void DataTable::copyToClipboard(DataExporterBase *exporter)
 {
+    if(!model()){
+        delete exporter;
+        return;
+    }
+
     int startRow, startColumn, endRow, endColumn;
     getSelectedRange(&startRow, &startColumn, &endRow, &endColumn);
 
     if(startRow==-1 || startColumn==-1 || endRow==-1 || endColumn==-1){
+        delete exporter;
         return;
     }
 
-    bool isMultiColumn = startColumn!=endColumn;
-    bool isMultiRow = startRow!=endRow;
-
-    QString selectedText;
-
-    for(int i=startRow; i<=endRow; ++i){
-        for(int k=startColumn; k<=endColumn; ++k){
-            selectedText.append(this->model()->index(i, k).data().toString());
-
-            if(isMultiColumn && k<endColumn){
-                selectedText.append("\t");
-            }
-        }
-
-        if(isMultiRow && i<endRow){
-            selectedText.append("\n");
-        }
+    if(startRow==endRow && startColumn==endColumn){ //disable quoting if single cell is selected
+        exporter->stringQuoting = "";
+        exporter->numberQuoting = "";
+        exporter->quoteColumnHeaders = false;
     }
 
-    QApplication::clipboard()->setText(selectedText);
+    exporter->startRow = startRow;
+    exporter->startColumn = startColumn;
+    exporter->endRow = endRow;
+    exporter->endColumn = endColumn;
+
+    for(int i=0; i<model()->columnCount(); ++i){
+        exporter->columnTitles.append(model()->headerData(i, Qt::Horizontal).toString());
+    }
+
+    DataExporterObject expObj(exporter, ModelUtil::getModelData(model()), 0, false);
+    expObj.exportData();
+
+    QMimeData *mimeData = new QMimeData;
+    mimeData->setData(exporter->getMimeType(), exporter->stringBuffer.toUtf8());
+    mimeData->setText(exporter->stringBuffer);
+    QApplication::clipboard()->setMimeData(mimeData);
 }
 
 void DataTable::deleteCurrentModel()
@@ -330,7 +400,6 @@ void DataTable::setObjectListMode(int schemaNameCol, int objectNameCol,
     this->objectListObjectType=objectListObjectType;
 
     //setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, SIGNAL(pressed(QModelIndex)), this, SLOT(indexPressed(QModelIndex)));
 }
 
 void DataTable::getSelectedRange(int *startRow, int *startColumn, int *endRow, int *endColumn)
@@ -368,7 +437,9 @@ void DataTable::getSelectedRange(int *startRow, int *startColumn, int *endRow, i
 void DataTable::keyPressEvent(QKeyEvent *event)
 {
     if(event->matches(QKeySequence::Copy)){
-        copyToClipboard();
+        DataExporterBase *exporter = DataExporterFactory::createExporter(DataExporterBase::CSV);
+        exporter->columnDelimiter = "\t";
+        copyToClipboard(exporter);
     }else{
         QTableView::keyPressEvent(event);
     }

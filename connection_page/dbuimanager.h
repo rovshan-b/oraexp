@@ -69,6 +69,10 @@ public slots:
 
     void addSessionBrowser();
 
+    void describeObject(const QString &objectName);
+
+    void showRecordCount(const QString &query, const QList<Param*> &params);
+
     void addWindow(ConnectionPageObject *window, const QPixmap &icon, const QString &title);
     void handleDynamicAction();
 

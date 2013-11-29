@@ -16,7 +16,7 @@ class DataImporterColumnMappingsPage : public ConnectionPageWizardPage
 {
     Q_OBJECT
 public:
-    explicit DataImporterColumnMappingsPage(QWidget *parent = 0);
+    explicit DataImporterColumnMappingsPage(DbUiManager *uiManager, QWidget *parent = 0);
     
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 

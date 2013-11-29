@@ -12,6 +12,7 @@ class QAction;
 class ConnectionPage;
 class ConnectionPageTab;
 class CodeEditor;
+class ObjectResolver;
 
 class AppEditMenu : public AppMainMenu
 {
@@ -49,11 +50,12 @@ private slots:
     void makeDuplicate();
     void removeEmptyLines();
 
+    void describeObject();
+
     void populateResolveMenu();
 
-    void resolveQueryCompleted(const QueryResult &result);
-    void resolveResultReady(const FetchResult &result);
-    void resolveFetchCompleted(const QString &taskName);
+    void objectResolved(const QString &objectTypeName, DbTreeModel::DbTreeNodeType objectType, const QString &schemaName, const QString &objectName, ObjectResolver *resolver);
+    void objectResolveError(const OciException &ex, ObjectResolver *resolver);
 
     void showSearchWidget();
     void findNext();
@@ -80,6 +82,7 @@ public:
     QAction *editCreateDuplicateAction;
     QAction *editRemoveEmptyLinesAction;
 
+    QAction *editDescribeAction;
     QAction *editResolveAction;
 
 private:

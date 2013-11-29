@@ -49,9 +49,11 @@ void AppToolsMenu::setupMenu(QMenu *toolsMenu, QToolBar *toolbar)
     toolsOptionsAction=toolsMenu->addAction(IconUtil::getIcon("settings"), tr("&Options..."), this, SLOT(showOptionsDialog()));
     toolsOptionsAction->setStatusTip(tr("Application settings"));
 
+#ifdef DEBUG
     toolsMenu->addSeparator();
     toolsOptionsAction=toolsMenu->addAction("800x600", this, SLOT(resize800x600()));
     toolsOptionsAction=toolsMenu->addAction("1024x768", this, SLOT(resize1024x768()));
+#endif
 }
 
 void AppToolsMenu::showOptionsDialog()
@@ -60,6 +62,7 @@ void AppToolsMenu::showOptionsDialog()
     dialog.exec();
 }
 
+#ifdef DEBUG
 void AppToolsMenu::resize800x600()
 {
     this->getConnectionsPane()->window()->resize(800, 540);
@@ -69,6 +72,7 @@ void AppToolsMenu::resize1024x768()
 {
     this->getConnectionsPane()->window()->resize(1024, 740);
 }
+#endif
 
 void AppToolsMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab * /*cnPageTab*/)
 {

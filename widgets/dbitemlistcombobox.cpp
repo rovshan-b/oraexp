@@ -13,7 +13,7 @@ DbItemListComboBox::DbItemListComboBox(const QString &initialValue,
                                        bool setMaxWidth,
                                        bool prependEmptyValue,
                                        QWidget *parent) :
-    QComboBox(parent), iconName(iconName), prependEmptyValue(prependEmptyValue), iconColumn(-1), isInDelegate(false)
+    QComboBox(parent), iconName(iconName), prependEmptyValue(prependEmptyValue), iconColumn(-1), silentMode(false)
 {
     setEditable(true);
     if(setMaxWidth){
@@ -43,9 +43,9 @@ void DbItemListComboBox::setIconColumn(int colNum)
     this->iconColumn=colNum;
 }
 
-void DbItemListComboBox::setInDelegateMode()
+void DbItemListComboBox::setSilentMode()
 {
-    this->isInDelegate=true;
+    this->silentMode=true;
 }
 
 void DbItemListComboBox::queryCompleted(const QueryResult &result)
@@ -60,7 +60,9 @@ void DbItemListComboBox::queryCompleted(const QueryResult &result)
 
         emit loadingCompleted();
 
-        if(!isInDelegate){
+        qDebug() << result.exception.getErrorMessage();
+
+        if(!silentMode){
             QMessageBox::critical(this->window(), tr("Error loading item list. Task name: %1").arg(result.taskName), result.exception.getErrorMessage());
         }
         return;
@@ -85,7 +87,11 @@ void DbItemListComboBox::itemFetched(const FetchResult &fetchResult)
 
     QString iconNameToAdd = iconColumn!=-1 ? fetchResult.oneRow.at(iconColumn) : iconName;
 
-    addItem(IconUtil::getIcon(iconNameToAdd), fetchResult.oneRow.at(0));
+    if(iconNameToAdd.isEmpty()){
+        addItem(fetchResult.oneRow.at(0));
+    }else{
+        addItem(IconUtil::getIcon(iconNameToAdd), fetchResult.oneRow.at(0));
+    }
 }
 
 void DbItemListComboBox::fetchCompleted(const QString &)

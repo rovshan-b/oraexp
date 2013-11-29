@@ -4,7 +4,12 @@
 #include "util/filesystemutil.h"
 #include <QFile>
 
-DataExporterBase::DataExporterBase() : isXmlFile(false), textStream(0), file(0), streamOpenMode(QIODevice::WriteOnly)
+DataExporterBase::DataExporterBase() :
+    encoding("UTF-8"),
+    includeNullText(false), includeColumnHeaders(false), quoteColumnHeaders(true),
+    stringQuoting("\""), numberQuoting("\""), lineEnding(getPlatformLineEnding()), columnDelimiter(","),
+    delimiterAfterLastColumn(false),
+    isXmlFile(false), textStream(0), file(0), streamOpenMode(QIODevice::WriteOnly)
 {
 }
 
@@ -71,7 +76,7 @@ void DataExporterBase::prepareField(QString &fieldValue, int fieldIx)
     }
 
     if(!stringQuoting.isEmpty() &&
-            columnMetadata->isTextColumn(startColumn+fieldIx+1)){
+            (columnMetadata.isNull() || columnMetadata->isTextColumn(startColumn+fieldIx+1))){
         fieldValue.replace(stringQuoting, QString("%1%1").arg(stringQuoting)); //first escape quoting characters inside string
         fieldValue.prepend(stringQuoting);
         fieldValue.append(stringQuoting);
@@ -94,16 +99,26 @@ void DataExporterBase::exportColumnHeaders(const QStringList &headers, int from,
     Q_UNUSED(out);
 }
 
+
 QTextStream *DataExporterBase::createOutputStream(QString &errorMessage)
 {
     Q_ASSERT(file==0);
+    Q_ASSERT(textStream==0);
 
-    if(FileSystemUtil::createTextStream(this->filename, this->encoding, this->bom,
+    if(!this->filename.isEmpty() && FileSystemUtil::createTextStream(this->filename, this->encoding, this->bom,
                                      streamOpenMode, &textStream, &file, &errorMessage)){
+        return textStream;
+    }else if(filename.isEmpty()){
+        textStream = new QTextStream(&this->stringBuffer, QIODevice::WriteOnly);
         return textStream;
     }else{
         return 0;
     }
+}
+
+QStringList DataExporterBase::getColumnTitles() const
+{
+    return columnTitles.isEmpty() ? columnMetadata->columnTitles : columnTitles;
 }
 
 void DataExporterBase::setTextStreamProperties()

@@ -40,6 +40,40 @@ void Param::cleanup()
     }
 }
 
+Param *Param::clone()
+{
+    Param *result;
+
+    switch(type){
+    case String:
+        result = new Param(paramName, getStrValue(), direction);
+        break;
+    case Integer:
+        result = new Param(paramName, (int)getIntValue(), direction);
+        break;
+    case Double:
+        result = new Param(paramName, (double)getDoubleValue(), direction);
+        break;
+    case Datetime:
+    {
+        QString currVal = getDateTimeValue()->toString();
+        result = new Param(paramName, DateTime(currVal), direction);
+        break;
+    }
+    case Stmt:
+        result = new Param(paramName);
+        break;
+    case ReturningInto:
+        result = new Param(paramName, ReturningInto);
+        break;
+    default:
+        //cloning string lists not supported for now. will implement when required.
+        Q_ASSERT(false);
+        break;
+    }
+
+    return result;
+}
 
 Param::Param(const QString &paramName, const QString &paramValue, ParamDirection direction)
 {
@@ -241,6 +275,18 @@ QString Param::toString() const
     default:
         Q_ASSERT(false);
         break;
+    }
+
+    return result;
+}
+
+QList<Param *> Param::cloneParams(const QList<Param *> params)
+{
+    QList<Param*> result;
+    result.reserve(params.size());
+
+    for(int i=0; i<params.size(); ++i){
+        result.append(params.at(i)->clone());
     }
 
     return result;

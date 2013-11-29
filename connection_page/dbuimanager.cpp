@@ -22,7 +22,9 @@
 #include "dialogs/dmlgeneratordialog.h"
 #include "dialogs/tableddlgeneratordialog.h"
 #include "dialogs/tablenamefinderdialog.h"
+#include "dialogs/objectresolverdialog.h"
 #include "dialogs/objectlookupdialog.h"
+#include "dialogs/queryrunnerdialog.h"
 #include "editorcreatorutil.h"
 #include "app_menu/appmenu.h"
 #include "app_menu/appfilemenu.h"
@@ -359,6 +361,19 @@ void DbUiManager::addSessionBrowser()
 {
     SessionBrowser *sessionBrowser = new SessionBrowser(this);
     cnPage->addTab(sessionBrowser, IconUtil::getIcon("session_browser"), tr("Session browser"));
+}
+
+void DbUiManager::describeObject(const QString &objectName)
+{
+    ObjectResolverDialog *objectResolver = new ObjectResolverDialog(objectName, this);
+    addWindow(objectResolver, IconUtil::getIcon("lookup_object"), tr("Resolving..."));
+}
+
+void DbUiManager::showRecordCount(const QString &query, const QList<Param *> &params)
+{
+    QueryRunnerDialog *queryRunner = new QueryRunnerDialog(query, params, this);
+
+    addWindow(queryRunner, IconUtil::getIcon("count"), tr("Count rows"));
 }
 
 void DbUiManager::addWindow(ConnectionPageObject *window, const QPixmap &icon, const QString &title)

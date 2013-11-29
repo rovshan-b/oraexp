@@ -3,15 +3,15 @@
 #include "code_generators/dml/tabledmlgenerator.h"
 #include <QtGui>
 
-DataImporterWorksheetPage::DataImporterWorksheetPage(QWidget *parent) :
-    ConnectionPageWizardPage(parent)
+DataImporterWorksheetPage::DataImporterWorksheetPage(DbUiManager *uiManager, QWidget *parent) :
+    ConnectionPageWizardPage(uiManager, parent)
 {
     setTitle(tr("Check results"));
     setSubTitle(tr("Check data import results and COMMIT/ROLLBACK as necessary"));
 
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
-    worksheetWidget = new WorksheetWidget();
+    worksheetWidget = new WorksheetWidget(uiManager);
     mainLayout->addWidget(worksheetWidget);
 
     setLayout(mainLayout);

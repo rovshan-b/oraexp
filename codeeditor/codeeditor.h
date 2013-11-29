@@ -3,6 +3,7 @@
 
 #include <QPlainTextEdit>
 #include "cursorpositioninfo.h"
+#include "typedefs.h"
 
 class LineNavigationBar;
 class CodeCollapseArea;
@@ -15,6 +16,7 @@ class CodeEditor : public QPlainTextEdit
 
 public:
     CodeEditor(bool enableCodeCollapsing = false, QWidget *parent = 0);
+    virtual ~CodeEditor();
 
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth() const;
@@ -55,7 +57,10 @@ public:
 
     virtual bool eventFilter ( QObject * watched, QEvent * event );
 
-    static QFont currentFont;
+    static QList<CodeEditor*> openEditors;
+
+    static QStringHash textShortcuts;
+    static void loadTextShortcuts();
 
 public slots:
     void commentBlocks();
@@ -118,7 +123,8 @@ private:
     void autoIndentNewBlock();
     void indentSelection();
     void unindentSelection();
-    void insertTab() const;
+    void insertTab();
+    bool insertTextShortcut(QTextCursor &cur);
     void handleHomeKey(bool keepSelection);
     int getFirstNonSpaceCharacterIndex(QTextCursor &cur, bool *onlySpaces=0);
     bool moveToFirstNonSpaceCharacter(QTextCursor &cur, QTextCursor::MoveMode moveMode=QTextCursor::MoveAnchor);
@@ -144,10 +150,6 @@ private:
     QChar checkForBrace(int &pos);
     int findMatchingBrace(const QChar &brace, const QChar &matching, int fromPos, int toPos);
 
-
-    static QHash<QString,QString> textShortcuts;
-    static void fillTextShortcuts();
-
     QString textUnderCursor() const;
 
     QCompleter *completer;
@@ -157,6 +159,9 @@ private:
     CodeCollapsePosition* findCollapsePosition(int blockNumber);
     void highlightCollapsibleRegion(int blockNumber);
     void selectBlocks(QTextCursor &cur, const QTextBlock &startBlock, const QTextBlock &endBlock);
+
+    void applyCurrentFontToAllEditors();
+    void saveFontSettings();
 };
 
 #endif // CODEEDITOR_H

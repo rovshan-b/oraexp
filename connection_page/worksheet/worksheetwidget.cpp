@@ -4,7 +4,7 @@
 
 QByteArray WorksheetWidget::splitterSizes;
 
-WorksheetWidget::WorksheetWidget(QWidget *parent) :
+WorksheetWidget::WorksheetWidget(DbUiManager *uiManager, QWidget *parent) :
     QWidget(parent),
     queryScheduler(0),
     resultPaneShownBefore(false)
@@ -12,7 +12,7 @@ WorksheetWidget::WorksheetWidget(QWidget *parent) :
     splitter=new QSplitter(Qt::Vertical);
     splitter->setChildrenCollapsible(false);
     queryPane = new WorksheetQueryPane();
-    resultPane = new WorksheetResultPane();
+    resultPane = new WorksheetResultPane(uiManager);
     splitter->addWidget(queryPane);
     splitter->addWidget(resultPane);
     resultPane->setVisible(false);

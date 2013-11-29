@@ -4,12 +4,16 @@
 #include <QDialog>
 
 class QButtonGroup;
+class DbItemListComboBox;
+class IQueryScheduler;
 
 class OrderByOptionsDialog : public QDialog
 {
     Q_OBJECT
 public:
     explicit OrderByOptionsDialog(QWidget *parent = 0);
+
+    void setQueryScheduler(IQueryScheduler *queryScheduler);
 
 public slots:
     virtual void accept ();
@@ -36,6 +40,8 @@ private:
 
     QButtonGroup *sortDirectionGroup;
     QButtonGroup *nullsOrderingGroup;
+
+    DbItemListComboBox *nlsSortCombo;
     
 };
 

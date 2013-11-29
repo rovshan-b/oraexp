@@ -29,7 +29,7 @@ public:
 
     static bool tryRead(const QString &filename, QString *errorMessage);
 
-    static QString readAsString(const QString &filename, QString *errorMessage);
+    static QString readAsString(const QString &filename, QString *errorMessage = 0);
 
     static QString readTextResource(const QString &prefix, const QString &name, const QString &suffix,
                                     DbConnection *db);

@@ -63,7 +63,6 @@ void SettingsHelper::saveStaticApplicationSettings()
     Settings::setValue("WorksheetExplainPlanTab/autotraceViewIndex", WorksheetExplainPlanTab::autotraceViewIndex);
 
     Settings::setValue("CodeCreatorWidget/bottomSplitterSizes", CodeCreatorWidget::bottomSplitterSizes);
-    Settings::setValue("CodeEditor/currentFont", CodeEditor::currentFont.toString());
 }
 
 void SettingsHelper::loadStaticApplicationSettings()
@@ -76,7 +75,6 @@ void SettingsHelper::loadStaticApplicationSettings()
     WorksheetExplainPlanTab::autotraceViewIndex = Settings::value("WorksheetExplainPlanTab/autotraceViewIndex", 0).toInt();
 
     CodeCreatorWidget::bottomSplitterSizes = Settings::value("CodeCreatorWidget/bottomSplitterSizes").toByteArray();
-    CodeEditor::currentFont.fromString(Settings::value("CodeEditor/currentFont", WidgetHelper::getMonospaceFont()).toString());
 }
 
 

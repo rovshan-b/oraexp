@@ -293,9 +293,9 @@ void ConnectionsPane::updateMainWindowTitle()
     QWidget *window=this->window();
     if(count()==1){
         window->setWindowIcon(tabIcon(0));
-        window->setWindowTitle(tabText(0)+" - Oracle Explorer");
+        window->setWindowTitle(tabText(0)+" - OraExp");
     }else{
-        window->setWindowIcon(IconUtil::getIcon("database"));
-        window->setWindowTitle("Oracle Explorer");
+        window->setWindowIcon(IconUtil::getIcon("database_big"));
+        window->setWindowTitle("OraExp");
     }
 }

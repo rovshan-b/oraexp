@@ -38,6 +38,13 @@ void ConnectionPageWindow::makeVisible()
     showAndActivate();
 }
 
+void ConnectionPageWindow::makeVisibleIfInProgress()
+{
+    if(inProgress){
+        makeVisible();
+    }
+}
+
 void ConnectionPageWindow::queryExecTaskCompleted(const QString &/*taskName*/)
 {
     decreaseRefCount();
@@ -76,4 +83,9 @@ bool ConnectionPageWindow::canClose()
 void ConnectionPageWindow::setInProgress(bool inProgress)
 {
     this->inProgress = inProgress;
+}
+
+bool ConnectionPageWindow::isInProgress() const
+{
+    return this->inProgress;
 }

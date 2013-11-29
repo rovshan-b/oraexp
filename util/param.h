@@ -37,6 +37,8 @@ public:
 
     Param(const QString &paramName, const QStringList &paramValue, int maxLength = -1, ParamDirection direction=In);
 
+    Param *clone();
+
     QString getParamName() const;
 
     QString getStrValue() const;
@@ -64,6 +66,8 @@ public:
     int getArraySize() const {return this->arraySize;}
 
     void *data;
+
+    static QList<Param*> cloneParams(const QList<Param*> params);
 
     static void printObjectCount();
 private:

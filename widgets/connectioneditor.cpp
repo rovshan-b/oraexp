@@ -71,16 +71,16 @@ void ConnectionEditor::createUi()
 QWidget *ConnectionEditor::createTnsPane()
 {
     QWidget *tnsPane = new QWidget();
-    QFormLayout *form = new QFormLayout();
+    tnsPaneForm = new QFormLayout();
 
     tnsCombo = new QComboBox();
     tnsCombo->setEditable(true);
-    form->addRow(tr("TNS"), tnsCombo);
+    tnsPaneForm->addRow(tr("TNS"), tnsCombo);
 
     loadTnsList();
 
     //form->setContentsMargins(0,0,0,0);
-    tnsPane->setLayout(form);
+    tnsPane->setLayout(tnsPaneForm);
     return tnsPane;
 }
 
@@ -117,6 +117,12 @@ void ConnectionEditor::loadTnsList()
     }
 
     QString path(tnsnamesPathArr);
+
+    if(path.isEmpty()){ //none of check environment variables is set
+        createTnsNotFoundLabel(tr("Set TNS_ADMIN environment variable to a directory that contains tnsnames.ora"));
+        return;
+    }
+
     if(!path.endsWith('\\') && !path.endsWith('/')){
         path.append('/');
     }
@@ -124,8 +130,10 @@ void ConnectionEditor::loadTnsList()
         path.append("network/admin/");
     }
     path.append("tnsnames.ora");
+    path.replace('\\','/');
 
     if(!QFile::exists(path)){
+        createTnsNotFoundLabel(tr("File not found: %1").arg(path));
         return;
     }
 
@@ -148,6 +156,14 @@ void ConnectionEditor::loadTnsList()
             tnsCombo->setCurrentIndex(0);
         }
     }
+}
+
+void ConnectionEditor::createTnsNotFoundLabel(const QString &errorMessage)
+{
+    /*
+    QLabel *label = new QLabel(errorMessage);
+    label->setWordWrap(true);
+    tnsPaneForm->addRow(label);*/
 }
 
 DbConnectionInfo *ConnectionEditor::createConnection()

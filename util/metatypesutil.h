@@ -1,6 +1,8 @@
 #ifndef METATYPESUTIL_H
 #define METATYPESUTIL_H
 
+#include <QMetaType>
+
 class MetaTypesUtil
 {
 public:

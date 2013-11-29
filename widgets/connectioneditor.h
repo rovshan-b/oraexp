@@ -8,6 +8,7 @@ class QComboBox;
 class QCheckBox;
 class QStackedWidget;
 class DbConnectionInfo;
+class QFormLayout;
 
 class ConnectionEditor : public QWidget
 {
@@ -43,6 +44,8 @@ private:
 
     void loadTnsList();
 
+    void createTnsNotFoundLabel(const QString &errorMessage);
+
     void updateConnection(DbConnectionInfo *connection);
 
     DbConnectionInfo *currentConnection;
@@ -55,6 +58,7 @@ private:
     QComboBox *connectionTypeCombo;
     QStackedWidget *connectionDetailsTab;
 
+    QFormLayout *tnsPaneForm;
     QComboBox *tnsCombo;
 
     QLineEdit *hostEditor;

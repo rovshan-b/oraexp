@@ -21,6 +21,8 @@ public:
     void setReadOnly(bool readOnly);
     bool isReadOnly() const;
 
+    void setSearchText(const QString &text);
+
 public slots:
     void searchTextChanged(bool setSelection=true);
     QTextCursor findNextOrPrevious(bool next, const QTextCursor &baseCursor);

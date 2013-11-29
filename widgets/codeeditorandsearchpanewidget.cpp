@@ -70,12 +70,25 @@ void CodeEditorAndSearchPaneWidget::showSearchPane()
         return;
     }
 
-    if(!searchPane->isVisible()){
-        searchPane->show();
-        searchPane->searchTextChanged();
+    QString selectedText = codeEditor->textCursor().selectedText();
+    bool hasSelection = selectedText.size() > 1 && selectedText.size() <= 150;
+    if(hasSelection){
+        searchPane->setSearchText(selectedText);
     }
 
+    if(!searchPane->isVisible()){
+        searchPane->show();
+    }
+
+    searchPane->searchTextChanged(!hasSelection);
     searchPane->activateFindTextBox();
+
+    if(hasSelection){
+        QTextCursor cur = codeEditor->textCursor();
+        int startPos = qMin(cur.selectionStart(), cur.selectionEnd());
+        cur.setPosition(startPos);
+        searchPane->findNextOrPrevious(true, cur);
+    }
 }
 
 void CodeEditorAndSearchPaneWidget::setReadOnly(bool readOnly)

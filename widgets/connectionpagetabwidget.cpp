@@ -1,8 +1,13 @@
 #include "connectionpagetabwidget.h"
+//#include "tabbar.h"
 
 ConnectionPageTabWidget::ConnectionPageTabWidget(QWidget *parent) :
     TabWidget(parent)
 {
+    //TabBar *b = new TabBar();
+    //setTabBar(b);
+
+    //connect(b, SIGNAL(setCornerWidget(QWidget*)), this, SLOT(cornerWidgetRequested(QWidget*)));
     connect(this, SIGNAL(currentChanged(int)), this, SLOT(currentTabChanged(int)));
 }
 
@@ -33,3 +38,9 @@ void ConnectionPageTabWidget::currentTabChanged(int index)
     tabChangeHistory.removeOne(w);
     tabChangeHistory.prepend(w);
 }
+
+/*
+void ConnectionPageTabWidget::cornerWidgetRequested(QWidget *w)
+{
+    setCornerWidget(w, Qt::TopRightCorner);
+}*/

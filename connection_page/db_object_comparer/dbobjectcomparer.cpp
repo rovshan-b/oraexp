@@ -217,7 +217,7 @@ void DbObjectComparer::completed()
 {
     comparisonCompleted();
 
-    statusChanged(tr("Comparison completed in %1").arg(formatMsecs(timer.elapsed())));
+    statusChanged(tr("Completed in %1").arg(formatMsecs(timer.elapsed())));
 }
 
 void DbObjectComparer::comparisonError(const QString &taskName, const OciException &exception)

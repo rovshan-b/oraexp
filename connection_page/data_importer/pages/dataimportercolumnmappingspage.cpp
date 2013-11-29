@@ -8,8 +8,8 @@
 #include "../columnmapping.h"
 #include <QtGui>
 
-DataImporterColumnMappingsPage::DataImporterColumnMappingsPage(QWidget *parent) :
-    ConnectionPageWizardPage(parent), querySheduler(0), loadInProgress(true)
+DataImporterColumnMappingsPage::DataImporterColumnMappingsPage(DbUiManager *uiManager, QWidget *parent) :
+    ConnectionPageWizardPage(uiManager, parent), querySheduler(0), loadInProgress(true)
 {
     setTitle(tr("Column mappings"));
     setSubTitle(tr("Define mappings between table columns and file fields"));

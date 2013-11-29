@@ -5,6 +5,7 @@
 #include "connectivity/fetchresult.h"
 
 class DataTableEditController;
+class ClickableLabel;
 
 class DbObjectDataViewer : public DbObjectViewerGenericTab
 {
@@ -21,14 +22,17 @@ public:
     virtual void createMainWidget(QLayout *);
 
     virtual QList<QAction*> getSpecificToolbarButtons();
+    virtual QList<QWidget*> getSpecificToolbarWidgets();
 
 private slots:
     void filter();
     void sort(int colIx);
+    void countRows();
 
     void asyncQueryError(const OciException &ex);
 private:
     DataTableEditController *editController;
+    ClickableLabel *filterLabel;
 
     QString baseQuery;
     QString whereClause;
@@ -39,7 +43,10 @@ private:
     bool isEditableResultset;
 
     void rebuildQuery();
+    void appendWhereClause(QString &appendTo);
     QString getCommitDml() const;
+
+    void displayFilterText();
 };
 
 #endif // DBOBJECTDATAVIEWER_H

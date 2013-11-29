@@ -3,6 +3,7 @@
 
 class QDialog;
 class QWidget;
+class QLabel;
 class IQueryScheduler;
 class ConnectionsPane;
 class DbConnection;
@@ -31,6 +32,8 @@ public:
     static void centerWindow(QWidget *window);
 
     static void showMaximizeMinimizeButtons(QWidget *dialog);
+
+    static void createProgressBarUi(QWidget *dialog, QLabel *messageLabel = 0);
 
 private:
     DialogHelper();

@@ -8,10 +8,7 @@
 #include "util/widgethelper.h"
 #include "util/dialoghelper.h"
 #include "util/strutil.h"
-#include "exporters/csvexporter.h"
-#include "exporters/excelexporter.h"
-#include "exporters/htmlexporter.h"
-#include "exporters/xmlexporter.h"
+#include "dataexporterfactory.h"
 #include "exporters/insertexporter.h"
 #include "defines.h"
 #include <QtGui>
@@ -299,13 +296,7 @@ void DataExportOptionsWidget::populateQuotingOptions(QComboBox *comboBox)
 
 void DataExportOptionsWidget::populateLineEndingOptions(QComboBox *comboBox)
 {
-#ifdef Q_WS_WIN
-    QString platformLineEnding = "\r\n";
-#else
-    QString platformLineEnding = "\n";
-#endif
-
-    comboBox->addItem(tr("Platform default"), platformLineEnding);
+    comboBox->addItem(tr("Platform default"), getPlatformLineEnding());
     comboBox->addItem(tr("Unix style"), "\n");
     comboBox->addItem(tr("Windows style"), "\r\n");
 }
@@ -328,34 +319,16 @@ void DataExportOptionsWidget::populateNewlineReplacements(QComboBox *comboBox)
 
 DataExporterBase *DataExportOptionsWidget::createExporter()
 {
-    DataExporterBase *exporter;
-
     DataExporterBase::ExportFormat format = (DataExporterBase::ExportFormat)formatComboBox->currentIndex();
-    switch(format){
-    case DataExporterBase::CSV:
-        exporter=new CsvExporter();
-        break;
-    case DataExporterBase::Excel:
-        exporter=new ExcelExporter();
-        break;
-    case DataExporterBase::HTML:
-        exporter=new HtmlExporter();
-        break;
-    case DataExporterBase::XML:
-        exporter=new XmlExporter();
-        break;
-    case DataExporterBase::Insert:
-        exporter=new InsertExporter();
+
+    DataExporterBase *exporter = DataExporterFactory::createExporter(format);
+
+    if(format == DataExporterBase::Insert){
         ((InsertExporter*)exporter)->includeSchema = includeSchemaCheckBox->isChecked();
         ((InsertExporter*)exporter)->schemaName=schemaNameEditor->text().trimmed();
         if(!multiTableExport){
             ((InsertExporter*)exporter)->tableName=tableNameEditor->text().trimmed();
         }
-        break;
-    default:
-        exporter=0;
-        Q_ASSERT(false);
-        break;
     }
 
     exporter->filename = filenameEditor->fileName();

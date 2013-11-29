@@ -51,7 +51,7 @@ QWidget *ConstraintSelectorDelegate::createEditor(QWidget *parent, const QStyleO
     }
 
     DbItemListComboBox *editor=new DbItemListComboBox(index.data().toString(), "column_uq", false, false, parent);
-    editor->setInDelegateMode();
+    editor->setSilentMode();
     editor->loadItems(queryScheduler, "get_table_constraint_columns",
                       QList<Param*>()
                       //<< new Param(":constraint_type", DbUtil::getConstraintTypeLetter(constraintType))

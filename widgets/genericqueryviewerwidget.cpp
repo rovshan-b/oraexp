@@ -126,6 +126,11 @@ QList<QAction *> GenericQueryViewerWidget::getSpecificToolbarButtons()
     return QList<QAction*>();
 }
 
+QList<QWidget *> GenericQueryViewerWidget::getSpecificToolbarWidgets()
+{
+    return QList<QWidget*>();
+}
+
 void GenericQueryViewerWidget::setObjectListMode(int schemaNameCol, int objectNameCol, int objectTypeCol,
                                                  const QString &objectListSchemaName, const QString &objectListObjectType)
 {

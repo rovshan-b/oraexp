@@ -313,7 +313,7 @@ void DataOperationHelper::disableRefConstraints()
                                       "disable_all_ref_constraints",
                                       "refConstraintsDisabled");
     }else{
-        emit queryTextAvailable(disableQuery);
+        emit queryTextAvailable(QString("%1/\n").arg(disableQuery));
         startToCompare();
     }
 }
@@ -364,7 +364,7 @@ void DataOperationHelper::refConstraintsEnabled(const QueryResult &result)
         OciException ex=result.exception;
 
         if(options->comparisonMode==DataOperationOptions::UpdateDatabase){
-            ex.addToErrorMessage(tr("Comparison completed successfully but application failed to enable referential constraints.\nThey need to be enabled manually with provided query.\n"));
+            ex.addToErrorMessage(tr("Operation completed successfully but application failed to enable referential constraints.\nThey need to be enabled manually with provided query.\n"));
         }
 
         if(!lastException.isEmpty()){

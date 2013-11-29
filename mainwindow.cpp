@@ -30,10 +30,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     createMenu();
 
-    DbConnection::initEnvironment();
-
     setWindowIcon(IconUtil::getIcon("database"));
-    setWindowTitle("Oracle Explorer");
+    setWindowTitle("OraExp");
 
     SettingsHelper::restoreWindowPosition(this, "MainWindow");
     SettingsHelper::loadStaticApplicationSettings();

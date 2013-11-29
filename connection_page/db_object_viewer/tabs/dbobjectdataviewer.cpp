@@ -4,15 +4,19 @@
 #include "util/iconutil.h"
 #include "util/widgethelper.h"
 #include "util/dbutil.h"
+#include "util/strutil.h"
 #include "beans/resultsetcolumnmetadata.h"
 #include "dialogs/orderbyoptionsdialog.h"
 #include "dialogs/plaintexteditordialog.h"
 #include "controllers/datatableeditcontroller.h"
+#include "widgets/genericqueryviewertabs.h"
+#include "widgets/clickablelabel.h"
+#include "connection_page/dbuimanager.h"
 #include "errors.h"
 #include <QtGui>
 
 DbObjectDataViewer::DbObjectDataViewer(DbUiManager *uiManager, QWidget *parent) :
-    DbObjectViewerGenericTab("", uiManager, parent), editController(0), isEditableResultset(true)
+    DbObjectViewerGenericTab("", uiManager, parent), editController(0), filterLabel(0), isEditableResultset(true)
 {
 
 }
@@ -38,7 +42,7 @@ void DbObjectDataViewer::setObjectName(const QString &schemaName,
 
     if(baseQuery.isEmpty()){
         baseQuery = QString("select t.*, t.rowid from \"%1\".\"%2\" t").arg(schemaName).arg(objectName);
-        whereClause = QString("WHERE ROWNUM <= 50000");
+        //whereClause = QString("WHERE ROWNUM <= 50000");
     }
 
     rebuildQuery();
@@ -48,9 +52,8 @@ void DbObjectDataViewer::rebuildQuery()
 {
     query = baseQuery;
 
-    if(!whereClause.isEmpty()){
-        query.append(QString(" %1").arg(whereClause));
-    }
+    appendWhereClause(query);
+    displayFilterText();
 
     if(!orderBy.isEmpty()){
         query.append(QString(" %1").arg(orderBy));
@@ -58,6 +61,15 @@ void DbObjectDataViewer::rebuildQuery()
 
     if(editController && isEditableResultset){
         editController->enableEditActions(true);
+    }
+
+    qDebug() << query;
+}
+
+void DbObjectDataViewer::appendWhereClause(QString &appendTo)
+{
+    if(!whereClause.isEmpty()){
+        appendTo.append(QString(" %1").arg(ensureStartsWith(whereClause, "WHERE")));
     }
 }
 
@@ -84,6 +96,12 @@ QList<QAction *> DbObjectDataViewer::getSpecificToolbarButtons()
 
     actions.append(WidgetHelper::createSeparatorAction(this));
 
+    QAction *countRowsAction = new QAction(IconUtil::getIcon("count"), tr("Count rows"), this);
+    connect(countRowsAction, SIGNAL(triggered()), this, SLOT(countRows()));
+    actions.append(countRowsAction);
+
+    actions.append(WidgetHelper::createSeparatorAction(this));
+
     actions.append(editController->createEditActions());
 
     actions.append(WidgetHelper::createSeparatorAction(this));
@@ -93,6 +111,16 @@ QList<QAction *> DbObjectDataViewer::getSpecificToolbarButtons()
     actions.append(filterAction);
 
     return actions;
+}
+
+QList<QWidget *> DbObjectDataViewer::getSpecificToolbarWidgets()
+{
+    filterLabel = new ClickableLabel();
+    displayFilterText();
+
+    connect(filterLabel, SIGNAL(clicked()), this, SLOT(filter()));
+
+    return QList<QWidget*>() << filterLabel;
 }
 
 void DbObjectDataViewer::filter()
@@ -127,15 +155,25 @@ void DbObjectDataViewer::sort(int colIx)
     }
 
     OrderByOptionsDialog dialog(this->window());
+    dialog.setQueryScheduler(this->queryScheduler);
 
     if(dialog.exec()){
         orderBy = dialog.getOrderByClause();
         if(!orderBy.isEmpty()){
-            orderBy = orderBy.arg(colIx+1);
+            orderBy = orderBy.arg(QString("\"%1\"").arg(dt->model()->headerData(colIx, Qt::Horizontal).toString()));
         }
         rebuildQuery();
         refreshInfo();
     }
+}
+
+void DbObjectDataViewer::countRows()
+{
+    QString queryToRun = QString("select 'Row count: '||trim(to_char(count(0), '999G999G999G999G999G999G999')) from \"%1\".\"%2\"").arg(schemaName).arg(objectName);
+
+    appendWhereClause(queryToRun);
+
+    uiManager->showRecordCount(queryToRun, QList<Param*>());
 }
 
 void DbObjectDataViewer::asyncQueryError(const OciException &ex)
@@ -153,4 +191,19 @@ void DbObjectDataViewer::asyncQueryError(const OciException &ex)
         rebuildQuery();
         refreshInfo();
     }
+}
+
+void DbObjectDataViewer::displayFilterText()
+{
+    if(!filterLabel){
+        return;
+    }
+
+    filterLabel->setToolTip(this->whereClause);
+
+    QString filterText(this->whereClause);
+    filterText.replace('\n', ' ');
+    QFontMetrics metrics(filterLabel->font());
+    filterText = metrics.elidedText(filterText, Qt::ElideRight, 250);
+    filterLabel->setText(filterText);
 }

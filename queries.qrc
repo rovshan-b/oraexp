@@ -147,5 +147,7 @@
         <file>queries/get_table_fk_constraints.sql</file>
         <file>queries/resolve_name.sql</file>
         <file>queries/ping_query.sql</file>
+        <file>queries/get_session_list_locks_filter.sql</file>
+        <file>queries/get_nls_valid_values.sql</file>
     </qresource>
 </RCC>

@@ -113,6 +113,15 @@ void GenericQueryViewerTabs::initTab(GenericQueryViewerWidget *tab)
         }
     }
 
+    QList<QWidget*> specificWidgets=tab->getSpecificToolbarWidgets();
+    if(specificWidgets.size()>0){
+        tabSpecificWidgets[tab]=specificWidgets;
+        foreach(QWidget* widget, specificWidgets){
+            QAction *widgetAction = toolbar->insertWidget(lastSeparatorBeforeProgressBar, widget);
+            tabSpecificActions[tab].append(widgetAction);
+        }
+    }
+
     tab->setQueryScheduler(this->queryScheduler);
     tab->loadInfo();
 }

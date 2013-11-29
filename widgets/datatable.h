@@ -13,6 +13,7 @@ class IQueryScheduler;
 class StatementDesc;
 class DbUiManager;
 class ResultsetTableModel;
+class DataExporterBase;
 
 class DataTable : public QTableView, public IActionPropertySetter
 {
@@ -57,6 +58,10 @@ public:
 
     void setEditable(bool editable = true);
 
+    void closeEditors(bool commit = true);
+
+    bool objectListModeEnabled() const;
+
 public slots:
     void resizeColumnsToFitContents();
 
@@ -83,6 +88,8 @@ private slots:
 
     void indexPressed ( const QModelIndex & index );
 
+    void copyAs();
+
 private:
     IQueryScheduler *queryScheduler;
     QHash<int, StatementDesc*> dynamicQueries;
@@ -91,7 +98,7 @@ private:
     bool humanizeColumnNames;
     bool quietMode;
 
-    void copyToClipboard();
+    void copyToClipboard(DataExporterBase *exporter);
 
     QString objectListSchemaName;
     QString objectListParentObjectName;
@@ -112,6 +119,8 @@ private:
     int getVisibleRecordCount() const;
 
     bool editable;
+
+    QAction *createCopyMenu(bool withHeader) const;
 };
 
 #endif // DATATABLE_H

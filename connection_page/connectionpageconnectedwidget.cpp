@@ -52,6 +52,8 @@ ConnectionPageConnectedWidget::ConnectionPageConnectedWidget(DbConnection *db, D
             this, SLOT(asyncConnectionReady(DbConnection*,void*,bool,OciException)));
     connect(&connectionPool, SIGNAL(working(bool)), this, SLOT(connectionPoolWorking(bool)));
 
+    new QShortcut(QKeySequence(QKeySequence::Close), this, SLOT(closeCurrentTab()));
+
     QTimer::singleShot(0, this, SLOT(restoreWindowState()));
 }
 
@@ -238,7 +240,7 @@ void ConnectionPageConnectedWidget::tabBusyStateChanged(ConnectionPageObject *ob
         Q_ASSERT(busyCounter >= 0);
     }
 
-    if(busyCounter ==0 || busyCounter == 1){ //just got free or just got busy
+    if((busyCounter == 0 && !busy) || (busyCounter == 1 && busy)){ //just got free or just got busy
         emit busyStateChanged(busy);
     }
 }
@@ -435,4 +437,12 @@ ConnectionPageTab *ConnectionPageConnectedWidget::findTabById(const QString &tab
 const ConnectionPool *ConnectionPageConnectedWidget::getConnectionPool() const
 {
     return &this->connectionPool;
+}
+
+void ConnectionPageConnectedWidget::closeCurrentTab()
+{
+    int currentIx = centralTab->currentIndex();
+    if(currentIx != -1){
+        closeTab(currentIx);
+    }
 }

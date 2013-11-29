@@ -540,10 +540,21 @@ SOURCES += main.cpp\
     widgets/messagewidget.cpp \
     dialogs/reconnectdialog.cpp \
     util/asyncreconnect.cpp \
-    dialogs/aboutdialog.cpp \
     dialogs/creditsdialog.cpp \
     util/simplecrypt.cpp \
-    dialogs/options_dialog/optionsdialog.cpp
+    dialogs/options_dialog/optionsdialog.cpp \
+    dialogs/aboutdialog.cpp \
+    widgets/clickablelabel.cpp \
+    dialogs/objectresolverdialog.cpp \
+    util/objectresolver.cpp \
+    connection_page/data_exporter/dataexporterobject.cpp \
+    connection_page/data_exporter/dataexporterfactory.cpp \
+    util/modelutil.cpp \
+    dialogs/queryrunnerdialog.cpp \
+    dialogs/options_dialog/tabs/optionsdialogtab.cpp \
+    dialogs/options_dialog/tabs/optionsdialogconnectivitytab.cpp \
+    dialogs/options_dialog/tabs/optionsdialogsnippetstab.cpp \
+    widgets/tabbar.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1092,15 +1103,26 @@ HEADERS  += mainwindow.h \
     widgets/messagewidget.h \
     dialogs/reconnectdialog.h \
     util/asyncreconnect.h \
-    dialogs/aboutdialog.h \
     dialogs/creditsdialog.h \
     util/simplecrypt.h \
-    dialogs/options_dialog/optionsdialog.h
+    dialogs/options_dialog/optionsdialog.h \
+    dialogs/aboutdialog.h \
+    widgets/clickablelabel.h \
+    dialogs/objectresolverdialog.h \
+    util/objectresolver.h \
+    connection_page/data_exporter/dataexporterobject.h \
+    connection_page/data_exporter/dataexporterfactory.h \
+    util/modelutil.h \
+    dialogs/queryrunnerdialog.h \
+    dialogs/options_dialog/tabs/optionsdialogtab.h \
+    dialogs/options_dialog/tabs/optionsdialogconnectivitytab.h \
+    typedefs.h \
+    dialogs/options_dialog/tabs/optionsdialogsnippetstab.h \
+    widgets/tabbar.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \
     dialogs/columnselectordialog.ui \
-    dialogs/aboutdialog.ui \
     dialogs/creditsdialog.ui
 
 RESOURCES += \

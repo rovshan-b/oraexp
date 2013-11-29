@@ -4,7 +4,7 @@ BindParamInfo::BindParamInfo()
 {
 }
 
-BindParamInfo::BindParamInfo(BindParamInfo::BindParamType paramType, Param::ParamDirection paramDirection) :
+BindParamInfo::BindParamInfo(BindParamType paramType, Param::ParamDirection paramDirection) :
     paramType(paramType), paramDirection(paramDirection)
 {
 }

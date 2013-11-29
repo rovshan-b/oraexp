@@ -14,6 +14,7 @@ public:
     explicit DataImporterFirstPage(
             const QString &schemaName,
             const QString &tableName,
+            DbUiManager *uiManager,
             QWidget *parent = 0);
 
     void setQueryScheduler(IQueryScheduler *queryScheduler);

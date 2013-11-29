@@ -142,5 +142,25 @@ void DialogHelper::showMaximizeMinimizeButtons(QWidget *dialog)
 {
     dialog->setWindowFlags(Qt::Window | Qt::WindowSystemMenuHint
                    | Qt::WindowMinMaxButtonsHint
-                   | Qt::WindowCloseButtonHint);
+                           | Qt::WindowCloseButtonHint);
+}
+
+void DialogHelper::createProgressBarUi(QWidget *dialog, QLabel *messageLabel)
+{
+    QVBoxLayout *mainLayout = new QVBoxLayout();
+
+    if(messageLabel){
+        messageLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
+        mainLayout->addWidget(messageLabel, 0, Qt::AlignHCenter);
+    }
+
+    QProgressBar *progressBar = new QProgressBar();
+    progressBar->setMaximumHeight(10);
+    progressBar->setRange(0,0);
+    mainLayout->addWidget(progressBar);
+
+    dialog->setLayout(mainLayout);
+
+    dialog->resize(dialog->sizeHint());
+    DialogHelper::centerWindow(dialog);
 }

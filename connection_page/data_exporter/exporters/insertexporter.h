@@ -15,6 +15,8 @@ public:
     virtual void startDocument(QTextStream &out);
     virtual void exportRow(const QStringList &oneRow, int rowIx, QTextStream &out);
 
+    virtual QString getMimeType() const {return "text/plain";}
+
 protected:
     virtual void prepareField(QString &fieldValue, int fieldIx);
 

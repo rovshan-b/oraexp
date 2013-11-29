@@ -3,6 +3,8 @@
 #include "connection_page/dbuimanager.h"
 #include "util/dialoghelper.h"
 #include "util/widgethelper.h"
+#include "app_menu/appmenu.h"
+#include "app_menu/appfilemenu.h"
 #include <QtGui>
 
 #include <iostream>
@@ -107,6 +109,10 @@ bool ConnectionPageTab::saveContentsAs()
 
     bool result = saveToFile(fileName);
     setCurrentFileName(fileName);
+
+    if(result){
+        AppMenu::defaultInstance()->getFileMenu()->addToRecentFileList(fileName);
+    }
 
     return result;
 }

@@ -13,7 +13,7 @@ class DataImporterImportPage : public ConnectionPageWizardPage
 {
     Q_OBJECT
 public:
-    explicit DataImporterImportPage(QWidget *parent = 0);
+    explicit DataImporterImportPage(DbUiManager *uiManager, QWidget *parent = 0);
 
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 

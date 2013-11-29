@@ -11,6 +11,8 @@ public:
     virtual void startDocument(QTextStream &out);
     virtual void exportRow(const QStringList &oneRow, int rowIx, QTextStream &out);
     virtual void endDocument(QTextStream &out);
+
+    virtual QString getMimeType() const {return "text/xml";}
 };
 
 #endif // XMLEXPORTER_H

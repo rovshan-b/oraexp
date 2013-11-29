@@ -20,6 +20,8 @@ public:
     virtual void exportRow(const QStringList &oneRow, int rowIx, QTextStream &out);
     virtual void endDocument(QTextStream &out);
 
+    virtual QString getMimeType() const {return "application/vnd.ms-excel";}
+
     virtual QTextStream *createOutputStream(QString &errorMessage);
 
 private:

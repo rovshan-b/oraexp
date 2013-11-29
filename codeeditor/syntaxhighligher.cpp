@@ -58,7 +58,7 @@ SyntaxHighligher::SyntaxHighligher(QTextDocument * parent) :
             }
         }
 
-        SyntaxHighligher::keywords.sort();
+        qSort(SyntaxHighligher::keywords.begin(), SyntaxHighligher::keywords.end(), caseInsensitiveLessThan);
     }
 }
 
@@ -67,7 +67,7 @@ void SyntaxHighligher::highlightBlock(const QString &text)
     //highlight keywords
     QSet<QString> allWords = text.split(QRegExp("\\W+")).toSet();
     foreach(const QString &word, allWords){
-        if(isKeyword(word)){
+        if(!word.isEmpty() && isKeyword(word)){
             QRegExp rx(QString("\\b%1\\b").arg(word));
             rx.setCaseSensitivity(Qt::CaseInsensitive);
 
@@ -118,13 +118,15 @@ void SyntaxHighligher::highlightMultilineConstruct(const QString &text,
         return;
     }
 
+    bool onSameLine = false;
     int startIndex = 0;
     if (previousBlockState() != blockState){
         startIndex = startExpression.indexIn(text);
+        onSameLine = true;
     }
 
     while (startIndex >= 0) {
-        int endIndex = endExpression.indexIn(text, startIndex+1);
+        int endIndex = endExpression.indexIn(text, startIndex + (onSameLine ? 1 : 0));
         int commentLength;
         if (endIndex == -1) {
             setCurrentBlockState(blockState);

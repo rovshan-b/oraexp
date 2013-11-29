@@ -24,6 +24,8 @@ public:
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
     IQueryScheduler *scheduler() const;
+
+    void addWidgetToToolBar(QWidget *widget);
     
 public slots:
     void currentTabChanged(int index);
@@ -47,6 +49,7 @@ protected:
     QAction *lastSeparatorBeforeProgressBar;
 
     QHash< QWidget*, QList<QAction*> > tabSpecificActions;
+    QHash< QWidget*, QList<QWidget*> > tabSpecificWidgets;
 
     virtual void initTab(GenericQueryViewerWidget *tab);
 

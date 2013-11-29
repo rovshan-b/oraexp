@@ -19,10 +19,6 @@ public:
 
     void addText(const QString &text);
 
-    void showSearchWidget(){editor->showSearchPane();}
-    void findNext(){editor->findNext();}
-    void findPrevious(){editor->findPrevious();}
-
     void beforeCompare();
     void afterCompare();
 

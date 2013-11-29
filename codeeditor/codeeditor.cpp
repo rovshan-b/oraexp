@@ -6,6 +6,7 @@
 #include "dialogs/gotolinedialog.h"
 #include "util/widgethelper.h"
 #include "util/iconutil.h"
+#include "util/settings.h"
 #include "app_menu/appmenu.h"
 #include "app_menu/appeditmenu.h"
 #include "code_parser/plsql/plsqlparsingtable.h"
@@ -18,8 +19,8 @@
 #define EDITOR_CURR_LINE_NAVBAR_COLOR palette().color(QPalette::Window).darker(130)
 #define EDITOR_PULSATE_COLOR (QColor(210,255,165))
 
-QFont CodeEditor::currentFont;
-QHash<QString,QString> CodeEditor::textShortcuts;
+QList<CodeEditor*> CodeEditor::openEditors;
+QStringHash CodeEditor::textShortcuts;
 
 CodeEditor::CodeEditor(bool enableCodeCollapsing, QWidget *parent) :
     QPlainTextEdit(parent),
@@ -57,7 +58,9 @@ CodeEditor::CodeEditor(bool enableCodeCollapsing, QWidget *parent) :
     p.setColor(QPalette::Disabled, QPalette::Base, p.color(QPalette::Window));
     setPalette(p);
 
-    setFont(CodeEditor::currentFont);
+    QFont f;
+    f.fromString(Settings::value("CodeEditor/currentFont", WidgetHelper::getMonospaceFont(qApp->font(this).pointSize())).toString());
+    setFont(f);
 
     strTab=QString("   ");
 
@@ -68,7 +71,8 @@ CodeEditor::CodeEditor(bool enableCodeCollapsing, QWidget *parent) :
     new QShortcut(QKeySequence(tr("Ctrl+=", "CodeEditor|Increase font size")),
                   this, SLOT(increaseFontSize()), 0, Qt::WidgetWithChildrenShortcut);
 
-    CodeEditor::fillTextShortcuts();
+    CodeEditor::loadTextShortcuts();
+    CodeEditor::openEditors.append(this);
 
     //QCompleter *completer = new QCompleter(this);
     //completer->setModel(new QStringListModel(PlSqlParsingTable::getInstance()->getKeywords(), this));
@@ -76,6 +80,11 @@ CodeEditor::CodeEditor(bool enableCodeCollapsing, QWidget *parent) :
     //completer->setCaseSensitivity(Qt::CaseInsensitive);
     //completer->setWrapAround(false);
     //setCompleter(completer);
+}
+
+CodeEditor::~CodeEditor()
+{
+    CodeEditor::openEditors.removeOne(this);
 }
 
 //use only when sure that there's not lots of text in editor
@@ -322,8 +331,8 @@ int CodeEditor::lineMarkerAreaOffset() const
  void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
  {
      QPainter painter(lineNumberArea);
-     QRect rect=event->rect();
-     painter.fillRect(rect, palette().color(QPalette::Base));
+     //QRect rect=event->rect();
+     //painter.fillRect(rect, palette().color(QPalette::Window));
      painter.setRenderHint(QPainter::Antialiasing);
      //painter.setRenderHint(QPainter::TextAntialiasing);
      QTextBlock block = firstVisibleBlock();
@@ -374,8 +383,8 @@ int CodeEditor::lineMarkerAreaOffset() const
          ++blockNumber;
      }
 
-     painter.setPen(Qt::DotLine);
-     painter.drawLine(rect.right(), rect.top(), rect.right(), rect.bottom());
+     //painter.setPen(Qt::DotLine);
+     //painter.drawLine(rect.right(), rect.top(), rect.right(), rect.bottom());
  }
 
  void CodeEditor::codeCollapseAreaPaintEvent(QPaintEvent *event)
@@ -769,7 +778,6 @@ int CodeEditor::lineMarkerAreaOffset() const
      cur.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
  }
 
-
  void CodeEditor::focusInEvent(QFocusEvent *event)
  {
      if (completer){
@@ -810,6 +818,7 @@ int CodeEditor::lineMarkerAreaOffset() const
      menu->addAction(editMenu->editCreateDuplicateAction);
      menu->addAction(editMenu->editRemoveEmptyLinesAction);
      menu->addSeparator();
+     menu->addAction(editMenu->editDescribeAction);
      menu->addAction(editMenu->editResolveAction);
 
      menu->exec(event->globalPos());
@@ -822,8 +831,6 @@ int CodeEditor::lineMarkerAreaOffset() const
          QFont newFont=this->font();
 
          lineNumberArea->setFont(newFont);
-
-         CodeEditor::currentFont = newFont;
      }
 
      return QPlainTextEdit::event(e);
@@ -914,7 +921,7 @@ int CodeEditor::lineMarkerAreaOffset() const
      setTextCursor(cur);
  }
 
- void CodeEditor::insertTab() const
+ void CodeEditor::insertTab()
  {
      QTextCursor cur = textCursor();
      Q_ASSERT(!cur.hasSelection()); //this function is called only when there is no selection
@@ -924,6 +931,15 @@ int CodeEditor::lineMarkerAreaOffset() const
          return;
      }
 
+     bool insertedTextShortcut = insertTextShortcut(cur);
+
+     if(!insertedTextShortcut){
+        textCursor().insertText(strTab);
+     }
+ }
+
+ bool CodeEditor::insertTextShortcut(QTextCursor &cur)
+ {
      QList<QString> keys = CodeEditor::textShortcuts.keys();
      for(int i=0; i<keys.size(); ++i){
          const QString &key = keys.at(i);
@@ -933,14 +949,39 @@ int CodeEditor::lineMarkerAreaOffset() const
          }
          cur.setPosition(posToSet, QTextCursor::KeepAnchor);
          if(cur.selectedText().compare(key, Qt::CaseInsensitive) == 0){
-             cur.insertText(CodeEditor::textShortcuts[key]);
-             return;
+             QString value = CodeEditor::textShortcuts[key];
+
+             int cursorPos = value.length();
+             //check if value contains |
+             int pipePos = value.lastIndexOf('|');
+             if(pipePos!=-1 && value.length()==1){
+                 return false;
+             }
+
+             while(pipePos != -1){
+                 if((pipePos==value.length()-1 && value.at(pipePos-1)=='|') ||
+                         (pipePos==0 && value.at(1)=='|') ||
+                         (pipePos!=value.length()-1 && pipePos>0 && (value.at(pipePos-1)=='|' || value.at(pipePos+1)=='|'))){
+                     pipePos = value.lastIndexOf('|', pipePos-2);
+                 }else{
+                     value.remove(pipePos, 1);
+                     cursorPos = value.length() - pipePos;
+                     break;
+                 }
+             }
+
+             cur.insertText(value);
+             if(cursorPos != value.length()){
+                 cur.setPosition(cur.position() - cursorPos);
+                 setTextCursor(cur);
+             }
+             return true;
          }else{
              cur.setPosition(posToSet + key.size());
          }
      }
 
-     textCursor().insertText(strTab);
+     return false;
  }
 
  void CodeEditor::handleHomeKey(bool keepSelection)
@@ -1163,16 +1204,38 @@ int CodeEditor::lineMarkerAreaOffset() const
  void CodeEditor::increaseFontSize()
  {
     WidgetHelper::changeFontSize(this, 0.5);
+
+    applyCurrentFontToAllEditors();
  }
 
  void CodeEditor::decreaseFontSize()
  {
      WidgetHelper::changeFontSize(this, -0.5);
+
+     applyCurrentFontToAllEditors();
  }
 
  void CodeEditor::resetFontSize()
  {
      this->setFont(WidgetHelper::getMonospaceFont(qApp->font(this).pointSize()));
+
+     applyCurrentFontToAllEditors();
+ }
+
+ void CodeEditor::applyCurrentFontToAllEditors()
+ {
+     foreach(CodeEditor *e, CodeEditor::openEditors){
+         if(e!=this){
+             e->setFont(this->font());
+         }
+     }
+
+     saveFontSettings();
+ }
+
+ void CodeEditor::saveFontSettings()
+ {
+     Settings::setValue("CodeEditor/currentFont", this->font().toString());
  }
 
  void CodeEditor::toUpperCase()
@@ -1570,13 +1633,20 @@ int CodeEditor::lineMarkerAreaOffset() const
      return QPlainTextEdit::eventFilter(watched, event);
  }
 
- void CodeEditor::fillTextShortcuts()
+ void CodeEditor::loadTextShortcuts()
  {
      if(!CodeEditor::textShortcuts.isEmpty()){
          return;
      }
 
+     CodeEditor::textShortcuts = Settings::loadStringHash("CodeEditor/shortcuts");
+     if(!CodeEditor::textShortcuts.isEmpty()){
+         return;
+     }
+
      CodeEditor::textShortcuts["sf"] = "select * from ";
+     CodeEditor::textShortcuts["sc"] = "select count(0) from ";
+     CodeEditor::textShortcuts["se"] = "select t.*, t.rowid from | t";
      CodeEditor::textShortcuts["ii"] = "insert into ";
      CodeEditor::textShortcuts["df"] = "delete from ";
  }

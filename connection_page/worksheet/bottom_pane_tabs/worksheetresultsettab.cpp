@@ -3,6 +3,7 @@
 #include "connectivity/statement.h"
 #include "widgets/datatable.h"
 #include "util/iconutil.h"
+#include "connection_page/dbuimanager.h"
 #include "connection_page/data_exporter/dataexportdialog.h"
 #include "connection_page/data_exporter/dataexporterthread.h"
 #include "connection_page/data_exporter/exporters/dataexporterbase.h"
@@ -12,8 +13,9 @@
 #include "code_parser/plsql/plsqlparsehelper.h"
 #include <QtGui>
 
-WorksheetResultsetTab::WorksheetResultsetTab(QWidget *parent) :
+WorksheetResultsetTab::WorksheetResultsetTab(DbUiManager *uiManager, QWidget *parent) :
     WorksheetBottomPaneTab(parent),
+    uiManager(uiManager),
     queryScheduler(0),
     exporterThread(0),
     exportDialog(0),
@@ -45,12 +47,16 @@ WorksheetResultsetTab::WorksheetResultsetTab(QWidget *parent) :
 
 WorksheetResultsetTab::~WorksheetResultsetTab()
 {
+    cleanup();
 }
 
 void WorksheetResultsetTab::addTabSpecificToolbarButtons()
 {
     dataExportAction = toolbar->addAction(IconUtil::getIcon("export"), tr("Export"), this, SLOT(exportData()));
     dataExportAction->setEnabled(false);
+
+    countRowsAction = toolbar->addAction(IconUtil::getIcon("count"), tr("Count rows"), this, SLOT(countRows()));
+    countRowsAction->setEnabled(false);
 
     toolbar->addSeparator();
 
@@ -72,19 +78,26 @@ void WorksheetResultsetTab::showQueryResults(IQueryScheduler *, const QueryResul
 
 void WorksheetResultsetTab::displayResultset(IQueryScheduler *queryScheduler, Statement *stmt, int rsIx)
 {
+    cleanup();
+
     this->queryScheduler = queryScheduler;
 
     Resultset *rs = stmt->rsAt(rsIx);
 
+    this->lastQuery = stmt->getStatementType()==OraExp::QueryTypeSelect ? stmt->getQuery() : "";
+    this->lastParams = Param::cloneParams(stmt->getParams());
+
     //check if we need to make table editable
     QSharedPointer<ResultsetColumnMetadata> metadata = rs->getColumnMetadata();
-    if(metadata->getColumnCount()>1 && metadata->columnTitles.at(metadata->columnTitles.size()-1)=="ROWID" && //last column is named rowid
-            stmt->getStatementType()==OraExp::QueryTypeSelect &&
-            stmt->paramCount()==0){ //no parameters for now to be able to refresh when required
-        makeEditable(stmt->getQuery());
+    if(!lastQuery.isEmpty() && metadata->getColumnCount()>1 &&
+            metadata->columnTitles.at(metadata->columnTitles.size()-1)=="ROWID" //last column is named rowid
+            ){
+        makeEditable(true);
     }else{
-        makeEditable("");
+        makeEditable(false);
     }
+
+    countRowsAction->setToolTip(lastQuery.isEmpty() ? tr("Cannot count when resultset is from cursor") : tr("Count rows"));
 
     cursorClosed = false;
     setInProgress(true);
@@ -111,6 +124,19 @@ void WorksheetResultsetTab::exportData()
         DataExporterBase *exporter = exportDialog->exportWidget()->createExporter();
         startExport(exporter);
     }
+}
+
+void WorksheetResultsetTab::countRows()
+{
+    if(queryScheduler->getDb()->isBusy()){
+        QMessageBox::information(this->window(), tr("Connection busy"), tr("Connection is busy"));
+        return;
+    }
+
+    QString queryToRun;
+    queryToRun.append("select 'Row count: '||trim(to_char(count(0), '999G999G999G999G999G999G999')) from (").append(this->lastQuery).append(") t_alias");
+
+    uiManager->showRecordCount(queryToRun, Param::cloneParams(this->lastParams));
 }
 
 void WorksheetResultsetTab::startExport(DataExporterBase *exporter)
@@ -195,26 +221,30 @@ void WorksheetResultsetTab::stopProgress()
 
 void WorksheetResultsetTab::reloadQuery()
 {
-    resultsTable->displayQueryResults(this->queryScheduler, this->lastQuery, QList<Param*>());
+    resultsTable->displayQueryResults(this->queryScheduler, this->lastQuery, Param::cloneParams(this->lastParams));
+}
+
+void WorksheetResultsetTab::cleanup()
+{
+    qDeleteAll(lastParams);
 }
 
 void WorksheetResultsetTab::setInProgress(bool inProgress, bool showsStatusMessage, bool cancellable)
 {
     progressBarAction->setVisible(inProgress);
     dataExportAction->setEnabled(!inProgress && !cursorClosed);
+    countRowsAction->setEnabled(!inProgress && !lastQuery.isEmpty());
 
     labelAction->setVisible(inProgress && showsStatusMessage);
     stopProgressButton->setVisible(inProgress && cancellable);
 }
 
-void WorksheetResultsetTab::makeEditable(const QString &query)
+void WorksheetResultsetTab::makeEditable(bool editable)
 {
-    this->lastQuery = query;
-
     editController->clearColumnDelegates();
     editController->setQueryScheduler(this->queryScheduler);
 
-    if(query.isEmpty()){
+    if(!editable){
         editController->enableEditActions(false);
         editController->setObjectName("","","");
         resultsTable->setEditable(false);
@@ -224,7 +254,7 @@ void WorksheetResultsetTab::makeEditable(const QString &query)
     }
 
     QString schemaName, tableName, dblinkName;
-    PlSqlParseHelper::findTableNameInSelectQuery(query, &schemaName, &tableName, &dblinkName);
+    PlSqlParseHelper::findTableNameInSelectQuery(lastQuery, &schemaName, &tableName, &dblinkName);
     if(!tableName.isEmpty()){
         editController->enableEditActions(true);
         editController->setObjectName(schemaName, tableName, dblinkName);

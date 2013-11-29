@@ -2,6 +2,7 @@
 #include "util/dialoghelper.h"
 #include "util/widgethelper.h"
 #include "util/settings.h"
+#include "widgets/dbitemlistcombobox.h"
 #include <QtGui>
 
 OrderByOptionsDialog::OrderByOptionsDialog(QWidget *parent) :
@@ -34,6 +35,11 @@ OrderByOptionsDialog::OrderByOptionsDialog(QWidget *parent) :
 
     form->addRow(tr("NULLS"), WidgetHelper::nestWidgets(QList<QWidget*>() << nullsFirstButton << nullsLastButton << nullsDefaultButton, Qt::Horizontal));
 
+    QString nlsSort = Settings::value("OrderByOptionsDialog/NLSSORT", "").toString();
+    nlsSortCombo = new DbItemListComboBox(nlsSort);
+    nlsSortCombo->setSilentMode();
+    form->addRow(tr("NLS Sort"), nlsSortCombo);
+
     mainLayout->addLayout(form);
     mainLayout->addWidget(DialogHelper::createButtonBox(this));
 
@@ -48,10 +54,16 @@ OrderByOptionsDialog::OrderByOptionsDialog(QWidget *parent) :
     connect(removeButton, SIGNAL(toggled(bool)), this, SLOT(removeSortChecked(bool)));
 }
 
+void OrderByOptionsDialog::setQueryScheduler(IQueryScheduler *queryScheduler)
+{
+    nlsSortCombo->loadItems(queryScheduler, "get_nls_valid_values", QList<Param*>() << new Param(":parameter_name", QString("SORT")));
+}
+
 void OrderByOptionsDialog::accept()
 {
     Settings::setValue("OrderByOptionsDialog/direction", sortDirectionGroup->checkedId());
     Settings::setValue("OrderByOptionsDialog/nullsOrdering", nullsOrderingGroup->checkedId());
+    Settings::setValue("OrderByOptionsDialog/NLSSORT", nlsSortCombo->currentText());
 
     QDialog::accept();
 }
@@ -62,19 +74,26 @@ QString OrderByOptionsDialog::getOrderByClause() const
 
     SortDirection dir = (SortDirection)sortDirectionGroup->checkedId();
     NullsOrdering nulls = (NullsOrdering)nullsOrderingGroup->checkedId();
+    QString nlsSort = nlsSortCombo->currentText().trimmed();
 
     if(dir == Remove){
         return result;
     }
 
-    result = "ORDER BY %1 ";
+    result = "ORDER BY ";
+
+    if(nlsSort.isEmpty()){
+        result.append("%1");
+    }else{
+        result.append("NLSSORT(%1, 'NLS_SORT = ").append(nlsSort).append("')");
+    }
 
     switch(dir){
     case Asc:
-        result.append("ASC");
+        result.append(" ASC");
         break;
     default:
-        result.append("DESC");
+        result.append(" DESC");
         break;
     }
 

@@ -10,7 +10,7 @@ XmlExporter::XmlExporter()
 
 void XmlExporter::startDocument(QTextStream &out)
 {
-    out << QString("<?xml version=\"1.0\" encoding=\"%1\" standalone=\"yes\"?>").arg((QString)out.codec()->name());
+    out << QString("<?xml version=\"1.0\" encoding=\"%1\" standalone=\"yes\"?>").arg(this->encoding);
     out << lineEnding << "<RECORDS>";
 }
 
@@ -18,8 +18,9 @@ void XmlExporter::exportRow(const QStringList &oneRow, int /*rowIx*/, QTextStrea
 {
     out << lineEnding << " <RECORD>";
     QString title;
+    QStringList titles = getColumnTitles();
     for(int i=0; i<oneRow.size(); ++i){
-        title = xmlEncode(removeEnclosure(columnMetadata->columnTitles.at(i)));
+        title = xmlEncode(removeEnclosure(titles.at(i)));
         out << "\n  <" << title << ">";
         out << oneRow.at(i);
         out << "</" << title << ">";

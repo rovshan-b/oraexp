@@ -13,8 +13,8 @@ class DbItemListComboBox : public QComboBox
     Q_OBJECT
 public:
     explicit DbItemListComboBox(const QString &initialValue,
-                                const QString &iconName,
-                                bool setMaxWidth,
+                                const QString &iconName = "",
+                                bool setMaxWidth = false,
                                 bool prependEmptyValue=true,
                                 QWidget *parent=0);
 
@@ -23,7 +23,7 @@ public:
 
     void setIconColumn(int colNum);
 
-    void setInDelegateMode();
+    void setSilentMode();
 
 signals:
     void loadingCompleted();
@@ -41,7 +41,7 @@ private:
     QString currentTxt;
     bool hasSelection;
 
-    bool isInDelegate;
+    bool silentMode;
 
 };
 

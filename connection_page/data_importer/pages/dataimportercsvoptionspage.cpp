@@ -4,8 +4,8 @@
 #include <QDebug>
 #include <QtGui>
 
-DataImporterCsvOptionsPage::DataImporterCsvOptionsPage(QWidget *parent) :
-    ConnectionPageWizardPage(parent)
+DataImporterCsvOptionsPage::DataImporterCsvOptionsPage(DbUiManager *uiManager, QWidget *parent) :
+    ConnectionPageWizardPage(uiManager, parent)
 {
     setTitle(tr("Format options"));
     setSubTitle(tr("Make sure data displayed in grid is in correct format"));

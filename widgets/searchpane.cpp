@@ -41,7 +41,7 @@ SearchPane::SearchPane(CodeEditor *editor, QWidget *parent) :
 
     setLayout(mainLayout);
 
-    connect(findTextBox, SIGNAL(textChanged(QString)), this, SLOT(searchTextChanged()));
+    connect(findTextBox, SIGNAL(textEdited(QString)), this, SLOT(searchTextChanged()));
     connect(findTextBox, SIGNAL(returnPressed()), this, SLOT(findNext()));
     connect(replaceTextBox, SIGNAL(returnPressed()), this, SLOT(replaceAndFind()));
     connect(findPreviousButton, SIGNAL(clicked()), this, SLOT(findPrevious()));
@@ -315,4 +315,9 @@ void SearchPane::setReadOnly(bool readOnly)
 bool SearchPane::isReadOnly() const
 {
     return !replaceTextBox->isEnabled();
+}
+
+void SearchPane::setSearchText(const QString &text)
+{
+    findTextBox->setText(text);
 }

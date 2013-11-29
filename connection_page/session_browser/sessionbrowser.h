@@ -11,6 +11,7 @@ class QToolBar;
 class QSplitter;
 class LineEditWithClearButton;
 class QComboBox;
+class QCheckBox;
 
 class SessionBrowser : public ConnectionPageTab
 {
@@ -39,6 +40,8 @@ private slots:
 
     void filterChanged(const QString &newFilter);
 
+    void locksOnlyChanged();
+
 private:
     SessionListTree *sessionViewer;
     SessionBrowserTabs *infoTabs;
@@ -46,6 +49,7 @@ private:
     QToolBar *toolbar;
     QAction *groupAction;
     LineEditWithClearButton *filterEditor;
+    QCheckBox *locksOnlyCheckBox;
     QLabel *statusLabel;
     QAction *progressBarAction;
 

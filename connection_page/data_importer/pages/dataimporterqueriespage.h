@@ -12,7 +12,7 @@ class DataImporterQueriesPage : public ConnectionPageWizardPage
 {
     Q_OBJECT
 public:
-    explicit DataImporterQueriesPage(QWidget *parent = 0);
+    explicit DataImporterQueriesPage(DbUiManager *uiManager, QWidget *parent = 0);
     
     virtual void initializePage();
     virtual void cleanupPage();

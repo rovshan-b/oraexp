@@ -3,11 +3,13 @@
 #include "util/widgethelper.h"
 #include "util/codeeditorutil.h"
 #include "util/dbutil.h"
+#include "util/objectresolver.h"
 #include "context_menu/contextmenuutil.h"
 #include "connectionspane.h"
 #include "connection_page/connectionpage.h"
 #include "connection_page/connectionpagetab.h"
 #include "codeeditor/codeeditor.h"
+#include "mainwindow.h"
 #include "errors.h"
 #include <QtGui>
 
@@ -80,6 +82,8 @@ void AppEditMenu::setupMenu(QMenu *editMenu, QToolBar *toolbar)
     editRemoveEmptyLinesAction->setStatusTip(tr("Remove empty lines"));
 
     editMenu->addSeparator();
+
+    editDescribeAction=editMenu->addAction(tr("Describe object"), this, SLOT(describeObject()), QKeySequence("F4"));
 
     editResolveAction=editMenu->addAction(tr("Object Menu"));
     createEditResolveMenu();
@@ -178,6 +182,7 @@ void AppEditMenu::updateActionStatesForCodeEditor(CodeEditor *editor)
     editCreateDuplicateAction->setEnabled(!isReadOnly);
     editRemoveEmptyLinesAction->setEnabled(!isReadOnly);
 
+    editDescribeAction->setEnabled(true);
     editResolveAction->setEnabled(true);
 
     editIncreaseFontSize->setEnabled(true);
@@ -240,6 +245,7 @@ void AppEditMenu::focusWidgetChanged(QWidget * /*old*/, QWidget *now)
     editCreateDuplicateAction->setEnabled(false);
     editRemoveEmptyLinesAction->setEnabled(false);
 
+    editDescribeAction->setEnabled(false);
     editResolveAction->setEnabled(false);
 
     editIncreaseFontSize->setEnabled(false);
@@ -337,6 +343,28 @@ void AppEditMenu::removeEmptyLines()
     WidgetHelper::invokeSlot(currentAppWidget, "removeEmptyLines");
 }
 
+void AppEditMenu::describeObject()
+{
+    CodeEditor *editor = qobject_cast<CodeEditor*>(currentAppWidget);
+    if(!editor){
+        return;
+    }
+    QString currentObjectName = CodeEditorUtil::getCurrentObjectName(editor);
+    if(currentObjectName.isEmpty()){
+        QMessageBox::critical(MainWindow::defaultInstance(), tr("No selection"),
+                              tr("Please, select object name and try again."));
+        return;
+    }
+
+    if(currentObjectName.length()>250){
+        QMessageBox::critical(MainWindow::defaultInstance(), tr("Selection too long"),
+                              tr("Selection is too long. Please, select object name and try again."));
+        return;
+    }
+
+    uiManager()->describeObject(currentObjectName);
+}
+
 void AppEditMenu::populateResolveMenu()
 {
     CodeEditor *editor = qobject_cast<CodeEditor*>(currentAppWidget);
@@ -359,43 +387,24 @@ void AppEditMenu::populateResolveMenu()
         waitingForContextMenuObject = currentAppWidget;
 
         IQueryScheduler *queryScheduler = currentConnectionPageTab();
-        queryScheduler->enqueueQuery("resolve_name", QList<Param*>() << new Param("object_name", currentObjectName),
-                                     this, "resolve_name", "resolveQueryCompleted", "resolveResultReady", "resolveFetchCompleted",
-                                     true);
+        ObjectResolver *resolver = new ObjectResolver(this);
+        connect(resolver, SIGNAL(resolved(QString,DbTreeModel::DbTreeNodeType,QString,QString,ObjectResolver*)), this, SLOT(objectResolved(QString,DbTreeModel::DbTreeNodeType,QString,QString,ObjectResolver*)));
+        connect(resolver, SIGNAL(resolveError(OciException,ObjectResolver*)), this, SLOT(objectResolveError(OciException,ObjectResolver*)));
+        resolver->resolveName(currentObjectName, queryScheduler);
     }
 }
 
-void AppEditMenu::resolveQueryCompleted(const QueryResult &result)
+void AppEditMenu::objectResolved(const QString &objectTypeName, DbTreeModel::DbTreeNodeType objectType, const QString &schemaName, const QString &objectName, ObjectResolver *resolver)
 {
-    Q_ASSERT(editResolveMenu->actions().size() == 1);
+    Q_UNUSED(objectTypeName);
 
-    if(result.hasError){
-        if(result.exception.getErrorCode() == ERR_OBJECT_DOES_NOT_EXIST){
-            editResolveMenu->actions().at(0)->setText(tr("Object does not exist"));
-        }else{
-            editResolveMenu->actions().at(0)->setText(tr("Error resolving object"));
-            qDebug() << "resolveQueryCompleted" << result.exception.getErrorMessage();
-        }
-    }
-}
+    resolver->deleteLater();
 
-void AppEditMenu::resolveResultReady(const FetchResult &result)
-{
     if(waitingForContextMenuObject != currentAppWidget){
         return;
     }
 
-    if(result.hasError){
-        Q_ASSERT(editResolveMenu->actions().size() == 1);
-
-        editResolveMenu->actions().at(0)->setText(tr("Error resolving object"));
-        qDebug() << "resolveResultReady" << result.exception.getErrorMessage();
-
-        return;
-    }
-
-    DbTreeModel::DbTreeNodeType objectType = DbUtil::getDbObjectNodeTypeByTypeName(result.colValue("OBJECT_TYPE"));
-    QList<QAction*> objectActions = ContextMenuUtil::getActionsForObject(result.colValue("SCHEMA_NAME"), result.colValue("PART1"), "", objectType, uiManager());
+    QList<QAction*> objectActions = ContextMenuUtil::getActionsForObject(schemaName, objectName, "", objectType, uiManager());
 
     WidgetHelper::deleteActions(editResolveMenu->actions());
 
@@ -404,8 +413,18 @@ void AppEditMenu::resolveResultReady(const FetchResult &result)
     editResolveMenu->setUpdatesEnabled(true);
 }
 
-void AppEditMenu::resolveFetchCompleted(const QString &)
+void AppEditMenu::objectResolveError(const OciException &ex, ObjectResolver *resolver)
 {
+    resolver->deleteLater();
+
+    qDebug() << "objectResolveError" << ex.getErrorMessage();
+
+    if(ex.getErrorCode() == ERR_OBJECT_DOES_NOT_EXIST){
+        editResolveMenu->actions().at(0)->setText(tr("Object does not exist"));
+    }else{
+        editResolveMenu->actions().at(0)->setText(tr("Error resolving object"));
+        qDebug() << "resolveQueryCompleted" << ex.getErrorMessage();
+    }
 }
 
 void AppEditMenu::showSearchWidget()

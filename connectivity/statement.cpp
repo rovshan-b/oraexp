@@ -400,6 +400,11 @@ Param *Statement::param(int i) const
     return params.at(i);
 }
 
+QList<Param *> Statement::getParams() const
+{
+    return this->params;
+}
+
 void Statement::collectParamResultsets()
 {   
     Param::ParamType paramType;
@@ -576,9 +581,13 @@ dtext *Statement::createOciString(const QString &str)
     return result;
 }
 
-int Statement::setBindNullAtPos(int bindIx, int position) //position starts at 1.
+int Statement::setBindNullAtPos(int bindIx, int position, bool null) //position starts at 1.
 {
-    return OCI_BindSetNullAtPos(OCI_GetBind(ociStmt, bindIx), position);
+    if(null){
+        return OCI_BindSetNullAtPos(OCI_GetBind(ociStmt, bindIx), position);
+    }else{
+        return OCI_BindSetNotNullAtPos(OCI_GetBind(ociStmt, bindIx), position);
+    }
 }
 
 void Statement::printBindVars()

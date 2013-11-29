@@ -258,7 +258,8 @@ QString enclose(const QString &str, const QString &enclose)
 
 QString ensureStartsWith(QString str, const QString &startWith)
 {
-    QRegExp regexp(QString("^\b%1\b").arg(startWith), Qt::CaseInsensitive, QRegExp::RegExp2);
+    QString pattern = QString("^\\b%1\\b").arg(startWith);
+    QRegExp regexp(pattern, Qt::CaseInsensitive, QRegExp::RegExp2);
     int alreadyStartsWith=regexp.indexIn(str.replace("\n"," "));
     if(alreadyStartsWith>-1){
         return str;
@@ -399,6 +400,15 @@ QString decryptString(const QString &input)
     SimpleCrypt crypto(Q_UINT64_C(0x0c3ad4a4acb7f095));
 
     return crypto.decryptToString(input);
+}
+
+QString getPlatformLineEnding()
+{
+#ifdef Q_WS_WIN
+    return "\r\n";
+#else
+    return "\n";
+#endif
 }
 
 #ifndef CODE_PARSER_BUILD

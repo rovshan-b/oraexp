@@ -47,9 +47,10 @@ private slots:
 
     void showOptionsDialog();
 
-
+#ifdef DEBUG
     void resize800x600();
     void resize1024x768();
+#endif
 
 };
 

@@ -3,6 +3,7 @@
 #include "util/strutil.h"
 #include "util/iconutil.h"
 #include "util/widgethelper.h"
+#include "util/queryutil.h"
 #include "widgets/treeview.h"
 #include "models/treesortfilterproxymodel.h"
 #include "connectivity/dbconnection.h"
@@ -14,7 +15,7 @@
 #define RESERVED_COL_COUNT 1
 
 SessionListTree::SessionListTree(DbUiManager *uiManager, QWidget *parent) :
-    OnDemandInfoViewerWidget(parent), uiManager(uiManager), queryScheduler(0), recordCount(0), autoFitColumns(true)
+    OnDemandInfoViewerWidget(parent), uiManager(uiManager), queryScheduler(0), locksOnly(false), recordCount(0), autoFitColumns(true)
 {
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
@@ -85,6 +86,11 @@ void SessionListTree::setFilter(const QString &filter)
 {
     lastFilter = filter;
     proxyModel->setFilterWildcard(lastFilter);
+}
+
+void SessionListTree::setLocksOnly(bool locksOnly)
+{
+    this->locksOnly = locksOnly;
 }
 
 void SessionListTree::doLoadInfo()
@@ -454,6 +460,14 @@ void SessionListTree::runQuery()
         queryToExecute.append(" ORDER BY ").append(groupByColumns.join(", "));
     }
 
+    QString filter;
+
+    if(locksOnly){
+        filter.append(" and ").append(QueryUtil::getQuery("get_session_list_locks_filter", queryScheduler->getDb()));
+    }
+
+    queryToExecute.replace("{WHERE}", filter);
+
     queryScheduler->enqueueQuery(QString("$%1").arg(queryToExecute),
                                  QList<Param*>(),
                                  this,
@@ -469,9 +483,9 @@ void SessionListTree::displayErrorMessage(const OciException &ex)
     if(ex.getErrorCode() == ERR_TABLE_OR_VIEW_DOES_NOT_EXIST){
         QString viewNames;
         if(queryScheduler->getDb()->supportsGlobalPerformanceViews()){
-            viewNames = "GV$SESSION, GV$MYSTAT";
+            viewNames = "GV$SESSION, GV$LOCK, GV$MYSTAT";
         }else{
-            viewNames = "V$SESSION, V$MYSTAT";
+            viewNames = "V$SESSION, V$LOCK, V$MYSTAT";
         }
         errorMessage = tr("You must have SELECT access on following views: %1").arg(viewNames);
     }else{

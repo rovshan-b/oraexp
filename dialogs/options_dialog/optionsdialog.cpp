@@ -1,7 +1,8 @@
 #include "optionsdialog.h"
 #include "util/iconutil.h"
 #include "util/dialoghelper.h"
-#include "util/settingshelper.h"
+#include "tabs/optionsdialogconnectivitytab.h"
+#include "tabs/optionsdialogsnippetstab.h"
 #include <QtGui>
 
 OptionsDialog::OptionsDialog(QWidget *parent) :
@@ -16,6 +17,7 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
 
     createLeftPane(centerLayout);
     createRightPane(centerLayout);
+    addTabs();
 
     mainLayout->addLayout(centerLayout);
 
@@ -24,9 +26,12 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
 
     setLayout(mainLayout);
 
-    initializeValues();
-
     connect(buttonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
+    connect(sidePane, SIGNAL(currentRowChanged(int)), this, SLOT(changeTab(int)));
+
+    sidePane->setCurrentRow(0, QItemSelectionModel::SelectCurrent);
+
+    resize(650, 400);
 }
 
 void OptionsDialog::createLeftPane(QBoxLayout *layout)
@@ -34,9 +39,6 @@ void OptionsDialog::createLeftPane(QBoxLayout *layout)
     QVBoxLayout *leftLayout = new QVBoxLayout();
 
     sidePane = new QListWidget();
-    sidePane->addItem(new QListWidgetItem(IconUtil::getIcon("connect"), tr("Connectivity")));
-    sidePane->setCurrentRow(0);
-    sidePane->setMaximumWidth(fontMetrics().width(sidePane->item(0)->text())+50);
     leftLayout->addWidget(sidePane);
 
     layout->addLayout(leftLayout);
@@ -47,14 +49,34 @@ void OptionsDialog::createRightPane(QBoxLayout *layout)
 {
     QVBoxLayout *rightLayout = new QVBoxLayout();
 
-    QLabel *titleLabel = new QLabel(tr("<h3>Connectivity</h3>"));
+    titleLabel = new QLabel();
     rightLayout->addWidget(titleLabel);
 
-    useSeparateSessionsCheckBox = new QCheckBox(tr("Use separate session for each tab"));
-    rightLayout->addWidget(useSeparateSessionsCheckBox);
+    tab = new QStackedWidget();
 
-    layout->addLayout(rightLayout);
-    layout->setAlignment(rightLayout, Qt::AlignLeft | Qt::AlignTop);
+    rightLayout->addWidget(tab);
+
+    layout->addLayout(rightLayout, 1);
+    //layout->setAlignment(rightLayout, Qt::AlignLeft | Qt::AlignTop);
+}
+
+void OptionsDialog::addTabs()
+{
+    sidePane->addItem(new QListWidgetItem(IconUtil::getIcon("connect"), tr("Connectivity")));
+    tab->addWidget(new OptionsDialogConnectivityTab());
+
+    sidePane->addItem(new QListWidgetItem(IconUtil::getIcon("ddl"), tr("Snippets")));
+    tab->addWidget(new OptionsDialogSnippetsTab());
+
+    QString maxTitle;
+    for(int i=0; i<sidePane->count(); ++i){
+        QString title = sidePane->item(i)->text();
+        if(title.length() > maxTitle.length()){
+            maxTitle = title;
+        }
+    }
+
+    sidePane->setMaximumWidth(sidePane->fontMetrics().width(maxTitle)+50);
 }
 
 void OptionsDialog::accept()
@@ -66,11 +88,26 @@ void OptionsDialog::accept()
 
 void OptionsDialog::apply()
 {
-    SettingsHelper::setUseSeparateSessions(useSeparateSessionsCheckBox->isChecked());
+    for(int i=0; i<tab->count(); ++i){
+        OptionsDialogTab *page = dynamic_cast<OptionsDialogTab*>(tab->widget(i));
+        Q_ASSERT(page);
+
+        if(page->isInitialized()){
+            page->saveSettings();
+        }
+    }
 }
 
-
-void OptionsDialog::initializeValues()
+void OptionsDialog::changeTab(int tabIx)
 {
-    useSeparateSessionsCheckBox->setChecked(SettingsHelper::getUseSeparateSessions());
+    OptionsDialogTab *page = dynamic_cast<OptionsDialogTab*>(tab->widget(tabIx));
+    Q_ASSERT(page);
+
+    titleLabel->setText(tr("<h3>%1</h3>").arg(sidePane->item(tabIx)->text()));
+
+    if(!page->isInitialized()){
+        page->createUi();
+    }
+
+    tab->setCurrentIndex(tabIx);
 }

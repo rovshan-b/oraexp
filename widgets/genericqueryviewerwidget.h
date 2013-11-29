@@ -9,6 +9,7 @@ class DbUiManager;
 class DataTable;
 class Param;
 class StatementDesc;
+class GenericQueryViewerTabs;
 
 class GenericQueryViewerWidget : public OnDemandInfoViewerWidget
 {
@@ -25,6 +26,7 @@ public:
     bool areControlsCreated() const {return this->controlsCreated;}
 
     virtual QList<QAction*> getSpecificToolbarButtons();
+    virtual QList<QWidget*> getSpecificToolbarWidgets();
 
     virtual void loadData();
 

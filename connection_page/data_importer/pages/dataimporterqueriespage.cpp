@@ -8,8 +8,8 @@
 #include "code_generators/dml/tabledmlgenerator.h"
 #include <QtGui>
 
-DataImporterQueriesPage::DataImporterQueriesPage(QWidget *parent) :
-    ConnectionPageWizardPage(parent)
+DataImporterQueriesPage::DataImporterQueriesPage(DbUiManager *uiManager, QWidget *parent) :
+    ConnectionPageWizardPage(uiManager, parent)
 {
     setTitle(tr("Queries"));
     setSubTitle(tr("Review and customize queries used to import data"));

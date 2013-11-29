@@ -13,17 +13,7 @@ TableNameFinderDialog::TableNameFinderDialog(const QString &schemaName,
     tabName(tabName),
     childObjectName(childObjectName)
 {
-    QVBoxLayout *mainLayout = new QVBoxLayout();
-
-    QProgressBar *progressBar = new QProgressBar();
-    progressBar->setMaximumHeight(10);
-    progressBar->setRange(0,0);
-    mainLayout->addWidget(progressBar);
-
-    setLayout(mainLayout);
-
-    resize(sizeHint());
-    DialogHelper::centerWindow(this);
+    DialogHelper::createProgressBarUi(this);
 
     QTimer::singleShot(1000, this, SLOT(makeVisible()));
 }
@@ -40,6 +30,8 @@ void TableNameFinderDialog::setConnection(DbConnection *db)
     }else{
         Q_ASSERT(false);
     }
+
+    setInProgress(true);
 
     this->enqueueQuery("get_table_name_by_child_object_name",
                        QList<Param*>()
@@ -59,6 +51,7 @@ void TableNameFinderDialog::findTableNameQueryCompleted(const QueryResult &resul
     if(result.hasError){
         QMessageBox::critical(this->window(), tr("Error retrieving table name"),
                               tr("Task name: %1\nError: %2").arg(result.taskName, result.exception.getErrorMessage()));
+        setInProgress(false);
         accept();
     }
 }
@@ -68,6 +61,7 @@ void TableNameFinderDialog::findTableNameRecordFetched(const FetchResult &result
     if(result.hasError){
         QMessageBox::critical(this->window(), tr("Error fetching table name"),
                               tr("Task name: %1\nError: %2").arg(result.taskName, result.exception.getErrorMessage()));
+        setInProgress(false);
         accept();
         return;
     }
@@ -78,6 +72,7 @@ void TableNameFinderDialog::findTableNameRecordFetched(const FetchResult &result
 
 void TableNameFinderDialog::findTableNameFetchCompleted(const QString &)
 {
+    setInProgress(false);
     uiManager->createEditor(schemaName, tableName, "Table", tabName, childObjectName);
     accept();
 }

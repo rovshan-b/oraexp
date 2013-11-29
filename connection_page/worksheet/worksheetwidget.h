@@ -9,12 +9,13 @@
 
 class WorksheetResultPane;
 class QSplitter;
+class DbUiManager;
 
 class WorksheetWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit WorksheetWidget(QWidget *parent = 0);
+    explicit WorksheetWidget(DbUiManager *uiManager, QWidget *parent = 0);
     
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
@@ -22,10 +23,6 @@ public:
     QString getContents() const;
 
     void insertText(const QString &text);
-
-    void showSearchWidget(){queryPane->showSearchWidget();}
-    void findNext() {queryPane->findNext();}
-    void findPrevious() {queryPane->findPrevious();}
 
     void focusAvailable();
 

@@ -1,5 +1,6 @@
 #include "worksheetinfotab.h"
 #include "util/widgethelper.h"
+#include "util/iconutil.h"
 #include "connectivity/statement.h"
 #include <QtGui>
 
@@ -19,6 +20,11 @@ WorksheetInfoTab::WorksheetInfoTab(QWidget *parent) :
     layout->setSpacing(2);
     layout->setContentsMargins(2,0,2,0);
     setLayout(layout);
+}
+
+void WorksheetInfoTab::addTabSpecificToolbarButtons()
+{
+    toolbar->addAction(IconUtil::getIcon("clear"), tr("Clear"), this, SLOT(clear()));
 }
 
 WorksheetResultPane::WorksheetBottomPaneTabType WorksheetInfoTab::getTabType() const
@@ -77,6 +83,11 @@ void WorksheetInfoTab::showMessage(const QString &msg)
 bool WorksheetInfoTab::resultReleased() const
 {
     return this->deletedStatement;
+}
+
+void WorksheetInfoTab::clear()
+{
+    infoBox->clear();
 }
 
 void WorksheetInfoTab::printParamValues(Statement *stmt)

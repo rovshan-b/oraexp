@@ -101,6 +101,12 @@ void SessionBrowser::createToolbar(QVBoxLayout *mainLayout)
 
     toolbar->addSeparator();
 
+    locksOnlyCheckBox = new QCheckBox(tr("Only locks"));
+    locksOnlyCheckBox->setToolTip(tr("Display only session that are locking or locked"));
+    toolbar->addWidget(locksOnlyCheckBox);
+
+    toolbar->addSeparator();
+
     statusLabel = new QLabel(tr("  Loading..."));
     toolbar->addWidget(statusLabel);
 
@@ -113,6 +119,7 @@ void SessionBrowser::createToolbar(QVBoxLayout *mainLayout)
     mainLayout->addWidget(toolbar);
 
     connect(filterEditor->lineEdit(), SIGNAL(textChanged(QString)), this, SLOT(filterChanged(QString)));
+    connect(locksOnlyCheckBox, SIGNAL(stateChanged(int)), this, SLOT(locksOnlyChanged()));
     connect(splitDirectionGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeSplitDirection(QAction*)));
 }
 
@@ -175,4 +182,10 @@ void SessionBrowser::changeSplitDirection(QAction *action)
 void SessionBrowser::filterChanged(const QString &newFilter)
 {
     sessionViewer->setFilter(newFilter);
+}
+
+void SessionBrowser::locksOnlyChanged()
+{
+    sessionViewer->setLocksOnly(locksOnlyCheckBox->isChecked());
+    sessionViewer->refreshInfo();
 }

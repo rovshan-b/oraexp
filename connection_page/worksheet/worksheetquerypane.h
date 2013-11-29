@@ -40,10 +40,6 @@ public:
 
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
-    void showSearchWidget();
-    void findNext();
-    void findPrevious();
-
     CodeEditorAndSearchPaneWidget *currentEditor() const;
 
     void focusAvailable();

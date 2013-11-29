@@ -15,8 +15,14 @@
        for cur_general_info in (select sys.all_tables.*, 
                                 case when exists (select 0 from sys.all_external_tables where owner=sys.all_tables.owner and table_name=sys.all_tables.table_name) then 'YES'
                                 else 'NO' end as is_external 
+                                {@keep_if:>=11.2}
+                                 , NVL(fb.status, 'DISABLED') as flashback_status
+                                {}
+                                {@keep_if:==11.1}
+                                 , DECODE(fb.flashback_archive_name, null, 'DISABLED', 'ENABLED') as flashback_status
+                                {}
                                 {@keep_if:>=11}
-                                    , NVL(fb.status, 'DISABLED') as flashback_status, fb.flashback_archive_name, fb.archive_table_name 
+                                , fb.flashback_archive_name, fb.archive_table_name 
                                 {}
                                 from sys.all_tables 
                                 {@keep_if:>=11} 

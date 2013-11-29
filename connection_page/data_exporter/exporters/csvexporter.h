@@ -11,6 +11,8 @@ public:
     virtual void exportColumnHeaders(const QStringList &headers, int from, int to, QTextStream &out);
     virtual void exportRow(const QStringList &oneRow, int rowIx, QTextStream &out);
 
+    virtual QString getMimeType() const {return "text/csv";}
+
 protected:
     void exportStringList(const QStringList &list, int from, int to, QTextStream &out);
 };

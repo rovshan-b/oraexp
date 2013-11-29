@@ -29,11 +29,6 @@ public:
     void createUi();
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
-    virtual bool canFind() const {return true;}
-    virtual void showSearchWidget(){currentEditor()->showSearchPane();}
-    virtual void findNext() {currentEditor()->findNext();}
-    virtual void findPrevious() {currentEditor()->findPrevious();}
-
     void setHasSpecBodySwitcher(bool hasSpecBodySwitcher, bool isSpec);
 
     void focusAvailable();

@@ -4,6 +4,7 @@
 #include "worksheetbottompanetab.h"
 
 class DbConnection;
+class DbUiManager;
 class DataExporterThread;
 class QStackedWidget;
 class DataTable;
@@ -12,12 +13,13 @@ class DataExportDialog;
 class DataExporterBase;
 class QLabel;
 class DataTableEditController;
+class Param;
 
 class WorksheetResultsetTab : public WorksheetBottomPaneTab
 {
     Q_OBJECT
 public:
-    explicit WorksheetResultsetTab(QWidget *parent = 0);
+    explicit WorksheetResultsetTab(DbUiManager *uiManager, QWidget *parent = 0);
     virtual ~WorksheetResultsetTab();
 
     virtual void addTabSpecificToolbarButtons();
@@ -28,6 +30,7 @@ public:
 private slots:
     void firstFetchCompleted();
     void exportData();
+    void countRows();
 
     void startExport(DataExporterBase *exporter);
     void recordsExported(int count);
@@ -37,12 +40,16 @@ private slots:
 
     void reloadQuery();
 
+    void cleanup();
+
 private:
+    DbUiManager *uiManager;
     IQueryScheduler *queryScheduler;
     DataExporterThread *exporterThread;
 
     DataTable *resultsTable;
     QAction *dataExportAction;
+    QAction *countRowsAction;
 
     QLabel *statusBarLabel;
     QAction *labelAction;
@@ -56,9 +63,10 @@ private:
 
     DataTableEditController *editController;
 
-    void makeEditable(const QString &query);
+    void makeEditable(bool editable);
 
     QString lastQuery;
+    QList<Param*> lastParams;
 
 };
 

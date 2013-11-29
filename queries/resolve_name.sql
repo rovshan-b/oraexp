@@ -30,6 +30,11 @@ begin
    
    select object_type into l_object_type from (
    select object_type from all_objects where object_id=l_object_number) t where rownum <= 1;
+   
+   if l_part1 is null and l_part2 is not null then
+      l_part1 := l_part2;
+      l_part2 := null;
+   end if;
     
    open :rs_out for select l_object_type as object_type, l_schema_name as schema_name, l_part1 as part1, l_part2 as part2, l_db_link as dblink_name, l_object_number as object_number from dual;
 end;

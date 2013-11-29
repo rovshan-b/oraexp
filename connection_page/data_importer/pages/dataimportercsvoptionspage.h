@@ -17,7 +17,7 @@ class DataImporterCsvOptionsPage : public ConnectionPageWizardPage, public IData
 {
     Q_OBJECT
 public:
-    explicit DataImporterCsvOptionsPage(QWidget *parent = 0);
+    explicit DataImporterCsvOptionsPage(DbUiManager *uiManager, QWidget *parent = 0);
 
     virtual void initializePage ();
 

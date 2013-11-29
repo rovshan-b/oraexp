@@ -146,9 +146,11 @@ void BulkOperationHelper::setArrayData(Statement *targetStmt, Resultset *sourceR
     Q_ASSERT(this->bulkSize>0);
 
     if(sourceRs->isNull(column)){
-        targetStmt->setBindNullAtPos(column, pos+1);
+        targetStmt->setBindNullAtPos(column, pos+1, true);
         nullifyStringAtPos(column-1, pos);
     }else{
+        targetStmt->setBindNullAtPos(column, pos+1, false);
+
         const QString &dataType=dataTypes.at(column-1);
 
         if(DbUtil::isStringType(dataType)){
@@ -184,9 +186,11 @@ void BulkOperationHelper::setArrayData(Statement *targetStmt, Resultset *sourceR
 void BulkOperationHelper::setArrayData(Statement *targetStmt, const QString &value, int column, int pos)
 {
     if(value.isEmpty()){
-        targetStmt->setBindNullAtPos(column, pos+1);
+        targetStmt->setBindNullAtPos(column, pos+1, true);
         nullifyStringAtPos(column-1, pos);
     }else{
+        targetStmt->setBindNullAtPos(column, pos+1, false);
+
         const QString &dataType=dataTypes.at(column-1);
 
         if(DbUtil::isNumericType(dataType)){
@@ -195,7 +199,7 @@ void BulkOperationHelper::setArrayData(Statement *targetStmt, const QString &val
             if(conversionOk){
                 ((double*)buffers.at(column-1))[pos] = numVal;
             }else{
-                targetStmt->setBindNullAtPos(column, pos+1);
+                targetStmt->setBindNullAtPos(column, pos+1, true);
             }
         }else{ //try to set all other types as string
 
@@ -211,7 +215,7 @@ void BulkOperationHelper::nullifyArrayData(Statement *targetStmt, int offset)
 
     for(int i=0; i<buffers.size(); ++i){
         for(int k=offset; k<this->bulkSize; ++k){
-            targetStmt->setBindNullAtPos(i+1, k+1);
+            targetStmt->setBindNullAtPos(i+1, k+1, true);
             nullifyStringAtPos(i, k);
         }
     }

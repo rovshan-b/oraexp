@@ -58,25 +58,26 @@ QList<ColumnMapping *> DataImporter::getColumnMappings() const
 void DataImporter::createUi()
 {
     firstPage = new DataImporterFirstPage(this->schemaName,
-                                          this->tableName);
+                                          this->tableName,
+                                          uiManager);
     addPage(firstPage);
 
-    csvOptionsPage = new DataImporterCsvOptionsPage();
+    csvOptionsPage = new DataImporterCsvOptionsPage(uiManager);
     addPage(csvOptionsPage);
 
-    mappingsPage = new DataImporterColumnMappingsPage();
+    mappingsPage = new DataImporterColumnMappingsPage(uiManager);
     addPage(mappingsPage);
 
-    queriesPage = new DataImporterQueriesPage();
+    queriesPage = new DataImporterQueriesPage(uiManager);
     addPage(queriesPage);
 
-    readyPage = new DataImporterReadyPage();
+    readyPage = new DataImporterReadyPage(uiManager);
     addPage(readyPage);
 
-    importPage = new DataImporterImportPage();
+    importPage = new DataImporterImportPage(uiManager);
     addPage(importPage);
 
-    worksheetPage = new DataImporterWorksheetPage();
+    worksheetPage = new DataImporterWorksheetPage(uiManager);
     addPage(worksheetPage);
 
     setOption(QWizard::DisabledBackButtonOnLastPage, true);

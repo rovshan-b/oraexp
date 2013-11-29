@@ -30,6 +30,8 @@ public:
     QString encoding;
     bool bom;
 
+    QString stringBuffer;
+
     int startRow;
     int startColumn;
     int endRow;
@@ -60,9 +62,15 @@ public:
     virtual void exportRow(const QStringList &oneRow, int rowIx, QTextStream &out) = 0;
     virtual void endDocument(QTextStream &out){Q_UNUSED(out);}
 
+    virtual QString getMimeType() const = 0;
+
     virtual QTextStream *createOutputStream(QString &errorMessage);
 
     QSharedPointer<ResultsetColumnMetadata> columnMetadata;
+
+    QStringList columnTitles;
+
+    QStringList getColumnTitles() const;
 
 protected:
     void setTextStreamProperties();

@@ -2,8 +2,6 @@
 #define OBJECTLOOKUPDIALOG_H
 
 #include "connection_page/connectionpagewindow.h"
-#include "connectivity/queryresult.h"
-#include "connectivity/fetchresult.h"
 #include <QModelIndex>
 
 class QLineEdit;

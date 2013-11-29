@@ -7,6 +7,7 @@
 #include <QSharedPointer>
 #include "beans/resultsetcolumnmetadata.h"
 #include "beans/tableinfofordatacomparison.h"
+#include "dataexporterobject.h"
 
 class Statement;
 class Resultset;
@@ -29,6 +30,8 @@ public:
     
     void run();
 
+    virtual void stop();
+
     void setOptions(IQueryScheduler *queryScheduler,
                     const QString &schemaName, const QString &tableName,
                     DataExporterOptions *options, const TableInfoForDataComparison &tableOptions);
@@ -39,21 +42,7 @@ signals:
     void exportError(const QString &errorMessage);
 
 private:
-    DataExporterBase *exporter;
-    QList<QStringList> alreadyFetchedData;
-    Resultset *rs;
-    bool fetchToEnd;
-
-    bool bulkMode;
-    IQueryScheduler *queryScheduler;
-    QString schemaName;
-    QString tableName;
-    DataExporterOptions *options;
-    TableInfoForDataComparison tableOptions;
-
-    Statement *getStatement();
-    void exportToStream(QTextStream &out);
-    
+    DataExporterObject worker;
 };
 
 #endif // DATAEXPORTERTHREAD_H

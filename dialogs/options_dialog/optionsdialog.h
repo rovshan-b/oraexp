@@ -4,7 +4,8 @@
 #include <QDialog>
 
 class QListWidget;
-class QCheckBox;
+class QStackedWidget;
+class QLabel;
 class QBoxLayout;
 
 class OptionsDialog : public QDialog
@@ -16,15 +17,18 @@ public:
 private slots:
     virtual void accept ();
     void apply();
+
+    void changeTab(int tabIx);
     
 private:
     QListWidget *sidePane;
-    QCheckBox *useSeparateSessionsCheckBox;
+    QStackedWidget *tab;
+
+    QLabel *titleLabel;
 
     void createLeftPane(QBoxLayout *layout);
     void createRightPane(QBoxLayout *layout);
-
-    void initializeValues();
+    void addTabs();
 };
 
 #endif // OPTIONSDIALOG_H

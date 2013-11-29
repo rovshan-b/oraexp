@@ -11,7 +11,11 @@
 #include <QtGui>
 
 
-WorksheetResultPane::WorksheetResultPane(QWidget *parent) : SubTabWidget(parent), queryScheduler(0), currentTabStartIx(0)
+WorksheetResultPane::WorksheetResultPane(DbUiManager *uiManager, QWidget *parent) :
+    SubTabWidget(parent),
+    uiManager(uiManager),
+    queryScheduler(0),
+    currentTabStartIx(0)
 {
     setTabsClosable(true);
     setMovable(true);
@@ -186,7 +190,7 @@ QList<WorksheetBottomPaneTab *> WorksheetResultPane::getTabsToDisplayResults(Wor
     for(int i=foundCount; i<countToReturn; ++i){
         switch(tabType){
         case ResultsetTab:
-            tab=new WorksheetResultsetTab();
+            tab=new WorksheetResultsetTab(uiManager);
             addTab(tab, IconUtil::getIcon("table"), tr("Results"));
             tabs.append(tab);
             break;

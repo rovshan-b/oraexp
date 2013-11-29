@@ -6,7 +6,7 @@
    MODULE, ACTION, CLIENT_INFO, CLIENT_IDENTIFIER, 
    LOGON_TIME, PROCESS,
    case when exists (select 0 from gv$mystat where inst_id = gv$session.inst_id and sid = gv$session.sid)  then 1 else 0 end as is_current 
-   from gv$session where USERNAME is not null
+   from gv$session where USERNAME is not null {WHERE}
 {}
 {@keep_if:<10}
    select SID, SERIAL#, USERNAME, STATUS, 
@@ -16,5 +16,5 @@
    MODULE, ACTION, CLIENT_INFO, CLIENT_IDENTIFIER, 
    LOGON_TIME, PROCESS,
    case when exists (select 0 from v$mystat where sid = v$session.sid)  then 1 else 0 end as is_current 
-   from v$session where USERNAME is not null
+   from v$session where USERNAME is not null {WHERE}
 {}

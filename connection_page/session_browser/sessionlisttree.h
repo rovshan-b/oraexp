@@ -31,6 +31,8 @@ public:
 
     void setFilter(const QString &filter);
 
+    void setLocksOnly(bool locksOnly);
+
 signals:
     void headerReady(const QStringList &columnTitles);
     void dataReady();
@@ -59,6 +61,7 @@ private:
 
     QString selectQuery;
     QStringList groupByColumns;
+    bool locksOnly;
 
     int lastScrollPos;
     QStringList currentGroups;

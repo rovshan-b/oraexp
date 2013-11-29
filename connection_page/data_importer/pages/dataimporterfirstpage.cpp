@@ -5,8 +5,8 @@
 #include "util/filesystemutil.h"
 #include <QtGui>
 
-DataImporterFirstPage::DataImporterFirstPage(const QString &schemaName, const QString &tableName, QWidget *parent) :
-    ConnectionPageWizardPage(parent)
+DataImporterFirstPage::DataImporterFirstPage(const QString &schemaName, const QString &tableName, DbUiManager *uiManager, QWidget *parent) :
+    ConnectionPageWizardPage(uiManager, parent)
 {
     setTitle(tr("Table & File selection"));
     setSubTitle(tr("Select table and file name to import data from"));

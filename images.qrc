@@ -152,6 +152,6 @@
         <file>images/blue.png</file>
         <file>images/lookup_object.png</file>
         <file>images/about.png</file>
-        <file>images/database.ico</file>
+        <file>images/database_big.png</file>
     </qresource>
 </RCC>

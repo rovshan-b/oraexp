@@ -113,8 +113,10 @@ ConnectionPageTab *EditorCreatorUtil::createViewer(const QString &schemaName,
     case DbTreeModel::Trigger:
         viewer = new CodeViewer(schemaName, objectName, itemType, uiManager);
         break;
+    case DbTreeModel::Package:
     case DbTreeModel::PackageSpec:
     case DbTreeModel::PackageBody:
+    case DbTreeModel::Type:
     case DbTreeModel::TypeSpec:
     case DbTreeModel::TypeBody:
         viewer = new PairCodeViewer(schemaName, objectName, itemType, uiManager);

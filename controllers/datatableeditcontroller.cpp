@@ -134,6 +134,8 @@ void DataTableEditController::commit()
         return;
     }
 
+    dt->closeEditors();
+
     QString dml = model->generateDmlAsString(this->schemaName, this->objectName, this->dblinkName);
 
     if(dml.isEmpty()){
@@ -141,12 +143,12 @@ void DataTableEditController::commit()
         return;
     }
 
-    if(QMessageBox::question(dt->window(), tr("Confirm commit"),
+    /*if(QMessageBox::question(dt->window(), tr("Confirm commit"),
                               tr("Commit pending changes?"),
                               QMessageBox::Ok|QMessageBox::Cancel,
                               QMessageBox::Ok)!=QMessageBox::Ok){
         return;
-    }
+    }*/
 
     commitDml = QString("BEGIN\n%1\nCOMMIT;\nEND;").arg(dml);
 
@@ -186,6 +188,8 @@ bool DataTableEditController::reset()
         return false;
     }
 
+    dt->closeEditors(false);
+
     model->resetChanges();
 
     return true;
@@ -198,6 +202,8 @@ void DataTableEditController::showDml()
     if(!model){
         return;
     }
+
+    dt->closeEditors();
 
     CodeViewerDialog dialog(dt->window());
     dialog.setWindowTitle(tr("View commit DML"));

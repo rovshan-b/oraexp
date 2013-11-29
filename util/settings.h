@@ -2,6 +2,7 @@
 #define SETTINGS_H
 
 #include <QSettings>
+#include "typedefs.h"
 
 class Settings
 {
@@ -17,6 +18,9 @@ public:
     static void beginWriteArray ( const QString & prefix, int size = -1 );
     static void setArrayIndex ( int i );
     static void endArray ();
+
+    static void saveStringHash(const QString &key, const QStringHash &hash);
+    static QStringHash loadStringHash(const QString &key);
 private:
     Settings();
 

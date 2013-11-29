@@ -13,7 +13,7 @@ QWidget *GrantObjectListDelegate::createEditor(QWidget *parent, const QStyleOpti
     Q_UNUSED(option);
 
     DbItemListComboBox *editor=new DbItemListComboBox(this->initialValue, iconName, true, true, parent);
-    editor->setInDelegateMode();
+    editor->setSilentMode();
     editor->setIconColumn(2);
     editor->setFrame(false);
 

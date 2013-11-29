@@ -82,7 +82,9 @@ QString FileSystemUtil::readAsString(const QString &filename, QString *errorMess
 {
     QFile file(filename);
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text)){
-        *errorMessage = file.errorString();
+        if(errorMessage){
+            *errorMessage = file.errorString();
+        }
         return "";
     }
 
