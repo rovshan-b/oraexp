@@ -1,0 +1,20 @@
+Version 0.1.1 - 2013-12-20
+
+- When editing table data show WHERE clause in toolbar if there is one
+- When pressing Ctrl+F to start searching in code editor use current selection as initial search keyword
+- Bug: In table data editor when commiting, value of active cell was not getting committed correctly (old value was being used)
+- Do not ask for confirmation when committing changes in table data editor
+- When saving current document in Worksheet add to to recent file list
+- In editor when you put cursor on some text (for example table name) and press F4 description of that object opens
+- Can copy table data in different formats by right clicking it
+- Possibility to view only locked/locking sessions in Session Browser
+- Added NLS sort option to table data viewer/editor
+- Added row count feature to worksheet and data viewer/editor
+- Added Snippets page to Options dialog
+- Fixed bugs in Data Comparer, Data Copier and Data Importer modules when source table contained NULL values
+- Fixed some problems with highlighting of multiline strings and comments
+- On Windows will check PATH environment variable to find tnsnames.ora file if TNS_ADMIN and ORACLE_HOME variables are not defined
+- Fixed issues with code editing when connected to Oracle 9i
+- Fixed crash if save dialog is cancelled on application close
+
+Version 0.1 - 2013-11-01

@@ -94,8 +94,8 @@ public:
     bool supportsHashPartitioningOnIndexes() const {return this->serverMajorVersion>=10;}
     bool supportsDbmsWrap() const {return this->serverMajorVersion>=10;}
     bool supportsTriggerOrdering() const {return this->serverMajorVersion>=11;}
-    bool supportsCompileTimeWarnings() const {return true;}
-    bool supportsNativeCompilation() const {return true;}
+    bool supportsCompileTimeWarnings() const {return this->serverMajorVersion>=10;}
+    bool supportsNativeCompilation() const {return this->serverMajorVersion>=10;}
     bool supportsAlteringDatabaseLinks() const {return this->serverMajorVersion>=11;}
     bool supportsSchemaEditions() const {return this->serverMajorVersion>=11;}
     bool supportsTimeColumnInExplainPlan() const {return this->serverMajorVersion>=10;}

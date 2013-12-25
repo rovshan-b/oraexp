@@ -388,6 +388,13 @@ QString toValidFilename(const QString &str)
     return result;
 }
 
+void addDirectorySuffix(QString &str)
+{
+    if(!str.endsWith('/')){
+        str.append('/');
+    }
+}
+
 QString encryptString(const QString &input)
 {
     SimpleCrypt crypto(Q_UINT64_C(0x0c3ad4a4acb7f095));

@@ -137,5 +137,6 @@ void SyntaxHighligher::highlightMultilineConstruct(const QString &text,
         }
         setFormat(startIndex, commentLength, format);
         startIndex = startExpression.indexIn(text, startIndex + commentLength);
+        onSameLine = true;
     }
 }

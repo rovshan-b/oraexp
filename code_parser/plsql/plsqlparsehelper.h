@@ -43,6 +43,8 @@ public:
 
     static bool readToMatchingParentheses(PlSqlScanner *scanner);
 
+    static int extractPlSqlErrorCode(const QString &errorMessage);
+
 private:
     static QString cleanIdentifier(const QString &identifier);
 

@@ -6,7 +6,7 @@
 #include <QtDebug>
 
 LineEditWithButtonDelegate::LineEditWithButtonDelegate(bool convertToUpperCase, QObject *parent) :
-    QStyledItemDelegate(parent), convertToUpperCase(convertToUpperCase), autoAppendRows(true)
+    QStyledItemDelegate(parent), convertToUpperCase(convertToUpperCase), trim(true), autoAppendRows(true)
 {
 }
 
@@ -68,7 +68,10 @@ void LineEditWithButtonDelegate::setModelData(QWidget *editor, QAbstractItemMode
                                     const QModelIndex &index) const
 {
     LineEditWithButton *lineEditWithButton = static_cast<LineEditWithButton*>(editor);
-    QString dataToSet=lineEditWithButton->lineEdit()->text().trimmed();
+    QString dataToSet=lineEditWithButton->lineEdit()->text();
+    if(trim){
+        dataToSet = dataToSet.trimmed();
+    }
     if(convertToUpperCase){
         dataToSet=dataToSet.toUpper();
     }
@@ -107,6 +110,11 @@ void LineEditWithButtonDelegate::setAutoConvertToUpperCase(bool convert)
 void LineEditWithButtonDelegate::setAutoAppendRows(bool autoAppendRows)
 {
     this->autoAppendRows = autoAppendRows;
+}
+
+void LineEditWithButtonDelegate::setTrim(bool trim)
+{
+    this->trim = trim;
 }
 
 void LineEditWithButtonDelegate::editingFinished()

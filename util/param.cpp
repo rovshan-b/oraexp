@@ -202,6 +202,7 @@ void Param::setStrValue(const QString &paramValue)
 
     cleanup();
     data=toOciString(paramValue);
+    maxStringLength = paramValue.size();
 }
 
 int Param::getIntValue() const

@@ -139,7 +139,7 @@ void DbObjectPartitionsViewer::partitionInfoFetchCompleted(const QString &)
     if(isPartitioned){
         DbObjectViewerGenericTab::loadData();
     }else{
-        partitioningInfoLabel->setText(tr("This %1 is not partitioned").arg(itemType==DbTreeModel::Table ? "table" : "index"));
+        partitioningInfoLabel->setText(tr("Not partitioned"));
         queryCompleted();
     }
 

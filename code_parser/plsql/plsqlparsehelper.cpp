@@ -393,6 +393,38 @@ bool PlSqlParseHelper::readToMatchingParentheses(PlSqlScanner *scanner)
     return false;
 }
 
+int PlSqlParseHelper::extractPlSqlErrorCode(const QString &errorMessage)
+{
+    QString errMsg = errorMessage;
+
+    QString prefixToRemove = "PL/SQL:";
+    if(errMsg.startsWith(prefixToRemove)){
+        errMsg.remove(0, prefixToRemove.size());
+    }else{
+        return 0;
+    }
+    //now find first colon
+    int colonIx = errMsg.indexOf(':');
+    if(colonIx!=-1){
+        QString descriptiveErrorCode=errMsg.mid(0, colonIx); //for example ORA-00942
+        int dashIx=descriptiveErrorCode.indexOf('-');
+        if(dashIx!=-1){
+            QString strErrorCode=descriptiveErrorCode.mid(dashIx+1); //keeping only numeric part: 00942
+            bool canParseNumber;
+            int errorCode=strErrorCode.toInt(&canParseNumber);
+            if(canParseNumber){
+                return errorCode;
+            }else{
+                return 0;
+            }
+        }else{
+            return 0;
+        }
+    }else{
+        return 0;
+    }
+}
+
 
 PlSqlParseHelper::PlSqlParseHelper()
 {

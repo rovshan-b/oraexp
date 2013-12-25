@@ -37,4 +37,5 @@ void ObjectResolver::resolveResultReady(const FetchResult &result)
 
 void ObjectResolver::resolveFetchCompleted(const QString &taskName)
 {
+    Q_UNUSED(taskName);
 }

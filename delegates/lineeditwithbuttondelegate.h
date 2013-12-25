@@ -31,12 +31,15 @@ public:
 
     void setAutoAppendRows(bool autoAppendRows);
 
+    void setTrim(bool trim);
+
 protected slots:
     virtual void buttonClicked(LineEditWithButton *senderWidget);
     void editingFinished();
 
 private:
     bool convertToUpperCase;
+    bool trim;
     QString tooltipText;
     bool autoAppendRows;
 

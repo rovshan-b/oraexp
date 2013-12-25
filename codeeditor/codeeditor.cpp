@@ -1,4 +1,5 @@
 #include "codeeditor.h"
+#include "codeeditordocument.h"
 #include "syntaxhighligher.h"
 #include "linenumberarea.h"
 #include "codecollapsearea.h"
@@ -32,6 +33,8 @@ CodeEditor::CodeEditor(bool enableCodeCollapsing, QWidget *parent) :
     completer(0),
     collapsePositions(0)
 {
+    //setDocument(new CodeEditorDocument(this));
+
     QFont monospaceFont("Monospace");
     setFont(monospaceFont);
 

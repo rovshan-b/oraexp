@@ -2,6 +2,7 @@
 #include "util/iconutil.h"
 #include "util/widgethelper.h"
 #include "util/dbutil.h"
+#include "util/strutil.h"
 #include "enums.h"
 #include "beans/dbconnectioninfo.h"
 #include "beans/environmentinfo.h"
@@ -117,23 +118,25 @@ void ConnectionEditor::loadTnsList()
     }
 
     QString path(tnsnamesPathArr);
+    path = path.trimmed();
 
     if(path.isEmpty()){ //none of check environment variables is set
-        createTnsNotFoundLabel(tr("Set TNS_ADMIN environment variable to a directory that contains tnsnames.ora"));
-        return;
+        path = findTnsnamesFileFromPath();
+        appendNetworkDir = true;
+
+        if(path.isEmpty()){
+            return;
+        }
     }
 
-    if(!path.endsWith('\\') && !path.endsWith('/')){
-        path.append('/');
-    }
+    path.replace('\\','/');
+    addDirectorySuffix(path);
     if(appendNetworkDir){
         path.append("network/admin/");
     }
     path.append("tnsnames.ora");
-    path.replace('\\','/');
 
     if(!QFile::exists(path)){
-        createTnsNotFoundLabel(tr("File not found: %1").arg(path));
         return;
     }
 
@@ -158,12 +161,46 @@ void ConnectionEditor::loadTnsList()
     }
 }
 
-void ConnectionEditor::createTnsNotFoundLabel(const QString &errorMessage)
+QString ConnectionEditor::findTnsnamesFileFromPath()
 {
-    /*
-    QLabel *label = new QLabel(errorMessage);
-    label->setWordWrap(true);
-    tnsPaneForm->addRow(label);*/
+#ifdef Q_WS_WIN
+    QByteArray pathToCheck = qgetenv("PATH");
+    QChar separator = ';';
+#else
+    QByteArray pathToCheck = qgetenv("LD_LIBRARY_PATH");
+    QChar separator = ':';
+#endif
+
+    QString pathList(pathToCheck);
+    if(pathList.trimmed().isEmpty()){
+        return "";
+    }
+    pathList.replace('\\', '/');
+    QStringList parts = pathList.split(separator, QString::SkipEmptyParts);
+    foreach(QString path, parts){
+        path = path.trimmed();
+        if(path.isEmpty()){
+            continue;
+        }
+        addDirectorySuffix(path);
+        if(!QDir::isAbsolutePath(path)){
+            continue;
+        }
+
+        QDir dir(path);
+        if(!dir.exists()){
+            continue;
+        }
+        if(!dir.cdUp()){
+            continue;
+        }
+
+        if(QFile::exists(QString("%1/network/admin/tnsnames.ora").arg(dir.absolutePath()))){
+            return dir.absolutePath();
+        }
+    }
+
+    return "";
 }
 
 DbConnectionInfo *ConnectionEditor::createConnection()

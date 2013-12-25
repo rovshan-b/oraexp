@@ -4,6 +4,7 @@
 #include "code_parser/textcursorreader.h"
 #include "code_parser/stringreader.h"
 #include "code_parser/plsql/plsqltokens.h"
+#include "code_parser/plsql/plsqlparsehelper.h"
 
 CodeEditorUtil::CodeEditorUtil()
 {
@@ -27,24 +28,7 @@ void CodeEditorUtil::highlightEditorError(CodeEditor *editor, int errorPos, int 
     if(errorCode==ERR_PLS_ERROR_POSITION){ //second line contains real error description
         errMsg = errMsg.mid(errMsg.indexOf('\n')+1); //removed first line
         errMsg = errMsg.mid(0, errMsg.indexOf('\n')); //keeping only second line
-        QString prefixToRemove = "PL/SQL:";
-        if(errMsg.startsWith(prefixToRemove)){
-            errMsg.remove(0, prefixToRemove.size());
-        }
-        //now find first colon
-        int colonIx = errMsg.indexOf(':');
-        if(colonIx!=-1){
-            QString descriptiveErrorCode=errMsg.mid(0, colonIx); //for example ORA-00942
-            int dashIx=descriptiveErrorCode.indexOf('-');
-            if(dashIx!=-1){
-                QString strErrorCode=descriptiveErrorCode.mid(dashIx+1); //keeping only numeric part: 00942
-                bool canParseNumber;
-                int tmpErrCode=strErrorCode.toInt(&canParseNumber);
-                if(canParseNumber){
-                    errorCode=tmpErrCode;
-                }
-            }
-        }
+        errorCode = PlSqlParseHelper::extractPlSqlErrorCode(errMsg);
     }
 
     bool marked = false;

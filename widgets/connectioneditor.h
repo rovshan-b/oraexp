@@ -43,8 +43,7 @@ private:
     QWidget *createDirectPane();
 
     void loadTnsList();
-
-    void createTnsNotFoundLabel(const QString &errorMessage);
+    QString findTnsnamesFileFromPath();
 
     void updateConnection(DbConnectionInfo *connection);
 

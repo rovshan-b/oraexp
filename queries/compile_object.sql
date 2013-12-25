@@ -51,5 +51,8 @@ begin
 
   execute_clob(l_compile_statement);
   
-  open :rs_out for select * from sys.all_errors where owner=l_owner and name=l_object_name and type=l_errors_object_type order by sequence;
+  open :rs_out for select line, position, text, 
+                  {@keep_if:>=10}attribute{}
+                  {@keep_if:<10}'ERROR' as attribute{}
+                  from sys.all_errors  where owner=l_owner and name=l_object_name and type=l_errors_object_type order by sequence;
 end;

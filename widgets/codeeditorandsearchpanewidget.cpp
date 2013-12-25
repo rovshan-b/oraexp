@@ -27,6 +27,7 @@ CodeEditorAndSearchPaneWidget::CodeEditorAndSearchPaneWidget(bool enableCodeColl
 
 void CodeEditorAndSearchPaneWidget::setTextDocument(QTextDocument *document) const
 {
+    qDebug() << "setting document";
     editor()->setDocument(document);
 }
 

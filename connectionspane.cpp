@@ -167,7 +167,7 @@ bool ConnectionsPane::closeAll(bool exiting)
         setUpdatesEnabled(true);
     }
 
-    if(exiting){
+    if(exiting && changesSaved){
         QTimer::singleShot(0, this, SLOT(checkConnectionCountAndExit()));
     }
 

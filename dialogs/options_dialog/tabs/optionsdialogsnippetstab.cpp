@@ -45,6 +45,7 @@ void OptionsDialogSnippetsTab::doCreateUi()
     table->table()->setItemDelegateForColumn(0, keyDelegate);
 
     PlainTextEditorDelegate *valueDelegate = new PlainTextEditorDelegate(tr("Edit value"), this);
+    valueDelegate->setTrim(false);
     table->table()->setItemDelegateForColumn(1, valueDelegate);
 
     loadSnippets(model);

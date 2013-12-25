@@ -286,6 +286,12 @@ void DataTable::copyToClipboard(DataExporterBase *exporter)
     DataExporterObject expObj(exporter, ModelUtil::getModelData(model()), 0, false);
     expObj.exportData();
 
+    if(exporter->stringBuffer.endsWith("\r\n")){
+        exporter->stringBuffer.chop(2);
+    }else if(exporter->stringBuffer.endsWith("\n")){
+        exporter->stringBuffer.chop(1);
+    }
+
     QMimeData *mimeData = new QMimeData;
     mimeData->setData(exporter->getMimeType(), exporter->stringBuffer.toUtf8());
     mimeData->setText(exporter->stringBuffer);

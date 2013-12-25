@@ -554,7 +554,8 @@ SOURCES += main.cpp\
     dialogs/options_dialog/tabs/optionsdialogtab.cpp \
     dialogs/options_dialog/tabs/optionsdialogconnectivitytab.cpp \
     dialogs/options_dialog/tabs/optionsdialogsnippetstab.cpp \
-    widgets/tabbar.cpp
+    widgets/tabbar.cpp \
+    codeeditor/codeeditordocument.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1118,7 +1119,8 @@ HEADERS  += mainwindow.h \
     dialogs/options_dialog/tabs/optionsdialogconnectivitytab.h \
     typedefs.h \
     dialogs/options_dialog/tabs/optionsdialogsnippetstab.h \
-    widgets/tabbar.h
+    widgets/tabbar.h \
+    codeeditor/codeeditordocument.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \
@@ -1140,8 +1142,8 @@ RESOURCES += \
 unix:INCLUDEPATH += /usr/local/include
 unix:LIBS += -L/usr/local/lib -locilib
 
-windows:INCLUDEPATH += "C:/ocilib-3.9.4-windows/ocilib/include"
-windows:LIBS += -L"C:/ocilib-3.9.4-windows/ocilib/lib32" -locilibw
+windows:INCLUDEPATH += "C:/ocilib-3.9.5-windows/ocilib/include"
+windows:LIBS += -L"C:/ocilib-3.9.5-windows/ocilib/lib32" -locilibw
 
 windows:INCLUDEPATH += "C:/qt-everywhere-opensource-src-4.7.4/qt-everywhere-opensource-src-4.7.4/src/3rdparty/zlib"
 

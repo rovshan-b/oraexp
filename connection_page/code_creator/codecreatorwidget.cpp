@@ -338,7 +338,7 @@ int CodeCreatorWidget::getEnableNativeCode()
 {
     if(!this->queryScheduler->getDb()->supportsNativeCompilation() || !DbUtil::isPLSQLProgramUnit(this->objectType)){
         return 2;
-    }else if(enableNativeCodeAction->isChecked()){
+    }else if(enableNativeCodeAction->isChecked() && !this->debugMode){
         return 1;
     }else{
         return 0;
@@ -378,7 +378,7 @@ void CodeCreatorWidget::compileObject()
                        new Param(":object_type", getObjectTypeName()) <<
                        new Param(":for_debug", this->debugMode) <<
                        new Param(":enable_warnings", getEnableWarnings()) <<
-                       new Param(":native_code", getEnableNativeCode() && !this->debugMode),
+                       new Param(":native_code", getEnableNativeCode()),
                        this,
                        "compile_object",
                        "compilationCompleted",
@@ -479,10 +479,13 @@ void CodeCreatorWidget::compilationErrorFetched(const FetchResult &fetchResult)
         return;
     }
 
+
+    QString errorText = fetchResult.colValue("TEXT").trimmed();
+
     addCompilerMessage(fetchResult.colValue("LINE",0),
                        fetchResult.colValue("POSITION",0),
-                       fetchResult.colValue("MESSAGE_NUMBER",0),
-                       fetchResult.colValue("TEXT"),
+                       PlSqlParseHelper::extractPlSqlErrorCode(errorText),
+                       errorText,
                        fetchResult.colValue("ATTRIBUTE"));
 }
 
