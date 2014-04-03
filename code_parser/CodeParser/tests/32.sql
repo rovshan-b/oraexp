@@ -1,0 +1,5 @@
+SELECT * FROM pivot_table
+  UNPIVOT INCLUDE NULLS 
+    (yearly_total FOR order_mode IN (store AS 'direct', internet AS 'online'))
+  ORDER BY year, order_mode
+;

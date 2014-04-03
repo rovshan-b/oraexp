@@ -1,0 +1,5 @@
+
+
+CREATE TYPE demo_typ2 AS OBJECT (a1 NUMBER, 
+   MEMBER FUNCTION get_square RETURN NUMBER); 
+

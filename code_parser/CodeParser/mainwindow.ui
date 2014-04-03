@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>737</width>
-     <height>26</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuActions">
@@ -49,6 +49,7 @@
     </property>
     <addaction name="actionScan"/>
     <addaction name="actionParse"/>
+    <addaction name="actionParse_All"/>
    </widget>
    <addaction name="menuActions"/>
   </widget>
@@ -75,6 +76,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionParse_All">
+   <property name="text">
+    <string>Parse All</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
    </property>
   </action>
  </widget>

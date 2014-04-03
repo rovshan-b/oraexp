@@ -1,0 +1,3 @@
+SELECT COLUMN_VALUE
+  FROM TABLE(pipe_rows())
+  WHERE ROWNUM < 5;

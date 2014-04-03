@@ -1,6 +1,7 @@
 #include "plsqltreebuilder.h"
 #include "beans/tokeninfo.h"
 #include "beans/parsetreenode.h"
+#include "code_parser/parsingtable.h"
 #include "plsqlrules.h"
 
 PlSqlTreeBuilder::PlSqlTreeBuilder() : rootNode(0)

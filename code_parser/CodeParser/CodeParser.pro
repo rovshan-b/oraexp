@@ -27,7 +27,8 @@ SOURCES += main.cpp\
     ../../util/strutil.cpp \
     ../../beans/tokeninfo.cpp \
     ../plsql/plsqltreebuilder.cpp \
-    ../../beans/parsetreenode.cpp
+    ../../beans/parsetreenode.cpp \
+    ../stringreader.cpp
 
 HEADERS  += mainwindow.h \
     ../codeparser.h \
@@ -48,11 +49,9 @@ HEADERS  += mainwindow.h \
     ../../beans/tokeninfo.h \
     ../plsql/plsqltreebuilder.h \
     ../../beans/parsetreenode.h \
-    ../plsql/plsqlrules.h
+    ../plsql/plsqlrules.h \
+    ../stringreader.h
 
 FORMS    += mainwindow.ui
 
 INCLUDEPATH += /home/rovshan/Projects/Qt/OraExp
-
-unix:INCLUDEPATH += /usr/local/include
-unix:LIBS += -L/usr/local/lib -locilib

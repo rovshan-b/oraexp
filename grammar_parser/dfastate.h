@@ -38,6 +38,7 @@ public:
     DFATransition *findTransitionOnDFAItem(DFAItem *dfaItem);
 
     bool addLookahead(DFAItem *item, const EBNFToken &lookahead);
+    bool containsLookahead(DFAItem *item, const EBNFToken &lookahead);
 
     QString toString() const;
 

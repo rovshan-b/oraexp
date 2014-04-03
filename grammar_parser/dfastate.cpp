@@ -151,16 +151,25 @@ DFATransition *DFAState::findTransitionOnDFAItem(DFAItem *dfaItem)
 
 bool DFAState::addLookahead(DFAItem *item, const EBNFToken &lookahead)
 {
-    QList<EBNFToken> itemLookaheads=lookaheads.value(item);
-
-    for(int i=0; i<itemLookaheads.size(); ++i){
-        if(itemLookaheads.at(i)==lookahead){
-            return false;
-        }
+    if(containsLookahead(item, lookahead)){
+        return false;
     }
 
     lookaheads[item].append(lookahead);
     return true;
+}
+
+bool DFAState::containsLookahead(DFAItem *item, const EBNFToken &lookahead)
+{
+    QList<EBNFToken> itemLookaheads=lookaheads.value(item);
+
+    for(int i=0; i<itemLookaheads.size(); ++i){
+        if(itemLookaheads.at(i)==lookahead){
+            return true;
+        }
+    }
+
+    return false;
 }
 
 QString DFAState::toString() const
@@ -191,15 +200,7 @@ QString DFAState::toString() const
         str.append("\nTransitions:");
         for(int k=0; k<transitions.size(); ++k){
             DFATransition *trans=transitions.at(k);
-            QString sourceItemDesc = trans->sourceItem->toString();
-            BNFRuleItem *currentRuleItem=trans->sourceItem->currentRuleItem();
-            str.append(sourceItemDesc).
-                    append(QString(qMax(10, 80-sourceItemDesc.size()), ' '));
-                    if(currentRuleItem->isTerminal){str.append("'");}
-                    str.append(currentRuleItem->token.lexeme);
-                    if(currentRuleItem->isTerminal){str.append("'");}
-                    str.append(" > ").
-                    append(QString::number(trans->targetState->stateId));
+            str.append(trans->toString());
         }
     }
 

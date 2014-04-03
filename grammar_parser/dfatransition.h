@@ -17,6 +17,8 @@ public:
     //QList<DFAItem*> sourceDFAItems;
     DFAItem *sourceItem;
     DFAState *targetState;
+
+    QString toString(bool prependNewLine = true) const;
 };
 
 #endif // DFATRANSITION_H

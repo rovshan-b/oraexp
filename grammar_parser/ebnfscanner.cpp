@@ -50,6 +50,7 @@ EBNFToken EBNFScanner::getToken()
             else if(c.isLetter() && c.isUpper()){state=INTERMINAL;isLiteral=false;}
             else if(c=='\''){save=false; state=INTERMINAL;isLiteral=true;}
             else if(c=='.') state=INRANGE;
+            else if(c=='/') {save=false; state=INCOMMENT; QChar next=getNextChar(); Q_ASSERT(next=='/');}
             else {
                 state = DONE;
 
@@ -107,6 +108,13 @@ EBNFToken EBNFScanner::getToken()
                 token.tokenType=EBNFToken::RANGE;
             }else{
                 token.tokenType=EBNFToken::ERR;
+            }
+            break;
+        case INCOMMENT:
+            save=false;
+            if(c=='\n' || c.isNull()){
+                ungetChar();
+                return getToken(); //ignore comment and return next token
             }
             break;
         case DONE:

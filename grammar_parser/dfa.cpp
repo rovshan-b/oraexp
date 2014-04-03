@@ -453,11 +453,11 @@ void DFA::closeItems()
 
                 Q_ASSERT(state->contains(tmpItem));
                 QList<EBNFToken> lookaheads=tmpState->lookaheads.value(tmpItem);
-                //for(int m=0; m<lookaheads.size(); ++m){
-                //    const EBNFToken &lookahead=lookaheads.at(m);
-                //    state->addLookahead()
-                //}
-                state->lookaheads[tmpItem]=lookaheads;
+                for(int m=0; m<lookaheads.size(); ++m){
+                    const EBNFToken &lookahead=lookaheads.at(m);
+                    state->addLookahead(tmpItem, lookahead);
+                }
+                //state->lookaheads[tmpItem]=lookaheads;
             }
 
             delete tmpState;
@@ -580,6 +580,23 @@ void DFA::checkForConflicts()
             DFAItem *dfaItem=state->dfaItems.at(k);
             //BNFRuleItem *ruleItem=dfaItem->currentRuleItem();
 
+            //check for useless epsilon rules
+            //if there is epsilon item and transition on same lookaheads as epsilon, epsilon item will never be recognized and reduced
+            /*if(dfaItem->getSymbolCount() == 0){ //epsilon item
+                for(int i=0; i<state->transitions.size(); ++i){
+                    DFATransition *transition = state->transitions.at(i);
+                    BNFRuleItem *currentRuleItem=transition->sourceItem->currentRuleItem();
+                    Q_ASSERT(currentRuleItem!=0);
+                    if(currentRuleItem->isTerminal && state->containsLookahead(dfaItem, currentRuleItem->token)){
+
+                        qDebug() << "State -" << state->stateId << "has useless epsilon item due to shift reduce conflict. Item:"
+                                 << dfaItem->toString(false) << ", Transition:" << transition->toString(false);
+
+                        if(!hasConflicts){hasConflicts=true;}
+                    }
+                }
+            }*/
+
             for(int j=k+1; j<state->dfaItems.size(); ++j){
                 DFAItem *dfaItemToCheck=state->dfaItems.at(j);
                 //BNFRuleItem *ruleItemToCheck=dfaItemToCheck->currentRuleItem();
@@ -594,12 +611,14 @@ void DFA::checkForConflicts()
                              << dfaItem->toString(false) << "and" << dfaItemToCheck->toString(false);
                     if(!hasConflicts){hasConflicts=true;}
                 }
-                /*do not print shift reduce conflicts
-                else if((dfaItem->isCompleteItem() && !dfaItemToCheck->isCompleteItem() && dfaItemToCheck->currentRuleItem()->isTerminal) ||
-                         (!dfaItem->isCompleteItem() && dfaItemToCheck->isCompleteItem()  && dfaItem->currentRuleItem()->isTerminal)){ //shift reduce conflict
-                    qDebug() << "State -" << state->stateId << "has shift reduce conflict on items"
-                             << dfaItem->toString(false) << "and" << dfaItemToCheck->toString(false);
-                }*/
+
+                //comment out not to print shift reduce conflicts
+                //else if((dfaItem->isCompleteItem() && !dfaItemToCheck->isCompleteItem() && dfaItemToCheck->currentRuleItem()->isTerminal) ||
+                //         (!dfaItem->isCompleteItem() && dfaItemToCheck->isCompleteItem()  && dfaItem->currentRuleItem()->isTerminal)){ //shift reduce conflict
+                //    qDebug() << "State -" << state->stateId << "has shift reduce conflict on items"
+                //             << dfaItem->toString(false) << "and" << dfaItemToCheck->toString(false);
+                //}
+                //end comment out not to print shift reduce conflicts
             }
         }
     }

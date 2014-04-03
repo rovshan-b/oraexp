@@ -6,7 +6,9 @@
 #include <QStringList>
 #include "navtree/dbtreemodel.h"
 #include "beans/environmentinfo.h"
+#ifndef CODE_PARSER_BUILD
 #include <ocilib.h>
+#endif
 
 class Statement;
 
@@ -17,8 +19,10 @@ class DbUtil
 public:
     DbUtil();
 
+#ifndef CODE_PARSER_BUILD
     static void checkForOciError(Statement *statement=0);
     static void throwOciException(OCI_Error *error, Statement *statement);
+#endif
 
     static QString getConstraintTypeLetter(OraExp::ConstraintType constraintType);
     static QString getConstraintTypeName(int constraintType, bool translate=true);

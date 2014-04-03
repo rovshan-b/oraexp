@@ -3,6 +3,7 @@
 #include "bnfrule.h"
 #include "bnfruleitem.h"
 #include "filewriter.h"
+#include "util.h"
 #include <QFile>
 #include <QTextStream>
 #include <stdlib.h>
@@ -51,7 +52,7 @@ void EBNFParser::parse()
     registerTargetScannerKeywordsFromFile();
     //EBNFToken eofToken=EBNFScanner::createEOFToken();
     //registerTargetScannerKeyword(eofToken);
-    targetScannerKeywords.sort();
+    qSort(targetScannerKeywords.begin(), targetScannerKeywords.end(), caseInsensitiveLessThan);
     printTargetScannerKeywords();
 
     time.restart();

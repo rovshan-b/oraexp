@@ -1,0 +1,18 @@
+CREATE OR REPLACE TYPE BODY ssn IS
+  CONSTRUCTOR FUNCTION ssn(ssn_in IN VARCHAR2)
+  RETURN self AS RESULT IS
+  BEGIN
+    IF validate_ssn(ssn_in) THEN
+      n_ := ssn_in;
+      RETURN;
+    ELSE
+      RAISE_APPLICATION_ERROR(-20001, 'INVALID SSN');
+    END IF;
+  END;
+
+  MEMBER FUNCTION get_ssn RETURN CHAR IS
+  BEGIN
+    RETURN n_;
+  END;
+END;
+/

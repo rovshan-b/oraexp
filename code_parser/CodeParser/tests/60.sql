@@ -1,0 +1,2 @@
+SELECT COUNT(*) * 10 FROM orders SAMPLE (10)
+;

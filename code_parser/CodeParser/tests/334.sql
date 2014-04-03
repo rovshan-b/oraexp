@@ -1,0 +1,3 @@
+CREATE OR REPLACE TYPE ssn_t AS OBJECT (
+ssn_type CHAR(11));
+/

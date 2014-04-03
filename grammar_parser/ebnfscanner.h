@@ -18,6 +18,7 @@ public:
         INTERMINAL,
         INESCAPECHAR,
         INRANGE,
+        INCOMMENT,
         DONE
     };
 

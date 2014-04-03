@@ -13,6 +13,7 @@ DbUtil::DbUtil()
 {
 }
 
+#ifndef CODE_PARSER_BUILD
 void DbUtil::checkForOciError(Statement *statement)
 {
     OCI_Error *err = OCI_GetLastError();
@@ -50,6 +51,7 @@ void DbUtil::throwOciException(OCI_Error *error, Statement *statement)
         throw OciException(errorMessage, errorCode, -1, errorPos);
     }
 }
+#endif
 
 QString DbUtil::getConstraintTypeLetter(OraExp::ConstraintType constraintType)
 {

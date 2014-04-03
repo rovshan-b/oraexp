@@ -3,11 +3,15 @@
 
 #include <QString>
 #include <QStringList>
+#ifndef CODE_PARSER_BUILD
 #include <ocilib.h>
+#endif
 #include "enums.h"
 
+#ifndef CODE_PARSER_BUILD
 QString toQString(const dtext *ociString);
 dtext* toOciString(const QString &qString);
+#endif
 
 
 //QMultiMap<QString, unsigned int> getNamedParametersWithPositions(const QString &query);
@@ -73,6 +77,8 @@ QString xmlEncode(const QString& xml);
 
 QString removeEnclosure(const QString &str, const QChar &enclosure = '"');
 
+#ifndef CODE_PARSER_BUILD
+
 void copyStringToArray(dtext *array, int arrayPos, int arrayMaxStrLength, const dtext *str);
 
 QString toValidFilename(const QString &str);
@@ -83,7 +89,6 @@ QString decryptString(const QString &input);
 
 QString getPlatformLineEnding();
 
-#ifndef CODE_PARSER_BUILD
 QString detectDateFormat(const QStringList &dates);
 
 QString dateFormatForLocale(const QString &dateFormat, const QStringList &dates);

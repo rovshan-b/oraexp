@@ -1,0 +1,3 @@
+BEGIN
+  p;
+END;

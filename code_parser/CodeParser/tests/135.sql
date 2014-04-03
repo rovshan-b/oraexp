@@ -1,0 +1,1 @@
+EXECUTE IMMEDIATE dyn_stmt USING b;

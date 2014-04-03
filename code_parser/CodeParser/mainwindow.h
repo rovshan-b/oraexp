@@ -33,10 +33,13 @@ private slots:
 
     void cursorPositionChanged();
 
+    void on_actionParse_All_triggered();
+
 private:
     Ui::MainWindow *ui;
     QStandardItemModel *model;
 
+    bool parseCurrent();
     void buildTree(ParseTreeNode *rootNode);
     void addChildNodes(ParseTreeNode *parseTreeNode, QStandardItem *treeViewNode);
 

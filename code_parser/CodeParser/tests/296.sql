@@ -1,0 +1,8 @@
+CREATE OR REPLACE PROCEDURE sleep (
+  milli_seconds IN NUMBER
+) AUTHID DEFINER IS
+BEGIN
+  DBMS_OUTPUT.PUT_LINE(DBMS_UTILITY.get_time());
+  java_sleep (milli_seconds);
+  DBMS_OUTPUT.PUT_LINE(DBMS_UTILITY.get_time());
+END;

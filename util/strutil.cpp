@@ -8,6 +8,8 @@
 
 using namespace std;
 
+
+#ifndef CODE_PARSER_BUILD
 QString toQString(const dtext *ociString){
     return QString::fromWCharArray(ociString);
 }
@@ -19,6 +21,7 @@ dtext* toOciString(const QString &qString){
 
     return data;
 }
+#endif
 
 int getEditorIntValue(const QString &value)
 {
@@ -369,6 +372,8 @@ QString removeEnclosure(const QString &str, const QChar &enclosure)
     return s;
 }
 
+#ifndef CODE_PARSER_BUILD
+
 void copyStringToArray(dtext *array, int arrayPos, int arrayMaxStrLength, const dtext *str)
 {
     dtext *currPosInBuffer = &array[arrayPos*(arrayMaxStrLength+1)];
@@ -417,8 +422,6 @@ QString getPlatformLineEnding()
     return "\n";
 #endif
 }
-
-#ifndef CODE_PARSER_BUILD
 
 QString detectDateFormat(const QStringList &dates)
 {

@@ -3,7 +3,9 @@
 #include "beans/tokeninfo.h"
 #include "plsql/plsqltokens.h"
 
-CodeParser::CodeParser(CodeScanner *scanner) : scanner(scanner), errorRow(0), reduceListener(0)
+#include <QDebug>
+
+CodeParser::CodeParser(CodeScanner *scanner) : scanner(scanner), parsingTable(0), errorRow(0), reduceListener(0)
 {
 }
 
@@ -16,42 +18,41 @@ bool CodeParser::parse()
 {
     Q_ASSERT(scanner);
 
-    ParsingTable *table=getParsingTable();
-    Q_ASSERT(table);
-
-    //stack.clear();
-    QStack<int> stack;
+    stack.clear();
     stack.push(0);
 
-    QStack<TokenInfo*> tokenStack;
+    tokenStack.clear();
     tokenStack.push(0);
-
-    QList<TokenInfo*> currentReduceTokens;
 
     int token = scanner->getNextToken();
 
+    if(parsingTable == 0){
+        parsingTable=getParsingTable();
+    }
+    Q_ASSERT(parsingTable);
     ParsingTableRow *row;
     ParsingTableAction *actionOnCurrToken;
     ParsingTableAction::ActionType actionType;
-
-    int ruleId;
-    int gotoState;
 
     bool done=false;
 
     while(true){
         int stateOnTop = stack.top();
 
-        row=table->rows.at(stateOnTop);
+        //qDebug() << "IN STATE " << stateOnTop << " TOKEN " << token << "  " << scanner->getTokenLexeme();
+
+        row=parsingTable->rows.at(stateOnTop);
 
         actionOnCurrToken=(*row->actions).value(token, 0);
 
         if(actionOnCurrToken==0){
-            actionOnCurrToken=(*row->actions).value(PLS_ANY, 0);
+            correctError(&token, row, &actionOnCurrToken);
         }
 
         if(actionOnCurrToken==0){ //parsing error
-            //qDebug("parsing error");
+
+            qDebug() << "parse failed in state" << stateOnTop << ", current token is" << token << " (lexeme =" << scanner->getTokenLexeme() << ")" ;
+
             errorRow = row;
             if(reduceListener){
                 reduceListener->error();
@@ -65,43 +66,12 @@ bool CodeParser::parse()
         switch(actionType){
         case ParsingTableAction::Shift:
         {
-            stack.push(actionOnCurrToken->stateOrRuleId);
-
-            TokenInfo *ti = new TokenInfo();
-            ti->tokenType = TokenInfo::Token;
-            ti->tokenOrRuleId = token;
-            ti->startPos = scanner->getTokenStartPos();
-            ti->endPos = scanner->getTokenEndPos();
-            ti->startLine = scanner->getTokenStartLine();
-            ti->endLine = scanner->getTokenEndLine();
-            ti->startLinePos = scanner->getTokenStartLinePos();
-            ti->endLinePos = scanner->getTokenEndLinePos();
-            ti->lexeme = scanner->getTokenLexeme();
-            tokenStack.push(ti);
-
-            token=scanner->getNextToken();
+            shift(actionOnCurrToken->stateOrRuleId, &token);
             break;
         }
         case ParsingTableAction::Reduce:
         {
-            ruleId=actionOnCurrToken->stateOrRuleId;
-            currentReduceTokens.clear();
-            for(int i=0; i<actionOnCurrToken->symbolCount; ++i){
-                stack.pop();
-                currentReduceTokens.append(tokenStack.pop());
-            }
-            stateOnTop = stack.top();
-            row=table->rows.at(stateOnTop);
-            gotoState=row->gotos.value(ruleId, -1);
-            Q_ASSERT(gotoState!=-1);
-            stack.push(gotoState);
-            TokenInfo *ti = new TokenInfo();
-            ti->tokenType = TokenInfo::Rule;
-            ti->tokenOrRuleId = ruleId;
-            tokenStack.push(ti);
-            if(this->reduceListener){
-                this->reduceListener->reduced(ti, actionOnCurrToken->symbolCount, currentReduceTokens, table);
-            }
+            reduce(actionOnCurrToken->stateOrRuleId, actionOnCurrToken->symbolCount);
             break;
         }
         case ParsingTableAction::Accept:
@@ -120,6 +90,58 @@ bool CodeParser::parse()
     errorRow=0;
 
     return true;
+}
+
+void CodeParser::shift(int stateId, int *token)
+{
+    stack.push(stateId);
+    tokenStack.push(createTokenInfo(*token));
+
+    //qDebug() << "shifting to state " << stateId;
+
+    *token=scanner->getNextToken();
+}
+
+void CodeParser::reduce(int ruleId, int symbolCount, const QList<TokenInfo *> &additionalReduceTokens)
+{
+    //qDebug() << "reducing by rule " << parsingTable->getRuleName(ruleId);
+
+    QList<TokenInfo*> currentReduceTokens(additionalReduceTokens);
+    for(int i=0; i<symbolCount; ++i){
+        stack.pop();
+        currentReduceTokens.append(tokenStack.pop());
+    }
+    int stateOnTop = stack.top();
+    ParsingTableRow *row=parsingTable->rows.at(stateOnTop);
+    int gotoState=row->gotos.value(ruleId, -1);
+    Q_ASSERT(gotoState!=-1);
+    stack.push(gotoState);
+    TokenInfo *ti = new TokenInfo();
+    ti->tokenType = TokenInfo::Rule;
+    ti->tokenOrRuleId = ruleId;
+    tokenStack.push(ti);
+    if(this->reduceListener){
+        this->reduceListener->reduced(ti, symbolCount, currentReduceTokens, parsingTable);
+    }
+
+    //qDebug() << "going to state " << gotoState;
+}
+
+
+TokenInfo *CodeParser::createTokenInfo(int token) const
+{
+    TokenInfo *ti = new TokenInfo();
+    ti->tokenType = TokenInfo::Token;
+    ti->tokenOrRuleId = token;
+    ti->startPos = scanner->getTokenStartPos();
+    ti->endPos = scanner->getTokenEndPos();
+    ti->startLine = scanner->getTokenStartLine();
+    ti->endLine = scanner->getTokenEndLine();
+    ti->startLinePos = scanner->getTokenStartLinePos();
+    ti->endLinePos = scanner->getTokenEndLinePos();
+    ti->lexeme = scanner->getTokenLexeme();
+
+    return ti;
 }
 
 QPair< QList<int>, QList<int> > CodeParser::getExpectedTokens() const

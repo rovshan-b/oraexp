@@ -8,6 +8,7 @@
 #include "ebnfscanner.h"
 #include "ebnfparser.h"
 #include "filewriter.h"
+#include "util.h"
 #include <QTime>
 #include <QDebug>
 
@@ -119,11 +120,6 @@ void ParsingTableBuilder::compactParsingTable()
     }
 
     qDebug() << "deleted" << deletedActionRows << "action row(s) while compacting parsing table";
-}
-
-bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
-{
-    return s1.toUpper() < s2.toUpper();
 }
 
 int ParsingTableBuilder::getKeywordIx(const QString &keyword) const

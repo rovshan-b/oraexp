@@ -28,6 +28,7 @@ int PlSqlScanner::doGetNextToken()
     int token;
     ScannerState state=START;
     bool save;
+    QChar specialStringDelimiter;
 
     currentLexeme.clear();
 
@@ -49,6 +50,7 @@ int PlSqlScanner::doGetNextToken()
         case START:
             if(isNewline()) {save=false; ++tokenStartPos;++tokenStartLine;tokenStartLinePos=0;}
             else if(c.isSpace()) {save=false; ++tokenStartPos;++tokenStartLinePos;}
+            else if(c=='n' || c=='N' || c=='Q' || c=='q') {state=IN_ID_OR_QUOTED_STRING;}
             else if(c.isLetter()) {state=IN_ID;}
             else {
                 state = DONE;
@@ -60,8 +62,11 @@ int PlSqlScanner::doGetNextToken()
                 else if(c == ')') token=PLS_RPAREN;
                 else if(c=='[') token=PLS_LBRACK;
                 else if(c == ']') token=PLS_RBRACK;
+                else if(c=='{') token=PLS_LCURLY_BRACK;
+                else if(c == '}') token=PLS_RCURLY_BRACK;
                 else if(c=='%') token=PLS_PERCENTAGE;
                 else if(c=='+') token=PLS_PLUS;
+                else if(c=='?') token=PLS_QUESTION_MARK;
 
                 else if(c=='.') state=IN_DOUBLE_DOT;
                 else if(c=='*') state=IN_EXPONENT;
@@ -70,7 +75,7 @@ int PlSqlScanner::doGetNextToken()
                 else if(c=='=') state=IN_EQ;
                 else if(c==':') state=IN_ASSIGN;
                 else if(c=='|') state=IN_DOUBLE_VERTBAR;
-                else if(c=='!' || c=='^') state=IN_NOT_EQ;
+                else if(c=='!' || c=='^' || c=='~') state=IN_NOT_EQ;
                 else if(c=='\'') state=IN_QUOTED_STRING;
                 else if(c=='"') state=IN_DOUBLEQUOTED_STRING;
                 else if(c=='-') state=IN_MINUS;
@@ -188,6 +193,33 @@ int PlSqlScanner::doGetNextToken()
                 token=PLS_ERROR;
             }
             break;
+        case IN_ID_OR_QUOTED_STRING:
+            if(currentLexeme.length()==1){
+                if((currentLexeme.at(0)=='N' || currentLexeme.at(0)=='n')){
+                    if((c=='Q' || c=='q')){
+                        ;//keep reading
+                    }else if(c=='\''){
+                        state=IN_QUOTED_STRING;
+                    }else{
+                        state=IN_ID;
+                        ungetChar();
+                        save=false;
+                    }
+                }else if((currentLexeme.at(0)=='Q' || currentLexeme.at(0)=='q') && (c=='\'')){
+                    state=IN_SPECIAL_QUOTED_STRING;
+                }else{
+                    state=IN_ID;
+                    ungetChar();
+                    save=false;
+                }
+            }else if(currentLexeme.length()==2 && c=='\''){
+                state=IN_SPECIAL_QUOTED_STRING; //if there are 2 symbols in current lexeme, last on is Q or q
+            }else{
+                state=IN_ID;
+                ungetChar();
+                save=false;
+            }
+            break;
         case IN_QUOTED_STRING:
             if(c=='\''){
                 state=IN_QUOTED_STRING_END;
@@ -205,6 +237,39 @@ int PlSqlScanner::doGetNextToken()
                 save=false;
                 state=DONE;
                 token=PLS_QUOTED_STRING;
+            }
+            break;
+        case IN_SPECIAL_QUOTED_STRING:
+            if(specialStringDelimiter.isNull() && !c.isNull()){
+                if(c=='['){
+                    specialStringDelimiter = ']';
+                }else if(c=='{'){
+                    specialStringDelimiter = '}';
+                }else if(c=='<'){
+                    specialStringDelimiter = '>';
+                }else if(c=='('){
+                    specialStringDelimiter = ')';
+                }else{
+                    specialStringDelimiter = c;
+                }
+            }else if(c==specialStringDelimiter){
+                state=IN_SPECIAL_QUOTED_STRING_END;
+            }else if(c.isNull()){
+                state=DONE;
+                save=false;
+                token=PLS_ERROR;
+                specialStringDelimiter=QChar::Null;
+            }
+            break;
+        case IN_SPECIAL_QUOTED_STRING_END:
+            if(c=='\''){
+                //ungetChar();
+                //save=false;
+                state=DONE;
+                token=PLS_QUOTED_STRING;
+                specialStringDelimiter=QChar::Null;
+            }else{
+                state=IN_SPECIAL_QUOTED_STRING;
             }
             break;
         case IN_DOUBLEQUOTED_STRING:
@@ -310,7 +375,9 @@ int PlSqlScanner::doGetNextToken()
             }
             break;
         case IN_NUMBER_END:
-            if(!c.isDigit()){
+            if(c=='E' || c=='e'){
+                state=IN_NUMBER_EXP_PART;
+            }else if(!c.isDigit()){
                 ungetChar();
                 save=false;
                 state=DONE;

@@ -9,6 +9,7 @@
 class ParsingTable;
 class ParsingTableRow;
 class IReduceListener;
+class TokenInfo;
 
 class CodeParser
 {
@@ -28,7 +29,16 @@ public:
     void setReduceListener(IReduceListener *listener) {this->reduceListener=listener;}
 
 protected:
+    virtual void correctError(int *token, ParsingTableRow *row, ParsingTableAction **actionOnCurrentToken) = 0;
+    void shift(int stateId, int *token);
+    void reduce(int ruleId, int symbolCount, const QList<TokenInfo*> &additionalReduceTokens = QList<TokenInfo*>());
+    TokenInfo *createTokenInfo(int token) const;
+
     CodeScanner *scanner;
+    ParsingTable *parsingTable;
+
+    QStack<int> stack;
+    QStack<TokenInfo*> tokenStack;
 
     ParsingTableRow *errorRow;
 
