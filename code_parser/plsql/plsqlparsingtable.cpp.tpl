@@ -2,6 +2,8 @@
 
 PlSqlParsingTable *PlSqlParsingTable::instance = 0;
 
+{action_declarations}
+
 PlSqlParsingTable::PlSqlParsingTable()
 {
 }
@@ -20,5 +22,28 @@ ParsingTable *PlSqlParsingTable::getInstance()
 
 void PlSqlParsingTable::populateTable()
 {
-    {populate_table_statements}
+    populateKeywords();
+    populateRuleNames();
+    initializeActions();
+    createStates();
+}
+
+void PlSqlParsingTable::populateKeywords()
+{
+   {keyword_initializations}
+}
+
+void PlSqlParsingTable::populateRuleNames()
+{
+   {rule_name_initializations}
+}
+
+void PlSqlParsingTable::initializeActions()
+{
+   {action_initializations}
+}
+
+void PlSqlParsingTable::createStates()
+{
+   {state_initializations}
 }

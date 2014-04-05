@@ -14,6 +14,10 @@ protected:
 
 private:
     void populateTable();
+    void populateKeywords();
+    void populateRuleNames();
+    void initializeActions();
+    void createStates();
 
     static PlSqlParsingTable *instance;
 };

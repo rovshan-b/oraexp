@@ -729,15 +729,15 @@ void DFA::printoutTargetParserRules()
         FileWriter::writeLine(define, FileWriter::Rules);
     }
 
-    FileWriter::writeLine("//-----------rule string representations-----------------");
-    FileWriter::writeLine(QString("ruleNames.reserve( %1 );").arg(bnfRules.size()));
+    FileWriter::writeLine("//-----------rule string representations-----------------", FileWriter::RuleNames);
+    FileWriter::writeLine(QString("ruleNames.reserve( %1 );").arg(bnfRules.size()), FileWriter::RuleNames);
     for(int i=0; i<bnfRules.size(); ++i){
         BNFRule *rule=bnfRules.at(i);
 
         QString addStmt=QString("ruleNames.append(\"%1\");").arg(rule->ruleName.toUpper());
-        FileWriter::writeLine(addStmt);
+        FileWriter::writeLine(addStmt, FileWriter::RuleNames);
     }
-    FileWriter::writeLine("//-------------------------------------------------------");
+    FileWriter::writeLine("//-------------------------------------------------------", FileWriter::RuleNames);
 }
 
 void DFA::printoutLookaheadsPropagationTable()

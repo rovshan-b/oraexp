@@ -174,7 +174,7 @@ void ParsingTableBuilder::printoutTableRow(ParsingTableRow* row) const
 
 void ParsingTableBuilder::printoutForTargetParser()
 {
-    FileWriter::writeLine("//----------------parsing table code for target parser---------------");
+    FileWriter::writeLine("//----------------parsing table code for target parser---------------", FileWriter::States);
 
     //first print out individual actions
     for(int i=0; i<tableRows.size(); ++i){
@@ -198,7 +198,7 @@ void ParsingTableBuilder::printoutForTargetParser()
 
     //now print out declarations for table rows
     //qDebug("QList<ParsingTableRow*> rows;");
-    FileWriter::writeLine(QString("rows.reserve( %1 );\n").arg(tableRows.size()));
+    FileWriter::writeLine(QString("rows.reserve( %1 );\n").arg(tableRows.size()), FileWriter::States);
 
     for(int i=0; i<tableRows.size(); ++i){
         ParsingTableRow *row=tableRows.at(i);
@@ -206,17 +206,18 @@ void ParsingTableBuilder::printoutForTargetParser()
         printoutRowCode(row);
     }
 
-    FileWriter::writeLine("//--------------end parsing table code for target parser-------------");
+    FileWriter::writeLine("//--------------end parsing table code for target parser-------------", FileWriter::States);
 }
 
 void ParsingTableBuilder::printoutActionCode(const QString &varName, ParsingTableAction *action) const
 {
     QString decl=QString("ParsingTableAction * %1 = new ParsingTableAction();\n").arg(varName);
-    decl.append(QString("%1->actionType = ParsingTableAction::%2;\n").arg(varName).arg(action->getActionTypeAsString()));
-    decl.append(QString("%1->stateOrRuleId = %2;\n").arg(varName).arg(QString::number(action->stateOrRuleId)));
-    decl.append(QString("%1->symbolCount = %2;\n").arg(varName).arg(QString::number(action->symbolCount)));
+    QString init = QString("%1->actionType = ParsingTableAction::%2;\n").arg(varName).arg(action->getActionTypeAsString());
+    init.append(QString("%1->stateOrRuleId = %2;\n").arg(varName).arg(QString::number(action->stateOrRuleId)));
+    init.append(QString("%1->symbolCount = %2;\n").arg(varName).arg(QString::number(action->symbolCount)));
 
-    FileWriter::writeLine(decl);
+    FileWriter::writeLine(decl, FileWriter::ActionDeclarations);
+    FileWriter::writeLine(init, FileWriter::ActionInitializations);
 }
 
 void ParsingTableBuilder::printoutRowCode(ParsingTableRow *row) const
@@ -246,7 +247,7 @@ void ParsingTableBuilder::printoutRowCode(ParsingTableRow *row) const
 
     decl.append(QString("rows.append(%1);\n").arg(varName));
 
-    FileWriter::writeLine(decl);
+    FileWriter::writeLine(decl, FileWriter::States);
 }
 
 QString ParsingTableBuilder::getTokenName(int tokenId) const

@@ -8,19 +8,27 @@ class FileWriter
 public:
     enum Destination
     {
-        ParsingTable,
+        Keywords,
+        RuleNames,
+        ActionDeclarations,
+        ActionInitializations,
+        States,
         Rules
     };
 
-    static void write(const QString &str, Destination dest = ParsingTable);
-    static void writeLine(const QString &line, Destination dest = ParsingTable);
+    static void write(const QString &str, Destination dest);
+    static void writeLine(const QString &line, Destination dest);
 
     static void flushToFiles();
 
 private:
     FileWriter();
 
-    static QString parsingTableCode;
+    static QString keywordsCode;
+    static QString ruleNamesCode;
+    static QString actionDesclarationsCode;
+    static QString actionInitializationsCode;
+    static QString statesCode;
     static QString rulesCode;
 
     static QString *getBuffer(Destination dest);

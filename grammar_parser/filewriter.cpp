@@ -2,7 +2,11 @@
 #include <QFile>
 #include <QTextStream>
 
-QString FileWriter::parsingTableCode;
+QString FileWriter::keywordsCode;
+QString FileWriter::ruleNamesCode;
+QString FileWriter::actionDesclarationsCode;
+QString FileWriter::actionInitializationsCode;
+QString FileWriter::statesCode;
 QString FileWriter::rulesCode;
 
 FileWriter::FileWriter()
@@ -11,11 +15,34 @@ FileWriter::FileWriter()
 
 QString *FileWriter::getBuffer(FileWriter::Destination dest)
 {
-    if(dest == ParsingTable){
-        return &FileWriter::parsingTableCode;
-    }else{
-        return &FileWriter::rulesCode;
+    QString *buffer;
+
+    switch(dest){
+    case Keywords:
+        buffer = &FileWriter::keywordsCode;
+        break;
+    case RuleNames:
+        buffer = &FileWriter::ruleNamesCode;
+        break;
+    case ActionDeclarations:
+        buffer = &FileWriter::actionDesclarationsCode;
+        break;
+    case ActionInitializations:
+        buffer = &FileWriter::actionInitializationsCode;
+        break;
+    case States:
+        buffer = &FileWriter::statesCode;
+        break;
+    case Rules:
+        buffer = &FileWriter::rulesCode;
+        break;
+    default:
+        buffer = 0;
+        Q_ASSERT(false);
+        break;
     }
+
+    return buffer;
 }
 
 void FileWriter::write(const QString &str, Destination dest)
@@ -44,7 +71,11 @@ void FileWriter::flushToFiles()
     QString f1contents = s1.readAll();
     QString f2contents = s2.readAll();
 
-    f1contents.replace("{populate_table_statements}", FileWriter::parsingTableCode);
+    f1contents.replace("{keyword_initializations}", FileWriter::keywordsCode);
+    f1contents.replace("{rule_name_initializations}", FileWriter::ruleNamesCode);
+    f1contents.replace("{action_declarations}", FileWriter::actionDesclarationsCode);
+    f1contents.replace("{action_initializations}", FileWriter::actionInitializationsCode);
+    f1contents.replace("{state_initializations}", FileWriter::statesCode);
     f2contents.replace("{rule_definitions}", FileWriter::rulesCode);
 
     QFile f11("/home/rovshan/Projects/Qt/OraExp/code_parser/plsql/plsqlparsingtable.cpp");

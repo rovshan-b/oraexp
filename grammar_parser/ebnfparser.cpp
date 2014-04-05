@@ -450,19 +450,19 @@ void EBNFParser::printTargetScannerTokens()
 
 void EBNFParser::printTargetScannerKeywords()
 {
-    FileWriter::writeLine("//---------target scanner keywords------------");
+    FileWriter::writeLine("//---------target scanner keywords------------", FileWriter::Keywords);
 
     if(targetScannerKeywords.size()>0){
-        FileWriter::writeLine(QString("keywords.reserve(%1);").arg(targetScannerKeywords.size()));
+        FileWriter::writeLine(QString("keywords.reserve(%1);").arg(targetScannerKeywords.size()), FileWriter::Keywords);
     }
     QString line;
 
     foreach(const QString &keyword, targetScannerKeywords){
         line = QString("keywords.append(\"%1\");").arg(keyword);
-        FileWriter::writeLine(line);
+        FileWriter::writeLine(line, FileWriter::Keywords);
     }
 
-    FileWriter::writeLine("//-------end target scanner keywords----------");
+    FileWriter::writeLine("//-------end target scanner keywords----------", FileWriter::Keywords);
 }
 
 QList<BNFRule*> EBNFParser::getBNFRules() const

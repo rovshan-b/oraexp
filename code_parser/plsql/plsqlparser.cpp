@@ -39,8 +39,6 @@ void PlSqlParser::correctError(int *token, ParsingTableRow *row, ParsingTableAct
                     qDeleteAll(reduceTokens);
                 }
                 break;
-            //}else{
-            //    qDebug() << "skipping" << scanner->getTokenLexeme();
             }
 
             *token = scanner->getNextToken();
@@ -59,26 +57,29 @@ void PlSqlParser::replaceKeywordWithIdentifier(int token, ParsingTableRow *row, 
 
 bool PlSqlParser::reduceMajorConstruct(QList<TokenInfo*> &reduceTokens)
 {
+    const int majorConstructCount = 2;
+    const int majorConstructs[] = {R_DECLARATION, R_STATEMENT};
+
     ParsingTable *table=getParsingTable();
+    int gotoState;
+    int currentConstruct;
+
     while(!stack.isEmpty()){ //find first state when we can do some action on provided token
         int stateOnTop = stack.top();
 
         ParsingTableRow *row=table->rows.at(stateOnTop);
         Q_ASSERT(row);
 
-        int gotoState=row->gotos.value(R_STATEMENT, -1);
+        for(int i=0; i<majorConstructCount; ++i){
+            currentConstruct = majorConstructs[i];
+            gotoState=row->gotos.value(currentConstruct, -1);
+            if(gotoState != -1){
+                break;
+            }
+        }
+
         if(gotoState != -1){
-            //reduce
-            //qDebug() << "reducing by R_STATEMENT in state" << stateOnTop;
-            reduce(R_STATEMENT, 0, reduceTokens);
-
-            //set parser to move to new state
-            /*stack.push(gotoState);
-            TokenInfo *ti = new TokenInfo();
-            ti->tokenType = TokenInfo::Rule;
-            ti->tokenOrRuleId = R_STATEMENT;
-            tokenStack.push(ti);*/
-
+            reduce(currentConstruct, 0, reduceTokens);
             return true;
         }else{
             stack.pop();
