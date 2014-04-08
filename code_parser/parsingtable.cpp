@@ -31,6 +31,24 @@ int ParsingTable::getKeywordIx(const QString &possibleKeyword) const
     return ix;
 }
 
+bool ParsingTable::isReservedWord(const QString &word) const
+{
+    QStringList::const_iterator it=qBinaryFind(reservedWords.begin(),
+                                               reservedWords.end(),
+                                               word,
+                                               caseInsensitiveLessThan);
+    if(it==reservedWords.end()){
+        //return -1;
+        return false;
+    }
+
+    //int ix = it-reservedWords.begin();
+
+    //return ix;
+
+    return true;
+}
+
 QString ParsingTable::getRuleName(int ruleId)
 {
     //ruleId-s are 1 based

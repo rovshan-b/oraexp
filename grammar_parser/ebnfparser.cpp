@@ -2,7 +2,6 @@
 #include "ebnfscanner.h"
 #include "bnfrule.h"
 #include "bnfruleitem.h"
-#include "filewriter.h"
 #include "util.h"
 #include <QFile>
 #include <QTextStream>
@@ -49,11 +48,13 @@ void EBNFParser::parse()
 
     printTargetScannerTokens();
 
-    registerTargetScannerKeywordsFromFile();
-    //EBNFToken eofToken=EBNFScanner::createEOFToken();
-    //registerTargetScannerKeyword(eofToken);
+    registerTargetScannerKeywordsFromFile("keywords", targetScannerKeywords);
     qSort(targetScannerKeywords.begin(), targetScannerKeywords.end(), caseInsensitiveLessThan);
-    printTargetScannerKeywords();
+    printTargetScannerKeywords("keywords", targetScannerKeywords,FileWriter::Keywords);
+
+    registerTargetScannerKeywordsFromFile("reserved_words", reservedWords);
+    qSort(reservedWords.begin(), reservedWords.end(), caseInsensitiveLessThan);
+    printTargetScannerKeywords("reservedWords", reservedWords, FileWriter::ReservedWords);
 
     time.restart();
     findMissingRuleDefinitions();
@@ -420,21 +421,20 @@ void EBNFParser::registerTargetScannerKeyword(EBNFToken &token)
     }
 }
 
-void EBNFParser::registerTargetScannerKeywordsFromFile()
+void EBNFParser::registerTargetScannerKeywordsFromFile(const QString &filename, QStringList &collection)
 {
-    /*
-    QFile keywordsFile("/home/rovshan/Projects/Qt/OraExp/misc/reserved_words");
+    QFile keywordsFile(QString("/home/rovshan/Projects/Qt/OraExp/misc/%1").arg(filename));
     bool opened=keywordsFile.open(QIODevice::ReadOnly);
     Q_ASSERT(opened);
     QTextStream in(&keywordsFile);
     while (!in.atEnd()) {
         QString line = in.readLine().trimmed();
         if(!line.isEmpty()){
-            if(!targetScannerKeywords.contains(line)){
-                targetScannerKeywords.append(line);
+            if(!collection.contains(line)){
+                collection.append(line);
             }
         }
-    }*/
+    }
 }
 
 void EBNFParser::printTargetScannerTokens()
@@ -448,21 +448,21 @@ void EBNFParser::printTargetScannerTokens()
     qDebug() << "-------end target scanner tokens----------";
 }
 
-void EBNFParser::printTargetScannerKeywords()
+void EBNFParser::printTargetScannerKeywords(const QString &varName, const QStringList &collection, FileWriter::Destination destination)
 {
-    FileWriter::writeLine("//---------target scanner keywords------------", FileWriter::Keywords);
+    //FileWriter::writeLine("//---------target scanner keywords------------", destination);
 
     if(targetScannerKeywords.size()>0){
-        FileWriter::writeLine(QString("keywords.reserve(%1);").arg(targetScannerKeywords.size()), FileWriter::Keywords);
+        FileWriter::writeLine(QString("%1.reserve(%2);").arg(varName).arg(collection.size()), destination);
     }
     QString line;
 
-    foreach(const QString &keyword, targetScannerKeywords){
-        line = QString("keywords.append(\"%1\");").arg(keyword);
-        FileWriter::writeLine(line, FileWriter::Keywords);
+    foreach(const QString &keyword, collection){
+        line = QString("%1.append(\"%2\");").arg(varName, keyword);
+        FileWriter::writeLine(line, destination);
     }
 
-    FileWriter::writeLine("//-------end target scanner keywords----------", FileWriter::Keywords);
+    //FileWriter::writeLine("//-------end target scanner keywords----------", destination);
 }
 
 QList<BNFRule*> EBNFParser::getBNFRules() const

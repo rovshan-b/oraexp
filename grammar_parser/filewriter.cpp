@@ -3,6 +3,7 @@
 #include <QTextStream>
 
 QString FileWriter::keywordsCode;
+QString FileWriter::reservedWordsCode;
 QString FileWriter::ruleNamesCode;
 QString FileWriter::actionDesclarationsCode;
 QString FileWriter::actionInitializationsCode;
@@ -20,6 +21,9 @@ QString *FileWriter::getBuffer(FileWriter::Destination dest)
     switch(dest){
     case Keywords:
         buffer = &FileWriter::keywordsCode;
+        break;
+    case ReservedWords:
+        buffer = &FileWriter::reservedWordsCode;
         break;
     case RuleNames:
         buffer = &FileWriter::ruleNamesCode;
@@ -72,6 +76,7 @@ void FileWriter::flushToFiles()
     QString f2contents = s2.readAll();
 
     f1contents.replace("{keyword_initializations}", FileWriter::keywordsCode);
+    f1contents.replace("{reserved_word_initializations}", FileWriter::reservedWordsCode);
     f1contents.replace("{rule_name_initializations}", FileWriter::ruleNamesCode);
     f1contents.replace("{action_declarations}", FileWriter::actionDesclarationsCode);
     f1contents.replace("{action_initializations}", FileWriter::actionInitializationsCode);

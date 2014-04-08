@@ -39,7 +39,7 @@ private:
     Ui::MainWindow *ui;
     QStandardItemModel *model;
 
-    bool parseCurrent();
+    bool parseCurrent(bool constructDisplayTree);
     void buildTree(ParseTreeNode *rootNode);
     void addChildNodes(ParseTreeNode *parseTreeNode, QStandardItem *treeViewNode);
 

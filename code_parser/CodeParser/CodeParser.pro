@@ -55,3 +55,8 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui
 
 INCLUDEPATH += /home/rovshan/Projects/Qt/OraExp
+
+OTHER_FILES +=
+
+RESOURCES += \
+    ../../misc.qrc

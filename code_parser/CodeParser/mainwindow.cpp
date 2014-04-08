@@ -74,7 +74,7 @@ void MainWindow::on_actionScan_triggered()
 
 void MainWindow::on_actionParse_triggered()
 {
-    parseCurrent();
+    parseCurrent(true);
 }
 
 void MainWindow::buildTree(ParseTreeNode *rootNode)
@@ -129,7 +129,7 @@ void MainWindow::cursorPositionChanged()
     ui->statusBar->showMessage(QString("Cursor position: %1").arg(ui->codeEditor->textCursor().position()));
 }
 
-bool MainWindow::parseCurrent()
+bool MainWindow::parseCurrent(bool constructDisplayTree)
 {
     ui->output->clear();
 
@@ -173,7 +173,9 @@ bool MainWindow::parseCurrent()
         ui->output->appendPlainText(QString("Successfully completed parsing in %1 ms").arg(elapsed));
     }
 
-    buildTree(treeBulder.getRootNode());
+    if(constructDisplayTree){
+        buildTree(treeBulder.getRootNode());
+    }
 
 
     /*
@@ -216,7 +218,7 @@ void MainWindow::on_actionParse_All_triggered()
         ui->codeEditor->setPlainText(f.readAll());
         setWindowTitle(file);
 
-        lastParseSucceeded = parseCurrent();
+        lastParseSucceeded = parseCurrent(false);
 
         if(!lastParseSucceeded){
             //break;

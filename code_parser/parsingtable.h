@@ -9,6 +9,7 @@ class ParsingTable
 {
 public:
     QStringList keywords;
+    QStringList reservedWords;
     QStringList ruleNames;
     QList<ParsingTableRow *> rows;
 
@@ -16,6 +17,7 @@ public:
 
     //QStringList getKeywords() const;
     int getKeywordIx(const QString &possibleKeyword) const;
+    bool isReservedWord(const QString &word) const;
     QString getRuleName(int ruleId);
 
 protected:

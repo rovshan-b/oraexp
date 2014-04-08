@@ -23,6 +23,7 @@ ParsingTable *PlSqlParsingTable::getInstance()
 void PlSqlParsingTable::populateTable()
 {
     populateKeywords();
+    populateReservedWords();
     populateRuleNames();
     initializeActions();
     createStates();
@@ -31,6 +32,11 @@ void PlSqlParsingTable::populateTable()
 void PlSqlParsingTable::populateKeywords()
 {
    {keyword_initializations}
+}
+
+void PlSqlParsingTable::populateReservedWords()
+{
+   {reserved_word_initializations}
 }
 
 void PlSqlParsingTable::populateRuleNames()

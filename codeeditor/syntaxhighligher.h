@@ -22,7 +22,7 @@ private:
         QTextCharFormat format;
     };
 
-    static QStringList keywords;
+    //static QStringList keywords;
     bool isKeyword(const QString &word) const;
 
     QVector <HighlightingRule> highlightingRules;

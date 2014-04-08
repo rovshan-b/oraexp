@@ -9,6 +9,7 @@ public:
     enum Destination
     {
         Keywords,
+        ReservedWords,
         RuleNames,
         ActionDeclarations,
         ActionInitializations,
@@ -25,6 +26,7 @@ private:
     FileWriter();
 
     static QString keywordsCode;
+    static QString reservedWordsCode;
     static QString ruleNamesCode;
     static QString actionDesclarationsCode;
     static QString actionInitializationsCode;

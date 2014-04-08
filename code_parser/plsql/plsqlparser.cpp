@@ -14,10 +14,14 @@ ParsingTable *PlSqlParser::getParsingTable()
 void PlSqlParser::correctError(int *token, ParsingTableRow *row, ParsingTableAction **actionOnCurrentToken)
 {
     //qDebug("--------started error recovery--------------");
+    bool reservedWord = parsingTable->isReservedWord(scanner->getTokenLexeme());
+
     if(*token!=PLS_SEMI){
         *actionOnCurrentToken=row->actions->value(PLS_NOT_SEMI, 0);
 
-        replaceKeywordWithIdentifier(*token, row, actionOnCurrentToken);
+        if(!reservedWord){
+            replaceKeywordWithIdentifier(*token, row, actionOnCurrentToken);
+        }
     }
 
     if(*actionOnCurrentToken == 0){ //try to recognize major constructs
@@ -25,12 +29,16 @@ void PlSqlParser::correctError(int *token, ParsingTableRow *row, ParsingTableAct
         //while reading add all read tokens to token stack
         QList<TokenInfo*> reduceTokens;
         do{
-            reduceTokens.prepend(createTokenInfo(*token));
+            if(!reservedWord){
+                reduceTokens.prepend(createTokenInfo(*token));
+            }
 
-            if(*token == PLS_SEMI){
+            if(*token == PLS_SEMI || reservedWord){
                 if(reduceMajorConstruct(reduceTokens)){
-                    //read next token for parser to operate on
-                    *token = scanner->getNextToken();
+                    if(!reservedWord){
+                        //read next token for parser to operate on
+                        *token = scanner->getNextToken();
+                    }
                     ParsingTableRow *newRow=parsingTable->rows.at(stack.top()); //reduceMajorConstruct pushed new gotoState into stack
                     *actionOnCurrentToken=(*newRow->actions).value(*token, 0);
 
@@ -42,10 +50,11 @@ void PlSqlParser::correctError(int *token, ParsingTableRow *row, ParsingTableAct
             }
 
             *token = scanner->getNextToken();
+            reservedWord = parsingTable->isReservedWord(scanner->getTokenLexeme());
         }while(*token != PLS_E_O_F);
     }
 
-    //qDebug("--------completed error recovery--------------");
+        //qDebug("--------completed error recovery--------------");
 }
 
 void PlSqlParser::replaceKeywordWithIdentifier(int token, ParsingTableRow *row, ParsingTableAction **actionOnCurrentToken)
@@ -57,8 +66,8 @@ void PlSqlParser::replaceKeywordWithIdentifier(int token, ParsingTableRow *row, 
 
 bool PlSqlParser::reduceMajorConstruct(QList<TokenInfo*> &reduceTokens)
 {
-    const int majorConstructCount = 2;
-    const int majorConstructs[] = {R_DECLARATION, R_STATEMENT};
+    const int majorConstructCount = 3;
+    const int majorConstructs[] = {R_EXPRESSION, R_DECLARATION, R_STATEMENT};
 
     ParsingTable *table=getParsingTable();
     int gotoState;
@@ -89,3 +98,85 @@ bool PlSqlParser::reduceMajorConstruct(QList<TokenInfo*> &reduceTokens)
 
     return false;
 }
+/*
+bool PlSqlParser::restoreParsingFromNextState(int *token, QList<TokenInfo*> &reduceTokens)
+{
+    // 1. Pop states from parsing stack until a state is found with nonempty Goto entries
+    // 2. If there is a legal action on the current input token from one of the Goto states,
+    //    push that state into the stack and restart the parse. If there are several such states,
+    //    prefer a shift to a reduce. Among the reduce actions, prefer one whose associated nonterminal is least general
+    // 3. If there is no legal action on the current input token from one of the Goto states, advance the input until there is a legal action
+    //    or the end of the input is reached.
+
+    ParsingTable *table=getParsingTable();
+
+    while(!stack.isEmpty()){
+        int stateOnTop = stack.pop();
+        reduceTokens.append(tokenStack.pop());
+
+        ParsingTableRow * row = table->rows.at(stateOnTop);
+        if(!row->gotos.isEmpty()){ //step 1 done.
+            //step 2. pick up a state that has an action on current token
+            int gotoState = findStateWithAtionOnToken(*token, row, table);
+            if(gotoState){
+                stack.push(gotoState);
+                tokenStack.push(createTokenInfo(*token));
+                return true;
+            }else{ //step 3.
+                do{
+                    *token = scanner->getNextToken();
+
+                    reduceTokens.prepend(createTokenInfo(*token));
+
+                    if(row->actions->value(*token, 0)){
+                        return true;
+                    }
+                }while(*token!=PLS_SEMI && *token!=PLS_E_O_F);
+            }
+        }
+    }
+
+    return false;
+}
+
+int PlSqlParser::findStateWithAtionOnToken(int token, ParsingTableRow * row, ParsingTable *table) const
+{
+    ParsingTableAction *resultAction = 0;
+    int resultState = 0;
+
+    QHashIterator<int,int> i(row->gotos);
+    while (i.hasNext()) {
+        i.next();
+
+        int targetState = i.value();
+        ParsingTableRow *targetRow = table->rows.at(targetState);
+        ParsingTableAction *targetAction = targetRow->actions->value(token, 0);
+
+        if(!targetAction){
+            continue;
+        }
+
+        if(!resultAction){
+            resultAction = targetAction;
+            resultState = targetState;
+            continue;
+        }
+
+        if(targetAction->actionType == ParsingTableAction::Shift &&
+                resultAction->actionType == ParsingTableAction::Reduce){
+            resultAction = targetAction;
+            resultState = targetState;
+            continue;
+        }
+
+        if(targetAction->actionType == ParsingTableAction::Reduce &&
+                resultAction->actionType == ParsingTableAction::Reduce &&
+                targetAction->stateOrRuleId > resultAction->stateOrRuleId){ //rules with higher values should be more specific (least general) in grammar file
+            resultAction = targetAction;
+            resultState = targetState;
+            continue;
+        }
+    }
+
+    return resultState;
+}*/

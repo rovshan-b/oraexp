@@ -5,7 +5,7 @@
 #include "util/strutil.h"
 #include "code_parser/plsql/plsqlparsingtable.h"
 
-QStringList SyntaxHighligher::keywords;
+//QStringList SyntaxHighligher::keywords;
 
 SyntaxHighligher::SyntaxHighligher(QTextDocument * parent) :
     QSyntaxHighlighter(parent)
@@ -45,6 +45,7 @@ SyntaxHighligher::SyntaxHighligher(QTextDocument * parent) :
 
     singleQuotationExpression = QRegExp("'");
 
+    /*
     if(SyntaxHighligher::keywords.isEmpty()){
         SyntaxHighligher::keywords.reserve(100);
         QFile f(":/misc/keywords");
@@ -59,7 +60,7 @@ SyntaxHighligher::SyntaxHighligher(QTextDocument * parent) :
         }
 
         qSort(SyntaxHighligher::keywords.begin(), SyntaxHighligher::keywords.end(), caseInsensitiveLessThan);
-    }
+    }*/
 }
 
 void SyntaxHighligher::highlightBlock(const QString &text)
@@ -97,6 +98,7 @@ void SyntaxHighligher::highlightBlock(const QString &text)
 
 bool SyntaxHighligher::isKeyword(const QString &word) const
 {
+    /*
     QStringList::const_iterator it=qBinaryFind(SyntaxHighligher::keywords.begin(),
                                                SyntaxHighligher::keywords.end(),
                                                word,
@@ -105,7 +107,8 @@ bool SyntaxHighligher::isKeyword(const QString &word) const
         return false;
     }else{
         return true;
-    }
+    }*/
+    return (PlSqlParsingTable::getInstance()->getKeywordIx(word) != -1);
 }
 
 void SyntaxHighligher::highlightMultilineConstruct(const QString &text,

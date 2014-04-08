@@ -4,6 +4,7 @@
 #include <QHash>
 #include <QStringList>
 #include "ebnftoken.h"
+#include "filewriter.h"
 
 class BNFRule;
 class EBNFScanner;
@@ -46,15 +47,16 @@ private:
     void printoutRules();
     void registerTargetScannerToken(EBNFToken &token);
     void registerTargetScannerKeyword(EBNFToken &token);
-    void registerTargetScannerKeywordsFromFile();
+    void registerTargetScannerKeywordsFromFile(const QString &filename, QStringList &collection);
     void printTargetScannerTokens();
-    void printTargetScannerKeywords();
+    void printTargetScannerKeywords(const QString &varName, const QStringList &collection, FileWriter::Destination destination);
 
     EBNFScanner *scanner;
     EBNFToken token;
     QList<BNFRule*> rules;
     QList<EBNFToken> targetScannerTokens;
     QStringList targetScannerKeywords;
+    QStringList reservedWords;
 
     bool hasMissingRules;
 };
