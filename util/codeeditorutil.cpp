@@ -64,7 +64,8 @@ void CodeEditorUtil::highlightEditorError(CodeEditor *editor, int errorPos, int 
                 errorCode == ERR_COMPONENT_MUST_BE_DECALRED ||
                 errorCode == ERR_IDENTIFIER_MUST_BE_DECLARED ||
                 errorCode == ERR_AMBIGUOUS_COLUMN_NAME ||
-                errorCode == ERR_NAME_ALREADY_USED){
+                errorCode == ERR_NAME_ALREADY_USED ||
+                errorCode == ERR_MUST_BE_DECLARED){
         QTextCursor editorReaderCursor = errorPositionCursor;
         QScopedPointer<PlSqlScanner> editorScanner(new PlSqlScanner(new TextCursorReader(editorReaderCursor)));
         int token=editorScanner->getNextToken(); //move one token forward

@@ -397,12 +397,20 @@ int PlSqlParseHelper::extractPlSqlErrorCode(const QString &errorMessage)
 {
     QString errMsg = errorMessage;
 
-    QString prefixToRemove = "PL/SQL:";
-    if(errMsg.startsWith(prefixToRemove)){
-        errMsg.remove(0, prefixToRemove.size());
-    }else{
+    bool removedPrefix = false;
+    QStringList prefixesToRemove = QStringList() << "PL/SQL:" << "PLS";
+    foreach(const QString &prefixToRemove, prefixesToRemove){
+        if(errMsg.startsWith(prefixToRemove)){
+            errMsg.remove(0, prefixToRemove.size());
+            removedPrefix = true;
+            break;
+        }
+    }
+
+    if(!removedPrefix){
         return 0;
     }
+
     //now find first colon
     int colonIx = errMsg.indexOf(':');
     if(colonIx!=-1){

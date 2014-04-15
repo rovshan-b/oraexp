@@ -4,10 +4,23 @@
 #include "../plsql/plsqlparsingtable.h"
 #include <QDebug>
 
-PlSqlScanner::PlSqlScanner(TextReaderBase *textReader) : CodeScanner(textReader)
+PlSqlScanner::PlSqlScanner(TextReaderBase *textReader, bool deleteReader) : CodeScanner(textReader, deleteReader)
+{
+    init();
+}
+
+PlSqlScanner::PlSqlScanner() : CodeScanner()
+{
+    init();
+}
+
+void PlSqlScanner::init()
 {
     parsingTable=PlSqlParsingTable::getInstance();
     Q_ASSERT(parsingTable);
+
+    initialState = START;
+    endState = DONE;
 }
 
 int PlSqlScanner::getNextToken(bool skipWhitespace)
@@ -26,7 +39,11 @@ int PlSqlScanner::getNextToken(bool skipWhitespace)
 int PlSqlScanner::doGetNextToken()
 {
     int token;
-    ScannerState state=START;
+    ScannerState state=this->initialState;
+
+    this->initialState=START;
+    this->endState=DONE;
+
     bool save;
     QChar specialStringDelimiter;
 
@@ -223,10 +240,12 @@ int PlSqlScanner::doGetNextToken()
         case IN_QUOTED_STRING:
             if(c=='\''){
                 state=IN_QUOTED_STRING_END;
-            }else if(c.isNull()){
+            }else if(c.isNull()){ //if single quoted string is not properly closed treat rest of code as string as well
                 state=DONE;
                 save=false;
-                token=PLS_ERROR;
+                //token=PLS_ERROR;
+                token=PLS_QUOTED_STRING;
+                endState=IN_QUOTED_STRING;
             }
             break;
         case IN_QUOTED_STRING_END:
@@ -254,10 +273,12 @@ int PlSqlScanner::doGetNextToken()
                 }
             }else if(c==specialStringDelimiter){
                 state=IN_SPECIAL_QUOTED_STRING_END;
-            }else if(c.isNull()){
+            }else if(c.isNull()){ //if single quoted string is not properly closed treat rest of code as string as well
                 state=DONE;
                 save=false;
-                token=PLS_ERROR;
+                //token=PLS_ERROR;
+                token=PLS_QUOTED_STRING;
+                endState=IN_QUOTED_STRING;
                 specialStringDelimiter=QChar::Null;
             }
             break;
@@ -313,9 +334,12 @@ int PlSqlScanner::doGetNextToken()
             if(c=='*'){
                 state=IN_ML_COMMENT_END;
                 save=false;
-            }else if(c.isNull()){
+            }else if(c.isNull()){ //if ml comment is not properly closed treat rest of code as ml comment as well
                 state=DONE;
-                token=PLS_ERROR;
+                //token=PLS_ERROR;
+                save=false;
+                token=PLS_ML_COMMENT;
+                endState=IN_ML_COMMENT;
             }else{
                 save=false;
             }

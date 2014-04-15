@@ -43,7 +43,9 @@ MainWindow::MainWindow(QWidget *parent) :
     Q_ASSERT(MainWindow::instance == 0);
     MainWindow::instance = this;
 
+#ifndef DEBUG
     showConnectDialog();
+#endif
 }
 
 MainWindow::~MainWindow()

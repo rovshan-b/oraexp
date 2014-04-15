@@ -2,9 +2,10 @@
 #define SYNTAXHIGHLIGHER_H
 
 #include <QSyntaxHighlighter>
-
 #include <QHash>
 #include <QTextCharFormat>
+
+#include "code_parser/plsql/plsqlscanner.h"
 
 class SyntaxHighligher : public QSyntaxHighlighter
 {
@@ -16,21 +17,14 @@ protected:
     void highlightBlock(const QString &text);
 
 private:
-    struct HighlightingRule
+    enum BlockState
     {
-        QRegExp pattern;
-        QTextCharFormat format;
+        NoState,
+        EndsWithComment,
+        EndsWithString
     };
 
-    //static QStringList keywords;
-    bool isKeyword(const QString &word) const;
-
-    QVector <HighlightingRule> highlightingRules;
-
-    QRegExp commentStartExpression;
-    QRegExp commentEndExpression;
-
-    QRegExp singleQuotationExpression;
+    PlSqlScanner scanner;
 
     QTextCharFormat keywordFormat;
     QTextCharFormat singleLineCommentFormat;
@@ -38,8 +32,6 @@ private:
     QTextCharFormat singleQuotationFormat;
     QTextCharFormat doubleQuotationFormat;
     QTextCharFormat numberFormat;
-
-    void highlightMultilineConstruct(const QString &text, const QRegExp &startExpression, const QRegExp &endExpression, const QTextCharFormat &format, int blockState);
 
 };
 

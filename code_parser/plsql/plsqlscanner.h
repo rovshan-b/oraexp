@@ -9,15 +9,6 @@ class ParsingTable;
 class PlSqlScanner : public CodeScanner
 {
 public:
-    PlSqlScanner(TextReaderBase *textReader);
-
-    virtual int getNextToken(bool skipWhitespace = true);
-
-    inline static bool isIdCharacter(const QChar &c) {return c.isLetterOrNumber() || c=='_' || c=='$' || c=='#';}
-
-private:
-    int doGetNextToken();
-
     enum ScannerState {
         START,
         IN_ID,
@@ -47,7 +38,24 @@ private:
         DONE
     };
 
+    PlSqlScanner(TextReaderBase *textReader, bool deleteReader = true);
+    PlSqlScanner();
+
+    void init();
+
+    virtual int getNextToken(bool skipWhitespace = true);
+
+    inline static bool isIdCharacter(const QChar &c) {return c.isLetterOrNumber() || c=='_' || c=='$' || c=='#';}
+
+    void setInitialState(PlSqlScanner::ScannerState state) {this->initialState = state;}
+    PlSqlScanner::ScannerState getEndState() const {return this->endState;}
+
+private:
+    int doGetNextToken();
+
     ParsingTable *parsingTable;
+    PlSqlScanner::ScannerState initialState;
+    PlSqlScanner::ScannerState endState;
 };
 
 #endif // PLSQLSCANNER_H

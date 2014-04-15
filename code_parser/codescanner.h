@@ -9,8 +9,12 @@
 class CodeScanner
 {
 public:
-    CodeScanner(TextReaderBase *textReader);
+    CodeScanner(TextReaderBase *textReader, bool deleteReader = true);
+    CodeScanner();
     virtual ~CodeScanner();
+
+    void init();
+    void setTextReader(TextReaderBase *textReader, bool deleteReader);
 
     virtual int getNextToken(bool skipWhitespace = true)=0;
 
@@ -31,6 +35,7 @@ public:
 
 protected:
     TextReaderBase *textReader;
+    bool deleteReader;
 
     int tokenStartPos;
     int tokenEndPos;

@@ -22,9 +22,12 @@ void PlSqlTokenFinder::findObjectName(PlSqlTreeBuilder *treeBuilder, QString *sc
         if(objectNameNode->children.size()==1){
             *name = objectNameNode->children.at(0)->children.at(0)->tokenInfo->lexeme;
         }else{
-            Q_ASSERT(objectNameNode->children.size()==3);
+            //Q_ASSERT(objectNameNode->children.size()==3);
+            //*schema = objectNameNode->children.at(0)->children.at(0)->tokenInfo->lexeme;
+            //*name = objectNameNode->children.at(2)->children.at(0)->tokenInfo->lexeme;
+            Q_ASSERT(objectNameNode->children.size()==2);
             *schema = objectNameNode->children.at(0)->children.at(0)->tokenInfo->lexeme;
-            *name = objectNameNode->children.at(2)->children.at(0)->tokenInfo->lexeme;
+            *name = objectNameNode->children.at(1)->children.at(0)->children.at(1)->children.at(0)->tokenInfo->lexeme;
         }
     }
 }
