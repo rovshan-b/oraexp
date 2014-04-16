@@ -30,6 +30,7 @@ public:
         STAR,
         QUESTION,
         RANGE,
+        OPTIONS_BLOCK,
         E_O_F,
         ERR,
         NON_GRAMMAR

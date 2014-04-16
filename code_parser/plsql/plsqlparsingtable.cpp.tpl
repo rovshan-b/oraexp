@@ -25,6 +25,7 @@ void PlSqlParsingTable::populateTable()
     populateKeywords();
     populateReservedWords();
     populateRuleNames();
+    populateRuleOptions();
     initializeActions();
     createStates();
 }
@@ -42,6 +43,11 @@ void PlSqlParsingTable::populateReservedWords()
 void PlSqlParsingTable::populateRuleNames()
 {
    {rule_name_initializations}
+}
+
+void PlSqlParsingTable::populateRuleOptions()
+{
+   {rule_option_initializations}
 }
 
 void PlSqlParsingTable::initializeActions()

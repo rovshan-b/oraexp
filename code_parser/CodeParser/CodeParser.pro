@@ -28,7 +28,8 @@ SOURCES += main.cpp\
     ../../beans/tokeninfo.cpp \
     ../plsql/plsqltreebuilder.cpp \
     ../../beans/parsetreenode.cpp \
-    ../stringreader.cpp
+    ../stringreader.cpp \
+    ../../grammar_parser/bnfruleoption.cpp
 
 HEADERS  += mainwindow.h \
     ../codeparser.h \
@@ -50,7 +51,8 @@ HEADERS  += mainwindow.h \
     ../plsql/plsqltreebuilder.h \
     ../../beans/parsetreenode.h \
     ../plsql/plsqlrules.h \
-    ../stringreader.h
+    ../stringreader.h \
+    ../../grammar_parser/bnfruleoption.h
 
 FORMS    += mainwindow.ui
 

@@ -14,7 +14,8 @@ public:
         ActionDeclarations,
         ActionInitializations,
         States,
-        Rules
+        Rules,
+        RuleOptions
     };
 
     static void write(const QString &str, Destination dest);
@@ -32,6 +33,7 @@ private:
     static QString actionInitializationsCode;
     static QString statesCode;
     static QString rulesCode;
+    static QString ruleOptionsCode;
 
     static QString *getBuffer(Destination dest);
 };

@@ -17,6 +17,7 @@ private:
     void populateKeywords();
     void populateReservedWords();
     void populateRuleNames();
+    void populateRuleOptions();
     void initializeActions();
     void createStates();
 

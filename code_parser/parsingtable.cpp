@@ -7,6 +7,7 @@ ParsingTable::ParsingTable()
 
 ParsingTable::~ParsingTable()
 {
+    qDeleteAll(ruleOptions.values());
     qDeleteAll(rows);
 }
 

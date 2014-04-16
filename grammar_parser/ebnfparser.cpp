@@ -7,7 +7,7 @@
 #include <QTextStream>
 #include <stdlib.h>
 #include <QTime>
-#include <QtDebug>
+#include <QDebug>
 
 EBNFParser::EBNFParser() : scanner(0), hasMissingRules(false)
 {
@@ -131,7 +131,7 @@ bool EBNFParser::match(EBNFToken::EBNFTokenType tokenType)
 
 /*
 #rulelist -> rule rulelist
-rule -> name : exp ;
+rule -> name {options_block}? : exp ;
 exp -> factor | exp
 factor -> atom factor
 atom -> negation ( exp ) rep | negation identifier rep | negation 'terminal' rep
@@ -151,6 +151,15 @@ BNFRule *EBNFParser::rule()
     r->startAlternatives();
 
     match(EBNFToken::ID);
+
+    if(token.tokenType==EBNFToken::OPTIONS_BLOCK){
+        //set rule options
+        r->readOptions(token.lexeme);
+
+        //read next token
+        token = scanner->getToken();
+    }
+
     match(EBNFToken::COLON);
 
     exp(r);

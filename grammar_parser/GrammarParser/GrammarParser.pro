@@ -30,7 +30,8 @@ SOURCES += main.cpp \
     ../parsingtablerow.cpp \
     ../parsingtableaction.cpp \
     ../filewriter.cpp \
-    ../util.cpp
+    ../util.cpp \
+    ../bnfruleoption.cpp
 
 HEADERS += \
     ../bnfrule.h \
@@ -47,4 +48,5 @@ HEADERS += \
     ../parsingtablerow.h \
     ../parsingtableaction.h \
     ../filewriter.h \
-    ../util.h
+    ../util.h \
+    ../bnfruleoption.h

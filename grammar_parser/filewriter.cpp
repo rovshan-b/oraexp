@@ -9,6 +9,7 @@ QString FileWriter::actionDesclarationsCode;
 QString FileWriter::actionInitializationsCode;
 QString FileWriter::statesCode;
 QString FileWriter::rulesCode;
+QString FileWriter::ruleOptionsCode;
 
 FileWriter::FileWriter()
 {
@@ -39,6 +40,9 @@ QString *FileWriter::getBuffer(FileWriter::Destination dest)
         break;
     case Rules:
         buffer = &FileWriter::rulesCode;
+        break;
+    case RuleOptions:
+        buffer = &FileWriter::ruleOptionsCode;
         break;
     default:
         buffer = 0;
@@ -78,6 +82,7 @@ void FileWriter::flushToFiles()
     f1contents.replace("{keyword_initializations}", FileWriter::keywordsCode);
     f1contents.replace("{reserved_word_initializations}", FileWriter::reservedWordsCode);
     f1contents.replace("{rule_name_initializations}", FileWriter::ruleNamesCode);
+    f1contents.replace("{rule_option_initializations}", FileWriter::ruleOptionsCode);
     f1contents.replace("{action_declarations}", FileWriter::actionDesclarationsCode);
     f1contents.replace("{action_initializations}", FileWriter::actionInitializationsCode);
     f1contents.replace("{state_initializations}", FileWriter::statesCode);

@@ -19,6 +19,7 @@ public:
         INESCAPECHAR,
         INRANGE,
         INCOMMENT,
+        IN_OPTIONS_BLOCK,
         DONE
     };
 

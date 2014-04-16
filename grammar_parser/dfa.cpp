@@ -8,6 +8,7 @@
 #include "ebnfscanner.h"
 #include "ebnfparser.h"
 #include "filewriter.h"
+#include "util.h"
 #include <QtDebug>
 #include <QTime>
 
@@ -727,6 +728,10 @@ void DFA::printoutTargetParserRules()
 
         QString define=QString("#define R_%1 %2").arg(rule->ruleName.toUpper()).arg(i+1);
         FileWriter::writeLine(define, FileWriter::Rules);
+
+        if(rule->ruleOptions != 0){
+            FileWriter::writeLine(rule->codeForOptions(), FileWriter::RuleOptions);
+        }
     }
 
     FileWriter::writeLine("//-----------rule string representations-----------------", FileWriter::RuleNames);
@@ -734,7 +739,7 @@ void DFA::printoutTargetParserRules()
     for(int i=0; i<bnfRules.size(); ++i){
         BNFRule *rule=bnfRules.at(i);
 
-        QString addStmt=QString("ruleNames.append(\"%1\");").arg(rule->ruleName.toUpper());
+        QString addStmt=QString("ruleNames.append(\"%1\");").arg(rule->ruleName);
         FileWriter::writeLine(addStmt, FileWriter::RuleNames);
     }
     FileWriter::writeLine("//-------------------------------------------------------", FileWriter::RuleNames);

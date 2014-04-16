@@ -1,7 +1,21 @@
-start_rule :   create_object ;
+start_rule 
+   :  statements_or_create_objects
+   ;
+   
+   
+statements_or_create_objects
+   :  statement opt_divide statements_or_create_objects
+   |  create_object opt_divide statements_or_create_objects
+   |
+   ;
 
+opt_divide
+   :  PLS_DIVIDE
+   |
+   ;
+   
 create_object
-   :  'CREATE' opt_or_replace opt_editionable obj_def
+   :  'CREATE' opt_or_replace opt_editionable obj_def 
    ;
    
 opt_or_replace
@@ -20,16 +34,249 @@ obj_def
    ;
     
 obj_type_and_name_and_body 
-   :  'PACKAGE' object_name
-   |  'PACKAGE' 'BODY' object_name
+   :  'PACKAGE' object_name plsql_package_source
+   |  'PACKAGE' 'BODY' object_name plsql_package_body_source
    |  'PROCEDURE' object_name plsql_procedure_source
-   |  'FUNCTION' object_name
+   |  'FUNCTION' object_name plsql_function_source
+   |  'TYPE' object_name opt_force opt_oid plsql_type_source
+   |  'TYPE' 'BODY' object_name plsql_type_body_source
    |  'TRIGGER' object_name
    |  opt_force 'VIEW' object_name
    ;
    
+plsql_type_body_source
+   :  is_or_as subprog_decl_in_type_or_map_order_func_declaration_list 'END' PLS_SEMI
+   ;
+   
+plsql_type_source
+   :  opt_inv_rights_and_accessible_by_clauses is_or_as_or_under varray_or_nested_table_or_object_type_def PLS_SEMI
+   ;
+   
+plsql_package_body_source
+   :  is_or_as opt_declarations opt_initialize_section 'END' opt_identifier PLS_SEMI
+   ;
+   
+plsql_package_source
+   :  opt_inv_rights_and_accessible_by_clauses is_or_as opt_declarations 'END' opt_identifier PLS_SEMI
+   ;
+   
+plsql_function_source
+   :  opt_param_declarations 'RETURN' datatype opt_create_function_options create_function_tail
+   ;
+   
 plsql_procedure_source
    :  opt_param_declarations opt_inv_rights_and_accessible_by_clauses is_or_as plsql_call_spec_or_external
+   ;
+   
+subprog_decl_in_type_or_map_order_func_declaration_list
+   :  subprog_decl_in_type_start subprog_decl_in_type subprog_decl_in_type_or_map_order_func_declaration_list
+   |
+   ;
+   
+subprog_decl_in_type_start
+   :  member_or_static
+   |  map_or_order member_or_static
+   |  opt_final_or_instantiable_list
+   ;
+   
+subprog_decl_in_type
+   :  proc_decl_in_type
+   |  func_decl_in_type
+   |  constructor_declaration
+   ;
+   
+proc_decl_in_type
+   :  procedure_definition
+   ;
+   
+func_decl_in_type
+   :  'FUNCTION' object_name plsql_function_source
+   ;
+   
+constructor_declaration
+   :  'CONSTRUCTOR' 'FUNCTION' datatype opt_constructor_params
+      'RETURN' self_as_result is_or_as plsql_call_spec_or_external
+   ;
+   
+opt_oid
+   :  'OID' PLS_QUOTED_STRING
+   |
+   ;
+   
+is_or_as_or_under
+   :  is_or_as
+   |  'UNDER'
+   ;
+   
+varray_or_nested_table_or_object_type_def
+   :  varray_type_def
+   |  nested_table_type_def
+   |  object_type_def
+   ;
+
+
+object_type_def
+   :  object_or_object_name opt_sqlj_object_type opt_attribute_datatype_element_spec_list_in_parentheses
+      opt_final_or_instantiable_list
+   ;
+   
+final_or_instantiable_list
+   :  final_or_instantiable opt_final_or_instantiable_list
+   ;
+   
+opt_final_or_instantiable_list
+   :  final_or_instantiable_list
+   |
+   ;
+   
+final_or_instantiable
+   :  'FINAL'
+   |  'NOT' 'FINAL'
+   |  'INSTANTIABLE'
+   |  'NOT' 'INSTANTIABLE'
+   ;
+   
+opt_attribute_datatype_element_spec_list_in_parentheses
+   :  attribute_datatype_element_spec_list_in_parentheses
+   |
+   ;
+   
+attribute_datatype_element_spec_list_in_parentheses
+   :  PLS_LPAREN opt_attribute_datatype_element_spec_list PLS_RPAREN
+   ;
+   
+opt_tail_attribute_datatype_element_spec_list
+   :  PLS_COMMA attribute_datatype_element_spec_list
+   |
+   ;
+   
+attribute_datatype_element_spec_list
+   :  attribute_datatype_opt_sqlj_object_type_attr_list opt_tail_attribute_datatype_element_spec_list
+   |  element_spec opt_tail_attribute_datatype_element_spec_list
+   ;
+   
+opt_attribute_datatype_element_spec_list
+   :  attribute_datatype_element_spec_list
+   |
+   ;
+   
+attribute_datatype_opt_sqlj_object_type_attr_list
+   :  identifier datatype opt_sqlj_object_type_attr
+   ;
+   
+opt_sqlj_object_type_attr
+   :  sqlj_object_type_attr
+   |
+   ;
+   
+sqlj_object_type_attr
+   :  'EXTERNAL' 'NAME' PLS_QUOTED_STRING
+   ;
+   
+element_spec
+   :  opt_inheritance_clauses subprogram_or_constructor_or_map_order_function_specs
+   ;
+   
+subprogram_or_constructor_or_map_order_function_specs
+   :  member_or_static procedure_or_function_spec
+   |  constructor_spec
+   |  map_order_function_spec
+   |  restrict_references_pragma
+   ;
+   
+map_order_function_spec
+   :  map_or_order 'MEMBER' function_spec
+   ;
+   
+map_or_order
+   :  'MAP'
+   |  'ORDER'
+   ;
+   
+sqlj_object_type_sig
+   :  'RETURN' datatype_or_self_as_result 'EXTERNAL' opt_variable 'NAME' PLS_QUOTED_STRING
+   ;
+   
+opt_variable
+   :  'VARIABLE'
+   |
+   ;
+   
+datatype_or_self_as_result
+   :  datatype
+   |  self_as_result
+   ;
+   
+constructor_spec
+   :  'CONSTRUCTOR' 'FUNCTION' datatype opt_constructor_params
+      'RETURN' self_as_result opt_is_or_as_call_spec
+   ;
+   
+self_as_result
+   :  'SELF' 'AS' 'RESULT'
+   ;
+   
+opt_constructor_params
+   :  PLS_LPAREN opt_self_datatype param_list PLS_RPAREN
+   ;
+   
+opt_self_datatype
+   :  'SELF' 'IN' 'OUT' datatype PLS_COMMA  
+   |
+   ;
+      
+opt_is_or_as_call_spec
+   :  is_or_as call_spec
+   |
+   ;
+   
+procedure_or_function_spec
+   :  procedure_spec
+   |  function_spec
+   ;
+   
+procedure_spec
+   :  procedure_declaration_main
+   |  procedure_definition
+   ;
+   
+function_spec
+   :  function_declaration_main
+   |  function_definition
+   ;
+   
+member_or_static
+   :  'MEMBER'
+   |  'STATIC'
+   ;
+   
+opt_inheritance_clauses
+   :  overriding_or_final_or_instantiable opt_inheritance_clauses
+   |
+   ;
+   
+overriding_or_final_or_instantiable
+   :  'OVERRIDING'
+   |  'NOT' 'OVERRIDING'
+   |  final_or_instantiable
+   ;
+   
+opt_sqlj_object_type
+   :  sqlj_object_type
+   |
+   ;
+   
+sqlj_object_type
+   :  'EXTERNAL' 'NAME' java_ext_name 'LANGUAGE' 'JAVA' 'USING' object_name
+   ;
+   
+java_ext_name
+   :  PLS_QUOTED_STRING
+   ;
+   
+object_or_object_name
+   :  'OBJECT'
+   |  object_name
    ;
    
 opt_param_declarations
@@ -38,8 +285,12 @@ opt_param_declarations
    ;
    
 opt_param_list
-   :  param_declaration opt_tail_param_declarations
+   :  param_list
    |
+   ;
+   
+param_list
+   :  param_declaration opt_tail_param_declarations
    ;
    
 opt_in_param_declarations
@@ -112,6 +363,55 @@ opt_inv_rights_and_accessible_by_clauses
    |
    ;
    
+create_function_tail
+   :  'AGGREGATE' 'USING' object_name PLS_SEMI
+   |  'USING' object_name PLS_SEMI
+   |  is_or_as plsql_call_spec_or_external
+   ;
+   
+opt_create_function_options
+   :  inv_rights_clause opt_create_function_options
+   |  accessible_by_clause opt_create_function_options
+   |  'DETERMINISTIC' opt_create_function_options
+   |  'RESULT_CACHE' opt_relies_on_clause opt_create_function_options
+   |  parallel_enable_clause opt_create_function_options
+   |  'PIPELINED' opt_create_function_options
+   |
+   ;
+   
+parallel_enable_clause
+   :  'PARALLEL_ENABLE' opt_parallel_enable_clause_tail
+   ;
+   
+opt_parallel_enable_clause_tail
+   :  parallel_enable_clause_tail
+   |
+   ;
+   
+parallel_enable_clause_tail
+   :  PLS_LPAREN 'PARTITION' expression 'BY' any_or_hash_or_range PLS_RPAREN opt_streaming_clause
+   ;
+   
+any_or_hash_or_range
+   :  'ANY'
+   |  'HASH' PLS_LPAREN object_name_list PLS_RPAREN
+   |  'RANGE' PLS_LPAREN object_name_list PLS_RPAREN
+   ;
+   
+opt_streaming_clause
+   :  streaming_clause
+   |
+   ;
+   
+streaming_clause
+   :  order_or_cluster expression 'BY' PLS_LPAREN object_name_list PLS_RPAREN
+   ;
+   
+order_or_cluster
+   :  'ORDER'
+   |  'CLUSTER'
+   ;
+   
 opt_inv_rights_clause
    :  inv_rights_clause
    |
@@ -140,18 +440,37 @@ accessors
    ;
    
 accessor
-   :  until_semi
+   :  'TRIGGER' object_name
+   |  identifier object_name
+   |  object_name
    ;
    
 opt_tail_accessors
-   :  accessor opt_tail_accessors
+   :  PLS_COMMA accessors
    |
    ;
    
 plsql_call_spec_or_external
    :  opt_declare_section plsql_body
-   |  'CALLSPEC'
+   |  call_spec
    |  'EXTERNAL'
+   ;
+   
+call_spec
+   :  'LANGUAGE' java_or_c_declaration PLS_SEMI
+   ;
+   
+java_or_c_declaration
+   :  java_declaration
+   |  c_declaration
+   ;
+   
+java_declaration
+   :  'JAVA' 'NAME' expression
+   ;
+   
+c_declaration
+   :  'C' until_semi
    ;
    
 plsql_block
@@ -177,6 +496,11 @@ declare_section
    :  declarations
    ;
    
+opt_declarations
+   :   declarations
+   |
+   ;
+   
 declarations
    :  declaration 
    |  declaration declarations
@@ -198,37 +522,33 @@ declaration
 
    
 cursor_declaration
-   :  'CURSOR' identifier opt_in_param_declarations return_rowtype PLS_SEMI
+   :  'CURSOR' identifier opt_in_param_declarations return_datatype PLS_SEMI
    ;
    
 cursor_definition
-   :  'CURSOR' identifier opt_in_param_declarations opt_return_rowtype is select_statement PLS_SEMI
+   :  'CURSOR' identifier opt_in_param_declarations opt_return_datatype is select_statement PLS_SEMI
    ;
    
-return_rowtype
-   :  'RETURN' rowtype
+return_datatype
+   :  'RETURN' datatype
    ;
    
-opt_return_rowtype
-   :  return_rowtype
+opt_return_datatype
+   :  return_datatype
    |
    ;
    
-return_rowtype_or_object_name
-   :  'RETURN' rowtype_or_object_name
-   ;
-   
-rowtype_or_object_name
-   :  rowtype
-   |  object_name
+function_declaration_main
+   :  function_heading opt_function_type_specs
    ;
    
 function_declaration
-   :  function_heading opt_function_type_specs PLS_SEMI
+   :  function_declaration_main PLS_SEMI
    ;
    
 function_heading
    :  'FUNCTION' identifier opt_param_declarations 'RETURN' datatype
+   |  'FUNCTION' identifier opt_param_declarations sqlj_object_type_sig
    ;
 
 opt_function_type_specs
@@ -269,9 +589,13 @@ type_or_rowtype
    :  'TYPE'
    |  'ROWTYPE'
    ;
+   
+procedure_declaration_main
+   :  procedure_heading
+   ;
 
 procedure_declaration
-   :  procedure_heading
+   :  procedure_declaration_main PLS_SEMI
    ;
    
 procedure_heading
@@ -296,11 +620,11 @@ autonomous_trans_pragma
    ;
    
 exception_init_pragma
-   :  'PRAGMA' 'EXCEPTION_INIT' PLS_LPAREN identifier PLS_COMMA PLS_NUMBER PLS_RPAREN PLS_SEMI
+   :  'PRAGMA' 'EXCEPTION_INIT' PLS_LPAREN identifier PLS_COMMA expression PLS_RPAREN PLS_SEMI
    ;
    
 inline_pragma
-   :  'PRAGMA' 'INLINE' PLS_LPAREN object_name PLS_COMMA PLS_QUOTED_STRING PLS_RPAREN PLS_SEMI
+   :  'PRAGMA' 'INLINE' PLS_LPAREN object_name PLS_COMMA expression PLS_RPAREN PLS_SEMI
    ;
    
 restrict_references_pragma
@@ -410,24 +734,24 @@ opt_tail_field_definitions
    ;
    
 ref_cursor_type_definition
-   :  'TYPE' identifier 'IS' 'REF' 'CURSOR' return_rowtype_or_object_name PLS_SEMI
+   :  'TYPE' identifier 'IS' 'REF' 'CURSOR' opt_return_datatype PLS_SEMI
    ;
    
 subtype_definition
-   :  'SUBTYPE' identifier 'IS' identifier opt_constraint_and_opt_charset opt_not_null PLS_SEMI
+   :  'SUBTYPE' identifier 'IS' datatype opt_precision_constraint_and_opt_charset opt_not_null PLS_SEMI
    ;
    
-opt_constraint_and_opt_charset
-   :  PLS_LPAREN opt_constraint opt_charset PLS_RPAREN
+opt_precision_constraint_and_opt_charset
+   :  PLS_LPAREN opt_precision_constraint opt_charset PLS_RPAREN
    |
    ;
    
-opt_constraint
-   :  constraint
+opt_precision_constraint
+   :  precision_constraint
    |
    ;
    
-constraint
+precision_constraint
    :  precision_and_scale
    |  range
    ;
@@ -504,6 +828,15 @@ plsql_body
    :  'BEGIN' statement opt_statements_or_inline_pragmas opt_exception_block 'END' opt_identifier PLS_SEMI
    ;
    
+opt_initialize_section
+   :  initialize_section
+   |
+   ;
+   
+initialize_section
+   :  'BEGIN' statement opt_statements_or_inline_pragmas opt_exception_block
+   ;
+   
 opt_identifier
    :  identifier
    |
@@ -529,7 +862,6 @@ statement_type
    |  case_statement
    |  close_statement
    |  continue_statement
-   |  cursor_for_loop_statement
    |  execute_immediate_statement
    |  exit_statement
    |  fetch_statement
@@ -539,7 +871,6 @@ statement_type
    |  if_statement
    |  null_statement
    |  open_statement
-   |  open_for_statement
    |  pipe_row_statement
    |  plsql_block
    |  procedure_call_statement
@@ -555,17 +886,8 @@ assignment_statement
    ;
    
 assignment_statement_target
-   :  object_name opt_index
+   :  procedure_call
    |  placeholder
-   ;
-   
-opt_index
-   :  index
-   |
-   ;
-   
-index
-   :  PLS_LPAREN expression PLS_RPAREN
    ;
    
 basic_loop_statement
@@ -578,19 +900,19 @@ case_statement
    ;
    
 simple_case_statement
-   : simple_case_expression 'CASE' opt_identifier PLS_SEMI
+   : 'CASE' expression when_then_blocks opt_else_block 'END' 'CASE' opt_identifier PLS_SEMI
    ;
    
 simple_case_expression
-   :  'CASE' selector when_then_blocks opt_else_block 'END'
+   :  'CASE' expression when_then_expression_blocks opt_else_expression_block 'END'
    ;
    
 searched_case_statement
-   :  searched_case_expression 'CASE' opt_identifier PLS_SEMI
+   :  'CASE' when_then_blocks opt_else_block 'END' 'CASE' opt_identifier PLS_SEMI
    ;
    
 searched_case_expression
-   :  'CASE' when_then_blocks opt_else_block 'END' 
+   :  'CASE' when_then_expression_blocks opt_else_expression_block 'END' 
    ;
    
 close_statement
@@ -600,26 +922,70 @@ close_statement
 continue_statement
    :  'CONTINUE' opt_identifier opt_when PLS_SEMI
    ;
-   
-cursor_for_loop_statement
-   :  'FOR' identifier 'IN' cursor_with_params_or_select_statement_in_parenthesis basic_loop_statement
-   ;
 
-cursor_with_params_or_select_statement_in_parenthesis
-   :  cursor_with_params
-   |  select_statement_in_parenthesis
-   ;
-  
-cursor_with_params
-   :  identifier opt_parameter_values
-   ;
-   
-select_statement_in_parenthesis
-   :  PLS_LPAREN select_statement PLS_RPAREN
+cursor_with_params_or_select_statement_in_parenthesis_or_reverse_expression_range
+   :  expression
+   |  expression PLS_DOUBLE_DOT expression
+   |  'REVERSE' expression PLS_DOUBLE_DOT expression
    ;
 
 execute_immediate_statement
-   :  'EXECUTE' 'IMMEDIATE' until_semi PLS_SEMI
+   :  'EXECUTE' 'IMMEDIATE' dynamic_sql_statement opt_execute_immediate_statement_tail PLS_SEMI
+   ;
+   
+dynamic_sql_statement
+   :  expression
+   ;
+   
+opt_execute_immediate_statement_tail
+   :  execute_immediate_statement_tail
+   |
+   ;
+   
+execute_immediate_statement_tail
+   :  into_clause opt_using_clause
+   |  bulk_collect_into_clause opt_using_clause
+   |  using_clause opt_dynamic_returning_clause
+   |  dynamic_returning_clause
+   ;
+   
+opt_dynamic_returning_clause
+   :  dynamic_returning_clause
+   |
+   ;
+   
+dynamic_returning_clause
+   :  return_or_returning into_clause_or_bulk_collect_into_clause
+   ;
+   
+into_clause_or_bulk_collect_into_clause
+   :  into_clause
+   |  bulk_collect_into_clause
+   ;
+   
+opt_using_clause
+   :  using_clause
+   |
+   ;
+   
+using_clause
+   :  'USING' using_clause_arguments
+   ;
+   
+opt_tail_using_clause_arguments
+   :  PLS_COMMA using_clause_arguments
+   |
+   ;
+   
+using_clause_arguments
+   :  param_direction expression opt_tail_using_clause_arguments
+   |  expression opt_tail_using_clause_arguments
+   ;
+   
+param_direction
+   :  'IN'
+   |  'OUT'
+   |  'IN' 'OUT'
    ;
    
 exit_statement
@@ -658,9 +1024,18 @@ opt_else_block
    |
    ;
    
+opt_else_expression_block
+   :  'ELSE' expression
+   |
+   ;
+   
+opt_when_then_blocks
+   :  when_then_blocks
+   |
+   ;
+   
 when_then_blocks
-   :  when_then
-   |  when_then when_then_blocks
+   :  when_then opt_when_then_blocks
    ;
    
 when_then
@@ -672,8 +1047,17 @@ opt_when
    |
    ;
    
-selector
-   :  expression
+opt_when_then_expression_blocks
+   :  when_then_expression_blocks
+   |
+   ;
+   
+when_then_expression_blocks
+   :  when_then_expression opt_when_then_expression_blocks
+   ;
+   
+when_then_expression
+   :  'WHEN' expression 'THEN' expression
    ;
 
 opt_bind_variable
@@ -682,7 +1066,7 @@ opt_bind_variable
    ;
    
 bind_variable
-   :  PLS_COLON identifier
+   :  PLS_COLON identifier opt_parameter_values
    ;
    
 placeholder
@@ -703,9 +1087,14 @@ opt_exception_block
    :  'EXCEPTION' exception_handler
    |
    ;
+
+opt_exception_handler  
+   :  exception_handler opt_exception_handler
+   |
+   ;
    
 exception_handler
-   :  'WHEN' exception_names_or_others 'THEN' statements
+   :  'WHEN' exception_names_or_others 'THEN' statements opt_exception_handler
    ;
    
 exception_names_or_others
@@ -714,7 +1103,7 @@ exception_names_or_others
    ;
    
 exception_names
-   :  identifier opt_tail_exception_names
+   :  object_name opt_tail_exception_names
    ;
    
 opt_tail_exception_names
@@ -723,21 +1112,27 @@ opt_tail_exception_names
    ;
    
 tail_exception_names
-   :  'OR' identifier 
-   |  'OR' identifier tail_exception_names
+   :  'OR' object_name 
+   |  'OR' object_name tail_exception_names
    ;
    
 for_loop_statement
-   :  'FOR' identifier 'IN' opt_reverse expression PLS_DOUBLE_DOT expression basic_loop_statement
-   ;
-   
-opt_reverse
-   :  'REVERSE'
-   |
+   :  'FOR' identifier 'IN' cursor_with_params_or_select_statement_in_parenthesis_or_reverse_expression_range basic_loop_statement
    ;
    
 forall_statement
-   :  'FORALL' until_semi PLS_SEMI
+   :  'FORALL' identifier 'IN' bounds_clause opt_save_exceptions dml_statement
+   ;
+   
+bounds_clause
+   :  expression PLS_DOUBLE_DOT expression
+   |  'INDICES' 'OF' expression
+   |  'VALUES' 'OF' expression
+   ;
+   
+opt_save_exceptions
+   :  'SAVE' 'EXCEPTIONS'
+   |
    ;
    
 goto_statement
@@ -762,15 +1157,12 @@ null_statement
    ;
    
 open_statement
-   :  'OPEN' identifier opt_parameter_values PLS_SEMI
-   ;
-   
-open_for_statement
-   :  'OPEN' identifier_or_bind_variable 'FOR' until_semi PLS_SEMI
+   :  'OPEN' identifier_or_bind_variable PLS_SEMI
+   |  'OPEN' identifier_or_bind_variable 'FOR' expression opt_using_clause PLS_SEMI
    ;
    
 pipe_row_statement
-   :  'PIPE' 'ROW' PLS_LPAREN identifier PLS_RPAREN PLS_SEMI
+   :  'PIPE' 'ROW' PLS_LPAREN expression PLS_RPAREN PLS_SEMI
    ;
    
 procedure_call_statement
@@ -778,7 +1170,7 @@ procedure_call_statement
    ;
    
 raise_statement
-   :  'RAISE' identifier PLS_SEMI
+   :  'RAISE' opt_identifier PLS_SEMI
    ;
    
 return_statement
@@ -786,16 +1178,934 @@ return_statement
    ;
    
 select_statement
-   :  'SELECT'
-   |  'WITH'
+   :  subquery opt_for_update_clause
+   ;
+   
+subquery
+   :  query_block_or_subquery_in_parentheses opt_order_by_clause row_limiting_clause
+   ;
+   
+opt_order_by_clause
+   :  order_by_clause
+   |
+   ;
+   
+order_by_clause
+   :  'ORDER' opt_siblings 'BY' order_by_list
+   ;
+   
+opt_siblings
+   :  'SIBLINGS'
+   |
+   ;
+   
+opt_tail_order_by_list
+   :  PLS_COMMA order_by_list opt_tail_order_by_list
+   |
+   ;
+   
+order_by_list
+   :  expression opt_asc_or_desc opt_nulls_first_or_last opt_tail_order_by_list
+   ;
+     
+row_limiting_clause
+   :  opt_row_limiting_clause_start opt_row_limiting_clause_tail
+   ;
+   
+opt_row_limiting_clause_start
+   :  'OFFSET' expression opt_row_or_rows 
+   |
+   ;
+   
+opt_row_limiting_clause_tail
+   :  'FETCH' first_or_next expression opt_percent_keyword row_or_rows only_or_with_ties
+   |
+   ;
+   
+opt_percent_keyword
+   :  'PERCENT'
+   |
+   ;
+   
+only_or_with_ties
+   :  'ONLY'
+   |  'WITH' 'TIES'
+   ;
+   
+first_or_next
+   :  'FIRST'
+   |  'NEXT'
+   ;
+
+opt_row_or_rows
+   :  row_or_rows
+   |
+   ;
+   
+row_or_rows
+   :  'ROW'
+   |  'ROWS'
+   ;
+   
+query_block_or_subquery_in_parentheses
+   :  query_block opt_query_block_tails
+   |  PLS_LPAREN subquery PLS_RPAREN
+   ;
+   
+query_block
+   :  'SELECT' opt_distinct_unique_all select_list opt_into_or_bulk_collect_into_clause 'FROM' 
+      from_list opt_where_clause opt_hierachical_query_clause opt_group_by_clause 
+      opt_model_clause
+   |  with_clause 'SELECT' opt_distinct_unique_all select_list opt_into_or_bulk_collect_into_clause 'FROM' 
+      from_list opt_where_clause opt_hierachical_query_clause opt_group_by_clause 
+      opt_model_clause
+   ;
+   
+opt_into_or_bulk_collect_into_clause
+   :  into_clause
+   |  bulk_collect_into_clause
+   |
+   ;
+   
+opt_query_block_tails
+   :  union_or_intersect_or_minus subquery opt_query_block_tails
+   |
+   ;
+   
+opt_where_clause
+   :  where_clause
+   |
+   ;
+   
+where_clause
+   :  'WHERE' condition
+   ;
+   
+opt_hierachical_query_clause
+   :  hierachical_query_clause
+   |
+   ;
+   
+hierachical_query_clause
+   :  start_with_clause connect_by_clause
+   |  connect_by_clause opt_start_with_clause
+   ;
+   
+connect_by_clause
+   :  'CONNECT' 'BY' opt_prior opt_nocycle condition
+   ;
+   
+opt_prior
+   :  'PRIOR'
+   |
+   ;
+   
+start_with_clause
+   :  'START' 'WITH' condition 
+   ;
+   
+opt_start_with_clause
+   :  start_with_clause
+   |
+   ;
+   
+opt_nocycle
+   :  'NOCYCLE'
+   |
+   ;
+   
+opt_group_by_clause
+   :  group_by_clause
+   |
+   ;
+   
+group_by_clause
+   :  'GROUP' 'BY' group_by_list opt_having
+   ;
+   
+opt_having
+   :  'HAVING' condition
+   |
+   ;
+
+opt_tail_group_by_lists
+   :  PLS_COMMA group_by_list opt_tail_group_by_lists
+   |
+   ;
+   
+group_by_list
+   :  expression opt_tail_group_by_lists
+   |  rollup_cube_clause opt_tail_group_by_lists
+   |  grouping_sets_clause opt_tail_group_by_lists
+   ;
+   
+rollup_cube_clause
+   :  rollup_or_cube PLS_LPAREN expression_list_list PLS_RPAREN
+   ;
+   
+rollup_or_cube
+   :  'ROLLUP'
+   |  'CUBE'
+   ;
+   
+grouping_sets_clause
+   :  'GROUPING' 'SETS' PLS_LPAREN grouping_sets_clause_list PLS_RPAREN
+   ;
+
+opt_tail_grouping_sets_clause_lists
+   :  PLS_COMMA grouping_sets_clause_list opt_tail_grouping_sets_clause_lists
+   |
+   ;
+   
+grouping_sets_clause_list
+   :  rollup_cube_clause
+   |  expression_list_list
+   ;
+
+opt_model_clause
+   :  model_clause
+   |
+   ;
+   
+model_clause
+   :  'MODEL' opt_cell_reference_options opt_return_rows_clause opt_reference_models main_model
+   ;  
+      
+opt_cell_reference_options
+   :  opt_ignore_or_keep_nav opt_unique_dimension_or_single_reference
+   ;
+   
+opt_ignore_or_keep_nav
+   :  'IGNORE' 'NAV'
+   |  'KEEP' 'NAV'
+   |
+   ;
+   
+opt_unique_dimension_or_single_reference
+   :  'UNIQUE' 'DIMENSION'
+   |  'UNIQUE' 'SINGLE' 'REFERENCE'
+   |
+   ;
+   
+opt_return_rows_clause
+   :  'RETURN' updated_or_all 'ROWS'
+   |
+   ;
+     
+updated_or_all
+   :  'UPDATED'
+   |  'ALL'
+   ;
+
+opt_reference_models
+   :  reference_model opt_reference_models
+   |  
+   ;
+   
+reference_model
+   :  'REFERENCE' identifier 'ON' PLS_LPAREN subquery PLS_RPAREN model_column_clauses opt_cell_reference_options
+   ;
+   
+main_model
+   :  ('MAIN' identifier)? model_column_clauses opt_cell_reference_options model_rules_clause
+   ;
+   
+model_column_clauses
+   :  ('PARTITION' 'BY' PLS_LPAREN expressions_with_aliases PLS_RPAREN)?
+      'DIMENSION' 'BY' PLS_LPAREN expressions_with_aliases PLS_RPAREN 'MEASURES' PLS_LPAREN expressions_with_aliases PLS_RPAREN
+   ;
+   
+model_column
+   :   expression alias
+   ;
+   
+model_rules_clause
+   :  model_rules_clause_start
+      PLS_LPAREN model_rules_clause_tail PLS_RPAREN
+   ;
+    
+model_rules_clause_start
+   :  'RULES' opt_update_or_upsert_all opt_automatic_or_sequential_order opt_model_iterate_clause
+   |
+   ;
+   
+model_rules_clause_tail
+   :  opt_update_or_upsert_all cell_assignment opt_order_by_clause PLS_EQ expression
+   |  opt_update_or_upsert_all cell_assignment opt_order_by_clause PLS_EQ expression PLS_COMMA model_rules_clause_tail
+   ;
+   
+opt_automatic_or_sequential_order
+   :  'AUTOMATIC' 'ORDER'
+   |  'SEQUENTIAL' 'ORDER'
+   |
+   ;
+   
+opt_update_or_upsert_all
+   :  'UPDATE'
+   |  'UPSERT' opt_all
+   |
+   ;
+   
+opt_model_iterate_clause
+   :  'ITERATE' PLS_LPAREN PLS_NUMBER PLS_RPAREN opt_model_iterate_clause_until
+   |
+   ;
+   
+opt_model_iterate_clause_until
+   :  'UNTIL' PLS_LPAREN condition PLS_RPAREN
+   |
+   ;
+   
+cell_assignment
+   :  object_name PLS_LBRACK cell_assignment_expr_list PLS_RBRACK
+   ;
+   
+cell_assignment_expr_list
+   :  expression_or_single_column_for_loop_list
+   |  multi_column_for_loop
+   ;
+   
+expression_or_single_column_for_loop_list
+   :  expression tail_expression_or_single_column_for_loop_list
+   |  single_column_for_loop tail_expression_or_single_column_for_loop_list
+   ;
+   
+tail_expression_or_single_column_for_loop_list
+   :  PLS_COMMA expression tail_expression_or_single_column_for_loop_list
+   |  PLS_COMMA single_column_for_loop tail_expression_or_single_column_for_loop_list
+   |
+   ;
+   
+single_column_for_loop
+   :  'FOR' object_name single_column_for_loop_tail
+   ;
+   
+single_column_for_loop_tail
+   :  'IN' PLS_LPAREN literal_list_or_subquery PLS_RPAREN
+   |  opt_like_pattern 'FROM' literal 'TO' literal increment_or_decrement literal
+   ;
+   
+increment_or_decrement
+   :  'INCREMENT'
+   |  'DECREMENT'
+   ;
+   
+opt_like_pattern
+   :  'LIKE' pattern
+   |  'NOT' 'LIKE' pattern
+   |
+   ;
+
+literal_list_or_subquery
+   :  literal_list
+   |  subquery
+   ;
+   
+literal_list
+   :  literal
+   |  literal PLS_COMMA literal_list
+   ;
+   
+literal_list_list
+   :  PLS_LPAREN literal_list PLS_RPAREN
+   |  PLS_LPAREN literal_list PLS_RPAREN PLS_COMMA literal_list_list
+   ;
+   
+literal
+   :  PLS_NUMBER
+   |  character_literal
+   |  boolean_literal
+   |  datetime_literal
+   |  interval_literal
+   ;
+   
+multi_column_for_loop
+   :  'FOR' PLS_LPAREN object_name_list PLS_RPAREN 'IN' PLS_LPAREN literal_list_list_or_subquery PLS_RPAREN
+   ;
+   
+literal_list_list_or_subquery
+   :  literal_list_list
+   |  subquery
+   ;
+   
+table_reference_start
+   :  'ONLY' PLS_LPAREN query_table_expression PLS_RPAREN
+   |  'THE' PLS_LPAREN query_table_expression PLS_RPAREN  
+   |  query_table_expression
+   ;
+   
+query_table_expression
+   :  procedure_call opt_dblink_or_partition_extension_clause opt_sample_clause
+   |  'LATERAL' PLS_LPAREN subquery opt_subquery_restriction_clause PLS_RPAREN
+   |  PLS_LPAREN subquery opt_subquery_restriction_clause PLS_RPAREN
+   |  table_collection_expression
+   ;
+   
+table_collection_expression
+   :  'TABLE' PLS_LPAREN expression PLS_RPAREN opt_plus_in_parentheses
+   ;
+   
+opt_plus_in_parentheses
+   :  plus_in_parentheses
+   |
+   ;
+   
+plus_in_parentheses
+   :  PLS_LPAREN PLS_PLUS PLS_RPAREN
+   ;
+   
+opt_subquery_restriction_clause
+   :  'WITH' read_only_or_check_option opt_constraint
+   |
+   ;
+   
+read_only_or_check_option
+   :  'READ' 'ONLY'
+   |  'CHECK' 'OPTION'
+   ;
+   
+opt_constraint
+   :  'CONSTRAINT' identifier
+   ;
+   
+opt_sample_clause
+   :  'SAMPLE' opt_block_keyword PLS_LPAREN expression PLS_RPAREN opt_seed
+   |
+   ;
+   
+opt_block_keyword
+   :  'BLOCK'
+   |
+   ;
+   
+opt_seed
+   :  'SEED' PLS_LPAREN expression PLS_RPAREN
+   |
+   ;
+   
+opt_dblink_or_partition_extension_clause
+   :  dblink
+   |  partition_extension_clause
+   |  
+   ;
+   
+dblink
+   :  PLS_AT_SIGN object_name
+   ;
+   
+partition_extension_clause
+   :  'PARTITION' PLS_LPAREN identifier PLS_RPAREN
+   |  'PARTITION' 'FOR' PLS_LPAREN expression_list PLS_RPAREN
+   |  'SUBPARTITION' PLS_LPAREN identifier PLS_RPAREN
+   |  'SUBPARTITION' 'FOR' PLS_LPAREN expression_list PLS_RPAREN
+   |  query_partition_clause //when parser encounters 'PARTITION' keyword it always searches for 'FOR' even when outer_join follows (PARTITON BY). putting this here as workaround. 
+   ;
+   
+table_reference
+   :  table_reference_start opt_flashback_query_clause opt_pivot_or_unpivot_or_row_pattern_clause alias
+   ;
+   
+opt_pivot_or_unpivot_or_row_pattern_clause
+   :  pivot_clause
+   |  unpivot_clause
+   |  row_pattern_clause
+   |
+   ;
+   
+row_pattern_clause
+   :  'MATCH_RECOGNIZE' PLS_LPAREN ('PARTITION' 'BY' object_name_list)? ('ORDER' 'BY' object_name_list)? 
+      ('MEASURES' expressions_with_aliases)? opt_one_or_all_rows_per_match
+      opt_after_match_skip_clause
+      'PATTERN' PLS_LPAREN row_pattern PLS_RPAREN opt_row_pattern_subset_clause 'DEFINE' row_pattern_definition_list PLS_RPAREN
+      ;
+      
+opt_after_match_skip_clause
+   :  'AFTER' 'MATCH' 'SKIP' to_next_or_past_last_row_or_to_first_or_last_object_name
+   |
+   ;
+      
+to_next_or_past_last_row_or_to_first_or_last_object_name
+   :  to_next_or_past_last_row
+   |  to_first_or_last_object_name
+   ;
+      
+to_first_or_last_object_name
+   :  'TO' first_or_last object_name
+   ;
+      
+first_or_last
+   :  'FIRST'
+   |  'LAST'
+   ;
+      
+to_next_or_past_last_row
+   :  to_next_or_past_last 'ROW'
+   ;
+   
+to_next_or_past_last
+   :  'TO' 'NEXT'
+   |  'PAST' 'LAST'
+   ;
+   
+opt_one_or_all_rows_per_match
+   :  one_or_all_rows 'PER' 'MATCH'
+   |
+   ;
+   
+one_or_all_rows
+   :  'ONE' 'ROW'
+   |  'ALL' 'ROWS'
+   ;
+   
+opt_row_pattern_subset_clause
+   :  'SUBSET' row_pattern_subset_items
+   |
+   ;
+   
+row_pattern_subset_items
+   :  row_pattern_subset_item opt_tail_row_pattern_subset_items
+   ;
+   
+opt_tail_row_pattern_subset_items
+   :  opt_tail_row_pattern_subset_items PLS_COMMA row_pattern_subset_item
+   |
+   ;
+   
+row_pattern_subset_item
+   :  object_name PLS_EQ PLS_LPAREN object_name_list PLS_RPAREN
+   ;
+   
+row_pattern_definition_list
+   :  row_pattern_definition opt_tail_row_pattern_definitions
+   ;
+   
+opt_tail_row_pattern_definitions
+   :  opt_tail_row_pattern_definitions PLS_COMMA row_pattern_definition
+   |
+   ;
+   
+row_pattern_definition
+   :  object_name 'AS' condition
+   ;  
+   
+condition
+   :  expression
+   ;
+      
+row_pattern
+   :  (row_pattern PLS_VERTBAR)? row_pattern_term
+   ;
+    
+row_pattern_term
+   :  (row_pattern_term)? row_pattern_factor
+   ;
+   
+row_pattern_factor
+   :  row_pattern_primary (row_pattern_quantifier)?
+   ;
+   
+row_pattern_primary
+   :  object_name
+   |  '$'
+   |  '^'
+   |  PLS_LPAREN row_pattern PLS_RPAREN
+   |  PLS_LCURLY_BRACK PLS_MINUS row_pattern PLS_MINUS PLS_RCURLY_BRACK
+   |  row_pattern_permute
+   ;
+   
+row_pattern_permute
+   :  'PERMUTE' PLS_LPAREN row_pattern (PLS_COMMA row_pattern)* PLS_RPAREN
+   ;
+   
+row_pattern_quantifier
+   :  PLS_ASTERISK (PLS_QUESTION_MARK)?
+   |  PLS_PLUS (PLS_QUESTION_MARK)?
+   |  PLS_QUESTION_MARK (PLS_QUESTION_MARK)?
+   |  PLS_LCURLY_BRACK PLS_NUMBER PLS_COMMA PLS_NUMBER PLS_RCURLY_BRACK (PLS_QUESTION_MARK)?
+   |  PLS_LCURLY_BRACK PLS_NUMBER PLS_RCURLY_BRACK (PLS_QUESTION_MARK)?
+   ;
+   
+pivot_clause
+   :  'PIVOT' ('XML')? PLS_LPAREN aggregate_function_list pivot_for_clause pivot_in_clause PLS_RPAREN
+   ;
+   
+pivot_for_clause
+   :  'FOR' object_name 
+   |  'FOR' PLS_LPAREN object_name_list PLS_RPAREN
+   ;
+   
+pivot_in_clause
+   :  'IN' PLS_LPAREN pivot_in_clause_list PLS_RPAREN
+   ;
+   
+pivot_in_clause_list
+   :  subquery
+   |  expressions_with_aliases
+   |  expression_list_with_aliases
+   ;
+   
+unpivot_clause
+   :  'UNPIVOT' opt_include_or_exclude_nulls PLS_LPAREN object_name_or_list_in_parentheses pivot_for_clause unpivot_in_clause PLS_RPAREN
+   ;
+   
+object_name_or_list_in_parentheses
+   :  object_name 
+   |  PLS_LPAREN object_name_list PLS_RPAREN
+   ;
+   
+opt_include_or_exclude_nulls
+   :  include_or_exclude 'NULLS'
+   |
+   ;
+   
+include_or_exclude
+   :  'INCLUDE'
+   |  'EXCLUDE'
+   ;
+   
+unpivot_in_clause
+   :  'IN' PLS_LPAREN unpivot_in_clause_list PLS_RPAREN
+   ;
+   
+opt_tail_unpivot_in_clause_list
+   :  PLS_COMMA unpivot_in_clause_list
+   |
+   ;
+   
+unpivot_in_clause_list
+   :  object_name_or_list_in_parentheses opt_as_literal_or_list_in_parentheses opt_tail_unpivot_in_clause_list
+   ;
+   
+opt_as_literal_or_list_in_parentheses
+   :  'AS' literal_or_list_in_parentheses
+   |
+   ;
+   
+literal_or_list_in_parentheses
+   :  literal
+   |  PLS_LPAREN literal_list PLS_RPAREN
+   ;
+   
+opt_tail_aggregate_function_list
+   :  PLS_COMMA aggregate_function_list opt_tail_aggregate_function_list
+   |
+   ;
+   
+aggregate_function_list
+   :  object_name PLS_LPAREN expression PLS_RPAREN alias opt_tail_aggregate_function_list
+   ;
+   
+opt_flashback_query_clause
+   :  flashback_query_clause
+   |
+   ;
+   
+flashback_query_clause
+   :  'VERSIONS' between_scn_or_timestamp_or_period_for_between expression
+   |  'AS' 'OF' scn_or_timestamp_or_period_for_object_name expression
+   ;
+   
+scn_or_timestamp_or_period_for_object_name
+   :  scn_or_timestamp
+   |  period_for_object_name
+   ;
+   
+period_for_object_name
+   :  'PERIOD' 'FOR' object_name
+   ;
+   
+between_scn_or_timestamp_or_period_for_between
+   :  between_scn_or_timestamp
+   |  period_for_between
+   ;
+   
+period_for_between
+   :  'PERIOD' 'FOR' object_name 'BETWEEN'
+   ;
+
+between_scn_or_timestamp
+   :   'BETWEEN' scn_or_timestamp
+   ;
+   
+scn_or_timestamp
+   :  'SCN'
+   |  'TIMESTAMP'
+   ;
+
+opt_tail_from_list
+   :  opt_tail_from_list PLS_COMMA from_list
+   |
+   ;
+   
+from_list
+   :  table_reference opt_tail_from_list
+   |  join_clause opt_tail_from_list
+   |  PLS_LPAREN join_clause PLS_RPAREN opt_tail_from_list
+   ;
+   
+join_clause
+   :  table_reference inner_cross_or_outer_or_cross_join_apply_clauses
+   ;
+   
+opt_tail_inner_cross_or_outer_or_cross_join_apply_clauses
+   :  opt_tail_inner_cross_or_outer_or_cross_join_apply_clauses inner_cross_or_outer_or_cross_join_apply_clauses
+   |
+   ;
+   
+inner_cross_or_outer_or_cross_join_apply_clauses
+   :  inner_cross_join_clause opt_tail_inner_cross_or_outer_or_cross_join_apply_clauses
+   |  outer_join_clause opt_tail_inner_cross_or_outer_or_cross_join_apply_clauses 
+   |  cross_outer_apply_clause opt_tail_inner_cross_or_outer_or_cross_join_apply_clauses 
+   ;
+   
+inner_cross_join_clause
+   :  inner 'JOIN' table_reference on_condition_or_using_columns
+   |  'JOIN' table_reference on_condition_or_using_columns
+   |  'CROSS' 'JOIN' table_reference
+   |  'NATURAL' opt_inner 'JOIN' table_reference
+   ;
+
+opt_on_condition_or_using_columns
+   :  on_condition_or_using_columns
+   |
+   ;
+
+on_condition_or_using_columns
+   :  'ON' condition 
+   |  'USING' PLS_LPAREN identifier_list PLS_RPAREN
+   ;
+   
+opt_inner
+   :  inner
+   |
+   ;
+   
+inner
+   :  'INNER'
+   ;
+   
+outer_join_clause
+   :  query_partition_clause outer_join_type 'JOIN' table_reference opt_query_partition_clause opt_on_condition_or_using_columns
+   |  query_partition_clause natural outer_join_type 'JOIN' table_reference opt_query_partition_clause opt_on_condition_or_using_columns
+   |  outer_join_type 'JOIN' table_reference opt_query_partition_clause opt_on_condition_or_using_columns
+   |  natural outer_join_type 'JOIN' table_reference opt_query_partition_clause opt_on_condition_or_using_columns
+   ;
+   
+natural
+   :  'NATURAL'
+   ;
+   
+opt_natural
+   :  natural
+   |
+   ;
+   
+opt_query_partition_clause
+   :  query_partition_clause
+   |
+   ;
+   
+query_partition_clause
+   :  'PARTITION' 'BY' expression_list
+   |  'PARTITION' 'BY' PLS_LPAREN expression_list PLS_RPAREN
+   ;
+   
+outer_join_type
+   :  'FULL' opt_outer
+   |  'LEFT' opt_outer
+   |  'RIGHT' opt_outer
+   ;
+   
+opt_outer
+   :  'OUTER'
+   |
+   ;
+   
+cross_or_outer
+   :  'CROSS' 
+   |  'OUTER'
+   ;
+   
+cross_outer_apply_clause
+   :  cross_or_outer 'APPLY' table_reference_or_expression
+   ;
+   
+table_reference_or_expression
+   :  table_reference
+   |  expression
+   ;
+   
+select_list
+   :  PLS_ASTERISK
+   |  select_list_column_names
+   ;
+   
+select_list_column_names
+   :  expression alias opt_tail_select_list_column_names
+   ;
+   
+opt_tail_select_list_column_names
+   :  PLS_COMMA expression alias opt_tail_select_list_column_names
+   |
+   ;
+   
+opt_tail_expressions_with_aliases
+   :  PLS_COMMA expressions_with_aliases
+   |
+   ;
+   
+expressions_with_aliases
+   :  expression alias opt_tail_expressions_with_aliases
+   ;
+   
+opt_tail_expression_list_with_aliases
+   :  PLS_COMMA expression_list_with_aliases
+   |
+   ;
+   
+expression_list_with_aliases
+   :  PLS_LPAREN expression_list PLS_RPAREN alias opt_tail_expression_list_with_aliases
+   ;
+   
+alias
+   :  opt_as opt_identifier
+   ;
+   
+with_clause
+   :  'WITH' plsql_declarations_or_subquery_factoring_clause  
+   ;
+   
+plsql_declarations_or_subquery_factoring_clause
+   :  function_and_proc_definitions_for_with_block
+   |  subquery_factoring_clause
+   ;
+   
+subquery_factoring_clause
+   :  identifier opt_alias_list 'AS' PLS_LPAREN subquery PLS_RPAREN opt_search_clause opt_cycle_clause opt_tail_subquery_factoring_clauses
+   ;
+   
+opt_cycle_clause
+   :  'CYCLE' identifier_list 'SET' identifier 'TO' PLS_QUOTED_STRING 'DEFAULT' PLS_QUOTED_STRING
+   |
+   ;
+   
+opt_search_clause
+   :  'SEARCH' depth_or_breadth 'FIRST' 'BY' alias_search_list 'SET' identifier
+   |
+   ;
+   
+opt_tail_alias_search_list
+   :  PLS_COMMA alias_search_list
+   |
+   ;
+   
+alias_search_list
+   :  identifier opt_asc_or_desc opt_nulls_first_or_last opt_tail_alias_search_list
+   ;
+   
+opt_asc_or_desc
+   :  'ASC'
+   |  'DESC'
+   |
+   ;
+   
+opt_nulls_first_or_last
+   :  'NULLS' 'FIRST'
+   |  'NULLS' 'LAST'
+   |
+   ;
+   
+depth_or_breadth
+   :  'DEPTH'
+   |  'BREADTH'
+   ;
+   
+opt_alias_list
+   :  PLS_LPAREN identifier_list PLS_RPAREN
+   |
+   ;
+   
+opt_tail_subquery_factoring_clauses
+   :  PLS_COMMA subquery_factoring_clause
+   |
+   ;
+
+function_and_proc_definitions_for_with_block
+   :  function_definition opt_function_or_procedure_definitions
+   |  procedure_definition opt_function_or_procedure_definitions
+   ;
+   
+opt_function_or_procedure_definitions
+   :  function_definition opt_function_or_procedure_definitions
+   |  procedure_definition opt_function_or_procedure_definitions
+   |
+   ;
+   
+opt_distinct_unique_all
+   :  'DISTINCT'
+   |  'UNIQUE'
+   |  'ALL'
+   |
+   ;
+   
+union_or_intersect_or_minus
+   :  'UNION' opt_all
+   |  'INTERSECT'
+   |  'MINUS'
+   ;
+   
+opt_all
+   :  'ALL'
+   |
+   ;
+   
+opt_for_update_clause
+   :  for_update_clause
+   |
+   ;
+   
+for_update_clause
+   :  'FOR' 'UPDATE' opt_for_update_clause_of opt_for_update_clause_options
+   ;
+   
+opt_for_update_clause_of
+   :  'OF' object_name_list  
+   |
+   ;
+   
+opt_for_update_clause_options
+   :  'SKIP' 'LOCKED'
+   |  nowait_or_wait
+   |
+   ;
+   
+opt_nowait_or_wait
+   :  nowait_or_wait
+   |
+   ;
+   
+nowait_or_wait
+   :  'NOWAIT'
+   |  'WAIT' PLS_NUMBER
    ;
    
 while_loop_statement
    :  'WHILE' expression basic_loop_statement
    ;
    
+opt_tail_procedure_calls
+   :  PLS_DOT procedure_call
+   |  PLS_DOT PLS_ASTERISK
+   |
+   ;
+   
 procedure_call
-   :  object_name opt_parameter_values
+   :  object_name opt_sequential_parameter_values opt_tail_procedure_calls
+   ;
+   
+opt_sequential_parameter_values
+   :  parameter_values_in_parentheses opt_sequential_parameter_values
+   |
    ;
    
 sql_statement
@@ -810,40 +2120,314 @@ sql_statement
    |  update_statement
    ;
    
+dml_statement
+   :  insert_statement
+   |  update_statement
+   |  delete_statement
+   |  merge_statement
+   ;
+   
 commit_statement
    :  'COMMIT' opt_until_semi PLS_SEMI
    ;
    
 delete_statement
-   :  'DELETE' until_semi PLS_SEMI
+   :  'DELETE' opt_from dml_table_expression_clause_or_only alias opt_where_clause opt_returning_clause opt_error_logging_clause PLS_SEMI
+   ;
+   
+opt_from
+   :  'FROM'
+   |
    ;
    
 insert_statement
-   :  'INSERT' until_semi PLS_SEMI
+   :  'INSERT' single_table_or_multi_table_insert PLS_SEMI
+   ;
+   
+single_table_or_multi_table_insert
+   :  single_table_insert
+   |  multi_table_insert
+   ;
+   
+single_table_insert
+   :  insert_into_clause values_clause_and_opt_returning_clause_or_subquery opt_error_logging_clause
+   ;
+   
+values_clause_and_opt_returning_clause_or_subquery
+   :  values_clause opt_returning_clause
+   |  subquery
+   ;
+   
+insert_into_clause
+   :  'INTO' dml_table_expression_clause alias opt_column_list_in_parentheses
+   ;
+   
+opt_column_list_in_parentheses
+   :  column_list_in_parentheses
+   |
+   ;
+   
+column_list_in_parentheses
+   :  PLS_LPAREN object_name_list PLS_RPAREN
+   ;
+
+opt_values_clause
+   :  values_clause
+   |
+   ;
+   
+values_clause
+   :  'VALUES' PLS_LPAREN expression_or_default_list PLS_RPAREN
+   ;
+   
+
+opt_returning_clause
+   :  returning_clause
+   |
+   ;
+   
+returning_clause
+   :  return_or_returning expression_list into_clause_or_bulk_collect_into_clause
+   ;
+   
+return_or_returning
+   :  'RETURN'
+   |  'RETURNING'
+   ;
+   
+multi_table_insert
+   :  'ALL' multi_table_insert_tails subquery
+   |  'ALL' conditional_insert_clause subquery
+   |  'FIRST' conditional_insert_clause subquery
+   |  conditional_insert_clause subquery
+   ;
+   
+opt_multi_table_insert_tails
+   :  multi_table_insert_tails
+   |
+   ;
+   
+multi_table_insert_tails
+   :  multi_table_insert_tail opt_multi_table_insert_tails
+   ;
+   
+multi_table_insert_tail
+   :  insert_into_clause opt_values_clause opt_error_logging_clause
+   ;
+   
+opt_tail_expression_or_default_lists
+   :  PLS_COMMA expression_or_default_list
+   |
+   ;
+   
+conditional_insert_clause_when_conditions
+   :  'WHEN' expression 'THEN' multi_table_insert_tails 
+   |  'WHEN' expression 'THEN' multi_table_insert_tails conditional_insert_clause_when_conditions
+   ;
+   
+opt_conditional_insert_clause_else_condition
+   :  'ELSE' multi_table_insert_tail
+   |
+   ;
+   
+conditional_insert_clause
+   :  conditional_insert_clause_when_conditions opt_conditional_insert_clause_else_condition
+   ;
+   
+dml_table_expression_clause
+   :  object_name opt_dblink_or_partition_extension_clause  
+   |  PLS_LPAREN subquery opt_subquery_restriction_clause PLS_RPAREN
+   |  table_collection_expression
+   ;
+   
+opt_error_logging_clause
+   :  error_logging_clause
+   |
+   ;
+   
+error_logging_clause
+   :  'LOG' 'ERRORS' opt_error_logging_target opt_reject_limit
+   ;
+   
+opt_error_logging_target
+   :  'INTO' object_name opt_parameter_values 
+   |
+   ;
+   
+opt_reject_limit
+   :  'REJECT' 'LIMIT' number_or_unlimited
+   |
+   ;
+   
+number_or_unlimited
+   :  PLS_NUMBER
+   |  'UNLIMITED'
+   ;
+   
+expression_or_default_list
+   :  expression opt_tail_expression_or_default_lists
+   |  'DEFAULT' opt_tail_expression_or_default_lists
    ;
    
 lock_table_statement
-   :  'LOCK' 'TABLE' until_semi PLS_SEMI
+   :  'LOCK' 'TABLE' table_names 'IN' lock_mode 'MODE' opt_nowait_or_wait PLS_SEMI
+   ;
+   
+lock_mode
+   :  'ROW' 'SHARE'
+   |  'ROW' 'EXCLUSIVE'
+   |  'SHARE' 'UPDATE'
+   |  'SHARE'
+   |  'SHARE' 'ROW' 'EXCLUSIVE'
+   |  'EXCLUSIVE'
+   ;
+
+opt_tail_table_names
+   :  PLS_COMMA table_names
+   |
+   ;
+
+table_names
+   :  object_name opt_dblink_or_partition_extension_clause opt_tail_table_names
    ;
    
 merge_statement
-   :  'MERGE' until_semi PLS_SEMI
+   :  'MERGE' 'INTO' object_name alias 'USING' object_name_or_subquery alias
+      'ON' PLS_LPAREN condition PLS_RPAREN 
+      opt_merge_update_or_insert_clause 
+      opt_merge_update_or_insert_clause
+      opt_error_logging_clause 
+      PLS_SEMI
+   ;
+   
+opt_merge_update_or_insert_clause
+   :  merge_update_or_insert_clause
+   |
+   ;
+   
+merge_update_or_insert_clause
+   :  'WHEN' 'MATCHED' 'THEN' 'UPDATE' 'SET' column_eq_expr_or_default_list 
+      opt_where_clause opt_delete_where_clause
+   |  'WHEN' 'NOT' 'MATCHED' 'THEN' 'INSERT' PLS_LPAREN object_name_list PLS_RPAREN
+      'VALUES' PLS_LPAREN expression_or_default_list PLS_RPAREN opt_where_clause
+   ;
+   
+opt_delete_where_clause
+   :  delete_where_clause
+   |
+   ;
+   
+delete_where_clause
+   :  'DELETE' where_clause
+   ;
+   
+opt_tail_column_eq_expr_or_default_list
+   :  PLS_COMMA column_eq_expr_or_default_list
+   |
+   ;
+   
+column_eq_expr_or_default_list
+   :  object_name PLS_EQ expression_or_default opt_tail_column_eq_expr_or_default_list
+   ;
+   
+expression_or_default
+   :  expression
+   |  'DEFAULT'
+   ;
+   
+object_name_or_subquery
+   :  object_name
+   |  subquery
    ;
    
 rollback_statement
-   :  'ROLLBACK' opt_until_semi PLS_SEMI
+   :  'ROLLBACK' opt_work opt_to_savepoint_or_force PLS_SEMI
+   ;
+   
+opt_to_savepoint_or_force
+   :  'TO' opt_savepoint identifier
+   |  'FORCE' expression
+   |
+   ;
+   
+opt_savepoint
+   :  'SAVEPOINT'
+   |
+   ;
+   
+opt_work
+   :  'WORK'
+   |
    ;
    
 savepoint_statement
-   :  'SAVEPOINT' until_semi PLS_SEMI
+   :  'SAVEPOINT' identifier PLS_SEMI
    ;
    
 set_transaction_statement
-   :  'SET' 'TRANSACTION' until_semi PLS_SEMI
+   :  'SET' 'TRANSACTION' set_transaction_statement_options PLS_SEMI
+   ;
+   
+set_transaction_statement_options
+   :  read_only_or_read_write opt_transaction_statement_name
+   |  'ISOLATION' 'LEVEL' serializable_or_read_committed opt_transaction_statement_name
+   |  'USE' 'ROLLBACK' 'SEGMENT' object_name_or_quoted_string opt_transaction_statement_name
+   |  'NAME' object_name_or_quoted_string
+   ;
+   
+opt_transaction_statement_name
+   :  'NAME' object_name_or_quoted_string
+   |
+   ;
+   
+object_name_or_quoted_string
+   :  object_name
+   |  PLS_QUOTED_STRING
+   ;
+   
+serializable_or_read_committed
+   :  'SERIALIZABLE'
+   |  'READ' 'COMMITTED'
+   ;
+   
+read_only_or_read_write
+   :  'READ' 'ONLY'
+   |  'READ' 'WRITE'
    ;
    
 update_statement
-   :  'UPDATE' until_semi PLS_SEMI
+   :  'UPDATE' dml_table_expression_clause_or_only alias 
+      update_set_clause opt_where_clause opt_returning_clause opt_error_logging_clause PLS_SEMI
+   ;
+   
+update_set_clause
+   :  'SET' update_set_clause_tail
+   ;
+   
+opt_update_set_clause_tails
+   :  PLS_COMMA update_set_clause_tail
+   |
+   ;
+   
+update_set_clause_tail
+   :  column_list_in_parentheses PLS_EQ PLS_LPAREN subquery PLS_RPAREN opt_update_set_clause_tails
+   |  object_name PLS_EQ expression_or_subquery_or_default opt_update_set_clause_tails
+   |  'VALUE' PLS_LPAREN object_name PLS_RPAREN PLS_EQ expression_or_subquery opt_update_set_clause_tails
+   ;
+   
+expression_or_subquery
+   :  expression
+   |  PLS_RPAREN subquery PLS_RPAREN
+   ;
+   
+expression_or_subquery_or_default
+   :  expression_or_subquery
+   |  'DEFAULT'
+   ;
+   
+dml_table_expression_clause_or_only
+   :  dml_table_expression_clause
+   |  'ONLY' PLS_LPAREN dml_table_expression_clause PLS_RPAREN
    ;
    
 opt_until_semi
@@ -891,6 +2475,11 @@ as
    :  'AS'
    ;
    
+opt_as
+   :  as
+   |
+   ;
+   
 is_or_as
    :  is
    |  as
@@ -916,6 +2505,7 @@ opt_expression
 
 expression
    :  subexpression opt_subexpression_tails
+   |  PLS_LPAREN expression_list_list PLS_RPAREN opt_subexpression_tails
    |  PLS_LPAREN expression PLS_RPAREN opt_subexpression_tails
    ;
    
@@ -928,16 +2518,21 @@ subexpression_start
    ;
    
 subexpression_central
-   :  object_name opt_percent_rowcount_or_parameter_list
-   |  PLS_NUMBER
+   :  PLS_LPAREN expression PLS_RPAREN
+   |  procedure_call opt_percent_rowcount
    |  placeholder
    |  percent_rowcount
    |  sql_rowcount_or_bulkrowcount
-   |  character_literal
-   |  boolean_literal
+   |  literal
    |  conditional_predicate
    |  object_name PLS_DOT 'EXISTS' PLS_LPAREN expression PLS_RPAREN
    |  cursor_state_check
+   |  simple_case_expression
+   |  searched_case_expression
+   |  subquery
+   |  cell_assignment
+   |  'PRIOR' expression
+   |  'CONNECT_BY_ROOT' expression
    ;
   
 opt_subexpression_tails
@@ -949,15 +2544,49 @@ subexpression_tail
    :  plus_minus_mul_div expression 
    |  PLS_DOUBLEVERTBAR expression
    |  and_or_or expression
-   |  is_not_null
+   |  is_not_condition
    |  between_or_in_or_like
    |  relational_operator expression
+   |  analytic_function_tail
+   |  multiset_condition
    ;
-
-opt_percent_rowcount_or_parameter_list
-   :  percent_rowcount
-   |  parameter_values_in_parentheses
+   
+multiset_condition
+   :  'MEMBER' opt_of object_name
+   |  'NOT' 'MEMBER' opt_of object_name
+   |  'SUBMULTISET' opt_of object_name
+   |  'NOT' 'SUBMULTISET' opt_of object_name
+   ;
+   
+opt_of
+   :  'OF'
    |
+   ;
+   
+analytic_function_tail
+   :  'OVER' PLS_LPAREN opt_analytic_function_tail_expressions PLS_RPAREN
+   |  'KEEP' PLS_LPAREN opt_analytic_function_tail_expressions PLS_RPAREN 'OVER' PLS_LPAREN opt_analytic_function_tail_expressions PLS_RPAREN
+   |  'WITHIN' 'GROUP' PLS_LPAREN opt_analytic_function_tail_expressions PLS_RPAREN
+   |  'WITHIN' 'GROUP' PLS_LPAREN opt_analytic_function_tail_expressions PLS_RPAREN 'OVER' PLS_LPAREN opt_analytic_function_tail_expressions PLS_RPAREN
+   ;
+   
+opt_analytic_function_tail_expressions
+   :  expression opt_comma opt_analytic_function_tail_expressions
+   |
+   ;
+   
+opt_comma
+   :  PLS_COMMA
+   |
+   ;
+   
+opt_sequential_expressions
+   :  sequential_expressions
+   |
+   ;
+    
+sequential_expressions
+   :  expression opt_sequential_expressions
    ;
    
 opt_percent_rowcount
@@ -971,7 +2600,15 @@ sql_rowcount_or_bulkrowcount
    
 percent_rowcount_or_bulkrowcount
    :  percent_rowcount
-   |  PLS_PERCENTAGE 'BULKROWCOUNT' parameter_values_in_parentheses
+   |  PLS_PERCENTAGE 'BULK_ROWCOUNT' parameter_values_in_parentheses
+   |  PLS_PERCENTAGE 'BULK_EXCEPTIONS' parameter_values_in_parentheses PLS_DOT error_index_or_error_code
+   |  PLS_PERCENTAGE 'BULK_EXCEPTIONS' PLS_DOT 'COUNT'
+   |  PLS_PERCENTAGE 'BULK_EXCEPTIONS'
+   ;
+   
+error_index_or_error_code
+   :  'ERROR_INDEX'
+   |  'ERROR_CODE'
    ;
    
 percent_rowcount
@@ -1010,6 +2647,37 @@ character_literal
    :  PLS_QUOTED_STRING
    ;
    
+datetime_literal
+   :  'DATE' character_literal
+   ;
+   
+interval_literal
+   :  'INTERVAL' character_literal year_or_month opt_precision opt_to_year_or_month
+   |  'INTERVAL' character_literal day_or_hour_or_minute_or_second opt_precision_and_scale_in_parenthesis opt_to_day_or_hour_or_minute_or_second
+   ;
+
+opt_to_day_or_hour_or_minute_or_second
+   :  'TO' day_or_hour_or_minute_or_second opt_precision
+   |
+   ;
+   
+day_or_hour_or_minute_or_second
+   :  'DAY'
+   |  'HOUR'
+   |  'MINUTE'
+   |  'SECOND'
+   ;
+   
+year_or_month
+   :  'YEAR'
+   |  'MONTH'
+   ;
+   
+opt_to_year_or_month
+   :  'TO' year_or_month
+   |
+   ;
+   
 opt_parameter_values
    :  parameter_values_in_parentheses
    |
@@ -1017,6 +2685,9 @@ opt_parameter_values
    
 parameter_values_in_parentheses
    :  PLS_LPAREN parameter_values PLS_RPAREN
+   |  PLS_LPAREN PLS_RPAREN //empty list
+   |  PLS_LPAREN PLS_ASTERISK PLS_RPAREN
+   |  plus_in_parentheses
    ;
    
 parameter_values
@@ -1024,7 +2695,8 @@ parameter_values
    ;
    
 parameter_value
-   :  expression
+   :  sequential_expressions
+   |  expression 'AS' datatype
    |  expression PLS_ARROW expression
    ;
    
@@ -1052,17 +2724,35 @@ opt_updating_column
    
 between_or_in_or_like
    :  'BETWEEN' expression
-   |  'IN' PLS_LPAREN expression_list PLS_RPAREN
-   |  'LIKE' pattern
+   |  'NOT' 'BETWEEN' expression
+   |  'IN' expression
+   |  'NOT' 'IN' expression
+   |  'LIKE' pattern opt_escape
+   |  'NOT' 'LIKE' pattern opt_escape
    ;
    
 pattern
-   :  PLS_QUOTED_STRING
-   |  object_name
+   :  expression
+   ;
+   
+opt_escape
+   :  'ESCAPE' PLS_QUOTED_STRING
+   |  'ESCAPE' object_name
+   |
    ;
    
 expression_list
    :  expression opt_tail_expressions
+   ;
+   
+expression_list_list
+   :  expression_list
+   |  PLS_LPAREN expression_list PLS_RPAREN opt_expression_list_list_tail
+   ;
+   
+opt_expression_list_list_tail
+   :  PLS_COMMA PLS_LPAREN expression_list PLS_RPAREN opt_expression_list_list_tail
+   |
    ;
    
 opt_tail_expressions
@@ -1081,8 +2771,35 @@ cursor_state
    |  'NOTFOUND'
    ;
    
-is_not_null
+is_not_condition
    :  'IS' opt_not 'NULL'
+   |  'IS' opt_not 'NAN'
+   |  'IS' opt_not 'INFINITE'
+   |  'IS' 'ANY'
+   |  'IS' 'PRESENT'
+   |  'IS' opt_not 'A' 'SET'
+   |  'IS' opt_not 'EMPTY'
+   |  'IS' opt_not 'OF' opt_type PLS_LPAREN only_object_name_list PLS_RPAREN
+   ;
+   
+   
+opt_tail_only_object_name_list
+   :  PLS_COMMA only_object_name_list
+   |
+   ;
+   
+only_object_name_list
+   :  opt_only object_name opt_tail_only_object_name_list
+   ;
+   
+opt_only
+   :  'ONLY'
+   |
+   ;
+   
+opt_type
+   :  'TYPE'
+   |
    ;
    
 and_or_or
@@ -1106,6 +2823,15 @@ null
 object_name
    :  identifier opt_tail_identifiers
    ;
+   
+opt_tail_object_names
+   :  PLS_COMMA object_name opt_tail_object_names
+   |
+   ;
+   
+object_name_list
+   :  object_name opt_tail_object_names
+   ;
 
 
 datatype
@@ -1123,10 +2849,11 @@ scalar_datatype
    | 'CHAR' opt_string_precision | 'CHARACTER' opt_string_precision | 'LONG' | 'LONG' 'RAW' 
    | 'NCHAR' opt_precision | 'NVARCHAR2' opt_precision | 'RAW' opt_precision | 'ROWID' | 'STRING' opt_string_precision | 'UROWID' | 'VARCHAR' opt_string_precision | 'VARCHAR2' opt_string_precision
    | 'BOOLEAN'
-   | 'DATE' | 'TIMESTAMP' opt_precision | 'TIMESTAMP' opt_precision 'WITH' 'TIMEZONE' | 'TIMESTAMP' opt_precision 'WITH' 'LOCAL' 'TIMEZONE' 
+   | 'DATE' | 'TIMESTAMP' opt_precision | 'TIMESTAMP' opt_precision 'WITH' 'TIME' 'ZONE' | 'TIMESTAMP' opt_precision 'WITH' 'LOCAL' 'TIME' 'ZONE'
    | 'INTERVAL' 'YEAR' opt_precision 'TO' 'MONTH' | 'INTERVAL' 'DAY' opt_precision 'TO' 'SECOND' opt_precision
    |  'BFILE' | 'BLOB' | 'CLOB' | 'NCLOB'
    ;
+   
 
 opt_tail_identifiers
    :  tail_identifier opt_tail_identifiers
@@ -1135,6 +2862,12 @@ opt_tail_identifiers
    
 tail_identifier
    :  PLS_DOT identifier 
+   |  PLS_DOT PLS_ASTERISK
+   ;
+   
+identifier_list
+   :  identifier 
+   |  identifier PLS_COMMA identifier_list
    ;
  
 identifier

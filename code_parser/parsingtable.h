@@ -4,6 +4,7 @@
 #include <QStringList>
 #include "../grammar_parser/parsingtableaction.h"
 #include "../grammar_parser/parsingtablerow.h"
+#include "../grammar_parser/bnfruleoption.h"
 
 class ParsingTable
 {
@@ -11,6 +12,7 @@ public:
     QStringList keywords;
     QStringList reservedWords;
     QStringList ruleNames;
+    QHash<int,BNFRuleOption*> ruleOptions;
     QList<ParsingTableRow *> rows;
 
     virtual ~ParsingTable();

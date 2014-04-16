@@ -4,6 +4,7 @@
 #include <QString>
 #include <QList>
 #include "ebnftoken.h"
+#include "bnfruleoption.h"
 
 class BNFRuleItem;
 
@@ -28,6 +29,11 @@ public:
     QList<EBNFToken> followSet;
 
     int ruleDefId; //to be used in target parser
+
+    BNFRuleOption *ruleOptions;
+
+    void readOptions(const QString &options);
+    QString codeForOptions() const;
 
     QString toString() const;
 };

@@ -29,7 +29,19 @@ void PlSqlTreeBuilder::reduced(TokenInfo *ruleInfo, int symbolCount, const QList
             childNode->tokenInfo = ti;
             newNode->children.prepend(childNode);
         }else{
-            newNode->children.prepend(ruleNodesStack.pop());
+            ParseTreeNode *childNode = ruleNodesStack.pop();
+            //check child node options
+            BNFRuleOption *options = parsingTable->ruleOptions.value(childNode->tokenInfo->tokenOrRuleId, 0);
+            if(options!=0 && options->skip){ //skip this node and add its children
+                for(int k=0; k<childNode->children.size(); ++k){
+                    newNode->children.append(childNode->children.at(k));
+                }
+                //detach children and delete
+                childNode->children.clear();
+                delete childNode;
+            }else{
+                newNode->children.prepend(childNode);
+            }
         }
     }
 
