@@ -130,18 +130,7 @@ void CodeParser::reduce(int ruleId, int symbolCount, const QList<TokenInfo *> &a
 
 TokenInfo *CodeParser::createTokenInfo(int token) const
 {
-    TokenInfo *ti = new TokenInfo();
-    ti->tokenType = TokenInfo::Token;
-    ti->tokenOrRuleId = token;
-    ti->startPos = scanner->getTokenStartPos();
-    ti->endPos = scanner->getTokenEndPos();
-    ti->startLine = scanner->getTokenStartLine();
-    ti->endLine = scanner->getTokenEndLine();
-    ti->startLinePos = scanner->getTokenStartLinePos();
-    ti->endLinePos = scanner->getTokenEndLinePos();
-    ti->lexeme = scanner->getTokenLexeme();
-
-    return ti;
+    return scanner->createTokenInfo(token);
 }
 
 QPair< QList<int>, QList<int> > CodeParser::getExpectedTokens() const

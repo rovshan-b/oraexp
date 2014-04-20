@@ -75,6 +75,10 @@ void SettingsHelper::loadStaticApplicationSettings()
     WorksheetExplainPlanTab::autotraceViewIndex = Settings::value("WorksheetExplainPlanTab/autotraceViewIndex", 0).toInt();
 
     CodeCreatorWidget::bottomSplitterSizes = Settings::value("CodeCreatorWidget/bottomSplitterSizes").toByteArray();
+
+    //CodeEditor::convertKeywordsToUpperCase = Settings::value("CodeEditor/convertKeywordsToUpperCase", true).toBool();
+    //CodeEditor::convertNonKeywordsToLowerCase = Settings::value("CodeEditor/convertKeywordsToUpperCase", false).toBool();
+    //CodeEditor::applyCaseFoldingToAllText = Settings::value("CodeEditor/applyCaseFoldingToAllText", false).toBool();
 }
 
 

@@ -10,7 +10,6 @@
 #include "util/settings.h"
 #include "app_menu/appmenu.h"
 #include "app_menu/appeditmenu.h"
-#include "code_parser/plsql/plsqlparsingtable.h"
 #include "code_parser/plsql/plsqlparsehelper.h"
 #include "beans/codecollapseposition.h"
 #include <QPainter>
@@ -23,6 +22,10 @@
 QList<CodeEditor*> CodeEditor::openEditors;
 QStringHash CodeEditor::textShortcuts;
 
+//bool CodeEditor::convertKeywordsToUpperCase;
+//bool CodeEditor::convertNonKeywordsToLowerCase;
+//bool CodeEditor::applyCaseFoldingToAllText;
+
 CodeEditor::CodeEditor(bool enableCodeCollapsing, QWidget *parent) :
     QPlainTextEdit(parent),
     lineNumberArea(0),
@@ -33,29 +36,30 @@ CodeEditor::CodeEditor(bool enableCodeCollapsing, QWidget *parent) :
     completer(0),
     collapsePositions(0)
 {
-    //setDocument(new CodeEditorDocument(this));
+    setDocument(new CodeEditorDocument(this));
 
     QFont monospaceFont("Monospace");
     setFont(monospaceFont);
 
     lineNumberArea = new LineNumberArea(this);
-    if(enableCodeCollapsing){
-        codeCollapseArea = new CodeCollapseArea(this);
-        codeCollapseArea->installEventFilter(this);
-    }
+    //if(enableCodeCollapsing){
+    //    codeCollapseArea = new CodeCollapseArea(this);
+    //    codeCollapseArea->installEventFilter(this);
+    //}
     lineNavBar = new LineNavigationBar(this);
 
     connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int)));
     //connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateNavBarHighlightColors()));
     connect(this, SIGNAL(updateRequest(QRect,int)), this, SLOT(updateLineNumberArea(QRect,int)));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
+    connect(this, SIGNAL(textChanged()), this, SLOT(clearErrorPositions()));
 
     updateLineNumberAreaWidth(0);
     highlightCurrentLine();
 
     setTabStopWidth(30);
     setWordWrapMode(QTextOption::NoWrap);
-    new SyntaxHighligher(this->document());
+    new SyntaxHighlighter(this->document());
 
     QPalette p=palette();
     p.setColor(QPalette::Disabled, QPalette::Base, p.color(QPalette::Window));
@@ -69,7 +73,6 @@ CodeEditor::CodeEditor(bool enableCodeCollapsing, QWidget *parent) :
 
     connect(this, SIGNAL(undoAvailable(bool)), this, SLOT(setUndoAvailable(bool)));
     connect(this, SIGNAL(redoAvailable(bool)), this, SLOT(setRedoAvailable(bool)));
-    connect(this, SIGNAL(textChanged()), this, SLOT(clearErrorPositions()));
 
     new QShortcut(QKeySequence(tr("Ctrl+=", "CodeEditor|Increase font size")),
                   this, SLOT(increaseFontSize()), 0, Qt::WidgetWithChildrenShortcut);

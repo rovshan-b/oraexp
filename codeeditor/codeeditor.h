@@ -14,7 +14,7 @@ class CodeEditor : public QPlainTextEdit
 {
     Q_OBJECT
 
-public:
+public:    
     CodeEditor(bool enableCodeCollapsing = false, QWidget *parent = 0);
     virtual ~CodeEditor();
 
@@ -61,6 +61,10 @@ public:
 
     static QStringHash textShortcuts;
     static void loadTextShortcuts();
+
+    //static bool convertKeywordsToUpperCase;
+    //static bool convertNonKeywordsToLowerCase;
+    //static bool applyCaseFoldingToAllText;
 
 public slots:
     void commentBlocks();

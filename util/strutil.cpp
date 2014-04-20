@@ -519,4 +519,15 @@ QString formatBindVarName(const QString &varName, int position, OraExp::BindVarS
     return result;
 }
 
+bool isUpperCase(const QString &str)
+{
+    for(int i=0; i<str.length(); ++i){
+        if(!str[i].isUpper()){
+            return false;
+        }
+    }
+
+    return true;
+}
+
 #endif

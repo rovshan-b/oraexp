@@ -556,7 +556,8 @@ SOURCES += main.cpp\
     dialogs/options_dialog/tabs/optionsdialogsnippetstab.cpp \
     widgets/tabbar.cpp \
     codeeditor/codeeditordocument.cpp \
-    grammar_parser/bnfruleoption.cpp
+    grammar_parser/bnfruleoption.cpp \
+    codeeditor/blockdata.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1122,7 +1123,8 @@ HEADERS  += mainwindow.h \
     dialogs/options_dialog/tabs/optionsdialogsnippetstab.h \
     widgets/tabbar.h \
     codeeditor/codeeditordocument.h \
-    grammar_parser/bnfruleoption.h
+    grammar_parser/bnfruleoption.h \
+    codeeditor/blockdata.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

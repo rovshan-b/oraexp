@@ -1,4 +1,5 @@
 #include "codescanner.h"
+#include "beans/tokeninfo.h"
 
 CodeScanner::CodeScanner(TextReaderBase *textReader, bool deleteReader) :
     textReader(textReader),
@@ -47,6 +48,24 @@ void CodeScanner::setTextReader(TextReaderBase *textReader, bool deleteReader)
 int CodeScanner::getCurrPos() const
 {
     return textReader->getCurrPos();
+}
+
+TokenInfo *CodeScanner::createTokenInfo(int token, bool includeLexeme) const
+{
+    TokenInfo *ti = new TokenInfo();
+    ti->tokenType = TokenInfo::Token;
+    ti->tokenOrRuleId = token;
+    ti->startPos = getTokenStartPos();
+    ti->endPos = getTokenEndPos();
+    ti->startLine = getTokenStartLine();
+    ti->endLine = getTokenEndLine();
+    ti->startLinePos = getTokenStartLinePos();
+    ti->endLinePos = getTokenEndLinePos();
+    if(includeLexeme){
+        ti->lexeme = getTokenLexeme();
+    }
+
+    return ti;
 }
 
 QChar CodeScanner::getNextChar()

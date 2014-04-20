@@ -20,6 +20,7 @@ public:
     virtual ~MultiEditorWidget();
     
     CodeEditorAndSearchPaneWidget *getCurrentEditor() const;
+    CodeEditor *currentTextEditor() const {return currentEditor->editor();}
     void addSplittingActions(QWidget *w);
     QLabel *createInfoLabel();
 
@@ -32,7 +33,7 @@ signals:
     void escapeKeyPressed();
 
 protected:
-    void timerEvent(QTimerEvent *event);
+    //void timerEvent(QTimerEvent *event);
 
 private slots:
     void editorCountActionSelected(bool checked);
@@ -41,13 +42,13 @@ private slots:
 
     void cursorPositionChanged();
 
-    void documentChanged();
+    void documentContentsChanged(int position, int charsRemoved, int charsAdded);
 
 private:
     void createUi();
     void setEditorCount(int count);
     int visibleEditorCount() const;
-    QWidget *createEditor();
+    CodeEditorAndSearchPaneWidget *createEditor();
 
     QList<CodeEditorAndSearchPaneWidget*> editors;
     CodeEditorAndSearchPaneWidget *currentEditor;
@@ -61,9 +62,6 @@ private:
 
     int timerId;
     QTime lastChangeTime;
-
-    QList<CodeCollapsePosition*> collapsePositions;
-    void recalculateCollapsePositions();
     
 };
 

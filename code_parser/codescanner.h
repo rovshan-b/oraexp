@@ -2,9 +2,12 @@
 #define CODESCANNER_H
 
 #define NON_LITERAL_START_IX 100000
+#define MIN_KEYWORD_LENGTH 2
 
 #include <QString>
 #include "textreaderbase.h"
+
+class TokenInfo;
 
 class CodeScanner
 {
@@ -32,6 +35,8 @@ public:
     bool isNewline() const {return c=='\n' || c==0x2029;}
 
     QString getCurrentLine() const {return textReader->getCurrentLine();}
+
+    TokenInfo *createTokenInfo(int token, bool includeLexeme = true) const;
 
 protected:
     TextReaderBase *textReader;

@@ -2,11 +2,13 @@
 #include <QFile>
 #include <QTextStream>
 #include <QSet>
+#include <QTextCursor>
 #include "util/strutil.h"
 #include "code_parser/stringreader.h"
 #include "code_parser/plsql/plsqltokens.h"
+#include "codeeditor/blockdata.h"
 
-SyntaxHighligher::SyntaxHighligher(QTextDocument * parent) :
+SyntaxHighlighter::SyntaxHighlighter(QTextDocument * parent) :
     QSyntaxHighlighter(parent)
 {
     keywordFormat.setForeground(Qt::blue);
@@ -17,8 +19,11 @@ SyntaxHighligher::SyntaxHighligher(QTextDocument * parent) :
     multiLineCommentFormat.setForeground(Qt::gray);
 }
 
-void SyntaxHighligher::highlightBlock(const QString &text)
+void SyntaxHighlighter::highlightBlock(const QString &text)
 {
+    BlockData *blockData = getBlockData();
+    blockData->clear();
+
     StringReader reader(text);
     scanner.setTextReader(&reader, false);
 
@@ -37,6 +42,8 @@ void SyntaxHighligher::highlightBlock(const QString &text)
         if(scanner.getEndState() != PlSqlScanner::DONE){
             endState = scanner.getEndState();
         }
+
+        blockData->addToken(scanner.createTokenInfo(token, false));
 
         bool valid = true;
 
@@ -57,7 +64,7 @@ void SyntaxHighligher::highlightBlock(const QString &text)
             currentFormat = multiLineCommentFormat;
             break;
         default:
-            if(token < NON_LITERAL_START_IX){
+            if(token < NON_LITERAL_START_IX && (scanner.getTokenEndPos() - scanner.getTokenStartPos()) >= MIN_KEYWORD_LENGTH){
                 currentFormat = keywordFormat;
             }else{
                 valid = false;
@@ -80,4 +87,16 @@ void SyntaxHighligher::highlightBlock(const QString &text)
     }else{
         setCurrentBlockState(NoState);
     }
+}
+
+BlockData *SyntaxHighlighter::getBlockData()
+{
+    BlockData *data = static_cast<BlockData*>(currentBlockUserData());
+
+    if(data == 0){
+        data = new BlockData();
+        setCurrentBlockUserData(data);
+    }
+
+    return data;
 }

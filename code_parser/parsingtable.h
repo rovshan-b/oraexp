@@ -19,6 +19,7 @@ public:
 
     //QStringList getKeywords() const;
     int getKeywordIx(const QString &possibleKeyword) const;
+    bool isKeyword(const QString &word) const {return getKeywordIx(word)!=-1;}
     bool isReservedWord(const QString &word) const;
     QString getRuleName(int ruleId);
 

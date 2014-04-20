@@ -4,14 +4,15 @@
 #include <QSyntaxHighlighter>
 #include <QHash>
 #include <QTextCharFormat>
-
 #include "code_parser/plsql/plsqlscanner.h"
 
-class SyntaxHighligher : public QSyntaxHighlighter
+class BlockData;
+
+class SyntaxHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
 public:
-    explicit SyntaxHighligher(QTextDocument * parent);
+    explicit SyntaxHighlighter(QTextDocument * parent);
 
 protected:
     void highlightBlock(const QString &text);
@@ -33,6 +34,7 @@ private:
     QTextCharFormat doubleQuotationFormat;
     QTextCharFormat numberFormat;
 
+    BlockData *getBlockData();
 };
 
 #endif // SYNTAXHIGHLIGHER_H
