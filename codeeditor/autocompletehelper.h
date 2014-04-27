@@ -5,6 +5,7 @@
 
 class CodeEditor;
 class IQueryScheduler;
+class QAbstractItemModel;
 
 class AutocompleteHelper : public QObject
 {
@@ -14,8 +15,17 @@ public:
     
     void setQueryScheduler(IQueryScheduler *queryScheduler);
 
-protected:
+    bool isBusy() const {return this->busy;}
+
+    void getChildList(const QStringList &objectNameParts, int cursorPosition);
+
+signals:
+    void modelReady(QAbstractItemModel *model, int cursorPosition);
+
+private:
     IQueryScheduler *queryScheduler;
+
+    bool busy;
     
 };
 

@@ -1,5 +1,5 @@
 #include "searchpane.h"
-#include "widgets/closebutton.h"
+#include "widgets/myclosebutton.h"
 #include "codeeditor/codeeditor.h"
 #include "util/iconutil.h"
 #include <QtGui>
@@ -31,7 +31,7 @@ SearchPane::SearchPane(CodeEditor *editor, QWidget *parent) :
     rightLayout->setContentsMargins(0,0,0,0);
     rightLayout->setSpacing(2);
 
-    CloseButton *btnClose=new CloseButton();
+    MyCloseButton *btnClose=new MyCloseButton();
     rightLayout->addWidget(btnClose);
     connect(btnClose, SIGNAL(clicked()), this, SLOT(closePane()));
 

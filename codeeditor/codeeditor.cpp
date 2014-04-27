@@ -22,9 +22,8 @@
 QList<CodeEditor*> CodeEditor::openEditors;
 QStringHash CodeEditor::textShortcuts;
 
-//bool CodeEditor::convertKeywordsToUpperCase;
-//bool CodeEditor::convertNonKeywordsToLowerCase;
-//bool CodeEditor::applyCaseFoldingToAllText;
+CodeEditor::CaseFoldingType CodeEditor::keywordCaseFolding;
+CodeEditor::CaseFoldingType CodeEditor::identifierCaseFolding;
 
 CodeEditor::CodeEditor(bool enableCodeCollapsing, QWidget *parent) :
     QPlainTextEdit(parent),
@@ -34,7 +33,8 @@ CodeEditor::CodeEditor(bool enableCodeCollapsing, QWidget *parent) :
     markedLineIx(-1),
     lineMarkerUsed(false),
     completer(0),
-    collapsePositions(0)
+    collapsePositions(0),
+    blockEventChanges(false)
 {
     setDocument(new CodeEditorDocument(this));
 
@@ -42,10 +42,10 @@ CodeEditor::CodeEditor(bool enableCodeCollapsing, QWidget *parent) :
     setFont(monospaceFont);
 
     lineNumberArea = new LineNumberArea(this);
-    //if(enableCodeCollapsing){
-    //    codeCollapseArea = new CodeCollapseArea(this);
-    //    codeCollapseArea->installEventFilter(this);
-    //}
+    if(enableCodeCollapsing){
+        codeCollapseArea = new CodeCollapseArea(this);
+        codeCollapseArea->installEventFilter(this);
+    }
     lineNavBar = new LineNavigationBar(this);
 
     connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int)));
@@ -79,18 +79,19 @@ CodeEditor::CodeEditor(bool enableCodeCollapsing, QWidget *parent) :
 
     CodeEditor::loadTextShortcuts();
     CodeEditor::openEditors.append(this);
-
-    //QCompleter *completer = new QCompleter(this);
-    //completer->setModel(new QStringListModel(PlSqlParsingTable::getInstance()->getKeywords(), this));
-    //completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
-    //completer->setCaseSensitivity(Qt::CaseInsensitive);
-    //completer->setWrapAround(false);
-    //setCompleter(completer);
 }
 
 CodeEditor::~CodeEditor()
 {
     CodeEditor::openEditors.removeOne(this);
+}
+
+void CodeEditor::setQueryScheduler(IQueryScheduler *queryScheduler)
+{
+    Q_ASSERT(this->completer == 0);
+
+    QCompleter *completer = new QCompleter(this);
+    setCompleter(completer);
 }
 
 //use only when sure that there's not lots of text in editor
@@ -174,6 +175,24 @@ int CodeEditor::lineMarkerAreaOffset() const
      if(errorPositions.size()>0){
          setErrorPositions(QList<QTextCursor>());
      }
+ }
+
+ void CodeEditor::undo()
+ {
+     this->blockEventChanges = true;
+
+     QPlainTextEdit::undo();
+
+     this->blockEventChanges = false;
+ }
+
+ void CodeEditor::redo()
+ {
+     this->blockEventChanges = true;
+
+     QPlainTextEdit::redo();
+
+     this->blockEventChanges = false;
  }
 
  void CodeEditor::resizeEvent(QResizeEvent *e)
@@ -688,6 +707,12 @@ int CodeEditor::lineMarkerAreaOffset() const
          }else if(event->matches(QKeySequence::Copy)){
              handled=true;
              customCopy();
+         }else if(event->matches(QKeySequence::Undo)){
+             handled=true;
+             undo();
+         }else if(event->matches(QKeySequence::Redo)){
+             handled=true;
+             redo();
          }
 
          if(!handled && key!=Qt::Key_Backspace && completer){
@@ -709,29 +734,79 @@ int CodeEditor::lineMarkerAreaOffset() const
      }
 
      const bool ctrlOrShift = event->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier);
-     if (ctrlOrShift && event->text().isEmpty())
+     if (ctrlOrShift && event->text().isEmpty()){
          return;
+     }
 
-     static QString eow("~!@#%^&*()_+{}|:\"<>?,./;'[]\\-="); // end of word
+     static QString eow("~!@#%^&*_+{}|:\"<>?,/;'[]\\-=$"); // end of word
      bool hasModifier = (event->modifiers() != Qt::NoModifier) && !ctrlOrShift;
      QString completionPrefix = textUnderCursor();
      //completionPrefix.append(event->text());
 
+     static QString triggers("."); //characters to start completer
+     bool startTriggerPressed = !event->text().isEmpty() && triggers.contains(event->text().right(1));
+
      if (!isShortcut && (hasModifier || event->text().isEmpty()|| completionPrefix.length() < 1
-                         || eow.contains(event->text().right(1)))) {
+                         || eow.contains(event->text().right(1))) && !startTriggerPressed) {
          completer->popup()->hide();
          return;
      }
 
-     if (completionPrefix != completer->completionPrefix()) {
-         completer->setCompletionPrefix(completionPrefix);
-         completer->popup()->setCurrentIndex(completer->completionModel()->index(0, 0));
+
+     if(!completer->popup()->isVisible() && startTriggerPressed){
+         emit needsCompletionList();
+         return;
+     }else if(completer->popup()->isVisible()){
+         if (completionPrefix != completer->completionPrefix()) {
+             completer->setCompletionPrefix(completionPrefix);
+             completer->popup()->setCurrentIndex(completer->completionModel()->index(0, 0));
+         }
+         QRect cr = cursorRect();
+         cr.setWidth(completer->popup()->sizeHintForColumn(0)
+                     + completer->popup()->verticalScrollBar()->sizeHint().width());
+         completer->complete(cr); // popup it up!
      }
-     QRect cr = cursorRect();
-     cr.setWidth(completer->popup()->sizeHintForColumn(0)
-                 + completer->popup()->verticalScrollBar()->sizeHint().width());
-     completer->complete(cr); // popup it up!
  }
+
+ void CodeEditor::insertCompletion(const QString &completion)
+ {
+     if (completer->widget() != this){
+         return;
+     }
+
+     QString prefix = completer->completionPrefix();
+
+     QTextCursor tc = textCursor();
+     int extra = completion.length() - prefix.length();
+     tc.movePosition(QTextCursor::Left);
+     tc.movePosition(QTextCursor::EndOfWord);
+
+     QString textToInsert = completion.right(extra);
+
+     if(prefix.size()>0){
+         if(prefix.at(prefix.size()-1).isLower()){
+             textToInsert = textToInsert.toLower();
+         }
+     }
+
+     tc.insertText(textToInsert);
+     setTextCursor(tc);
+ }
+/*
+ void CodeEditor::completionModelReady(QAbstractItemModel *model, int cursorPosition)
+ {
+     //set model
+     QAbstractItemModel *currentModel = completer->model();
+     completer->setModel(model);
+     delete currentModel;
+
+     if(model!=0){
+         QRect cr = cursorRect();
+         cr.setWidth(completer->popup()->sizeHintForColumn(0)
+                     + completer->popup()->verticalScrollBar()->sizeHint().width());
+         completer->complete(cr); // popup it up!
+     }
+ }*/
 
  CodeCollapsePosition *CodeEditor::findCollapsePosition(int blockNumber)
  {
@@ -815,14 +890,9 @@ int CodeEditor::lineMarkerAreaOffset() const
      //menu->addAction(editMenu->editCopyAsAction);
      menu->addAction(editMenu->editPasteAction);
      menu->addSeparator();
-     menu->addAction(editMenu->editCommentAction);
-     menu->addAction(editMenu->editMoveUpAction);
-     menu->addAction(editMenu->editMoveDownAction);
-     menu->addAction(editMenu->editSelectBlockAction);
-     menu->addAction(editMenu->editToUpperCaseAction);
-     menu->addAction(editMenu->editToLowerCaseAction);
-     menu->addAction(editMenu->editCreateDuplicateAction);
-     menu->addAction(editMenu->editRemoveEmptyLinesAction);
+     menu->addAction(editMenu->editSelectAllAction);
+     menu->addSeparator();
+     menu->addAction(editMenu->editAdvancedAction);
      menu->addSeparator();
      menu->addAction(editMenu->editDescribeAction);
      menu->addAction(editMenu->editResolveAction);
@@ -845,6 +915,8 @@ int CodeEditor::lineMarkerAreaOffset() const
 
  void CodeEditor::autoIndentNewBlock()
  {
+     this->blockEventChanges = true;
+
      QTextCursor cur=textCursor();
      if(!cur.movePosition(QTextCursor::PreviousBlock)){
          return;
@@ -865,6 +937,7 @@ int CodeEditor::lineMarkerAreaOffset() const
         setTextCursor(cur);
      }
 
+     this->blockEventChanges = false;
  }
 
  void CodeEditor::indentSelection()
@@ -873,23 +946,29 @@ int CodeEditor::lineMarkerAreaOffset() const
      if(!cur.hasSelection()){
          return;
      }
+
+     this->blockEventChanges = true;
+
      cur.beginEditBlock();
      CursorPositionInfo inf=getStartStopPositions(cur);
 
      cur.setPosition(inf.startPos);
      cur.movePosition(QTextCursor::StartOfBlock);
      int blocksToMove=(inf.endBlock-inf.startBlock)+1;
+     QString space(' ');
      for(int i=0; i<blocksToMove; ++i){
-        cur.insertText(strTab);
+        cur.insertText(space);
         cur.movePosition(QTextCursor::NextBlock);
      }
      cur.endEditBlock();
 
-     inf.startPos+=strTab.size();
-     inf.endPos+=blocksToMove*strTab.size();
+     inf.startPos+=space.size();
+     inf.endPos+=blocksToMove*space.size();
      inf.selectText(cur);
 
      setTextCursor(cur);
+
+     this->blockEventChanges = false;
  }
 
  void CodeEditor::unindentSelection()
@@ -898,6 +977,9 @@ int CodeEditor::lineMarkerAreaOffset() const
      if(!cur.hasSelection()){
          return;
      }
+
+     this->blockEventChanges = true;
+
      cur.beginEditBlock();
      CursorPositionInfo inf=getStartStopPositions(cur);
 
@@ -907,7 +989,7 @@ int CodeEditor::lineMarkerAreaOffset() const
      for(int i=0; i<blocksToMove; ++i){
         int posInBlockBeforeMove = i==0 ? cur.positionInBlock() : -1; //needed only for first block
         moveToFirstNonSpaceCharacter(cur);
-        for(int k=0; k<strTab.size(); ++k){
+        //for(int k=0; k<strTab.size(); ++k){
             if(cur.positionInBlock()>0){
                 cur.deletePreviousChar();
                 if(i==0 && posInBlockBeforeMove > 0){
@@ -918,13 +1000,15 @@ int CodeEditor::lineMarkerAreaOffset() const
             }else{
                 break;
             }
-        }
+        //}
 
         cur.movePosition(QTextCursor::NextBlock);
      }
      cur.endEditBlock();
      inf.selectText(cur);
      setTextCursor(cur);
+
+     this->blockEventChanges = false;
  }
 
  void CodeEditor::insertTab()
@@ -1114,33 +1198,10 @@ int CodeEditor::lineMarkerAreaOffset() const
      lineNavBar->update();
  }
 
- void CodeEditor::insertCompletion(const QString &completion)
- {
-     if (completer->widget() != this){
-         return;
-     }
-
-     QString prefix = completer->completionPrefix();
-
-     QTextCursor tc = textCursor();
-     int extra = completion.length() - prefix.length();
-     tc.movePosition(QTextCursor::Left);
-     tc.movePosition(QTextCursor::EndOfWord);
-
-     QString textToInsert = completion.right(extra);
-
-     if(prefix.size()>0){
-         if(prefix.at(prefix.size()-1).isLower()){
-             textToInsert = textToInsert.toLower();
-         }
-     }
-
-     tc.insertText(textToInsert);
-     setTextCursor(tc);
- }
-
  void CodeEditor::commentBlocks()
  {
+     this->blockEventChanges = true;
+
      QString comment="--";
      QTextCursor cur=textCursor();
      CursorPositionInfo inf=getStartStopPositions(cur);
@@ -1192,6 +1253,8 @@ int CodeEditor::lineMarkerAreaOffset() const
      cur.endEditBlock();
      inf.selectText(cur);
      setTextCursor(cur);
+
+     this->blockEventChanges = false;
  }
 
  void CodeEditor::goToLine()
@@ -1246,39 +1309,53 @@ int CodeEditor::lineMarkerAreaOffset() const
 
  void CodeEditor::toUpperCase()
  {
+     this->blockEventChanges = true;
+
      changeCase(true);
+
+     this->blockEventChanges = false;
  }
 
  void CodeEditor::toLowerCase()
  {
+     this->blockEventChanges = true;
+
      changeCase(false);
+
+     this->blockEventChanges = false;
  }
 
  void CodeEditor::makeDuplicate()
  {
-    QTextCursor cur=textCursor();
-    CursorPositionInfo inf=getStartStopPositions(cur);
-    if(!cur.hasSelection()){
-        cur.movePosition(QTextCursor::StartOfBlock);
-        cur.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-    }
-    QString blockText=cur.selectedText();
-    cur.setPosition(document()->findBlockByNumber(inf.endBlock).position());
-    if(inf.endBlock==document()->blockCount()-1){
-        cur.movePosition(QTextCursor::EndOfBlock);
-        cur.insertBlock();
-    }else{
-        blockText.append("\n");
-    }
-    cur.movePosition(QTextCursor::NextBlock);
-    cur.insertText(blockText);
+     this->blockEventChanges = true;
 
-    inf.selectText(cur);
-    setTextCursor(cur);
+     QTextCursor cur=textCursor();
+     CursorPositionInfo inf=getStartStopPositions(cur);
+     if(!cur.hasSelection()){
+         cur.movePosition(QTextCursor::StartOfBlock);
+         cur.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+     }
+     QString blockText=cur.selectedText();
+     cur.setPosition(document()->findBlockByNumber(inf.endBlock).position());
+     if(inf.endBlock==document()->blockCount()-1){
+         cur.movePosition(QTextCursor::EndOfBlock);
+         cur.insertBlock();
+     }else{
+         blockText.append("\n");
+     }
+     cur.movePosition(QTextCursor::NextBlock);
+     cur.insertText(blockText);
+
+     inf.selectText(cur);
+     setTextCursor(cur);
+
+     this->blockEventChanges = false;
  }
 
  void CodeEditor::removeEmptyLines()
  {
+     this->blockEventChanges = true;
+
      QTextCursor cur = textCursor();
      int startBlock, endBlock;
      if(cur.hasSelection()){
@@ -1307,16 +1384,26 @@ int CodeEditor::lineMarkerAreaOffset() const
          }
      }
      cur.endEditBlock();
+
+     this->blockEventChanges = false;
  }
 
  void CodeEditor::moveUp()
  {
+    this->blockEventChanges = true;
+
     moveSelectedText(true);
+
+    this->blockEventChanges = false;
  }
 
  void CodeEditor::moveDown()
  {
+     this->blockEventChanges = true;
+
      moveSelectedText(false);
+
+     this->blockEventChanges = false;
  }
 
  void CodeEditor::moveSelectedText(bool up)
@@ -1613,6 +1700,7 @@ int CodeEditor::lineMarkerAreaOffset() const
      this->completer->setWidget(this);
      this->completer->setCompletionMode(QCompleter::PopupCompletion);
      this->completer->setCaseSensitivity(Qt::CaseInsensitive);
+     this->completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
      QObject::connect(this->completer, SIGNAL(activated(QString)),
                       this, SLOT(insertCompletion(QString)));
  }
@@ -1637,6 +1725,16 @@ int CodeEditor::lineMarkerAreaOffset() const
      }
 
      return QPlainTextEdit::eventFilter(watched, event);
+ }
+
+ bool CodeEditor::blockChanges() const
+ {
+     return this->blockEventChanges;
+ }
+
+ void CodeEditor::setBlockChanges(bool block)
+ {
+     this->blockEventChanges = block;
  }
 
  void CodeEditor::loadTextShortcuts()

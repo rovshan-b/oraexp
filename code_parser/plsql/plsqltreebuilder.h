@@ -21,13 +21,12 @@ public:
     virtual void error();
 
     ParseTreeNode *getNode(const QList<int> rulesPath) const;
+    ParseTreeNode *findNode(ParseTreeNode *parentNode, int ruleId, bool recursive = false) const;
 
 private:
     ParseTreeNode *rootNode;
 
     QStack<ParseTreeNode*> ruleNodesStack;
-
-    ParseTreeNode *findNode(ParseTreeNode *parentNode, int ruleId) const;
 
     void setStartEndPositions(ParseTreeNode *parentNode);
     void firstLastNonNullChildren(ParseTreeNode *parentNode, ParseTreeNode **first, ParseTreeNode **last) const;

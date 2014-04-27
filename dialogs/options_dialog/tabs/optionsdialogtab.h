@@ -20,7 +20,7 @@ public:
 protected:
     virtual void doCreateUi() = 0;
 
-    void addToMainLayout(QBoxLayout *childLayout);
+    void addToMainLayout(QLayout *childLayout);
     
 };
 

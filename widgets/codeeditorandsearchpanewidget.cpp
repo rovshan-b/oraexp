@@ -36,6 +36,11 @@ QTextDocument *CodeEditorAndSearchPaneWidget::getTextDocument() const
     return editor()->document();
 }
 
+void CodeEditorAndSearchPaneWidget::setQueryScheduler(IQueryScheduler *queryScheduler)
+{
+    this->codeEditor->setQueryScheduler(queryScheduler);
+}
+
 void CodeEditorAndSearchPaneWidget::keyReleaseEvent ( QKeyEvent * event )
 {
     if(event->key()==Qt::Key_Escape){

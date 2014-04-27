@@ -9,14 +9,24 @@ class LineNavigationBar;
 class CodeCollapseArea;
 class QCompleter;
 class CodeCollapsePosition;
+class IQueryScheduler;
 
 class CodeEditor : public QPlainTextEdit
 {
     Q_OBJECT
 
 public:    
+    enum CaseFoldingType
+    {
+        NoCaseFolding,
+        UpperCaseFolding,
+        LowerCaseFolding
+    };
+
     CodeEditor(bool enableCodeCollapsing = false, QWidget *parent = 0);
     virtual ~CodeEditor();
+
+    void setQueryScheduler(IQueryScheduler *queryScheduler);
 
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth() const;
@@ -57,14 +67,16 @@ public:
 
     virtual bool eventFilter ( QObject * watched, QEvent * event );
 
+    bool blockChanges() const;
+    void setBlockChanges(bool block);
+
     static QList<CodeEditor*> openEditors;
 
     static QStringHash textShortcuts;
     static void loadTextShortcuts();
 
-    //static bool convertKeywordsToUpperCase;
-    //static bool convertNonKeywordsToLowerCase;
-    //static bool applyCaseFoldingToAllText;
+    static CaseFoldingType keywordCaseFolding;
+    static CaseFoldingType identifierCaseFolding;
 
 public slots:
     void commentBlocks();
@@ -85,10 +97,14 @@ public slots:
     void customCopy();
 
     void clearErrorPositions();
+
+    void undo();
+    void redo();
 signals:
     void escapeKeyPressed();
     void gotFocus();
     void lostFocus();
+    void needsCompletionList();
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -109,6 +125,8 @@ private slots:
     void updateNavBar();
 
     void insertCompletion(const QString &completion);
+
+    //void completionModelReady(QAbstractItemModel *model, int cursorPosition);
 
 private:
     QWidget *lineNumberArea;
@@ -166,6 +184,8 @@ private:
 
     void applyCurrentFontToAllEditors();
     void saveFontSettings();
+
+    bool blockEventChanges;
 };
 
 #endif // CODEEDITOR_H

@@ -117,14 +117,23 @@ ParseTreeNode *PlSqlTreeBuilder::getNode(const QList<int> rulesPath) const
     return n;
 }
 
-ParseTreeNode *PlSqlTreeBuilder::findNode(ParseTreeNode *parentNode, int ruleId) const
+ParseTreeNode *PlSqlTreeBuilder::findNode(ParseTreeNode *parentNode, int ruleId, bool recursive) const
 {
     ParseTreeNode *n;
     for(int i=0; i<parentNode->children.size(); ++i){
         n = parentNode->children.at(i);
-        if(n->tokenInfo->tokenType == TokenInfo::Rule &&
-                n->tokenInfo->tokenOrRuleId == ruleId){
+
+        if(n->tokenInfo->tokenType != TokenInfo::Rule){
+            continue;
+        }
+
+        if(n->tokenInfo->tokenOrRuleId == ruleId){
             return n;
+        }else if(recursive){
+            n = findNode(n, ruleId, recursive);
+            if(n != 0){
+                return n;
+            }
         }
     }
 

@@ -192,7 +192,6 @@ SOURCES += main.cpp\
     app_menu/appmainmenu.cpp \
     widgets/codeeditorandsearchpanewidget.cpp \
     widgets/searchpane.cpp \
-    widgets/closebutton.cpp \
     connection_page/schema_comparer/schemacomparer.cpp \
     connection_page/schema_comparer/tabs/schemacomparercomparetab.cpp \
     widgets/connectionselectorwidget.cpp \
@@ -557,7 +556,9 @@ SOURCES += main.cpp\
     widgets/tabbar.cpp \
     codeeditor/codeeditordocument.cpp \
     grammar_parser/bnfruleoption.cpp \
-    codeeditor/blockdata.cpp
+    codeeditor/blockdata.cpp \
+    widgets/myclosebutton.cpp \
+    dialogs/options_dialog/tabs/optionsdialogeditortab.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -738,7 +739,6 @@ HEADERS  += mainwindow.h \
     app_menu/appmainmenu.h \
     widgets/codeeditorandsearchpanewidget.h \
     widgets/searchpane.h \
-    widgets/closebutton.h \
     connection_page/schema_comparer/schemacomparer.h \
     connection_page/schema_comparer/tabs/schemacomparercomparetab.h \
     widgets/connectionselectorwidget.h \
@@ -1124,7 +1124,9 @@ HEADERS  += mainwindow.h \
     widgets/tabbar.h \
     codeeditor/codeeditordocument.h \
     grammar_parser/bnfruleoption.h \
-    codeeditor/blockdata.h
+    codeeditor/blockdata.h \
+    widgets/myclosebutton.h \
+    dialogs/options_dialog/tabs/optionsdialogeditortab.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

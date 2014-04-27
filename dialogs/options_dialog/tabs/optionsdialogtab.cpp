@@ -20,7 +20,7 @@ bool OptionsDialogTab::isInitialized() const
     return layout() != 0;
 }
 
-void OptionsDialogTab::addToMainLayout(QBoxLayout *childLayout)
+void OptionsDialogTab::addToMainLayout(QLayout *childLayout)
 {
     QBoxLayout *mainLayout = static_cast<QBoxLayout*>(layout());
     mainLayout->addLayout(childLayout);

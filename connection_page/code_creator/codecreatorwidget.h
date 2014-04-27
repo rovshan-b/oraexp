@@ -16,6 +16,7 @@ class QToolBar;
 class QActionGroup;
 class CompilerMessagesPane;
 class MultiEditorWidget;
+class AutocompleteHelper;
 
 class CodeCreatorWidget : public QWidget
 {
@@ -83,6 +84,8 @@ private slots:
 
     void bottomSplitterMoved();
 
+    void prepareCompletionList();
+
 private:
     QWidget *createRightPane();
     void createToolbar();
@@ -127,6 +130,8 @@ private:
     MultiEditorWidget *multiEditor;
 
     QString currentFileName;
+
+    AutocompleteHelper *autocompleteHelper;
 
 };
 

@@ -2,7 +2,9 @@
 #define PLSQLTOKENFINDER_H
 
 #include <QString>
+
 class PlSqlTreeBuilder;
+class ParseTreeNode;
 
 class PlSqlTokenFinder
 {

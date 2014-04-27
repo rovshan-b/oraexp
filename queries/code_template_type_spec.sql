@@ -27,7 +27,7 @@ CREATE OR REPLACE TYPE cust_nt_address_typ
 --constructor example
 CREATE OR REPLACE TYPE demo_typ1 AS OBJECT (a1 NUMBER, a2 NUMBER);
 
-CREATE OR REPLACE TABLE demo_tab1 (b1 NUMBER, b2 demo_typ1);
+CREATE TABLE demo_tab1 (b1 NUMBER, b2 demo_typ1);
 
 INSERT INTO demo_tab1 VALUES (1, demo_typ1(2,3));
 

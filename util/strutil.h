@@ -96,6 +96,7 @@ QString dateFormatForLocale(const QString &dateFormat, const QStringList &dates)
 QString formatBindVarName(const QString &varName, int position, OraExp::BindVarStyle bindStyle);
 
 bool isUpperCase(const QString &str);
+bool isLowerCase(const QString &str);
 
 #endif
 

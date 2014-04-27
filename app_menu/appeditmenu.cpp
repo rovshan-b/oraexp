@@ -22,6 +22,7 @@ AppEditMenu::AppEditMenu(QMenu *editMenu, QToolBar *toolbar, QObject *parent) : 
 
 AppEditMenu::~AppEditMenu()
 {
+    WidgetHelper::deleteMenu(editAdvancedMenu);
     WidgetHelper::deleteMenu(editResolveMenu);
 }
 
@@ -52,34 +53,16 @@ void AppEditMenu::setupMenu(QMenu *editMenu, QToolBar *toolbar)
     toolbar->addAction(editPasteAction);
 
     editMenu->addSeparator();
+
+    editSelectAllAction=editMenu->addAction(IconUtil::getIcon("editselectall"), tr("Select &All"), this, SLOT(selectAll()), QKeySequence(QKeySequence::SelectAll));
+    editSelectAllAction->setStatusTip(tr("Select All"));
+
+    editMenu->addSeparator();
     toolbar->addSeparator();
 
-    editCommentAction=editMenu->addAction(IconUtil::getIcon("comment"), tr("Co&mment/Uncomment"), this, SLOT(comment()), QKeySequence("Ctrl+/"));
-    editCommentAction->setStatusTip(tr("Comment/Uncomment line(s)"));
-    toolbar->addAction(editCommentAction);
-
-    editMoveUpAction=editMenu->addAction(IconUtil::getIcon("move_up"), tr("Move &up"), this, SLOT(moveUp()), QKeySequence("Ctrl+Up"));
-    editMoveUpAction->setStatusTip(tr("Move lines(s) up"));
-    toolbar->addAction(editMoveUpAction);
-
-    editMoveDownAction=editMenu->addAction(IconUtil::getIcon("move_down"), tr("Move &down"), this, SLOT(moveDown()), QKeySequence("Ctrl+Down"));
-    editMoveDownAction->setStatusTip(tr("Move lines(s) down"));
-    toolbar->addAction(editMoveDownAction);
-
-    editSelectBlockAction=editMenu->addAction(tr("Select current block"), this, SLOT(selectBlock()), QKeySequence("Ctrl+B"));
-    editSelectBlockAction->setStatusTip(tr("Select current block"));
-
-    editToUpperCaseAction=editMenu->addAction(tr("To upper case"), this, SLOT(toUpperCase()), QKeySequence("Ctrl+U"));
-    editToUpperCaseAction->setStatusTip(tr("Change selection or current word text to upper case"));
-
-    editToLowerCaseAction=editMenu->addAction(tr("To lower case"), this, SLOT(toLowerCase()), QKeySequence("Ctrl+L"));
-    editToLowerCaseAction->setStatusTip(tr("Change selection or current word text to lower case"));
-
-    editCreateDuplicateAction=editMenu->addAction(tr("Make duplicate"), this, SLOT(makeDuplicate()), QKeySequence("Ctrl+D"));
-    editCreateDuplicateAction->setStatusTip(tr("Create duplicate of current line or selection"));
-
-    editRemoveEmptyLinesAction=editMenu->addAction(tr("Remove empty lines"), this, SLOT(removeEmptyLines()), QKeySequence("Ctrl+R"));
-    editRemoveEmptyLinesAction->setStatusTip(tr("Remove empty lines"));
+    editAdvancedAction = editMenu->addAction(tr("Advanced"));
+    createEditAdvancedMenu(toolbar);
+    editAdvancedAction->setMenu(editAdvancedMenu);
 
     editMenu->addSeparator();
 
@@ -140,6 +123,38 @@ QWidget *AppEditMenu::findParentSearchPane() const
     return WidgetHelper::findParentWidget(currentAppWidget, "CodeEditorAndSearchPaneWidget");
 }
 
+void AppEditMenu::createEditAdvancedMenu(QToolBar *toolbar)
+{
+    editAdvancedMenu = new QMenu(tr("Advanced"));
+
+    editCommentAction=editAdvancedMenu->addAction(IconUtil::getIcon("comment"), tr("Co&mment/Uncomment"), this, SLOT(comment()), QKeySequence("Ctrl+/"));
+    editCommentAction->setStatusTip(tr("Comment/Uncomment line(s)"));
+    toolbar->addAction(editCommentAction);
+
+    editMoveUpAction=editAdvancedMenu->addAction(IconUtil::getIcon("move_up"), tr("Move &up"), this, SLOT(moveUp()), QKeySequence("Ctrl+Up"));
+    editMoveUpAction->setStatusTip(tr("Move lines(s) up"));
+    toolbar->addAction(editMoveUpAction);
+
+    editMoveDownAction=editAdvancedMenu->addAction(IconUtil::getIcon("move_down"), tr("Move &down"), this, SLOT(moveDown()), QKeySequence("Ctrl+Down"));
+    editMoveDownAction->setStatusTip(tr("Move lines(s) down"));
+    toolbar->addAction(editMoveDownAction);
+
+    editSelectBlockAction=editAdvancedMenu->addAction(tr("Select current block"), this, SLOT(selectBlock()), QKeySequence("Ctrl+B"));
+    editSelectBlockAction->setStatusTip(tr("Select current block"));
+
+    editToUpperCaseAction=editAdvancedMenu->addAction(tr("To upper case"), this, SLOT(toUpperCase()), QKeySequence("Ctrl+U"));
+    editToUpperCaseAction->setStatusTip(tr("Change selection or current word text to upper case"));
+
+    editToLowerCaseAction=editAdvancedMenu->addAction(tr("To lower case"), this, SLOT(toLowerCase()), QKeySequence("Ctrl+L"));
+    editToLowerCaseAction->setStatusTip(tr("Change selection or current word text to lower case"));
+
+    editCreateDuplicateAction=editAdvancedMenu->addAction(tr("Make duplicate"), this, SLOT(makeDuplicate()), QKeySequence("Ctrl+D"));
+    editCreateDuplicateAction->setStatusTip(tr("Create duplicate of current line or selection"));
+
+    editRemoveEmptyLinesAction=editAdvancedMenu->addAction(tr("Remove empty lines"), this, SLOT(removeEmptyLines()), QKeySequence("Ctrl+R"));
+    editRemoveEmptyLinesAction->setStatusTip(tr("Remove empty lines"));
+}
+
 void AppEditMenu::createEditResolveMenu()
 {
     editResolveMenu = new QMenu(tr("Object Menu"));
@@ -172,6 +187,7 @@ void AppEditMenu::updateActionStatesForCodeEditor(CodeEditor *editor)
     editCopyAction->setEnabled(true);
     //editCopyAsAction->setEnabled(true);
     editPasteAction->setEnabled(!isReadOnly);
+    editSelectAllAction->setEnabled(true);
 
     editCommentAction->setEnabled(!isReadOnly);
     editMoveUpAction->setEnabled(!isReadOnly);
@@ -230,11 +246,13 @@ void AppEditMenu::focusWidgetChanged(QWidget * /*old*/, QWidget *now)
     bool canCut=now->metaObject()->indexOfSlot("cut()")>-1;
     bool canCopy=now->metaObject()->indexOfSlot("copy()")>-1;
     bool canPaste=now->metaObject()->indexOfSlot("paste()")>-1;
+    bool canSelectAll=now->metaObject()->indexOfSlot("selectAll()")>-1;
 
     editCutAction->setEnabled(canCut);
     editCopyAction->setEnabled(canCopy);
     //editCopyAsAction->setEnabled(false);
     editPasteAction->setEnabled(canPaste);
+    editSelectAllAction->setEnabled(canSelectAll);
 
     editCommentAction->setEnabled(false);
     editMoveUpAction->setEnabled(false);
@@ -286,6 +304,11 @@ void AppEditMenu::copy()
 void AppEditMenu::paste()
 {
     WidgetHelper::invokeSlot(currentAppWidget, "paste");
+}
+
+void AppEditMenu::selectAll()
+{
+    WidgetHelper::invokeSlot(currentAppWidget, "selectAll");
 }
 
 void AppEditMenu::comment()

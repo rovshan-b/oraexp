@@ -37,6 +37,8 @@ private slots:
     void copy();
     void paste();
 
+    void selectAll();
+
     void comment();
     void moveUp();
     void moveDown();
@@ -72,6 +74,19 @@ public:
     QAction *editCopyAction;
     //QAction *editCopyAsAction;
     QAction *editPasteAction;
+    QAction *editSelectAllAction;
+
+    QAction *editAdvancedAction;
+
+    QAction *editDescribeAction;
+    QAction *editResolveAction;
+
+private:
+    void setupMenu(QMenu *editMenu, QToolBar *toolbar);
+    QMenu *createCopyAsMenu(QWidget *parent);
+
+    QMenu *editAdvancedMenu;
+    void createEditAdvancedMenu(QToolBar *toolbar);
 
     QAction *editCommentAction;
     QAction *editMoveUpAction;
@@ -81,13 +96,6 @@ public:
     QAction *editToLowerCaseAction;
     QAction *editCreateDuplicateAction;
     QAction *editRemoveEmptyLinesAction;
-
-    QAction *editDescribeAction;
-    QAction *editResolveAction;
-
-private:
-    void setupMenu(QMenu *editMenu, QToolBar *toolbar);
-    QMenu *createCopyAsMenu(QWidget *parent);
 
     QAction *editIncreaseFontSize;
     QAction *editDecreaseFontSize;

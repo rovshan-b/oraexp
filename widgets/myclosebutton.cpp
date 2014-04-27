@@ -1,7 +1,7 @@
-#include "closebutton.h"
+#include "myclosebutton.h"
 #include <QtGui>
 
-CloseButton::CloseButton(QWidget *parent)
+MyCloseButton::MyCloseButton(QWidget *parent)
     : QAbstractButton(parent)
 {
     setFocusPolicy(Qt::NoFocus);
@@ -11,7 +11,7 @@ CloseButton::CloseButton(QWidget *parent)
     this->setToolTip(tr("Close"));
 }
 
-QSize CloseButton::sizeHint() const
+QSize MyCloseButton::sizeHint() const
 {
     ensurePolished();
     int width = style()->pixelMetric(QStyle::PM_TabCloseIndicatorWidth, 0, this);
@@ -19,21 +19,21 @@ QSize CloseButton::sizeHint() const
     return QSize(width, height);
 }
 
-void CloseButton::enterEvent(QEvent *event)
+void MyCloseButton::enterEvent(QEvent *event)
 {
     if (isEnabled())
         update();
     QAbstractButton::enterEvent(event);
 }
 
-void CloseButton::leaveEvent(QEvent *event)
+void MyCloseButton::leaveEvent(QEvent *event)
 {
     if (isEnabled())
         update();
     QAbstractButton::leaveEvent(event);
 }
 
-void CloseButton::paintEvent(QPaintEvent *)
+void MyCloseButton::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     QStyleOption opt;

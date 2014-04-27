@@ -433,6 +433,27 @@ int PlSqlParseHelper::extractPlSqlErrorCode(const QString &errorMessage)
     }
 }
 
+QStringList PlSqlParseHelper::tokenizeName(const QString &objectName)
+{
+    QStringList parts;
+
+    //now remove list of columns in parentheses
+    QScopedPointer<PlSqlScanner> scanner(new PlSqlScanner(new StringReader(objectName)));
+
+    int token;
+
+    do{
+        token = scanner->getNextToken();
+
+        if(token == PLS_ID || token < NON_LITERAL_START_IX || token == PLS_DOUBLEQUOTED_STRING){
+            parts.append(PlSqlParseHelper::cleanIdentifier(scanner->getTokenLexeme()));
+        }
+
+    }while(token != PLS_E_O_F && token != PLS_ERROR);
+
+    return parts;
+}
+
 
 PlSqlParseHelper::PlSqlParseHelper()
 {

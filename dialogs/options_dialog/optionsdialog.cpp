@@ -2,6 +2,7 @@
 #include "util/iconutil.h"
 #include "util/dialoghelper.h"
 #include "tabs/optionsdialogconnectivitytab.h"
+#include "tabs/optionsdialogeditortab.h"
 #include "tabs/optionsdialogsnippetstab.h"
 #include <QtGui>
 
@@ -64,6 +65,9 @@ void OptionsDialog::addTabs()
 {
     sidePane->addItem(new QListWidgetItem(IconUtil::getIcon("connect"), tr("Connectivity")));
     tab->addWidget(new OptionsDialogConnectivityTab());
+
+    sidePane->addItem(new QListWidgetItem(IconUtil::getIcon("edit"), tr("Editor")));
+    tab->addWidget(new OptionsDialogEditorTab());
 
     sidePane->addItem(new QListWidgetItem(IconUtil::getIcon("ddl"), tr("Snippets")));
     tab->addWidget(new OptionsDialogSnippetsTab());

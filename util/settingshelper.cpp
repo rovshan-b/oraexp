@@ -63,6 +63,9 @@ void SettingsHelper::saveStaticApplicationSettings()
     Settings::setValue("WorksheetExplainPlanTab/autotraceViewIndex", WorksheetExplainPlanTab::autotraceViewIndex);
 
     Settings::setValue("CodeCreatorWidget/bottomSplitterSizes", CodeCreatorWidget::bottomSplitterSizes);
+
+    Settings::setValue("CodeEditor/keywordCaseFolding", (int)CodeEditor::keywordCaseFolding);
+    Settings::setValue("CodeEditor/identifierCaseFolding", (int)CodeEditor::identifierCaseFolding);
 }
 
 void SettingsHelper::loadStaticApplicationSettings()
@@ -76,9 +79,8 @@ void SettingsHelper::loadStaticApplicationSettings()
 
     CodeCreatorWidget::bottomSplitterSizes = Settings::value("CodeCreatorWidget/bottomSplitterSizes").toByteArray();
 
-    //CodeEditor::convertKeywordsToUpperCase = Settings::value("CodeEditor/convertKeywordsToUpperCase", true).toBool();
-    //CodeEditor::convertNonKeywordsToLowerCase = Settings::value("CodeEditor/convertKeywordsToUpperCase", false).toBool();
-    //CodeEditor::applyCaseFoldingToAllText = Settings::value("CodeEditor/applyCaseFoldingToAllText", false).toBool();
+    CodeEditor::keywordCaseFolding = (CodeEditor::CaseFoldingType)Settings::value("CodeEditor/keywordCaseFolding", 0).toInt();
+    CodeEditor::identifierCaseFolding = (CodeEditor::CaseFoldingType)Settings::value("CodeEditor/identifierCaseFolding", 0).toInt();
 }
 
 

@@ -11,6 +11,7 @@
 #include "connectivity/dbconnection.h"
 #include "connectivity/statement.h"
 #include "widgets/specbodyswitcherwidget.h"
+#include "codeeditor/autocompletehelper.h"
 #include "code_parser/plsql/plsqlparsehelper.h"
 #include "errors.h"
 #include <QtGui>
@@ -25,7 +26,8 @@ CodeCreatorWidget::CodeCreatorWidget(const QString &schemaName,
     schemaName(schemaName),
     objectName(objectName),
     objectType(objectType),
-    hasSpecBodySwitcher(false)
+    hasSpecBodySwitcher(false),
+    autocompleteHelper(0)
 {
     editMode = !objectName.isEmpty();
 }
@@ -45,6 +47,7 @@ void CodeCreatorWidget::createUi()
     //create right pane
     outerSplitter->addWidget(createRightPane());
     connect(multiEditor, SIGNAL(escapeKeyPressed()), infoPanel, SLOT(closePanel()));
+    connect(multiEditor, SIGNAL(needsCompletionList()), this, SLOT(prepareCompletionList()));
 
     //for splitting tree/editor area and info panel
     bottomSplitter=new QSplitter(Qt::Vertical);
@@ -77,6 +80,10 @@ void CodeCreatorWidget::createUi()
 void CodeCreatorWidget::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
     this->queryScheduler=queryScheduler;
+    multiEditor->setQueryScheduler(queryScheduler);
+
+    Q_ASSERT(autocompleteHelper == 0);
+    autocompleteHelper = new AutocompleteHelper(this);
 
     if(DbUtil::isPLSQLProgramUnit(this->objectType)){
         if(!this->queryScheduler->getDb()->supportsCompileTimeWarnings()){
@@ -530,6 +537,32 @@ void CodeCreatorWidget::compilationErrorFetchCompleted(const QString &)
         compilerMessagesPane->resizeToFit();
     }else{
         infoPanel->closePane(compilerMessagesPane);
+    }
+}
+
+void CodeCreatorWidget::prepareCompletionList()
+{
+    if(!this->queryScheduler){
+        return;
+    }
+
+    /*
+        resolve steps (name can consist of several parts)
+        check first token for following
+          1. is it local variable name
+          2. try to find it in all_objects (if it is a snynonym, find out target object)
+          3. is it schema name
+
+        if first token is resolved go on to resolve next parts
+    */
+
+    CodeEditor *editor = multiEditor->currentTextEditor();
+    QString currentObjectName = CodeEditorUtil::getCurrentObjectName(editor);
+    if(!currentObjectName.isEmpty() && currentObjectName.length() < 250){
+        QStringList nameParts = PlSqlParseHelper::tokenizeName(currentObjectName);
+        if(nameParts.size() > 0){
+            autocompleteHelper->getChildList(nameParts, editor->textCursor().position());
+        }
     }
 }
 

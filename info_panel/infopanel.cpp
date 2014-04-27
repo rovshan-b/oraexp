@@ -1,6 +1,6 @@
 #include "infopanel.h"
 #include "util/widgethelper.h"
-#include "widgets/closebutton.h"
+#include "widgets/myclosebutton.h"
 #include <QtGui>
 
 InfoPanel::InfoPanel(QWidget *parent, bool decreaseFontSize) :
@@ -152,7 +152,7 @@ QBoxLayout *InfoPanel::createPanelHeader(const QString &title)
 
     headerLayout->addStretch();
 
-    CloseButton *closeButton = new CloseButton();
+    MyCloseButton *closeButton = new MyCloseButton();
     headerLayout->addWidget(closeButton);
 
     connect(closeButton, SIGNAL(clicked()), this, SLOT(closePanel()));

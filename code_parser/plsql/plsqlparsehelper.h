@@ -45,6 +45,8 @@ public:
 
     static int extractPlSqlErrorCode(const QString &errorMessage);
 
+    static QStringList tokenizeName(const QString &objectName);
+
 private:
     static QString cleanIdentifier(const QString &identifier);
 

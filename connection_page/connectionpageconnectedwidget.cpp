@@ -334,13 +334,13 @@ void ConnectionPageConnectedWidget::restoreWindowState()
     //also add an empty worksheet
     //setting focus works correctly when adding from this slot
     uiManager->addWorksheet();
-/*
+
 #ifdef DEBUG
     if(db->getUsername().compare("TEST_USER", Qt::CaseInsensitive)==0){
-        uiManager->createEditor("TEST_USER", "PKG_REQUEST_HANDLER", "PackageBody");
+        uiManager->createEditor("TEST_USER", "TEST_PROC", "Procedure");
     }
 #endif
-*/
+
 }
 
 void ConnectionPageConnectedWidget::changeTabCaption(ConnectionPageTab *tab, const QString &caption)

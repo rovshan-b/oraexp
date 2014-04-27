@@ -14,6 +14,10 @@ public:
     void addToken(TokenInfo *tokenInfo);
     void clear();
 
+    //works in block positions (starts from 0 for every block)
+    TokenInfo *tokenAtPosition(int position) const;
+    TokenInfo *firstTokenFor(int position) const;
+
 private:
     QList<TokenInfo*> tokens;
 };

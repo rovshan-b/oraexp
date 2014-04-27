@@ -11,6 +11,8 @@ class QActionGroup;
 class QToolBar;
 class QLabel;
 class CodeCollapsePosition;
+class TokenInfo;
+class IQueryScheduler;
 
 class MultiEditorWidget : public QWidget
 {
@@ -18,6 +20,8 @@ class MultiEditorWidget : public QWidget
 public:
     explicit MultiEditorWidget(bool enableCodeCollapsing=false, QWidget *parent = 0);
     virtual ~MultiEditorWidget();
+
+    void setQueryScheduler(IQueryScheduler *queryScheduler);
     
     CodeEditorAndSearchPaneWidget *getCurrentEditor() const;
     CodeEditor *currentTextEditor() const {return currentEditor->editor();}
@@ -31,6 +35,7 @@ public:
     QList<CodeEditorAndSearchPaneWidget*> getEditors() const;
 signals:
     void escapeKeyPressed();
+    void needsCompletionList();
 
 protected:
     //void timerEvent(QTimerEvent *event);
@@ -58,10 +63,19 @@ private:
     QLabel *infoLabel;
     QString infoLabelTextFormat;
 
+    IQueryScheduler *queryScheduler;
+
     bool enableCodeCollapsing;
 
     int timerId;
     QTime lastChangeTime;
+
+    bool isId(TokenInfo *token) const;
+    bool isKeyword(TokenInfo *token) const;
+    void applyCaseFoldingRules(int position, int charsRemoved, int charsAdded);
+    void applyCaseFolding(CodeEditor::CaseFoldingType foldingType, int textPosition, QString &text, bool &changed);
+    int lastEditedWordPosition;
+    QString lastEditedWord;
     
 };
 

@@ -6,6 +6,7 @@
 #include "searchpane.h"
 
 class CodeEditor;
+class IQueryScheduler;
 
 class CodeEditorAndSearchPaneWidget : public QWidget
 {
@@ -18,6 +19,8 @@ public:
 
     void setTextDocument(QTextDocument *document) const;
     QTextDocument *getTextDocument() const;
+
+    void setQueryScheduler(IQueryScheduler *queryScheduler);
 
 public slots:
     void showSearchPane();

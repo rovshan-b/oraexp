@@ -13,10 +13,7 @@ void PlSqlTokenFinder::findObjectName(PlSqlTreeBuilder *treeBuilder, QString *sc
     *schema = QString();
     *name = QString();
 
-    QList<int> objectNamePath = QList<int>() << R_START_RULE << R_STATEMENTS_OR_CREATE_OBJECTS
-                                             << R_CREATE_OBJECT << R_OBJ_DEF
-                                             << R_OBJ_TYPE_AND_NAME_AND_BODY << R_OBJECT_NAME;
-    ParseTreeNode *objectNameNode = treeBuilder->getNode(objectNamePath);
+    ParseTreeNode *objectNameNode = treeBuilder->findNode(treeBuilder->getRootNode(), R_OBJECT_NAME, true);
 
     if(objectNameNode){
         if(objectNameNode->children.size()==1){

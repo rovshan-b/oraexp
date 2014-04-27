@@ -43,6 +43,10 @@ void SyntaxHighlighter::highlightBlock(const QString &text)
             endState = scanner.getEndState();
         }
 
+        if(token == PLS_E_O_F){
+            break;
+        }
+
         blockData->addToken(scanner.createTokenInfo(token, false));
 
         bool valid = true;

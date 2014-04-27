@@ -284,6 +284,7 @@ void WorksheetQueryPane::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
     this->queryScheduler=queryScheduler;
     sequentialRunner.setQueryScheduler(queryScheduler);
+    multiEditor->setQueryScheduler(queryScheduler);
 
     toolbar->setEnabled(true);
 }

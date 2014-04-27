@@ -530,4 +530,15 @@ bool isUpperCase(const QString &str)
     return true;
 }
 
+bool isLowerCase(const QString &str)
+{
+    for(int i=0; i<str.length(); ++i){
+        if(!str[i].isLower()){
+            return false;
+        }
+    }
+
+    return true;
+}
+
 #endif

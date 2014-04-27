@@ -3,12 +3,12 @@
 
 #include <QAbstractButton>
 
-class CloseButton : public QAbstractButton
+class MyCloseButton : public QAbstractButton
 {
     Q_OBJECT
 
 public:
-    CloseButton(QWidget *parent = 0);
+    MyCloseButton(QWidget *parent = 0);
 
     QSize sizeHint() const;
     inline QSize minimumSizeHint() const
