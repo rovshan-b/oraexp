@@ -29,7 +29,8 @@ SOURCES += main.cpp\
     ../plsql/plsqltreebuilder.cpp \
     ../../beans/parsetreenode.cpp \
     ../stringreader.cpp \
-    ../../grammar_parser/bnfruleoption.cpp
+    ../../grammar_parser/bnfruleoption.cpp \
+    ../../beans/codecollapseposition.cpp
 
 HEADERS  += mainwindow.h \
     ../codeparser.h \
@@ -52,7 +53,8 @@ HEADERS  += mainwindow.h \
     ../../beans/parsetreenode.h \
     ../plsql/plsqlrules.h \
     ../stringreader.h \
-    ../../grammar_parser/bnfruleoption.h
+    ../../grammar_parser/bnfruleoption.h \
+    ../../beans/codecollapseposition.h
 
 FORMS    += mainwindow.ui
 

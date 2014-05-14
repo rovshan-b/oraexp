@@ -135,8 +135,8 @@ void DataComparerCompareTab::currentTreeItemChanged(const QModelIndex &current, 
     commitWhereQuery(previous);
 
     if(!current.isValid()){
-        whereClauseEditor->editor()->setPlainText("");
-        targetTablenameEditor->setText("");
+        whereClauseEditor->editor()->clear();
+        targetTablenameEditor->clear();
         rightPane->setEnabled(false);
         return;
     }
@@ -144,8 +144,8 @@ void DataComparerCompareTab::currentTreeItemChanged(const QModelIndex &current, 
     DbTreeItem *currItem=static_cast<DbTreeItem *>(current.internalPointer());
     Q_ASSERT(currItem);
     if(currItem->getItemType()!=DbTreeModel::Table || !currItem->isTopLevel()){
-        whereClauseEditor->editor()->setPlainText("");
-        targetTablenameEditor->setText("");
+        whereClauseEditor->editor()->clear();
+        targetTablenameEditor->clear();
         rightPane->setEnabled(false);
         return;
     }

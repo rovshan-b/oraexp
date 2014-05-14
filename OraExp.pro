@@ -526,7 +526,6 @@ SOURCES += main.cpp\
     code_parser/plsql/plsqltokenfinder.cpp \
     codeeditor/codecollapsearea.cpp \
     beans/codecollapseposition.cpp \
-    code_parser/plsql/plsqlcodecollapsepositionfinder.cpp \
     models/editableresultsettablemodel.cpp \
     dialogs/codeviewerdialog.cpp \
     delegates/dataselectordelegate.cpp \
@@ -558,7 +557,11 @@ SOURCES += main.cpp\
     grammar_parser/bnfruleoption.cpp \
     codeeditor/blockdata.cpp \
     widgets/myclosebutton.cpp \
-    dialogs/options_dialog/tabs/optionsdialogeditortab.cpp
+    dialogs/options_dialog/tabs/optionsdialogeditortab.cpp \
+    util/codereparser.cpp \
+    code_parser/codeparserthread.cpp \
+    util/numutil.cpp \
+    widgets/tooltipwidget.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1092,7 +1095,6 @@ HEADERS  += mainwindow.h \
     code_parser/plsql/plsqlparsingtable.cpp.tpl \
     codeeditor/codecollapsearea.h \
     beans/codecollapseposition.h \
-    code_parser/plsql/plsqlcodecollapsepositionfinder.h \
     models/editableresultsettablemodel.h \
     dialogs/codeviewerdialog.h \
     delegates/dataselectordelegate.h \
@@ -1126,7 +1128,11 @@ HEADERS  += mainwindow.h \
     grammar_parser/bnfruleoption.h \
     codeeditor/blockdata.h \
     widgets/myclosebutton.h \
-    dialogs/options_dialog/tabs/optionsdialogeditortab.h
+    dialogs/options_dialog/tabs/optionsdialogeditortab.h \
+    util/codereparser.h \
+    code_parser/codeparserthread.h \
+    util/numutil.h \
+    widgets/tooltipwidget.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \
@@ -1148,9 +1154,9 @@ RESOURCES += \
 unix:INCLUDEPATH += /usr/local/include
 unix:LIBS += -L/usr/local/lib -locilib
 
-windows:INCLUDEPATH += "C:/ocilib-3.9.5-windows/ocilib/include"
-windows:LIBS += -L"C:/ocilib-3.9.5-windows/ocilib/lib32" -locilibw
+windows:INCLUDEPATH += "C:/ocilib-3.12.2-windows/ocilib/include"
+windows:LIBS += -L"C:/ocilib-3.12.2-windows/ocilib/lib32" -locilibw
 
-windows:INCLUDEPATH += "C:/qt-everywhere-opensource-src-4.7.4/qt-everywhere-opensource-src-4.7.4/src/3rdparty/zlib"
+windows:INCLUDEPATH += "C:/Qt/4.8.5/src/3rdparty/zlib"
 
 windows:RC_FILE = app.rc

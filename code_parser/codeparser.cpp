@@ -3,9 +3,9 @@
 #include "beans/tokeninfo.h"
 #include "plsql/plsqltokens.h"
 
-#include <QDebug>
+//#include <QDebug>
 
-CodeParser::CodeParser(CodeScanner *scanner) : scanner(scanner), parsingTable(0), errorRow(0), reduceListener(0)
+CodeParser::CodeParser(CodeScanner *scanner) : scanner(scanner), parsingTable(0), errorRow(0), reduceListener(0), stopped(false)
 {
 }
 
@@ -51,7 +51,7 @@ bool CodeParser::parse()
 
         if(actionOnCurrToken==0){ //parsing error
 
-            qDebug() << "parse failed in state" << stateOnTop << ", current token is" << token << " (lexeme =" << scanner->getTokenLexeme() << ")" ;
+            //qDebug() << "parse failed in state" << stateOnTop << ", current token is" << token << " (lexeme =" << scanner->getTokenLexeme() << ")" ;
 
             errorRow = row;
             if(reduceListener){
@@ -82,7 +82,7 @@ bool CodeParser::parse()
             break;
         }
 
-        if(done){
+        if(done || this->stopped){
             break;
         }
     }
@@ -133,21 +133,25 @@ TokenInfo *CodeParser::createTokenInfo(int token) const
     return scanner->createTokenInfo(token);
 }
 
-QPair< QList<int>, QList<int> > CodeParser::getExpectedTokens() const
+QPair< QList<int>, QList<int> > CodeParser::getExpectedTokens(ParsingTableRow *row) const
 {
     QList<int> terminals;
     QList<int> rules;
 
-    if(errorRow!=0){
-        QHash<int, ParsingTableAction*>::const_iterator i1 = errorRow->actions->constBegin();
-        while (i1 != errorRow->actions->constEnd()) {
+    if(row == 0){
+        row = this->errorRow;
+    }
+
+    if(row!=0){
+        QHash<int, ParsingTableAction*>::const_iterator i1 = row->actions->constBegin();
+        while (i1 != row->actions->constEnd()) {
             terminals.append(i1.key());
 
             ++i1;
         }
 
-        QHash<int, int>::const_iterator i2 = errorRow->gotos.constBegin();
-        while (i2 != errorRow->gotos.constEnd()) {
+        QHash<int, int>::const_iterator i2 = row->gotos.constBegin();
+        while (i2 != row->gotos.constEnd()) {
             rules.append(i2.key());
 
             ++i2;

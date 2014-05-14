@@ -7,7 +7,6 @@
 #include "plsqltokens.h"
 #include "plsqlparsingtable.h"
 #include "plsqltokenfinder.h"
-#include "plsqlcodecollapsepositionfinder.h"
 #include "plsqltreebuilder.h"
 #include "beans/codecollapseposition.h"
 #include "util/dbutil.h"
@@ -197,7 +196,7 @@ void PlSqlParseHelper::findObjectName(const QString &query, QString *schema, QSt
     StringReader *reader = new StringReader(query);
     bool success;
     QScopedPointer<PlSqlTreeBuilder> treeBuilder(PlSqlParseHelper::createParseTree(reader, &success));
-    if(success){
+    //if(success){
         PlSqlTokenFinder::findObjectName(treeBuilder.data(), schema, name);
         if(schema->isEmpty()){
             *schema = defaultSchema;
@@ -205,7 +204,7 @@ void PlSqlParseHelper::findObjectName(const QString &query, QString *schema, QSt
 
         *schema = PlSqlParseHelper::cleanIdentifier(*schema);
         *name = PlSqlParseHelper::cleanIdentifier(*name);
-    }
+    //}
 }
 
 QString PlSqlParseHelper::cleanIdentifier(const QString &identifier)
@@ -215,16 +214,6 @@ QString PlSqlParseHelper::cleanIdentifier(const QString &identifier)
     }else{
         return identifier.toUpper();
     }
-}
-
-QList<CodeCollapsePosition*> PlSqlParseHelper::findCodeCollapsePositions(const QTextCursor &cur)
-{
-    //TextCursorReader *reader = new TextCursorReader(cur);
-    //QScopedPointer<PlSqlTreeBuilder> treeBuilder(PlSqlParseHelper::createParseTree(reader));
-
-    PlSqlCodeCollapsePositionFinder codeCollapsePositionFinder;
-
-    return codeCollapsePositionFinder.findCodeCollapsePositions(cur);
 }
 
 PlSqlTreeBuilder *PlSqlParseHelper::createParseTree(TextReaderBase *reader, bool *success)

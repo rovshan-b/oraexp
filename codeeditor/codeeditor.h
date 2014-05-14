@@ -9,13 +9,14 @@ class LineNavigationBar;
 class CodeCollapseArea;
 class QCompleter;
 class CodeCollapsePosition;
+class ToolTipWidget;
 class IQueryScheduler;
 
 class CodeEditor : public QPlainTextEdit
 {
     Q_OBJECT
 
-public:    
+public:
     enum CaseFoldingType
     {
         NoCaseFolding,
@@ -23,7 +24,7 @@ public:
         LowerCaseFolding
     };
 
-    CodeEditor(bool enableCodeCollapsing = false, QWidget *parent = 0);
+    CodeEditor(bool plsqlMode = false, QWidget *parent = 0);
     virtual ~CodeEditor();
 
     void setQueryScheduler(IQueryScheduler *queryScheduler);
@@ -70,6 +71,13 @@ public:
     bool blockChanges() const;
     void setBlockChanges(bool block);
 
+    void setLastParseId(int parseId);
+    int getLastParseId() const;
+
+    void updateAllParts();
+
+    void setDocument(QTextDocument * document);
+
     static QList<CodeEditor*> openEditors;
 
     static QStringHash textShortcuts;
@@ -96,6 +104,7 @@ public slots:
     void customCut();
     void customCopy();
 
+    void handleTextChanged();
     void clearErrorPositions();
 
     void undo();
@@ -105,6 +114,7 @@ signals:
     void gotFocus();
     void lostFocus();
     void needsCompletionList();
+    void updated(CodeEditor *editor);
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -114,6 +124,7 @@ protected:
     void focusOutEvent ( QFocusEvent * event);
     void contextMenuEvent ( QContextMenuEvent * event );
     bool event ( QEvent * e );
+    virtual void paintEvent ( QPaintEvent * event );
 
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
@@ -137,6 +148,7 @@ private:
     QList< QTextCursor > pulsatePositions;
     QList< QTextCursor > errorPositions;
     QTextCursor collapsibleRegionPositions;
+    int collapsibleRegionStartBlockNumber;
 
     QString strTab;
 
@@ -178,14 +190,26 @@ private:
     void completerHandleKeyPress(QKeyEvent * event);
 
     QList<CodeCollapsePosition*> *collapsePositions;
-    CodeCollapsePosition* findCollapsePosition(int blockNumber);
-    void highlightCollapsibleRegion(int blockNumber);
+    CodeCollapsePosition findCollapsePosition(const QTextBlock &block);
+    void highlightCollapsibleRegion(QMouseEvent* event);
+    void highlightCollapsibleRegion(const QTextBlock &block);
     void selectBlocks(QTextCursor &cur, const QTextBlock &startBlock, const QTextBlock &endBlock);
+    void collapseOrExpandBlocks(QTextCursor &cur);
+    void showTooltipForCollapsedRange(const QTextBlock &block, int endBlockNumber);
+    int collapsedRangeCount() const;
+
+    bool extendSelection(QTextCursor &cur);
+    void expandAllBlocks(int startBlock, int endBlock);
+    void expandAllBlocks(QKeyEvent *event);
+    void expandBlock(const QTextBlock &block);
 
     void applyCurrentFontToAllEditors();
     void saveFontSettings();
 
+    ToolTipWidget *toolTipWidget;
+
     bool blockEventChanges;
+    int lastParseId;
 };
 
 #endif // CODEEDITOR_H

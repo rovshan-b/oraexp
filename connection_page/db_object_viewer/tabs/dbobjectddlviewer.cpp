@@ -1,10 +1,11 @@
 #include "dbobjectddlviewer.h"
-#include "widgets/codeeditorandsearchpanewidget.h"
+#include "widgets/multieditorwidget.h"
 #include "connectivity/dbconnection.h"
 #include "util/queryexectask.h"
 #include "util/queryutil.h"
 #include "util/iconutil.h"
 #include "util/dbutil.h"
+#include "util/widgethelper.h"
 #include "dialogs/tableddloptionsdialog.h"
 #include <QtGui>
 
@@ -25,15 +26,15 @@ DbObjectDdlViewer::DbObjectDdlViewer(bool addSettingsButton, DbUiManager *uiMana
 
 void DbObjectDdlViewer::createMainWidget(QLayout *layout)
 {
-    editor=new CodeEditorAndSearchPaneWidget();
-    editor->setReadOnly(true);
+    multiEditor=new MultiEditorWidget(true);
+    multiEditor->setReadOnly(true);
 
-    layout->addWidget(editor);
+    layout->addWidget(multiEditor);
 }
 
 void DbObjectDdlViewer::loadData()
 {
-    editor->editor()->clear();
+    multiEditor->currentTextEditor()->clear();
 
     QList<Param*> params;
     if(itemType==DbTreeModel::Table){
@@ -66,7 +67,7 @@ void DbObjectDdlViewer::ddlQueryCompleted(const QueryResult &result)
 {
     if(result.hasError){
         if(result.exception.getErrorCode()==31603){
-            editor->setInitialText(tr("--Object does not exist or you do not have permission to view it."));
+            multiEditor->setInitialText(tr("--Object does not exist or you do not have permission to view it."));
         }else{
             QMessageBox::critical(this->window(), tr("Error retrieving table DDL"), result.exception.getErrorMessage());
         }
@@ -80,7 +81,7 @@ void DbObjectDdlViewer::ddlFetched(const FetchResult &fetchResult)
     if(fetchResult.hasError){
         QMessageBox::critical(this->window(), tr("Error fetching table DDL"), fetchResult.exception.getErrorMessage());
     }else{
-        editor->setInitialText(fetchResult.oneRow.at(0));
+        multiEditor->setInitialText(fetchResult.oneRow.at(0));
     }
 }
 
@@ -89,8 +90,10 @@ void DbObjectDdlViewer::fetchCompleted(const QString &)
     queryCompleted();
 }
 
-QList<QAction*> DbObjectDdlViewer::getSpecificToolbarButtons()
+QList<QAction*> DbObjectDdlViewer::getSpecificToolbarButtons(QToolBar *toolbar)
 {
+    Q_UNUSED(toolbar);
+
     QList<QAction*> list;
 
     if(addSettingsButton){
@@ -102,6 +105,10 @@ QList<QAction*> DbObjectDdlViewer::getSpecificToolbarButtons()
         connect(settingsAction, SIGNAL(triggered()), this, SLOT(showDdlOptions()));
         list.append(settingsAction);
     }
+
+    list.append(WidgetHelper::addStretchToToolbar(toolbar));
+
+    list.append(multiEditor->addSplittingActions(toolbar));
 
     return list;
 }

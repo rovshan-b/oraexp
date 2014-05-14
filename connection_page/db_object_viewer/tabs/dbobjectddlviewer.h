@@ -6,7 +6,7 @@
 #include "connectivity/fetchresult.h"
 #include "beans/objectddloptions.h"
 
-class CodeEditorAndSearchPaneWidget;
+class MultiEditorWidget;
 
 class DbObjectDdlViewer : public DbObjectViewerGenericTab
 {
@@ -18,7 +18,7 @@ public:
 
     virtual void createMainWidget(QLayout *);
 
-    virtual QList<QAction*> getSpecificToolbarButtons();
+    virtual QList<QAction*> getSpecificToolbarButtons(QToolBar *toolbar);
 
     void setDbObjectTypeName(const QString &dbObjectTypeName);
 
@@ -30,7 +30,7 @@ private slots:
     void showDdlOptions();
 
 private:
-    CodeEditorAndSearchPaneWidget *editor;
+    MultiEditorWidget *multiEditor;
 
     ObjectDdlOptions ddlOptions;
 

@@ -1,6 +1,6 @@
 #include "bnfruleoption.h"
 
 BNFRuleOption::BNFRuleOption() :
-    skip(false)
+    skip(false), noChildren(false)
 {
 }

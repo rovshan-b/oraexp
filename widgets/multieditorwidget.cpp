@@ -4,6 +4,7 @@
 #include "code_parser/plsql/plsqlscanner.h"
 #include "code_parser/plsql/plsqlparsehelper.h"
 #include "code_parser/plsql/plsqlparsingtable.h"
+#include "code_parser/plsql/plsqltreebuilder.h"
 #include "codeeditor/blockdata.h"
 #include "beans/codecollapseposition.h"
 #include "beans/tokeninfo.h"
@@ -17,8 +18,8 @@ MultiEditorWidget::MultiEditorWidget(bool enableCodeCollapsing, QWidget *parent)
     infoLabel(0),
     queryScheduler(0),
     enableCodeCollapsing(enableCodeCollapsing),
-    timerId(-1),
-    lastEditedWordPosition(-1)
+    lastEditedWordPosition(-1),
+    lastChangeTime(QTime::currentTime())
 {
     createUi();
 }
@@ -55,6 +56,10 @@ void MultiEditorWidget::createUi()
     setLayout(mainLayout);
 
     connect(firstEditor->editor()->document(), SIGNAL(contentsChange(int,int,int)), this, SLOT(documentContentsChanged(int,int,int)));
+    connect(&reparseTimer, SIGNAL(timeout()), this, SLOT(onReparseTimer()));
+
+    connect(&codeReparser, SIGNAL(parsingCompleted(int,bool,PlSqlTreeBuilder*,int)), this, SLOT(parsingCompleted(int,bool,PlSqlTreeBuilder*,int)));
+    reparseTimer.start(1000);
 }
 
 CodeEditorAndSearchPaneWidget *MultiEditorWidget::getCurrentEditor() const
@@ -63,9 +68,11 @@ CodeEditorAndSearchPaneWidget *MultiEditorWidget::getCurrentEditor() const
     return currentEditor;
 }
 
-void MultiEditorWidget::addSplittingActions(QWidget *w)
+QList<QAction*> MultiEditorWidget::addSplittingActions(QWidget *w)
 {
     Q_ASSERT(splitDirectionGroup==0);
+
+    int currentActionCount = w->actions().size();
 
     QActionGroup *editorCountGroup=new QActionGroup(this);
     for(int i=1; i<=3; ++i){
@@ -86,11 +93,20 @@ void MultiEditorWidget::addSplittingActions(QWidget *w)
 
     QAction *separator=new QAction(w);
     separator->setSeparator(true);
+    w->addAction(separator);
 
     splitDirectionGroup = WidgetHelper::addSplitDirectionActions(w);
 
     splitDirectionGroup->setEnabled(false);
     connect(splitDirectionGroup, SIGNAL(triggered(QAction*)), this, SLOT(editorOrientationActionSelected(QAction*)));
+
+    QList<QAction*> addedActions;
+    QList<QAction*> allActions = w->actions();
+    for(int i=currentActionCount; i<allActions.size(); ++i){
+        addedActions.append(allActions.at(i));
+    }
+
+    return addedActions;
 }
 
 QLabel *MultiEditorWidget::createInfoLabel()
@@ -103,6 +119,13 @@ QLabel *MultiEditorWidget::createInfoLabel()
     //infoLabel->setMinimumWidth(infoLabel->fontMetrics().width(infoLabelTextFormat)*1.5);
 
     return infoLabel;
+}
+
+void MultiEditorWidget::setInitialText(const QString &text)
+{
+    getCurrentEditor()->setInitialText(text);
+
+    reparse();
 }
 
 void MultiEditorWidget::editorCountActionSelected(bool checked)
@@ -126,18 +149,11 @@ void MultiEditorWidget::editorOrientationActionSelected(QAction *action)
 
 void MultiEditorWidget::codeEditorFocusEvent(QWidget *object, bool focusIn)
 {
+    Q_UNUSED(focusIn);
+
     currentEditor = qobject_cast<CodeEditorAndSearchPaneWidget*>(object);
     Q_ASSERT(currentEditor);
     cursorPositionChanged();
-
-    /*
-    if(enableCodeCollapsing){
-        if(focusIn){
-            timerId = startTimer(500);
-        }else{
-            killTimer(timerId);
-        }
-    }*/
 }
 
 void MultiEditorWidget::setEditorCount(int count)
@@ -181,25 +197,16 @@ CodeEditorAndSearchPaneWidget *MultiEditorWidget::createEditor()
 
     if(editors.size()>1){
         editor->editor()->setDocument(editors.at(0)->editor()->document()); //bind all instances to the same document (first created one)
+        editor->editor()->setLastParseId(editors.at(0)->editor()->getLastParseId());
     }
 
     if(editors.size()==1){
         currentEditor=editor;
     }
 
-    /*
-    if(enableCodeCollapsing){
-
-        editor->editor()->setCodeCollapsePositions(&this->collapsePositions);
-
-        if(editors.size() == 1){
-            connect(editor->editor()->document(), SIGNAL(contentsChanged()), this, SLOT(documentChanged()));
-            //connect(editor->editor()->document(), SIGNAL(blockCountChanged(int)), this, SLOT(recalculateCollapsePositions()));
-        }
-    }*/
-
     connect(editor, SIGNAL(focusEvent(QWidget*,bool)), this, SLOT(codeEditorFocusEvent(QWidget*,bool)));
     connect(editor->editor(), SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
+    connect(editor->editor(), SIGNAL(updated(CodeEditor*)), this, SLOT(updateEditors(CodeEditor*)));
     connect(editor->editor(), SIGNAL(needsCompletionList()), this, SIGNAL(needsCompletionList()));
 
     return editor;
@@ -251,14 +258,15 @@ void MultiEditorWidget::cursorPositionChanged()
 
 void MultiEditorWidget::documentContentsChanged(int position, int charsRemoved, int charsAdded)
 {
-    lastChangeTime = QTime::currentTime();
-
     if(!currentTextEditor()->blockChanges() && !(CodeEditor::keywordCaseFolding == CodeEditor::NoCaseFolding &&
                                                  CodeEditor::identifierCaseFolding == CodeEditor::NoCaseFolding)){
         currentTextEditor()->setBlockChanges(true);
         applyCaseFoldingRules(position, charsRemoved, charsAdded);
         currentTextEditor()->setBlockChanges(false);
+
     }
+
+    lastChangeTime = QTime::currentTime();
 }
 
 void MultiEditorWidget::applyCaseFoldingRules(int position, int charsRemoved, int charsAdded)
@@ -390,29 +398,60 @@ bool MultiEditorWidget::isKeyword(TokenInfo *token) const
     return token->tokenOrRuleId < NON_LITERAL_START_IX && (token->endPos - token->startPos) >= MIN_KEYWORD_LENGTH;
 }
 
-/*
-void MultiEditorWidget::timerEvent(QTimerEvent *event)
+void MultiEditorWidget::onReparseTimer()
 {
-    if(event->timerId() != timerId){
+    if(lastParseTime < lastChangeTime && lastChangeTime.msecsTo(QTime::currentTime()) >= 1000){
+        reparse();
+    }
+}
+
+void MultiEditorWidget::reparse()
+{
+    lastParseTime = QTime::currentTime();
+
+    codeReparser.parse(currentTextEditor()->toPlainText());
+}
+
+void MultiEditorWidget::parsingCompleted(int requestId, bool success, PlSqlTreeBuilder *treeBulder, int elapsedTime)
+{
+    Q_UNUSED(success);
+    Q_UNUSED(elapsedTime);
+
+    if(lastChangeTime > lastParseTime){
+        delete treeBulder;
         return;
     }
 
-    if(!lastChangeTime.isNull() && lastChangeTime.msecsTo(QTime::currentTime())>=1000){
-        recalculateCollapsePositions();
-        lastChangeTime=QTime();
+    QList<CodeCollapsePosition*> collapsePositions = treeBulder->getCollapsePositions();
+    if(collapsePositions.size()>0){
+        QTextDocument *doc = currentTextEditor()->document();
+        for(int i=0; i<collapsePositions.size(); ++i){
+            CodeCollapsePosition *pos = collapsePositions.at(i);
+            QTextBlock block = doc->findBlockByNumber(pos->startLine);
+            if(!block.isValid()){
+                continue;
+            }
+
+            BlockData *data = static_cast<BlockData*>(block.userData());
+            Q_ASSERT(data);
+            data->setCollapsePosition(pos->endLine, requestId);
+        }
+
+        treeBulder->clearCollapsePositions();
     }
+
+    foreach(CodeEditorAndSearchPaneWidget *editor, editors){
+        editor->editor()->setLastParseId(requestId);
+    }
+
+    delete treeBulder;
 }
 
-void MultiEditorWidget::recalculateCollapsePositions()
+void MultiEditorWidget::updateEditors(CodeEditor *except)
 {
-    qDeleteAll(collapsePositions);
-
-    QTextCursor cur = currentEditor->editor()->textCursor();
-    cur.setPosition(0);
-    collapsePositions = PlSqlParseHelper::findCodeCollapsePositions(cur);
-
-    for(int i=0; i<editors.size(); ++i){
-        editors.at(i)->editor()->refreshCodeCollapseArea();
+    foreach(CodeEditorAndSearchPaneWidget *editor, editors){
+        if(editor->editor()!=except){
+            editor->editor()->updateAllParts();
+        }
     }
 }
-*/

@@ -3,15 +3,28 @@
 #include "beans/parsetreenode.h"
 #include "code_parser/parsingtable.h"
 #include "plsqlrules.h"
+#include "beans/codecollapseposition.h"
 
-PlSqlTreeBuilder::PlSqlTreeBuilder() : rootNode(0)
+PlSqlTreeBuilder::PlSqlTreeBuilder() : rootNode(0), calculateCollapsePositions(false)
 {
 }
 
 PlSqlTreeBuilder::~PlSqlTreeBuilder()
 {
+    qDeleteAll(ruleNodesStack);
     delete rootNode;
+
+    qDeleteAll(collapsePositions);
 }
+/*
+void printoutTree(ParseTreeNode *node, const QString &prefix)
+{
+    qDebug() << QString("%1%2").arg(prefix, node->tokenInfo->toString());
+    QString newPrefix = QString("%1   ").arg(prefix);
+    for(int i=0; i<node->children.size(); ++i){
+        printoutTree(node->children.at(i), newPrefix);
+    }
+}*/
 
 void PlSqlTreeBuilder::reduced(TokenInfo *ruleInfo, int symbolCount, const QList<TokenInfo *> &reducedTokens, ParsingTable *parsingTable)
 {
@@ -31,14 +44,28 @@ void PlSqlTreeBuilder::reduced(TokenInfo *ruleInfo, int symbolCount, const QList
         }else{
             ParseTreeNode *childNode = ruleNodesStack.pop();
             //check child node options
-            BNFRuleOption *options = parsingTable->ruleOptions.value(childNode->tokenInfo->tokenOrRuleId, 0);
-            if(options!=0 && options->skip){ //skip this node and add its children
-                for(int k=0; k<childNode->children.size(); ++k){
-                    newNode->children.append(childNode->children.at(k));
-                }
-                //detach children and delete
-                childNode->children.clear();
+            if(childNode->children.size() == 0){
                 delete childNode;
+                continue;
+            }
+            BNFRuleOption *options = parsingTable->ruleOptions.value(childNode->tokenInfo->tokenOrRuleId, 0);
+            if(options){
+
+                if(options->skip){ //skip this node and add its children
+                    newNode->children.append(childNode->children);
+                    qSort(newNode->children.begin(), newNode->children.end(), parseTreeNodeLessThan);
+
+                    //detach children and delete
+                    childNode->children.clear();
+                    delete childNode;
+                }else if(options->noChildren){ //do not add children to tree
+
+                    newNode->children.prepend(childNode);
+
+                    qDeleteAll(childNode->children);
+                    childNode->children.clear();
+                }
+
             }else{
                 newNode->children.prepend(childNode);
             }
@@ -48,6 +75,39 @@ void PlSqlTreeBuilder::reduced(TokenInfo *ruleInfo, int symbolCount, const QList
     setStartEndPositions(newNode);
 
     ruleNodesStack.push(newNode);
+
+    TokenInfo::TokenType tokenType = newNode->tokenInfo->tokenType;
+    int ruleId = newNode->tokenInfo->tokenOrRuleId; //if above type is not Rule this info is wrong (it is token id)
+    int startLine = newNode->tokenInfo->startLine;
+    int endLine = newNode->tokenInfo->endLine;
+    if(calculateCollapsePositions &&
+            (endLine-startLine)!=0 &&
+            (tokenType==TokenInfo::Rule &&
+                ((ruleId==R_BASIC_LOOP_STATEMENT ||
+                    ruleId==R_CASE_STATEMENT ||
+                    ruleId==R_FOR_LOOP_STATEMENT ||
+                    ruleId==R_IF_STATEMENT ||
+                    ruleId==R_PLSQL_BLOCK ||
+                    ruleId==R_PLSQL_BODY) ||
+                    ruleId==R_WHILE_LOOP_STATEMENT ||
+                    ruleId==R_CREATE_OBJECT ||
+                    ruleId==R_PROCEDURE_DEFINITION ||
+                    ruleId==R_FUNCTION_DEFINITION ||
+                    ruleId==R_ELSIF_BLOCK ||
+                    ruleId==R_OPT_ELSE_BLOCK ||
+                    ruleId==R_WHEN_THEN ||
+                 ((ruleId==R_STATEMENT || ruleId==R_DECLARATION) && (endLine - startLine)>3)))){
+        int currentCount = collapsePositions.size();
+
+        CodeCollapsePosition *lastPosition = currentCount > 0 ? collapsePositions[currentCount-1] : 0;
+        if((lastPosition!=0 && lastPosition->startLine!=startLine) || lastPosition==0){ //do not add two items starting on same position
+            collapsePositions.append(new CodeCollapsePosition(startLine, endLine));
+        }
+    }
+
+    //qDebug() << "-----------------------------------";
+    //printoutTree(newNode, "");
+    //qDebug() << "-----------------------------------";
 }
 
 void PlSqlTreeBuilder::setStartEndPositions(ParseTreeNode *parentNode)
@@ -98,6 +158,22 @@ void PlSqlTreeBuilder::accepted()
 void PlSqlTreeBuilder::error()
 {
     accepted();
+}
+
+void PlSqlTreeBuilder::setCalculateCollapsePositions()
+{
+    this->calculateCollapsePositions = true;
+}
+
+QList<CodeCollapsePosition *> PlSqlTreeBuilder::getCollapsePositions() const
+{
+    return this->collapsePositions;
+}
+
+void PlSqlTreeBuilder::clearCollapsePositions()
+{
+    qDeleteAll(collapsePositions);
+    collapsePositions.clear();
 }
 
 ParseTreeNode *PlSqlTreeBuilder::getNode(const QList<int> rulesPath) const

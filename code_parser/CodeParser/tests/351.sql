@@ -551,6 +551,7 @@ CREATE OR REPLACE PACKAGE "OZUMUZ"."PKG_REQUEST_HANDLER" AS
 
 END PKG_REQUEST_HANDLER;
 /
+
 CREATE OR REPLACE PACKAGE "OZUMUZ"."PKG_RH_AUTOSMS" AS
 
    procedure process_request(p_msg_info pkg_request_handler.t_handler_rec_type, 

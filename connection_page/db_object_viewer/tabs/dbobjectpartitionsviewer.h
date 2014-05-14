@@ -19,7 +19,7 @@ public:
 
     virtual void loadData();
 
-    virtual QList<QAction*> getSpecificToolbarButtons();
+    virtual QList<QAction*> getSpecificToolbarButtons(QToolBar *toolbar);
 
 protected:
     virtual void clearInfo();

@@ -6,7 +6,7 @@ CodeEditorAndSearchPaneWidget::CodeEditorAndSearchPaneWidget(bool enableCodeColl
 {
     QVBoxLayout *layout=new QVBoxLayout();
 
-    codeEditor=new CodeEditor(enableCodeCollapsing);
+    codeEditor=new CodeEditor(enableCodeCollapsing, 0);
     searchPane=new SearchPane(codeEditor);
 
     codeEditor->installEventFilter(this);

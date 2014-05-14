@@ -4,6 +4,7 @@
 #include "linenumberarea.h"
 #include "codecollapsearea.h"
 #include "linenavigationbar.h"
+#include "blockdata.h"
 #include "dialogs/gotolinedialog.h"
 #include "util/widgethelper.h"
 #include "util/iconutil.h"
@@ -12,6 +13,7 @@
 #include "app_menu/appeditmenu.h"
 #include "code_parser/plsql/plsqlparsehelper.h"
 #include "beans/codecollapseposition.h"
+#include "widgets/tooltipwidget.h"
 #include <QPainter>
 
 #define EDITOR_SEARCH_BG_COLOR QColor(Qt::yellow)
@@ -25,41 +27,45 @@ QStringHash CodeEditor::textShortcuts;
 CodeEditor::CaseFoldingType CodeEditor::keywordCaseFolding;
 CodeEditor::CaseFoldingType CodeEditor::identifierCaseFolding;
 
-CodeEditor::CodeEditor(bool enableCodeCollapsing, QWidget *parent) :
+CodeEditor::CodeEditor(bool plsqlMode, QWidget *parent) :
     QPlainTextEdit(parent),
     lineNumberArea(0),
-    codeCollapseArea(0),
     lineNavBar(0),
     markedLineIx(-1),
     lineMarkerUsed(false),
     completer(0),
     collapsePositions(0),
-    blockEventChanges(false)
+    blockEventChanges(false),
+    lastParseId(-1)
 {
+    Q_UNUSED(plsqlMode);
+
     setDocument(new CodeEditorDocument(this));
+
+    toolTipWidget = new ToolTipWidget(this->viewport());
 
     QFont monospaceFont("Monospace");
     setFont(monospaceFont);
 
     lineNumberArea = new LineNumberArea(this);
-    if(enableCodeCollapsing){
-        codeCollapseArea = new CodeCollapseArea(this);
-        codeCollapseArea->installEventFilter(this);
-    }
+    codeCollapseArea = new CodeCollapseArea(this);
+    codeCollapseArea->installEventFilter(this);
+    codeCollapseArea->setMouseTracking(true);
     lineNavBar = new LineNavigationBar(this);
 
     connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int)));
     //connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateNavBarHighlightColors()));
     connect(this, SIGNAL(updateRequest(QRect,int)), this, SLOT(updateLineNumberArea(QRect,int)));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
-    connect(this, SIGNAL(textChanged()), this, SLOT(clearErrorPositions()));
 
     updateLineNumberAreaWidth(0);
     highlightCurrentLine();
 
     setTabStopWidth(30);
     setWordWrapMode(QTextOption::NoWrap);
-    new SyntaxHighlighter(this->document());
+    static_cast<CodeEditorDocument*>(document())->setHighlighter(new SyntaxHighlighter(this->document()));
+
+    viewport()->installEventFilter(this);
 
     QPalette p=palette();
     p.setColor(QPalette::Disabled, QPalette::Base, p.color(QPalette::Window));
@@ -70,6 +76,7 @@ CodeEditor::CodeEditor(bool enableCodeCollapsing, QWidget *parent) :
     setFont(f);
 
     strTab=QString("   ");
+
 
     connect(this, SIGNAL(undoAvailable(bool)), this, SLOT(setUndoAvailable(bool)));
     connect(this, SIGNAL(redoAvailable(bool)), this, SLOT(setRedoAvailable(bool)));
@@ -88,6 +95,8 @@ CodeEditor::~CodeEditor()
 
 void CodeEditor::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
+    Q_UNUSED(queryScheduler);
+
     Q_ASSERT(this->completer == 0);
 
     QCompleter *completer = new QCompleter(this);
@@ -139,11 +148,11 @@ int CodeEditor::lineMarkerAreaOffset() const
  {
      if (dy){
          lineNumberArea->scroll(0, dy);
-         if(codeCollapseArea){codeCollapseArea->scroll(0, dy);}
+         codeCollapseArea->scroll(0, dy);
      }
      else{
          lineNumberArea->update(0, rect.y(), lineNumberArea->width(), rect.height());
-         if(codeCollapseArea){codeCollapseArea->update(0, rect.y(), codeCollapseArea->width(), rect.height());}
+         codeCollapseArea->update(0, rect.y(), codeCollapseArea->width(), rect.height());
      }
 
      if (rect.contains(viewport()->rect()))
@@ -168,6 +177,15 @@ int CodeEditor::lineMarkerAreaOffset() const
  {
      pulsatePositions.clear();
      highlightCurrentLine();
+ }
+
+ void CodeEditor::handleTextChanged()
+ {
+     clearErrorPositions();
+     if(lastParseId != -1){
+         lastParseId = -1;
+         updateNavBar();
+     }
  }
 
  void CodeEditor::clearErrorPositions()
@@ -201,7 +219,7 @@ int CodeEditor::lineMarkerAreaOffset() const
 
      QRect cr = contentsRect();
      lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
-     if(codeCollapseArea){codeCollapseArea->setGeometry(QRect(cr.left()+lineNumberAreaWidth(), cr.top(), codeCollapseAreaWidth(), cr.height()));}
+     codeCollapseArea->setGeometry(QRect(cr.left()+lineNumberAreaWidth(), cr.top(), codeCollapseAreaWidth(), cr.height()));
 
      QPoint viewportRight = viewport()->mapToParent(viewport()->rect().topRight());
      QRect navBarRect = QRect(viewportRight.x()+1, viewportRight.y(), lineNavBar->width(), viewport()->height());
@@ -269,6 +287,8 @@ int CodeEditor::lineMarkerAreaOffset() const
      highlightMatchingBraces(extraSelections);
 
      setExtraSelections(extraSelections);
+
+     updateNavBar();
  }
 
  void CodeEditor::highlightMatchingBraces(QList<QTextEdit::ExtraSelection> &extraSelections)
@@ -414,54 +434,59 @@ int CodeEditor::lineMarkerAreaOffset() const
 
  void CodeEditor::codeCollapseAreaPaintEvent(QPaintEvent *event)
  {
-     if(!collapsePositions){
-         return;
-     }
-
      QPainter painter(codeCollapseArea);
-     painter.setRenderHint(QPainter::Antialiasing);
 
-     //painter.fillRect(event->rect(), Qt::green);
-     CodeCollapsePosition *collapsePos;
-     for(int i=collapsePositions->size()-1; i>=0; --i){
-        collapsePos = collapsePositions->at(i);
+     int selectionStart = collapsibleRegionPositions.isNull() ? -1 : collapsibleRegionPositions.selectionStart();
+     int selectionEnd = collapsibleRegionPositions.isNull() ? -1 : collapsibleRegionPositions.selectionEnd();
 
-        QTextBlock startBlock = document()->findBlockByNumber(collapsePos->startLine);
-        QTextBlock endBlock = document()->findBlockByNumber(collapsePos->endLine);
-        if(!startBlock.isValid() || !endBlock.isValid() ||
-                (!startBlock.isVisible() && !endBlock.isVisible())){
-            continue;
-        }
+     QTextBlock block = firstVisibleBlock();
+     int blockNumber = block.blockNumber();
+     int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
+     int bottom = top + (int) blockBoundingRect(block).height();
 
-        int top = (int) blockBoundingGeometry(startBlock).translated(contentOffset()).top();
-        float blockHeight = blockBoundingRect(startBlock).height();
-        int bottom = top + blockHeight;
+     QStyleOption option;
+     option.initFrom(codeCollapseArea);
 
-        if(!(event->rect().top()<=top || event->rect().bottom()>=bottom)){
-            continue;
-        }
+     while (block.isValid() && top <= event->rect().bottom()) {
+         if (block.isVisible() && bottom >= event->rect().top()) {
 
-        if(!collapsibleRegionPositions.isNull() && startBlock.position()==collapsibleRegionPositions.selectionStart()){
-            int endBlockTop = (int) blockBoundingGeometry(endBlock).translated(contentOffset()).top();
-            int endBlockBottom = endBlockTop + blockBoundingRect(endBlock).height();
-            painter.fillRect(QRect(0, top, codeCollapseAreaWidth(), endBlockBottom-top), EDITOR_PULSATE_COLOR);
-        }
+             BlockData *data = static_cast<BlockData*>(block.userData());
+             if(data){
 
-        int triangleTop = blockHeight/4 + top;
-        int triangleBottom = triangleTop + blockHeight/3;
-        QPolygon triangle;
-        triangle <<
-            QPoint(2, triangleTop) <<
-            QPoint(codeCollapseAreaWidth()-2, triangleTop) <<
-            QPoint(qCeil((float)codeCollapseAreaWidth()/2), triangleBottom);
+                 bool insideHighlightArea = (selectionStart!=-1 && block.position()>=selectionStart && block.position()<=selectionEnd);
 
-        painter.drawPolygon(triangle);
+                 if(insideHighlightArea){
+                     option.rect = QRect(0,top,codeCollapseAreaWidth(),bottom-top);
+                     painter.fillRect(option.rect, EDITOR_PULSATE_COLOR);
+                 }
+
+                 if(data->isCollapsePosition(lastParseId)){
+                     option.rect = QRect(0,top,codeCollapseAreaWidth()-5,bottom-top);
+                     if(insideHighlightArea && block.blockNumber() == collapsibleRegionStartBlockNumber){
+                        option.state = QStyle::State_Children  | QStyle::State_Active | QStyle::State_MouseOver | QStyle::State_Enabled;
+                     }else{
+                        option.state = QStyle::State_Children;
+                     }
+
+                     if(data->getCollapsedUntil()==-1){
+                         option.state |= QStyle::State_Open;
+                     }
+
+                     qApp->style()->drawPrimitive(QStyle::PE_IndicatorBranch, &option, &painter);
+                 }
+             }
+         }
+
+         block = block.next();
+         top = bottom;
+         bottom = top + (int) blockBoundingRect(block).height();
+         ++blockNumber;
      }
  }
 
  int CodeEditor::codeCollapseAreaWidth() const
  {
-     return codeCollapseArea ? 12 : 0;
+     return codeCollapseArea ? 16 : 0;
  }
 
  void CodeEditor::refreshCodeCollapseArea()
@@ -601,6 +626,8 @@ int CodeEditor::lineMarkerAreaOffset() const
      cur.setPosition(document()->findBlockByNumber(blockToScrollTo).position());
      setTextCursor(cur);
      centerCursor();
+
+     updateNavBar();
  }
 
  QList<int> CodeEditor::getHighlightedBlockNumbers() const
@@ -651,6 +678,8 @@ int CodeEditor::lineMarkerAreaOffset() const
  void CodeEditor::keyPressEvent ( QKeyEvent * event )
  {
      bool handled=false;
+
+     expandAllBlocks(event);
 
      if(!isReadOnly()){
          int key=event->key();
@@ -808,38 +837,60 @@ int CodeEditor::lineMarkerAreaOffset() const
      }
  }*/
 
- CodeCollapsePosition *CodeEditor::findCollapsePosition(int blockNumber)
+ CodeCollapsePosition CodeEditor::findCollapsePosition(const QTextBlock &block)
  {
-     CodeCollapsePosition *collapsePos=0;
+     int blockNumber = block.blockNumber();
 
-     for(int i=0; i<collapsePositions->size(); ++i){
-         collapsePos = collapsePositions->at(i);
-
-         if(collapsePos->startLine <= blockNumber && collapsePos->endLine >= blockNumber){
-             break;
-         }
+     if(blockNumber<0 || blockNumber >= blockCount()){
+         return CodeCollapsePosition();
      }
 
-     return collapsePos;
+     int scannedCount = 0;
+
+     QTextBlock prevBlock = block;
+     while(prevBlock.isValid() && ++scannedCount<200){
+
+         BlockData *data = static_cast<BlockData*>(prevBlock.userData());
+         if(!data){
+             return CodeCollapsePosition();
+         }
+
+         int collapseEndLine = data->getCollapseEnd(lastParseId);
+         if(collapseEndLine!=-1 && collapseEndLine>=blockNumber){
+             return CodeCollapsePosition(prevBlock.blockNumber(), collapseEndLine);
+         }
+
+         prevBlock = prevBlock.previous();
+     }
+
+     return CodeCollapsePosition();
  }
 
- void CodeEditor::highlightCollapsibleRegion(int blockNumber)
+ void CodeEditor::highlightCollapsibleRegion(QMouseEvent *event)
  {
-     CodeCollapsePosition *collapsePos=findCollapsePosition(blockNumber);
+     QTextCursor cur = cursorForPosition(event->pos());
+     if(!cur.isNull()){
+         highlightCollapsibleRegion(cur.block());
+     }
+ }
 
-     if(collapsePos == 0){
+ void CodeEditor::highlightCollapsibleRegion(const QTextBlock &block)
+ {
+     CodeCollapsePosition collapsePos=findCollapsePosition(block);
+
+     if(!collapsePos.isValid()){
          collapsibleRegionPositions = QTextCursor();
          return;
      }
 
      QTextCursor cur = textCursor();
-     QTextBlock startBlock=document()->findBlockByNumber(collapsePos->startLine);
+     QTextBlock startBlock=document()->findBlockByNumber(collapsePos.startLine);
 
      if(startBlock.position() == collapsibleRegionPositions.selectionStart()){ //already highlighted
          return;
      }
 
-     QTextBlock endBlock=document()->findBlockByNumber(collapsePos->endLine);
+     QTextBlock endBlock=document()->findBlockByNumber(collapsePos.endLine);
 
      if(!startBlock.isValid() || !endBlock.isValid()){
          return;
@@ -848,6 +899,7 @@ int CodeEditor::lineMarkerAreaOffset() const
      selectBlocks(cur, startBlock, endBlock);
 
      collapsibleRegionPositions = cur;
+     collapsibleRegionStartBlockNumber = startBlock.blockNumber();
 
      highlightCurrentLine();
  }
@@ -857,6 +909,204 @@ int CodeEditor::lineMarkerAreaOffset() const
      cur.setPosition(startBlock.position());
      cur.setPosition(endBlock.position(), QTextCursor::KeepAnchor);
      cur.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+ }
+
+ void CodeEditor::collapseOrExpandBlocks(QTextCursor &cur)
+ {
+     setUpdatesEnabled(false);
+     this->blockEventChanges=true;
+
+     QTextBlock startBlock = document()->findBlock(cur.selectionStart());
+     Q_ASSERT(startBlock.isValid());
+
+     BlockData *data = static_cast<BlockData*>(startBlock.userData());
+     Q_ASSERT(data);
+
+     int collapsedUntil = data->getCollapsedUntil();
+     bool collapsing = collapsedUntil == -1;
+
+
+     int endBlockNumber = collapsing ? document()->findBlock(cur.selectionEnd()).blockNumber()
+                                     :  collapsedUntil;
+
+     Q_ASSERT(endBlockNumber!=-1);
+
+     data->setCollapsedUntil(collapsing ? endBlockNumber : -1);
+     //must be called after marking block as parent block of collapsed region
+     //static_cast<CodeEditorDocument*>(this->document())->forceSyntaxRehighlighting(startBlock.position()+1);
+     static_cast<CodeEditorDocument*>(document())->forceSyntaxRehighlighting(startBlock);
+
+     while(startBlock.blockNumber() < endBlockNumber && startBlock.isValid()) {
+         startBlock = startBlock.next(); //do not hide/show first block
+
+         if(!collapsing){ //do not expand nested collapsed regions
+            data = static_cast<BlockData*>(startBlock.userData());
+            Q_ASSERT(data);
+
+            int innerCollapsedUntil = data->getCollapsedUntil();
+            if(innerCollapsedUntil !=-1){
+                startBlock.setVisible(true); //expand first line of collapsed region
+                while(startBlock.blockNumber() < innerCollapsedUntil && startBlock.isValid()){ //skip nested collapsed blocks
+                    startBlock = startBlock.next();
+                }
+                continue;
+            }
+         }
+
+         startBlock.setVisible(!collapsing);
+     }
+
+     CodeEditorDocument *doc = static_cast<CodeEditorDocument*>(document());
+     if(collapsing){
+         doc->incrementCollapsedRangeCount();
+     }else{
+         doc->decrementCollapsedRangeCount();
+     }
+
+     this->blockEventChanges=false;
+     setUpdatesEnabled(true);
+
+     document()->markContentsDirty(0,document()->characterCount());
+
+     updateAllParts();
+
+     emit updated(this);
+ }
+
+ void CodeEditor::showTooltipForCollapsedRange(const QTextBlock &block, int endBlockNumber)
+ {
+     Q_ASSERT(block.isValid());
+
+     QTextBlock endBlock = document()->findBlockByNumber(endBlockNumber);
+
+     Q_ASSERT(endBlock.isValid() && block < endBlock);
+
+     QTextCursor cur = textCursor();
+     cur.setPosition(block.position());
+     cur.movePosition(QTextCursor::NextBlock);
+     cur.setPosition(endBlock.position()+endBlock.length()-1, QTextCursor::KeepAnchor);
+     QTextDocumentFragment fragment(cur);
+     QString html = fragment.toHtml();
+
+     QRect blockRect = blockBoundingGeometry(block).translated(contentOffset()).toRect();
+
+     toolTipWidget->setFont(this->font());
+     toolTipWidget->setText(html);
+     toolTipWidget->showToolTip(viewport()->mapToGlobal(blockRect.bottomLeft()),
+                                blockRect);
+ }
+
+ int CodeEditor::collapsedRangeCount() const
+ {
+     return static_cast<CodeEditorDocument*>(document())->getCollapsedRangeCount();
+ }
+
+ bool CodeEditor::extendSelection(QTextCursor &cur)
+ {
+     if(!cur.hasSelection() || collapsedRangeCount()==0){
+         return false;
+     }
+
+     CursorPositionInfo cursorInfo = getStartStopPositions(cur);
+
+     QTextBlock block = document()->findBlock(cursorInfo.endPos);
+     Q_ASSERT(block.isValid());
+
+     if(cursorInfo.endPos == (block.position()+block.length()-1)){ //block selected until end
+         BlockData *data = static_cast<BlockData*>(block.userData());
+         if(data->isCollapsedRangeStart()){
+             QTextBlock collapseEndBlock = document()->findBlockByNumber(data->getCollapsedUntil());
+             Q_ASSERT(collapseEndBlock.isValid());
+
+             cursorInfo.endBlock = collapseEndBlock.blockNumber();
+             cursorInfo.endPos = collapseEndBlock.position() + collapseEndBlock.length() - 1;
+
+             cursorInfo.selectText(cur);
+
+             collapseOrExpandBlocks(cur);
+
+             return true;
+         }
+     }
+
+     return false;
+ }
+
+ void CodeEditor::expandAllBlocks(int startBlock, int endBlock)
+ {
+     if(collapsedRangeCount()==0){
+         return;
+     }
+
+     QTextBlock block = document()->findBlockByNumber(startBlock);
+     while(block.isValid() && block.blockNumber() <= endBlock){
+         expandBlock(block);
+
+         block = block.next();
+     }
+ }
+
+ void CodeEditor::expandAllBlocks(QKeyEvent *event)
+ {
+     if(collapsedRangeCount()==0){
+         return;
+     }
+
+     if(!event->matches(QKeySequence::Copy) &&
+             !event->matches(QKeySequence::Cut) &&
+             (event->key()!=Qt::Key_Up) &&
+             (event->key()!=Qt::Key_Down) &&
+             (event->key()!=Qt::Key_Left) &&
+             (event->key()!=Qt::Key_Right) &&
+             (event->key()!=Qt::Key_PageUp) &&
+             (event->key()!=Qt::Key_PageDown) &&
+             (event->key()!=Qt::Key_Control) &&
+             (event->key()!=Qt::Key_Meta) &&
+             (event->key()!=Qt::Key_Alt) &&
+             (event->key()!=Qt::Key_AltGr)){
+         CursorPositionInfo inf = getStartStopPositions(textCursor());
+         expandAllBlocks(inf.startBlock, inf.endBlock);
+     }
+ }
+
+ void CodeEditor::expandBlock(const QTextBlock &block)
+ {
+     if(collapsedRangeCount()==0){
+         return;
+     }
+
+     QTextBlock currBlock = block;
+     while(!currBlock.isVisible() && currBlock.isValid()){
+         currBlock = currBlock.previous();
+     }
+
+     BlockData *data = static_cast<BlockData*>(currBlock.userData());
+     if(data->isCollapsedRangeStart()){
+         QTextBlock collapseEndBlock = document()->findBlockByNumber(data->getCollapsedUntil());
+         Q_ASSERT(collapseEndBlock.isValid());
+
+         QTextCursor cur = textCursor();
+         cur.setPosition(currBlock.position());
+         cur.setPosition(collapseEndBlock.position()+collapseEndBlock.length()-1, QTextCursor::KeepAnchor);
+
+         collapseOrExpandBlocks(cur);
+     }
+ }
+
+ void CodeEditor::updateAllParts()
+ {
+     viewport()->update();
+     lineNumberArea->update();
+     codeCollapseArea->update();
+     lineNavBar->update();
+     update();
+ }
+
+ void CodeEditor::setDocument(QTextDocument *document)
+ {
+     QPlainTextEdit::setDocument(document);
+
+     connect(this->document(), SIGNAL(contentsChange(int,int,int)), this, SLOT(handleTextChanged()));
  }
 
  void CodeEditor::focusInEvent(QFocusEvent *event)
@@ -912,6 +1162,55 @@ int CodeEditor::lineMarkerAreaOffset() const
      return QPlainTextEdit::event(e);
  }
 
+ void CodeEditor::paintEvent(QPaintEvent *event)
+ {
+     QPlainTextEdit::paintEvent(event);
+
+     QPainter painter(viewport());
+
+     QTextBlock block = firstVisibleBlock();
+     int blockNumber = block.blockNumber();
+     QRectF blockGeometry = blockBoundingGeometry(block).translated(contentOffset());
+     int top = (int) blockGeometry.top();
+     int bottom = top + (int) blockBoundingRect(block).height();
+
+     /*QTextCursor cur = textCursor();
+     QFontMetrics metrics = fontMetrics();
+     int charWidth = metrics.width('W');
+     int charHeight = metrics.height();*/
+
+     painter.save();
+     painter.setPen(QPen(Qt::red, 0.5));
+
+     while (block.isValid() && top <= event->rect().bottom()) {
+         if (blockNumber > 0 && block.isVisible() && bottom >= event->rect().top()) {
+
+             BlockData *data = static_cast<BlockData*>(block.userData());
+             if(data){
+                 if(data->isSectionSeparator()){
+                     //painter.setPen(QPen(Qt::red, 0.5));
+                     //painter.setRenderHint(QPainter::Antialiasing, false);
+                     painter.drawLine(0, top, viewport()->width(), top);
+                 }
+                 /*if(data->isCollapsedRangeStart()){
+                     painter.setPen(QPen(palette().text(), 0.3));
+                     painter.setRenderHint(QPainter::Antialiasing, true);
+                     cur.setPosition(block.position()+block.length()-1);
+                     QRect curRect = cursorRect(cur).translated(contentOffset().toPoint()).translated(10, 0);
+                     QRect blockEndRect(curRect.left(), top+(qMax((bottom-top-charHeight),0)/(float)2), charWidth*5, charHeight);
+                     painter.drawRoundedRect(blockEndRect, 10, 10, Qt::RelativeSize);
+                 }*/
+             }
+
+         }
+
+         block = block.next();
+         top = bottom;
+         bottom = top + (int) blockBoundingRect(block).height();
+         ++blockNumber;
+     }
+     painter.restore();
+ }
 
  void CodeEditor::autoIndentNewBlock()
  {
@@ -1189,6 +1488,9 @@ int CodeEditor::lineMarkerAreaOffset() const
      if(!cur.hasSelection()){
          cur.select(QTextCursor::WordUnderCursor);
          setTextCursor(cur);
+     }else{
+         extendSelection(cur);
+         setTextCursor(cur);
      }
  }
 
@@ -1196,6 +1498,7 @@ int CodeEditor::lineMarkerAreaOffset() const
  void CodeEditor::updateNavBar()
  {
      lineNavBar->update();
+     codeCollapseArea->update();
  }
 
  void CodeEditor::commentBlocks()
@@ -1415,13 +1718,20 @@ int CodeEditor::lineMarkerAreaOffset() const
         return;
      }
 
+     expandAllBlocks(inf.startBlock, inf.endBlock);
+
      cur.beginEditBlock();
 
      if(up){
         int startBlockPos=document()->findBlockByNumber(inf.startBlock).position();
         cur.setPosition(startBlockPos);
+
         cur.movePosition(QTextCursor::PreviousBlock);
         cur.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+
+        QTextBlock prevBlock = cur.block();
+        expandBlock(prevBlock);
+
         QString blockText=cur.selectedText();
         cur.movePosition(QTextCursor::StartOfBlock);
         cur.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
@@ -1447,6 +1757,12 @@ int CodeEditor::lineMarkerAreaOffset() const
          cur.setPosition(endBlockPos);
          cur.movePosition(QTextCursor::NextBlock);
          cur.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+
+         QTextBlock nextBlock = cur.block();
+         if(nextBlock.isValid()){
+             expandBlock(nextBlock);
+         }
+
          QString blockText=cur.selectedText();
          if(inf.endBlock==document()->blockCount()-2){
             cur.movePosition(QTextCursor::PreviousBlock);
@@ -1473,19 +1789,15 @@ int CodeEditor::lineMarkerAreaOffset() const
 
  void CodeEditor::selectCurrentBlock()
  {
-     if(codeCollapseArea==0){
-         return;
-     }
-
      QTextCursor cur = textCursor();
 
-     CodeCollapsePosition *collapsePos=findCollapsePosition(cur.blockNumber());
-     if(collapsePos==0){
+     CodeCollapsePosition collapsePos=findCollapsePosition(cur.block());
+     if(!collapsePos.isValid()){
          return;
      }
 
-     QTextBlock startBlock=document()->findBlockByNumber(collapsePos->startLine);
-     QTextBlock endBlock=document()->findBlockByNumber(collapsePos->endLine);
+     QTextBlock startBlock=document()->findBlockByNumber(collapsePos.startLine);
+     QTextBlock endBlock=document()->findBlockByNumber(collapsePos.endLine);
      selectBlocks(cur, startBlock, endBlock);
 
      setTextCursor(cur);
@@ -1605,7 +1917,6 @@ int CodeEditor::lineMarkerAreaOffset() const
         this->foundTextPositions=foundTextPositions;
         highlightCurrentLine();
      }
-     updateNavBar();
  }
 
  void CodeEditor::clearFoundTextPositions()
@@ -1613,7 +1924,6 @@ int CodeEditor::lineMarkerAreaOffset() const
      if(this->foundTextPositions.size()>0){
         this->foundTextPositions.clear();
         highlightCurrentLine();
-        updateNavBar();
      }
  }
 
@@ -1652,7 +1962,6 @@ int CodeEditor::lineMarkerAreaOffset() const
      this->errorPositions = errorPositions;
 
      highlightCurrentLine();
-     updateNavBar();
  }
 
  void CodeEditor::addErrorPosition(const QTextCursor &cursor)
@@ -1661,7 +1970,6 @@ int CodeEditor::lineMarkerAreaOffset() const
 
      this->errorPositions.append(cursor);
      highlightCurrentLine();
-     updateNavBar();
  }
 
  void CodeEditor::setMarkedLine(int line)
@@ -1712,7 +2020,7 @@ int CodeEditor::lineMarkerAreaOffset() const
 
  bool CodeEditor::eventFilter(QObject *watched, QEvent *event)
  {
-     if(watched == codeCollapseArea){
+     /*if(watched == codeCollapseArea){
          if(event->type() == QEvent::ToolTip){
              QHelpEvent *helpEvent = static_cast<QHelpEvent*>( event );
 
@@ -1721,6 +2029,33 @@ int CodeEditor::lineMarkerAreaOffset() const
          }else if(event->type() == QEvent::Leave && !collapsibleRegionPositions.isNull()){
              collapsibleRegionPositions = QTextCursor();
              highlightCurrentLine();
+         }
+     }*/
+
+     if(watched == codeCollapseArea){
+         if(event->type() == QEvent::MouseMove){
+             highlightCollapsibleRegion(static_cast<QMouseEvent*>(event));
+         }else if(event->type() == QEvent::Leave && !collapsibleRegionPositions.isNull()){
+             collapsibleRegionPositions = QTextCursor();
+             highlightCurrentLine();
+         }else if(event->type() == QEvent::MouseButtonRelease){
+             if(!collapsibleRegionPositions.isNull()){
+                 collapseOrExpandBlocks(collapsibleRegionPositions);
+                 collapsibleRegionPositions = QTextCursor();
+
+                 highlightCollapsibleRegion(static_cast<QMouseEvent*>(event));
+             }
+         }
+     }else if(watched == viewport()){
+         if(event->type() == QEvent::ToolTip){
+             QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+             QTextCursor cur = cursorForPosition(helpEvent->pos());
+             if(!cur.isNull()){
+                 BlockData *data = static_cast<BlockData*>(cur.block().userData());
+                 if(data->isCollapsedRangeStart()){
+                     showTooltipForCollapsedRange(cur.block(), data->getCollapsedUntil());
+                 }
+             }
          }
      }
 
@@ -1735,6 +2070,17 @@ int CodeEditor::lineMarkerAreaOffset() const
  void CodeEditor::setBlockChanges(bool block)
  {
      this->blockEventChanges = block;
+ }
+
+ void CodeEditor::setLastParseId(int parseId)
+ {
+     this->lastParseId = parseId;
+     updateNavBar();
+ }
+
+ int CodeEditor::getLastParseId() const
+ {
+     return this->lastParseId;
  }
 
  void CodeEditor::loadTextShortcuts()

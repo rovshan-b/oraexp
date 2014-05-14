@@ -3,8 +3,9 @@
 
 #include <QWidget>
 #include <QTime>
-
+#include <QTimer>
 #include "codeeditorandsearchpanewidget.h"
+#include "util/codereparser.h"
 
 class QSplitter;
 class QActionGroup;
@@ -25,9 +26,10 @@ public:
     
     CodeEditorAndSearchPaneWidget *getCurrentEditor() const;
     CodeEditor *currentTextEditor() const {return currentEditor->editor();}
-    void addSplittingActions(QWidget *w);
+    QList<QAction *> addSplittingActions(QWidget *w);
     QLabel *createInfoLabel();
 
+    void setInitialText(const QString &text);
     void setReadOnly(bool readOnly);
 
     void setInfoLabelTextFormat(const QString &format);
@@ -36,9 +38,6 @@ public:
 signals:
     void escapeKeyPressed();
     void needsCompletionList();
-
-protected:
-    //void timerEvent(QTimerEvent *event);
 
 private slots:
     void editorCountActionSelected(bool checked);
@@ -49,6 +48,14 @@ private slots:
 
     void documentContentsChanged(int position, int charsRemoved, int charsAdded);
 
+    void onReparseTimer();
+
+    void parsingCompleted(int requestId,
+                          bool success,
+                          PlSqlTreeBuilder *treeBulder,
+                          int elapsedTime);
+
+    void updateEditors(CodeEditor *except);
 private:
     void createUi();
     void setEditorCount(int count);
@@ -67,16 +74,19 @@ private:
 
     bool enableCodeCollapsing;
 
-    int timerId;
-    QTime lastChangeTime;
-
     bool isId(TokenInfo *token) const;
     bool isKeyword(TokenInfo *token) const;
     void applyCaseFoldingRules(int position, int charsRemoved, int charsAdded);
     void applyCaseFolding(CodeEditor::CaseFoldingType foldingType, int textPosition, QString &text, bool &changed);
     int lastEditedWordPosition;
     QString lastEditedWord;
-    
+
+    QTime lastChangeTime;
+    QTime lastParseTime;
+    QTimer reparseTimer;
+    CodeReparser codeReparser;
+
+    void reparse();
 };
 
 #endif // MULTIEDITORWIDGET_H

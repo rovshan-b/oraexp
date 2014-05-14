@@ -121,13 +121,17 @@ void GenericQueryViewerWidget::createChildControls()
     setLayout(layout);
 }
 
-QList<QAction *> GenericQueryViewerWidget::getSpecificToolbarButtons()
+QList<QAction *> GenericQueryViewerWidget::getSpecificToolbarButtons(QToolBar *toolbar)
 {
+    Q_UNUSED(toolbar);
+
     return QList<QAction*>();
 }
 
-QList<QWidget *> GenericQueryViewerWidget::getSpecificToolbarWidgets()
+QList<QWidget *> GenericQueryViewerWidget::getSpecificToolbarWidgets(QToolBar *toolbar)
 {
+    Q_UNUSED(toolbar);
+
     return QList<QWidget*>();
 }
 

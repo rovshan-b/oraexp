@@ -104,16 +104,23 @@ void GenericQueryViewerTabs::initTab(GenericQueryViewerWidget *tab)
 {
     tab->createChildControls();
 
-    QList<QAction*> specificButtons=tab->getSpecificToolbarButtons();
+    bool seenStretch = false;
+
+    QList<QAction*> specificButtons=tab->getSpecificToolbarButtons(toolbar);
     if(specificButtons.size()>0){
         tabSpecificActions[tab]=specificButtons;
         foreach(QAction* button, specificButtons){
-            toolbar->insertAction(lastSeparatorBeforeProgressBar, button);
+            seenStretch = seenStretch || button->data().toString()=="stretch";
+            if(seenStretch){
+                toolbar->addAction(button);
+            }else{
+                toolbar->insertAction(lastSeparatorBeforeProgressBar, button);
+            }
             button->setParent(this);
         }
     }
 
-    QList<QWidget*> specificWidgets=tab->getSpecificToolbarWidgets();
+    QList<QWidget*> specificWidgets=tab->getSpecificToolbarWidgets(toolbar);
     if(specificWidgets.size()>0){
         tabSpecificWidgets[tab]=specificWidgets;
         foreach(QWidget* widget, specificWidgets){

@@ -266,7 +266,8 @@ void WorksheetQueryPane::autotraceQueryCompleted(const QueryResult &result)
 
 void WorksheetQueryPane::setContents(const QString &contents)
 {
-    currentEditor()->editor()->setPlainText(contents);
+    //currentEditor()->editor()->setPlainText(contents);
+    multiEditor->setInitialText(contents);
 }
 
 QString WorksheetQueryPane::getContents() const

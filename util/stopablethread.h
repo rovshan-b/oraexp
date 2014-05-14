@@ -11,7 +11,7 @@ public:
     virtual ~StopableThread(){}
 
     virtual void stop() {this->stopped=true;}
-    bool isStopped() const {return this->stopped;}
+    inline bool isStopped() const {return this->stopped;}
     
 protected:
     bool stopped;

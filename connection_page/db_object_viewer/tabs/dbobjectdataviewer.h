@@ -21,8 +21,8 @@ public:
 
     virtual void createMainWidget(QLayout *);
 
-    virtual QList<QAction*> getSpecificToolbarButtons();
-    virtual QList<QWidget*> getSpecificToolbarWidgets();
+    virtual QList<QAction*> getSpecificToolbarButtons(QToolBar *toolbar);
+    virtual QList<QWidget*> getSpecificToolbarWidgets(QToolBar *toolbar);
 
 private slots:
     void filter();

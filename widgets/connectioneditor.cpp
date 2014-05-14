@@ -6,6 +6,8 @@
 #include "enums.h"
 #include "beans/dbconnectioninfo.h"
 #include "beans/environmentinfo.h"
+#include "widgets/dbitemlistcombobox.h"
+#include "widgets/comboboxwithbutton.h"
 #include <QtGui>
 
 ConnectionEditor::ConnectionEditor(QWidget *parent) :
@@ -74,11 +76,22 @@ QWidget *ConnectionEditor::createTnsPane()
     QWidget *tnsPane = new QWidget();
     tnsPaneForm = new QFormLayout();
 
-    tnsCombo = new QComboBox();
-    tnsCombo->setEditable(true);
+    tnsCombo = new ComboBoxWithButton();
+    tnsCombo->comboBox()->clear();
+    tnsCombo->comboBox()->setEditable(true);
     tnsPaneForm->addRow(tr("TNS"), tnsCombo);
 
-    loadTnsList();
+    QString filePath = loadTnsList();
+
+    if(!filePath.isEmpty()){
+        tnsNamesPath = QFileInfo(filePath).absolutePath();
+        tnsCombo->browseButton()->setText("");
+        tnsCombo->browseButton()->setIcon(IconUtil::getIcon("fileopen"));
+        tnsCombo->browseButton()->setToolTip(tr("Open containing directory"));
+        connect(tnsCombo, SIGNAL(buttonClicked(ComboBoxWithButton*)), this, SLOT(openTnsNamesDirectory()));
+    }else{
+        tnsCombo->browseButton()->setVisible(false);
+    }
 
     //form->setContentsMargins(0,0,0,0);
     tnsPane->setLayout(tnsPaneForm);
@@ -108,8 +121,10 @@ QWidget *ConnectionEditor::createDirectPane()
     return directPane;
 }
 
-void ConnectionEditor::loadTnsList()
+QString ConnectionEditor::loadTnsList()
 {
+    QString result;
+
     QByteArray tnsnamesPathArr = qgetenv("TNS_ADMIN");
     bool appendNetworkDir = false;
     if(tnsnamesPathArr.isEmpty()){
@@ -125,7 +140,7 @@ void ConnectionEditor::loadTnsList()
         appendNetworkDir = true;
 
         if(path.isEmpty()){
-            return;
+            return result;
         }
     }
 
@@ -137,7 +152,7 @@ void ConnectionEditor::loadTnsList()
     path.append("tnsnames.ora");
 
     if(!QFile::exists(path)){
-        return;
+        return result;
     }
 
     QFile file(path);
@@ -149,16 +164,20 @@ void ConnectionEditor::loadTnsList()
         int pos = 0;
 
         while ((pos = tnsnameRegExp.indexIn(contents, pos)) != -1) {
-            tnsCombo->addItem(tnsnameRegExp.cap(1));
+            tnsCombo->comboBox()->addItem(tnsnameRegExp.cap(1));
 
             pos += tnsnameRegExp.matchedLength();
         }
 
-        if(tnsCombo->count()>0){
-            tnsCombo->model()->sort(0);
-            tnsCombo->setCurrentIndex(0);
+        if(tnsCombo->comboBox()->count()>0){
+            tnsCombo->comboBox()->model()->sort(0);
+            tnsCombo->comboBox()->setCurrentIndex(0);
         }
+
+        result = path;
     }
+
+    return result;
 }
 
 QString ConnectionEditor::findTnsnamesFileFromPath()
@@ -240,7 +259,7 @@ void ConnectionEditor::updateConnection(DbConnectionInfo *connection)
 
         connectionString = QString("%1:%2/%3").arg(hostname, port, sid);
     }else{
-        connectionString = tnsCombo->currentText();
+        connectionString = tnsCombo->comboBox()->currentText();
     }
 
     OraExp::ConnectAs connectAs = (OraExp::ConnectAs) connectAsCombo->itemData(connectAsCombo->currentIndex()).toInt();
@@ -277,13 +296,13 @@ void ConnectionEditor::setCurrentConnection(DbConnectionInfo *connectionInfo)
                 portEditor->setText(parts.size()>1 ? parts.at(1) : "1521");
             }
         }else{
-            WidgetHelper::setComboBoxText(tnsCombo, currentConnection->connectionString);
+            WidgetHelper::setComboBoxText(tnsCombo->comboBox(), currentConnection->connectionString);
         }
     }else{
         hostEditor->setText("localhost");
         portEditor->setText("1521");
         sidEditor->setText("XE");
-        WidgetHelper::setComboBoxText(tnsCombo, "");
+        WidgetHelper::setComboBoxText(tnsCombo->comboBox(), "");
     }
 
     connectAsCombo->setCurrentIndex(currentConnection ? connectAsCombo->findData(currentConnection->connectAs) : 0);
@@ -338,7 +357,7 @@ bool ConnectionEditor::validate(bool showErrors)
             messages.append(tr(" - SID not entered"));
         }
     }else{
-        QString tns = tnsCombo->currentText();
+        QString tns = tnsCombo->comboBox()->currentText();
 
         if(tns.isEmpty()){
             messages.append(tr(" - TNS not entered"));
@@ -357,4 +376,13 @@ bool ConnectionEditor::validate(bool showErrors)
 void ConnectionEditor::focus()
 {
     titleEditor->setFocus();
+}
+
+void ConnectionEditor::openTnsNamesDirectory()
+{
+    if(!QDesktopServices::openUrl(tnsNamesPath)){
+        QMessageBox::information(this->window(),
+                                 tr("File location"),
+                                 tr("Could not launch file browser. You can manually open tnsnames.ora file by navigating to this directory:\n%1").arg(tnsNamesPath));
+    }
 }

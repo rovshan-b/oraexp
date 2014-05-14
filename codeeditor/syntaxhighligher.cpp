@@ -1,8 +1,4 @@
 #include "syntaxhighligher.h"
-#include <QFile>
-#include <QTextStream>
-#include <QSet>
-#include <QTextCursor>
 #include "util/strutil.h"
 #include "code_parser/stringreader.h"
 #include "code_parser/plsql/plsqltokens.h"
@@ -17,6 +13,9 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument * parent) :
     doubleQuotationFormat.setForeground(Qt::darkRed);
     singleLineCommentFormat.setForeground(Qt::gray);
     multiLineCommentFormat.setForeground(Qt::gray);
+
+    collapsedRegionFormat.setFontWeight(QFont::DemiBold);
+    collapsedRegionFormat.setFontItalic(true);
 }
 
 void SyntaxHighlighter::highlightBlock(const QString &text)
@@ -76,7 +75,9 @@ void SyntaxHighlighter::highlightBlock(const QString &text)
             break;
         }
 
-        if(valid){
+        if(blockData->isCollapsedRangeStart()){
+            setFormat(0, text.length(), collapsedRegionFormat);
+        }else if(valid){
             setFormat(scanner.getTokenStartPos(),
                       scanner.getTokenEndPos() - scanner.getTokenStartPos(),
                       currentFormat);

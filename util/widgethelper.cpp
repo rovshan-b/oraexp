@@ -457,7 +457,10 @@ QAction* WidgetHelper::addStretchToToolbar(QToolBar *toolbar)
 {
     QWidget *widget=new QWidget();
     widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    return toolbar->addWidget(widget);
+    QAction *stretchAction = toolbar->addWidget(widget);
+    stretchAction->setData("stretch");
+
+    return stretchAction;
 }
 
 void WidgetHelper::updateActionTooltips(QWidget *widget)

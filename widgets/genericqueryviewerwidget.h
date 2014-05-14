@@ -10,6 +10,7 @@ class DataTable;
 class Param;
 class StatementDesc;
 class GenericQueryViewerTabs;
+class QToolBar;
 
 class GenericQueryViewerWidget : public OnDemandInfoViewerWidget
 {
@@ -25,8 +26,8 @@ public:
     void createChildControls();
     bool areControlsCreated() const {return this->controlsCreated;}
 
-    virtual QList<QAction*> getSpecificToolbarButtons();
-    virtual QList<QWidget*> getSpecificToolbarWidgets();
+    virtual QList<QAction*> getSpecificToolbarButtons(QToolBar *toolbar);
+    virtual QList<QWidget*> getSpecificToolbarWidgets(QToolBar *toolbar);
 
     virtual void loadData();
 

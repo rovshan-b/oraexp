@@ -40,10 +40,14 @@ void BNFRule::readOptions(const QString &options)
     foreach(const QString &part, parts){
         if(part.compare("skip")==0){
             option->skip = true;
+        }else if(part.compare("no_children")==0){
+            option->noChildren = true;
         }else{
             Q_ASSERT(false);
         }
     }
+
+    Q_ASSERT(! (option->skip && option->noChildren));
 
     ruleOptions = option;
 }
@@ -57,6 +61,7 @@ QString BNFRule::codeForOptions() const
     QString varName = QString("options_for_%1").arg(ruleName);
     str.append("BNFRuleOption *").append(varName).append(" = new BNFRuleOption();\n");
     str.append(varName).append("->skip = ").append(ruleOptions->skip ? "true" : "false").append(";\n");
+    str.append(varName).append("->noChildren = ").append(ruleOptions->noChildren ? "true" : "false").append(";\n");
     str.append("ruleOptions[R_").append(ruleName.toUpper()).append("] = ").append(varName).append(";");
 
     return str;

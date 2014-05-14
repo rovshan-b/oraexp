@@ -90,8 +90,10 @@ void DbObjectDataViewer::createMainWidget(QLayout *layout)
     connect(editController, SIGNAL(refreshRequired()), this, SLOT(refreshInfo()));
 }
 
-QList<QAction *> DbObjectDataViewer::getSpecificToolbarButtons()
+QList<QAction *> DbObjectDataViewer::getSpecificToolbarButtons(QToolBar *toolbar)
 {
+    Q_UNUSED(toolbar);
+
     QList<QAction*> actions;
 
     actions.append(WidgetHelper::createSeparatorAction(this));
@@ -113,8 +115,10 @@ QList<QAction *> DbObjectDataViewer::getSpecificToolbarButtons()
     return actions;
 }
 
-QList<QWidget *> DbObjectDataViewer::getSpecificToolbarWidgets()
+QList<QWidget *> DbObjectDataViewer::getSpecificToolbarWidgets(QToolBar *toolbar)
 {
+    Q_UNUSED(toolbar);
+
     filterLabel = new ClickableLabel();
     displayFilterText();
 

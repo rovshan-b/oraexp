@@ -17,6 +17,8 @@ void AutocompleteHelper::setQueryScheduler(IQueryScheduler *queryScheduler)
 
 void AutocompleteHelper::getChildList(const QStringList &objectNameParts, int cursorPosition)
 {
+    Q_UNUSED(cursorPosition);
+
     if(this->busy){
         return;
     }

@@ -2,7 +2,11 @@
 #include "plsqlparsingtable.h"
 #include "beans/tokeninfo.h"
 
-PlSqlParser::PlSqlParser(CodeScanner *scanner) : CodeParser(scanner)
+const int maxStayCountOnSamePosition = 3;
+
+PlSqlParser::PlSqlParser(CodeScanner *scanner) : CodeParser(scanner),
+    lastErrorPosition(-1),
+    countOnLastPosition(0)
 {
 }
 
@@ -29,15 +33,29 @@ void PlSqlParser::correctError(int *token, ParsingTableRow *row, ParsingTableAct
         //while reading add all read tokens to token stack
         QList<TokenInfo*> reduceTokens;
         do{
-            if(!reservedWord){
+            if(!reservedWord || countOnLastPosition>maxStayCountOnSamePosition){
                 reduceTokens.prepend(createTokenInfo(*token));
             }
 
             if(*token == PLS_SEMI || reservedWord){
-                if(reduceMajorConstruct(reduceTokens)){
-                    if(!reservedWord){
-                        //read next token for parser to operate on
+                int reducedConstruct = 0;
+                QList<int> expectedTerminals = getExpectedTokens(row).first;
+                bool waitingForSemicolon = (expectedTerminals.size()==1 && expectedTerminals[0]==PLS_SEMI);
+                if(reservedWord && countOnLastPosition<=maxStayCountOnSamePosition &&
+                        !waitingForSemicolon){ //if current token is reserved word, try to reduce expression first
+                    int constuctsToCheck[] = {R_EXPRESSION, R_DECLARATION, R_STATEMENT};
+                    reducedConstruct = reduceMajorConstruct(reduceTokens, constuctsToCheck, 3);
+                }else{ //on semicolon try to reduce declaration or statement
+                    int constuctsToCheck[] = {R_DECLARATION, R_STATEMENT};
+                    reducedConstruct = reduceMajorConstruct(reduceTokens, constuctsToCheck, 2);
+                }
+                if(reducedConstruct){
+                    //read next token for parser to operate
+                    if(!reservedWord || countOnLastPosition>maxStayCountOnSamePosition){
                         *token = scanner->getNextToken();
+                        if(*token == PLS_SEMI){
+                            correctError(token, row, actionOnCurrentToken);
+                        }
                     }
                     ParsingTableRow *newRow=parsingTable->rows.at(stack.top()); //reduceMajorConstruct pushed new gotoState into stack
                     *actionOnCurrentToken=(*newRow->actions).value(*token, 0);
@@ -54,6 +72,13 @@ void PlSqlParser::correctError(int *token, ParsingTableRow *row, ParsingTableAct
         }while(*token != PLS_E_O_F);
     }
 
+    if(scanner->getTokenStartPos() == lastErrorPosition){
+        ++countOnLastPosition;
+    }else if(countOnLastPosition > 0){
+        countOnLastPosition = 0;
+    }
+    lastErrorPosition = scanner->getTokenStartPos();
+
         //qDebug("--------completed error recovery--------------");
 }
 
@@ -64,11 +89,8 @@ void PlSqlParser::replaceKeywordWithIdentifier(int token, ParsingTableRow *row, 
     }
 }
 
-bool PlSqlParser::reduceMajorConstruct(QList<TokenInfo*> &reduceTokens)
+int PlSqlParser::reduceMajorConstruct(QList<TokenInfo*> &reduceTokens, int majorConstructs[], int majorConstructCount)
 {
-    const int majorConstructCount = 3;
-    const int majorConstructs[] = {R_EXPRESSION, R_DECLARATION, R_STATEMENT};
-
     ParsingTable *table=getParsingTable();
     int gotoState;
     int currentConstruct;
@@ -89,14 +111,14 @@ bool PlSqlParser::reduceMajorConstruct(QList<TokenInfo*> &reduceTokens)
 
         if(gotoState != -1){
             reduce(currentConstruct, 0, reduceTokens);
-            return true;
+            return currentConstruct;
         }else{
             stack.pop();
             reduceTokens.append(tokenStack.pop()); //append popped items to reduce tokens so that they get added to parse tree
         }
     }
 
-    return false;
+    return 0;
 }
 /*
 bool PlSqlParser::restoreParsingFromNextState(int *token, QList<TokenInfo*> &reduceTokens)

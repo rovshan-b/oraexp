@@ -7,8 +7,9 @@
 class PlSqlParsingTable : public ParsingTable
 {
 public:
-    static ParsingTable *getInstance();
+    static PlSqlParsingTable *getInstance();
 
+    bool isSectionSeparator(int token) const;
 protected:
     PlSqlParsingTable();
 

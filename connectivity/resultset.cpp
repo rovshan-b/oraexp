@@ -330,13 +330,13 @@ QString Resultset::getAsString(unsigned int colIx) const
         result=toQString(OCI_GetString(ociResultset, colIx));
     }else if(dataType==OraExp::CDTCursor){
         result=QObject::tr("[Cursor]");
-    }else if(dataType==OraExp::CDTObject){
+    }/*else if(dataType==OraExp::CDTObject){
         result=QObject::tr("[Object]");
     }else if(dataType==OraExp::CDTCollection){
         result=QObject::tr("[Collection]");
     }else if(dataType==OraExp::CDTRaw){
         result=QObject::tr("[Binary data (RAW)]");
-    }else if(dataType==OraExp::CDTLob && !isTextColumn(colIx)){
+    }*/else if(dataType==OraExp::CDTLob && !isTextColumn(colIx)){
         result=QObject::tr("[BLOB]");
     }else if(dataType==OraExp::CDTLong && !isTextColumn(colIx)){
         result=QObject::tr("[LONG RAW]");

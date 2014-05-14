@@ -32,6 +32,8 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
 
     sidePane->setCurrentRow(0, QItemSelectionModel::SelectCurrent);
 
+    setStyleSheet("QToolBar { border: 0px }");
+
     resize(650, 400);
 }
 

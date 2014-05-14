@@ -25,8 +25,6 @@ public:
 
     static void findObjectName(const QString &query, QString *schema, QString *name, const QString &defaultSchema);
 
-    static QList<CodeCollapsePosition*> findCodeCollapsePositions(const QTextCursor &cur);
-
     static PlSqlTreeBuilder *createParseTree(TextReaderBase *reader, bool *success = 0);
 
     static void findTableNameInSelectQuery(const QString &query, QString *schemaName, QString *tableName, QString *dblink, const QString &defaultSchemaName = "");

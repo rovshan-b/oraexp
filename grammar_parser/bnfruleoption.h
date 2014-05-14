@@ -10,6 +10,9 @@ public:
 
     //skip this item and add its children
     bool skip;
+
+    //do not add children
+    bool noChildren;
 };
 
 #endif // BNFRULEOPTION_H

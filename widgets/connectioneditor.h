@@ -5,6 +5,7 @@
 
 class QLineEdit;
 class QComboBox;
+class ComboBoxWithButton;
 class QCheckBox;
 class QStackedWidget;
 class DbConnectionInfo;
@@ -37,12 +38,15 @@ public:
 signals:
     void hasConnection(bool has);
 
+private slots:
+    void openTnsNamesDirectory();
+
 private:
     void createUi();
     QWidget *createTnsPane();
     QWidget *createDirectPane();
 
-    void loadTnsList();
+    QString loadTnsList();
     QString findTnsnamesFileFromPath();
 
     void updateConnection(DbConnectionInfo *connection);
@@ -58,13 +62,15 @@ private:
     QStackedWidget *connectionDetailsTab;
 
     QFormLayout *tnsPaneForm;
-    QComboBox *tnsCombo;
+    ComboBoxWithButton *tnsCombo;
 
     QLineEdit *hostEditor;
     QLineEdit *portEditor;
     QLineEdit *sidEditor;
 
     QComboBox *connectAsCombo;
+
+    QString tnsNamesPath;
     
 };
 

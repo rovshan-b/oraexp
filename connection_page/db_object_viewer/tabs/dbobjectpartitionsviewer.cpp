@@ -67,8 +67,10 @@ void DbObjectPartitionsViewer::loadData()
                                  "partitionInfoFetchCompleted");
 }
 
-QList<QAction *> DbObjectPartitionsViewer::getSpecificToolbarButtons()
+QList<QAction *> DbObjectPartitionsViewer::getSpecificToolbarButtons(QToolBar *toolbar)
 {
+    Q_UNUSED(toolbar);
+
     partitioningInfoLabel=new QLabel(tr("Loading partitioning info..."));
 
     QList<QAction*> list;

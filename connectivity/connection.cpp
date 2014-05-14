@@ -71,14 +71,10 @@ QString Connection::getSchemaName() const
 
 void err_handler(OCI_Error *err)
 {
-    wprintf(
-                L"code  : ORA-%05i\n"
-                L"msg   : %s\n"
-                L"sql   : %s\n",
-                OCI_ErrorGetOCICode(err),
-                OCI_ErrorGetString(err),
-                OCI_GetSql(OCI_ErrorGetStatement(err))
-           );
+    qDebug() << "err_handler, code =" << OCI_ErrorGetOCICode(err)
+           << ", msg =" << toQString(OCI_ErrorGetString(err))
+           << ", sql =" << toQString(OCI_GetSql(OCI_ErrorGetStatement(err)))
+    ;
 }
 
 void Connection::initEnvironment()

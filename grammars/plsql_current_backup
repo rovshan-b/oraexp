@@ -3,7 +3,7 @@ start_rule
    ;
    
    
-statements_or_create_objects
+statements_or_create_objects {skip}
    :  statement opt_divide statements_or_create_objects
    |  create_object opt_divide statements_or_create_objects
    |
@@ -44,42 +44,42 @@ obj_type_and_name_and_body
    |  opt_force 'VIEW' object_name
    ;
    
-plsql_type_body_source
+plsql_type_body_source {skip}
    :  is_or_as subprog_decl_in_type_or_map_order_func_declaration_list 'END' PLS_SEMI
    ;
    
-plsql_type_source
+plsql_type_source {skip}
    :  opt_inv_rights_and_accessible_by_clauses is_or_as_or_under varray_or_nested_table_or_object_type_def PLS_SEMI
    ;
    
-plsql_package_body_source
+plsql_package_body_source {skip}
    :  is_or_as opt_declarations opt_initialize_section 'END' opt_identifier PLS_SEMI
    ;
    
-plsql_package_source
+plsql_package_source {skip}
    :  opt_inv_rights_and_accessible_by_clauses is_or_as opt_declarations 'END' opt_identifier PLS_SEMI
    ;
    
-plsql_function_source
+plsql_function_source {skip}
    :  opt_param_declarations 'RETURN' datatype opt_create_function_options create_function_tail
    ;
    
-plsql_procedure_source
+plsql_procedure_source {skip}
    :  opt_param_declarations opt_inv_rights_and_accessible_by_clauses is_or_as plsql_call_spec_or_external
    ;
    
-subprog_decl_in_type_or_map_order_func_declaration_list
+subprog_decl_in_type_or_map_order_func_declaration_list {skip}
    :  subprog_decl_in_type_start subprog_decl_in_type subprog_decl_in_type_or_map_order_func_declaration_list
    |
    ;
    
-subprog_decl_in_type_start
+subprog_decl_in_type_start {skip}
    :  member_or_static
    |  map_or_order member_or_static
    |  opt_final_or_instantiable_list
    ;
    
-subprog_decl_in_type
+subprog_decl_in_type {skip}
    :  proc_decl_in_type
    |  func_decl_in_type
    |  constructor_declaration
@@ -145,7 +145,7 @@ attribute_datatype_element_spec_list_in_parentheses
    :  PLS_LPAREN opt_attribute_datatype_element_spec_list PLS_RPAREN
    ;
    
-opt_tail_attribute_datatype_element_spec_list
+opt_tail_attribute_datatype_element_spec_list {skip}
    :  PLS_COMMA attribute_datatype_element_spec_list
    |
    ;
@@ -298,21 +298,21 @@ opt_in_param_declarations
    |
    ;
 
-opt_tail_param_declarations
+opt_tail_param_declarations {skip}
    :  tail_param_declaration opt_tail_param_declarations
    |
    ;
    
-opt_tail_in_param_declarations
+opt_tail_in_param_declarations {skip}
    :  tail_in_param_declaration opt_tail_in_param_declarations
    |
    ;
    
-tail_param_declaration
+tail_param_declaration {skip}
    :  PLS_COMMA param_declaration
    ;
    
-tail_in_param_declaration
+tail_in_param_declaration {skip}
    :  PLS_COMMA in_param_declaration
    ;
    
@@ -363,7 +363,7 @@ opt_inv_rights_and_accessible_by_clauses
    |
    ;
    
-create_function_tail
+create_function_tail {skip}
    :  'AGGREGATE' 'USING' object_name PLS_SEMI
    |  'USING' object_name PLS_SEMI
    |  is_or_as plsql_call_spec_or_external
@@ -383,12 +383,12 @@ parallel_enable_clause
    :  'PARALLEL_ENABLE' opt_parallel_enable_clause_tail
    ;
    
-opt_parallel_enable_clause_tail
+opt_parallel_enable_clause_tail {skip}
    :  parallel_enable_clause_tail
    |
    ;
    
-parallel_enable_clause_tail
+parallel_enable_clause_tail {skip}
    :  PLS_LPAREN 'PARTITION' expression 'BY' any_or_hash_or_range PLS_RPAREN opt_streaming_clause
    ;
    
@@ -445,7 +445,7 @@ accessor
    |  object_name
    ;
    
-opt_tail_accessors
+opt_tail_accessors {skip}
    :  PLS_COMMA accessors
    |
    ;
@@ -634,12 +634,12 @@ restrict_ref_types
    :  restrict_ref_type opt_tail_restrict_ref_types
    ;
 
-opt_tail_restrict_ref_types
+opt_tail_restrict_ref_types {skip}
    :  tail_restrict_ref_type opt_tail_restrict_ref_types
    |
    ;
 
-tail_restrict_ref_type
+tail_restrict_ref_type {skip}
    :  PLS_COMMA restrict_ref_type
    ;
    
@@ -728,7 +728,7 @@ field_definition
    :  identifier datatype opt_not_null opt_default_value
    ;
    
-opt_tail_field_definitions
+opt_tail_field_definitions {skip}
    :  PLS_COMMA field_definition opt_tail_field_definitions
    |
    ;
@@ -937,7 +937,7 @@ dynamic_sql_statement
    :  expression
    ;
    
-opt_execute_immediate_statement_tail
+opt_execute_immediate_statement_tail {skip}
    :  execute_immediate_statement_tail
    |
    ;
@@ -972,7 +972,7 @@ using_clause
    :  'USING' using_clause_arguments
    ;
    
-opt_tail_using_clause_arguments
+opt_tail_using_clause_arguments {skip}
    :  PLS_COMMA using_clause_arguments
    |
    ;
@@ -1106,12 +1106,12 @@ exception_names
    :  object_name opt_tail_exception_names
    ;
    
-opt_tail_exception_names
+opt_tail_exception_names {skip}
    :  tail_exception_names
    |
    ;
    
-tail_exception_names
+tail_exception_names {skip}
    :  'OR' object_name 
    |  'OR' object_name tail_exception_names
    ;
@@ -1199,7 +1199,7 @@ opt_siblings
    |
    ;
    
-opt_tail_order_by_list
+opt_tail_order_by_list {skip}
    :  PLS_COMMA order_by_list opt_tail_order_by_list
    |
    ;
@@ -1328,7 +1328,7 @@ opt_having
    |
    ;
 
-opt_tail_group_by_lists
+opt_tail_group_by_lists {skip}
    :  PLS_COMMA group_by_list opt_tail_group_by_lists
    |
    ;
@@ -1352,7 +1352,7 @@ grouping_sets_clause
    :  'GROUPING' 'SETS' PLS_LPAREN grouping_sets_clause_list PLS_RPAREN
    ;
 
-opt_tail_grouping_sets_clause_lists
+opt_tail_grouping_sets_clause_lists {skip}
    :  PLS_COMMA grouping_sets_clause_list opt_tail_grouping_sets_clause_lists
    |
    ;
@@ -1470,7 +1470,7 @@ expression_or_single_column_for_loop_list
    |  single_column_for_loop tail_expression_or_single_column_for_loop_list
    ;
    
-tail_expression_or_single_column_for_loop_list
+tail_expression_or_single_column_for_loop_list {skip}
    :  PLS_COMMA expression tail_expression_or_single_column_for_loop_list
    |  PLS_COMMA single_column_for_loop tail_expression_or_single_column_for_loop_list
    |
@@ -1767,7 +1767,7 @@ unpivot_in_clause
    :  'IN' PLS_LPAREN unpivot_in_clause_list PLS_RPAREN
    ;
    
-opt_tail_unpivot_in_clause_list
+opt_tail_unpivot_in_clause_list {skip}
    :  PLS_COMMA unpivot_in_clause_list
    |
    ;
@@ -1786,7 +1786,7 @@ literal_or_list_in_parentheses
    |  PLS_LPAREN literal_list PLS_RPAREN
    ;
    
-opt_tail_aggregate_function_list
+opt_tail_aggregate_function_list {skip}
    :  PLS_COMMA aggregate_function_list opt_tail_aggregate_function_list
    |
    ;
@@ -1832,11 +1832,11 @@ scn_or_timestamp
    |  'TIMESTAMP'
    ;
 
-opt_tail_from_list
+opt_tail_from_list {skip}
    :  opt_tail_from_list PLS_COMMA from_list
    |
    ;
-   
+    
 from_list
    :  table_reference opt_tail_from_list
    |  join_clause opt_tail_from_list
@@ -1847,7 +1847,7 @@ join_clause
    :  table_reference inner_cross_or_outer_or_cross_join_apply_clauses
    ;
    
-opt_tail_inner_cross_or_outer_or_cross_join_apply_clauses
+opt_tail_inner_cross_or_outer_or_cross_join_apply_clauses {skip}
    :  opt_tail_inner_cross_or_outer_or_cross_join_apply_clauses inner_cross_or_outer_or_cross_join_apply_clauses
    |
    ;
@@ -1944,12 +1944,12 @@ select_list_column_names
    :  expression alias opt_tail_select_list_column_names
    ;
    
-opt_tail_select_list_column_names
+opt_tail_select_list_column_names {skip}
    :  PLS_COMMA expression alias opt_tail_select_list_column_names
    |
    ;
    
-opt_tail_expressions_with_aliases
+opt_tail_expressions_with_aliases {skip}
    :  PLS_COMMA expressions_with_aliases
    |
    ;
@@ -1958,7 +1958,7 @@ expressions_with_aliases
    :  expression alias opt_tail_expressions_with_aliases
    ;
    
-opt_tail_expression_list_with_aliases
+opt_tail_expression_list_with_aliases {skip}
    :  PLS_COMMA expression_list_with_aliases
    |
    ;
@@ -1994,7 +1994,7 @@ opt_search_clause
    |
    ;
    
-opt_tail_alias_search_list
+opt_tail_alias_search_list {skip}
    :  PLS_COMMA alias_search_list
    |
    ;
@@ -2025,7 +2025,7 @@ opt_alias_list
    |
    ;
    
-opt_tail_subquery_factoring_clauses
+opt_tail_subquery_factoring_clauses {skip}
    :  PLS_COMMA subquery_factoring_clause
    |
    ;
@@ -2093,7 +2093,7 @@ while_loop_statement
    :  'WHILE' expression basic_loop_statement
    ;
    
-opt_tail_procedure_calls
+opt_tail_procedure_calls {skip}
    :  PLS_DOT procedure_call
    |  PLS_DOT PLS_ASTERISK
    |
@@ -2202,20 +2202,20 @@ multi_table_insert
    |  conditional_insert_clause subquery
    ;
    
-opt_multi_table_insert_tails
+opt_multi_table_insert_tails {skip}
    :  multi_table_insert_tails
    |
    ;
    
-multi_table_insert_tails
+multi_table_insert_tails {skip}
    :  multi_table_insert_tail opt_multi_table_insert_tails
    ;
    
-multi_table_insert_tail
+multi_table_insert_tail {skip}
    :  insert_into_clause opt_values_clause opt_error_logging_clause
    ;
    
-opt_tail_expression_or_default_lists
+opt_tail_expression_or_default_lists {skip}
    :  PLS_COMMA expression_or_default_list
    |
    ;
@@ -2282,7 +2282,7 @@ lock_mode
    |  'EXCLUSIVE'
    ;
 
-opt_tail_table_names
+opt_tail_table_names {skip}
    :  PLS_COMMA table_names
    |
    ;
@@ -2321,7 +2321,7 @@ delete_where_clause
    :  'DELETE' where_clause
    ;
    
-opt_tail_column_eq_expr_or_default_list
+opt_tail_column_eq_expr_or_default_list {skip}
    :  PLS_COMMA column_eq_expr_or_default_list
    |
    ;
@@ -2404,7 +2404,7 @@ update_set_clause
    :  'SET' update_set_clause_tail
    ;
    
-opt_update_set_clause_tails
+opt_update_set_clause_tails {skip}
    :  PLS_COMMA update_set_clause_tail
    |
    ;
@@ -2489,11 +2489,11 @@ comma_separated_variable_names
    :  identifier_or_bind_variable opt_tail_variable_names
    ;
    
-tail_variable_name
+tail_variable_name {skip}
    :  PLS_COMMA identifier_or_bind_variable
    ;
    
-opt_tail_variable_names
+opt_tail_variable_names {skip}
    :  tail_variable_name opt_tail_variable_names
    |
    ;
@@ -2535,7 +2535,7 @@ subexpression_central
    |  'CONNECT_BY_ROOT' expression
    ;
   
-opt_subexpression_tails
+opt_subexpression_tails {skip}
    :  subexpression_tail opt_subexpression_tails
    |  
    ;
@@ -2700,7 +2700,7 @@ parameter_value
    |  expression PLS_ARROW expression
    ;
    
-opt_tail_parameter_values
+opt_tail_parameter_values {skip}
    :  PLS_COMMA parameter_value opt_tail_parameter_values
    |
    ;
@@ -2824,7 +2824,7 @@ object_name
    :  identifier opt_tail_identifiers
    ;
    
-opt_tail_object_names
+opt_tail_object_names {skip}
    :  PLS_COMMA object_name opt_tail_object_names
    |
    ;
@@ -2855,12 +2855,12 @@ scalar_datatype
    ;
    
 
-opt_tail_identifiers
+opt_tail_identifiers {skip}
    :  tail_identifier opt_tail_identifiers
    |
    ;
    
-tail_identifier
+tail_identifier {skip}
    :  PLS_DOT identifier 
    |  PLS_DOT PLS_ASTERISK
    ;

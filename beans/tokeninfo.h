@@ -26,6 +26,8 @@ public:
     int endLinePos;
 
     QString lexeme;
+
+    QString toString() const;
 };
 
 #endif // TOKENINFO_H

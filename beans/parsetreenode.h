@@ -2,8 +2,7 @@
 #define PARSETREENODE_H
 
 #include <QList>
-
-class TokenInfo;
+#include "tokeninfo.h"
 
 class ParseTreeNode
 {
@@ -17,5 +16,10 @@ public:
 
     int symbolCount;
 };
+
+inline bool parseTreeNodeLessThan(ParseTreeNode *n1, ParseTreeNode *n2)
+{
+    return n1->tokenInfo->startPos < n2->tokenInfo->startPos;
+}
 
 #endif // PARSETREENODE_H

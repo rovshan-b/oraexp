@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     }catch(OciException &ex){
         QMessageBox::critical(0, QObject::tr("Failed to initialize"),
                               QObject::tr("Failed to initalize OCI environment. Most probably Oracle client libraries are not installed"
-                                 " or installed incorrectly. %1").arg(ex.getErrorMessage()));
+                                 " or could not be found. %1").arg(ex.getErrorMessage()));
         return 0;
     }
 

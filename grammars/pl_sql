@@ -44,42 +44,42 @@ obj_type_and_name_and_body
    |  opt_force 'VIEW' object_name
    ;
    
-plsql_type_body_source
+plsql_type_body_source {skip}
    :  is_or_as subprog_decl_in_type_or_map_order_func_declaration_list 'END' PLS_SEMI
    ;
    
-plsql_type_source
+plsql_type_source {skip}
    :  opt_inv_rights_and_accessible_by_clauses is_or_as_or_under varray_or_nested_table_or_object_type_def PLS_SEMI
    ;
    
-plsql_package_body_source
+plsql_package_body_source {skip}
    :  is_or_as opt_declarations opt_initialize_section 'END' opt_identifier PLS_SEMI
    ;
    
-plsql_package_source
+plsql_package_source {skip}
    :  opt_inv_rights_and_accessible_by_clauses is_or_as opt_declarations 'END' opt_identifier PLS_SEMI
    ;
    
-plsql_function_source
+plsql_function_source {skip}
    :  opt_param_declarations 'RETURN' datatype opt_create_function_options create_function_tail
    ;
    
-plsql_procedure_source
+plsql_procedure_source {skip}
    :  opt_param_declarations opt_inv_rights_and_accessible_by_clauses is_or_as plsql_call_spec_or_external
    ;
    
-subprog_decl_in_type_or_map_order_func_declaration_list
+subprog_decl_in_type_or_map_order_func_declaration_list {skip}
    :  subprog_decl_in_type_start subprog_decl_in_type subprog_decl_in_type_or_map_order_func_declaration_list
    |
    ;
    
-subprog_decl_in_type_start
+subprog_decl_in_type_start {skip}
    :  member_or_static
    |  map_or_order member_or_static
    |  opt_final_or_instantiable_list
    ;
    
-subprog_decl_in_type
+subprog_decl_in_type {skip}
    :  proc_decl_in_type
    |  func_decl_in_type
    |  constructor_declaration
@@ -501,7 +501,7 @@ opt_declarations
    |
    ;
    
-declarations
+declarations {skip}
    :  declaration 
    |  declaration declarations
    ;
@@ -842,12 +842,17 @@ opt_identifier
    |
    ;
 
-opt_statements
-   :  statements
+opt_statements {skip}
+   :  statement_list
    |
    ;
+   
+statement_list
+   :  statement
+   |  statement statements
+   ;
 
-statements
+statements {skip}
    :  statement 
    |  statement statements
    ;
@@ -891,7 +896,7 @@ assignment_statement_target
    ;
    
 basic_loop_statement
-   :  'LOOP' statements 'END' 'LOOP' opt_identifier PLS_SEMI
+   :  'LOOP' statement_list 'END' 'LOOP' opt_identifier PLS_SEMI
    ;
    
 case_statement
@@ -1020,7 +1025,7 @@ identifier_or_bind_variable
    ;
 
 opt_else_block
-   :  'ELSE' statements
+   :  'ELSE' statement_list
    |
    ;
    
@@ -1039,7 +1044,7 @@ when_then_blocks
    ;
    
 when_then
-   :  'WHEN' expression 'THEN' statements
+   :  'WHEN' expression 'THEN' statement_list
    ;
    
 opt_when
@@ -1078,7 +1083,7 @@ opt_statements_or_inline_pragmas
    |
    ;
    
-statement_or_inline_pragma
+statement_or_inline_pragma {skip}
    :  statement
    |  inline_pragma
    ;
@@ -1094,7 +1099,7 @@ opt_exception_handler
    ;
    
 exception_handler
-   :  'WHEN' exception_names_or_others 'THEN' statements opt_exception_handler
+   :  'WHEN' exception_names_or_others 'THEN' statement_list opt_exception_handler
    ;
    
 exception_names_or_others
@@ -1140,7 +1145,7 @@ goto_statement
    ;
    
 if_statement
-   :  'IF' expression 'THEN' statements opt_elsif_blocks opt_else_block 'END' 'IF' PLS_SEMI
+   :  'IF' expression 'THEN' statement_list opt_elsif_blocks opt_else_block 'END' 'IF' PLS_SEMI
    ;
 
 opt_elsif_blocks
@@ -1149,7 +1154,7 @@ opt_elsif_blocks
    ;
    
 elsif_block
-   :  'ELSIF' expression 'THEN' statements
+   :  'ELSIF' expression 'THEN' statement_list
    ;
    
 null_statement
@@ -2503,7 +2508,7 @@ opt_expression
    |
    ;
 
-expression
+expression {no_children}
    :  subexpression opt_subexpression_tails
    |  PLS_LPAREN expression_list_list PLS_RPAREN opt_subexpression_tails
    |  PLS_LPAREN expression PLS_RPAREN opt_subexpression_tails

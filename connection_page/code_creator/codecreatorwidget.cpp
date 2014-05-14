@@ -244,7 +244,7 @@ void CodeCreatorWidget::objectInfoReady(DbObjectInfo *objectInfo, MetadataLoader
         PlSqlParseHelper::prepareTriggerForEditing(source);
     }
 
-    currentEditor()->setInitialText(source);
+    multiEditor->setInitialText(source);
 
     delete sourceInfo;
 
@@ -259,7 +259,7 @@ void CodeCreatorWidget::loadError(const QString &taskName, const OciException &e
 {
     if(!isSpec && ex.getErrorCode()==ERR_OBJECT_NOT_FOUND){
 
-        currentEditor()->setInitialText(tr("--Object does not exist or you do not have permission to view it."));
+        multiEditor->setInitialText(tr("--Object does not exist or you do not have permission to view it."));
         emit objectInfoLoaded();
 
     }else{
@@ -322,7 +322,7 @@ void CodeCreatorWidget::loadCodeTemplate()
 {
     QString typeName = getObjectTypeName().toLower().replace(' ','_');
     QString codeTemplate = QueryUtil::getQuery(QString("code_template_%1").arg(typeName), this->queryScheduler->getDb());
-    currentEditor()->setInitialText(codeTemplate);
+    multiEditor->setInitialText(codeTemplate);
 }
 
 CodeEditorAndSearchPaneWidget *CodeCreatorWidget::currentEditor() const

@@ -11,7 +11,7 @@ class ComboBoxWithButton : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ComboBoxWithButton(const QString &initialValue, const QString &iconName, QWidget *parent = 0);
+    explicit ComboBoxWithButton(const QString &initialValue = QString(), const QString &iconName = QString(), QWidget *parent = 0);
 
     DbItemListComboBox *comboBox() const;
     QPushButton *browseButton() const;

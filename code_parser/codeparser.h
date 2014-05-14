@@ -22,11 +22,13 @@ public:
     bool parse();
 
     //first list is for terminals, second for rules
-    QPair< QList<int>, QList<int> > getExpectedTokens() const;
+    QPair< QList<int>, QList<int> > getExpectedTokens(ParsingTableRow *row = 0) const;
 
     CodeScanner *getScanner() const {return this->scanner;}
 
     void setReduceListener(IReduceListener *listener) {this->reduceListener=listener;}
+
+    void stop(){this->stopped = true;}
 
 protected:
     virtual void correctError(int *token, ParsingTableRow *row, ParsingTableAction **actionOnCurrentToken) = 0;
@@ -44,6 +46,8 @@ protected:
 
 private:
     IReduceListener *reduceListener;
+
+    bool stopped;
 };
 
 #endif // CODEPARSER_H

@@ -34,6 +34,8 @@ private:
     QTextCharFormat doubleQuotationFormat;
     QTextCharFormat numberFormat;
 
+    QTextCharFormat collapsedRegionFormat;
+
     BlockData *getBlockData();
 };
 
