@@ -21,11 +21,13 @@ public:
 private slots:
     //void setApplicationStyle();
     void toggleDbObjectsTree();
+    void toggleCodeStructureTree();
 
 private:
     void setupMenu(QMenu *viewMenu, QToolBar *toolbar);
 
     QAction *viewDatabaseObjectsAction;
+    QAction *viewCodeStructureAction;
     //QAction *viewApplicationStyleAction;
 
     //QMenu *viewAppStyleMenu;

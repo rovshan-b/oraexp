@@ -78,6 +78,8 @@ public:
 
     void setDocument(QTextDocument * document);
 
+    bool isPlsqlMode() const;
+
     static QList<CodeEditor*> openEditors;
 
     static QStringHash textShortcuts;
@@ -210,6 +212,8 @@ private:
 
     bool blockEventChanges;
     int lastParseId;
+
+    bool plsqlMode;
 };
 
 #endif // CODEEDITOR_H

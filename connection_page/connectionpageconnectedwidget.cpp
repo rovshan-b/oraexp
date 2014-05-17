@@ -8,8 +8,10 @@
 #include "util/settingshelper.h"
 #include "util/dialoghelper.h"
 #include "util/appconnectionmanager.h"
+#include "util/widgethelper.h"
 #include "beans/ctrltabdata.h"
 #include "connectionpagewindowobject.h"
+#include "widgets/codestructurepane.h"
 #include <iostream>
 #include <QtGui>
 
@@ -22,21 +24,8 @@ ConnectionPageConnectedWidget::ConnectionPageConnectedWidget(DbConnection *db, D
 {
     setDockNestingEnabled(true);
 
-    treeDock=new QDockWidget(tr("Database objects"), this);
-    treeDock->setObjectName("TreeViewDock");
-    treeDock->setAllowedAreas(Qt::LeftDockWidgetArea |
-                              Qt::RightDockWidgetArea);
-    treeDock->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable);
-
-    treePane=new TreePane(uiManager, treeDock);
-    childObjects.append(treePane);
-    treePane->setDeleteListener(this);
-    connect(treePane, SIGNAL(busyStateChanged(ConnectionPageObject*,bool)), this, SLOT(tabBusyStateChanged(ConnectionPageObject*,bool)));
-    treePane->setConnection(db);
-    AppConnectionManager::registerConnection(uiManager->getConnectionPage(), treePane, db);
-
-    treeDock->setWidget(treePane);
-    addDockWidget(Qt::LeftDockWidgetArea, treeDock);
+    createDbTreeDock();
+    createCodeTreeDock();
 
     centralTab=new ConnectionPageTabWidget();
     centralTab->setTabsClosable(true);
@@ -45,7 +34,6 @@ ConnectionPageConnectedWidget::ConnectionPageConnectedWidget(DbConnection *db, D
 
     setCentralWidget(centralTab);
 
-    connect(treeDock, SIGNAL(visibilityChanged(bool)), this, SIGNAL(connectionPageStateChanged()));
     connect(centralTab, SIGNAL(currentChanged(int)), this, SIGNAL(connectionPageStateChanged()));
     connect(centralTab, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
     connect(&connectionPool, SIGNAL(asyncConnectionReady(DbConnection*,void*,bool,OciException)),
@@ -55,6 +43,43 @@ ConnectionPageConnectedWidget::ConnectionPageConnectedWidget(DbConnection *db, D
     new QShortcut(QKeySequence(QKeySequence::Close), this, SLOT(closeCurrentTab()));
 
     QTimer::singleShot(0, this, SLOT(restoreWindowState()));
+}
+
+void ConnectionPageConnectedWidget::createDbTreeDock()
+{
+    dbTreeDock=new QDockWidget(tr("Database objects"), this);
+    dbTreeDock->setObjectName("TreeViewDock");
+    dbTreeDock->setAllowedAreas(Qt::LeftDockWidgetArea |
+                              Qt::RightDockWidgetArea);
+    dbTreeDock->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable);
+
+    dbTreePane=new TreePane(uiManager, dbTreeDock);
+    childObjects.append(dbTreePane);
+    dbTreePane->setDeleteListener(this);
+    connect(dbTreePane, SIGNAL(busyStateChanged(ConnectionPageObject*,bool)), this, SLOT(tabBusyStateChanged(ConnectionPageObject*,bool)));
+    dbTreePane->setConnection(db);
+    AppConnectionManager::registerConnection(uiManager->getConnectionPage(), dbTreePane, db);
+
+    dbTreeDock->setWidget(dbTreePane);
+    addDockWidget(Qt::LeftDockWidgetArea, dbTreeDock);
+
+    connect(dbTreeDock, SIGNAL(visibilityChanged(bool)), this, SIGNAL(connectionPageStateChanged()));
+}
+
+void ConnectionPageConnectedWidget::createCodeTreeDock()
+{
+    codeTreeDock = new QDockWidget(tr("Code structure"), this);
+    codeTreeDock->setObjectName("CodeStructureDock");
+    codeTreeDock->setAllowedAreas(Qt::LeftDockWidgetArea |
+                              Qt::RightDockWidgetArea);
+    codeTreeDock->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable);
+
+    codeTreePane=new CodeStructurePane(codeTreeDock);
+
+    codeTreeDock->setWidget(codeTreePane);
+    addDockWidget(Qt::LeftDockWidgetArea, codeTreeDock);
+
+    connect(codeTreeDock, SIGNAL(visibilityChanged(bool)), this, SIGNAL(connectionPageStateChanged()));
 }
 
 ConnectionPageConnectedWidget::~ConnectionPageConnectedWidget()
@@ -229,7 +254,7 @@ void ConnectionPageConnectedWidget::asyncConnectionReady(DbConnection *db, void 
 void ConnectionPageConnectedWidget::tabBusyStateChanged(ConnectionPageObject *obj, bool busy)
 {
     ConnectionPageTab *tab = dynamic_cast<ConnectionPageTab*>(obj);
-    if(tab && tab!=treePane){
+    if(tab && tab!=dbTreePane){
         centralTab->setTabBusy(tab, busy);
     }
 
@@ -299,11 +324,17 @@ bool ConnectionPageConnectedWidget::activateChildWidget(ConnectionPageObject *ob
         return false;
     }
 
-    if(cnPageTab == treePane){
-        toggleTreePane();
+    if(cnPageTab == dbTreePane){
+        toggleDbTreePane();
 
         return true;
     }
+
+    /*if(cnPageTab == codeTreePane){
+        toggleCodeTreePane();
+
+        return true;
+    }*/
 
     int ix = indexOf(cnPageTab);
     if(ix == -1){
@@ -315,9 +346,30 @@ bool ConnectionPageConnectedWidget::activateChildWidget(ConnectionPageObject *ob
     return true;
 }
 
-void ConnectionPageConnectedWidget::toggleTreePane()
+void ConnectionPageConnectedWidget::toggleDbTreePane()
 {
-    treeDock->setVisible(!treeDock->isVisible());
+    dbTreeDock->setVisible(!dbTreeDock->isVisible());
+    WidgetHelper::raiseIfVisible(dbTreeDock);
+}
+
+void ConnectionPageConnectedWidget::toggleCodeStructurePane()
+{
+    codeTreeDock->setVisible(!codeTreeDock->isVisible());
+    WidgetHelper::raiseIfVisible(codeTreeDock);
+}
+
+void ConnectionPageConnectedWidget::showCodeStructurePane()
+{
+    if(!isCodeStructurePaneVisible()){
+        toggleCodeStructurePane();
+    }
+}
+
+void ConnectionPageConnectedWidget::hideCodeStructurePane()
+{
+    if(isCodeStructurePaneVisible()){
+        toggleCodeStructurePane();
+    }
 }
 
 void ConnectionPageConnectedWidget::windowStateChanged()
@@ -329,7 +381,8 @@ void ConnectionPageConnectedWidget::restoreWindowState()
 {
     restoreState(ConnectionPageConnectedWidget::currentState);
 
-    connectDockSignals(treeDock);
+    connectDockSignals(dbTreeDock);
+    connectDockSignals(codeTreeDock);
 
     //also add an empty worksheet
     //setting focus works correctly when adding from this slot
@@ -359,9 +412,14 @@ void ConnectionPageConnectedWidget::connectDockSignals(QDockWidget *dockWidget)
     connect(dockWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(windowStateChanged()));
 }
 
-bool ConnectionPageConnectedWidget::isTreePaneVisible() const
+bool ConnectionPageConnectedWidget::isDbTreePaneVisible() const
 {
-    return treeDock->isVisible();
+    return dbTreeDock->isVisible();
+}
+
+bool ConnectionPageConnectedWidget::isCodeStructurePaneVisible() const
+{
+    return codeTreeDock->isVisible();
 }
 
 QList<ConnectionPageTab *> ConnectionPageConnectedWidget::getTabsByType(const QString &className) const

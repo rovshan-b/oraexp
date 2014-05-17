@@ -19,7 +19,7 @@ class MultiEditorWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MultiEditorWidget(bool enableCodeCollapsing=false, QWidget *parent = 0);
+    explicit MultiEditorWidget(bool plsqlMode=false, QWidget *parent = 0);
     virtual ~MultiEditorWidget();
 
     void setQueryScheduler(IQueryScheduler *queryScheduler);
@@ -72,7 +72,7 @@ private:
 
     IQueryScheduler *queryScheduler;
 
-    bool enableCodeCollapsing;
+    bool plsqlMode;
 
     bool isId(TokenInfo *token) const;
     bool isKeyword(TokenInfo *token) const;
@@ -84,6 +84,7 @@ private:
     QTime lastChangeTime;
     QTime lastParseTime;
     QTimer reparseTimer;
+    int lastParseLengthInMs;
     CodeReparser codeReparser;
 
     void reparse();

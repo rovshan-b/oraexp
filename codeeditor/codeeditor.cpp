@@ -36,7 +36,8 @@ CodeEditor::CodeEditor(bool plsqlMode, QWidget *parent) :
     completer(0),
     collapsePositions(0),
     blockEventChanges(false),
-    lastParseId(-1)
+    lastParseId(-1),
+    plsqlMode(plsqlMode)
 {
     Q_UNUSED(plsqlMode);
 
@@ -1060,7 +1061,10 @@ int CodeEditor::lineMarkerAreaOffset() const
              (event->key()!=Qt::Key_Right) &&
              (event->key()!=Qt::Key_PageUp) &&
              (event->key()!=Qt::Key_PageDown) &&
+             (event->key()!=Qt::Key_Home) &&
+             (event->key()!=Qt::Key_End) &&
              (event->key()!=Qt::Key_Control) &&
+             (event->key()!=Qt::Key_Shift) &&
              (event->key()!=Qt::Key_Meta) &&
              (event->key()!=Qt::Key_Alt) &&
              (event->key()!=Qt::Key_AltGr)){
@@ -1090,6 +1094,7 @@ int CodeEditor::lineMarkerAreaOffset() const
          cur.setPosition(collapseEndBlock.position()+collapseEndBlock.length()-1, QTextCursor::KeepAnchor);
 
          collapseOrExpandBlocks(cur);
+         pulsate(cur);
      }
  }
 
@@ -1107,6 +1112,11 @@ int CodeEditor::lineMarkerAreaOffset() const
      QPlainTextEdit::setDocument(document);
 
      connect(this->document(), SIGNAL(contentsChange(int,int,int)), this, SLOT(handleTextChanged()));
+ }
+
+ bool CodeEditor::isPlsqlMode() const
+ {
+     return this->plsqlMode;
  }
 
  void CodeEditor::focusInEvent(QFocusEvent *event)

@@ -137,6 +137,8 @@ public:
 
     static QAction *findDefaultAction(QList<QAction *> actions);
 
+    static void raiseIfVisible(QWidget *widget);
+
 };
 
 #endif // WIDGETHELPER_H

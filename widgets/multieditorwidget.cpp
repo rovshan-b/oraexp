@@ -11,15 +11,16 @@
 #include "util/strutil.h"
 #include <QtGui>
 
-MultiEditorWidget::MultiEditorWidget(bool enableCodeCollapsing, QWidget *parent) :
+MultiEditorWidget::MultiEditorWidget(bool plsqlMode, QWidget *parent) :
     QWidget(parent),
     currentEditor(0),
     splitDirectionGroup(0),
     infoLabel(0),
     queryScheduler(0),
-    enableCodeCollapsing(enableCodeCollapsing),
+    plsqlMode(plsqlMode),
     lastEditedWordPosition(-1),
-    lastChangeTime(QTime::currentTime())
+    lastChangeTime(QTime::currentTime()),
+    lastParseLengthInMs(1000000)
 {
     createUi();
 }
@@ -59,7 +60,7 @@ void MultiEditorWidget::createUi()
     connect(&reparseTimer, SIGNAL(timeout()), this, SLOT(onReparseTimer()));
 
     connect(&codeReparser, SIGNAL(parsingCompleted(int,bool,PlSqlTreeBuilder*,int)), this, SLOT(parsingCompleted(int,bool,PlSqlTreeBuilder*,int)));
-    reparseTimer.start(1000);
+    reparseTimer.start(300);
 }
 
 CodeEditorAndSearchPaneWidget *MultiEditorWidget::getCurrentEditor() const
@@ -186,7 +187,7 @@ void MultiEditorWidget::setEditorCount(int count)
 
 CodeEditorAndSearchPaneWidget *MultiEditorWidget::createEditor()
 {
-    CodeEditorAndSearchPaneWidget *editor=new CodeEditorAndSearchPaneWidget(this->enableCodeCollapsing);
+    CodeEditorAndSearchPaneWidget *editor=new CodeEditorAndSearchPaneWidget(this->plsqlMode);
 
     if(this->queryScheduler != 0){
         editor->setQueryScheduler(this->queryScheduler);
@@ -400,7 +401,19 @@ bool MultiEditorWidget::isKeyword(TokenInfo *token) const
 
 void MultiEditorWidget::onReparseTimer()
 {
-    if(lastParseTime < lastChangeTime && lastChangeTime.msecsTo(QTime::currentTime()) >= 1000){
+    int reparseInterval;
+
+    if(lastParseLengthInMs <= 200){
+        reparseInterval = 300;
+    }else if(lastParseLengthInMs <= 500){
+        reparseInterval = 1000;
+    }else if(lastParseLengthInMs <= 1000){
+        reparseInterval = 1500;
+    }else{
+        reparseInterval = 3000;
+    }
+
+    if(lastParseTime < lastChangeTime && lastChangeTime.msecsTo(QTime::currentTime()) >= reparseInterval){
         reparse();
     }
 }
@@ -416,6 +429,8 @@ void MultiEditorWidget::parsingCompleted(int requestId, bool success, PlSqlTreeB
 {
     Q_UNUSED(success);
     Q_UNUSED(elapsedTime);
+
+    lastParseLengthInMs = elapsedTime;
 
     if(lastChangeTime > lastParseTime){
         delete treeBulder;

@@ -19,7 +19,11 @@ void BlockData::addToken(TokenInfo *tokenInfo)
 {
     tokens.append(tokenInfo);
 
-    if(PlSqlParsingTable::getInstance()->isSectionSeparator(tokenInfo->tokenOrRuleId)){
+    static int tProcedure = PlSqlParsingTable::getInstance()->getKeywordIx("PROCEDURE");
+    static int tFunction = PlSqlParsingTable::getInstance()->getKeywordIx("FUNCTION");
+
+    if(tokenInfo->tokenOrRuleId == tProcedure ||
+            tokenInfo->tokenOrRuleId == tFunction){
         this->sectionSeparator = true;
     }
 }

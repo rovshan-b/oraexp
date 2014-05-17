@@ -561,7 +561,9 @@ SOURCES += main.cpp\
     util/codereparser.cpp \
     code_parser/codeparserthread.cpp \
     util/numutil.cpp \
-    widgets/tooltipwidget.cpp
+    widgets/tooltipwidget.cpp \
+    widgets/codestructurewidget.cpp \
+    widgets/codestructurepane.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1132,7 +1134,9 @@ HEADERS  += mainwindow.h \
     util/codereparser.h \
     code_parser/codeparserthread.h \
     util/numutil.h \
-    widgets/tooltipwidget.h
+    widgets/tooltipwidget.h \
+    widgets/codestructurewidget.h \
+    widgets/codestructurepane.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

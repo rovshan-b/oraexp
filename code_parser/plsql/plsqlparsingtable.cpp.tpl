@@ -2,9 +2,6 @@
 
 PlSqlParsingTable *PlSqlParsingTable::instance = 0;
 
-static int tProcedure;
-static int tFunction;
-
 {action_declarations}
 
 PlSqlParsingTable::PlSqlParsingTable()
@@ -18,18 +15,9 @@ PlSqlParsingTable *PlSqlParsingTable::getInstance()
 
         PlSqlParsingTable::instance = new PlSqlParsingTable();
         PlSqlParsingTable::instance->populateTable();
-
-
-        tProcedure = PlSqlParsingTable::instance->getKeywordIx("PROCEDURE");
-        tFunction = PlSqlParsingTable::instance->getKeywordIx("FUNCTION");
     }
 
     return PlSqlParsingTable::instance;
-}
-
-bool PlSqlParsingTable::isSectionSeparator(int token) const
-{
-    return token == tProcedure || token == tFunction;
 }
 
 void PlSqlParsingTable::populateTable()

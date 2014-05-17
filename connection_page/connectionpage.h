@@ -39,7 +39,8 @@ public:
 
     bool activateChildWidget(ConnectionPageObject *obj);
 
-    bool isTreePaneVisible() const;
+    bool isDbTreePaneVisible() const;
+    bool isCodeStructurePaneVisible() const;
 
     QList<CtrlTabData*> getCtrlTabData() const;
     void setCurrentTab(QWidget *widget);
@@ -59,7 +60,12 @@ signals:
 
 public slots:
     void closeTab(int index);
-    void toggleTreePane();
+
+    void toggleDbTreePane();
+    void toggleCodeStructurePane();
+    void showCodeStructurePane();
+    void hideCodeStructurePane();
+
     void changeTabCaption(ConnectionPageTab *tab, const QString &caption);
 
 private slots:

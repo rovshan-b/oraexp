@@ -1,6 +1,7 @@
 #include "appviewmenu.h"
 #include "connectionspane.h"
 #include "connection_page/connectionpage.h"
+#include "codeeditor/codeeditor.h"
 #include "util/iconutil.h"
 #include <QtGui>
 
@@ -17,7 +18,10 @@ AppViewMenu::~AppViewMenu()
 void AppViewMenu::updateActionStates(ConnectionPage *cnPage, ConnectionPageTab * /*cnPageTab*/)
 {
     viewDatabaseObjectsAction->setEnabled(cnPage!=0);
-    viewDatabaseObjectsAction->setChecked(cnPage!=0 && cnPage->isTreePaneVisible());
+    viewCodeStructureAction->setEnabled(cnPage!=0);
+
+    viewDatabaseObjectsAction->setChecked(cnPage!=0 && cnPage->isDbTreePaneVisible());
+    viewCodeStructureAction->setChecked(cnPage!=0 && cnPage->isCodeStructurePaneVisible());
 }
 
 void AppViewMenu::setupMenu(QMenu *viewMenu, QToolBar */*toolbar*/)
@@ -27,6 +31,12 @@ void AppViewMenu::setupMenu(QMenu *viewMenu, QToolBar */*toolbar*/)
     viewDatabaseObjectsAction->setStatusTip(tr("Show/Hide database objects pane"));
     viewDatabaseObjectsAction->setCheckable(true);
     viewDatabaseObjectsAction->setEnabled(false);
+
+    viewCodeStructureAction=viewMenu->addAction(IconUtil::getIcon("ddl"), tr("&Code structure"),
+                                                  this, SLOT(toggleCodeStructureTree()), QKeySequence("Ctrl+M"));
+    viewCodeStructureAction->setStatusTip(tr("Show/Hide code structure for active code editor"));
+    viewCodeStructureAction->setCheckable(true);
+    viewCodeStructureAction->setEnabled(false);
 
     //viewApplicationStyleAction=viewMenu->addAction(tr("Style"));
     //createAppStyleMenu();
@@ -64,6 +74,14 @@ void AppViewMenu::toggleDbObjectsTree()
 {
     ConnectionPage *cnPage=getConnectionsPane()->currentConnectionPage();
     if(cnPage){
-        cnPage->toggleTreePane();
+        cnPage->toggleDbTreePane();
+    }
+}
+
+void AppViewMenu::toggleCodeStructureTree()
+{
+    ConnectionPage *cnPage=getConnectionsPane()->currentConnectionPage();
+    if(cnPage){
+        cnPage->toggleCodeStructurePane();
     }
 }

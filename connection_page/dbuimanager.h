@@ -87,6 +87,7 @@ public slots:
     void closeTab(QWidget *widget);
 
     QList<ConnectionPageTab*> getTabsByConnection(DbConnection *db, const QString &className = QString(), int limit = -1);
+
 private:
     DbConnection *db;
     ConnectionPage *cnPage;

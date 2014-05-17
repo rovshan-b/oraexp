@@ -15,6 +15,7 @@ class ConnectionPageObject;
 class ConnectionPageWindowObject;
 class InfoPanel;
 class CtrlTabData;
+class CodeStructurePane;
 
 class ConnectionPageConnectedWidget : public QMainWindow, public IDeleteListener
 {
@@ -43,7 +44,8 @@ public:
 
     bool activateChildWidget(ConnectionPageObject *obj);
 
-    bool isTreePaneVisible() const;
+    bool isDbTreePaneVisible() const;
+    bool isCodeStructurePaneVisible() const;
 
     QList<ConnectionPageTab*> getTabsByType(const QString &className) const;
     QList<ConnectionPageTab*> getTabsByConnection(DbConnection *db, const QString &className=QString(), int limit = -1);
@@ -69,7 +71,12 @@ public slots:
     void asyncConnectionReady(DbConnection *db, void *data, bool error, const OciException &ex);
     void tabBusyStateChanged(ConnectionPageObject *obj, bool busy);
     void tabInitializationCompleted(ConnectionPageObject *obj);
-    void toggleTreePane();
+
+    void toggleDbTreePane();
+    void toggleCodeStructurePane();
+    void showCodeStructurePane();
+    void hideCodeStructurePane();
+
     void windowStateChanged();
     void restoreWindowState();
 
@@ -80,9 +87,11 @@ private slots:
 
 private:
     DbConnection *db;
-    QDockWidget *treeDock;
+    QDockWidget *dbTreeDock;
+    QDockWidget *codeTreeDock;
     ConnectionPageTabWidget *centralTab;
-    TreePane *treePane;
+    TreePane *dbTreePane;
+    CodeStructurePane *codeTreePane;
     DbUiManager *uiManager;
 
     ConnectionPool connectionPool;
@@ -91,6 +100,8 @@ private:
 
     QList<ConnectionPageObject*> childObjects;
 
+    void createDbTreeDock();
+    void createCodeTreeDock();
     void connectDockSignals(QDockWidget *dockWidget);
     
 };

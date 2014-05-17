@@ -126,11 +126,18 @@ bool ConnectionPage::activateChildWidget(ConnectionPageObject *obj)
     return mainWidget->activateChildWidget(obj);
 }
 
-bool ConnectionPage::isTreePaneVisible() const
+bool ConnectionPage::isDbTreePaneVisible() const
 {
     Q_ASSERT(mainWidget);
 
-    return mainWidget->isTreePaneVisible();
+    return mainWidget->isDbTreePaneVisible();
+}
+
+bool ConnectionPage::isCodeStructurePaneVisible() const
+{
+    Q_ASSERT(mainWidget);
+
+    return mainWidget->isCodeStructurePaneVisible();
 }
 
 QList<CtrlTabData *> ConnectionPage::getCtrlTabData() const
@@ -191,11 +198,32 @@ void ConnectionPage::closeTab(int index)
     mainWidget->closeTab(index);
 }
 
-void ConnectionPage::toggleTreePane()
+void ConnectionPage::toggleDbTreePane()
 {
     Q_ASSERT(mainWidget);
 
-    mainWidget->toggleTreePane();
+    mainWidget->toggleDbTreePane();
+}
+
+void ConnectionPage::toggleCodeStructurePane()
+{
+    Q_ASSERT(mainWidget);
+
+    mainWidget->toggleCodeStructurePane();
+}
+
+void ConnectionPage::showCodeStructurePane()
+{
+    Q_ASSERT(mainWidget);
+
+    mainWidget->showCodeStructurePane();
+}
+
+void ConnectionPage::hideCodeStructurePane()
+{
+    Q_ASSERT(mainWidget);
+
+    mainWidget->hideCodeStructurePane();
 }
 
 void ConnectionPage::changeTabCaption(ConnectionPageTab *tab, const QString &caption)

@@ -811,4 +811,11 @@ QAction *WidgetHelper::findDefaultAction(QList<QAction *> actions)
     return 0;
 }
 
+void WidgetHelper::raiseIfVisible(QWidget *widget)
+{
+    if(widget->isVisible()){
+        widget->raise();
+    }
+}
+
 
