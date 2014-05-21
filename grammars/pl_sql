@@ -33,7 +33,7 @@ obj_def
    :  obj_type_and_name_and_body
    ;
     
-obj_type_and_name_and_body 
+obj_type_and_name_and_body {scope}
    :  'PACKAGE' object_name plsql_package_source
    |  'PACKAGE' 'BODY' object_name plsql_package_body_source
    |  'PROCEDURE' object_name plsql_procedure_source
@@ -473,7 +473,7 @@ c_declaration
    :  'C' until_semi
    ;
    
-plsql_block
+plsql_block {scope}
    :  opt_label opt_declare_and_declare_section plsql_body
    ;
     
@@ -521,11 +521,11 @@ declaration
    ;
 
    
-cursor_declaration
+cursor_declaration {symbol_table_entry}
    :  'CURSOR' identifier opt_in_param_declarations return_datatype PLS_SEMI
    ;
    
-cursor_definition
+cursor_definition {symbol_table_entry}
    :  'CURSOR' identifier opt_in_param_declarations opt_return_datatype is select_statement PLS_SEMI
    ;
    
@@ -542,7 +542,7 @@ function_declaration_main
    :  function_heading opt_function_type_specs
    ;
    
-function_declaration
+function_declaration {symbol_table_entry}
    :  function_declaration_main PLS_SEMI
    ;
    
@@ -572,7 +572,7 @@ relies_on_clause
    :  'RELIES_ON' PLS_LPAREN expression_list PLS_RPAREN
    ;
    
-function_definition
+function_definition {symbol_table_entry,scope}
    :  function_heading opt_function_type_specs is_or_as plsql_call_spec_or_external
    ;
 
@@ -594,7 +594,7 @@ procedure_declaration_main
    :  procedure_heading
    ;
 
-procedure_declaration
+procedure_declaration {symbol_table_entry}
    :  procedure_declaration_main PLS_SEMI
    ;
    
@@ -602,7 +602,7 @@ procedure_heading
    :  'PROCEDURE' identifier opt_param_declarations
    ;
    
-procedure_definition
+procedure_definition {symbol_table_entry,scope}
    :  procedure_heading is_or_as plsql_call_spec_or_external
    ;
    
@@ -659,7 +659,7 @@ udf_pragma
    :  'PRAGMA' 'UDF' PLS_SEMI
    ;
    
-type_definition
+type_definition {symbol_table_entry} 
    :  collection_type_definition
    |  record_type_definition
    |  ref_cursor_type_definition
@@ -716,7 +716,7 @@ nested_table_type_def
    :  'TABLE' 'OF' datatype opt_not_null
    ;
    
-record_type_definition
+record_type_definition 
    :  'TYPE' identifier 'IS' 'RECORD' PLS_LPAREN field_definitions PLS_RPAREN PLS_SEMI
    ;  
    
@@ -807,15 +807,15 @@ opt_charset
    |
    ;
    
-constant_declaration
+constant_declaration {symbol_table_entry}
    :  identifier 'CONSTANT' datatype opt_not_null assign_or_default expression PLS_SEMI
    ;
      
-exception_declaration
+exception_declaration {symbol_table_entry}
    :  identifier 'EXCEPTION' PLS_SEMI
    ;
    
-variable_declaration
+variable_declaration {symbol_table_entry}
    :  identifier datatype opt_not_null opt_default_value PLS_SEMI
    ;
    
@@ -1257,7 +1257,7 @@ query_block_or_subquery_in_parentheses
    |  PLS_LPAREN subquery PLS_RPAREN
    ;
    
-query_block
+query_block 
    :  'SELECT' opt_distinct_unique_all select_list opt_into_or_bulk_collect_into_clause 'FROM' 
       from_list opt_where_clause opt_hierachical_query_clause opt_group_by_clause 
       opt_model_clause

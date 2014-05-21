@@ -30,6 +30,8 @@ public:
     virtual QString getCurrentFileName(int childIndex = 0) const;
     virtual void setCurrentFileName(const QString &fileName, int childIndex = 0);
 
+    virtual QList<OraExp::SidePane> getRequestedSidePanes() const;
+
 protected:
     virtual void saveToStream(QTextStream &out, int childIndex = 0);
 

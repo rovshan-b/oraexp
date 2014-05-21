@@ -77,6 +77,11 @@ void CodeCreator::setCurrentFileName(const QString &fileName, int childIndex)
     creatorWidget->setCurrentFileName(fileName);
 }
 
+QList<OraExp::SidePane> CodeCreator::getRequestedSidePanes() const
+{
+    return (QList<OraExp::SidePane>() << OraExp::SidePaneCodeStructure);
+}
+
 void CodeCreator::saveToStream(QTextStream &out, int childIndex)
 {
     Q_UNUSED(childIndex);

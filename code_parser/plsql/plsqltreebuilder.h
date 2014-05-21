@@ -6,6 +6,7 @@
 
 class TokenInfo;
 class ParseTreeNode;
+class ParseTreeNodeScope;
 class CodeCollapsePosition;
 
 class PlSqlTreeBuilder : public IReduceListener
@@ -17,9 +18,9 @@ public:
     ParseTreeNode *getRootNode() const {return this->rootNode;}
 
     virtual void reduced(TokenInfo* ruleInfo, int symbolCount, const QList<TokenInfo*> &reducedTokens, ParsingTable *parsingTable);
-    virtual void accepted();
+    virtual void accepted(ParsingTable *parsingTable);
 
-    virtual void error();
+    virtual void error(ParsingTable *parsingTable);
 
     void setCalculateCollapsePositions();
     QList<CodeCollapsePosition*> getCollapsePositions() const;
@@ -38,6 +39,10 @@ private:
 
     void setStartEndPositions(ParseTreeNode *parentNode);
     void firstLastNonNullChildren(ParseTreeNode *parentNode, ParseTreeNode **first, ParseTreeNode **last) const;
+
+    void createNewScope(ParseTreeNode *node, ParsingTable *parsingTable);
+    void setScopeForNode(ParseTreeNode *node, ParseTreeNodeScope *scope, ParsingTable *parsingTable);
+    void registerDeclarationInScope(ParseTreeNodeScope *scope, ParseTreeNode *node, ParsingTable *parsingTable);
 
 };
 

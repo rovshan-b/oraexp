@@ -34,6 +34,7 @@ ConnectionPageConnectedWidget::ConnectionPageConnectedWidget(DbConnection *db, D
 
     setCentralWidget(centralTab);
 
+    connect(centralTab, SIGNAL(currentChanged(int)), this, SLOT(currentTabChanged(int)));
     connect(centralTab, SIGNAL(currentChanged(int)), this, SIGNAL(connectionPageStateChanged()));
     connect(centralTab, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
     connect(&connectionPool, SIGNAL(asyncConnectionReady(DbConnection*,void*,bool,OciException)),
@@ -68,7 +69,7 @@ void ConnectionPageConnectedWidget::createDbTreeDock()
 
 void ConnectionPageConnectedWidget::createCodeTreeDock()
 {
-    codeTreeDock = new QDockWidget(tr("Code structure"), this);
+    codeTreeDock = new QDockWidget(tr("Code outline"), this);
     codeTreeDock->setObjectName("CodeStructureDock");
     codeTreeDock->setAllowedAreas(Qt::LeftDockWidgetArea |
                               Qt::RightDockWidgetArea);
@@ -282,6 +283,22 @@ void ConnectionPageConnectedWidget::tabInitializationCompleted(ConnectionPageObj
     }
 }
 
+void ConnectionPageConnectedWidget::currentTabChanged(int tabId)
+{
+    Q_UNUSED(tabId);
+
+    ConnectionPageTab *tab = currentConnectionPageTab();
+    if(!tab){
+        return;
+    }
+
+    QList<OraExp::SidePane> sidePanes = tab->getRequestedSidePanes();
+    if(sidePanes.contains(OraExp::SidePaneCodeStructure) &&
+            !isCodeStructurePaneVisible()){
+        toggleCodeStructurePane();
+    }
+}
+
 ConnectionPageTab *ConnectionPageConnectedWidget::currentConnectionPageTab() const
 {
     ConnectionPageTab *cnPageTab=static_cast<ConnectionPageTab*>(centralTab->currentWidget());
@@ -356,20 +373,6 @@ void ConnectionPageConnectedWidget::toggleCodeStructurePane()
 {
     codeTreeDock->setVisible(!codeTreeDock->isVisible());
     WidgetHelper::raiseIfVisible(codeTreeDock);
-}
-
-void ConnectionPageConnectedWidget::showCodeStructurePane()
-{
-    if(!isCodeStructurePaneVisible()){
-        toggleCodeStructurePane();
-    }
-}
-
-void ConnectionPageConnectedWidget::hideCodeStructurePane()
-{
-    if(isCodeStructurePaneVisible()){
-        toggleCodeStructurePane();
-    }
 }
 
 void ConnectionPageConnectedWidget::windowStateChanged()

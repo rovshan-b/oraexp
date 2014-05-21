@@ -71,11 +71,10 @@ public slots:
     void asyncConnectionReady(DbConnection *db, void *data, bool error, const OciException &ex);
     void tabBusyStateChanged(ConnectionPageObject *obj, bool busy);
     void tabInitializationCompleted(ConnectionPageObject *obj);
+    void currentTabChanged(int tabId);
 
     void toggleDbTreePane();
     void toggleCodeStructurePane();
-    void showCodeStructurePane();
-    void hideCodeStructurePane();
 
     void windowStateChanged();
     void restoreWindowState();

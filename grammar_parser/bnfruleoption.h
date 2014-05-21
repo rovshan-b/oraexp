@@ -13,6 +13,12 @@ public:
 
     //do not add children
     bool noChildren;
+
+    //is scope for declarations
+    bool scope;
+
+    //is declaration
+    bool symbolTableEntry;
 };
 
 #endif // BNFRULEOPTION_H

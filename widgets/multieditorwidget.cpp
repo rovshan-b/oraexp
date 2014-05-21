@@ -416,6 +416,10 @@ void MultiEditorWidget::onReparseTimer()
     if(lastParseTime < lastChangeTime && lastChangeTime.msecsTo(QTime::currentTime()) >= reparseInterval){
         reparse();
     }
+
+    foreach(CodeEditorAndSearchPaneWidget *editor, editors){
+        editor->editor()->timerTick();
+    }
 }
 
 void MultiEditorWidget::reparse()

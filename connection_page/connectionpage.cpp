@@ -212,20 +212,6 @@ void ConnectionPage::toggleCodeStructurePane()
     mainWidget->toggleCodeStructurePane();
 }
 
-void ConnectionPage::showCodeStructurePane()
-{
-    Q_ASSERT(mainWidget);
-
-    mainWidget->showCodeStructurePane();
-}
-
-void ConnectionPage::hideCodeStructurePane()
-{
-    Q_ASSERT(mainWidget);
-
-    mainWidget->hideCodeStructurePane();
-}
-
 void ConnectionPage::changeTabCaption(ConnectionPageTab *tab, const QString &caption)
 {
     Q_ASSERT(mainWidget);

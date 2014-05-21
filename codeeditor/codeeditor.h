@@ -111,6 +111,8 @@ public slots:
 
     void undo();
     void redo();
+
+    void timerTick();
 signals:
     void escapeKeyPressed();
     void gotFocus();

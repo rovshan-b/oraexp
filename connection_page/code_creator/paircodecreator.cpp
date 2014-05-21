@@ -105,6 +105,11 @@ void PairCodeCreator::setCurrentFileName(const QString &fileName, int childIndex
     childCreator(childIndex)->setCurrentFileName(fileName);
 }
 
+QList<OraExp::SidePane> PairCodeCreator::getRequestedSidePanes() const
+{
+    return (QList<OraExp::SidePane>() << OraExp::SidePaneCodeStructure);
+}
+
 void PairCodeCreator::saveToStream(QTextStream &out, int childIndex)
 {
     out << childCreator(childIndex)->getContents();

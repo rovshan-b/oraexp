@@ -1,17 +1,21 @@
 #include "plsqltreebuilder.h"
 #include "beans/tokeninfo.h"
 #include "beans/parsetreenode.h"
+#include "beans/codecollapseposition.h"
+#include "beans/parsetreenodescope.h"
 #include "code_parser/parsingtable.h"
 #include "plsqlrules.h"
-#include "beans/codecollapseposition.h"
 
-PlSqlTreeBuilder::PlSqlTreeBuilder() : rootNode(0), calculateCollapsePositions(false)
+PlSqlTreeBuilder::PlSqlTreeBuilder() :
+    rootNode(0),
+    calculateCollapsePositions(false)
 {
 }
 
 PlSqlTreeBuilder::~PlSqlTreeBuilder()
 {
     qDeleteAll(ruleNodesStack);
+    //delete rootNode->scope;
     delete rootNode;
 
     qDeleteAll(collapsePositions);
@@ -48,8 +52,10 @@ void PlSqlTreeBuilder::reduced(TokenInfo *ruleInfo, int symbolCount, const QList
                 delete childNode;
                 continue;
             }
+
+            //process rule options
             BNFRuleOption *options = parsingTable->ruleOptions.value(childNode->tokenInfo->tokenOrRuleId, 0);
-            if(options){
+            if(options && (options->skip || options->noChildren || options->scope)){
 
                 if(options->skip){ //skip this node and add its children
                     newNode->children.append(childNode->children);
@@ -64,11 +70,17 @@ void PlSqlTreeBuilder::reduced(TokenInfo *ruleInfo, int symbolCount, const QList
 
                     qDeleteAll(childNode->children);
                     childNode->children.clear();
+                }else if(options->scope){ //find all declarations and set this node as scope for all child nodes not already having scope
+
+                    newNode->children.prepend(childNode);
+
+                    createNewScope(childNode, parsingTable);
                 }
 
             }else{
                 newNode->children.prepend(childNode);
             }
+            //end process rule options
         }
     }
 
@@ -104,6 +116,8 @@ void PlSqlTreeBuilder::reduced(TokenInfo *ruleInfo, int symbolCount, const QList
             collapsePositions.append(new CodeCollapsePosition(startLine, endLine));
         }
     }
+
+    //register declarations here
 
     //qDebug() << "-----------------------------------";
     //printoutTree(newNode, "");
@@ -141,7 +155,44 @@ void PlSqlTreeBuilder::firstLastNonNullChildren(ParseTreeNode *parentNode, Parse
     }
 }
 
-void PlSqlTreeBuilder::accepted()
+void PlSqlTreeBuilder::createNewScope(ParseTreeNode *node, ParsingTable *parsingTable)
+{
+    Q_ASSERT(node->scope == 0);
+
+    ParseTreeNodeScope* scope = new ParseTreeNodeScope();
+    node->scope = scope;
+    node->ownsScope = true;
+    setScopeForNode(node, scope, parsingTable);
+}
+
+void PlSqlTreeBuilder::setScopeForNode(ParseTreeNode *node, ParseTreeNodeScope *scope, ParsingTable *parsingTable)
+{
+    foreach(ParseTreeNode *childNode, node->children){
+        registerDeclarationInScope(scope, childNode, parsingTable);
+
+        if(childNode->scope != 0){
+            return;
+        }
+
+        childNode->scope = scope;
+
+        setScopeForNode(childNode, scope, parsingTable);
+    }
+}
+
+void PlSqlTreeBuilder::registerDeclarationInScope(ParseTreeNodeScope *scope, ParseTreeNode *node, ParsingTable *parsingTable)
+{
+    if(node->tokenInfo->tokenType == TokenInfo::Rule){
+        BNFRuleOption *options = parsingTable->ruleOptions.value(node->tokenInfo->tokenOrRuleId, 0);
+        if(options && options->symbolTableEntry){
+            ParseTreeNode *idNode = findNode(node, R_IDENTIFIER, true);
+            Q_ASSERT(idNode && idNode->children.size()>0);
+            scope->declarations[idNode->children[0]->tokenInfo->lexeme] = node;
+        }
+    }
+}
+
+void PlSqlTreeBuilder::accepted(ParsingTable *parsingTable)
 {
     Q_ASSERT(rootNode==0);
 
@@ -153,11 +204,13 @@ void PlSqlTreeBuilder::accepted()
         rootNode->children.prepend(ruleNodesStack.pop());
     }
     setStartEndPositions(rootNode);
+
+    createNewScope(rootNode, parsingTable);
 }
 
-void PlSqlTreeBuilder::error()
+void PlSqlTreeBuilder::error(ParsingTable *parsingTable)
 {
-    accepted();
+    accepted(parsingTable);
 }
 
 void PlSqlTreeBuilder::setCalculateCollapsePositions()

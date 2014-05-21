@@ -63,8 +63,6 @@ public slots:
 
     void toggleDbTreePane();
     void toggleCodeStructurePane();
-    void showCodeStructurePane();
-    void hideCodeStructurePane();
 
     void changeTabCaption(ConnectionPageTab *tab, const QString &caption);
 

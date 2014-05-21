@@ -42,12 +42,19 @@ void BNFRule::readOptions(const QString &options)
             option->skip = true;
         }else if(part.compare("no_children")==0){
             option->noChildren = true;
+        }else if(part.compare("scope")==0){
+            option->scope = true;
+        }else if(part.compare("symbol_table_entry")==0){
+            option->symbolTableEntry = true;
         }else{
             Q_ASSERT(false);
         }
     }
 
     Q_ASSERT(! (option->skip && option->noChildren));
+    //Q_ASSERT(! (option->scope && option->symbolTableEntry));
+    Q_ASSERT(! (option->skip && option->scope));
+    Q_ASSERT(! (option->noChildren && option->scope));
 
     ruleOptions = option;
 }
@@ -62,6 +69,8 @@ QString BNFRule::codeForOptions() const
     str.append("BNFRuleOption *").append(varName).append(" = new BNFRuleOption();\n");
     str.append(varName).append("->skip = ").append(ruleOptions->skip ? "true" : "false").append(";\n");
     str.append(varName).append("->noChildren = ").append(ruleOptions->noChildren ? "true" : "false").append(";\n");
+    str.append(varName).append("->scope = ").append(ruleOptions->scope ? "true" : "false").append(";\n");
+    str.append(varName).append("->symbolTableEntry = ").append(ruleOptions->symbolTableEntry ? "true" : "false").append(";\n");
     str.append("ruleOptions[R_").append(ruleName.toUpper()).append("] = ").append(varName).append(";");
 
     return str;

@@ -9,6 +9,7 @@
 #include "../plsql/plsqlparsingtable.h"
 #include "../plsql/plsqltreebuilder.h"
 #include "beans/parsetreenode.h"
+#include "beans/parsetreenodescope.h"
 #include "beans/tokeninfo.h"
 #include <QtGui>
 #include <QDebug>
@@ -99,6 +100,22 @@ void MainWindow::addChildNodes(ParseTreeNode *parseTreeNode, QStandardItem *tree
     QStandardItem *newItem = new QStandardItem(nodeTitle);
     newItem->setData(QString("%1:%2").arg(parseTreeNode->tokenInfo->startPos).arg(parseTreeNode->tokenInfo->endPos));
     treeViewNode->appendRow(newItem);
+
+    if(parseTreeNode->ownsScope){
+        QStandardItem *scopeItem = new QStandardItem("SCOPE");
+        scopeItem->setData(QString("0:0"));
+        QHash<QString, ParseTreeNode*>::const_iterator i = parseTreeNode->scope->declarations.constBegin();
+        while (i != parseTreeNode->scope->declarations.constEnd()) {
+            QStandardItem *declItem = new QStandardItem(i.key());
+            ParseTreeNode *declNode = i.value();
+            declItem->setData(QString("%1:%2").arg(QString::number(declNode->children.at(0)->tokenInfo->startPos),
+                                                   QString::number(declNode->children.at(declNode->children.count()-1)->tokenInfo->endPos)));
+            scopeItem->appendRow(declItem);
+
+            ++i;
+        }
+        newItem->insertRow(0, scopeItem);
+    }
 
     for(int i=0; i<parseTreeNode->children.size(); ++i){
         addChildNodes(parseTreeNode->children.at(i), newItem);

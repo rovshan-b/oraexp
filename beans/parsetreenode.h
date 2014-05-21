@@ -4,6 +4,8 @@
 #include <QList>
 #include "tokeninfo.h"
 
+class ParseTreeNodeScope;
+
 class ParseTreeNode
 {
 public:
@@ -15,6 +17,9 @@ public:
     TokenInfo *tokenInfo;
 
     int symbolCount;
+
+    ParseTreeNodeScope *scope;
+    bool ownsScope;
 };
 
 inline bool parseTreeNodeLessThan(ParseTreeNode *n1, ParseTreeNode *n2)

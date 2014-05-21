@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QTextStream>
 #include "connectionpageobject.h"
+#include "enums.h"
 
 class QLabel;
 class QTextDocument;
@@ -50,6 +51,8 @@ public:
     virtual bool isSaved() const {return !(getCurrentFileName().isEmpty());}
     virtual QString getCurrentFileName(int childIndex = 0) const {Q_UNUSED(childIndex); return "";}
     virtual void setCurrentFileName(const QString &fileName, int childIndex = 0) {Q_UNUSED(fileName); Q_UNUSED(childIndex);}
+
+    virtual QList<OraExp::SidePane> getRequestedSidePanes() const;
 signals:
     void busyStateChanged(ConnectionPageObject *tab, bool busy);
     void stateChanged();

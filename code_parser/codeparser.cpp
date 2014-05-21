@@ -55,7 +55,7 @@ bool CodeParser::parse()
 
             errorRow = row;
             if(reduceListener){
-                reduceListener->error();
+                reduceListener->error(parsingTable);
             }
             return false;
             break;
@@ -77,7 +77,7 @@ bool CodeParser::parse()
         case ParsingTableAction::Accept:
             done=true;
             if(this->reduceListener){
-                this->reduceListener->accepted();
+                this->reduceListener->accepted(parsingTable);
             }
             break;
         }

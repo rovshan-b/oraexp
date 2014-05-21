@@ -13,6 +13,8 @@
 #include "app_menu/appeditmenu.h"
 #include "code_parser/plsql/plsqlparsehelper.h"
 #include "beans/codecollapseposition.h"
+#include "beans/tokeninfo.h"
+#include "code_parser/plsql/plsqltokens.h"
 #include "widgets/tooltipwidget.h"
 #include <QPainter>
 
@@ -212,6 +214,27 @@ int CodeEditor::lineMarkerAreaOffset() const
      QPlainTextEdit::redo();
 
      this->blockEventChanges = false;
+ }
+
+ void CodeEditor::timerTick()
+ {
+     /*QTextCursor cur = textCursor();
+     if(cur.hasSelection()){
+         return;
+     }
+     QTextBlock currentBlock = cur.block();
+     if(!currentBlock.isValid()){
+         return;
+     }
+     BlockData *blockData = static_cast<BlockData*>(currentBlock.userData());
+     Q_ASSERT(blockData);
+
+     TokenInfo *tokenInfo = blockData->tokenAtPosition(cur.position());
+     if(tokenInfo->tokenOrRuleId == PLS_ID ||
+             (tokenInfo->tokenOrRuleId < NON_LITERAL_START_IX &&
+              (tokenInfo->endPos-tokenInfo->startPos)<MIN_KEYWORD_LENGTH)){
+
+     }*/
  }
 
  void CodeEditor::resizeEvent(QResizeEvent *e)

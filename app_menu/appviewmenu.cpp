@@ -32,7 +32,7 @@ void AppViewMenu::setupMenu(QMenu *viewMenu, QToolBar */*toolbar*/)
     viewDatabaseObjectsAction->setCheckable(true);
     viewDatabaseObjectsAction->setEnabled(false);
 
-    viewCodeStructureAction=viewMenu->addAction(IconUtil::getIcon("ddl"), tr("&Code structure"),
+    viewCodeStructureAction=viewMenu->addAction(IconUtil::getIcon("ddl"), tr("&Code outline"),
                                                   this, SLOT(toggleCodeStructureTree()), QKeySequence("Ctrl+M"));
     viewCodeStructureAction->setStatusTip(tr("Show/Hide code structure for active code editor"));
     viewCodeStructureAction->setCheckable(true);
