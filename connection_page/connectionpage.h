@@ -51,6 +51,8 @@ public:
     QList<ConnectionPageTab*> getTabsByType(const QString &className) const;
     QList<ConnectionPageTab*> getTabsByConnection(DbConnection *db, const QString &className=QString(), int limit = -1);
 
+    CodeStructurePane *getCodeStructurePane() const;
+
     bool isBusy() const {return this->busy;}
 
     const ConnectionPool *getConnectionPool() const;

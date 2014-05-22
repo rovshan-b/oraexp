@@ -7,7 +7,7 @@ CodeCreator::CodeCreator(const QString &schemaName,
                          DbUiManager *uiManager, QWidget *parent) :
     ConnectionPageTab(uiManager, parent)
 {
-    creatorWidget = new CodeCreatorWidget(schemaName, objectName, objectType);
+    creatorWidget = new CodeCreatorWidget(schemaName, objectName, objectType, uiManager);
 }
 
 void CodeCreator::createUi()
@@ -75,11 +75,6 @@ void CodeCreator::setCurrentFileName(const QString &fileName, int childIndex)
 {
     Q_UNUSED(childIndex);
     creatorWidget->setCurrentFileName(fileName);
-}
-
-QList<OraExp::SidePane> CodeCreator::getRequestedSidePanes() const
-{
-    return (QList<OraExp::SidePane>() << OraExp::SidePaneCodeStructure);
 }
 
 void CodeCreator::saveToStream(QTextStream &out, int childIndex)

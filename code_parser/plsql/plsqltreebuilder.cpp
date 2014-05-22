@@ -8,7 +8,8 @@
 
 PlSqlTreeBuilder::PlSqlTreeBuilder() :
     rootNode(0),
-    calculateCollapsePositions(false)
+    calculateCollapsePositions(false),
+    calculateScopes(false)
 {
 }
 
@@ -55,7 +56,7 @@ void PlSqlTreeBuilder::reduced(TokenInfo *ruleInfo, int symbolCount, const QList
 
             //process rule options
             BNFRuleOption *options = parsingTable->ruleOptions.value(childNode->tokenInfo->tokenOrRuleId, 0);
-            if(options && (options->skip || options->noChildren || options->scope)){
+            if(options && (options->skip || options->noChildren || (options->scope && calculateScopes))){
 
                 if(options->skip){ //skip this node and add its children
                     newNode->children.append(childNode->children);
@@ -205,7 +206,9 @@ void PlSqlTreeBuilder::accepted(ParsingTable *parsingTable)
     }
     setStartEndPositions(rootNode);
 
-    createNewScope(rootNode, parsingTable);
+    if(calculateScopes){
+        createNewScope(rootNode, parsingTable);
+    }
 }
 
 void PlSqlTreeBuilder::error(ParsingTable *parsingTable)
@@ -267,4 +270,15 @@ ParseTreeNode *PlSqlTreeBuilder::findNode(ParseTreeNode *parentNode, int ruleId,
     }
 
     return 0;
+}
+
+ParseTreeNode *PlSqlTreeBuilder::findFirstMultiChildNode() const
+{
+    ParseTreeNode *tmp = rootNode;
+
+    while(tmp->children.size() == 1){
+        tmp = tmp->children[0];
+    }
+
+    return tmp;
 }

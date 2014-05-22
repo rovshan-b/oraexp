@@ -13,6 +13,7 @@ class ConnectionPageObject;
 class ConnectionPageTab;
 class Worksheet;
 class ObjectLookupDialog;
+class CodeStructurePane;
 
 class DbUiManager : public QObject
 {
@@ -87,6 +88,8 @@ public slots:
     void closeTab(QWidget *widget);
 
     QList<ConnectionPageTab*> getTabsByConnection(DbConnection *db, const QString &className = QString(), int limit = -1);
+
+    CodeStructurePane *getCodeStructurePane() const;
 
 private:
     DbConnection *db;

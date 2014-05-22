@@ -100,9 +100,6 @@ DbTreeItem *DbTreeItem::parent() const
 
 int DbTreeItem::row() const
 {
-    if(this==0){
-        cout << "called row with this=" << this << endl;
-    }
     if(m_parentItem){
         return m_parentItem->m_childItems.indexOf(const_cast<DbTreeItem*>(this));
     }

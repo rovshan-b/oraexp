@@ -143,12 +143,6 @@ namespace OraExp
         ReconnectModeCurrentConnection,
         ReconnectModeCurrentTab
     };
-
-    enum SidePane
-    {
-        SidePaneDatabaseObjects,
-        SidePaneCodeStructure
-    };
 }
 
 #endif // ENUMS_H

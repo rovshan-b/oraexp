@@ -9,13 +9,13 @@ PairCodeCreator::PairCodeCreator(const QString &schemaName,
                                  DbUiManager *uiManager, QWidget *parent) : ConnectionPageTab(uiManager, parent), initializedCount(0)
 
 {
-    specCreatorWidget = new CodeCreatorWidget(schemaName, objectName, DbUtil::getSpecType(objectType));
+    specCreatorWidget = new CodeCreatorWidget(schemaName, objectName, DbUtil::getSpecType(objectType), uiManager);
     specCreatorWidget->setHasSpecBodySwitcher(true, true);
     connect(specCreatorWidget, SIGNAL(specBodySwitchRequested()), this, SLOT(switchToBody()));
     connect(specCreatorWidget, SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
     connect(specCreatorWidget, SIGNAL(stateChanged()), this, SIGNAL(stateChanged()));
 
-    bodyCreatorWidget = new CodeCreatorWidget(schemaName, objectName, DbUtil::getBodyType(objectType));
+    bodyCreatorWidget = new CodeCreatorWidget(schemaName, objectName, DbUtil::getBodyType(objectType), uiManager);
     bodyCreatorWidget->setHasSpecBodySwitcher(true, false);
     connect(bodyCreatorWidget, SIGNAL(specBodySwitchRequested()), this, SLOT(switchToSpec()));
     connect(bodyCreatorWidget, SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
@@ -103,11 +103,6 @@ QString PairCodeCreator::getCurrentFileName(int childIndex) const
 void PairCodeCreator::setCurrentFileName(const QString &fileName, int childIndex)
 {
     childCreator(childIndex)->setCurrentFileName(fileName);
-}
-
-QList<OraExp::SidePane> PairCodeCreator::getRequestedSidePanes() const
-{
-    return (QList<OraExp::SidePane>() << OraExp::SidePaneCodeStructure);
 }
 
 void PairCodeCreator::saveToStream(QTextStream &out, int childIndex)

@@ -15,7 +15,7 @@
 #include <iostream>
 using namespace std;
 
-WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
+WorksheetQueryPane::WorksheetQueryPane(DbUiManager *uiManager, QWidget *parent) :
     QWidget(parent), queryScheduler(0)
 {
     QVBoxLayout *layout=new QVBoxLayout();
@@ -58,7 +58,7 @@ WorksheetQueryPane::WorksheetQueryPane(QWidget *parent) :
     stopProgressAction->setVisible(false);
 
     //create code editor
-    multiEditor = new MultiEditorWidget();
+    multiEditor = new MultiEditorWidget(uiManager);
 
     WidgetHelper::addStretchToToolbar(toolbar);
 

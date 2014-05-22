@@ -21,11 +21,12 @@ QByteArray CodeCreatorWidget::bottomSplitterSizes;
 CodeCreatorWidget::CodeCreatorWidget(const QString &schemaName,
                          const QString &objectName,
                          DbTreeModel::DbTreeNodeType objectType,
-                         QWidget *parent) :
+                         DbUiManager *uiManager, QWidget *parent) :
     QWidget(parent),
     schemaName(schemaName),
     objectName(objectName),
     objectType(objectType),
+    uiManager(uiManager),
     hasSpecBodySwitcher(false),
     autocompleteHelper(0)
 {
@@ -37,7 +38,7 @@ void CodeCreatorWidget::createUi()
     QSplitter *outerSplitter=new QSplitter(Qt::Horizontal);
 
     //create at top to enable further use
-    multiEditor=new MultiEditorWidget(DbUtil::isPLSQLProgramUnit(objectType));
+    multiEditor=new MultiEditorWidget(uiManager, DbUtil::isPLSQLProgramUnit(objectType));
     infoPanel=new InfoPanel(this);
 
     //create left pane

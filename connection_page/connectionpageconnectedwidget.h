@@ -9,7 +9,7 @@
 #include "interfaces/ideletelistener.h"
 
 class DbConnection;
-class QDockWidget;
+class DockWidget;
 class TreePane;
 class ConnectionPageObject;
 class ConnectionPageWindowObject;
@@ -50,6 +50,8 @@ public:
     QList<ConnectionPageTab*> getTabsByType(const QString &className) const;
     QList<ConnectionPageTab*> getTabsByConnection(DbConnection *db, const QString &className=QString(), int limit = -1);
 
+    CodeStructurePane *getCodeStructurePane() const;
+
     QList<CtrlTabData*> getCtrlTabData() const;
     void setCurrentTab(QWidget *widget);
     void setCurrentIndex(int ix);
@@ -86,8 +88,8 @@ private slots:
 
 private:
     DbConnection *db;
-    QDockWidget *dbTreeDock;
-    QDockWidget *codeTreeDock;
+    DockWidget *dbTreeDock;
+    DockWidget *codeTreeDock;
     ConnectionPageTabWidget *centralTab;
     TreePane *dbTreePane;
     CodeStructurePane *codeTreePane;

@@ -25,6 +25,7 @@ public:
     explicit CodeCreatorWidget(const QString &schemaName,
                          const QString &objectName,
                          DbTreeModel::DbTreeNodeType objectType,
+                         DbUiManager *uiManager,
                          QWidget *parent = 0);
 
     void createUi();
@@ -99,6 +100,8 @@ private:
     QString schemaName;
     QString objectName;
     DbTreeModel::DbTreeNodeType objectType;
+
+    DbUiManager *uiManager;
 
     bool editMode;
 

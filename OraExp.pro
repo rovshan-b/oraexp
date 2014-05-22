@@ -562,9 +562,12 @@ SOURCES += main.cpp\
     code_parser/codeparserthread.cpp \
     util/numutil.cpp \
     widgets/tooltipwidget.cpp \
-    widgets/codestructurewidget.cpp \
-    widgets/codestructurepane.cpp \
-    beans/parsetreenodescope.cpp
+    code_structure_tree/codestructurepane.cpp \
+    beans/parsetreenodescope.cpp \
+    widgets/dockwidget.cpp \
+    code_structure_tree/codestructuremodel.cpp \
+    code_structure_tree/codestructuretreeitem.cpp \
+    code_structure_tree/codestructuretreeview.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1136,9 +1139,12 @@ HEADERS  += mainwindow.h \
     code_parser/codeparserthread.h \
     util/numutil.h \
     widgets/tooltipwidget.h \
-    widgets/codestructurewidget.h \
-    widgets/codestructurepane.h \
-    beans/parsetreenodescope.h
+    code_structure_tree/codestructurepane.h \
+    beans/parsetreenodescope.h \
+    widgets/dockwidget.h \
+    code_structure_tree/codestructuremodel.h \
+    code_structure_tree/codestructuretreeitem.h \
+    code_structure_tree/codestructuretreeview.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

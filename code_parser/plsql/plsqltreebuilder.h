@@ -29,6 +29,8 @@ public:
     ParseTreeNode *getNode(const QList<int> rulesPath) const;
     ParseTreeNode *findNode(ParseTreeNode *parentNode, int ruleId, bool recursive = false) const;
 
+    ParseTreeNode *findFirstMultiChildNode() const;
+
 private:
     ParseTreeNode *rootNode;
 
@@ -36,6 +38,8 @@ private:
 
     bool calculateCollapsePositions;
     QList<CodeCollapsePosition*> collapsePositions;
+
+    bool calculateScopes;
 
     void setStartEndPositions(ParseTreeNode *parentNode);
     void firstLastNonNullChildren(ParseTreeNode *parentNode, ParseTreeNode **first, ParseTreeNode **last) const;

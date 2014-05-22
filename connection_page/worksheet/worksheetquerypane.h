@@ -18,6 +18,7 @@ class IQueryScheduler;
 class MultiEditorWidget;
 class Param;
 class BindParamInfo;
+class DbUiManager;
 
 class WorksheetQueryPane : public QWidget
 {
@@ -29,7 +30,7 @@ public:
         ExecuteExplainPlan
     };
 
-    explicit WorksheetQueryPane(QWidget *parent = 0);
+    explicit WorksheetQueryPane(DbUiManager *uiManager, QWidget *parent = 0);
 
     virtual ~WorksheetQueryPane();
 

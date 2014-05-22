@@ -9,16 +9,20 @@
 #include "beans/codecollapseposition.h"
 #include "beans/tokeninfo.h"
 #include "util/strutil.h"
+#include "connection_page/dbuimanager.h"
+#include "code_structure_tree/codestructurepane.h"
 #include <QtGui>
 
-MultiEditorWidget::MultiEditorWidget(bool plsqlMode, QWidget *parent) :
+MultiEditorWidget::MultiEditorWidget(DbUiManager *uiManager, bool plsqlMode, QWidget *parent) :
     QWidget(parent),
+    uiManager(uiManager),
     currentEditor(0),
     splitDirectionGroup(0),
     infoLabel(0),
     queryScheduler(0),
     plsqlMode(plsqlMode),
     lastEditedWordPosition(-1),
+    treeBuilder(0),
     lastChangeTime(QTime::currentTime()),
     lastParseLengthInMs(1000000)
 {
@@ -29,6 +33,9 @@ MultiEditorWidget::~MultiEditorWidget()
 {
     //qDeleteAll(collapsePositions);
     //collapsePositions.clear();
+
+    uiManager->getCodeStructurePane()->setTreeBuilder(this, 0);
+    delete this->treeBuilder;
 }
 
 void MultiEditorWidget::setQueryScheduler(IQueryScheduler *queryScheduler)
@@ -150,11 +157,14 @@ void MultiEditorWidget::editorOrientationActionSelected(QAction *action)
 
 void MultiEditorWidget::codeEditorFocusEvent(QWidget *object, bool focusIn)
 {
-    Q_UNUSED(focusIn);
-
     currentEditor = qobject_cast<CodeEditorAndSearchPaneWidget*>(object);
     Q_ASSERT(currentEditor);
     cursorPositionChanged();
+
+    if(focusIn && plsqlMode){
+        uiManager->getCodeStructurePane()->setCurrentWidget(this);
+        uiManager->getCodeStructurePane()->setTreeBuilder(this, this->treeBuilder);
+    }
 }
 
 void MultiEditorWidget::setEditorCount(int count)
@@ -463,7 +473,16 @@ void MultiEditorWidget::parsingCompleted(int requestId, bool success, PlSqlTreeB
         editor->editor()->setLastParseId(requestId);
     }
 
-    delete treeBulder;
+    if(plsqlMode){
+        PlSqlTreeBuilder *currentTreeBuilder = this->treeBuilder;
+
+        this->treeBuilder = treeBulder;
+        uiManager->getCodeStructurePane()->setTreeBuilder(this, treeBuilder);
+
+        delete currentTreeBuilder;
+    }else{
+        delete treeBulder;
+    }
 }
 
 void MultiEditorWidget::updateEditors(CodeEditor *except)

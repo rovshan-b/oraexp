@@ -184,6 +184,13 @@ QList<ConnectionPageTab *> ConnectionPage::getTabsByConnection(DbConnection *db,
     return mainWidget->getTabsByConnection(db, className, limit);
 }
 
+CodeStructurePane *ConnectionPage::getCodeStructurePane() const
+{
+    Q_ASSERT(mainWidget);
+
+    return mainWidget->getCodeStructurePane();
+}
+
 const ConnectionPool *ConnectionPage::getConnectionPool() const
 {
     Q_ASSERT(mainWidget);

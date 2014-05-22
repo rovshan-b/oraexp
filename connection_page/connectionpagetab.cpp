@@ -58,11 +58,6 @@ void ConnectionPageTab::setTabId(const QString &tabId)
     this->tabId = tabId;
 }
 
-QList<OraExp::SidePane> ConnectionPageTab::getRequestedSidePanes() const
-{
-    return QList<OraExp::SidePane>();
-}
-
 QList<ConnectionPageTab *> ConnectionPageTab::getPeerTabs(int limit) const
 {
     return uiManager->getTabsByConnection(getDb(), this->metaObject()->className(), limit);

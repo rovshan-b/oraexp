@@ -11,7 +11,7 @@ WorksheetWidget::WorksheetWidget(DbUiManager *uiManager, QWidget *parent) :
 {
     splitter=new QSplitter(Qt::Vertical);
     splitter->setChildrenCollapsible(false);
-    queryPane = new WorksheetQueryPane();
+    queryPane = new WorksheetQueryPane(uiManager);
     resultPane = new WorksheetResultPane(uiManager);
     splitter->addWidget(queryPane);
     splitter->addWidget(resultPane);

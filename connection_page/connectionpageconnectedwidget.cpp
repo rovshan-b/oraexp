@@ -11,7 +11,8 @@
 #include "util/widgethelper.h"
 #include "beans/ctrltabdata.h"
 #include "connectionpagewindowobject.h"
-#include "widgets/codestructurepane.h"
+#include "code_structure_tree/codestructurepane.h"
+#include "widgets/dockwidget.h"
 #include <iostream>
 #include <QtGui>
 
@@ -48,7 +49,7 @@ ConnectionPageConnectedWidget::ConnectionPageConnectedWidget(DbConnection *db, D
 
 void ConnectionPageConnectedWidget::createDbTreeDock()
 {
-    dbTreeDock=new QDockWidget(tr("Database objects"), this);
+    dbTreeDock=new DockWidget(tr("Database objects"), this);
     dbTreeDock->setObjectName("TreeViewDock");
     dbTreeDock->setAllowedAreas(Qt::LeftDockWidgetArea |
                               Qt::RightDockWidgetArea);
@@ -69,7 +70,7 @@ void ConnectionPageConnectedWidget::createDbTreeDock()
 
 void ConnectionPageConnectedWidget::createCodeTreeDock()
 {
-    codeTreeDock = new QDockWidget(tr("Code outline"), this);
+    codeTreeDock = new DockWidget(tr("Code outline"), this);
     codeTreeDock->setObjectName("CodeStructureDock");
     codeTreeDock->setAllowedAreas(Qt::LeftDockWidgetArea |
                               Qt::RightDockWidgetArea);
@@ -286,17 +287,6 @@ void ConnectionPageConnectedWidget::tabInitializationCompleted(ConnectionPageObj
 void ConnectionPageConnectedWidget::currentTabChanged(int tabId)
 {
     Q_UNUSED(tabId);
-
-    ConnectionPageTab *tab = currentConnectionPageTab();
-    if(!tab){
-        return;
-    }
-
-    QList<OraExp::SidePane> sidePanes = tab->getRequestedSidePanes();
-    if(sidePanes.contains(OraExp::SidePaneCodeStructure) &&
-            !isCodeStructurePaneVisible()){
-        toggleCodeStructurePane();
-    }
 }
 
 ConnectionPageTab *ConnectionPageConnectedWidget::currentConnectionPageTab() const
@@ -460,6 +450,11 @@ QList<ConnectionPageTab *> ConnectionPageConnectedWidget::getTabsByConnection(Db
     }
 
     return results;
+}
+
+CodeStructurePane *ConnectionPageConnectedWidget::getCodeStructurePane() const
+{
+    return this->codeTreePane;
 }
 
 QList<CtrlTabData *> ConnectionPageConnectedWidget::getCtrlTabData() const

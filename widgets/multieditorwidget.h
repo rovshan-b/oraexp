@@ -14,12 +14,13 @@ class QLabel;
 class CodeCollapsePosition;
 class TokenInfo;
 class IQueryScheduler;
+class DbUiManager;
 
 class MultiEditorWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MultiEditorWidget(bool plsqlMode=false, QWidget *parent = 0);
+    explicit MultiEditorWidget(DbUiManager *uiManager, bool plsqlMode=false, QWidget *parent = 0);
     virtual ~MultiEditorWidget();
 
     void setQueryScheduler(IQueryScheduler *queryScheduler);
@@ -62,6 +63,8 @@ private:
     int visibleEditorCount() const;
     CodeEditorAndSearchPaneWidget *createEditor();
 
+    DbUiManager *uiManager;
+
     QList<CodeEditorAndSearchPaneWidget*> editors;
     CodeEditorAndSearchPaneWidget *currentEditor;
     QSplitter *editorSplitter;
@@ -80,6 +83,8 @@ private:
     void applyCaseFolding(CodeEditor::CaseFoldingType foldingType, int textPosition, QString &text, bool &changed);
     int lastEditedWordPosition;
     QString lastEditedWord;
+
+    PlSqlTreeBuilder *treeBuilder;
 
     QTime lastChangeTime;
     QTime lastParseTime;

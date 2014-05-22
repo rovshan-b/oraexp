@@ -457,3 +457,8 @@ QList<ConnectionPageTab *> DbUiManager::getTabsByConnection(DbConnection *db, co
 {
     return cnPage->getTabsByConnection(db, className, limit);
 }
+
+CodeStructurePane *DbUiManager::getCodeStructurePane() const
+{
+    return cnPage->getCodeStructurePane();
+}
