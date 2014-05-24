@@ -24,6 +24,8 @@ private:
 
     MultiEditorWidget *currentEditor;
     PlSqlTreeBuilder *treeBuilder;
+
+    void setNewModel();
 };
 
 #endif // CODESTRUCTUREPANE_H

@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    setWindowIcon(QIcon(":/images/database.png"));
+    //setWindowIcon(QIcon(":/images/database.png"));
 
     connectionsPane=new ConnectionsPane();
     this->setCentralWidget(connectionsPane);

@@ -26,6 +26,8 @@ public:
 
     CodeScanner *getScanner() const {return this->scanner;}
 
+    void setStrictMode(bool strict);
+
     void setReduceListener(IReduceListener *listener) {this->reduceListener=listener;}
 
     void stop(){this->stopped = true;}
@@ -43,6 +45,8 @@ protected:
     QStack<TokenInfo*> tokenStack;
 
     ParsingTableRow *errorRow;
+
+    bool strict;
 
 private:
     IReduceListener *reduceListener;

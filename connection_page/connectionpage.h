@@ -57,6 +57,8 @@ public:
 
     const ConnectionPool *getConnectionPool() const;
 
+    OraExp::ConnectionEnvironment getConnectionEnvironment() const;
+
 signals:
     void busyStateChanged(ConnectionPage *cnPage, bool busy);
 
@@ -81,6 +83,8 @@ private:
     ConnectionPageConnectedWidget *mainWidget;
 
     DbUiManager uiManager;
+
+    OraExp::ConnectionEnvironment currentEnvironment;
 
     bool busy;
 };

@@ -10,22 +10,30 @@ IconUtil::IconUtil()
 {
 }
 
-QIcon IconUtil::getEnvironmentIcon(OraExp::ConnectionEnvironment environment)
+QIcon IconUtil::getEnvironmentIcon(OraExp::ConnectionEnvironment environment, bool big)
 {
+    QString filename;
+
     switch(environment){
     case OraExp::Production:
-        return QIcon(":/images/red.png");
+        filename = "red";
         break;
     case OraExp::Staging:
-        return QIcon(":/images/yellow.png");
+        filename = "yellow";
         break;
     case OraExp::Development:
-        return QIcon(":/images/blue.png");
+        filename = "blue";
         break;
     default:
-        return QIcon(":/images/green.png");
+        filename = "green";
         break;
     }
+
+    if(big){
+        filename.append("_big");
+    }
+
+    return QIcon(QString(":/images/%1.png").arg(filename));
 }
 
 QPixmap IconUtil::getIcon(const QString &iconName)

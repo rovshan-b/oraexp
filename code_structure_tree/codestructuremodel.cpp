@@ -2,16 +2,29 @@
 #include "codestructuretreeitem.h"
 #include "code_parser/plsql/plsqltreebuilder.h"
 
-CodeStructureModel::CodeStructureModel(PlSqlTreeBuilder *treeBuilder, QObject *parent) :
-    QAbstractItemModel(parent),
-    treeBuilder(treeBuilder)
+#ifdef DEBUG
+    int CodeStructureModel::instanceCount = 0;
+#endif
+
+CodeStructureModel::CodeStructureModel(ParseTreeNode *rootNode, QObject *parent) :
+    QAbstractItemModel(parent)
 {
-    rootItem = new CodeStructureTreeItem(treeBuilder->findFirstMultiChildNode());
+    rootItem = new CodeStructureTreeItem(rootNode);
+    populateChildNodes(createIndex(0, 0, rootItem));
+
+#ifdef DEBUG
+    ++CodeStructureModel::instanceCount;
+    Q_ASSERT(CodeStructureModel::instanceCount <= 2);
+#endif
 }
 
 CodeStructureModel::~CodeStructureModel()
 {
     delete rootItem;
+
+#ifdef DEBUG
+    --CodeStructureModel::instanceCount;
+#endif
 }
 
 QVariant CodeStructureModel::data(const QModelIndex &index, int role) const
@@ -99,6 +112,47 @@ bool CodeStructureModel::hasChildren(const QModelIndex &parent) const
         bool result = node->hasChildren();
         return result;
     }
+}
+
+bool CodeStructureModel::canFetchMore(const QModelIndex &parent) const
+{
+    if(!parent.isValid()){
+        return false;
+    }else{
+        CodeStructureTreeItem *node=static_cast<CodeStructureTreeItem*>(parent.internalPointer());
+        bool result = !node->areChildrenPopulated();
+        return result;
+    }
+}
+
+void CodeStructureModel::fetchMore(const QModelIndex &parent)
+{
+    if(!parent.isValid()){
+        return;
+    }
+
+    populateChildNodes(parent);
+}
+
+void CodeStructureModel::populateChildNodes(const QModelIndex &parent)
+{
+    CodeStructureTreeItem *node=static_cast<CodeStructureTreeItem*>(parent.internalPointer());
+    if(node->areChildrenPopulated()){
+        return;
+    }
+
+    node->setChildrenPopulated();
+
+    QList<CodeStructureTreeItem*> childItems = node->populateChildren();
+
+    int currentRowCount = rowCount(parent);
+    beginInsertRows(parent, currentRowCount-1, (currentRowCount-1)+(childItems.size()-1));
+
+    foreach(CodeStructureTreeItem *childItem, childItems){
+        node->appendChild(childItem);
+    }
+
+    endInsertRows();
 }
 
 bool CodeStructureModel::isValidIndex(const QModelIndex &index) const

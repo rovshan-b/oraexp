@@ -3,7 +3,9 @@
 #include "bnfruleitem.h"
 #include <QStringList>
 
-BNFRule::BNFRule() : isStartRule(false), subruleCount(0), isReachableFromStartSymbol(false), ruleDefId(-1), ruleOptions(0)
+BNFRule::BNFRule() : isStartRule(false), subruleCount(0),
+    isReachableFromStartSymbol(false),
+    ruleDefId(-1), ruleOptions(0)
 {
 
 }
@@ -46,6 +48,12 @@ void BNFRule::readOptions(const QString &options)
             option->scope = true;
         }else if(part.compare("symbol_table_entry")==0){
             option->symbolTableEntry = true;
+        }else if(part.compare("gui_skip")==0){
+            option->skipInGuiTree = true;
+        }else if(part.startsWith("gui_handler:")){
+            option->guiHandlerName = part.split(':').at(1);
+        }else if(part.startsWith("gui_icon:")){
+            option->guiIconName = part.split(':').at(1);
         }else{
             Q_ASSERT(false);
         }
@@ -55,6 +63,7 @@ void BNFRule::readOptions(const QString &options)
     //Q_ASSERT(! (option->scope && option->symbolTableEntry));
     Q_ASSERT(! (option->skip && option->scope));
     Q_ASSERT(! (option->noChildren && option->scope));
+    Q_ASSERT(! (option->skipInGuiTree && !option->guiHandlerName.isEmpty()));
 
     ruleOptions = option;
 }
@@ -71,6 +80,13 @@ QString BNFRule::codeForOptions() const
     str.append(varName).append("->noChildren = ").append(ruleOptions->noChildren ? "true" : "false").append(";\n");
     str.append(varName).append("->scope = ").append(ruleOptions->scope ? "true" : "false").append(";\n");
     str.append(varName).append("->symbolTableEntry = ").append(ruleOptions->symbolTableEntry ? "true" : "false").append(";\n");
+    str.append(varName).append("->skipInGuiTree = ").append(ruleOptions->skipInGuiTree ? "true" : "false").append(";\n");
+    if(!ruleOptions->guiHandlerName.isEmpty()){
+        str.append(varName).append("->guiHandlerName = \"").append(ruleOptions->guiHandlerName).append("\";\n");
+    }
+    if(!ruleOptions->guiIconName.isEmpty()){
+        str.append(varName).append("->guiIconName = \"").append(ruleOptions->guiIconName).append("\";\n");
+    }
     str.append("ruleOptions[R_").append(ruleName.toUpper()).append("] = ").append(varName).append(";");
 
     return str;

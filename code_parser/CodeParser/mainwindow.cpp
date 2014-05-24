@@ -75,7 +75,7 @@ void MainWindow::on_actionScan_triggered()
 
 void MainWindow::on_actionParse_triggered()
 {
-    parseCurrent(true);
+    parseCurrent(true, false);
 }
 
 void MainWindow::buildTree(ParseTreeNode *rootNode)
@@ -146,12 +146,13 @@ void MainWindow::cursorPositionChanged()
     ui->statusBar->showMessage(QString("Cursor position: %1").arg(ui->codeEditor->textCursor().position()));
 }
 
-bool MainWindow::parseCurrent(bool constructDisplayTree)
+bool MainWindow::parseCurrent(bool constructDisplayTree, bool strictMode)
 {
     ui->output->clear();
 
     TextCursorReader* reader=new TextCursorReader(ui->codeEditor->textCursor());
     CodeParser *parser=CodeParserFactory::createParser("plsql", reader);
+    parser->setStrictMode(strictMode);
     PlSqlTreeBuilder treeBulder;
     parser->setReduceListener(&treeBulder);
 
@@ -235,7 +236,7 @@ void MainWindow::on_actionParse_All_triggered()
         ui->codeEditor->setPlainText(f.readAll());
         setWindowTitle(file);
 
-        lastParseSucceeded = parseCurrent(false);
+        lastParseSucceeded = parseCurrent(false, true);
 
         if(!lastParseSucceeded){
             //break;

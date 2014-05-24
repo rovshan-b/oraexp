@@ -377,6 +377,11 @@ void ConnectionPageConnectedWidget::restoreWindowState()
     connectDockSignals(dbTreeDock);
     connectDockSignals(codeTreeDock);
 
+    if(ConnectionPageConnectedWidget::currentState.isEmpty()){
+        tabifyDockWidget(dbTreeDock, codeTreeDock);
+        dbTreeDock->raise();
+    }
+
     //also add an empty worksheet
     //setting focus works correctly when adding from this slot
     uiManager->addWorksheet();

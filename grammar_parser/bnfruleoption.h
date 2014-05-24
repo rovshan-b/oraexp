@@ -19,6 +19,15 @@ public:
 
     //is declaration
     bool symbolTableEntry;
+
+    //skip this item when building code outline tree and keep searching in its child items
+    bool skipInGuiTree;
+
+    //use this name to instantiate meta class for handling this node when building code outline tree
+    QString guiHandlerName;
+
+    //load icon name from application resources for displaying in code outline tree
+    QString guiIconName;
 };
 
 #endif // BNFRULEOPTION_H

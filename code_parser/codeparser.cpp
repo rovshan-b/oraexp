@@ -5,7 +5,7 @@
 
 //#include <QDebug>
 
-CodeParser::CodeParser(CodeScanner *scanner) : scanner(scanner), parsingTable(0), errorRow(0), reduceListener(0), stopped(false)
+CodeParser::CodeParser(CodeScanner *scanner) : scanner(scanner), parsingTable(0), errorRow(0), strict(false), reduceListener(0), stopped(false)
 {
 }
 
@@ -159,4 +159,9 @@ QPair< QList<int>, QList<int> > CodeParser::getExpectedTokens(ParsingTableRow *r
     }
 
     return qMakePair(terminals, rules);
+}
+
+void CodeParser::setStrictMode(bool strict)
+{
+    this->strict = strict;
 }

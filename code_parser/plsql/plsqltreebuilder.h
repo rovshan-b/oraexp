@@ -26,10 +26,10 @@ public:
     QList<CodeCollapsePosition*> getCollapsePositions() const;
     void clearCollapsePositions();
 
-    ParseTreeNode *getNode(const QList<int> rulesPath) const;
-    ParseTreeNode *findNode(ParseTreeNode *parentNode, int ruleId, bool recursive = false) const;
-
-    ParseTreeNode *findFirstMultiChildNode() const;
+    //ParseTreeNode *getNode(const QList<int> rulesPath) const;
+    static ParseTreeNode *findNode(ParseTreeNode *parentNode, int ruleId, bool recursive = false);
+    static ParseTreeNode *findAnyNode(ParseTreeNode *parentNode, const QList<int> ruleIds, bool recursive = false);
+    static QHash<ParseTreeNode *, QString> findNodesWithHandlers(ParseTreeNode *parentNode);
 
 private:
     ParseTreeNode *rootNode;
@@ -47,6 +47,8 @@ private:
     void createNewScope(ParseTreeNode *node, ParsingTable *parsingTable);
     void setScopeForNode(ParseTreeNode *node, ParseTreeNodeScope *scope, ParsingTable *parsingTable);
     void registerDeclarationInScope(ParseTreeNodeScope *scope, ParseTreeNode *node, ParsingTable *parsingTable);
+
+    static void fillNodesWithHandlers(QHash<ParseTreeNode*,QString> &nodes, ParseTreeNode *parentNode, ParsingTable *parsingTable);
 
 };
 

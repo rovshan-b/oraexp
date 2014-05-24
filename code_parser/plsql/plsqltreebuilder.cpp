@@ -4,7 +4,9 @@
 #include "beans/codecollapseposition.h"
 #include "beans/parsetreenodescope.h"
 #include "code_parser/parsingtable.h"
+#include "code_parser/plsql/plsqlparsingtable.h"
 #include "plsqlrules.h"
+#include <QHash>
 
 PlSqlTreeBuilder::PlSqlTreeBuilder() :
     rootNode(0),
@@ -231,7 +233,7 @@ void PlSqlTreeBuilder::clearCollapsePositions()
     qDeleteAll(collapsePositions);
     collapsePositions.clear();
 }
-
+/*
 ParseTreeNode *PlSqlTreeBuilder::getNode(const QList<int> rulesPath) const
 {
     if(!rootNode){
@@ -247,9 +249,9 @@ ParseTreeNode *PlSqlTreeBuilder::getNode(const QList<int> rulesPath) const
     }
 
     return n;
-}
+}*/
 
-ParseTreeNode *PlSqlTreeBuilder::findNode(ParseTreeNode *parentNode, int ruleId, bool recursive) const
+ParseTreeNode *PlSqlTreeBuilder::findNode(ParseTreeNode *parentNode, int ruleId, bool recursive)
 {
     ParseTreeNode *n;
     for(int i=0; i<parentNode->children.size(); ++i){
@@ -272,13 +274,62 @@ ParseTreeNode *PlSqlTreeBuilder::findNode(ParseTreeNode *parentNode, int ruleId,
     return 0;
 }
 
-ParseTreeNode *PlSqlTreeBuilder::findFirstMultiChildNode() const
+ParseTreeNode *PlSqlTreeBuilder::findAnyNode(ParseTreeNode *parentNode, const QList<int> ruleIds, bool recursive)
 {
-    ParseTreeNode *tmp = rootNode;
+    ParseTreeNode *n;
+    for(int i=0; i<parentNode->children.size(); ++i){
+        n = parentNode->children.at(i);
 
-    while(tmp->children.size() == 1){
-        tmp = tmp->children[0];
+        if(n->tokenInfo->tokenType != TokenInfo::Rule){
+            continue;
+        }
+
+        for(int k=0; k<ruleIds.size(); ++k){
+            if(n->tokenInfo->tokenOrRuleId == ruleIds[k]){
+                return n;
+            }
+        }
+
+        if(recursive){
+            n = findAnyNode(n, ruleIds, recursive);
+            if(n != 0){
+                return n;
+            }
+        }
     }
 
-    return tmp;
+    return 0;
+}
+
+QHash<ParseTreeNode *, QString> PlSqlTreeBuilder::findNodesWithHandlers(ParseTreeNode *parentNode)
+{
+    QHash<ParseTreeNode *, QString> nodes;
+
+    fillNodesWithHandlers(nodes, parentNode, PlSqlParsingTable::getInstance());
+
+    return nodes;
+}
+
+void PlSqlTreeBuilder::fillNodesWithHandlers(QHash<ParseTreeNode *, QString> &nodes, ParseTreeNode *parentNode, ParsingTable *parsingTable)
+{
+    ParseTreeNode *n;
+    BNFRuleOption *options;
+    for(int i=0; i<parentNode->children.size(); ++i){
+        n = parentNode->children.at(i);
+
+        if(n->tokenInfo->tokenType != TokenInfo::Rule){
+            continue;
+        }
+
+        options = parsingTable->ruleOptions.value(n->tokenInfo->tokenOrRuleId, 0);
+        if(!options){
+            continue;
+        }
+
+        if(options->skipInGuiTree){
+            fillNodesWithHandlers(nodes, n, parsingTable);
+        }else if(!options->guiHandlerName.isEmpty()){
+            nodes[n] = options->guiHandlerName;
+        }
+    }
 }

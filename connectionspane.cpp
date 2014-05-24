@@ -295,8 +295,9 @@ void ConnectionsPane::showTabBar()
 void ConnectionsPane::updateMainWindowTitle()
 {
     QWidget *window=this->window();
-    if(count()==1){
-        window->setWindowIcon(tabIcon(0));
+    ConnectionPage *cnPage = qobject_cast<ConnectionPage*>(currentWidget());
+    if(count()==1 && cnPage && cnPage->isConnected()){
+        window->setWindowIcon(IconUtil::getEnvironmentIcon(cnPage->getConnectionEnvironment(), true));
         window->setWindowTitle(tabText(0)+" - OraExp");
     }else{
         window->setWindowIcon(IconUtil::getIcon("database_big"));

@@ -28,7 +28,7 @@ void PlSqlParser::correctError(int *token, ParsingTableRow *row, ParsingTableAct
         }
     }
 
-    if(*actionOnCurrentToken == 0){ //try to recognize major constructs
+    if(*actionOnCurrentToken == 0 && !this->strict){ //try to recognize major constructs
         //read input until we encounter one of (first of) PLS_SEMI, END opt_identifier PLS_SEMI
         //while reading add all read tokens to token stack
         QList<TokenInfo*> reduceTokens;

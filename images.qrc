@@ -153,5 +153,13 @@
         <file>images/lookup_object.png</file>
         <file>images/about.png</file>
         <file>images/database_big.png</file>
+        <file>images/exception.png</file>
+        <file>images/variable.png</file>
+        <file>images/constant.png</file>
+        <file>images/yellow_big.png</file>
+        <file>images/green_big.png</file>
+        <file>images/red_big.png</file>
+        <file>images/blue_big.png</file>
+        <file>images/parameters.png</file>
     </qresource>
 </RCC>

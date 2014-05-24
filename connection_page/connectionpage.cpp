@@ -1,6 +1,8 @@
 #include "connectionpage.h"
 #include "connectionpageconnectwidget.h"
 #include "connectionpageconnectedwidget.h"
+#include "beans/dbconnectioninfo.h"
+#include "util/iconutil.h"
 #include <QtGui>
 
 ConnectionPage::ConnectionPage(const QString &connectionUuid, QWidget *parent) :
@@ -198,6 +200,13 @@ const ConnectionPool *ConnectionPage::getConnectionPool() const
     return mainWidget->getConnectionPool();
 }
 
+OraExp::ConnectionEnvironment ConnectionPage::getConnectionEnvironment() const
+{
+    Q_ASSERT(mainWidget);
+
+    return this->currentEnvironment;
+}
+
 void ConnectionPage::closeTab(int index)
 {
     Q_ASSERT(mainWidget);
@@ -230,10 +239,9 @@ void ConnectionPage::connected(DbConnection *db, DbConnectionInfo *connectionInf
 {
     setUpdatesEnabled(false);
 
-    emit setTitle(this, connectionInfo);
-
     mainWidget = new ConnectionPageConnectedWidget(db, &uiManager);
     uiManager.setConnection(db);
+    currentEnvironment = connectionInfo->environment;
 
     connectWidget->deleteLater();
 
@@ -243,6 +251,8 @@ void ConnectionPage::connected(DbConnection *db, DbConnectionInfo *connectionInf
     connect(mainWidget, SIGNAL(busyStateChanged(bool)), this, SLOT(childBusyStateChanged(bool)));
 
     setUpdatesEnabled(true);
+
+    emit setTitle(this, connectionInfo);
 
     emit connectionPageStateChanged();
 }

@@ -567,7 +567,11 @@ SOURCES += main.cpp\
     widgets/dockwidget.cpp \
     code_structure_tree/codestructuremodel.cpp \
     code_structure_tree/codestructuretreeitem.cpp \
-    code_structure_tree/codestructuretreeview.cpp
+    code_structure_tree/codestructuretreeview.cpp \
+    code_structure_tree/codestructuredeclarationtreeitem.cpp \
+    code_structure_tree/codestructuretreeitemfactory.cpp \
+    code_structure_tree/codestructureparametertreeitem.cpp \
+    code_structure_tree/codestructureparameterlisttreeitem.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1144,7 +1148,11 @@ HEADERS  += mainwindow.h \
     widgets/dockwidget.h \
     code_structure_tree/codestructuremodel.h \
     code_structure_tree/codestructuretreeitem.h \
-    code_structure_tree/codestructuretreeview.h
+    code_structure_tree/codestructuretreeview.h \
+    code_structure_tree/codestructuredeclarationtreeitem.h \
+    code_structure_tree/codestructuretreeitemfactory.h \
+    code_structure_tree/codestructureparametertreeitem.h \
+    code_structure_tree/codestructureparameterlisttreeitem.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

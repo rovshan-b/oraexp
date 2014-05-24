@@ -1,6 +1,8 @@
 #include "codestructurepane.h"
 #include "codestructuretreeview.h"
 #include "codestructuremodel.h"
+#include "code_parser/plsql/plsqltreebuilder.h"
+#include "code_parser/plsql/plsqlrules.h"
 #include <QtGui>
 
 CodeStructurePane::CodeStructurePane(QWidget *parent) :
@@ -24,7 +26,13 @@ QSize CodeStructurePane::sizeHint() const
 
 void CodeStructurePane::setCurrentWidget(MultiEditorWidget *editor)
 {
+    if(this->currentEditor == editor){
+        return;
+    }
+    this->treeBuilder = 0;
     this->currentEditor = editor;
+
+    setNewModel(); //will delete current model because treeBuilder is 0
 }
 
 void CodeStructurePane::setTreeBuilder(MultiEditorWidget *editor, PlSqlTreeBuilder *treeBuilder)
@@ -39,16 +47,27 @@ void CodeStructurePane::setTreeBuilder(MultiEditorWidget *editor, PlSqlTreeBuild
 
     this->treeBuilder = treeBuilder;
 
-    QAbstractItemModel *oldModel = treeView->model();
-    QItemSelectionModel *oldSelModel = treeView->selectionModel();
-
-    treeView->setModel(new CodeStructureModel(treeBuilder, this));
-
-    delete oldModel;
-    delete oldSelModel;
+    setNewModel();
 }
 
 PlSqlTreeBuilder *CodeStructurePane::currentTreeBuilder() const
 {
     return this->treeBuilder;
+}
+
+void CodeStructurePane::setNewModel()
+{
+    QAbstractItemModel *oldModel = treeView->model();
+    QItemSelectionModel *oldSelModel = treeView->selectionModel();
+
+    CodeStructureModel *newModel = (treeBuilder ? new CodeStructureModel(treeBuilder->getRootNode(), this) : 0);
+    treeView->setModel(newModel);
+
+    if(newModel){
+        treeView->header()->setResizeMode(QHeaderView::ResizeToContents);
+        treeView->header()->setStretchLastSection(false);
+    }
+
+    delete oldModel;
+    delete oldSelModel;
 }
