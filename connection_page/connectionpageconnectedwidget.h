@@ -86,6 +86,8 @@ public slots:
 private slots:
     void connectionPoolWorking(bool isWorking);
 
+    void codeTreePaneVisibilityChanged(bool visible);
+
 private:
     DbConnection *db;
     DockWidget *dbTreeDock;

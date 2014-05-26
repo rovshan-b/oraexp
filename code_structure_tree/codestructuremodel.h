@@ -2,10 +2,12 @@
 #define CODESTRUCTUREMODEL_H
 
 #include <QAbstractItemModel>
+#include <QSet>
 
 class PlSqlTreeBuilder;
 class ParseTreeNode;
 class CodeStructureTreeItem;
+class CodeStructureTreeView;
 
 class CodeStructureModel : public QAbstractItemModel
 {
@@ -25,12 +27,19 @@ public:
     bool canFetchMore(const QModelIndex &parent) const;
     void fetchMore (const QModelIndex & parent);
 
+    QModelIndex setCursorPosition(int position);
+    CodeStructureTreeItem *findItemForPosition(CodeStructureTreeItem *parentItem, int position) const;
+
 private:
     CodeStructureTreeItem *rootItem;
 
     void populateChildNodes(const QModelIndex & parent);
 
     bool isValidIndex(const QModelIndex &index) const;
+
+    int cursorPosition;
+
+    QSet<CodeStructureTreeItem*> highlightedItems;
 
 #ifdef DEBUG
     static int instanceCount;

@@ -7,7 +7,8 @@
 
 CodeStructurePane::CodeStructurePane(QWidget *parent) :
     QWidget(parent),
-    treeBuilder(0)
+    treeBuilder(0),
+    isActive(true)
 {
     QVBoxLayout *mainLayout = new QVBoxLayout();
     mainLayout->setContentsMargins(2,0,0,0);
@@ -35,7 +36,17 @@ void CodeStructurePane::setCurrentWidget(MultiEditorWidget *editor)
     setNewModel(); //will delete current model because treeBuilder is 0
 }
 
-void CodeStructurePane::setTreeBuilder(MultiEditorWidget *editor, PlSqlTreeBuilder *treeBuilder)
+void CodeStructurePane::unregisterWidget(MultiEditorWidget *editor)
+{
+    if(this->currentEditor == editor){
+        this->currentEditor = 0;
+        this->treeBuilder = 0;
+
+        setNewModel();
+    }
+}
+
+void CodeStructurePane::setTreeBuilder(MultiEditorWidget *editor, PlSqlTreeBuilder *treeBuilder, int cursorPosition)
 {
     if(this->currentEditor != editor){
         return;
@@ -48,6 +59,7 @@ void CodeStructurePane::setTreeBuilder(MultiEditorWidget *editor, PlSqlTreeBuild
     this->treeBuilder = treeBuilder;
 
     setNewModel();
+    setCursorPosition(editor, cursorPosition);
 }
 
 PlSqlTreeBuilder *CodeStructurePane::currentTreeBuilder() const
@@ -55,12 +67,37 @@ PlSqlTreeBuilder *CodeStructurePane::currentTreeBuilder() const
     return this->treeBuilder;
 }
 
+void CodeStructurePane::setCursorPosition(MultiEditorWidget *editor, int position)
+{
+    if(this->currentEditor != editor){
+        return;
+    }
+
+    CodeStructureModel *model = static_cast<CodeStructureModel*>(treeView->model());
+    if(model){
+        QModelIndex highlightedIndex = treeView->findFirstVisibleParent(model->setCursorPosition(position));
+        if(highlightedIndex.isValid()){
+            treeView->scrollTo(highlightedIndex);
+        }
+    }
+}
+
+void CodeStructurePane::setActive(bool active)
+{
+    this->isActive = active;
+
+    if(active && currentEditor != 0 && treeBuilder != 0 && treeView->model()==0){
+        setNewModel();
+        setCursorPosition(currentEditor, currentEditor->currentTextEditor()->textCursor().position());
+    }
+}
+
 void CodeStructurePane::setNewModel()
 {
     QAbstractItemModel *oldModel = treeView->model();
     QItemSelectionModel *oldSelModel = treeView->selectionModel();
 
-    CodeStructureModel *newModel = (treeBuilder ? new CodeStructureModel(treeBuilder->getRootNode(), this) : 0);
+    CodeStructureModel *newModel = ((isActive && treeBuilder) ? new CodeStructureModel(treeBuilder->getRootNode(), this) : 0);
     treeView->setModel(newModel);
 
     if(newModel){

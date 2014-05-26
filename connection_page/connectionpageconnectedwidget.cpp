@@ -376,6 +376,7 @@ void ConnectionPageConnectedWidget::restoreWindowState()
 
     connectDockSignals(dbTreeDock);
     connectDockSignals(codeTreeDock);
+    connect(codeTreeDock, SIGNAL(visibilityChanged(bool)), this, SLOT(codeTreePaneVisibilityChanged(bool)));
 
     if(ConnectionPageConnectedWidget::currentState.isEmpty()){
         tabifyDockWidget(dbTreeDock, codeTreeDock);
@@ -402,6 +403,11 @@ void ConnectionPageConnectedWidget::changeTabCaption(ConnectionPageTab *tab, con
 void ConnectionPageConnectedWidget::connectionPoolWorking(bool isWorking)
 {
     tabBusyStateChanged(0, isWorking);
+}
+
+void ConnectionPageConnectedWidget::codeTreePaneVisibilityChanged(bool visible)
+{
+    codeTreePane->setActive(visible);
 }
 
 void ConnectionPageConnectedWidget::connectDockSignals(QDockWidget *dockWidget)

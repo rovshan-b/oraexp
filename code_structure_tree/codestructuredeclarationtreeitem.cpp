@@ -22,7 +22,6 @@ CodeStructureDeclarationTreeItem::CodeStructureDeclarationTreeItem(ParseTreeNode
             }
 
             ParseTreeNode *idNode = PlSqlTreeBuilder::findNode(this->node, R_IDENTIFIER, true);
-            Q_ASSERT(idNode);
             if(idNode){
                 setItemText(idNode->children.at(0)->tokenInfo->lexeme);
             }

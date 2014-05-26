@@ -24,7 +24,8 @@ MultiEditorWidget::MultiEditorWidget(DbUiManager *uiManager, bool plsqlMode, QWi
     lastEditedWordPosition(-1),
     treeBuilder(0),
     lastChangeTime(QTime::currentTime()),
-    lastParseLengthInMs(1000000)
+    lastParseLengthInMs(1000000),
+    lastMarkedCursorPos(-1)
 {
     createUi();
 }
@@ -34,7 +35,7 @@ MultiEditorWidget::~MultiEditorWidget()
     //qDeleteAll(collapsePositions);
     //collapsePositions.clear();
 
-    uiManager->getCodeStructurePane()->setTreeBuilder(this, 0);
+    uiManager->getCodeStructurePane()->unregisterWidget(this);
     delete this->treeBuilder;
 }
 
@@ -163,7 +164,7 @@ void MultiEditorWidget::codeEditorFocusEvent(QWidget *object, bool focusIn)
 
     if(focusIn && plsqlMode){
         uiManager->getCodeStructurePane()->setCurrentWidget(this);
-        uiManager->getCodeStructurePane()->setTreeBuilder(this, this->treeBuilder);
+        uiManager->getCodeStructurePane()->setTreeBuilder(this, this->treeBuilder, currentEditor->editor()->textCursor().position());
     }
 }
 
@@ -265,6 +266,8 @@ void MultiEditorWidget::cursorPositionChanged()
     int pos=cursor.position();
 
     infoLabel->setText(infoLabelTextFormat.arg(QString::number(block+1), QString::number(posInBlock+1), QString::number(pos+1)));
+
+    lastPosChangeTime = QTime::currentTime();
 }
 
 void MultiEditorWidget::documentContentsChanged(int position, int charsRemoved, int charsAdded)
@@ -423,8 +426,15 @@ void MultiEditorWidget::onReparseTimer()
         reparseInterval = 3000;
     }
 
-    if(lastParseTime < lastChangeTime && lastChangeTime.msecsTo(QTime::currentTime()) >= reparseInterval){
+    QTime now = QTime::currentTime();
+    if(lastParseTime < lastChangeTime && lastChangeTime.msecsTo(now) >= reparseInterval){
         reparse();
+    }
+
+    int cursorPos = currentTextEditor()->textCursor().position();
+    if(plsqlMode && lastMarkedCursorPos!=cursorPos && lastPosChangeTime.msecsTo(now) >= 300){
+        lastMarkedCursorPos = cursorPos;
+        uiManager->getCodeStructurePane()->setCursorPosition(this, cursorPos);
     }
 
     foreach(CodeEditorAndSearchPaneWidget *editor, editors){
@@ -477,7 +487,7 @@ void MultiEditorWidget::parsingCompleted(int requestId, bool success, PlSqlTreeB
         PlSqlTreeBuilder *currentTreeBuilder = this->treeBuilder;
 
         this->treeBuilder = treeBulder;
-        uiManager->getCodeStructurePane()->setTreeBuilder(this, treeBuilder);
+        uiManager->getCodeStructurePane()->setTreeBuilder(this, treeBuilder, currentTextEditor()->textCursor().position());
 
         delete currentTreeBuilder;
     }else{

@@ -890,9 +890,9 @@ int CodeEditor::lineMarkerAreaOffset() const
      return CodeCollapsePosition();
  }
 
- void CodeEditor::highlightCollapsibleRegion(QMouseEvent *event)
+ void CodeEditor::highlightCollapsibleRegion(const QPoint &pos)
  {
-     QTextCursor cur = cursorForPosition(event->pos());
+     QTextCursor cur = cursorForPosition(pos);
      if(!cur.isNull()){
          highlightCollapsibleRegion(cur.block());
      }
@@ -2067,8 +2067,13 @@ int CodeEditor::lineMarkerAreaOffset() const
 
      if(watched == codeCollapseArea){
          if(event->type() == QEvent::MouseMove){
-             highlightCollapsibleRegion(static_cast<QMouseEvent*>(event));
+             if(!codeCollapseAreaMouseEnterTime.isNull() && codeCollapseAreaMouseEnterTime.msecsTo(QTime::currentTime())>=50){
+                highlightCollapsibleRegion(static_cast<QMouseEvent*>(event)->pos());
+             }
+         }else if(event->type() == QEvent::Enter){
+             codeCollapseAreaMouseEnterTime = QTime::currentTime();
          }else if(event->type() == QEvent::Leave && !collapsibleRegionPositions.isNull()){
+             codeCollapseAreaMouseEnterTime = QTime();
              collapsibleRegionPositions = QTextCursor();
              highlightCurrentLine();
          }else if(event->type() == QEvent::MouseButtonRelease){
@@ -2076,7 +2081,7 @@ int CodeEditor::lineMarkerAreaOffset() const
                  collapseOrExpandBlocks(collapsibleRegionPositions);
                  collapsibleRegionPositions = QTextCursor();
 
-                 highlightCollapsibleRegion(static_cast<QMouseEvent*>(event));
+                 highlightCollapsibleRegion(static_cast<QMouseEvent*>(event)->pos());
              }
          }
      }else if(watched == viewport()){

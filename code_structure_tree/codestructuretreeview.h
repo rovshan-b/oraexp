@@ -8,6 +8,8 @@ class CodeStructureTreeView : public QTreeView
     Q_OBJECT
 public:
     explicit CodeStructureTreeView(QWidget *parent = 0);
+
+    QModelIndex findFirstVisibleParent(const QModelIndex &child) const;
     
 };
 

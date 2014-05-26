@@ -2,6 +2,7 @@
 #define CODEEDITOR_H
 
 #include <QPlainTextEdit>
+#include <QTime>
 #include "cursorpositioninfo.h"
 #include "typedefs.h"
 
@@ -148,6 +149,8 @@ private:
     CodeCollapseArea *codeCollapseArea;
     LineNavigationBar *lineNavBar;
 
+    QTime codeCollapseAreaMouseEnterTime;
+
     QList< QTextCursor > foundTextPositions;
     QList< QTextCursor > pulsatePositions;
     QList< QTextCursor > errorPositions;
@@ -195,7 +198,7 @@ private:
 
     QList<CodeCollapsePosition*> *collapsePositions;
     CodeCollapsePosition findCollapsePosition(const QTextBlock &block);
-    void highlightCollapsibleRegion(QMouseEvent* event);
+    void highlightCollapsibleRegion(const QPoint &pos);
     void highlightCollapsibleRegion(const QTextBlock &block);
     void selectBlocks(QTextCursor &cur, const QTextBlock &startBlock, const QTextBlock &endBlock);
     void collapseOrExpandBlocks(QTextCursor &cur);

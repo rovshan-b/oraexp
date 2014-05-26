@@ -54,6 +54,8 @@ void BNFRule::readOptions(const QString &options)
             option->guiHandlerName = part.split(':').at(1);
         }else if(part.startsWith("gui_icon:")){
             option->guiIconName = part.split(':').at(1);
+        }else if(part.compare("gui_no_children")==0){
+            option->guiNoChildren = true;
         }else{
             Q_ASSERT(false);
         }
@@ -87,6 +89,7 @@ QString BNFRule::codeForOptions() const
     if(!ruleOptions->guiIconName.isEmpty()){
         str.append(varName).append("->guiIconName = \"").append(ruleOptions->guiIconName).append("\";\n");
     }
+    str.append(varName).append("->guiNoChildren = ").append(ruleOptions->guiNoChildren ? "true" : "false").append(";\n");
     str.append("ruleOptions[R_").append(ruleName.toUpper()).append("] = ").append(varName).append(";");
 
     return str;

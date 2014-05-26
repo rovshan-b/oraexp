@@ -321,6 +321,7 @@ void PlSqlTreeBuilder::fillNodesWithHandlers(QHash<ParseTreeNode *, QString> &no
             continue;
         }
 
+
         options = parsingTable->ruleOptions.value(n->tokenInfo->tokenOrRuleId, 0);
         if(!options){
             continue;

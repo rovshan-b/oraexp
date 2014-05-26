@@ -28,6 +28,9 @@ public:
 
     //load icon name from application resources for displaying in code outline tree
     QString guiIconName;
+
+    //do not add children in code outline tree
+    bool guiNoChildren;
 };
 
 #endif // BNFRULEOPTION_H

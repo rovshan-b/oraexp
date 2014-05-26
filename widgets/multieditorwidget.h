@@ -92,6 +92,9 @@ private:
     int lastParseLengthInMs;
     CodeReparser codeReparser;
 
+    QTime lastPosChangeTime;
+    int lastMarkedCursorPos;
+
     void reparse();
 };
 

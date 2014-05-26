@@ -93,6 +93,56 @@ QList<CodeStructureTreeItem *> CodeStructureTreeItem::populateChildren() const
     return results;
 }
 
+CodeStructureTreeItem *CodeStructureTreeItem::findChildForPosition(int position) const
+{
+    if(position == -1 || childItems.count() == 0){
+        return 0;
+    }
+
+    if(childItems.count()==1 && childItems[0]->node->containsPosition(position)){
+        return childItems[0];
+    }
+
+    int endIx = childItems.count() - 1;
+
+    int startIx = 0;
+    int checkIx = (endIx-startIx) / 2;
+
+    CodeStructureTreeItem *item = 0;
+
+    while(item == 0){
+        item = childItems[checkIx];
+
+        if(item->node->containsPosition(position)){
+            return item;
+        }else if(position > item->node->tokenInfo->startPos){
+            item = 0;
+            startIx = checkIx + 1;
+        }else if(position < item->node->tokenInfo->startPos){
+            item = 0;
+            endIx = checkIx - 1;
+        }else{
+            item = 0;
+            Q_ASSERT(false);
+            break;
+        }
+
+        checkIx = (endIx-startIx)/2 + startIx;
+
+        if(checkIx < startIx || endIx < startIx){
+            break;
+        }
+    }
+
+
+    return item;
+}
+
+bool CodeStructureTreeItem::containsPosition(int position) const
+{
+    return node->containsPosition(position);
+}
+
 void CodeStructureTreeItem::setItemText(const QString &text)
 {
     this->itemText = text;

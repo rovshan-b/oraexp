@@ -10,6 +10,8 @@ class ParseTreeNode;
 
 class CodeStructureTreeItem
 {
+    friend bool codeStructureTreeItemLessThan(CodeStructureTreeItem *i1, CodeStructureTreeItem *i2);
+
 public:
     CodeStructureTreeItem(ParseTreeNode *node);
     virtual ~CodeStructureTreeItem();
@@ -28,6 +30,10 @@ public:
     void setChildrenPopulated();
 
     virtual QList<CodeStructureTreeItem*> populateChildren() const;
+
+    CodeStructureTreeItem *findChildForPosition(int position) const;
+
+    bool containsPosition(int position) const;
 
 protected:
     ParseTreeNode *node;
@@ -51,5 +57,10 @@ private:
 
     bool childrenPopulated;
 };
+
+inline bool codeStructureTreeItemLessThan(CodeStructureTreeItem *i1, CodeStructureTreeItem *i2)
+{
+    return i1->node->tokenInfo->startPos < i2->node->tokenInfo->startPos;
+}
 
 #endif // CODESTRUCTURETREEITEM_H

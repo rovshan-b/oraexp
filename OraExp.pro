@@ -571,7 +571,10 @@ SOURCES += main.cpp\
     code_structure_tree/codestructuredeclarationtreeitem.cpp \
     code_structure_tree/codestructuretreeitemfactory.cpp \
     code_structure_tree/codestructureparametertreeitem.cpp \
-    code_structure_tree/codestructureparameterlisttreeitem.cpp
+    code_structure_tree/codestructureparameterlisttreeitem.cpp \
+    code_structure_tree/codestructurestatementtreeitem.cpp \
+    code_structure_tree/codestructureinitializesectiontreeitem.cpp \
+    code_structure_tree/codestructuregenerictreeitem.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1152,7 +1155,10 @@ HEADERS  += mainwindow.h \
     code_structure_tree/codestructuredeclarationtreeitem.h \
     code_structure_tree/codestructuretreeitemfactory.h \
     code_structure_tree/codestructureparametertreeitem.h \
-    code_structure_tree/codestructureparameterlisttreeitem.h
+    code_structure_tree/codestructureparameterlisttreeitem.h \
+    code_structure_tree/codestructurestatementtreeitem.h \
+    code_structure_tree/codestructureinitializesectiontreeitem.h \
+    code_structure_tree/codestructuregenerictreeitem.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

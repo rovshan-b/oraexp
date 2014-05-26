@@ -627,7 +627,7 @@ exception_init_pragma
    :  'PRAGMA' 'EXCEPTION_INIT' PLS_LPAREN identifier PLS_COMMA expression PLS_RPAREN PLS_SEMI
    ;
    
-inline_pragma
+inline_pragma {gui_handler:CodeStructureGenericTreeItem,gui_no_children}
    :  'PRAGMA' 'INLINE' PLS_LPAREN object_name PLS_COMMA expression PLS_RPAREN PLS_SEMI
    ;
    
@@ -828,16 +828,16 @@ object_name_or_default
    |  'DEFAULT'
    ;
 
-plsql_body
+plsql_body {gui_skip}
    :  'BEGIN' statement opt_statements_or_inline_pragmas opt_exception_block 'END' opt_identifier PLS_SEMI
    ;
    
-opt_initialize_section
+opt_initialize_section {gui_skip}
    :  initialize_section
    |
    ;
    
-initialize_section
+initialize_section {gui_handler:CodeStructureInitializeSectionTreeItem}
    :  'BEGIN' statement opt_statements_or_inline_pragmas opt_exception_block
    ;
    
@@ -846,22 +846,22 @@ opt_identifier
    |
    ;
 
-opt_statements {skip}
+opt_statements {skip,gui_skip}
    :  statement_list
    |
    ;
    
-statement_list
+statement_list {gui_skip}
    :  statement
    |  statement statements
    ;
 
-statements {skip}
+statements {skip,gui_skip}
    :  statement 
    |  statement statements
    ;
    
-statement
+statement {gui_handler:CodeStructureStatementTreeItem}
    :  opt_label statement_type
    ;
    
@@ -899,7 +899,7 @@ assignment_statement_target
    |  placeholder
    ;
    
-basic_loop_statement
+basic_loop_statement {gui_skip}
    :  'LOOP' statement_list 'END' 'LOOP' opt_identifier PLS_SEMI
    ;
    
@@ -1028,26 +1028,34 @@ identifier_or_bind_variable
    |  bind_variable
    ;
 
-opt_else_block
+opt_else_block {skip}
+   :  else_block
+   |
+   ;
+   
+else_block {gui_handler:CodeStructureGenericTreeItem}
    :  'ELSE' statement_list
+   ;
+   
+opt_else_expression_block {skip}
+   :  else_expression_block
    |
    ;
    
-opt_else_expression_block
+else_expression_block
    :  'ELSE' expression
-   |
    ;
    
-opt_when_then_blocks
+opt_when_then_blocks {skip}
    :  when_then_blocks
    |
    ;
    
-when_then_blocks
+when_then_blocks {skip}
    :  when_then opt_when_then_blocks
    ;
    
-when_then
+when_then {gui_handler:CodeStructureGenericTreeItem}
    :  'WHEN' expression 'THEN' statement_list
    ;
    
@@ -1082,28 +1090,33 @@ placeholder
    :  bind_variable opt_bind_variable
    ;
    
-opt_statements_or_inline_pragmas
+opt_statements_or_inline_pragmas {gui_skip}
    :  statement_or_inline_pragma opt_statements_or_inline_pragmas
    |
    ;
    
-statement_or_inline_pragma {skip}
+statement_or_inline_pragma {skip,gui_skip}
    :  statement
    |  inline_pragma
    ;
    
-opt_exception_block
-   :  'EXCEPTION' exception_handler
-   |
-   ;
-
-opt_exception_handler  
-   :  exception_handler opt_exception_handler
+opt_exception_block {skip}
+   :  'EXCEPTION' exception_handlers
    |
    ;
    
-exception_handler
-   :  'WHEN' exception_names_or_others 'THEN' statement_list opt_exception_handler
+exception_handlers {gui_skip}
+   :  exception_handler opt_exception_handlers
+   ;
+
+
+opt_exception_handlers {skip} 
+   :  exception_handler opt_exception_handlers
+   |
+   ;
+   
+exception_handler {gui_handler:CodeStructureGenericTreeItem}
+   :  'WHEN' exception_names_or_others 'THEN' statement_list 
    ;
    
 exception_names_or_others
@@ -1152,12 +1165,12 @@ if_statement
    :  'IF' expression 'THEN' statement_list opt_elsif_blocks opt_else_block 'END' 'IF' PLS_SEMI
    ;
 
-opt_elsif_blocks
+opt_elsif_blocks {skip}
    :  elsif_block opt_elsif_blocks
    |  
    ;
    
-elsif_block
+elsif_block {gui_handler:CodeStructureGenericTreeItem}
    :  'ELSIF' expression 'THEN' statement_list
    ;
    

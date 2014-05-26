@@ -5,6 +5,7 @@ BNFRuleOption::BNFRuleOption() :
     noChildren(false),
     scope(false),
     symbolTableEntry(false),
-    skipInGuiTree(false)
+    skipInGuiTree(false),
+    guiNoChildren(false)
 {
 }

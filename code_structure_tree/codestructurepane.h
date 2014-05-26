@@ -16,8 +16,14 @@ public:
     virtual QSize sizeHint () const;
 
     void setCurrentWidget(MultiEditorWidget *editor);
-    void setTreeBuilder(MultiEditorWidget *editor, PlSqlTreeBuilder *treeBuilder);
+    void setTreeBuilder(MultiEditorWidget *editor, PlSqlTreeBuilder *treeBuilder, int cursorPosition);
     PlSqlTreeBuilder *currentTreeBuilder() const;
+
+    void setCursorPosition(MultiEditorWidget *editor, int position);
+
+    void setActive(bool active);
+
+    void unregisterWidget(MultiEditorWidget *editor);
 
 private:
     CodeStructureTreeView *treeView;
@@ -26,6 +32,8 @@ private:
     PlSqlTreeBuilder *treeBuilder;
 
     void setNewModel();
+
+    bool isActive;
 };
 
 #endif // CODESTRUCTUREPANE_H

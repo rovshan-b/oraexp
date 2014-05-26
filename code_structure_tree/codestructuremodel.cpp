@@ -1,13 +1,16 @@
 #include "codestructuremodel.h"
 #include "codestructuretreeitem.h"
+#include "codestructuretreeview.h"
 #include "code_parser/plsql/plsqltreebuilder.h"
+#include <QFont>
 
 #ifdef DEBUG
     int CodeStructureModel::instanceCount = 0;
 #endif
 
 CodeStructureModel::CodeStructureModel(ParseTreeNode *rootNode, QObject *parent) :
-    QAbstractItemModel(parent)
+    QAbstractItemModel(parent),
+    cursorPosition(-1)
 {
     rootItem = new CodeStructureTreeItem(rootNode);
     populateChildNodes(createIndex(0, 0, rootItem));
@@ -34,6 +37,12 @@ QVariant CodeStructureModel::data(const QModelIndex &index, int role) const
     }
 
     CodeStructureTreeItem *item = static_cast<CodeStructureTreeItem *>(index.internalPointer());
+
+    if(role == Qt::FontRole && highlightedItems.contains(item)){
+        QFont font;
+        font.setWeight(QFont::Bold);
+        return font;
+    }
 
     return item->data(role);
 }
@@ -134,6 +143,64 @@ void CodeStructureModel::fetchMore(const QModelIndex &parent)
     populateChildNodes(parent);
 }
 
+QModelIndex CodeStructureModel::setCursorPosition(int position)
+{
+    if(this->cursorPosition == position){
+        return QModelIndex();
+    }
+
+    this->cursorPosition = position;
+
+    QSet<CodeStructureTreeItem*> oldItems = highlightedItems;
+
+    highlightedItems.clear();
+
+    CodeStructureTreeItem *item = findItemForPosition(rootItem, position);
+
+    CodeStructureTreeItem *itemToReturn = item;
+
+    while(item){
+        highlightedItems.insert(item);
+
+        if(item->parent() == itemToReturn){
+            itemToReturn = item; //prefer deepest node in tree
+        }
+
+        item = findItemForPosition(item, position);
+    }
+
+    QModelIndex ix;
+    QModelIndex parentIx;
+
+    foreach (CodeStructureTreeItem *i, highlightedItems){
+        if(!oldItems.contains(i)){ //just added, need to highlight
+            parentIx = i->parent()==rootItem ? QModelIndex() : createIndex(i->parent()->row(),0,i->parent());
+            ix = index(i->row(),0, parentIx);
+            emit dataChanged(ix, ix);
+        }
+    }
+
+    foreach (CodeStructureTreeItem *i, oldItems){
+        if(!highlightedItems.contains(i)){
+            parentIx = i->parent()==rootItem ? QModelIndex() : createIndex(i->parent()->row(),0,i->parent());
+            ix = index(i->row(),0,parentIx);
+            emit dataChanged(ix, ix);
+        }
+    }
+
+    if(!itemToReturn){
+        return QModelIndex();
+    }else{
+        parentIx = itemToReturn->parent()==rootItem ? QModelIndex() : createIndex(itemToReturn->parent()->row(),0,itemToReturn->parent());
+        return index(itemToReturn->row(),0,parentIx);
+    }
+}
+
+CodeStructureTreeItem *CodeStructureModel::findItemForPosition(CodeStructureTreeItem *parentItem, int position) const
+{
+    return parentItem->findChildForPosition(position);
+}
+
 void CodeStructureModel::populateChildNodes(const QModelIndex &parent)
 {
     CodeStructureTreeItem *node=static_cast<CodeStructureTreeItem*>(parent.internalPointer());
@@ -150,6 +217,10 @@ void CodeStructureModel::populateChildNodes(const QModelIndex &parent)
 
     foreach(CodeStructureTreeItem *childItem, childItems){
         node->appendChild(childItem);
+
+        if(childItem->containsPosition(cursorPosition)){
+            highlightedItems.insert(childItem);
+        }
     }
 
     endInsertRows();

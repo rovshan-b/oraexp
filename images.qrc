@@ -160,6 +160,7 @@
         <file>images/green_big.png</file>
         <file>images/red_big.png</file>
         <file>images/blue_big.png</file>
-        <file>images/parameters.png</file>
+        <file>images/folder.png</file>
+        <file>images/statement.png</file>
     </qresource>
 </RCC>

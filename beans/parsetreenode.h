@@ -23,6 +23,10 @@ public:
     ParseTreeNodeScope *scope;
     bool ownsScope;
 
+    inline bool containsPosition(int position){
+        return position>=tokenInfo->startPos && position<=tokenInfo->endPos;
+    }
+
 };
 
 inline bool parseTreeNodeLessThan(ParseTreeNode *n1, ParseTreeNode *n2)
