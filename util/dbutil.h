@@ -98,7 +98,6 @@ public:
     static bool isPLSQLProgramUnit(const QString &itemType);
     static DbTreeModel::DbTreeNodeType getSpecType(DbTreeModel::DbTreeNodeType itemType);
     static DbTreeModel::DbTreeNodeType getBodyType(DbTreeModel::DbTreeNodeType itemType);
-    static bool canParse(DbTreeModel::DbTreeNodeType itemType);
 
     static bool isSpecType(DbTreeModel::DbTreeNodeType itemType);
 

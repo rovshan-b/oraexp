@@ -55,6 +55,7 @@ public:
     void showLinePosition(int line, int linePos);
 
     void pulsate(const QTextCursor &cursor, int duration = 300);
+    void ensureVisible(const QTextCursor &cursor);
 
     void setErrorPosition(const QTextCursor &cursor);
     void setErrorPositions(const QList< QTextCursor > &errorPositions);
@@ -129,7 +130,7 @@ protected:
     void focusOutEvent ( QFocusEvent * event);
     void contextMenuEvent ( QContextMenuEvent * event );
     bool event ( QEvent * e );
-    virtual void paintEvent ( QPaintEvent * event );
+    //virtual void paintEvent ( QPaintEvent * event );
 
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);

@@ -3,7 +3,7 @@
 #include "code_parser/plsql/plsqlparsingtable.h"
 
 BlockData::BlockData() :
-    sectionSeparator(false),
+    //sectionSeparator(false),
     collapseEndLine(-1),
     versionId(-1),
     collapsedUntilLineNumber(-1)
@@ -19,13 +19,13 @@ void BlockData::addToken(TokenInfo *tokenInfo)
 {
     tokens.append(tokenInfo);
 
-    static int tProcedure = PlSqlParsingTable::getInstance()->getKeywordIx("PROCEDURE");
-    static int tFunction = PlSqlParsingTable::getInstance()->getKeywordIx("FUNCTION");
+    //static int tProcedure = PlSqlParsingTable::getInstance()->getKeywordIx("PROCEDURE");
+    //static int tFunction = PlSqlParsingTable::getInstance()->getKeywordIx("FUNCTION");
 
-    if(tokenInfo->tokenOrRuleId == tProcedure ||
-            tokenInfo->tokenOrRuleId == tFunction){
-        this->sectionSeparator = true;
-    }
+    //if(tokenInfo->tokenOrRuleId == tProcedure ||
+    //        tokenInfo->tokenOrRuleId == tFunction){
+    //    this->sectionSeparator = true;
+    //}
 }
 
 void BlockData::clear()
@@ -33,7 +33,7 @@ void BlockData::clear()
     qDeleteAll(tokens);
     tokens.clear();
 
-    sectionSeparator = false;
+    //sectionSeparator = false;
 }
 
 TokenInfo *BlockData::tokenAtPosition(int position) const

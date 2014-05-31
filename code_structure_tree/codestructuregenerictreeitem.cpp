@@ -5,10 +5,6 @@
 CodeStructureGenericTreeItem::CodeStructureGenericTreeItem(ParseTreeNode *node) : CodeStructureTreeItem(node)
 {
     PlSqlParsingTable *parsingTable = PlSqlParsingTable::getInstance();
-    QString ruleName = parsingTable->getRuleName(this->node->tokenInfo->tokenOrRuleId);
-    ruleName.replace('_', ' ');
-
-    setItemText(ruleName);
 
     BNFRuleOption *options = parsingTable->ruleOptions.value(this->node->tokenInfo->tokenOrRuleId, 0);
     if(options && !options->guiIconName.isEmpty()){
@@ -17,7 +13,16 @@ CodeStructureGenericTreeItem::CodeStructureGenericTreeItem(ParseTreeNode *node) 
         setIconName("statement");
     }
 
-    if(options && options->guiNoChildren){
+    if(options && !options->guiDisplayName.isEmpty()){
+        setItemText(options->guiDisplayName);
+    }else{
+        QString ruleName = parsingTable->getRuleName(this->node->tokenInfo->tokenOrRuleId);
+        ruleName.replace('_', ' ');
+
+        setItemText(ruleName);
+    }
+
+    if((options && options->guiNoChildren) || this->node->children.count() == 0){
         setHasChildren(false);
     }
 }

@@ -6,6 +6,7 @@
 #include "models/genericeditabletablemodel.h"
 #include "widgets/datatable.h"
 #include "widgets/autorefreshcombobox.h"
+#include "widgets/dockwidget.h"
 #include "codeeditor/codeeditor.h"
 #include <QLineEdit>
 #include <QListWidget>
@@ -815,6 +816,18 @@ void WidgetHelper::raiseIfVisible(QWidget *widget)
 {
     if(widget->isVisible()){
         widget->raise();
+    }
+}
+
+void WidgetHelper::toggleDockWidget(DockWidget *dock)
+{
+    if(!dock->isActive()){
+        if(!dock->isVisible()){
+            dock->show();
+        }
+        dock->raise();
+    }else{
+        dock->hide();
     }
 }
 

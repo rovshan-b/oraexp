@@ -35,6 +35,8 @@ public:
 
     void setInfoLabelTextFormat(const QString &format);
 
+    void pulsate(int startPos, int endPos);
+
     QList<CodeEditorAndSearchPaneWidget*> getEditors() const;
 signals:
     void escapeKeyPressed();

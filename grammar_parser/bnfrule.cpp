@@ -52,6 +52,8 @@ void BNFRule::readOptions(const QString &options)
             option->skipInGuiTree = true;
         }else if(part.startsWith("gui_handler:")){
             option->guiHandlerName = part.split(':').at(1);
+        }else if(part.startsWith("gui_display_name:")){
+            option->guiDisplayName = part.split(':').at(1);
         }else if(part.startsWith("gui_icon:")){
             option->guiIconName = part.split(':').at(1);
         }else if(part.compare("gui_no_children")==0){
@@ -85,6 +87,9 @@ QString BNFRule::codeForOptions() const
     str.append(varName).append("->skipInGuiTree = ").append(ruleOptions->skipInGuiTree ? "true" : "false").append(";\n");
     if(!ruleOptions->guiHandlerName.isEmpty()){
         str.append(varName).append("->guiHandlerName = \"").append(ruleOptions->guiHandlerName).append("\";\n");
+    }
+    if(!ruleOptions->guiDisplayName.isEmpty()){
+        str.append(varName).append("->guiDisplayName = \"").append(ruleOptions->guiDisplayName).append("\";\n");
     }
     if(!ruleOptions->guiIconName.isEmpty()){
         str.append(varName).append("->guiIconName = \"").append(ruleOptions->guiIconName).append("\";\n");

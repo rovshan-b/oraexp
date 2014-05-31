@@ -111,7 +111,7 @@ void PlSqlTreeBuilder::reduced(TokenInfo *ruleInfo, int symbolCount, const QList
                     ruleId==R_ELSIF_BLOCK ||
                     ruleId==R_OPT_ELSE_BLOCK ||
                     ruleId==R_WHEN_THEN ||
-                 ((ruleId==R_STATEMENT || ruleId==R_DECLARATION) && (endLine - startLine)>3)))){
+                 ((ruleId==R_STATEMENT || ruleId==R_DECLARATION) && (endLine - startLine)>=3)))){
         int currentCount = collapsePositions.size();
 
         CodeCollapsePosition *lastPosition = currentCount > 0 ? collapsePositions[currentCount-1] : 0;

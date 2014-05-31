@@ -8,8 +8,9 @@
     int CodeStructureModel::instanceCount = 0;
 #endif
 
-CodeStructureModel::CodeStructureModel(ParseTreeNode *rootNode, QObject *parent) :
+CodeStructureModel::CodeStructureModel(ParseTreeNode *rootNode, bool sorted, QObject *parent) :
     QAbstractItemModel(parent),
+    sorted(sorted),
     cursorPosition(-1)
 {
     rootItem = new CodeStructureTreeItem(rootNode);
@@ -211,6 +212,10 @@ void CodeStructureModel::populateChildNodes(const QModelIndex &parent)
     node->setChildrenPopulated();
 
     QList<CodeStructureTreeItem*> childItems = node->populateChildren();
+    if(node==rootItem && sorted){
+        qSort(childItems.begin(), childItems.end(), codeStructureTreeItemNameLessThan);
+
+    }
 
     int currentRowCount = rowCount(parent);
     beginInsertRows(parent, currentRowCount-1, (currentRowCount-1)+(childItems.size()-1));

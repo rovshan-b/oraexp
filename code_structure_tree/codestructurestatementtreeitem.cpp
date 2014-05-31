@@ -7,6 +7,8 @@ CodeStructureStatementTreeItem::CodeStructureStatementTreeItem(ParseTreeNode *no
 {
     ParseTreeNode *statementTypeNode = PlSqlTreeBuilder::findNode(node, R_STATEMENT_TYPE, false);
 
+    PlSqlParsingTable *parsingTable = PlSqlParsingTable::getInstance();
+
     if(statementTypeNode){
         statementTypeNode = statementTypeNode->children[0];
         Q_ASSERT(statementTypeNode->tokenInfo->tokenType == TokenInfo::Rule);
@@ -17,7 +19,6 @@ CodeStructureStatementTreeItem::CodeStructureStatementTreeItem(ParseTreeNode *no
 
         this->node = statementTypeNode;
 
-        PlSqlParsingTable *parsingTable = PlSqlParsingTable::getInstance();
         QString ruleName = parsingTable->getRuleName(this->node->tokenInfo->tokenOrRuleId);
         ruleName.replace("_statement", "").replace('_', ' ');
 
@@ -26,7 +27,12 @@ CodeStructureStatementTreeItem::CodeStructureStatementTreeItem(ParseTreeNode *no
         setItemText("statement");
     }
 
-    setIconName("statement");
+    BNFRuleOption *options = parsingTable->ruleOptions.value(this->node->tokenInfo->tokenOrRuleId, 0);
+    if(options && !options->guiIconName.isEmpty()){
+        setIconName(options->guiIconName);
+    }else{
+        setIconName("statement");
+    }
 
     int ruleId = this->node->tokenInfo->tokenOrRuleId;
 

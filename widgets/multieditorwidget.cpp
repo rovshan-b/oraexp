@@ -236,6 +236,16 @@ void MultiEditorWidget::setInfoLabelTextFormat(const QString &format)
     this->infoLabelTextFormat=format;
 }
 
+void MultiEditorWidget::pulsate(int startPos, int endPos)
+{
+    CodeEditor *editor = currentTextEditor();
+    QTextCursor cur = editor->textCursor();
+    cur.setPosition(startPos);
+    cur.setPosition(endPos, QTextCursor::KeepAnchor);
+    editor->ensureVisible(cur);
+    editor->pulsate(cur, 1000);
+}
+
 QList<CodeEditorAndSearchPaneWidget *> MultiEditorWidget::getEditors() const
 {
     return this->editors;

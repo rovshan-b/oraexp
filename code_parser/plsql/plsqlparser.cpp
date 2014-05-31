@@ -40,7 +40,8 @@ void PlSqlParser::correctError(int *token, ParsingTableRow *row, ParsingTableAct
             if(*token == PLS_SEMI || reservedWord){
                 int reducedConstruct = 0;
                 QList<int> expectedTerminals = getExpectedTokens(row).first;
-                bool waitingForSemicolon = (expectedTerminals.size()==1 && expectedTerminals[0]==PLS_SEMI);
+                //bool waitingForSemicolon = (expectedTerminals.size()==1 && expectedTerminals[0]==PLS_SEMI);
+                bool waitingForSemicolon = expectedTerminals.contains(PLS_SEMI);
                 if(reservedWord && countOnLastPosition<=maxStayCountOnSamePosition &&
                         !waitingForSemicolon){ //if current token is reserved word, try to reduce expression first
                     int constuctsToCheck[] = {R_EXPRESSION, R_DECLARATION, R_STATEMENT};

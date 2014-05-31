@@ -11,6 +11,7 @@ class ParseTreeNode;
 class CodeStructureTreeItem
 {
     friend bool codeStructureTreeItemLessThan(CodeStructureTreeItem *i1, CodeStructureTreeItem *i2);
+    friend bool codeStructureTreeItemNameLessThan(CodeStructureTreeItem *i1, CodeStructureTreeItem *i2);
 
 public:
     CodeStructureTreeItem(ParseTreeNode *node);
@@ -35,6 +36,10 @@ public:
 
     bool containsPosition(int position) const;
 
+    ParseTreeNode *getNode() const {return this->node;}
+
+    QString getItemText() const;
+
 protected:
     ParseTreeNode *node;
 
@@ -42,7 +47,6 @@ protected:
     CodeStructureTreeItem* parentItem;
 
     void setItemText(const QString &text);
-    QString getItemText() const;
 
     void setIconName(const QString &name);
     QString getIconName() const;
@@ -61,6 +65,11 @@ private:
 inline bool codeStructureTreeItemLessThan(CodeStructureTreeItem *i1, CodeStructureTreeItem *i2)
 {
     return i1->node->tokenInfo->startPos < i2->node->tokenInfo->startPos;
+}
+
+inline bool codeStructureTreeItemNameLessThan(CodeStructureTreeItem *i1, CodeStructureTreeItem *i2)
+{
+    return (QString::compare(i1->getItemText(), i2->getItemText(), Qt::CaseInsensitive) < 0);
 }
 
 #endif // CODESTRUCTURETREEITEM_H

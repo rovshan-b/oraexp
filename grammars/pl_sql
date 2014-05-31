@@ -289,7 +289,7 @@ opt_param_list {gui_skip}
    |
    ;
    
-param_list {gui_handler:CodeStructureParameterListTreeItem}
+param_list {gui_handler:CodeStructureGenericTreeItem,gui_display_name:Parameters,gui_icon:folder}
    :  param_declaration opt_tail_param_declarations
    ;
    
@@ -473,7 +473,7 @@ c_declaration
    :  'C' until_semi
    ;
    
-plsql_block {scope}
+plsql_block {scope,gui_icon:ddl}
    :  opt_label opt_declare_and_declare_section plsql_body
    ;
     
@@ -829,7 +829,7 @@ object_name_or_default
    ;
 
 plsql_body {gui_skip}
-   :  'BEGIN' statement opt_statements_or_inline_pragmas opt_exception_block 'END' opt_identifier PLS_SEMI
+   :  'BEGIN' opt_statements_or_inline_pragmas opt_exception_block 'END' opt_identifier PLS_SEMI
    ;
    
 opt_initialize_section {gui_skip}
@@ -837,8 +837,8 @@ opt_initialize_section {gui_skip}
    |
    ;
    
-initialize_section {gui_handler:CodeStructureInitializeSectionTreeItem}
-   :  'BEGIN' statement opt_statements_or_inline_pragmas opt_exception_block
+initialize_section {gui_handler:CodeStructureGenericTreeItem,gui_display_name:Initialization,gui_icon:folder}
+   :  'BEGIN' opt_statements_or_inline_pragmas opt_exception_block
    ;
    
 opt_identifier
@@ -899,16 +899,16 @@ assignment_statement_target
    |  placeholder
    ;
    
-basic_loop_statement {gui_skip}
+basic_loop_statement {gui_skip,gui_icon:loop}
    :  'LOOP' statement_list 'END' 'LOOP' opt_identifier PLS_SEMI
    ;
    
-case_statement
+case_statement {gui_icon:switch}
    :  simple_case_statement
    |  searched_case_statement
    ;
    
-simple_case_statement
+simple_case_statement {gui_skip}
    : 'CASE' expression when_then_blocks opt_else_block 'END' 'CASE' opt_identifier PLS_SEMI
    ;
    
@@ -916,7 +916,7 @@ simple_case_expression
    :  'CASE' expression when_then_expression_blocks opt_else_expression_block 'END'
    ;
    
-searched_case_statement
+searched_case_statement {gui_skip}
    :  'CASE' when_then_blocks opt_else_block 'END' 'CASE' opt_identifier PLS_SEMI
    ;
    
@@ -924,11 +924,11 @@ searched_case_expression
    :  'CASE' when_then_expression_blocks opt_else_expression_block 'END' 
    ;
    
-close_statement
+close_statement {gui_icon:fileclose}
    :  'CLOSE' identifier_or_bind_variable PLS_SEMI
    ; 
    
-continue_statement
+continue_statement {gui_icon:continue}
    :  'CONTINUE' opt_identifier opt_when PLS_SEMI
    ;
 
@@ -997,7 +997,7 @@ param_direction
    |  'IN' 'OUT'
    ;
    
-exit_statement
+exit_statement {gui_icon:exit}
    :  'EXIT' opt_identifier opt_when PLS_SEMI
    ;
    
@@ -1101,8 +1101,12 @@ statement_or_inline_pragma {skip,gui_skip}
    ;
    
 opt_exception_block {skip}
-   :  'EXCEPTION' exception_handlers
+   :  exception_block
    |
+   ;
+   
+exception_block {gui_handler:CodeStructureGenericTreeItem}
+   :  'EXCEPTION' exception_handlers
    ;
    
 exception_handlers {gui_skip}
@@ -1138,7 +1142,7 @@ tail_exception_names {skip}
    |  'OR' object_name tail_exception_names
    ;
    
-for_loop_statement
+for_loop_statement {gui_icon:loop}
    :  'FOR' identifier 'IN' cursor_with_params_or_select_statement_in_parenthesis_or_reverse_expression_range basic_loop_statement
    ;
    
@@ -1157,11 +1161,11 @@ opt_save_exceptions
    |
    ;
    
-goto_statement
+goto_statement {gui_icon:goto}
    :  'GOTO' identifier PLS_SEMI
    ;
    
-if_statement
+if_statement {gui_icon:switch}
    :  'IF' expression 'THEN' statement_list opt_elsif_blocks opt_else_block 'END' 'IF' PLS_SEMI
    ;
 
@@ -1191,15 +1195,15 @@ procedure_call_statement
    :  procedure_call PLS_SEMI
    ;
    
-raise_statement
+raise_statement {gui_icon:exception}
    :  'RAISE' opt_identifier PLS_SEMI
    ;
    
-return_statement
+return_statement {gui_icon:return}
    : 'RETURN' opt_expression PLS_SEMI
    ;
    
-select_statement
+select_statement {gui_icon:select_statement}
    :  subquery opt_for_update_clause
    ;
    
@@ -2111,7 +2115,7 @@ nowait_or_wait
    |  'WAIT' PLS_NUMBER
    ;
    
-while_loop_statement
+while_loop_statement {gui_icon:loop}
    :  'WHILE' expression basic_loop_statement
    ;
    
@@ -2149,11 +2153,11 @@ dml_statement
    |  merge_statement
    ;
    
-commit_statement
+commit_statement {gui_icon:commit}
    :  'COMMIT' opt_until_semi PLS_SEMI
    ;
    
-delete_statement
+delete_statement {gui_icon:delete_statement}
    :  'DELETE' opt_from dml_table_expression_clause_or_only alias opt_where_clause opt_returning_clause opt_error_logging_clause PLS_SEMI
    ;
    
@@ -2162,7 +2166,7 @@ opt_from
    |
    ;
    
-insert_statement
+insert_statement {gui_icon:insert_statement}
    :  'INSERT' single_table_or_multi_table_insert PLS_SEMI
    ;
    
@@ -2362,7 +2366,7 @@ object_name_or_subquery
    |  subquery
    ;
    
-rollback_statement
+rollback_statement {gui_icon:rollback}
    :  'ROLLBACK' opt_work opt_to_savepoint_or_force PLS_SEMI
    ;
    
@@ -2417,7 +2421,7 @@ read_only_or_read_write
    |  'READ' 'WRITE'
    ;
    
-update_statement
+update_statement {gui_icon:update_statement}
    :  'UPDATE' dml_table_expression_clause_or_only alias 
       update_set_clause opt_where_clause opt_returning_clause opt_error_logging_clause PLS_SEMI
    ;

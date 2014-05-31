@@ -162,5 +162,10 @@
         <file>images/blue_big.png</file>
         <file>images/folder.png</file>
         <file>images/statement.png</file>
+        <file>images/continue.png</file>
+        <file>images/goto.png</file>
+        <file>images/loop.png</file>
+        <file>images/return.png</file>
+        <file>images/switch.png</file>
     </qresource>
 </RCC>

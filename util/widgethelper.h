@@ -10,6 +10,7 @@ class DataTable;
 class GenericEditableTableModel;
 class CodeEditor;
 class QAction;
+class DockWidget;
 
 class WidgetHelper
 {
@@ -138,6 +139,7 @@ public:
     static QAction *findDefaultAction(QList<QAction *> actions);
 
     static void raiseIfVisible(QWidget *widget);
+    static void toggleDockWidget(DockWidget *dock);
 
 };
 

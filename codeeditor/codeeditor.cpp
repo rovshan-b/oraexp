@@ -1194,7 +1194,7 @@ int CodeEditor::lineMarkerAreaOffset() const
 
      return QPlainTextEdit::event(e);
  }
-
+/*
  void CodeEditor::paintEvent(QPaintEvent *event)
  {
      QPlainTextEdit::paintEvent(event);
@@ -1207,11 +1207,6 @@ int CodeEditor::lineMarkerAreaOffset() const
      int top = (int) blockGeometry.top();
      int bottom = top + (int) blockBoundingRect(block).height();
 
-     /*QTextCursor cur = textCursor();
-     QFontMetrics metrics = fontMetrics();
-     int charWidth = metrics.width('W');
-     int charHeight = metrics.height();*/
-
      painter.save();
      painter.setPen(QPen(Qt::red, 0.5));
 
@@ -1221,19 +1216,8 @@ int CodeEditor::lineMarkerAreaOffset() const
              BlockData *data = static_cast<BlockData*>(block.userData());
              if(data){
                  if(data->isSectionSeparator()){
-                     //painter.setPen(QPen(Qt::red, 0.5));
-                     //painter.setRenderHint(QPainter::Antialiasing, false);
                      painter.drawLine(0, top, viewport()->width(), top);
-                 }
-                 /*if(data->isCollapsedRangeStart()){
-                     painter.setPen(QPen(palette().text(), 0.3));
-                     painter.setRenderHint(QPainter::Antialiasing, true);
-                     cur.setPosition(block.position()+block.length()-1);
-                     QRect curRect = cursorRect(cur).translated(contentOffset().toPoint()).translated(10, 0);
-                     QRect blockEndRect(curRect.left(), top+(qMax((bottom-top-charHeight),0)/(float)2), charWidth*5, charHeight);
-                     painter.drawRoundedRect(blockEndRect, 10, 10, Qt::RelativeSize);
-                 }*/
-             }
+                 }             }
 
          }
 
@@ -1243,7 +1227,7 @@ int CodeEditor::lineMarkerAreaOffset() const
          ++blockNumber;
      }
      painter.restore();
- }
+ }*/
 
  void CodeEditor::autoIndentNewBlock()
  {
@@ -1980,6 +1964,31 @@ int CodeEditor::lineMarkerAreaOffset() const
      pulsatePositions.append(cursor);
      highlightCurrentLine();
      QTimer::singleShot(duration, this, SLOT(removePulsatePositions()));
+ }
+
+ void CodeEditor::ensureVisible(const QTextCursor &cursor)
+ {
+     QTextBlock startBlock = document()->findBlock(cursor.selectionStart());
+     QTextBlock endBlock = document()->findBlock(cursor.selectionEnd());
+
+     if(!startBlock.isValid() || !endBlock.isValid()){
+         return;
+     }
+
+     expandAllBlocks(startBlock.blockNumber(), endBlock.blockNumber());
+     qreal blockHeight = blockBoundingRect(startBlock).height();
+     int visibleBlockCount = qFloor(this->contentsRect().height()/blockHeight);
+
+     int blockCountToShow = endBlock.blockNumber() - startBlock.blockNumber() + 1;
+
+     bool fits = (visibleBlockCount >= blockCountToShow);
+
+     int firstBlockNumber = fits ? (startBlock.blockNumber() - (visibleBlockCount-blockCountToShow)/2)
+                                 :
+                                   startBlock.blockNumber();
+
+     verticalScrollBar()->setValue(qMin(verticalScrollBar()->maximum(), firstBlockNumber));
+
  }
 
  void CodeEditor::setErrorPosition(const QTextCursor &cursor)

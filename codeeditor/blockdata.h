@@ -18,7 +18,7 @@ public:
     TokenInfo *tokenAtPosition(int position) const;
     TokenInfo *firstTokenFor(int position) const;
 
-    inline bool isSectionSeparator() const {return this->sectionSeparator;}
+    //inline bool isSectionSeparator() const {return this->sectionSeparator;}
 
     void setCollapsePosition(int endLine, int versionId);
     inline bool isCollapsePosition(int versionId) const {return (this->versionId==versionId && this->collapseEndLine!=-1) || (this->collapsedUntilLineNumber!=-1);}
@@ -31,7 +31,7 @@ public:
 private:
     QList<TokenInfo*> tokens;
 
-    bool sectionSeparator;
+    //bool sectionSeparator;
 
     int collapseEndLine;
     int versionId;

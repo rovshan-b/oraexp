@@ -16,14 +16,18 @@ CodeStructureDeclarationTreeItem::CodeStructureDeclarationTreeItem(ParseTreeNode
 
             this->node = childNode->children[0];
 
+            if(this->node->tokenInfo->tokenOrRuleId == R_PRAGMA){
+                this->node = this->node->children[0];
+            }else{
+                ParseTreeNode *idNode = PlSqlTreeBuilder::findNode(this->node, R_IDENTIFIER, true);
+                if(idNode){
+                    setItemText(idNode->children.at(0)->tokenInfo->lexeme);
+                }
+            }
+
             BNFRuleOption *options = parsingTable->ruleOptions.value(this->node->tokenInfo->tokenOrRuleId, 0);
             if(options && !options->guiIconName.isEmpty()){
                 setIconName(options->guiIconName);
-            }
-
-            ParseTreeNode *idNode = PlSqlTreeBuilder::findNode(this->node, R_IDENTIFIER, true);
-            if(idNode){
-                setItemText(idNode->children.at(0)->tokenInfo->lexeme);
             }
         }
     }
@@ -36,7 +40,12 @@ CodeStructureDeclarationTreeItem::CodeStructureDeclarationTreeItem(ParseTreeNode
                     ruleId == R_FUNCTION_DEFINITION);
 
     if(getItemText().isEmpty()){
-        setItemText(parsingTable->getRuleName(this->node->tokenInfo->tokenOrRuleId));
+        QString ruleName = parsingTable->getRuleName(this->node->tokenInfo->tokenOrRuleId);
+        ruleName.replace('_', ' ');
+        setItemText(ruleName);
+    }
+
+    if(getIconName().isEmpty()){
         setIconName("variable");
     }
 }

@@ -13,7 +13,7 @@ class CodeStructureModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    explicit CodeStructureModel(ParseTreeNode *rootNode, QObject *parent);
+    explicit CodeStructureModel(ParseTreeNode *rootNode, bool sorted, QObject *parent);
     virtual ~CodeStructureModel();
     
     QVariant data(const QModelIndex &index, int role) const;
@@ -32,6 +32,7 @@ public:
 
 private:
     CodeStructureTreeItem *rootItem;
+    bool sorted;
 
     void populateChildNodes(const QModelIndex & parent);
 

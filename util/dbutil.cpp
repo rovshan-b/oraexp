@@ -1047,12 +1047,6 @@ DbTreeModel::DbTreeNodeType DbUtil::getBodyType(DbTreeModel::DbTreeNodeType item
     }
 }
 
-bool DbUtil::canParse(DbTreeModel::DbTreeNodeType itemType)
-{
-    return DbUtil::isPLSQLProgramUnit(itemType) ||
-            itemType==DbTreeModel::View;
-}
-
 bool DbUtil::isSpecType(DbTreeModel::DbTreeNodeType itemType)
 {
     switch(itemType){

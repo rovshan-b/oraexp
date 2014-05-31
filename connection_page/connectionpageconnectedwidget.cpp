@@ -355,14 +355,12 @@ bool ConnectionPageConnectedWidget::activateChildWidget(ConnectionPageObject *ob
 
 void ConnectionPageConnectedWidget::toggleDbTreePane()
 {
-    dbTreeDock->setVisible(!dbTreeDock->isVisible());
-    WidgetHelper::raiseIfVisible(dbTreeDock);
+    WidgetHelper::toggleDockWidget(dbTreeDock);
 }
 
 void ConnectionPageConnectedWidget::toggleCodeStructurePane()
 {
-    codeTreeDock->setVisible(!codeTreeDock->isVisible());
-    WidgetHelper::raiseIfVisible(codeTreeDock);
+    WidgetHelper::toggleDockWidget(codeTreeDock);
 }
 
 void ConnectionPageConnectedWidget::windowStateChanged()
@@ -387,11 +385,11 @@ void ConnectionPageConnectedWidget::restoreWindowState()
     //setting focus works correctly when adding from this slot
     uiManager->addWorksheet();
 
-#ifdef DEBUG
+/*#ifdef DEBUG
     if(db->getUsername().compare("TEST_USER", Qt::CaseInsensitive)==0){
         uiManager->createEditor("TEST_USER", "TEST_PROC", "Procedure");
     }
-#endif
+#endif*/
 
 }
 
