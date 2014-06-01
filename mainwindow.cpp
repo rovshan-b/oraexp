@@ -23,14 +23,12 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    //setWindowIcon(QIcon(":/images/database.png"));
-
     connectionsPane=new ConnectionsPane();
     this->setCentralWidget(connectionsPane);
 
     createMenu();
 
-    setWindowIcon(IconUtil::getIcon("database"));
+    setWindowIcon(IconUtil::getIcon("database_big"));
     setWindowTitle("OraExp");
 
     SettingsHelper::restoreWindowPosition(this, "MainWindow");

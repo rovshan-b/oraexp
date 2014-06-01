@@ -82,6 +82,8 @@ public:
 
     bool isPlsqlMode() const;
 
+    CursorPositionInfo getStartStopPositions(const QTextCursor cur);
+
     static QList<CodeEditor*> openEditors;
 
     static QStringHash textShortcuts;
@@ -104,6 +106,7 @@ public slots:
     void moveDown();
     void moveSelectedText(bool up);
     void selectCurrentBlock();
+    void applyCaseFolding();
 
     void customCut();
     void customCopy();
@@ -121,6 +124,7 @@ signals:
     void lostFocus();
     void needsCompletionList();
     void updated(CodeEditor *editor);
+    void applyCaseFoldingRequested();
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -163,6 +167,7 @@ private:
     int markedLineIx;
 
     void autoIndentNewBlock();
+    int findLastUnclosedBracePosition(const QTextBlock &block) const;
     void indentSelection();
     void unindentSelection();
     void insertTab();
@@ -172,7 +177,6 @@ private:
     bool moveToFirstNonSpaceCharacter(QTextCursor &cur, QTextCursor::MoveMode moveMode=QTextCursor::MoveAnchor);
     void removeFromBeginning(QTextCursor &cur, int characterCount);
     void changeCase(bool toUpper);
-    CursorPositionInfo getStartStopPositions(const QTextCursor cur);
     void moveSelectionUp();
     void moveSelectionDown();
     void ensureHasSelection();
@@ -189,8 +193,7 @@ private:
     int lineMarkerAreaOffset() const;
 
     void highlightMatchingBraces(QList<QTextEdit::ExtraSelection> &extraSelections);
-    QChar checkForBrace(int &pos);
-    int findMatchingBrace(const QChar &brace, const QChar &matching, int fromPos, int toPos);
+    int findMatchingSymbol(int lookFor, int match, const QTextBlock &block, int pos, bool forward);
 
     QString textUnderCursor() const;
 

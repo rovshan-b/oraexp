@@ -75,7 +75,7 @@ void MainWindow::on_actionScan_triggered()
 
 void MainWindow::on_actionParse_triggered()
 {
-    parseCurrent(true, false);
+    parseCurrent(true, true);
 }
 
 void MainWindow::buildTree(ParseTreeNode *rootNode)
@@ -154,6 +154,7 @@ bool MainWindow::parseCurrent(bool constructDisplayTree, bool strictMode)
     CodeParser *parser=CodeParserFactory::createParser("plsql", reader);
     parser->setStrictMode(strictMode);
     PlSqlTreeBuilder treeBulder;
+    treeBulder.setSkipEmptyNodes(false);
     parser->setReduceListener(&treeBulder);
 
     QTime t;
@@ -252,4 +253,9 @@ void MainWindow::on_actionParse_All_triggered()
     if(allSucceeded){
         setWindowTitle(QString("%1 - All files parsed").arg(windowTitle()));
     }
+}
+
+void MainWindow::on_actionNon_strict_parse_triggered()
+{
+    parseCurrent(true, false);
 }

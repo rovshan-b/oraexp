@@ -10,6 +10,7 @@
 
 PlSqlTreeBuilder::PlSqlTreeBuilder() :
     rootNode(0),
+    skipEmptyNodes(true),
     calculateCollapsePositions(false),
     calculateScopes(false)
 {
@@ -51,7 +52,7 @@ void PlSqlTreeBuilder::reduced(TokenInfo *ruleInfo, int symbolCount, const QList
         }else{
             ParseTreeNode *childNode = ruleNodesStack.pop();
             //check child node options
-            if(childNode->children.size() == 0){
+            if(childNode->children.size() == 0 && skipEmptyNodes){
                 delete childNode;
                 continue;
             }
@@ -216,6 +217,11 @@ void PlSqlTreeBuilder::accepted(ParsingTable *parsingTable)
 void PlSqlTreeBuilder::error(ParsingTable *parsingTable)
 {
     accepted(parsingTable);
+}
+
+void PlSqlTreeBuilder::setSkipEmptyNodes(bool skip)
+{
+    this->skipEmptyNodes = skip;
 }
 
 void PlSqlTreeBuilder::setCalculateCollapsePositions()

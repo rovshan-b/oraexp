@@ -1,6 +1,7 @@
 #include "codestructuregenerictreeitem.h"
 #include "code_parser/plsql/plsqlrules.h"
 #include "code_parser/plsql/plsqlparsingtable.h"
+#include "code_parser/plsql/plsqltreebuilder.h"
 
 CodeStructureGenericTreeItem::CodeStructureGenericTreeItem(ParseTreeNode *node) : CodeStructureTreeItem(node)
 {
@@ -14,8 +15,19 @@ CodeStructureGenericTreeItem::CodeStructureGenericTreeItem(ParseTreeNode *node) 
     }
 
     if(options && !options->guiDisplayName.isEmpty()){
-        setItemText(options->guiDisplayName);
-    }else{
+        QString displayName = options->guiDisplayName;
+        if(displayName.compare("$id")==0){
+            ParseTreeNode *idNode = PlSqlTreeBuilder::findNode(this->node, R_IDENTIFIER, true);
+            if(idNode){
+                displayName = idNode->children.at(0)->tokenInfo->lexeme.toLower();
+            }else{
+                displayName = "";
+            }
+        }
+        setItemText(displayName);
+    }
+
+    if(getItemText().isEmpty()){
         QString ruleName = parsingTable->getRuleName(this->node->tokenInfo->tokenOrRuleId);
         ruleName.replace('_', ' ');
 

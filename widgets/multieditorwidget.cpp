@@ -220,6 +220,7 @@ CodeEditorAndSearchPaneWidget *MultiEditorWidget::createEditor()
     connect(editor->editor(), SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
     connect(editor->editor(), SIGNAL(updated(CodeEditor*)), this, SLOT(updateEditors(CodeEditor*)));
     connect(editor->editor(), SIGNAL(needsCompletionList()), this, SIGNAL(needsCompletionList()));
+    connect(editor->editor(), SIGNAL(applyCaseFoldingRequested()), this, SLOT(applyCaseFoldingRequested()));
 
     return editor;
 }
@@ -291,6 +292,32 @@ void MultiEditorWidget::documentContentsChanged(int position, int charsRemoved, 
     }
 
     lastChangeTime = QTime::currentTime();
+}
+
+void MultiEditorWidget::applyCaseFoldingRequested()
+{
+    if(CodeEditor::keywordCaseFolding == CodeEditor::NoCaseFolding &&
+            CodeEditor::identifierCaseFolding == CodeEditor::NoCaseFolding){
+        QMessageBox::information(this->window(), tr("No rules set"),
+                                 tr("Automatic case folding rules are not defined. Please, define them by choosing Tools -> Options -> Editor from menu and try again."));
+        return;
+    }
+
+    CodeEditor *editor = currentTextEditor();
+    QTextCursor cur = editor->textCursor();
+    CursorPositionInfo info = editor->getStartStopPositions(cur);
+    bool hasSelection = cur.hasSelection();
+    int fromPos = hasSelection ? info.startPos : 0;
+    int toPos = hasSelection ? info.endPos : editor->document()->characterCount()-1;
+
+    editor->setBlockChanges(true);
+    applyCaseFoldingRules(fromPos, 0, toPos - fromPos - 1);
+    editor->setBlockChanges(false);
+
+    if(hasSelection){
+        info.selectText(cur);
+        editor->setTextCursor(cur);
+    }
 }
 
 void MultiEditorWidget::applyCaseFoldingRules(int position, int charsRemoved, int charsAdded)

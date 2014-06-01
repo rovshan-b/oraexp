@@ -22,6 +22,7 @@ public:
 
     virtual void error(ParsingTable *parsingTable);
 
+    void setSkipEmptyNodes(bool skip);
     void setCalculateCollapsePositions();
     QList<CodeCollapsePosition*> getCollapsePositions() const;
     void clearCollapsePositions();
@@ -35,6 +36,8 @@ private:
     ParseTreeNode *rootNode;
 
     QStack<ParseTreeNode*> ruleNodesStack;
+
+    bool skipEmptyNodes;
 
     bool calculateCollapsePositions;
     QList<CodeCollapsePosition*> collapsePositions;

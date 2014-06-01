@@ -28,6 +28,8 @@ public:
     inline int getCollapsedUntil() const {return this->collapsedUntilLineNumber;}
     inline int isCollapsedRangeStart() const {return (this->collapsedUntilLineNumber!=-1);}
 
+    QList<TokenInfo*> getTokens() const {return this->tokens;}
+
 private:
     QList<TokenInfo*> tokens;
 

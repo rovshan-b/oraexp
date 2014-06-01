@@ -212,7 +212,7 @@ void ConnectionPageConnectedWidget::addWindow(ConnectionPageObject *window, cons
     QWidget *widget = dynamic_cast<QWidget*>(window);
     Q_ASSERT(widget);
 
-    widget->setWindowIcon(icon.isNull() ? IconUtil::getIcon("database") : icon);
+    widget->setWindowIcon(icon.isNull() ? IconUtil::getIcon("database_big") : icon);
     widget->setWindowTitle(title);
 
     ConnectionPageWindowObject *windowObject = static_cast<ConnectionPageWindowObject*>(window);

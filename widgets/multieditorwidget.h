@@ -51,6 +51,8 @@ private slots:
 
     void documentContentsChanged(int position, int charsRemoved, int charsAdded);
 
+    void applyCaseFoldingRequested();
+
     void onReparseTimer();
 
     void parsingCompleted(int requestId,

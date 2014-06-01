@@ -153,6 +153,9 @@ void AppEditMenu::createEditAdvancedMenu(QToolBar *toolbar)
 
     editRemoveEmptyLinesAction=editAdvancedMenu->addAction(tr("Remove empty lines"), this, SLOT(removeEmptyLines()), QKeySequence("Ctrl+R"));
     editRemoveEmptyLinesAction->setStatusTip(tr("Remove empty lines"));
+
+    editApplyCaseFoldingAction=editAdvancedMenu->addAction(tr("Apply case folding"), this, SLOT(applyCaseFolding()), QKeySequence("Ctrl+Shift+F"));
+    editApplyCaseFoldingAction->setStatusTip(tr("Apply automatic case folding rules to selection"));
 }
 
 void AppEditMenu::createEditResolveMenu()
@@ -197,6 +200,7 @@ void AppEditMenu::updateActionStatesForCodeEditor(CodeEditor *editor)
     editToLowerCaseAction->setEnabled(!isReadOnly);
     editCreateDuplicateAction->setEnabled(!isReadOnly);
     editRemoveEmptyLinesAction->setEnabled(!isReadOnly);
+    editApplyCaseFoldingAction->setEnabled(!isReadOnly);
 
     editDescribeAction->setEnabled(true);
     editResolveAction->setEnabled(true);
@@ -262,6 +266,7 @@ void AppEditMenu::focusWidgetChanged(QWidget * /*old*/, QWidget *now)
     editToLowerCaseAction->setEnabled(false);
     editCreateDuplicateAction->setEnabled(false);
     editRemoveEmptyLinesAction->setEnabled(false);
+    editApplyCaseFoldingAction->setEnabled(false);
 
     editDescribeAction->setEnabled(false);
     editResolveAction->setEnabled(false);
@@ -364,6 +369,11 @@ void AppEditMenu::makeDuplicate()
 void AppEditMenu::removeEmptyLines()
 {
     WidgetHelper::invokeSlot(currentAppWidget, "removeEmptyLines");
+}
+
+void AppEditMenu::applyCaseFolding()
+{
+    WidgetHelper::invokeSlot(currentAppWidget, "applyCaseFolding");
 }
 
 void AppEditMenu::describeObject()

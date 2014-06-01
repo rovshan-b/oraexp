@@ -318,28 +318,60 @@ int CodeEditor::lineMarkerAreaOffset() const
  void CodeEditor::highlightMatchingBraces(QList<QTextEdit::ExtraSelection> &extraSelections)
  {
      QTextCursor cur = textCursor();
-     int curPos = cur.position();
-     int characterCount = document()->characterCount();
-     QChar ch = checkForBrace(curPos);
 
-     if(ch.isNull()){
+     if(cur.hasSelection()){
          return;
      }
 
-     if(cur.position() != curPos){
-         cur.setPosition(curPos);
+     QTextBlock block = cur.block();
+
+     if(!block.isValid()){
+         return;
      }
 
-     int nextPos;
+     BlockData *data = static_cast<BlockData*>(block.userData());
 
-     if(ch=='('){
-         nextPos = findMatchingBrace('(', ')', curPos+1, characterCount-1);
-     }else if(ch==')'){
-         nextPos = findMatchingBrace(')', '(', curPos-1, 0);
+     if(!data){
+         return;
      }
+
+     int pos = cur.positionInBlock();
+     TokenInfo *tokenInfo = data->tokenAtPosition(pos);
+
+     if(!tokenInfo){
+         return;
+     }
+
+     if(tokenInfo->tokenOrRuleId != PLS_LPAREN &&
+             tokenInfo->tokenOrRuleId != PLS_RPAREN){
+         tokenInfo = data->tokenAtPosition(++pos);
+     }
+
+     if(!tokenInfo){
+         return;
+     }
+
+     int currentToken;
+     int lookForToken;
+     if(tokenInfo->tokenOrRuleId == PLS_LPAREN){
+         currentToken = PLS_LPAREN;
+         lookForToken = PLS_RPAREN;
+     }else if(tokenInfo->tokenOrRuleId == PLS_RPAREN){
+         currentToken = PLS_RPAREN;
+         lookForToken = PLS_LPAREN;
+     }else{
+         return;
+     }
+
+     bool forward = (currentToken == PLS_LPAREN);
+     int nextPos = findMatchingSymbol(lookForToken, currentToken,
+                                      cur.block(),
+                                      forward ? tokenInfo->startPos+1 : tokenInfo->startPos-1,
+                                      forward);
 
      QTextEdit::ExtraSelection selection1, selection2;
 
+     cur.setPosition(block.position() + tokenInfo->startPos);
      cur.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
      selection1.cursor = cur;
      selection1.format.setForeground(nextPos==-1 ? Qt::red : Qt::magenta);
@@ -357,41 +389,40 @@ int CodeEditor::lineMarkerAreaOffset() const
      }
  }
 
- QChar CodeEditor::checkForBrace(int &pos)
+ int CodeEditor::findMatchingSymbol(int lookFor, int match, const QTextBlock &block, int pos, bool forward)
  {
-     QChar ch = document()->characterAt(pos);
+     QTextBlock currBlock = block;
 
-     if(ch=='(' || ch==')'){
-        return ch;
-     }else{
-         ch = document()->characterAt(--pos);
-         if(ch=='(' || ch==')'){
-             return ch;
-         }/*else{
-             pos-=2;
-             ch = document()->characterAt(pos);
-             if(ch=='(' || ch==')'){
-                 return ch;
-             }
-         }*/
-     }
+     BlockData *data;
+     QList<TokenInfo*> tokens;
+     TokenInfo *tokenInfo;
 
-     return QChar();
- }
+     int matchCounter = 1;
 
- int CodeEditor::findMatchingBrace(const QChar &brace, const QChar &matching, int fromPos, int toPos)
- {
-     int occurence = 0;
-     for(int i=fromPos; toPos>fromPos ? (i<=toPos) : (i>=toPos); toPos>fromPos ? ++i : --i){
-         QChar c = document()->characterAt(i);
-         if(c == brace){
-             --occurence;
-         }else if(c == matching){
-             if(occurence == 0){
-                 return i;
-             }
-             ++occurence;
-         }
+     while(currBlock.isValid()){
+        data = static_cast<BlockData*>(currBlock.userData());
+        tokens = data->getTokens();
+
+        for(int i=(forward ? 0 : tokens.size()-1); ((forward && i<tokens.size()) || (!forward && i>=0)); (forward ? ++i : --i)){
+            tokenInfo = tokens.at(i);
+
+            if((forward && currBlock == block && tokenInfo->startPos < pos) ||
+                    (!forward && currBlock == block && tokenInfo->startPos > pos)){
+                continue;
+            }
+
+            if(tokenInfo->tokenOrRuleId == match){
+                ++matchCounter;
+            }else if(tokenInfo->tokenOrRuleId == lookFor){
+                --matchCounter;
+
+                if(matchCounter == 0){
+                    return currBlock.position() + tokenInfo->startPos;
+                }
+            }
+        }
+
+        currBlock = forward ? currBlock.next() : currBlock.previous();
      }
 
      return -1;
@@ -1180,6 +1211,8 @@ int CodeEditor::lineMarkerAreaOffset() const
      menu->addAction(editMenu->editDescribeAction);
      menu->addAction(editMenu->editResolveAction);
 
+     editMenu->updateActionStatesForCodeEditor(this);
+
      menu->exec(event->globalPos());
      delete menu;
  }
@@ -1247,6 +1280,20 @@ int CodeEditor::lineMarkerAreaOffset() const
          }
          prefix.append(c);
      }
+     int unclosedBracePosition = findLastUnclosedBracePosition(cur.block());
+     int i = prefix.size();
+     while(i++ < unclosedBracePosition){
+         c=prevLine.at(i);
+         if(c.isSpace()){
+            prefix.append(c);
+         }else{
+             prefix.append(' ');
+         }
+     }
+     if(unclosedBracePosition != -1){ //add one more space for better alignment
+         prefix.append(' ');
+     }
+
      cur.movePosition(QTextCursor::NextBlock);
      if(!prefix.isEmpty()){
         cur.insertText(prefix);
@@ -1254,6 +1301,34 @@ int CodeEditor::lineMarkerAreaOffset() const
      }
 
      this->blockEventChanges = false;
+ }
+
+ int CodeEditor::findLastUnclosedBracePosition(const QTextBlock &block) const
+ {
+     if(!block.isValid()){
+         return -1;
+     }
+
+     BlockData *data = static_cast<BlockData*>(block.userData());
+     if(!data){
+         return -1;
+     }
+     QList<TokenInfo*> tokens = data->getTokens();
+     int counter = 0;
+     for(int i=tokens.size()-1; i>=0; --i){
+         TokenInfo *tokenInfo = tokens.at(i);
+         if(tokenInfo->tokenOrRuleId == PLS_RPAREN){
+             --counter;
+         }else if(tokenInfo->tokenOrRuleId == PLS_LPAREN){
+             ++counter;
+
+             if(counter > 0){
+                 return tokenInfo->startPos;
+             }
+         }
+     }
+
+     return -1;
  }
 
  void CodeEditor::indentSelection()
@@ -1818,6 +1893,11 @@ int CodeEditor::lineMarkerAreaOffset() const
      selectBlocks(cur, startBlock, endBlock);
 
      setTextCursor(cur);
+ }
+
+ void CodeEditor::applyCaseFolding()
+ {
+     emit applyCaseFoldingRequested();
  }
 
  void CodeEditor::customCut()

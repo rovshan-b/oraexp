@@ -50,6 +50,7 @@
     <addaction name="actionScan"/>
     <addaction name="actionParse"/>
     <addaction name="actionParse_All"/>
+    <addaction name="actionNon_strict_parse"/>
    </widget>
    <addaction name="menuActions"/>
   </widget>
@@ -84,6 +85,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionNon_strict_parse">
+   <property name="text">
+    <string>Non strict parse</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+M</string>
    </property>
   </action>
  </widget>

@@ -23,6 +23,8 @@ public:
 
     void updateActionStates(ConnectionPage *cnPage, ConnectionPageTab *cnPageTab);
 
+    void updateActionStatesForCodeEditor(CodeEditor *editor);
+
 public slots:
     void setUndoEnabled(bool enabled);
     void setRedoEnabled(bool enabled);
@@ -51,6 +53,7 @@ private slots:
     void toLowerCase();
     void makeDuplicate();
     void removeEmptyLines();
+    void applyCaseFolding();
 
     void describeObject();
 
@@ -64,8 +67,6 @@ private slots:
     void findPrevious();
 
     void goToLine();
-
-    void updateActionStatesForCodeEditor(CodeEditor *editor);
 
 public:
     QAction *editUndoAction;
@@ -96,6 +97,7 @@ private:
     QAction *editToLowerCaseAction;
     QAction *editCreateDuplicateAction;
     QAction *editRemoveEmptyLinesAction;
+    QAction *editApplyCaseFoldingAction;
 
     QAction *editIncreaseFontSize;
     QAction *editDecreaseFontSize;

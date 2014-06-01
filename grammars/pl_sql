@@ -85,15 +85,15 @@ subprog_decl_in_type {skip}
    |  constructor_declaration
    ;
    
-proc_decl_in_type
+proc_decl_in_type {gui_handler:CodeStructureGenericTreeItem,gui_display_name:$id,gui_icon:procedure}
    :  procedure_definition
    ;
    
-func_decl_in_type
+func_decl_in_type {gui_handler:CodeStructureGenericTreeItem,gui_display_name:$id,gui_icon:function}
    :  'FUNCTION' object_name plsql_function_source
    ;
    
-constructor_declaration
+constructor_declaration {gui_handler:CodeStructureGenericTreeItem,gui_display_name:constructor,gui_icon:function}
    :  'CONSTRUCTOR' 'FUNCTION' datatype opt_constructor_params
       'RETURN' self_as_result is_or_as plsql_call_spec_or_external
    ;
@@ -108,14 +108,14 @@ is_or_as_or_under
    |  'UNDER'
    ;
    
-varray_or_nested_table_or_object_type_def
+varray_or_nested_table_or_object_type_def {gui_skip}
    :  varray_type_def
    |  nested_table_type_def
    |  object_type_def
    ;
 
 
-object_type_def
+object_type_def {gui_skip}
    :  object_or_object_name opt_sqlj_object_type opt_attribute_datatype_element_spec_list_in_parentheses
       opt_final_or_instantiable_list
    ;
@@ -136,12 +136,12 @@ final_or_instantiable
    |  'NOT' 'INSTANTIABLE'
    ;
    
-opt_attribute_datatype_element_spec_list_in_parentheses
+opt_attribute_datatype_element_spec_list_in_parentheses {gui_skip}
    :  attribute_datatype_element_spec_list_in_parentheses
    |
    ;
    
-attribute_datatype_element_spec_list_in_parentheses
+attribute_datatype_element_spec_list_in_parentheses {gui_skip}
    :  PLS_LPAREN opt_attribute_datatype_element_spec_list PLS_RPAREN
    ;
    
@@ -150,17 +150,17 @@ opt_tail_attribute_datatype_element_spec_list {skip}
    |
    ;
    
-attribute_datatype_element_spec_list
+attribute_datatype_element_spec_list {gui_skip}
    :  attribute_datatype_opt_sqlj_object_type_attr_list opt_tail_attribute_datatype_element_spec_list
    |  element_spec opt_tail_attribute_datatype_element_spec_list
    ;
    
-opt_attribute_datatype_element_spec_list
+opt_attribute_datatype_element_spec_list {gui_skip}
    :  attribute_datatype_element_spec_list
    |
    ;
    
-attribute_datatype_opt_sqlj_object_type_attr_list
+attribute_datatype_opt_sqlj_object_type_attr_list {gui_handler:CodeStructureGenericTreeItem,gui_icon:variable,gui_display_name:$id,gui_no_children}
    :  identifier datatype opt_sqlj_object_type_attr
    ;
    
@@ -173,18 +173,18 @@ sqlj_object_type_attr
    :  'EXTERNAL' 'NAME' PLS_QUOTED_STRING
    ;
    
-element_spec
+element_spec {gui_skip}
    :  opt_inheritance_clauses subprogram_or_constructor_or_map_order_function_specs
    ;
    
-subprogram_or_constructor_or_map_order_function_specs
+subprogram_or_constructor_or_map_order_function_specs {gui_skip}
    :  member_or_static procedure_or_function_spec
    |  constructor_spec
    |  map_order_function_spec
    |  restrict_references_pragma
    ;
    
-map_order_function_spec
+map_order_function_spec {gui_skip}
    :  map_or_order 'MEMBER' function_spec
    ;
    
@@ -207,7 +207,7 @@ datatype_or_self_as_result
    |  self_as_result
    ;
    
-constructor_spec
+constructor_spec {gui_handler:CodeStructureGenericTreeItem,gui_display_name:constructor,gui_icon:function}
    :  'CONSTRUCTOR' 'FUNCTION' datatype opt_constructor_params
       'RETURN' self_as_result opt_is_or_as_call_spec
    ;
@@ -216,8 +216,9 @@ self_as_result
    :  'SELF' 'AS' 'RESULT'
    ;
    
-opt_constructor_params
+opt_constructor_params {gui_skip}
    :  PLS_LPAREN opt_self_datatype param_list PLS_RPAREN
+   |
    ;
    
 opt_self_datatype
@@ -230,17 +231,17 @@ opt_is_or_as_call_spec
    |
    ;
    
-procedure_or_function_spec
+procedure_or_function_spec {gui_skip}
    :  procedure_spec
    |  function_spec
    ;
    
-procedure_spec
+procedure_spec {gui_handler:CodeStructureGenericTreeItem,gui_icon:procedure,gui_display_name:$id}
    :  procedure_declaration_main
    |  procedure_definition
    ;
    
-function_spec
+function_spec {gui_handler:CodeStructureGenericTreeItem,gui_icon:function,gui_display_name:$id}
    :  function_declaration_main
    |  function_definition
    ;
@@ -606,7 +607,7 @@ procedure_heading {gui_skip}
    :  'PROCEDURE' identifier opt_param_declarations
    ;
    
-procedure_definition {symbol_table_entry,scope,gui_icon:procedure}
+procedure_definition {symbol_table_entry,scope,gui_icon:procedure,gui_skip}
    :  procedure_heading is_or_as plsql_call_spec_or_external
    ;
    
@@ -631,7 +632,7 @@ inline_pragma {gui_handler:CodeStructureGenericTreeItem,gui_no_children}
    :  'PRAGMA' 'INLINE' PLS_LPAREN object_name PLS_COMMA expression PLS_RPAREN PLS_SEMI
    ;
    
-restrict_references_pragma
+restrict_references_pragma {gui_handler:CodeStructureGenericTreeItem,gui_icon:variable,gui_display_name:restrict references pragma,gui_no_children}
    :  'PRAGMA' 'RESTRICT_REFERENCES' PLS_LPAREN object_name_or_default PLS_COMMA restrict_ref_types PLS_RPAREN PLS_SEMI;
    
 restrict_ref_types
