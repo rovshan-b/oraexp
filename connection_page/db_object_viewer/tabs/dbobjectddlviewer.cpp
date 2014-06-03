@@ -26,7 +26,7 @@ DbObjectDdlViewer::DbObjectDdlViewer(bool addSettingsButton, DbUiManager *uiMana
 
 void DbObjectDdlViewer::createMainWidget(QLayout *layout)
 {
-    multiEditor=new MultiEditorWidget(uiManager, true);
+    multiEditor=new MultiEditorWidget(uiManager, DbUtil::isPLSQLProgramUnit(itemType));
     multiEditor->setReadOnly(true);
 
     layout->addWidget(multiEditor);

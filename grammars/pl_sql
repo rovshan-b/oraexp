@@ -40,7 +40,7 @@ obj_type_and_name_and_body {scope,gui_skip}
    |  'FUNCTION' object_name plsql_function_source
    |  'TYPE' object_name opt_force opt_oid plsql_type_source
    |  'TYPE' 'BODY' object_name plsql_type_body_source
-   |  'TRIGGER' object_name
+   |  'TRIGGER' object_name plsql_trigger_source
    |  opt_force 'VIEW' object_name
    ;
    
@@ -66,6 +66,215 @@ plsql_function_source {skip,gui_skip}
    
 plsql_procedure_source {skip,gui_skip}
    :  opt_param_declarations opt_inv_rights_and_accessible_by_clauses is_or_as plsql_call_spec_or_external
+   ;
+   
+plsql_trigger_source {skip,gui_skip}
+   :  simple_dml_trigger
+   |  instead_of_dml_trigger
+   |  compound_dml_trigger
+   |  system_trigger
+   ;
+   
+simple_dml_trigger {gui_skip}
+   :  before_or_after dml_event_clause opt_referencing_clause opt_for_each_row opt_trigger_edition_clause opt_trigger_ordering_clause opt_enable_or_disable
+      opt_when_condition trigger_body
+   ;
+   
+instead_of_dml_trigger {gui_skip}
+   :  'INSTEAD' 'OF' dml_events 'ON' opt_nested_table_column_of object_name opt_referencing_clause opt_for_each_row opt_trigger_edition_clause opt_trigger_ordering_clause
+      opt_enable_or_disable trigger_body
+   ;
+   
+compound_dml_trigger {gui_skip}
+   :  'FOR' dml_event_clause opt_referencing_clause opt_trigger_edition_clause opt_trigger_ordering_clause opt_enable_or_disable opt_when_condition compound_trigger_block
+   ;
+   
+system_trigger {gui_skip}
+   :  before_or_after_or_instead_of ddl_or_database_events 'ON' database_or_object_name opt_trigger_ordering_clause trigger_body
+   ;
+   
+database_or_object_name
+   :  'DATABASE'
+   |  'PLUGGABLE' 'DATABASE'
+   |  object_name
+   ;  
+   
+ddl_or_database_events
+   :  ddl_or_database_event opt_tail_ddl_or_database_events
+   ;
+   
+opt_tail_ddl_or_database_events
+   : 'OR' ddl_or_database_event opt_tail_ddl_or_database_events
+   |
+   ;
+   
+ddl_or_database_event
+   :  'ALTER'
+   |  'ANALYZE'
+   |  'ASSOCIATE' 'STATISTICS'
+   |  'AUDIT'
+   |  'COMMENT'
+   |  'CREATE'
+   |  'DISASSOCIATE' 'STATISTICS'
+   |  'DROP'
+   |  'GRANT'
+   |  'NOAUDIT'
+   |  'RENAME'
+   |  'REVOKE'
+   |  'TRUNCATE'
+   |  'DDL'
+   |  'AFTER' 'STARTUP'
+   |  'STARTUP'
+   |  'BEFORE' 'SHUTDOWN'
+   |  'SHUTDOWN'
+   |  'AFTER' 'DB_ROLE_CHANGE'
+   |  'DB_ROLE_CHANGE'
+   |  'AFTER' 'SERVERERROR'
+   |  'SERVERERROR'
+   |  'AFTER' 'LOGON'
+   |  'LOGON'
+   |  'BEFORE' 'LOGOFF'
+   |  'LOGOFF'
+   |  'AFTER' 'SUSPEND'
+   |  'SUSPEND'
+   |  'AFTER' 'CLONE'
+   |  'CLONE'
+   |  'BEFORE' 'UNPLUG'
+   |  'UNPLUG'
+   ;
+   
+before_or_after_or_instead_of
+   :  before_or_after
+   |  'INSTEAD' 'OF'
+   ;
+   
+compound_trigger_block
+   :  'COMPOUND' 'TRIGGER' opt_declare_section timing_point_sections 'END' opt_identifier PLS_SEMI
+   ;
+   
+timing_point_sections
+   :  timing_point_section opt_tail_timing_point_sections
+   ;
+   
+opt_tail_timing_point_sections
+   :  timing_point_sections
+   |
+   ;
+
+timing_point_section
+   :  timing_point 'IS' 'BEGIN' tps_body 'END' timing_point PLS_SEMI
+   ;
+   
+timing_point
+   :  'BEFORE' 'STATEMENT'
+   |  'BEFORE' 'EACH' 'ROW'
+   |  'AFTER' 'STATEMENT'
+   |  'AFTER' 'EACH' 'ROW'
+   |  'INSTEAD' 'OF' 'EACH' 'ROW'
+   ;
+   
+tps_body
+   :  opt_statements_or_pragmas opt_exception_block
+   ;
+   
+opt_nested_table_column_of
+   :  'NESTED' 'TABLE' object_name 'OF'
+   |
+   ;
+   
+opt_for_each_row
+   :  'FOR' 'EACH' 'ROW'
+   |
+   ;
+   
+trigger_body {gui_skip}
+   :  plsql_block
+   |  'CALL' until_semi PLS_SEMI
+   ;
+   
+opt_when_condition
+   :  'WHEN' PLS_LPAREN condition PLS_RPAREN
+   |
+   ;
+   
+opt_enable_or_disable
+   :  'ENABLE'
+   |  'DISABLE'
+   |
+   ;
+   
+opt_trigger_ordering_clause
+   :  trigger_ordering_clause
+   |
+   ;
+   
+trigger_ordering_clause
+   :  follows_or_precedes object_name_list
+   ;
+   
+follows_or_precedes
+   :  'FOLLOWS'
+   |  'PRECEDES'
+   ;
+   
+opt_trigger_edition_clause
+   :  trigger_edition_clause
+   |
+   ;
+   
+trigger_edition_clause
+   :  opt_forward_or_reverse 'CROSSEDITION'
+   ;
+   
+opt_forward_or_reverse
+   :  'FORWARD'
+   |  'REVERSE'
+   |
+   ;
+   
+opt_referencing_clause
+   :  referencing_clause
+   |
+   ;
+   
+referencing_clause
+   :  'REFERENCING' referencing_list
+   ;
+
+opt_tail_referencing_list  
+   :  referencing_list
+   |
+   ;
+   
+referencing_list
+   :  'OLD' opt_as identifier opt_tail_referencing_list  
+   |  'NEW' opt_as identifier opt_tail_referencing_list  
+   |  'PARENT' opt_as identifier opt_tail_referencing_list  
+   ;
+    
+dml_event_clause
+   : dml_events 'ON' object_name
+   ;
+
+opt_tail_dml_events 
+   :  'OR' dml_events
+   |
+   ;
+   
+dml_events 
+   :  'DELETE' opt_tail_dml_events
+   |  'INSERT' opt_tail_dml_events
+   |  'UPDATE' opt_of_object_name_list opt_tail_dml_events
+   ;
+   
+opt_of_object_name_list
+   :  'OF' object_name_list
+   |
+   ;
+   
+before_or_after
+   :  'BEFORE'
+   |  'AFTER'
    ;
    
 subprog_decl_in_type_or_map_order_func_declaration_list {skip,gui_skip}
@@ -474,7 +683,7 @@ c_declaration
    :  'C' until_semi
    ;
    
-plsql_block {scope,gui_icon:ddl}
+plsql_block {scope,gui_icon:ddl,gui_skip}
    :  opt_label opt_declare_and_declare_section plsql_body
    ;
     
@@ -483,7 +692,7 @@ opt_label
    |
    ;
    
-opt_declare_and_declare_section
+opt_declare_and_declare_section {gui_skip}
    :  'DECLARE' opt_declare_section
    |
    ;
@@ -682,17 +891,9 @@ assoc_array_or_varray_or_nested_table
    ;
    
 assoc_array_type_def 
-   :  'TABLE' 'OF' datatype opt_not_null 'INDEX' 'BY' index_by_type
+   :  'TABLE' 'OF' datatype opt_not_null 'INDEX' 'BY' datatype
    ;
    
-index_by_type
-   :  'PLS_INTEGER'
-   |  'BINARY_INTEGER'
-   |  'LONG'
-   |  varchar_or_string
-   |  rowtype
-   ;
-
 varchar_or_string
    :  'VARCHAR' dt_size
    |  'VARCHAR2' dt_size
@@ -897,7 +1098,6 @@ assignment_statement
    
 assignment_statement_target
    :  procedure_call
-   |  placeholder
    ;
    
 basic_loop_statement {gui_skip,gui_icon:loop}
@@ -1026,7 +1226,6 @@ bulk_collect_into_clause
    
 identifier_or_bind_variable
    :  procedure_call
-   |  bind_variable
    ;
 
 opt_else_block {skip}
@@ -1096,9 +1295,19 @@ opt_statements_or_inline_pragmas {gui_skip}
    |
    ;
    
+opt_statements_or_pragmas {gui_skip}
+   :  statement_or_pragma opt_statements_or_pragmas
+   |
+   ;
+   
 statement_or_inline_pragma {skip,gui_skip}
    :  statement
    |  inline_pragma
+   ;
+   
+statement_or_pragma {skip,gui_skip}
+   :  statement
+   |  pragma
    ;
    
 opt_exception_block {skip}
@@ -1106,7 +1315,7 @@ opt_exception_block {skip}
    |
    ;
    
-exception_block {gui_handler:CodeStructureGenericTreeItem}
+exception_block {gui_handler:CodeStructureGenericTreeItem,gui_icon:exception}
    :  'EXCEPTION' exception_handlers
    ;
    
@@ -1120,7 +1329,7 @@ opt_exception_handlers {skip}
    |
    ;
    
-exception_handler {gui_handler:CodeStructureGenericTreeItem}
+exception_handler {gui_handler:CodeStructureGenericTreeItem,gui_icon:exception}
    :  'WHEN' exception_names_or_others 'THEN' statement_list 
    ;
    
@@ -2177,7 +2386,7 @@ single_table_or_multi_table_insert
    ;
    
 single_table_insert
-   :  insert_into_clause values_clause_and_opt_returning_clause_or_subquery opt_error_logging_clause
+   :  insert_into_clause values_clause_and_opt_returning_clause_or_subquery opt_error_logging_clause 
    ;
    
 values_clause_and_opt_returning_clause_or_subquery
@@ -2205,6 +2414,7 @@ opt_values_clause
    
 values_clause
    :  'VALUES' PLS_LPAREN expression_or_default_list PLS_RPAREN
+   |  'VALUES' procedure_call
    ;
    
 
@@ -2547,7 +2757,6 @@ subexpression_start
 subexpression_central
    :  PLS_LPAREN expression PLS_RPAREN
    |  procedure_call opt_percent_rowcount
-   |  placeholder
    |  percent_rowcount
    |  sql_rowcount_or_bulkrowcount
    |  literal
@@ -2849,6 +3058,8 @@ null
    
 object_name
    :  identifier opt_tail_identifiers
+   |  placeholder
+   |  placeholder PLS_DOT identifier opt_tail_identifiers
    ;
    
 opt_tail_object_names {skip}

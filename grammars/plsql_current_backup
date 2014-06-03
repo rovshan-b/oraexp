@@ -1,9 +1,9 @@
-start_rule 
+start_rule {gui_skip}
    :  statements_or_create_objects
    ;
    
    
-statements_or_create_objects {skip}
+statements_or_create_objects {skip,gui_skip}
    :  statement opt_divide statements_or_create_objects
    |  create_object opt_divide statements_or_create_objects
    |
@@ -14,7 +14,7 @@ opt_divide
    |
    ;
    
-create_object
+create_object {gui_skip}
    :  'CREATE' opt_or_replace opt_editionable obj_def 
    ;
    
@@ -29,11 +29,11 @@ opt_editionable
    |
    ;
    
-obj_def 
+obj_def {gui_skip}
    :  obj_type_and_name_and_body
    ;
     
-obj_type_and_name_and_body 
+obj_type_and_name_and_body {scope,gui_skip}
    :  'PACKAGE' object_name plsql_package_source
    |  'PACKAGE' 'BODY' object_name plsql_package_body_source
    |  'PROCEDURE' object_name plsql_procedure_source
@@ -44,31 +44,31 @@ obj_type_and_name_and_body
    |  opt_force 'VIEW' object_name
    ;
    
-plsql_type_body_source {skip}
+plsql_type_body_source {skip,gui_skip}
    :  is_or_as subprog_decl_in_type_or_map_order_func_declaration_list 'END' PLS_SEMI
    ;
    
-plsql_type_source {skip}
+plsql_type_source {skip,gui_skip}
    :  opt_inv_rights_and_accessible_by_clauses is_or_as_or_under varray_or_nested_table_or_object_type_def PLS_SEMI
    ;
    
-plsql_package_body_source {skip}
+plsql_package_body_source {skip,gui_skip}
    :  is_or_as opt_declarations opt_initialize_section 'END' opt_identifier PLS_SEMI
    ;
    
-plsql_package_source {skip}
+plsql_package_source {skip,gui_skip}
    :  opt_inv_rights_and_accessible_by_clauses is_or_as opt_declarations 'END' opt_identifier PLS_SEMI
    ;
    
-plsql_function_source {skip}
+plsql_function_source {skip,gui_skip}
    :  opt_param_declarations 'RETURN' datatype opt_create_function_options create_function_tail
    ;
    
-plsql_procedure_source {skip}
+plsql_procedure_source {skip,gui_skip}
    :  opt_param_declarations opt_inv_rights_and_accessible_by_clauses is_or_as plsql_call_spec_or_external
    ;
    
-subprog_decl_in_type_or_map_order_func_declaration_list {skip}
+subprog_decl_in_type_or_map_order_func_declaration_list {skip,gui_skip}
    :  subprog_decl_in_type_start subprog_decl_in_type subprog_decl_in_type_or_map_order_func_declaration_list
    |
    ;
@@ -85,15 +85,15 @@ subprog_decl_in_type {skip}
    |  constructor_declaration
    ;
    
-proc_decl_in_type
+proc_decl_in_type {gui_handler:CodeStructureGenericTreeItem,gui_display_name:$id,gui_icon:procedure}
    :  procedure_definition
    ;
    
-func_decl_in_type
+func_decl_in_type {gui_handler:CodeStructureGenericTreeItem,gui_display_name:$id,gui_icon:function}
    :  'FUNCTION' object_name plsql_function_source
    ;
    
-constructor_declaration
+constructor_declaration {gui_handler:CodeStructureGenericTreeItem,gui_display_name:constructor,gui_icon:function}
    :  'CONSTRUCTOR' 'FUNCTION' datatype opt_constructor_params
       'RETURN' self_as_result is_or_as plsql_call_spec_or_external
    ;
@@ -108,14 +108,14 @@ is_or_as_or_under
    |  'UNDER'
    ;
    
-varray_or_nested_table_or_object_type_def
+varray_or_nested_table_or_object_type_def {gui_skip}
    :  varray_type_def
    |  nested_table_type_def
    |  object_type_def
    ;
 
 
-object_type_def
+object_type_def {gui_skip}
    :  object_or_object_name opt_sqlj_object_type opt_attribute_datatype_element_spec_list_in_parentheses
       opt_final_or_instantiable_list
    ;
@@ -136,12 +136,12 @@ final_or_instantiable
    |  'NOT' 'INSTANTIABLE'
    ;
    
-opt_attribute_datatype_element_spec_list_in_parentheses
+opt_attribute_datatype_element_spec_list_in_parentheses {gui_skip}
    :  attribute_datatype_element_spec_list_in_parentheses
    |
    ;
    
-attribute_datatype_element_spec_list_in_parentheses
+attribute_datatype_element_spec_list_in_parentheses {gui_skip}
    :  PLS_LPAREN opt_attribute_datatype_element_spec_list PLS_RPAREN
    ;
    
@@ -150,17 +150,17 @@ opt_tail_attribute_datatype_element_spec_list {skip}
    |
    ;
    
-attribute_datatype_element_spec_list
+attribute_datatype_element_spec_list {gui_skip}
    :  attribute_datatype_opt_sqlj_object_type_attr_list opt_tail_attribute_datatype_element_spec_list
    |  element_spec opt_tail_attribute_datatype_element_spec_list
    ;
    
-opt_attribute_datatype_element_spec_list
+opt_attribute_datatype_element_spec_list {gui_skip}
    :  attribute_datatype_element_spec_list
    |
    ;
    
-attribute_datatype_opt_sqlj_object_type_attr_list
+attribute_datatype_opt_sqlj_object_type_attr_list {gui_handler:CodeStructureGenericTreeItem,gui_icon:variable,gui_display_name:$id,gui_no_children}
    :  identifier datatype opt_sqlj_object_type_attr
    ;
    
@@ -173,18 +173,18 @@ sqlj_object_type_attr
    :  'EXTERNAL' 'NAME' PLS_QUOTED_STRING
    ;
    
-element_spec
+element_spec {gui_skip}
    :  opt_inheritance_clauses subprogram_or_constructor_or_map_order_function_specs
    ;
    
-subprogram_or_constructor_or_map_order_function_specs
+subprogram_or_constructor_or_map_order_function_specs {gui_skip}
    :  member_or_static procedure_or_function_spec
    |  constructor_spec
    |  map_order_function_spec
    |  restrict_references_pragma
    ;
    
-map_order_function_spec
+map_order_function_spec {gui_skip}
    :  map_or_order 'MEMBER' function_spec
    ;
    
@@ -207,7 +207,7 @@ datatype_or_self_as_result
    |  self_as_result
    ;
    
-constructor_spec
+constructor_spec {gui_handler:CodeStructureGenericTreeItem,gui_display_name:constructor,gui_icon:function}
    :  'CONSTRUCTOR' 'FUNCTION' datatype opt_constructor_params
       'RETURN' self_as_result opt_is_or_as_call_spec
    ;
@@ -216,8 +216,9 @@ self_as_result
    :  'SELF' 'AS' 'RESULT'
    ;
    
-opt_constructor_params
+opt_constructor_params {gui_skip}
    :  PLS_LPAREN opt_self_datatype param_list PLS_RPAREN
+   |
    ;
    
 opt_self_datatype
@@ -230,17 +231,17 @@ opt_is_or_as_call_spec
    |
    ;
    
-procedure_or_function_spec
+procedure_or_function_spec {gui_skip}
    :  procedure_spec
    |  function_spec
    ;
    
-procedure_spec
+procedure_spec {gui_handler:CodeStructureGenericTreeItem,gui_icon:procedure,gui_display_name:$id}
    :  procedure_declaration_main
    |  procedure_definition
    ;
    
-function_spec
+function_spec {gui_handler:CodeStructureGenericTreeItem,gui_icon:function,gui_display_name:$id}
    :  function_declaration_main
    |  function_definition
    ;
@@ -279,17 +280,17 @@ object_or_object_name
    |  object_name
    ;
    
-opt_param_declarations
+opt_param_declarations {gui_skip}
    :  PLS_LPAREN opt_param_list PLS_RPAREN
    |
    ;
    
-opt_param_list
+opt_param_list {gui_skip}
    :  param_list
    |
    ;
    
-param_list
+param_list {gui_handler:CodeStructureGenericTreeItem,gui_display_name:Parameters,gui_icon:folder}
    :  param_declaration opt_tail_param_declarations
    ;
    
@@ -316,7 +317,7 @@ tail_in_param_declaration {skip}
    :  PLS_COMMA in_param_declaration
    ;
    
-param_declaration
+param_declaration {gui_handler:CodeStructureParameterTreeItem}
    :  identifier in_param_or_out_param
    ;
    
@@ -324,7 +325,7 @@ in_param_declaration
    :  identifier in_param
    ;
    
-in_param_or_out_param
+in_param_or_out_param {skip}
    :  in_param
    |  out_param
    ;
@@ -363,7 +364,7 @@ opt_inv_rights_and_accessible_by_clauses
    |
    ;
    
-create_function_tail {skip}
+create_function_tail {skip,gui_skip}
    :  'AGGREGATE' 'USING' object_name PLS_SEMI
    |  'USING' object_name PLS_SEMI
    |  is_or_as plsql_call_spec_or_external
@@ -450,7 +451,7 @@ opt_tail_accessors {skip}
    |
    ;
    
-plsql_call_spec_or_external
+plsql_call_spec_or_external {gui_skip}
    :  opt_declare_section plsql_body
    |  call_spec
    |  'EXTERNAL'
@@ -473,7 +474,7 @@ c_declaration
    :  'C' until_semi
    ;
    
-plsql_block
+plsql_block {scope,gui_icon:ddl}
    :  opt_label opt_declare_and_declare_section plsql_body
    ;
     
@@ -487,26 +488,30 @@ opt_declare_and_declare_section
    |
    ;
    
-opt_declare_section
+opt_declare_section {gui_skip}
    :  declare_section
    |
    ;
 
-declare_section
+declare_section {gui_skip}
    :  declarations
    ;
    
-opt_declarations
+opt_declarations {gui_skip}
    :   declarations
    |
    ;
    
-declarations
+declarations {skip,gui_skip}
    :  declaration 
    |  declaration declarations
    ;
    
-declaration
+declaration {gui_handler:CodeStructureDeclarationTreeItem}
+   :  declaration_type
+   ;
+   
+declaration_type
    :  cursor_declaration
    |  cursor_definition
    |  function_declaration
@@ -521,11 +526,11 @@ declaration
    ;
 
    
-cursor_declaration
+cursor_declaration {symbol_table_entry,gui_icon:variable}
    :  'CURSOR' identifier opt_in_param_declarations return_datatype PLS_SEMI
    ;
    
-cursor_definition
+cursor_definition {symbol_table_entry,gui_icon:variable}
    :  'CURSOR' identifier opt_in_param_declarations opt_return_datatype is select_statement PLS_SEMI
    ;
    
@@ -538,15 +543,15 @@ opt_return_datatype
    |
    ;
    
-function_declaration_main
+function_declaration_main {gui_skip}
    :  function_heading opt_function_type_specs
    ;
    
-function_declaration
+function_declaration {symbol_table_entry,gui_icon:function}
    :  function_declaration_main PLS_SEMI
    ;
    
-function_heading
+function_heading {gui_skip}
    :  'FUNCTION' identifier opt_param_declarations 'RETURN' datatype
    |  'FUNCTION' identifier opt_param_declarations sqlj_object_type_sig
    ;
@@ -572,7 +577,7 @@ relies_on_clause
    :  'RELIES_ON' PLS_LPAREN expression_list PLS_RPAREN
    ;
    
-function_definition
+function_definition {symbol_table_entry,scope,gui_icon:function}
    :  function_heading opt_function_type_specs is_or_as plsql_call_spec_or_external
    ;
 
@@ -590,19 +595,19 @@ type_or_rowtype
    |  'ROWTYPE'
    ;
    
-procedure_declaration_main
+procedure_declaration_main {gui_skip}
    :  procedure_heading
    ;
 
-procedure_declaration
+procedure_declaration {symbol_table_entry,gui_icon:procedure}
    :  procedure_declaration_main PLS_SEMI
    ;
    
-procedure_heading
+procedure_heading {gui_skip}
    :  'PROCEDURE' identifier opt_param_declarations
    ;
    
-procedure_definition
+procedure_definition {symbol_table_entry,scope,gui_icon:procedure,gui_skip}
    :  procedure_heading is_or_as plsql_call_spec_or_external
    ;
    
@@ -623,11 +628,11 @@ exception_init_pragma
    :  'PRAGMA' 'EXCEPTION_INIT' PLS_LPAREN identifier PLS_COMMA expression PLS_RPAREN PLS_SEMI
    ;
    
-inline_pragma
+inline_pragma {gui_handler:CodeStructureGenericTreeItem,gui_no_children}
    :  'PRAGMA' 'INLINE' PLS_LPAREN object_name PLS_COMMA expression PLS_RPAREN PLS_SEMI
    ;
    
-restrict_references_pragma
+restrict_references_pragma {gui_handler:CodeStructureGenericTreeItem,gui_icon:variable,gui_display_name:restrict references pragma,gui_no_children}
    :  'PRAGMA' 'RESTRICT_REFERENCES' PLS_LPAREN object_name_or_default PLS_COMMA restrict_ref_types PLS_RPAREN PLS_SEMI;
    
 restrict_ref_types
@@ -659,7 +664,7 @@ udf_pragma
    :  'PRAGMA' 'UDF' PLS_SEMI
    ;
    
-type_definition
+type_definition {symbol_table_entry,gui_icon:type} 
    :  collection_type_definition
    |  record_type_definition
    |  ref_cursor_type_definition
@@ -716,7 +721,7 @@ nested_table_type_def
    :  'TABLE' 'OF' datatype opt_not_null
    ;
    
-record_type_definition
+record_type_definition 
    :  'TYPE' identifier 'IS' 'RECORD' PLS_LPAREN field_definitions PLS_RPAREN PLS_SEMI
    ;  
    
@@ -807,15 +812,15 @@ opt_charset
    |
    ;
    
-constant_declaration
+constant_declaration {symbol_table_entry,gui_icon:constant}
    :  identifier 'CONSTANT' datatype opt_not_null assign_or_default expression PLS_SEMI
    ;
      
-exception_declaration
+exception_declaration {symbol_table_entry,gui_icon:exception}
    :  identifier 'EXCEPTION' PLS_SEMI
    ;
    
-variable_declaration
+variable_declaration {symbol_table_entry,gui_icon:variable}
    :  identifier datatype opt_not_null opt_default_value PLS_SEMI
    ;
    
@@ -824,17 +829,17 @@ object_name_or_default
    |  'DEFAULT'
    ;
 
-plsql_body
-   :  'BEGIN' statement opt_statements_or_inline_pragmas opt_exception_block 'END' opt_identifier PLS_SEMI
+plsql_body {gui_skip}
+   :  'BEGIN' opt_statements_or_inline_pragmas opt_exception_block 'END' opt_identifier PLS_SEMI
    ;
    
-opt_initialize_section
+opt_initialize_section {gui_skip}
    :  initialize_section
    |
    ;
    
-initialize_section
-   :  'BEGIN' statement opt_statements_or_inline_pragmas opt_exception_block
+initialize_section {gui_handler:CodeStructureGenericTreeItem,gui_display_name:Initialization,gui_icon:folder}
+   :  'BEGIN' opt_statements_or_inline_pragmas opt_exception_block
    ;
    
 opt_identifier
@@ -842,17 +847,22 @@ opt_identifier
    |
    ;
 
-opt_statements
-   :  statements
+opt_statements {skip,gui_skip}
+   :  statement_list
    |
    ;
+   
+statement_list {gui_skip}
+   :  statement
+   |  statement statements
+   ;
 
-statements
+statements {skip,gui_skip}
    :  statement 
    |  statement statements
    ;
    
-statement
+statement {gui_handler:CodeStructureStatementTreeItem}
    :  opt_label statement_type
    ;
    
@@ -890,16 +900,16 @@ assignment_statement_target
    |  placeholder
    ;
    
-basic_loop_statement
-   :  'LOOP' statements 'END' 'LOOP' opt_identifier PLS_SEMI
+basic_loop_statement {gui_skip,gui_icon:loop}
+   :  'LOOP' statement_list 'END' 'LOOP' opt_identifier PLS_SEMI
    ;
    
-case_statement
+case_statement {gui_icon:switch}
    :  simple_case_statement
    |  searched_case_statement
    ;
    
-simple_case_statement
+simple_case_statement {gui_skip}
    : 'CASE' expression when_then_blocks opt_else_block 'END' 'CASE' opt_identifier PLS_SEMI
    ;
    
@@ -907,7 +917,7 @@ simple_case_expression
    :  'CASE' expression when_then_expression_blocks opt_else_expression_block 'END'
    ;
    
-searched_case_statement
+searched_case_statement {gui_skip}
    :  'CASE' when_then_blocks opt_else_block 'END' 'CASE' opt_identifier PLS_SEMI
    ;
    
@@ -915,11 +925,11 @@ searched_case_expression
    :  'CASE' when_then_expression_blocks opt_else_expression_block 'END' 
    ;
    
-close_statement
+close_statement {gui_icon:fileclose}
    :  'CLOSE' identifier_or_bind_variable PLS_SEMI
    ; 
    
-continue_statement
+continue_statement {gui_icon:continue}
    :  'CONTINUE' opt_identifier opt_when PLS_SEMI
    ;
 
@@ -988,7 +998,7 @@ param_direction
    |  'IN' 'OUT'
    ;
    
-exit_statement
+exit_statement {gui_icon:exit}
    :  'EXIT' opt_identifier opt_when PLS_SEMI
    ;
    
@@ -1019,27 +1029,35 @@ identifier_or_bind_variable
    |  bind_variable
    ;
 
-opt_else_block
-   :  'ELSE' statements
+opt_else_block {skip}
+   :  else_block
    |
    ;
    
-opt_else_expression_block
+else_block {gui_handler:CodeStructureGenericTreeItem}
+   :  'ELSE' statement_list
+   ;
+   
+opt_else_expression_block {skip}
+   :  else_expression_block
+   |
+   ;
+   
+else_expression_block
    :  'ELSE' expression
-   |
    ;
    
-opt_when_then_blocks
+opt_when_then_blocks {skip}
    :  when_then_blocks
    |
    ;
    
-when_then_blocks
+when_then_blocks {skip}
    :  when_then opt_when_then_blocks
    ;
    
-when_then
-   :  'WHEN' expression 'THEN' statements
+when_then {gui_handler:CodeStructureGenericTreeItem}
+   :  'WHEN' expression 'THEN' statement_list
    ;
    
 opt_when
@@ -1073,28 +1091,37 @@ placeholder
    :  bind_variable opt_bind_variable
    ;
    
-opt_statements_or_inline_pragmas
+opt_statements_or_inline_pragmas {gui_skip}
    :  statement_or_inline_pragma opt_statements_or_inline_pragmas
    |
    ;
    
-statement_or_inline_pragma
+statement_or_inline_pragma {skip,gui_skip}
    :  statement
    |  inline_pragma
    ;
    
-opt_exception_block
-   :  'EXCEPTION' exception_handler
-   |
-   ;
-
-opt_exception_handler  
-   :  exception_handler opt_exception_handler
+opt_exception_block {skip}
+   :  exception_block
    |
    ;
    
-exception_handler
-   :  'WHEN' exception_names_or_others 'THEN' statements opt_exception_handler
+exception_block {gui_handler:CodeStructureGenericTreeItem,gui_icon:exception}
+   :  'EXCEPTION' exception_handlers
+   ;
+   
+exception_handlers {gui_skip}
+   :  exception_handler opt_exception_handlers
+   ;
+
+
+opt_exception_handlers {skip} 
+   :  exception_handler opt_exception_handlers
+   |
+   ;
+   
+exception_handler {gui_handler:CodeStructureGenericTreeItem,gui_icon:exception}
+   :  'WHEN' exception_names_or_others 'THEN' statement_list 
    ;
    
 exception_names_or_others
@@ -1116,7 +1143,7 @@ tail_exception_names {skip}
    |  'OR' object_name tail_exception_names
    ;
    
-for_loop_statement
+for_loop_statement {gui_icon:loop}
    :  'FOR' identifier 'IN' cursor_with_params_or_select_statement_in_parenthesis_or_reverse_expression_range basic_loop_statement
    ;
    
@@ -1135,21 +1162,21 @@ opt_save_exceptions
    |
    ;
    
-goto_statement
+goto_statement {gui_icon:goto}
    :  'GOTO' identifier PLS_SEMI
    ;
    
-if_statement
-   :  'IF' expression 'THEN' statements opt_elsif_blocks opt_else_block 'END' 'IF' PLS_SEMI
+if_statement {gui_icon:switch}
+   :  'IF' expression 'THEN' statement_list opt_elsif_blocks opt_else_block 'END' 'IF' PLS_SEMI
    ;
 
-opt_elsif_blocks
+opt_elsif_blocks {skip}
    :  elsif_block opt_elsif_blocks
    |  
    ;
    
-elsif_block
-   :  'ELSIF' expression 'THEN' statements
+elsif_block {gui_handler:CodeStructureGenericTreeItem}
+   :  'ELSIF' expression 'THEN' statement_list
    ;
    
 null_statement
@@ -1169,15 +1196,15 @@ procedure_call_statement
    :  procedure_call PLS_SEMI
    ;
    
-raise_statement
+raise_statement {gui_icon:exception}
    :  'RAISE' opt_identifier PLS_SEMI
    ;
    
-return_statement
+return_statement {gui_icon:return}
    : 'RETURN' opt_expression PLS_SEMI
    ;
    
-select_statement
+select_statement {gui_icon:select_statement}
    :  subquery opt_for_update_clause
    ;
    
@@ -1252,7 +1279,7 @@ query_block_or_subquery_in_parentheses
    |  PLS_LPAREN subquery PLS_RPAREN
    ;
    
-query_block
+query_block 
    :  'SELECT' opt_distinct_unique_all select_list opt_into_or_bulk_collect_into_clause 'FROM' 
       from_list opt_where_clause opt_hierachical_query_clause opt_group_by_clause 
       opt_model_clause
@@ -2089,7 +2116,7 @@ nowait_or_wait
    |  'WAIT' PLS_NUMBER
    ;
    
-while_loop_statement
+while_loop_statement {gui_icon:loop}
    :  'WHILE' expression basic_loop_statement
    ;
    
@@ -2127,11 +2154,11 @@ dml_statement
    |  merge_statement
    ;
    
-commit_statement
+commit_statement {gui_icon:commit}
    :  'COMMIT' opt_until_semi PLS_SEMI
    ;
    
-delete_statement
+delete_statement {gui_icon:delete_statement}
    :  'DELETE' opt_from dml_table_expression_clause_or_only alias opt_where_clause opt_returning_clause opt_error_logging_clause PLS_SEMI
    ;
    
@@ -2140,7 +2167,7 @@ opt_from
    |
    ;
    
-insert_statement
+insert_statement {gui_icon:insert_statement}
    :  'INSERT' single_table_or_multi_table_insert PLS_SEMI
    ;
    
@@ -2340,7 +2367,7 @@ object_name_or_subquery
    |  subquery
    ;
    
-rollback_statement
+rollback_statement {gui_icon:rollback}
    :  'ROLLBACK' opt_work opt_to_savepoint_or_force PLS_SEMI
    ;
    
@@ -2395,7 +2422,7 @@ read_only_or_read_write
    |  'READ' 'WRITE'
    ;
    
-update_statement
+update_statement {gui_icon:update_statement}
    :  'UPDATE' dml_table_expression_clause_or_only alias 
       update_set_clause opt_where_clause opt_returning_clause opt_error_logging_clause PLS_SEMI
    ;
@@ -2503,7 +2530,7 @@ opt_expression
    |
    ;
 
-expression
+expression {no_children}
    :  subexpression opt_subexpression_tails
    |  PLS_LPAREN expression_list_list PLS_RPAREN opt_subexpression_tails
    |  PLS_LPAREN expression PLS_RPAREN opt_subexpression_tails
@@ -2874,3 +2901,4 @@ identifier
    :  PLS_ID
    |  PLS_DOUBLEQUOTED_STRING
    ;
+
