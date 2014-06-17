@@ -54,6 +54,7 @@ private slots:
     void makeDuplicate();
     void removeEmptyLines();
     void applyCaseFolding();
+    void formatCode();
 
     void describeObject();
 
@@ -98,6 +99,7 @@ private:
     QAction *editCreateDuplicateAction;
     QAction *editRemoveEmptyLinesAction;
     QAction *editApplyCaseFoldingAction;
+    QAction *editFormatCodeAction;
 
     QAction *editIncreaseFontSize;
     QAction *editDecreaseFontSize;

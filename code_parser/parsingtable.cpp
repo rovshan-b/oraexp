@@ -32,6 +32,13 @@ int ParsingTable::getKeywordIx(const QString &possibleKeyword) const
     return ix;
 }
 
+QString ParsingTable::getKeywordLexeme(int ix) const
+{
+    Q_ASSERT(ix>=0 && ix<=keywords.size());
+
+    return keywords[ix];
+}
+
 bool ParsingTable::isReservedWord(const QString &word) const
 {
     QStringList::const_iterator it=qBinaryFind(reservedWords.begin(),

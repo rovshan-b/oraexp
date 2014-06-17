@@ -377,7 +377,7 @@ bool PlSqlParseHelper::readToMatchingParentheses(PlSqlScanner *scanner)
             }
         }
 
-    }while(token != PLS_E_O_F && token != PLS_ERROR);
+    }while(token != PLS_E_O_F);
 
     return false;
 }

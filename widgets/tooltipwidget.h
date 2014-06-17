@@ -10,6 +10,7 @@ public:
     ToolTipWidget(QWidget *parent);
 
     void showToolTip(const QPoint &point, const QRect &activeRect);
+    void hideToolTip();
 
 protected:
     virtual bool eventFilter(QObject *watched, QEvent *event);
@@ -18,8 +19,6 @@ protected:
 private:
     QRect activeRect;
     bool initialMouseTracking;
-
-    void hideToolTip();
 };
 
 #endif // TOOLTIPWIDGET_H

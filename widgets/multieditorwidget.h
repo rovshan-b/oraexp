@@ -81,8 +81,8 @@ private:
 
     bool plsqlMode;
 
-    bool isId(TokenInfo *token) const;
-    bool isKeyword(TokenInfo *token) const;
+    inline bool isId(TokenInfo *token) const;
+    inline bool isKeyword(TokenInfo *token) const;
     void applyCaseFoldingRules(int position, int charsRemoved, int charsAdded);
     void applyCaseFolding(CodeEditor::CaseFoldingType foldingType, int textPosition, QString &text, bool &changed);
     int lastEditedWordPosition;
@@ -100,6 +100,9 @@ private:
     int lastMarkedCursorPos;
 
     void reparse();
+
+    void highlightCurrentIdentifier(QTextCursor &cur);
+    QPair<int,int> lastHighlightedIdentifierPos;
 };
 
 #endif // MULTIEDITORWIDGET_H

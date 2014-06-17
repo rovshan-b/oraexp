@@ -16,6 +16,7 @@
 #include "beans/tokeninfo.h"
 #include "code_parser/plsql/plsqltokens.h"
 #include "widgets/tooltipwidget.h"
+#include "code_formatter/plsql/plsqlformatter.h"
 #include <QPainter>
 
 #define EDITOR_SEARCH_BG_COLOR QColor(Qt::yellow)
@@ -184,17 +185,15 @@ int CodeEditor::lineMarkerAreaOffset() const
 
  void CodeEditor::handleTextChanged()
  {
-     clearErrorPositions();
+     if(errorPositions.size()>0 || currentIdentifierPositions.size()>0){
+         errorPositions.clear();
+         currentIdentifierPositions.clear();
+         highlightCurrentLine();
+     }
+
      if(lastParseId != -1){
          lastParseId = -1;
          updateNavBar();
-     }
- }
-
- void CodeEditor::clearErrorPositions()
- {
-     if(errorPositions.size()>0){
-         setErrorPositions(QList<QTextCursor>());
      }
  }
 
@@ -297,6 +296,16 @@ int CodeEditor::lineMarkerAreaOffset() const
          errorSelection.cursor=errorPositions.at(i);
 
          extraSelections.append(errorSelection);
+     }
+
+     if(foundTextPositions.size() == 0){
+         for(int i=0; i<currentIdentifierPositions.size(); ++i){
+             QTextEdit::ExtraSelection identifierSelection;
+             identifierSelection.format.setBackground(qApp->palette().base().color().darker(105));
+             identifierSelection.cursor=currentIdentifierPositions.at(i);
+
+             extraSelections.append(identifierSelection);
+         }
      }
 
      if(!collapsibleRegionPositions.isNull()){
@@ -1900,6 +1909,20 @@ int CodeEditor::lineMarkerAreaOffset() const
      emit applyCaseFoldingRequested();
  }
 
+ void CodeEditor::formatCode()
+ {
+     this->blockEventChanges = true;
+
+     QTextCursor cur = textCursor();
+     cur.beginEditBlock();
+     cur.setPosition(0);
+     cur.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+     cur.insertText(PlSqlFormatter::format(toPlainText()));
+     cur.endEditBlock();
+
+     this->blockEventChanges = false;
+ }
+
  void CodeEditor::customCut()
  {
      if(isReadOnly()){
@@ -2094,6 +2117,22 @@ int CodeEditor::lineMarkerAreaOffset() const
      highlightCurrentLine();
  }
 
+ void CodeEditor::setCurrentIdentifierPositions(const QList<QTextCursor> &identifierPositions)
+ {
+     this->currentIdentifierPositions = identifierPositions;
+
+     highlightCurrentLine();
+ }
+
+ void CodeEditor::clearCurrentIdentifierPositions()
+ {
+     if(!this->currentIdentifierPositions.isEmpty()){
+         this->currentIdentifierPositions.clear();
+
+         highlightCurrentLine();
+     }
+ }
+
  void CodeEditor::setMarkedLine(int line)
  {
      if(line == markedLineIx){
@@ -2169,6 +2208,7 @@ int CodeEditor::lineMarkerAreaOffset() const
              if(!collapsibleRegionPositions.isNull()){
                  collapseOrExpandBlocks(collapsibleRegionPositions);
                  collapsibleRegionPositions = QTextCursor();
+                 toolTipWidget->hideToolTip();
 
                  highlightCollapsibleRegion(static_cast<QMouseEvent*>(event)->pos());
              }

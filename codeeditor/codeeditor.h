@@ -61,6 +61,9 @@ public:
     void setErrorPositions(const QList< QTextCursor > &errorPositions);
     void addErrorPosition(const QTextCursor &cursor);
 
+    void setCurrentIdentifierPositions(const QList< QTextCursor > &identifierPositions);
+    void clearCurrentIdentifierPositions();
+
     void setMarkedLine(int line);
 
     void setCompleter(QCompleter *completer);
@@ -107,12 +110,12 @@ public slots:
     void moveSelectedText(bool up);
     void selectCurrentBlock();
     void applyCaseFolding();
+    void formatCode();
 
     void customCut();
     void customCopy();
 
     void handleTextChanged();
-    void clearErrorPositions();
 
     void undo();
     void redo();
@@ -159,6 +162,7 @@ private:
     QList< QTextCursor > foundTextPositions;
     QList< QTextCursor > pulsatePositions;
     QList< QTextCursor > errorPositions;
+    QList< QTextCursor > currentIdentifierPositions;
     QTextCursor collapsibleRegionPositions;
     int collapsibleRegionStartBlockNumber;
 

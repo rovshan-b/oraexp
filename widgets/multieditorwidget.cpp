@@ -25,7 +25,8 @@ MultiEditorWidget::MultiEditorWidget(DbUiManager *uiManager, bool plsqlMode, QWi
     treeBuilder(0),
     lastChangeTime(QTime::currentTime()),
     lastParseLengthInMs(1000000),
-    lastMarkedCursorPos(-1)
+    lastMarkedCursorPos(-1),
+    lastHighlightedIdentifierPos(qMakePair(-1,-1))
 {
     createUi();
 }
@@ -279,6 +280,10 @@ void MultiEditorWidget::cursorPositionChanged()
     infoLabel->setText(infoLabelTextFormat.arg(QString::number(block+1), QString::number(posInBlock+1), QString::number(pos+1)));
 
     lastPosChangeTime = QTime::currentTime();
+
+    if(cursor.hasSelection() || pos < lastHighlightedIdentifierPos.first || pos > lastHighlightedIdentifierPos.second){
+        currentEditor->editor()->clearCurrentIdentifierPositions();
+    }
 }
 
 void MultiEditorWidget::documentContentsChanged(int position, int charsRemoved, int charsAdded)
@@ -292,6 +297,8 @@ void MultiEditorWidget::documentContentsChanged(int position, int charsRemoved, 
     }
 
     lastChangeTime = QTime::currentTime();
+
+    currentTextEditor()->clearCurrentIdentifierPositions();
 }
 
 void MultiEditorWidget::applyCaseFoldingRequested()
@@ -468,15 +475,20 @@ void MultiEditorWidget::onReparseTimer()
         reparse();
     }
 
-    int cursorPos = currentTextEditor()->textCursor().position();
+    QTextCursor cur = currentTextEditor()->textCursor();
+    int cursorPos = cur.position();
     if(plsqlMode && lastMarkedCursorPos!=cursorPos && lastPosChangeTime.msecsTo(now) >= 300){
         lastMarkedCursorPos = cursorPos;
         uiManager->getCodeStructurePane()->setCursorPosition(this, cursorPos);
+
+        if(cursorPos < lastHighlightedIdentifierPos.first || cursorPos > lastHighlightedIdentifierPos.second){
+            highlightCurrentIdentifier(cur);
+        }
     }
 
-    foreach(CodeEditorAndSearchPaneWidget *editor, editors){
-        editor->editor()->timerTick();
-    }
+    //foreach(CodeEditorAndSearchPaneWidget *editor, editors){
+    //    editor->editor()->timerTick();
+    //}
 }
 
 void MultiEditorWidget::reparse()
@@ -530,6 +542,78 @@ void MultiEditorWidget::parsingCompleted(int requestId, bool success, PlSqlTreeB
     }else{
         delete treeBulder;
     }
+}
+
+void MultiEditorWidget::highlightCurrentIdentifier(QTextCursor &cur)
+{
+    CodeEditor *editor = currentTextEditor();
+
+    if(qApp->focusWidget() != editor){
+        return;
+    }
+
+    QTextBlock block = cur.block();
+    if(!block.isValid()){
+        return;
+    }
+
+    lastHighlightedIdentifierPos = qMakePair(-1, -1);
+
+    BlockData *data = static_cast<BlockData*>(block.userData());
+    int pos = cur.positionInBlock();
+    TokenInfo *tokenInfo = data->tokenAtPosition(pos);
+    if(!tokenInfo || !isId(tokenInfo)){
+        return;
+    }
+
+    int tokenLength = tokenInfo->endPos - tokenInfo->startPos;
+
+    //cur.setPosition(block.position() + tokenInfo->startPos);
+    //cur.setPosition(block.position() + tokenInfo->endPos, QTextCursor::KeepAnchor);
+    //QString tokenLexeme = cur.selectedText();
+    QString tokenLexeme = block.text().mid(tokenInfo->startPos, tokenInfo->endPos - tokenInfo->startPos);
+
+    int blockPos = block.position();
+    lastHighlightedIdentifierPos = qMakePair(blockPos+tokenInfo->startPos, blockPos+tokenInfo->endPos);
+
+    QTime time;
+    time.start();
+
+    block = editor->document()->findBlockByNumber(0);
+
+    QList<QTextCursor> highlightPositions;
+
+    QList<TokenInfo*> tokens;
+    while(block.isValid()){
+        data = static_cast<BlockData*>(block.userData());
+
+        tokens = data->getTokens();
+
+        for(int i=0; i<tokens.size(); ++i){
+            tokenInfo = tokens.at(i);
+            if(!isId(tokenInfo)){
+                continue;
+            }
+            if((tokenInfo->endPos - tokenInfo->startPos) != tokenLength){
+                continue;
+            }
+
+            QString tokenText = block.text().mid(tokenInfo->startPos, tokenInfo->endPos - tokenInfo->startPos);
+            if(tokenText.compare(tokenLexeme, Qt::CaseInsensitive) == 0){
+                cur.setPosition(block.position() + tokenInfo->startPos);
+                cur.setPosition(block.position() + tokenInfo->endPos, QTextCursor::KeepAnchor);
+                highlightPositions.append(cur);
+            }
+        }
+
+        block = block.next();
+    }
+
+    if(highlightPositions.count() > 0){
+        editor->setCurrentIdentifierPositions(highlightPositions);
+    }
+
+    qDebug() << "found all occurences of identifier in" << time.elapsed() << "ms";
 }
 
 void MultiEditorWidget::updateEditors(CodeEditor *except)

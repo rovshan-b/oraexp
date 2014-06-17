@@ -154,8 +154,11 @@ void AppEditMenu::createEditAdvancedMenu(QToolBar *toolbar)
     editRemoveEmptyLinesAction=editAdvancedMenu->addAction(tr("Remove empty lines"), this, SLOT(removeEmptyLines()), QKeySequence("Ctrl+R"));
     editRemoveEmptyLinesAction->setStatusTip(tr("Remove empty lines"));
 
-    editApplyCaseFoldingAction=editAdvancedMenu->addAction(tr("Apply case folding"), this, SLOT(applyCaseFolding()), QKeySequence("Ctrl+Shift+F"));
+    editApplyCaseFoldingAction=editAdvancedMenu->addAction(tr("Apply case folding"), this, SLOT(applyCaseFolding()), QKeySequence("Ctrl+Shift+U"));
     editApplyCaseFoldingAction->setStatusTip(tr("Apply automatic case folding rules to selection"));
+
+    editFormatCodeAction=editAdvancedMenu->addAction(tr("Format"), this, SLOT(formatCode()), QKeySequence("Ctrl+Shift+F"));
+    editFormatCodeAction->setStatusTip(tr("Auto format code to make it more readable"));
 }
 
 void AppEditMenu::createEditResolveMenu()
@@ -201,6 +204,7 @@ void AppEditMenu::updateActionStatesForCodeEditor(CodeEditor *editor)
     editCreateDuplicateAction->setEnabled(!isReadOnly);
     editRemoveEmptyLinesAction->setEnabled(!isReadOnly);
     editApplyCaseFoldingAction->setEnabled(!isReadOnly);
+    editFormatCodeAction->setEnabled(!isReadOnly);
 
     editDescribeAction->setEnabled(true);
     editResolveAction->setEnabled(true);
@@ -267,6 +271,7 @@ void AppEditMenu::focusWidgetChanged(QWidget * /*old*/, QWidget *now)
     editCreateDuplicateAction->setEnabled(false);
     editRemoveEmptyLinesAction->setEnabled(false);
     editApplyCaseFoldingAction->setEnabled(false);
+    editFormatCodeAction->setEnabled(false);
 
     editDescribeAction->setEnabled(false);
     editResolveAction->setEnabled(false);
@@ -374,6 +379,11 @@ void AppEditMenu::removeEmptyLines()
 void AppEditMenu::applyCaseFolding()
 {
     WidgetHelper::invokeSlot(currentAppWidget, "applyCaseFolding");
+}
+
+void AppEditMenu::formatCode()
+{
+    WidgetHelper::invokeSlot(currentAppWidget, "formatCode");
 }
 
 void AppEditMenu::describeObject()

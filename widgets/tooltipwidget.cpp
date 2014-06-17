@@ -45,6 +45,10 @@ void ToolTipWidget::mousePressEvent(QMouseEvent *event)
 
 void ToolTipWidget::hideToolTip()
 {
+    if(!isVisible()){
+        return;
+    }
+
     hide();
     clear();
 
