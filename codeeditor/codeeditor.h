@@ -166,7 +166,7 @@ private:
     QTextCursor collapsibleRegionPositions;
     int collapsibleRegionStartBlockNumber;
 
-    QString strTab;
+    static QString strTab;
 
     int markedLineIx;
 

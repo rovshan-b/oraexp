@@ -573,9 +573,7 @@ SOURCES += main.cpp\
     code_structure_tree/codestructureparametertreeitem.cpp \
     code_structure_tree/codestructurestatementtreeitem.cpp \
     code_structure_tree/codestructuregenerictreeitem.cpp \
-    code_formatter/plsql/selectstatementformatter.cpp \
-    code_formatter/plsql/plsqlformatter.cpp \
-    code_formatter/plsql/defaulttokenformatter.cpp
+    code_formatter/plsql/plsqlformatter.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1158,9 +1156,7 @@ HEADERS  += mainwindow.h \
     code_structure_tree/codestructureparametertreeitem.h \
     code_structure_tree/codestructurestatementtreeitem.h \
     code_structure_tree/codestructuregenerictreeitem.h \
-    code_formatter/plsql/selectstatementformatter.h \
-    code_formatter/plsql/plsqlformatter.h \
-    code_formatter/plsql/defaulttokenformatter.h
+    code_formatter/plsql/plsqlformatter.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

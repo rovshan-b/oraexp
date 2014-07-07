@@ -77,6 +77,8 @@ QString xmlEncode(const QString& xml);
 
 QString removeEnclosure(const QString &str, const QChar &enclosure = '"');
 
+bool endsWithNewline(const QString &str);
+
 #ifndef CODE_PARSER_BUILD
 
 void copyStringToArray(dtext *array, int arrayPos, int arrayMaxStrLength, const dtext *str);

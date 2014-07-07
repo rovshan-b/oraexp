@@ -30,6 +30,8 @@ QStringHash CodeEditor::textShortcuts;
 CodeEditor::CaseFoldingType CodeEditor::keywordCaseFolding;
 CodeEditor::CaseFoldingType CodeEditor::identifierCaseFolding;
 
+QString CodeEditor::strTab;
+
 CodeEditor::CodeEditor(bool plsqlMode, QWidget *parent) :
     QPlainTextEdit(parent),
     lineNumberArea(0),
@@ -79,7 +81,7 @@ CodeEditor::CodeEditor(bool plsqlMode, QWidget *parent) :
     f.fromString(Settings::value("CodeEditor/currentFont", WidgetHelper::getMonospaceFont(qApp->font(this).pointSize())).toString());
     setFont(f);
 
-    strTab=QString("   ");
+    CodeEditor::strTab=QString("   ");
 
 
     connect(this, SIGNAL(undoAvailable(bool)), this, SLOT(setUndoAvailable(bool)));
@@ -1417,14 +1419,14 @@ int CodeEditor::lineMarkerAreaOffset() const
      Q_ASSERT(!cur.hasSelection()); //this function is called only when there is no selection
 
      if(cur.atBlockStart()){
-         cur.insertText(strTab);
+         cur.insertText(CodeEditor::strTab);
          return;
      }
 
      bool insertedTextShortcut = insertTextShortcut(cur);
 
      if(!insertedTextShortcut){
-        textCursor().insertText(strTab);
+        textCursor().insertText(CodeEditor::strTab);
      }
  }
 

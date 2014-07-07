@@ -372,6 +372,27 @@ QString removeEnclosure(const QString &str, const QChar &enclosure)
     return s;
 }
 
+//returns whether str ends with newline character ignoring trailing spaces
+bool endsWithNewline(const QString &str)
+{
+    int lastIx = str.length() - 1;
+    if(lastIx < 0){
+        return false;
+    }
+
+    QChar lastChar;
+    while(lastIx >= 0){
+        lastChar = str[lastIx--];
+        if(lastChar==' ' || lastChar=='\t'){ //ignore spaces
+            continue;
+        }
+
+        return lastChar == '\n';
+    }
+
+    return false;
+}
+
 #ifndef CODE_PARSER_BUILD
 
 void copyStringToArray(dtext *array, int arrayPos, int arrayMaxStrLength, const dtext *str)
