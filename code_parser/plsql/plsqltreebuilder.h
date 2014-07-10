@@ -20,7 +20,7 @@ public:
     virtual void reduced(TokenInfo* ruleInfo, int symbolCount, const QList<TokenInfo*> &reducedTokens, ParsingTable *parsingTable);
     virtual void accepted(ParsingTable *parsingTable);
 
-    virtual void error(ParsingTable *parsingTable);
+    virtual void error(ParsingTable *parsingTable, QStack<TokenInfo*> &tokenStack);
 
     void setSkipEmptyNodes(bool skip);
     void setCalculateCollapsePositions();

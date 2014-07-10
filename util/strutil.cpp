@@ -372,8 +372,8 @@ QString removeEnclosure(const QString &str, const QChar &enclosure)
     return s;
 }
 
-//returns whether str ends with newline character ignoring trailing spaces
-bool endsWithNewline(const QString &str)
+//returns whether str ends with one of specified characters ignoring trailing spaces
+bool endsWith(const QString &str, const QList<QChar> &charsToCheck)
 {
     int lastIx = str.length() - 1;
     if(lastIx < 0){
@@ -387,7 +387,7 @@ bool endsWithNewline(const QString &str)
             continue;
         }
 
-        return lastChar == '\n';
+        return charsToCheck.contains(lastChar);
     }
 
     return false;

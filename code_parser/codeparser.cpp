@@ -55,7 +55,7 @@ bool CodeParser::parse()
 
             errorRow = row;
             if(reduceListener){
-                reduceListener->error(parsingTable);
+                reduceListener->error(parsingTable, tokenStack);
             }
             return false;
             break;

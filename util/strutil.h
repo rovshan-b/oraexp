@@ -77,7 +77,7 @@ QString xmlEncode(const QString& xml);
 
 QString removeEnclosure(const QString &str, const QChar &enclosure = '"');
 
-bool endsWithNewline(const QString &str);
+bool endsWith(const QString &str, const QList<QChar> &charsToCheck);
 
 #ifndef CODE_PARSER_BUILD
 

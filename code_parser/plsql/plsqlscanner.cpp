@@ -322,10 +322,12 @@ int PlSqlScanner::doGetNextToken()
         case IN_DIVIDE:
             if(c=='*'){
                 state=IN_ML_COMMENT;
-                save=false;
+                //save=false;
+                save=true;
             }else{
                 ungetChar();
-                save=false;
+                //save=false;
+                save=true;
                 state=DONE;
                 token=PLS_DIVIDE;
             }
@@ -333,15 +335,18 @@ int PlSqlScanner::doGetNextToken()
         case IN_ML_COMMENT:
             if(c=='*'){
                 state=IN_ML_COMMENT_END;
-                save=false;
+                //save=false;
+                save=true;
             }else if(c.isNull()){ //if ml comment is not properly closed treat rest of code as ml comment as well
                 state=DONE;
                 //token=PLS_ERROR;
-                save=false;
+                //save=false;
+                save=true;
                 token=PLS_ML_COMMENT;
                 endState=IN_ML_COMMENT;
             }else{
-                save=false;
+                //save=false;
+                save=true;
             }
             break;
         case IN_ML_COMMENT_END:
@@ -350,10 +355,12 @@ int PlSqlScanner::doGetNextToken()
                 token=PLS_ML_COMMENT;
             }else if(c=='*'){
                 //stay in this state
-                save=false;
+                //save=false;
+                save=true;
             }else{
                 state=IN_ML_COMMENT;
-                save=false;
+                //save=false;
+                save=true;
             }
             break;
         case IN_NUMBER:

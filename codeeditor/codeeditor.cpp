@@ -1291,7 +1291,8 @@ int CodeEditor::lineMarkerAreaOffset() const
          }
          prefix.append(c);
      }
-     int unclosedBracePosition = findLastUnclosedBracePosition(cur.block());
+     //causes crash when there is unclosed brace at the end of line and you press enter in the middle of line
+     /*int unclosedBracePosition = findLastUnclosedBracePosition(cur.block());
      int i = prefix.size();
      while(i++ < unclosedBracePosition){
          c=prevLine.at(i);
@@ -1303,7 +1304,7 @@ int CodeEditor::lineMarkerAreaOffset() const
      }
      if(unclosedBracePosition != -1){ //add one more space for better alignment
          prefix.append(' ');
-     }
+     }*/
 
      cur.movePosition(QTextCursor::NextBlock);
      if(!prefix.isEmpty()){
@@ -1919,7 +1920,7 @@ int CodeEditor::lineMarkerAreaOffset() const
      cur.beginEditBlock();
      cur.setPosition(0);
      cur.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-     cur.insertText(PlSqlFormatter::format(toPlainText()));
+     cur.insertText(PlSqlFormatter().format(toPlainText()));
      cur.endEditBlock();
 
      this->blockEventChanges = false;

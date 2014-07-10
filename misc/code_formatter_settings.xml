@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+   <rule lexemes="SELECT,BULK,INTO,FROM,WHERE,GROUP,HAVING,ORDER,START,CONNECT,MODEL,UNION,INTERSECT,MINUS,
+                  FOR,PARTITION,INNER,OUTER,LEFT,RIGHT,CROSS,NATURAL,FULL,AND,OR,CASE,WHEN,ELSE,DECLARE,
+                  BEGIN,END,DEFINE,MEASURES">
+      <before>
+         <action type="newline" repeat="false" not_after="(" not_after="\n" />
+      </before>
+   </rule>
+   <rule lexemes="DECLARE,BEGIN,INTO,THEN,ELSE,DEFINE" tokens="PLS_SEMI,PLS_SL_COMMENT,PLS_ML_COMMENT">
+      <after>
+         <action type="newline" />
+      </after>
+   </rule>
+   <rule lexemes="DECLARE,BEGIN,IF,CASE,WHEN,ELSE">
+      <after>
+         <action type="indent" />
+      </after>
+   </rule>
+   <rule lexemes="END,ELSIF,ELSE,WHEN,UNION,INTERSECT,MINUS">
+      <before>
+         <action type="unindent" />
+      </before>
+   </rule>
+   <rule tokens="PLS_PLUS,PLS_MINUS,PLS_DIVIDE,PLS_EQ,PLS_PERCENTAGE,PLS_ASSIGN,PLS_ARROW,
+                 PLS_VERTBAR,PLS_DOUBLEVERTBAR,PLS_NOT_EQ,PLS_LESS_THAN,PLS_LESS_THAN_EQUAL,
+                 PLS_GREATER_THAN,PLS_GREATER_THAN_EQUAL,PLS_QUESTION_MARK,PLS_ERROR">
+      <before>
+         <action type="space" />
+      </before>
+      <after>
+         <action type="space" />
+      </after>
+   </rule>
+   <rule tokens="PLS_COMMA">
+      <after>
+         <action type="space" />
+      </after>
+   </rule>
+   <rule tokens="PLS_RPAREN,PLS_DOT">
+      <before>
+         <action type="no_space" />
+      </before>
+   </rule>
+   <rule tokens="PLS_LPAREN,PLS_DOT">
+      <after>
+         <action type="no_space" />
+      </after>
+   </rule>
+</settings>

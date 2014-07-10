@@ -4,7 +4,7 @@
 #include <QString>
 #include <QStack>
 
-class CodeScanner;
+class PlSqlScanner;
 
 class PlSqlFormatter
 {
@@ -20,26 +20,33 @@ public:
         OrderBy
     };
 
-    static QString format(const QString &code);
+    PlSqlFormatter();
 
-    static bool checkPrevToken(const QList<int> &prevTokenList, int token);
-    static bool isPrevKeyword(const QList<int> &prevTokenList);
-    static int getPrevToken(const QList<int> &prevTokenList);
-
-
-    static void indent(QString &str, const QStack<QString> &indents);
-    static bool indentToEnd(QString &str, QStack<QString> &indents);
-    static void increaseIndenting(QStack<QString> &indents);
-    static void unindent(QStack<QString> &indents);
-    static QString strTab;
-
-    static bool formatGenericConstruct(QString &result, int token, CodeScanner *scanner, QList<int> &prevTokenList, QStack<QString> &indents, bool nested);
-    static void formatSelectStatement(QString &result, CodeScanner *scanner, bool nested, QStack<QString> &indents);
-    static bool formatParameterList(QString &result, CodeScanner *scanner, QList<int> &prevTokenList, QStack<QString> &indents, int nestingLevel = 0);
-    static void formatDefaultToken(QString &result, int token, int prevToken, CodeScanner *scanner, QStack<QString> &indents);
+    QString format(const QString &code);
 
 private:
-    PlSqlFormatter();
+    QString result;
+
+    PlSqlScanner *scanner;
+
+    QList<int> prevTokenList;
+    QStack<QString> indents;
+
+    bool checkPrevToken(int token);
+    bool isPrevKeyword();
+    int getPrevToken();
+
+
+    void indent(QString &str);
+    bool indentToEnd(QString &str);
+    void increaseIndenting();
+    void unindent();
+    static QString strTab;
+
+    bool formatGenericConstruct(int token, bool nested);
+    void formatSelectStatement(bool nested);
+    bool formatParameterList(int nestingLevel = 0);
+    void formatDefaultToken(int token);
 };
 
 #endif // PLSQLFORMATTER_H

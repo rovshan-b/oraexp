@@ -214,8 +214,24 @@ void PlSqlTreeBuilder::accepted(ParsingTable *parsingTable)
     }
 }
 
-void PlSqlTreeBuilder::error(ParsingTable *parsingTable)
+void PlSqlTreeBuilder::error(ParsingTable *parsingTable, QStack<TokenInfo *> &tokenStack)
 {
+    QStack<TokenInfo *> copiedTokenStack(tokenStack);
+
+    foreach(TokenInfo *tokenInfo, copiedTokenStack){
+        bool found = false;
+        foreach(ParseTreeNode *node, ruleNodesStack){
+            if(node->tokenInfo == tokenInfo){
+                found = true;
+                break;
+            }
+        }
+        if(!found){
+            tokenStack.remove(tokenStack.indexOf(tokenInfo));
+            delete tokenInfo;
+        }
+    }
+
     accepted(parsingTable);
 }
 

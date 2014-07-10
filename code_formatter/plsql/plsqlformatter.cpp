@@ -25,6 +25,8 @@ const static int intersectKeyword = parsingTable->getKeywordIx("INTERSECT");
 const static int minusKeyword = parsingTable->getKeywordIx("MINUS");
 const static int forKeyword = parsingTable->getKeywordIx("FOR");
 const static int partitionKeyword = parsingTable->getKeywordIx("PARTITION");
+const static int defineKeyword = parsingTable->getKeywordIx("DEFINE");
+const static int measuresKeyword = parsingTable->getKeywordIx("MEASURES");
 
 const static int innerKeyword = parsingTable->getKeywordIx("INNER");
 const static int outerKeyword = parsingTable->getKeywordIx("OUTER");
@@ -56,23 +58,22 @@ PlSqlFormatter::PlSqlFormatter()
 
 QString PlSqlFormatter::format(const QString &code)
 {
-    QScopedPointer<PlSqlScanner> scanner(new PlSqlScanner(new StringReader(code)));
-
-    QString result;
+    scanner = new PlSqlScanner(new StringReader(code));
+    QScopedPointer<PlSqlScanner> scopedScanner(scanner);
 
     //const static int selectKeyword = PlSqlParsingTable::getInstance()->getKeywordIx("SELECT");
 
     int token;
 
-    QStack<QString> indents;
-
     do{
         token = scanner->getNextToken(false);
 
         if(token == selectKeyword){
-            PlSqlFormatter::formatSelectStatement(result, scanner.data(), false, indents);
+            formatSelectStatement(false);
+        }else if(token == PLS_LPAREN){
+            formatParameterList();
         }else{
-            PlSqlFormatter::formatDefaultToken(result, token, -1, scanner.data(), indents);
+            formatDefaultToken(token);
         }
 
         indents.clear();
@@ -82,12 +83,12 @@ QString PlSqlFormatter::format(const QString &code)
     return result;
 }
 
-bool PlSqlFormatter::checkPrevToken(const QList<int> &prevTokenList, int token)
+bool PlSqlFormatter::checkPrevToken(int token)
 {
     return (prevTokenList.size() > 0 && prevTokenList[prevTokenList.size()-1] == token);
 }
 
-bool PlSqlFormatter::isPrevKeyword(const QList<int> &prevTokenList)
+bool PlSqlFormatter::isPrevKeyword()
 {
     int size = prevTokenList.size();
     if(size == 0){
@@ -103,23 +104,23 @@ bool PlSqlFormatter::isPrevKeyword(const QList<int> &prevTokenList)
     return false;
 }
 
-int PlSqlFormatter::getPrevToken(const QList<int> &prevTokenList)
+int PlSqlFormatter::getPrevToken()
 {
     return (prevTokenList.size() > 0 ? prevTokenList[prevTokenList.size()-1] : -1);
 }
 
-void PlSqlFormatter::indent(QString &str, const QStack<QString> &indents)
+void PlSqlFormatter::indent(QString &str)
 {
     foreach(const QString &indent, indents){
         str.append(indent);
     }
 }
 
-bool PlSqlFormatter::indentToEnd(QString &str, QStack<QString> &indents)
+bool PlSqlFormatter::indentToEnd(QString &str)
 {
     int lastNewlinePos = qMax(str.lastIndexOf('\n'), 0);
 
-    int currentLinePos = qMax(str.length() - lastNewlinePos - 1, 0);
+    int currentLinePos = qMax(str.length() - (lastNewlinePos + (lastNewlinePos==0 ? 0 : 1)), 0);
 
     int totalIndentLength = 0;
     foreach(const QString &indent, indents){
@@ -142,62 +143,57 @@ bool PlSqlFormatter::indentToEnd(QString &str, QStack<QString> &indents)
 
 }
 
-void PlSqlFormatter::increaseIndenting(QStack<QString> &indents)
+void PlSqlFormatter::increaseIndenting()
 {
     indents.push(PlSqlFormatter::strTab);
 }
 
-void PlSqlFormatter::unindent(QStack<QString> &indents)
+void PlSqlFormatter::unindent()
 {
     if(!indents.isEmpty()){
         indents.pop();
     }
 }
 
-bool PlSqlFormatter::formatGenericConstruct(QString &result, int token, CodeScanner *scanner, QList<int> &prevTokenList, QStack<QString> &indents, bool nested)
+bool PlSqlFormatter::formatGenericConstruct(int token, bool nested)
 {
     bool formatted = false;
 
     if(token == selectKeyword){
-        PlSqlFormatter::formatSelectStatement(result, scanner, nested, indents);
+        formatSelectStatement(nested);
         formatted = true;
     }else if(token == PLS_LPAREN){
-        PlSqlFormatter::formatParameterList(result, scanner, prevTokenList, indents);
+        formatParameterList();
         formatted = true;
     }
 
     return formatted;
 }
 
-void PlSqlFormatter::formatSelectStatement(QString &result, CodeScanner *scanner, bool nested, QStack<QString> &indents)
+void PlSqlFormatter::formatSelectStatement(bool nested)
 {
     Q_ASSERT(scanner->getTokenLexeme().compare("SELECT", Qt::CaseInsensitive) == 0);
 
-    result.append(scanner->getTokenLexeme());
-    //result.append(' ');
-
+    formatDefaultToken(selectKeyword);
     int token;
-    QList<int> prevTokenList;
-    bool addToPrevList;
 
     prevTokenList.append(selectKeyword);
 
     SelectStatementSection section = SelectList;
 
     //QStack<QString> indents(initialIndents);
-    PlSqlFormatter::increaseIndenting(indents);
+    increaseIndenting();
 
-    bool formattedToEnd = PlSqlFormatter::indentToEnd(result, indents);
+    bool formattedToEnd = indentToEnd(result);
     //add one more space
-    indents.last().append("  ");
+    indents.last().append(" ");
 
     do{
         token = scanner->getNextToken(false);
-        addToPrevList = true;
 
-        int prevToken = PlSqlFormatter::getPrevToken(prevTokenList);
+        //int prevToken = getPrevToken();
 
-        bool formatted = PlSqlFormatter::formatGenericConstruct(result, token, scanner, prevTokenList, indents, true);
+        bool formatted = formatGenericConstruct(token, true);
         if(formatted){
             prevTokenList.clear();
             continue;
@@ -207,30 +203,28 @@ void PlSqlFormatter::formatSelectStatement(QString &result, CodeScanner *scanner
             section = IntoList;
         }else if(token == fromKeyword){
             section = TableList;
-            PlSqlFormatter::unindent(indents);
+            unindent();
         }else if(token == whereKeyword){
             section = Where;
         }else if(token == byKeyword){
-            if(PlSqlFormatter::checkPrevToken(prevTokenList, groupKeyword)){
+            if(checkPrevToken(groupKeyword)){
                 section = GroupBy;
-            }else if(PlSqlFormatter::checkPrevToken(prevTokenList, orderKeyword)){
+            }else if(checkPrevToken(orderKeyword)){
                 section = OrderBy;
             }
         }else if(token == havingKeyword && section == GroupBy){
             section = Having;
         }
 
-        PlSqlFormatter::formatDefaultToken(result, token, prevToken, scanner, indents);
+        formatDefaultToken(token);
 
         if(token == PLS_COMMA &&
                 (section == SelectList || section == IntoList)){
             result.append('\n');
-            PlSqlFormatter::indent(result, indents);
+            indent(result);
         }
 
-        if(addToPrevList){
-            prevTokenList.append(token);
-        }
+        prevTokenList.append(token);
 
         if(nested && token == PLS_RPAREN){
             break;
@@ -239,20 +233,20 @@ void PlSqlFormatter::formatSelectStatement(QString &result, CodeScanner *scanner
     }while(token != PLS_E_O_F && token != PLS_SEMI);
 
     if(formattedToEnd){
-        PlSqlFormatter::unindent(indents);
+        unindent();
     }
 
-    PlSqlFormatter::unindent(indents);
+    unindent();
 }
 
-bool PlSqlFormatter::formatParameterList(QString &result, CodeScanner *scanner, QList<int> &prevTokenList, QStack<QString> &indents, int nestingLevel)
+bool PlSqlFormatter::formatParameterList(int nestingLevel)
 {
     int token;
 
-    int prevToken = PlSqlFormatter::getPrevToken(prevTokenList);
-    PlSqlFormatter::formatDefaultToken(result, PLS_LPAREN, prevToken, scanner, indents);
+    //int prevToken = getPrevToken();
+    formatDefaultToken(PLS_LPAREN);
     prevTokenList.append(PLS_LPAREN);
-    PlSqlFormatter::indentToEnd(result, indents);
+    indentToEnd(result);
 
     int commaCount = 0;
     bool multiline = false;
@@ -260,41 +254,44 @@ bool PlSqlFormatter::formatParameterList(QString &result, CodeScanner *scanner, 
 
     do{
         token = scanner->getNextToken(false);
-        prevToken = PlSqlFormatter::getPrevToken(prevTokenList);
+        //int prevToken = getPrevToken();
 
         switch(token){
         case PLS_LPAREN:
-            innerMultiline = PlSqlFormatter::formatParameterList(result, scanner, prevTokenList, indents, nestingLevel+1);
+            innerMultiline = formatParameterList(nestingLevel+1);
             break;
         case PLS_RPAREN:
 
             if(multiline || innerMultiline){
                 result.append('\n');
-                PlSqlFormatter::indent(result, indents);
+                if(indents.size() > 0){
+                    indents.last().chop(1); //so that closing parenthesis is on same column as opening
+                }
+                indent(result);
             }
 
-            PlSqlFormatter::unindent(indents);
+            unindent();
 
-            PlSqlFormatter::formatDefaultToken(result, token, prevToken, scanner, indents);
+            formatDefaultToken(token);
 
             return multiline;
             //break;
         default:
             if(token == selectKeyword){
-                PlSqlFormatter::formatSelectStatement(result, scanner, true, indents);
+                formatSelectStatement(true);
                 return multiline;
             }
 
-            bool formatted = PlSqlFormatter::formatGenericConstruct(result, token, scanner, prevTokenList, indents, true);
+            bool formatted = formatGenericConstruct(token, true);
             if(!formatted){
-                PlSqlFormatter::formatDefaultToken(result, token, prevToken, scanner, indents);
+                formatDefaultToken(token);
 
                 if(token == PLS_COMMA){
                     ++commaCount;
                     if(commaCount >= 3){
                         result.append('\n');
                         multiline = true;
-                        PlSqlFormatter::indent(result, indents);
+                        indent(result);
                         commaCount = 0;
                     }
                 }
@@ -309,12 +306,15 @@ bool PlSqlFormatter::formatParameterList(QString &result, CodeScanner *scanner, 
     return multiline;
 }
 
-void PlSqlFormatter::formatDefaultToken(QString &result, int token, int prevToken, CodeScanner *scanner, QStack<QString> &indents)
+void PlSqlFormatter::formatDefaultToken(int token)
 {
+    int prevToken = getPrevToken();
+
     QList<int> newlineBeforeList;
     newlineBeforeList << selectKeyword
                       << bulkKeyword
                       << intoKeyword
+                      << fromKeyword
                       << whereKeyword
                       << groupKeyword
                       << havingKeyword
@@ -339,7 +339,11 @@ void PlSqlFormatter::formatDefaultToken(QString &result, int token, int prevToke
                       << caseKeyword
                       << whenKeyword
                       << elseKeyword
+                      << declareKeyword
+                      << beginKeyword
                       << endKeyword
+                      << defineKeyword
+                      << measuresKeyword
                          ;
 
     QList<int> newlineAfterList;
@@ -351,6 +355,7 @@ void PlSqlFormatter::formatDefaultToken(QString &result, int token, int prevToke
                      << intoKeyword
                      << thenKeyword
                      << elseKeyword
+                     << defineKeyword
                         ;
 
     QList<int> indentAfter;
@@ -365,22 +370,28 @@ void PlSqlFormatter::formatDefaultToken(QString &result, int token, int prevToke
     unindentBefore << endKeyword
                    << elsifKeyword
                    << elseKeyword
-                   << whenKeyword;
+                   << whenKeyword
+                   << unionKeyword
+                   << intersectKeyword
+                   << minusKeyword;
 
     if(unindentBefore.contains(token)){
-        PlSqlFormatter::unindent(indents);
+        unindent();
     }
 
-    if(newlineBeforeList.contains(token) && !result.isEmpty() && !endsWithNewline(result)){
+    if(newlineBeforeList.contains(token) &&
+            !result.isEmpty() &&
+            !newlineBeforeList.contains(prevToken) &&
+            !endsWith(result, QList<QChar>() << '\n' << '(')){
         result.append('\n');
-        PlSqlFormatter::indent(result, indents);
+        indent(result);
     }
     bool willAddNewline = newlineAfterList.contains(token);
 
-    bool indentedToEnd = false;
-    if(indentAfter.contains(token)){
-        indentedToEnd = PlSqlFormatter::indentToEnd(result, indents);
-    }
+    //bool indentedToEnd = false;
+    //if(indentAfter.contains(token)){
+    //    indentedToEnd = PlSqlFormatter::indentToEnd(result, indents);
+    //}
 
     QList<int> spacesAtBothSides;
     spacesAtBothSides << PLS_PLUS << PLS_MINUS << PLS_DIVIDE << PLS_EQ << PLS_PERCENTAGE << PLS_ASSIGN << PLS_ARROW
@@ -422,17 +433,17 @@ void PlSqlFormatter::formatDefaultToken(QString &result, int token, int prevToke
     }
 
     if(indentAfter.contains(token)){
-        if(indentedToEnd){
-            indents.last().append(PlSqlFormatter::strTab);
-        }else{
-            PlSqlFormatter::increaseIndenting(indents);
-        }
+        //if(indentedToEnd){
+        //    indents.last().append(PlSqlFormatter::strTab);
+        //}else{
+            increaseIndenting();
+        //}
     }
 
     if(willAddNewline){
         result.append('\n');
         if(token != PLS_SEMI){
-            PlSqlFormatter::indent(result, indents);
+            indent(result);
         }
     }
 }

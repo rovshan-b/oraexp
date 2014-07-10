@@ -32,9 +32,11 @@ void PlSqlParser::correctError(int *token, ParsingTableRow *row, ParsingTableAct
         //read input until we encounter one of (first of) PLS_SEMI, END opt_identifier PLS_SEMI
         //while reading add all read tokens to token stack
         QList<TokenInfo*> reduceTokens;
+        bool hasNonUsedReduceTokens = false;
         do{
             if(!reservedWord || countOnLastPosition>maxStayCountOnSamePosition){
                 reduceTokens.prepend(createTokenInfo(*token));
+                hasNonUsedReduceTokens = true;
             }
 
             if(*token == PLS_SEMI || reservedWord){
@@ -65,12 +67,18 @@ void PlSqlParser::correctError(int *token, ParsingTableRow *row, ParsingTableAct
                 }else{
                     qDeleteAll(reduceTokens);
                 }
+                hasNonUsedReduceTokens = false;
+
                 break;
             }
 
             *token = scanner->getNextToken();
             reservedWord = parsingTable->isReservedWord(scanner->getTokenLexeme());
         }while(*token != PLS_E_O_F);
+
+        if(hasNonUsedReduceTokens){
+            qDeleteAll(reduceTokens);
+        }
     }
 
     if(scanner->getTokenStartPos() == lastErrorPosition){
