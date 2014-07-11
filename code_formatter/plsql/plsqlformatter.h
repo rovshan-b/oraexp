@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QStack>
+#include "codeformattersettings.h"
 
 class PlSqlScanner;
 
@@ -25,6 +26,8 @@ public:
     QString format(const QString &code);
 
 private:
+    CodeFormatterSettings settings;
+
     QString result;
 
     PlSqlScanner *scanner;

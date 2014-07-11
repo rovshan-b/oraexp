@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>misc/xlsx_template.xlsx</file>
         <file>misc/html_export.css</file>
+        <file>misc/code_formatter_settings.xml</file>
     </qresource>
 </RCC>
