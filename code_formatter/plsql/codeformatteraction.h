@@ -9,7 +9,9 @@ public:
     enum ActionSequence
     {
         Before,
-        After
+        After,
+        BeforeAndAfter,
+        Any
     };
 
     enum ActionType
@@ -26,6 +28,12 @@ public:
                         const QMultiHash<QString,QString> &attributes);
 
     CodeFormatterAction(const QMultiHash<QString,QString> &attributes);
+
+    ActionSequence getSequence() const {return this->sequence;}
+    ActionType getType() const {return this->type;}
+
+    bool boolValue(const QString &name) const;
+    QList<QChar> charList(const QString &name) const;
 
 private:
     ActionSequence sequence;

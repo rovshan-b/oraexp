@@ -1,31 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <settings>
-   <rule lexemes="SELECT,BULK,INTO,FROM,WHERE,GROUP,HAVING,ORDER,START,CONNECT,MODEL,UNION,INTERSECT,MINUS,
-                  FOR,PARTITION,INNER,OUTER,LEFT,RIGHT,CROSS,NATURAL,FULL,AND,OR,CASE,WHEN,ELSE,DECLARE,
-                  BEGIN,END,DEFINE,MEASURES">
-      <action sequence="before" type="newline" repeat="false" not_after="(" not_after="\n" />
+
+   <rule lexemes="SELECT,BULK,INTO,FROM,WHERE,GROUP,HAVING,ORDER,START,CONNECT,MODEL,
+                  FOR,PARTITION,INNER,OUTER,LEFT,RIGHT,CROSS,NATURAL,FULL,AND,OR,CASE,DECLARE,
+                  BEGIN,DEFINE,MEASURES">
+      <action sequence="before" type="newline" repeat="false">
+         <not_after value="(" />
+         <not_after value="\n" />
+      </action>
    </rule>
-   <rule lexemes="DECLARE,BEGIN,INTO,THEN,ELSE,DEFINE" tokens="PLS_SEMI,PLS_SL_COMMENT,PLS_ML_COMMENT">
-      <action sequence="after" type="newline" />
+
+   <rule lexemes="END,ELSIF,ELSE,WHEN,UNION,INTERSECT,MINUS">
+      <action sequence="before" type="unindent" />
+      <action sequence="before" type="newline" />
    </rule>
+   
    <rule lexemes="DECLARE,BEGIN,IF,CASE,WHEN,ELSE">
       <action sequence="after" type="indent" />
    </rule>
-   <rule lexemes="END,ELSIF,ELSE,WHEN,UNION,INTERSECT,MINUS">
-      <action sequence="before" type="unindent" />
+
+   <rule lexemes="DECLARE,BEGIN,INTO,THEN,ELSE,DEFINE" tokens="PLS_SEMI,PLS_SL_COMMENT,PLS_ML_COMMENT">
+      <action sequence="after" type="newline" />
    </rule>
+   
    <rule tokens="PLS_PLUS,PLS_MINUS,PLS_DIVIDE,PLS_EQ,PLS_PERCENTAGE,PLS_ASSIGN,PLS_ARROW,
                  PLS_VERTBAR,PLS_DOUBLEVERTBAR,PLS_NOT_EQ,PLS_LESS_THAN,PLS_LESS_THAN_EQUAL,
                  PLS_GREATER_THAN,PLS_GREATER_THAN_EQUAL,PLS_QUESTION_MARK,PLS_ERROR">
-      <action sequence="before" type="space" />
       <action sequence="after" type="space" />
    </rule>
+   
    <rule tokens="PLS_COMMA">
-      <action sequence="after" type="space" />
+      <action sequence="before" type="no_space" />
    </rule>
+   
    <rule tokens="PLS_RPAREN,PLS_DOT">
       <action sequence="before" type="no_space" />
    </rule>
+   
    <rule tokens="PLS_LPAREN,PLS_DOT">
       <action sequence="after" type="no_space" />
    </rule>

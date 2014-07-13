@@ -13,6 +13,15 @@ public:
     ~CodeFormatterRule();
 
     void addAction(CodeFormatterAction *action);
+    QList<CodeFormatterAction*> getActions() const;
+
+    void setLexemes(const QStringList &lexemes);
+    void addToken(int token);
+
+    void ready();
+
+    bool containsToken(int token, const QString &lexeme) const;
+
 
 private:
     QStringList lexemes;

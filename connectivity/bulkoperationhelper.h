@@ -27,8 +27,8 @@ public:
     int lengthAt(int ix);
 
     void setDmlMode();
-private:
     void cleanup();
+private:
 
     int bulkSize;
 

@@ -34,6 +34,26 @@ CodeFormatterAction::CodeFormatterAction(const QMultiHash<QString, QString> &att
     init(sequence, type, attributes);
 }
 
+bool CodeFormatterAction::boolValue(const QString &name) const
+{
+    QString value = attributes.value(name, "false");
+    return value == "true" ? true : false;
+}
+
+QList<QChar> CodeFormatterAction::charList(const QString &name) const
+{
+    QList<QChar> result;
+
+    QList<QString> values = attributes.values(name);
+    foreach(const QString &val, values){
+        Q_ASSERT(val.length() == 1 || val.startsWith('\\'));
+
+        result.append(val.length()==1 ? val[0] : '\n');
+    }
+
+    return result;
+}
+
 void CodeFormatterAction::init(CodeFormatterAction::ActionSequence sequence, CodeFormatterAction::ActionType type, const QMultiHash<QString, QString> &attributes)
 {
     this->sequence = sequence;

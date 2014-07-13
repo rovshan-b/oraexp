@@ -14,6 +14,7 @@ protected:
 
 private:
     void populateTable();
+    void populateTokenNames();
     void populateKeywords();
     void populateReservedWords();
     void populateRuleNames();

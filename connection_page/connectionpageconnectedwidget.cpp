@@ -178,6 +178,7 @@ void ConnectionPageConnectedWidget::prepareObject(ConnectionPageObject *obj)
     connect(objRef, SIGNAL(busyStateChanged(ConnectionPageObject*,bool)), this, SLOT(tabBusyStateChanged(ConnectionPageObject*,bool)));
 
     if(obj->needsSeparateConnection()){
+        obj->increaseRefCount();
         connectionPool.requestConnection(this->db, obj);
     }else{
         //tab->setUpdatesEnabled(false);
@@ -236,12 +237,13 @@ void ConnectionPageConnectedWidget::beforeDelete(ConnectionPageObject *obj)
 
 void ConnectionPageConnectedWidget::asyncConnectionReady(DbConnection *db, void *data, bool error, const OciException &ex)
 {
+    ConnectionPageObject *obj = (ConnectionPageObject*)data;
+
     if(error){
         delete db;
         QMessageBox::critical(this->window(), tr("Error while connecting to database"), ex.getErrorMessage());
         //tab->decreaseRefCount();
     }else{
-        ConnectionPageObject *obj = (ConnectionPageObject*)data;
         QWidget *widget = dynamic_cast<QWidget*>(obj);
 
         Q_ASSERT(widget);
@@ -251,6 +253,8 @@ void ConnectionPageConnectedWidget::asyncConnectionReady(DbConnection *db, void 
         AppConnectionManager::registerConnection(uiManager->getConnectionPage(), obj, db);
         widget->setUpdatesEnabled(true);
     }
+
+    obj->decreaseRefCount();
 }
 
 void ConnectionPageConnectedWidget::tabBusyStateChanged(ConnectionPageObject *obj, bool busy)

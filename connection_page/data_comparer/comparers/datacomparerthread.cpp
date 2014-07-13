@@ -117,7 +117,7 @@ QString DataComparerThread::getUqColumns()
 
 void DataComparerThread::prepareBindArrayForColumn(const QString &colName, const QString &dataType, int length, int colOffset)
 {
-    if(compareOptions->inserts || compareOptions->deletes){
+    if(compareOptions->inserts || compareOptions->updates || compareOptions->deletes){
         bulkHelper.createBufferForDataType(targetStmt, dataType, length);
     }
 

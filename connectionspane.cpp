@@ -30,6 +30,8 @@ ConnectionsPane::ConnectionsPane(QWidget *parent) :
 
 #ifdef DEBUG
     addConnection("{c634b747-5780-4a3f-b3b0-5711d749a745}");
+#else
+    addConnection();
 #endif
 }
 

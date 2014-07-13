@@ -9,6 +9,7 @@
 class ParsingTable
 {
 public:
+    QHash<QString,int> tokenNames;
     QStringList keywords;
     QStringList reservedWords;
     QStringList ruleNames;
@@ -18,6 +19,7 @@ public:
     virtual ~ParsingTable();
 
     //QStringList getKeywords() const;
+    int getTokenByName(const QString &tokenName) const;
     int getKeywordIx(const QString &possibleKeyword) const;
     bool isKeyword(const QString &word) const {return getKeywordIx(word)!=-1;}
     QString getKeywordLexeme(int ix) const;

@@ -375,6 +375,10 @@ QString removeEnclosure(const QString &str, const QChar &enclosure)
 //returns whether str ends with one of specified characters ignoring trailing spaces
 bool endsWith(const QString &str, const QList<QChar> &charsToCheck)
 {
+    if(charsToCheck.isEmpty()){
+        return false;
+    }
+
     int lastIx = str.length() - 1;
     if(lastIx < 0){
         return false;

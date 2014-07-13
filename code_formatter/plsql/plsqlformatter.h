@@ -6,6 +6,7 @@
 #include "codeformattersettings.h"
 
 class PlSqlScanner;
+class TokenInfo;
 
 class PlSqlFormatter
 {
@@ -18,10 +19,14 @@ public:
         Where,
         GroupBy,
         Having,
-        OrderBy
+        Model,
+        OrderBy,
+        RowLimiting,
+        ForUpdate
     };
 
     PlSqlFormatter();
+    ~PlSqlFormatter();
 
     QString format(const QString &code);
 
@@ -32,16 +37,18 @@ private:
 
     PlSqlScanner *scanner;
 
-    QList<int> prevTokenList;
+    TokenInfo *currTokenInfo;
+    int token;
+    QList<TokenInfo*> prevTokenList;
     QStack<QString> indents;
 
     bool checkPrevToken(int token);
     bool isPrevKeyword();
-    int getPrevToken();
+    TokenInfo *getPrevToken();
 
 
     void indent(QString &str);
-    bool indentToEnd(QString &str);
+    bool indentToEnd(QString &str, bool additionalSpace = false);
     void increaseIndenting();
     void unindent();
     static QString strTab;
@@ -49,7 +56,16 @@ private:
     bool formatGenericConstruct(int token, bool nested);
     void formatSelectStatement(bool nested);
     bool formatParameterList(int nestingLevel = 0);
-    void formatDefaultToken(int token);
+    void formatDefaultToken();
+
+    void applyAction(CodeFormatterAction *action,
+                     const QList<CodeFormatterAction *> &prevTokenActions);
+
+    bool containsAction(const QList<CodeFormatterAction *> &actions,
+                        CodeFormatterAction::ActionSequence sequence,
+                        CodeFormatterAction::ActionType type) const;
+
+    void readNextToken();
 };
 
 #endif // PLSQLFORMATTER_H

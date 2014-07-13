@@ -11,6 +11,15 @@ ParsingTable::~ParsingTable()
     qDeleteAll(rows);
 }
 
+int ParsingTable::getTokenByName(const QString &tokenName) const
+{
+    int token = tokenNames.value(tokenName, -1);
+
+    Q_ASSERT(token != -1);
+
+    return token;
+}
+
 /*
 QStringList ParsingTable::getKeywords() const
 {
