@@ -2,12 +2,26 @@
 <settings>
 
    <rule lexemes="SELECT,INSERT,UPDATE,DELETE,BULK,FROM,WHERE,GROUP,HAVING,ORDER,START,CONNECT,
-                  FOR,PARTITION,INNER,OUTER,LEFT,RIGHT,CROSS,NATURAL,FULL,AND,OR,CASE,DECLARE,
+                  FOR,PARTITION,INNER,OUTER,LEFT,RIGHT,CROSS,NATURAL,FULL,AND,DECLARE,
                   BEGIN,DEFINE,MEASURES,LOG,REJECT,VALUES,RETURNING,AGGREGATE,USING,SET,
-                  UNIQUE,DIMENSION,SEQUENTIAL">
+                  UNIQUE,DIMENSION,SEQUENTIAL,PIVOT,UNPIVOT">
       <action sequence="before" type="newline" repeat="false">
          <not_after value="(" />
-         <not_after value="\n" />
+      </action>
+   </rule>
+   
+   <rule lexemes="OR">
+      <action sequence="before" type="newline" repeat="false">
+         <not_after value="CREATE" />
+      </action>
+   </rule>
+   
+   <rule lexemes="PROCEDURE,FUNCTION,MEMBER,CONSTRUCTOR">
+      <action sequence="before" type="empty_line" repeat="false">
+         <not_after value="CREATE" />
+         <not_after value="REPLACE" />
+         <not_after value="MEMBER" />
+         <not_after value="CONSTRUCTOR" />
       </action>
    </rule>
    
@@ -18,7 +32,6 @@
    <rule lexemes="INTO">
       <action sequence="before" type="newline" repeat="false">
          <not_after value="(" />
-         <not_after value="\n" />
          <not_after value="INSERT" />
          <not_after value="MERGE" />
          <not_after value="ERRORS" />
@@ -30,9 +43,19 @@
       <action sequence="before" type="newline" />
    </rule>
    
-   <rule lexemes="DECLARE,BEGIN,IF,CASE,WHEN,ELSE">
+   <rule lexemes="DECLARE,BEGIN,WHEN,ELSE">
       <action sequence="after" type="indent" />
    </rule>
+   
+   <rule lexemes="IF,CASE,LOOP">
+      <action sequence="before" type="newline" repeat="false" not_after="END" />
+      <action sequence="after" type="indent" not_after="END" />
+   </rule>
+   
+   <rule lexemes="LOOP">
+      <action sequence="after" type="newline" not_after="END" />
+   </rule>
+
 
    <rule lexemes="DECLARE,BEGIN,THEN,ELSE,DEFINE,MODEL" tokens="PLS_SEMI,PLS_SL_COMMENT,PLS_ML_COMMENT">
       <action sequence="after" type="newline" />

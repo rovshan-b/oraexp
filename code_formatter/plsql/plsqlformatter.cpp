@@ -83,7 +83,18 @@ bool PlSqlFormatter::isPrevKeyword()
 
 TokenInfo* PlSqlFormatter::getPrevToken()
 {
-    return (prevTokenList.size() > 1 ? prevTokenList[prevTokenList.size()-2] : 0);
+    int stepIntoList = 2;
+
+    TokenInfo *prevToken = (prevTokenList.size() > (stepIntoList - 1) ? prevTokenList[prevTokenList.size()-stepIntoList] : 0);
+
+    //skip comments
+    while(prevToken != 0 && (prevToken->tokenOrRuleId == PLS_SL_COMMENT ||
+                             prevToken->tokenOrRuleId == PLS_ML_COMMENT)){
+        ++stepIntoList;
+        prevToken = (prevTokenList.size() > (stepIntoList - 1) ? prevTokenList[prevTokenList.size()-stepIntoList] : 0);
+    }
+
+    return prevToken;
 }
 
 void PlSqlFormatter::indent(QString &str)
@@ -134,6 +145,18 @@ void PlSqlFormatter::unindent()
     if(!indents.isEmpty()){
         indents.pop();
     }
+}
+
+void PlSqlFormatter::chopLastIndent()
+{
+    if(indents.size() > 0){
+        indents.last().chop(1); //so that closing parenthesis is on same column as opening
+    }
+}
+
+void PlSqlFormatter::addLineBreak()
+{
+    result.append('\n');
 }
 
 bool PlSqlFormatter::formatGenericConstruct(bool nested)
@@ -203,8 +226,7 @@ void PlSqlFormatter::formatSelectStatement(bool nested)
 
         if((token == PLS_COMMA || token == intoKeyword) &&
                 (section == SelectList || section == IntoList)){
-            result.append('\n');
-            indent(result);
+            addLineBreak();
         }
 
         if(nested && token == PLS_RPAREN){
@@ -260,8 +282,7 @@ void PlSqlFormatter::formatUpdateStatement()
             section = UpdateSetClause;
             formattedToEnd = indentToEnd(result, true);
         }else if(token == PLS_COMMA && section == UpdateSetClause){
-            result.append('\n');
-            indent(result);
+            addLineBreak();
         }
 
     }while(token != PLS_E_O_F && token != PLS_SEMI);
@@ -289,10 +310,8 @@ bool PlSqlFormatter::formatParameterList(int closingToken, int nestingLevel)
             innerMultiline = formatParameterList(getClosingBracket(), nestingLevel+1);
         }else if(token == closingToken){
             if(multiline || innerMultiline){
-                result.append('\n');
-                if(indents.size() > 0){
-                    indents.last().chop(1); //so that closing parenthesis is on same column as opening
-                }
+                addLineBreak();
+                chopLastIndent();
                 indent(result);
             }
 
@@ -315,9 +334,8 @@ bool PlSqlFormatter::formatParameterList(int closingToken, int nestingLevel)
                 if(token == PLS_COMMA){
                     ++commaCount;
                     if(commaCount >= 3){
-                        result.append('\n');
+                        addLineBreak();
                         multiline = true;
-                        indent(result);
                         commaCount = 0;
                     }
                 }
@@ -349,12 +367,16 @@ void PlSqlFormatter::formatDefaultToken()
     }
 
     QChar lastChar = result.length() > 0 ? result.right(1)[0] : QChar();
-    bool prependSpace = !lastChar.isNull() && !lastChar.isSpace() && lastChar!='\n' &&
+    bool prependSpace = !lastChar.isNull() && !lastChar.isSpace() && lastChar != '\n' &&
                             !containsAction(actions, CodeFormatterAction::Before, CodeFormatterAction::NoSpace) &&
                             !containsAction(prevTokenActions, CodeFormatterAction::After, CodeFormatterAction::NoSpace);
 
     if(prependSpace){
         result.append(' ');
+    }
+
+    if(lastChar == '\n'){
+        indent(result);
     }
 
     result.append(lexeme);
@@ -370,22 +392,40 @@ void PlSqlFormatter::applyAction(CodeFormatterAction *action,
                                  TokenInfo *prevTokenInfo,
                                  const QList<CodeFormatterAction *> &prevTokenActions)
 {
+
+    bool okToApply = !endsWith(result, QList<QChar>(action->charList("not_after"))) &&
+                     (prevTokenInfo==0 || !action->stringList("not_after").contains(prevTokenInfo->lexeme, Qt::CaseInsensitive));
+
+    if(!okToApply){
+        return;
+    }
+
     switch(action->getType()){
     case CodeFormatterAction::Newline:
         if(action->getSequence() == CodeFormatterAction::Before){
             if(!result.isEmpty() &&
                     (action->boolValue("repeat")==true ||
                      !containsAction(prevTokenActions, CodeFormatterAction::Any, CodeFormatterAction::Newline)) &&
-                    !endsWith(result, action->charList("not_after")) &&
-                    (prevTokenInfo==0 || !action->stringList("not_after").contains(prevTokenInfo->lexeme, Qt::CaseInsensitive))){
-                result.append('\n');
-                indent(result);
+                    !endsWith(result, QList<QChar>() << '\n')){
+                addLineBreak();
             }
         }else{
-            result.append('\n');
-            if(token != PLS_SEMI){
-                indent(result);
+            addLineBreak();
+        }
+        break;
+    case CodeFormatterAction::EmptyLine:
+        if(action->getSequence() == CodeFormatterAction::Before && !result.isEmpty()){
+            if(result.endsWith("\n\n")){
+                //do nothing
+            }else if(result.endsWith("\n")){
+                addLineBreak();
+            }else{
+                addLineBreak();
+                addLineBreak();
             }
+        }else{
+            addLineBreak();
+            addLineBreak();
         }
         break;
     case CodeFormatterAction::Space:

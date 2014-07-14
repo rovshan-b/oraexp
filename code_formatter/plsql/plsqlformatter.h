@@ -58,7 +58,10 @@ private:
     bool indentToEnd(QString &str, bool additionalSpace = false);
     void increaseIndenting();
     void unindent();
+    void chopLastIndent();
     static QString strTab;
+
+    void addLineBreak();
 
     bool formatGenericConstruct(bool nested);
     void formatSelectStatement(bool nested);

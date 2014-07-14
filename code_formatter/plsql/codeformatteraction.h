@@ -17,6 +17,7 @@ public:
     enum ActionType
     {
         Newline,
+        EmptyLine,
         Space,
         NoSpace,
         Indent,

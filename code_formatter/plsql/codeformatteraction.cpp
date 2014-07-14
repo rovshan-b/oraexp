@@ -20,6 +20,8 @@ CodeFormatterAction::CodeFormatterAction(const QMultiHash<QString, QString> &att
 
     if(typ == "newline"){
         type = Newline;
+    }else if(typ == "empty_line"){
+        type = EmptyLine;
     }else if(typ == "space"){
         type = Space;
     }else if(typ == "no_space"){

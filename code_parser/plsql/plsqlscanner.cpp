@@ -326,8 +326,7 @@ int PlSqlScanner::doGetNextToken()
                 save=true;
             }else{
                 ungetChar();
-                //save=false;
-                save=true;
+                save=false;
                 state=DONE;
                 token=PLS_DIVIDE;
             }
