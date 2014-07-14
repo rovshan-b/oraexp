@@ -1,12 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <settings>
 
-   <rule lexemes="SELECT,BULK,INTO,FROM,WHERE,GROUP,HAVING,ORDER,START,CONNECT,MODEL,
+   <rule lexemes="SELECT,INSERT,UPDATE,DELETE,BULK,FROM,WHERE,GROUP,HAVING,ORDER,START,CONNECT,
                   FOR,PARTITION,INNER,OUTER,LEFT,RIGHT,CROSS,NATURAL,FULL,AND,OR,CASE,DECLARE,
-                  BEGIN,DEFINE,MEASURES">
+                  BEGIN,DEFINE,MEASURES,LOG,REJECT,VALUES,RETURNING,AGGREGATE,USING,SET,
+                  UNIQUE,DIMENSION,SEQUENTIAL">
       <action sequence="before" type="newline" repeat="false">
          <not_after value="(" />
          <not_after value="\n" />
+      </action>
+   </rule>
+   
+   <rule lexemes="MODEL,RULES">
+      <action sequence="before" type="newline" />
+   </rule>
+   
+   <rule lexemes="INTO">
+      <action sequence="before" type="newline" repeat="false">
+         <not_after value="(" />
+         <not_after value="\n" />
+         <not_after value="INSERT" />
+         <not_after value="MERGE" />
+         <not_after value="ERRORS" />
       </action>
    </rule>
 
@@ -19,7 +34,7 @@
       <action sequence="after" type="indent" />
    </rule>
 
-   <rule lexemes="DECLARE,BEGIN,INTO,THEN,ELSE,DEFINE" tokens="PLS_SEMI,PLS_SL_COMMENT,PLS_ML_COMMENT">
+   <rule lexemes="DECLARE,BEGIN,THEN,ELSE,DEFINE,MODEL" tokens="PLS_SEMI,PLS_SL_COMMENT,PLS_ML_COMMENT">
       <action sequence="after" type="newline" />
    </rule>
    
@@ -33,11 +48,11 @@
       <action sequence="before" type="no_space" />
    </rule>
    
-   <rule tokens="PLS_RPAREN,PLS_DOT">
+   <rule tokens="PLS_RPAREN,PLS_DOT,PLS_AT_SIGN">
       <action sequence="before" type="no_space" />
    </rule>
    
-   <rule tokens="PLS_LPAREN,PLS_DOT">
+   <rule tokens="PLS_LPAREN,PLS_DOT,PLS_AT_SIGN">
       <action sequence="after" type="no_space" />
    </rule>
 </settings>

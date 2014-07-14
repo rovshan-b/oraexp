@@ -25,6 +25,13 @@ public:
         ForUpdate
     };
 
+    enum UpdateStatementSection
+    {
+        UpdateTableList,
+        UpdateSetClause,
+        UpdateRestOfStatement
+    };
+
     PlSqlFormatter();
     ~PlSqlFormatter();
 
@@ -53,19 +60,22 @@ private:
     void unindent();
     static QString strTab;
 
-    bool formatGenericConstruct(int token, bool nested);
+    bool formatGenericConstruct(bool nested);
     void formatSelectStatement(bool nested);
-    bool formatParameterList(int nestingLevel = 0);
+    void formatUpdateStatement();
+    bool formatParameterList(int closingToken, int nestingLevel = 0);
     void formatDefaultToken();
 
     void applyAction(CodeFormatterAction *action,
-                     const QList<CodeFormatterAction *> &prevTokenActions);
+                     TokenInfo *prevTokenInfo, const QList<CodeFormatterAction *> &prevTokenActions);
 
     bool containsAction(const QList<CodeFormatterAction *> &actions,
                         CodeFormatterAction::ActionSequence sequence,
                         CodeFormatterAction::ActionType type) const;
 
     void readNextToken();
+    bool isBracket() const;
+    int getClosingBracket() const;
 };
 
 #endif // PLSQLFORMATTER_H

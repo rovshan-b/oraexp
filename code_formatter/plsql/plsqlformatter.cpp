@@ -23,6 +23,10 @@ const static int offsetKeyword = parsingTable->getKeywordIx("OFFSET");
 const static int fetchKeyword = parsingTable->getKeywordIx("FETCH");
 const static int updateKeyword = parsingTable->getKeywordIx("UPDATE");
 const static int forKeyword = parsingTable->getKeywordIx("FOR");
+const static int setKeyword = parsingTable->getKeywordIx("SET");
+const static int returnKeyword = parsingTable->getKeywordIx("RETURN");
+const static int returningKeyword = parsingTable->getKeywordIx("RETURNING");
+const static int logKeyword = parsingTable->getKeywordIx("LOG");
 
 PlSqlFormatter::PlSqlFormatter() :
     currTokenInfo(0),
@@ -45,15 +49,11 @@ QString PlSqlFormatter::format(const QString &code)
     do{
         readNextToken();
 
-        if(token == selectKeyword){
-            formatSelectStatement(false);
-        }else if(token == PLS_LPAREN){
-            formatParameterList();
-        }else{
+        if(!formatGenericConstruct(false)){
             formatDefaultToken();
         }
 
-        indents.clear();
+        //indents.clear();
 
     }while(token != PLS_E_O_F);
 
@@ -136,15 +136,18 @@ void PlSqlFormatter::unindent()
     }
 }
 
-bool PlSqlFormatter::formatGenericConstruct(int token, bool nested)
+bool PlSqlFormatter::formatGenericConstruct(bool nested)
 {
     bool formatted = false;
 
     if(token == selectKeyword){
         formatSelectStatement(nested);
         formatted = true;
-    }else if(token == PLS_LPAREN){
-        formatParameterList();
+    }else if(token == updateKeyword){
+        formatUpdateStatement();
+        formatted = true;
+    }else if(isBracket()){
+        formatParameterList(getClosingBracket());
         formatted = true;
     }
 
@@ -159,14 +162,16 @@ void PlSqlFormatter::formatSelectStatement(bool nested)
 
     SelectStatementSection section = SelectList;
 
-    increaseIndenting();
+    if(!nested){
+        increaseIndenting();
+    }
 
     bool formattedToEnd = indentToEnd(result, true);
 
     do{
         readNextToken();
 
-        bool formatted = formatGenericConstruct(token, true);
+        bool formatted = formatGenericConstruct(true);
         if(formatted){
             continue;
         }
@@ -196,7 +201,7 @@ void PlSqlFormatter::formatSelectStatement(bool nested)
 
         formatDefaultToken();
 
-        if(token == PLS_COMMA &&
+        if((token == PLS_COMMA || token == intoKeyword) &&
                 (section == SelectList || section == IntoList)){
             result.append('\n');
             indent(result);
@@ -212,10 +217,63 @@ void PlSqlFormatter::formatSelectStatement(bool nested)
         unindent();
     }
 
+    if(!nested){
+        unindent();
+    }
+}
+
+void PlSqlFormatter::formatUpdateStatement()
+{
+    Q_ASSERT(scanner->getTokenLexeme().compare("UPDATE", Qt::CaseInsensitive) == 0);
+
+    formatDefaultToken();
+
+    UpdateStatementSection section = UpdateTableList;
+
+    increaseIndenting();
+
+    bool formattedToEnd = false;
+
+    do{
+        readNextToken();
+
+        bool formatted = formatGenericConstruct(true);
+        if(formatted){
+            continue;
+        }
+
+        if(section == UpdateSetClause &&
+                 (token == whereKeyword ||
+                  token == returnKeyword ||
+                  token == returningKeyword ||
+                  token == logKeyword)){
+            section = UpdateRestOfStatement;
+            if(formattedToEnd){
+                unindent();
+                formattedToEnd = false;
+            }
+        }
+
+        formatDefaultToken();
+
+        if((token == setKeyword) && section == UpdateTableList){
+            section = UpdateSetClause;
+            formattedToEnd = indentToEnd(result, true);
+        }else if(token == PLS_COMMA && section == UpdateSetClause){
+            result.append('\n');
+            indent(result);
+        }
+
+    }while(token != PLS_E_O_F && token != PLS_SEMI);
+
+    if(formattedToEnd){
+        unindent();
+    }
+
     unindent();
 }
 
-bool PlSqlFormatter::formatParameterList(int nestingLevel)
+bool PlSqlFormatter::formatParameterList(int closingToken, int nestingLevel)
 {
     formatDefaultToken();
     indentToEnd(result);
@@ -227,12 +285,9 @@ bool PlSqlFormatter::formatParameterList(int nestingLevel)
     do{
         readNextToken();
 
-        switch(token){
-        case PLS_LPAREN:
-            innerMultiline = formatParameterList(nestingLevel+1);
-            break;
-        case PLS_RPAREN:
-
+        if(isBracket()){
+            innerMultiline = formatParameterList(getClosingBracket(), nestingLevel+1);
+        }else if(token == closingToken){
             if(multiline || innerMultiline){
                 result.append('\n');
                 if(indents.size() > 0){
@@ -246,14 +301,14 @@ bool PlSqlFormatter::formatParameterList(int nestingLevel)
             formatDefaultToken();
 
             return multiline;
-            //break;
-        default:
+        }else{
+
             if(token == selectKeyword){
                 formatSelectStatement(true);
                 return multiline;
             }
 
-            bool formatted = formatGenericConstruct(token, true);
+            bool formatted = formatGenericConstruct(true);
             if(!formatted){
                 formatDefaultToken();
 
@@ -267,8 +322,8 @@ bool PlSqlFormatter::formatParameterList(int nestingLevel)
                     }
                 }
             }
-            break;
         }
+
 
     }while(token != PLS_E_O_F && token != PLS_SEMI);
 
@@ -289,7 +344,7 @@ void PlSqlFormatter::formatDefaultToken()
 
     foreach(CodeFormatterAction *action, actions){
         if(action->getSequence() == CodeFormatterAction::Before){
-            applyAction(action, prevTokenActions);
+            applyAction(action, prevTokenInfo, prevTokenActions);
         }
     }
 
@@ -306,12 +361,14 @@ void PlSqlFormatter::formatDefaultToken()
 
     foreach(CodeFormatterAction *action, actions){
         if(action->getSequence() == CodeFormatterAction::After){
-            applyAction(action, prevTokenActions);
+            applyAction(action, prevTokenInfo, prevTokenActions);
         }
     }
 }
 
-void PlSqlFormatter::applyAction(CodeFormatterAction *action, const QList<CodeFormatterAction *> &prevTokenActions)
+void PlSqlFormatter::applyAction(CodeFormatterAction *action,
+                                 TokenInfo *prevTokenInfo,
+                                 const QList<CodeFormatterAction *> &prevTokenActions)
 {
     switch(action->getType()){
     case CodeFormatterAction::Newline:
@@ -319,7 +376,8 @@ void PlSqlFormatter::applyAction(CodeFormatterAction *action, const QList<CodeFo
             if(!result.isEmpty() &&
                     (action->boolValue("repeat")==true ||
                      !containsAction(prevTokenActions, CodeFormatterAction::Any, CodeFormatterAction::Newline)) &&
-                    !endsWith(result, action->charList("not_after"))){
+                    !endsWith(result, action->charList("not_after")) &&
+                    (prevTokenInfo==0 || !action->stringList("not_after").contains(prevTokenInfo->lexeme, Qt::CaseInsensitive))){
                 result.append('\n');
                 indent(result);
             }
@@ -367,4 +425,31 @@ void PlSqlFormatter::readNextToken()
     currTokenInfo = scanner->createTokenInfo(token);
 
     prevTokenList.append(currTokenInfo);
+}
+
+bool PlSqlFormatter::isBracket() const
+{
+    return token == PLS_LPAREN || token == PLS_LBRACK || token == PLS_LCURLY_BRACK;
+}
+
+int PlSqlFormatter::getClosingBracket() const
+{
+    int result = -1;
+
+    switch(token){
+    case PLS_LPAREN:
+        result = PLS_RPAREN;
+        break;
+    case PLS_LBRACK:
+        result = PLS_RBRACK;
+        break;
+    case PLS_LCURLY_BRACK:
+        result = PLS_RCURLY_BRACK;
+        break;
+    default:
+        Q_ASSERT(false);
+        break;
+    }
+
+    return result;
 }

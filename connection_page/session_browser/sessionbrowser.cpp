@@ -102,7 +102,7 @@ void SessionBrowser::createToolbar(QVBoxLayout *mainLayout)
     toolbar->addSeparator();
 
     locksOnlyCheckBox = new QCheckBox(tr("Only locks"));
-    locksOnlyCheckBox->setToolTip(tr("Display only session that are locking or locked"));
+    locksOnlyCheckBox->setToolTip(tr("Display only sessions that are locking or locked"));
     toolbar->addWidget(locksOnlyCheckBox);
 
     toolbar->addSeparator();

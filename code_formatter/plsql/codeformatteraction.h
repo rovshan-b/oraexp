@@ -34,6 +34,7 @@ public:
 
     bool boolValue(const QString &name) const;
     QList<QChar> charList(const QString &name) const;
+    QStringList stringList(const QString &name, int minLength = 2) const;
 
 private:
     ActionSequence sequence;

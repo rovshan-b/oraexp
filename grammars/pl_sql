@@ -1926,6 +1926,7 @@ row_pattern_definition
    
 condition
    :  expression
+   |  'CURRENT' 'OF' object_name
    ;
       
 row_pattern

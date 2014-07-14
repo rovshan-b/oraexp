@@ -1,4 +1,5 @@
 #include "codeformatteraction.h"
+#include <QStringList>
 
 CodeFormatterAction::CodeFormatterAction(ActionSequence sequence,
                                          ActionType type,
@@ -46,9 +47,29 @@ QList<QChar> CodeFormatterAction::charList(const QString &name) const
 
     QList<QString> values = attributes.values(name);
     foreach(const QString &val, values){
-        Q_ASSERT(val.length() == 1 || val.startsWith('\\'));
+        if(val.length() > 1 && !val.startsWith('\\')){
+            continue;
+        }
 
         result.append(val.length()==1 ? val[0] : '\n');
+    }
+
+    return result;
+}
+
+QStringList CodeFormatterAction::stringList(const QString &name, int minLength) const
+{
+    QStringList result;
+
+    QList<QString> values = attributes.values(name);
+    foreach(const QString &val, values){
+        if(val.length() < minLength ||
+                (val.length() == minLength &&
+                    val.startsWith('\\'))){
+            continue;
+        }
+
+        result.append(val);
     }
 
     return result;
