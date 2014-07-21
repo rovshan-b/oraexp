@@ -14,6 +14,8 @@ public:
 
     static QString getCurrentObjectName(CodeEditor *editor);
 
+    static void formatCode(CodeEditor *editor);
+
 private:
     CodeEditorUtil();
 

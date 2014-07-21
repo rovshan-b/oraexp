@@ -576,7 +576,8 @@ SOURCES += main.cpp\
     code_formatter/plsql/plsqlformatter.cpp \
     code_formatter/plsql/codeformattersettings.cpp \
     code_formatter/plsql/codeformatterrule.cpp \
-    code_formatter/plsql/codeformatteraction.cpp
+    code_formatter/plsql/codeformatteraction.cpp \
+    code_formatter/plsql/scopeinfo.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1162,7 +1163,8 @@ HEADERS  += mainwindow.h \
     code_formatter/plsql/plsqlformatter.h \
     code_formatter/plsql/codeformattersettings.h \
     code_formatter/plsql/codeformatterrule.h \
-    code_formatter/plsql/codeformatteraction.h
+    code_formatter/plsql/codeformatteraction.h \
+    code_formatter/plsql/scopeinfo.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \
@@ -1184,8 +1186,8 @@ RESOURCES += \
 unix:INCLUDEPATH += /usr/local/include
 unix:LIBS += -L/usr/local/lib -locilib
 
-windows:INCLUDEPATH += "C:/ocilib-3.12.2-windows/ocilib/include"
-windows:LIBS += -L"C:/ocilib-3.12.2-windows/ocilib/lib32" -locilibw
+windows:INCLUDEPATH += "C:/ocilib-4.0.0/include"
+windows:LIBS += -L"C:/ocilib-4.0.0/lib32" -locilibw
 
 windows:INCLUDEPATH += "C:/Qt/4.8.5/src/3rdparty/zlib"
 

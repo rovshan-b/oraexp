@@ -4,9 +4,9 @@
 #include "code_parser/plsql/plsqltreebuilder.h"
 #include <QFont>
 
-#ifdef DEBUG
-    int CodeStructureModel::instanceCount = 0;
-#endif
+//#ifdef DEBUG
+//    int CodeStructureModel::instanceCount = 0;
+//#endif
 
 CodeStructureModel::CodeStructureModel(ParseTreeNode *rootNode, bool sorted, QObject *parent) :
     QAbstractItemModel(parent),
@@ -16,19 +16,19 @@ CodeStructureModel::CodeStructureModel(ParseTreeNode *rootNode, bool sorted, QOb
     rootItem = new CodeStructureTreeItem(rootNode);
     populateChildNodes(createIndex(0, 0, rootItem));
 
-#ifdef DEBUG
-    ++CodeStructureModel::instanceCount;
-    Q_ASSERT(CodeStructureModel::instanceCount <= 2);
-#endif
+//#ifdef DEBUG
+//    ++CodeStructureModel::instanceCount;
+//    Q_ASSERT(CodeStructureModel::instanceCount <= 2);
+//#endif
 }
 
 CodeStructureModel::~CodeStructureModel()
 {
     delete rootItem;
 
-#ifdef DEBUG
-    --CodeStructureModel::instanceCount;
-#endif
+//#ifdef DEBUG
+//    --CodeStructureModel::instanceCount;
+//#endif
 }
 
 QVariant CodeStructureModel::data(const QModelIndex &index, int role) const

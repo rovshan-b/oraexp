@@ -85,7 +85,7 @@ public:
 
     bool isPlsqlMode() const;
 
-    CursorPositionInfo getStartStopPositions(const QTextCursor cur);
+    CursorPositionInfo getStartStopPositions(const QTextCursor &cur);
 
     static QList<CodeEditor*> openEditors;
 
@@ -139,6 +139,8 @@ protected:
     bool event ( QEvent * e );
     //virtual void paintEvent ( QPaintEvent * event );
 
+    void timerEvent(QTimerEvent *event);
+
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
     void highlightCurrentLine();
@@ -169,6 +171,8 @@ private:
     static QString strTab;
 
     int markedLineIx;
+
+    int pulsateTimerId;
 
     void autoIndentNewBlock();
     int findLastUnclosedBracePosition(const QTextBlock &block) const;

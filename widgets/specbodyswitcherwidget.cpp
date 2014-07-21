@@ -1,4 +1,5 @@
 #include "specbodyswitcherwidget.h"
+#include "util/widgethelper.h"
 #include <QtGui>
 
 SpecBodySwitcherWidget::SpecBodySwitcherWidget(bool isSpec, QWidget *parent) :
@@ -28,6 +29,7 @@ SpecBodySwitcherWidget::SpecBodySwitcherWidget(bool isSpec, QWidget *parent) :
     specBodySwitcherGroup->addAction(specButton);
     specBodySwitcherGroup->addAction(bodyButton);
 
+    WidgetHelper::updateActionTooltips(toolbar);
     layout->addWidget(toolbar);
 
     setLayout(layout);

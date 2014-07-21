@@ -373,7 +373,7 @@ QString removeEnclosure(const QString &str, const QChar &enclosure)
 }
 
 //returns whether str ends with one of specified characters ignoring trailing spaces
-bool endsWith(const QString &str, const QList<QChar> &charsToCheck)
+bool endsWith(const QString &str, const QList<QChar> &charsToCheck, bool ignoreLineBreaks)
 {
     if(charsToCheck.isEmpty()){
         return false;
@@ -387,7 +387,8 @@ bool endsWith(const QString &str, const QList<QChar> &charsToCheck)
     QChar lastChar;
     while(lastIx >= 0){
         lastChar = str[lastIx--];
-        if(lastChar==' ' || lastChar=='\t'){ //ignore spaces
+        if((ignoreLineBreaks == false && (lastChar==' ' || lastChar=='\t')) ||
+                (ignoreLineBreaks == true && lastChar.isSpace())){ //ignore spaces
             continue;
         }
 
@@ -395,6 +396,11 @@ bool endsWith(const QString &str, const QList<QChar> &charsToCheck)
     }
 
     return false;
+}
+
+QString replaceParagraphSeparators(const QString &str)
+{
+    return QString(str).replace(QChar(0x2029), QChar('\n'));
 }
 
 #ifndef CODE_PARSER_BUILD

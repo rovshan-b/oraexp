@@ -21,7 +21,11 @@ public:
         Space,
         NoSpace,
         Indent,
-        Unindent
+        IndentToEnd,
+        Unindent,
+        EnterScope,
+        ExitScope,
+        ChangeScope
     };
 
     CodeFormatterAction(ActionSequence sequence,
@@ -35,7 +39,9 @@ public:
 
     bool boolValue(const QString &name) const;
     QList<QChar> charList(const QString &name) const;
-    QStringList stringList(const QString &name, int minLength = 2) const;
+    QStringList stringList(const QString &name, int minLength = 0) const;
+
+    QString string(const QString &name) const;
 
 private:
     ActionSequence sequence;

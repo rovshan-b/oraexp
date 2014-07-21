@@ -28,8 +28,16 @@ CodeFormatterAction::CodeFormatterAction(const QMultiHash<QString, QString> &att
         type = NoSpace;
     }else if(typ == "indent"){
         type = Indent;
+    }else if(typ == "indent_to_end"){
+        type = IndentToEnd;
     }else if(typ == "unindent"){
         type = Unindent;
+    }else if(typ == "enter_scope"){
+        type = EnterScope;
+    }else if(typ == "exit_scope"){
+        type = ExitScope;
+    }else if(typ == "change_scope"){
+        type = ChangeScope;
     }else{
         Q_ASSERT(false);
     }
@@ -75,6 +83,11 @@ QStringList CodeFormatterAction::stringList(const QString &name, int minLength) 
     }
 
     return result;
+}
+
+QString CodeFormatterAction::string(const QString &name) const
+{
+    return attributes.value(name);
 }
 
 void CodeFormatterAction::init(CodeFormatterAction::ActionSequence sequence, CodeFormatterAction::ActionType type, const QMultiHash<QString, QString> &attributes)

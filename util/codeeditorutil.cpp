@@ -5,6 +5,9 @@
 #include "code_parser/stringreader.h"
 #include "code_parser/plsql/plsqltokens.h"
 #include "code_parser/plsql/plsqlparsehelper.h"
+#include "code_formatter/plsql/plsqlformatter.h"
+#include "util/strutil.h"
+#include <QTextBlock>
 
 CodeEditorUtil::CodeEditorUtil()
 {
@@ -150,6 +153,82 @@ QString CodeEditorUtil::getCurrentObjectName(CodeEditor *editor)
     }
 
     return fullWord;
+}
+
+void CodeEditorUtil::formatCode(CodeEditor *editor)
+{
+    QTextCursor cur = editor->textCursor();
+    int cursorPosition = cur.position();
+
+    cur.beginEditBlock();
+
+    QString code = editor->toPlainText();
+
+    CursorPositionInfo cursorInfo;
+    QString indent;
+
+    bool allText = false;
+
+    if(!cur.hasSelection()){
+        allText = true;
+        cur.setPosition(0);
+        cur.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        code = editor->toPlainText();
+    }else{
+        cursorInfo = editor->getStartStopPositions(cur);
+        code = replaceParagraphSeparators(cur.selectedText());
+        QTextBlock block = editor->document()->findBlockByNumber(cursorInfo.startBlock);
+        QString blockText = block.text();
+        for(int i=0; i<cursorInfo.startPos-block.position(); ++i){
+            if(blockText.at(i).isSpace()){
+                indent.append(blockText.at(i)); //may be a tab character
+            }else{
+                indent.append(' ');
+            }
+        }
+    }
+
+    QString result;
+
+    if(!editor->isPlsqlMode()){ //can contain many pieces of different statements
+        int subqueryStartPos=0, subqueryEndPos=0;
+        int prevEndPosition = -1;
+        int currentPos;
+
+        while(subqueryStartPos!=-1 && subqueryEndPos!=-1){
+            currentPos = subqueryEndPos;
+            PlSqlParseHelper::getNextQueryPos(code, currentPos, &subqueryStartPos, &subqueryEndPos);
+
+            if(subqueryStartPos!=-1 && subqueryEndPos!=-1){
+                QString subquery = code.mid(subqueryStartPos, subqueryEndPos-subqueryStartPos-1);
+
+                if(prevEndPosition!=-1){
+                    result.append(code.mid(prevEndPosition-1, subqueryStartPos-prevEndPosition+1));
+                }
+
+                result.append(PlSqlFormatter().format(subquery));
+
+                prevEndPosition = subqueryEndPos;
+            }
+        }
+
+        if(prevEndPosition!=-1){
+            result.append(code.mid(prevEndPosition-1, subqueryStartPos-prevEndPosition+1));
+        }
+    }else{ //format as single statement
+        result.append(PlSqlFormatter().format(code));
+    }
+
+    if(!allText){
+        result.replace("\n", QString("\n%1").arg(indent));
+    }
+
+    cur.insertText(result.trimmed());
+
+    cur.setPosition(cursorPosition);
+    cur.endEditBlock();
+
+    editor->setTextCursor(cur);
 }
 
 bool CodeEditorUtil::isWordChar(const QChar &c)

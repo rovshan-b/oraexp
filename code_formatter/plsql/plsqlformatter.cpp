@@ -6,27 +6,11 @@
 #include "util/strutil.h"
 #include <QScopedPointer>
 
+#define DEFAULT_PARAM_COUNT_PER_LINE 3
+
 QString PlSqlFormatter::strTab = QString("   ");
 
 PlSqlParsingTable *parsingTable = PlSqlParsingTable::getInstance();
-
-const static int selectKeyword = parsingTable->getKeywordIx("SELECT");
-const static int intoKeyword = parsingTable->getKeywordIx("INTO");
-const static int fromKeyword = parsingTable->getKeywordIx("FROM");
-const static int whereKeyword = parsingTable->getKeywordIx("WHERE");
-const static int groupKeyword = parsingTable->getKeywordIx("GROUP");
-const static int havingKeyword = parsingTable->getKeywordIx("HAVING");
-const static int orderKeyword = parsingTable->getKeywordIx("ORDER");
-const static int byKeyword = parsingTable->getKeywordIx("BY");
-const static int modelKeyword = parsingTable->getKeywordIx("MODEL");
-const static int offsetKeyword = parsingTable->getKeywordIx("OFFSET");
-const static int fetchKeyword = parsingTable->getKeywordIx("FETCH");
-const static int updateKeyword = parsingTable->getKeywordIx("UPDATE");
-const static int forKeyword = parsingTable->getKeywordIx("FOR");
-const static int setKeyword = parsingTable->getKeywordIx("SET");
-const static int returnKeyword = parsingTable->getKeywordIx("RETURN");
-const static int returningKeyword = parsingTable->getKeywordIx("RETURNING");
-const static int logKeyword = parsingTable->getKeywordIx("LOG");
 
 PlSqlFormatter::PlSqlFormatter() :
     currTokenInfo(0),
@@ -49,7 +33,7 @@ QString PlSqlFormatter::format(const QString &code)
     do{
         readNextToken();
 
-        if(!formatGenericConstruct(false)){
+        if(!formatGenericConstruct()){
             formatDefaultToken();
         }
 
@@ -81,17 +65,19 @@ bool PlSqlFormatter::isPrevKeyword()
     return false;
 }
 
-TokenInfo* PlSqlFormatter::getPrevToken()
+TokenInfo* PlSqlFormatter::getPrevToken(bool ignoreWhitespace)
 {
     int stepIntoList = 2;
 
     TokenInfo *prevToken = (prevTokenList.size() > (stepIntoList - 1) ? prevTokenList[prevTokenList.size()-stepIntoList] : 0);
 
     //skip comments
-    while(prevToken != 0 && (prevToken->tokenOrRuleId == PLS_SL_COMMENT ||
-                             prevToken->tokenOrRuleId == PLS_ML_COMMENT)){
-        ++stepIntoList;
-        prevToken = (prevTokenList.size() > (stepIntoList - 1) ? prevTokenList[prevTokenList.size()-stepIntoList] : 0);
+    if(ignoreWhitespace){
+        while(prevToken != 0 && (prevToken->tokenOrRuleId == PLS_SL_COMMENT ||
+                                 prevToken->tokenOrRuleId == PLS_ML_COMMENT)){
+            ++stepIntoList;
+            prevToken = (prevTokenList.size() > (stepIntoList - 1) ? prevTokenList[prevTokenList.size()-stepIntoList] : 0);
+        }
     }
 
     return prevToken;
@@ -104,11 +90,15 @@ void PlSqlFormatter::indent(QString &str)
     }
 }
 
-bool PlSqlFormatter::indentToEnd(QString &str, bool additionalSpace)
+void PlSqlFormatter::indentToEnd(QString &str, bool additionalSpace)
 {
     int lastNewlinePos = qMax(str.lastIndexOf('\n'), 0);
 
     int currentLinePos = qMax(str.length() - (lastNewlinePos + (lastNewlinePos==0 ? 0 : 1)), 0);
+
+    if(additionalSpace){
+        ++currentLinePos;
+    }
 
     int totalIndentLength = 0;
     foreach(const QString &indent, indents){
@@ -122,16 +112,14 @@ bool PlSqlFormatter::indentToEnd(QString &str, bool additionalSpace)
             newIndent.append(space);
         }
 
-        if(additionalSpace){
-            newIndent.append(space);
-        }
-
         indents.push(newIndent);
 
-        return true;
+        //return true;
+    }else{
+        indents.push(""); //add empty string to preserve balance with removing later
     }
 
-    return false;
+    //return false;
 
 }
 
@@ -159,17 +147,11 @@ void PlSqlFormatter::addLineBreak()
     result.append('\n');
 }
 
-bool PlSqlFormatter::formatGenericConstruct(bool nested)
+bool PlSqlFormatter::formatGenericConstruct()
 {
     bool formatted = false;
 
-    if(token == selectKeyword){
-        formatSelectStatement(nested);
-        formatted = true;
-    }else if(token == updateKeyword){
-        formatUpdateStatement();
-        formatted = true;
-    }else if(isBracket()){
+    if(isBracket()){
         formatParameterList(getClosingBracket());
         formatted = true;
     }
@@ -177,131 +159,17 @@ bool PlSqlFormatter::formatGenericConstruct(bool nested)
     return formatted;
 }
 
-void PlSqlFormatter::formatSelectStatement(bool nested)
-{
-    Q_ASSERT(scanner->getTokenLexeme().compare("SELECT", Qt::CaseInsensitive) == 0);
-
-    formatDefaultToken();
-
-    SelectStatementSection section = SelectList;
-
-    if(!nested){
-        increaseIndenting();
-    }
-
-    bool formattedToEnd = indentToEnd(result, true);
-
-    do{
-        readNextToken();
-
-        bool formatted = formatGenericConstruct(true);
-        if(formatted){
-            continue;
-        }
-
-        if((token == intoKeyword) && section == SelectList){
-            section = IntoList;
-        }else if(token == fromKeyword){
-            section = TableList;
-            unindent();
-        }else if(token == whereKeyword){
-            section = Where;
-        }else if(token == byKeyword){
-            if(checkPrevToken(groupKeyword)){
-                section = GroupBy;
-            }else if(checkPrevToken(orderKeyword)){
-                section = OrderBy;
-            }
-        }else if(token == havingKeyword && section == GroupBy){
-            section = Having;
-        }else if(token == modelKeyword){
-            section = Model;
-        }else if(token == offsetKeyword || token == fetchKeyword){
-            section = RowLimiting;
-        }else if(token == updateKeyword && checkPrevToken(forKeyword)){
-            section = ForUpdate;
-        }
-
-        formatDefaultToken();
-
-        if((token == PLS_COMMA || token == intoKeyword) &&
-                (section == SelectList || section == IntoList)){
-            addLineBreak();
-        }
-
-        if(nested && token == PLS_RPAREN){
-            break;
-        }
-
-    }while(token != PLS_E_O_F && token != PLS_SEMI);
-
-    if(formattedToEnd){
-        unindent();
-    }
-
-    if(!nested){
-        unindent();
-    }
-}
-
-void PlSqlFormatter::formatUpdateStatement()
-{
-    Q_ASSERT(scanner->getTokenLexeme().compare("UPDATE", Qt::CaseInsensitive) == 0);
-
-    formatDefaultToken();
-
-    UpdateStatementSection section = UpdateTableList;
-
-    increaseIndenting();
-
-    bool formattedToEnd = false;
-
-    do{
-        readNextToken();
-
-        bool formatted = formatGenericConstruct(true);
-        if(formatted){
-            continue;
-        }
-
-        if(section == UpdateSetClause &&
-                 (token == whereKeyword ||
-                  token == returnKeyword ||
-                  token == returningKeyword ||
-                  token == logKeyword)){
-            section = UpdateRestOfStatement;
-            if(formattedToEnd){
-                unindent();
-                formattedToEnd = false;
-            }
-        }
-
-        formatDefaultToken();
-
-        if((token == setKeyword) && section == UpdateTableList){
-            section = UpdateSetClause;
-            formattedToEnd = indentToEnd(result, true);
-        }else if(token == PLS_COMMA && section == UpdateSetClause){
-            addLineBreak();
-        }
-
-    }while(token != PLS_E_O_F && token != PLS_SEMI);
-
-    if(formattedToEnd){
-        unindent();
-    }
-
-    unindent();
-}
-
 bool PlSqlFormatter::formatParameterList(int closingToken, int nestingLevel)
 {
     formatDefaultToken();
     indentToEnd(result);
+    bool indentedToEnd = true;
 
     int commaCount = 0;
     bool multiline = false;
     bool innerMultiline = false;
+
+    int paramCountPerLine = getParamCountPerLine();
 
     do{
         readNextToken();
@@ -315,25 +183,32 @@ bool PlSqlFormatter::formatParameterList(int closingToken, int nestingLevel)
                 indent(result);
             }
 
-            unindent();
+            if(indentedToEnd){
+                unindent();
+            }
 
             formatDefaultToken();
 
             return multiline;
         }else{
 
-            if(token == selectKeyword){
+            /*if(token == selectKeyword){
                 formatSelectStatement(true);
-                return multiline;
-            }
 
-            bool formatted = formatGenericConstruct(true);
+                if(indentedToEnd){
+                    unindent();
+                }
+
+                return multiline;
+            }*/
+
+            bool formatted = formatGenericConstruct();
             if(!formatted){
                 formatDefaultToken();
 
-                if(token == PLS_COMMA){
+                if(token == PLS_COMMA && currentScopeName()=="PARAMETER_LIST"){
                     ++commaCount;
-                    if(commaCount >= 3){
+                    if(commaCount >= paramCountPerLine){
                         addLineBreak();
                         multiline = true;
                         commaCount = 0;
@@ -350,6 +225,10 @@ bool PlSqlFormatter::formatParameterList(int closingToken, int nestingLevel)
 
 void PlSqlFormatter::formatDefaultToken()
 {
+    if(currTokenInfo->tokenOrRuleId == PLS_E_O_F){
+        return;
+    }
+
     QString lexeme = currTokenInfo->lexeme;
 
     QList<CodeFormatterAction*> actions = settings.actionsForToken(token, lexeme);
@@ -360,13 +239,19 @@ void PlSqlFormatter::formatDefaultToken()
         prevTokenActions = settings.actionsForToken(prevTokenInfo->tokenOrRuleId, prevTokenInfo->lexeme);
     }
 
-    foreach(CodeFormatterAction *action, actions){
-        if(action->getSequence() == CodeFormatterAction::Before){
-            applyAction(action, prevTokenInfo, prevTokenActions);
-        }
-    }
+    executeActions(actions, CodeFormatterAction::Before, prevTokenInfo, prevTokenActions);
 
     QChar lastChar = result.length() > 0 ? result.right(1)[0] : QChar();
+
+    if((currTokenInfo->tokenOrRuleId == PLS_SL_COMMENT ||
+            currTokenInfo->tokenOrRuleId == PLS_ML_COMMENT) &&
+            (prevTokenInfo!=0 && prevTokenInfo->endLine == currTokenInfo->startLine && lastChar == '\n')){
+
+        result.insert(result.lastIndexOf('\n'), QString(" %1").arg(currTokenInfo->lexeme));
+        //executeActions(actions, CodeFormatterAction::After, prevTokenInfo, prevTokenActions);
+        return;
+    }
+
     bool prependSpace = !lastChar.isNull() && !lastChar.isSpace() && lastChar != '\n' &&
                             !containsAction(actions, CodeFormatterAction::Before, CodeFormatterAction::NoSpace) &&
                             !containsAction(prevTokenActions, CodeFormatterAction::After, CodeFormatterAction::NoSpace);
@@ -375,14 +260,38 @@ void PlSqlFormatter::formatDefaultToken()
         result.append(' ');
     }
 
+    //restore empty lines entered by user when writing code
+    TokenInfo *prevAnyTokenInfo = getPrevToken(false);
+    if(prevAnyTokenInfo!=0){
+        int lastTokenEndLine = prevAnyTokenInfo->endLine;
+        int currTokenStartLine = currTokenInfo->startLine;
+
+        int lineDiff = currTokenStartLine - lastTokenEndLine - 1;
+
+        /*if(lastChar == '\n'){
+            --lineDiff;
+        }*/
+
+        while(lineDiff-- > 0){
+            addLineBreak();
+            lastChar = '\n';
+        }
+    }
+
     if(lastChar == '\n'){
         indent(result);
     }
 
     result.append(lexeme);
 
+    executeActions(actions, CodeFormatterAction::After, prevTokenInfo, prevTokenActions);
+}
+
+void PlSqlFormatter::executeActions(QList<CodeFormatterAction *> actions, CodeFormatterAction::ActionSequence sequence,
+                                    TokenInfo *prevTokenInfo, QList<CodeFormatterAction *> prevTokenActions)
+{
     foreach(CodeFormatterAction *action, actions){
-        if(action->getSequence() == CodeFormatterAction::After){
+        if(action->getSequence() == sequence){
             applyAction(action, prevTokenInfo, prevTokenActions);
         }
     }
@@ -393,8 +302,18 @@ void PlSqlFormatter::applyAction(CodeFormatterAction *action,
                                  const QList<CodeFormatterAction *> &prevTokenActions)
 {
 
-    bool okToApply = !endsWith(result, QList<QChar>(action->charList("not_after"))) &&
-                     (prevTokenInfo==0 || !action->stringList("not_after").contains(prevTokenInfo->lexeme, Qt::CaseInsensitive));
+    QList<QChar> afterCharList = action->charList("after");
+    QStringList afterStringList = action->stringList("after", 2);
+    QString currentScope = currentScopeName();
+    QStringList inScope = action->stringList("in_scope");
+    QStringList notInScope = action->stringList("not_in_scope");
+
+    bool okToApply = !endsWith(result, action->charList("not_after")) &&
+                     (prevTokenInfo==0 || !action->stringList("not_after", 2).contains(prevTokenInfo->lexeme, Qt::CaseInsensitive)) &&
+                     (afterCharList.isEmpty() || (prevTokenInfo!=0 && endsWith(result, afterCharList, true))) &&
+                     (afterStringList.isEmpty() || (prevTokenInfo!=0 && afterStringList.contains(prevTokenInfo->lexeme, Qt::CaseInsensitive))) &&
+                     (inScope.isEmpty() || (!currentScope.isEmpty() && inScope.contains(currentScope, Qt::CaseInsensitive))) &&
+                     (notInScope.isEmpty() || !notInScope.contains(currentScope, Qt::CaseInsensitive));
 
     if(!okToApply){
         return;
@@ -423,7 +342,7 @@ void PlSqlFormatter::applyAction(CodeFormatterAction *action,
                 addLineBreak();
                 addLineBreak();
             }
-        }else{
+        }else if(action->getSequence() == CodeFormatterAction::After){
             addLineBreak();
             addLineBreak();
         }
@@ -436,9 +355,47 @@ void PlSqlFormatter::applyAction(CodeFormatterAction *action,
     case CodeFormatterAction::Indent:
         increaseIndenting();
         break;
+    case CodeFormatterAction::IndentToEnd:
+        indentToEnd(result, action->boolValue("additional_space"));
+        break;
     case CodeFormatterAction::Unindent:
         unindent();
         break;
+    case CodeFormatterAction::EnterScope:
+    {
+        QString newScopeName = action->string("scope_name");
+        Q_ASSERT(newScopeName.length() > 0);
+        QString maxParamCount = action->string("max_param_count");
+        int paramCount = maxParamCount.isEmpty() ? DEFAULT_PARAM_COUNT_PER_LINE : maxParamCount.toInt();
+        enterScope(newScopeName, paramCount);
+
+        break;
+    }
+    case CodeFormatterAction::ExitScope:
+    {
+        QString scopeName = action->string("scope_name");
+        Q_ASSERT(scopeName.length() > 0);
+        exitScope(scopeName);
+        break;
+    }
+    case CodeFormatterAction::ChangeScope:
+    {
+        QStringList fromList = action->stringList("from");
+        QString to = action->string("to");
+
+        Q_ASSERT(!fromList.isEmpty() && !to.isEmpty());
+
+        if(fromList.contains(currentScopeName(), Qt::CaseInsensitive)){
+            exitScope(currentScopeName());
+
+            QString maxParamCount = action->string("max_param_count");
+            int paramCount = maxParamCount.isEmpty() ? DEFAULT_PARAM_COUNT_PER_LINE : maxParamCount.toInt();
+
+            enterScope(to, paramCount);
+        }
+
+        break;
+    }
     default:
         Q_ASSERT(false);
         break;
@@ -492,4 +449,51 @@ int PlSqlFormatter::getClosingBracket() const
     }
 
     return result;
+}
+
+bool PlSqlFormatter::isWhitespace() const
+{
+    return token == PLS_SL_COMMENT || token == PLS_ML_COMMENT;
+}
+
+ScopeInfo PlSqlFormatter::currentScope() const
+{
+    if(scope.isEmpty()){
+        return ScopeInfo();
+    }
+
+    return scope.last();
+}
+
+QString PlSqlFormatter::currentScopeName() const
+{
+    return currentScope().scopeName;
+}
+
+void PlSqlFormatter::enterScope(const QString &scopeName, int maxParamCount)
+{
+    scope.append(ScopeInfo(scopeName, maxParamCount));
+}
+
+void PlSqlFormatter::exitScope(const QString &scopeName)
+{
+    if(scope.isEmpty()){
+        return;
+    }
+
+    if(!scopeName.isEmpty() && currentScopeName() != scopeName){
+        return;
+    }
+
+    scope.removeLast();
+}
+
+int PlSqlFormatter::getParamCountPerLine() const
+{
+    //last scope must be PARAMETER_LIST
+    if(scope.size() < 2){
+        return DEFAULT_PARAM_COUNT_PER_LINE;
+    }else{
+        return scope[scope.size()-2].maxParamCount;
+    }
 }

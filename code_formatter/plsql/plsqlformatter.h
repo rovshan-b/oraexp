@@ -4,6 +4,7 @@
 #include <QString>
 #include <QStack>
 #include "codeformattersettings.h"
+#include "scopeinfo.h"
 
 class PlSqlScanner;
 class TokenInfo;
@@ -48,14 +49,15 @@ private:
     int token;
     QList<TokenInfo*> prevTokenList;
     QStack<QString> indents;
+    QList<ScopeInfo> scope;
 
     bool checkPrevToken(int token);
     bool isPrevKeyword();
-    TokenInfo *getPrevToken();
+    TokenInfo *getPrevToken(bool ignoreWhitespace = true);
 
 
     void indent(QString &str);
-    bool indentToEnd(QString &str, bool additionalSpace = false);
+    void indentToEnd(QString &str, bool additionalSpace = false);
     void increaseIndenting();
     void unindent();
     void chopLastIndent();
@@ -63,11 +65,12 @@ private:
 
     void addLineBreak();
 
-    bool formatGenericConstruct(bool nested);
-    void formatSelectStatement(bool nested);
-    void formatUpdateStatement();
+    bool formatGenericConstruct();
     bool formatParameterList(int closingToken, int nestingLevel = 0);
     void formatDefaultToken();
+
+    void executeActions(QList<CodeFormatterAction*> actions, CodeFormatterAction::ActionSequence sequence,
+                        TokenInfo *prevTokenInfo, QList<CodeFormatterAction*> prevTokenActions);
 
     void applyAction(CodeFormatterAction *action,
                      TokenInfo *prevTokenInfo, const QList<CodeFormatterAction *> &prevTokenActions);
@@ -79,6 +82,15 @@ private:
     void readNextToken();
     bool isBracket() const;
     int getClosingBracket() const;
+    bool isWhitespace() const;
+
+    ScopeInfo currentScope() const;
+    QString currentScopeName() const;
+    void enterScope(const QString &scopeName, int maxParamCount);
+    void exitScope(const QString &scopeName);
+
+    int getParamCountPerLine() const;
+
 };
 
 #endif // PLSQLFORMATTER_H

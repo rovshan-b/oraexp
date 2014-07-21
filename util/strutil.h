@@ -77,7 +77,9 @@ QString xmlEncode(const QString& xml);
 
 QString removeEnclosure(const QString &str, const QChar &enclosure = '"');
 
-bool endsWith(const QString &str, const QList<QChar> &charsToCheck);
+bool endsWith(const QString &str, const QList<QChar> &charsToCheck, bool ignoreLineBreaks = false);
+
+QString replaceParagraphSeparators(const QString &str);
 
 #ifndef CODE_PARSER_BUILD
 

@@ -9,6 +9,8 @@
 #include "util/widgethelper.h"
 #include "util/iconutil.h"
 #include "util/settings.h"
+#include "util/codeeditorutil.h"
+#include "util/strutil.h"
 #include "app_menu/appmenu.h"
 #include "app_menu/appeditmenu.h"
 #include "code_parser/plsql/plsqlparsehelper.h"
@@ -16,7 +18,6 @@
 #include "beans/tokeninfo.h"
 #include "code_parser/plsql/plsqltokens.h"
 #include "widgets/tooltipwidget.h"
-#include "code_formatter/plsql/plsqlformatter.h"
 #include <QPainter>
 
 #define EDITOR_SEARCH_BG_COLOR QColor(Qt::yellow)
@@ -37,6 +38,7 @@ CodeEditor::CodeEditor(bool plsqlMode, QWidget *parent) :
     lineNumberArea(0),
     lineNavBar(0),
     markedLineIx(-1),
+    pulsateTimerId(0),
     lineMarkerUsed(false),
     completer(0),
     collapsePositions(0),
@@ -1238,6 +1240,17 @@ int CodeEditor::lineMarkerAreaOffset() const
 
      return QPlainTextEdit::event(e);
  }
+
+ void CodeEditor::timerEvent(QTimerEvent *event)
+ {
+     if(event->timerId() == pulsateTimerId){
+
+         killTimer(pulsateTimerId);
+         pulsateTimerId = 0;
+
+         removePulsatePositions();
+     }
+ }
 /*
  void CodeEditor::paintEvent(QPaintEvent *event)
  {
@@ -1546,7 +1559,7 @@ int CodeEditor::lineMarkerAreaOffset() const
      setTextCursor(cur);
  }
 
- CursorPositionInfo CodeEditor::getStartStopPositions(const QTextCursor cur)
+ CursorPositionInfo CodeEditor::getStartStopPositions(const QTextCursor &cur)
  {
      CursorPositionInfo info;
 
@@ -1916,12 +1929,7 @@ int CodeEditor::lineMarkerAreaOffset() const
  {
      this->blockEventChanges = true;
 
-     QTextCursor cur = textCursor();
-     cur.beginEditBlock();
-     cur.setPosition(0);
-     cur.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-     cur.insertText(PlSqlFormatter().format(toPlainText()));
-     cur.endEditBlock();
+     CodeEditorUtil::formatCode(this);
 
      this->blockEventChanges = false;
  }
@@ -1956,7 +1964,7 @@ int CodeEditor::lineMarkerAreaOffset() const
 
      QTextCursor cursor=textCursor();
      if(cursor.hasSelection()){
-         result = cursor.selectedText().replace(QChar(0x2029), QChar('\n'));
+         result = replaceParagraphSeparators(cursor.selectedText());
      }else{
          if(!fullTextOnNoSelection){
             result = getCurrentTextSurroundedByEmptyLines(cursor);
@@ -2069,7 +2077,11 @@ int CodeEditor::lineMarkerAreaOffset() const
      pulsatePositions.clear();
      pulsatePositions.append(cursor);
      highlightCurrentLine();
-     QTimer::singleShot(duration, this, SLOT(removePulsatePositions()));
+     //QTimer::singleShot(duration, this, SLOT(removePulsatePositions()));
+     if(pulsateTimerId){
+         killTimer(pulsateTimerId);
+     }
+     pulsateTimerId = startTimer(duration);
  }
 
  void CodeEditor::ensureVisible(const QTextCursor &cursor)

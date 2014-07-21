@@ -1,13 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <settings>
 
-   <rule lexemes="SELECT,INSERT,UPDATE,DELETE,BULK,FROM,WHERE,GROUP,HAVING,ORDER,START,CONNECT,
+   <rule lexemes="BULK,FROM,WHERE,GROUP,HAVING,ORDER,START,CONNECT,
                   FOR,PARTITION,INNER,OUTER,LEFT,RIGHT,CROSS,NATURAL,FULL,AND,DECLARE,
-                  BEGIN,DEFINE,MEASURES,LOG,REJECT,VALUES,RETURNING,AGGREGATE,USING,SET,
-                  UNIQUE,DIMENSION,SEQUENTIAL,PIVOT,UNPIVOT">
+                  DEFINE,MEASURES,LOG,REJECT,VALUES,RETURNING,AGGREGATE,USING,SET,
+                  UNIQUE,DIMENSION,SEQUENTIAL,PIVOT,UNPIVOT,AUTHID,REFERENCING,COMPOUND">
       <action sequence="before" type="newline" repeat="false">
          <not_after value="(" />
       </action>
+   </rule>
+   
+   <rule lexemes="INSERT,DELETE,MERGE">
+      <action sequence="before" type="newline" repeat="true" />
+   </rule>
+   
+   <rule lexemes="SELECT">
+      <action sequence="before" type="newline" repeat="true">
+         <not_after value="(" />
+         <not_after value="FOR" />
+      </action>
+   </rule>
+   
+   <rule lexemes="UPDATE">
+      <action sequence="before" type="newline" repeat="true" not_in_scope="SELECT_STATEMENT" />
    </rule>
    
    <rule lexemes="OR">
@@ -16,14 +31,42 @@
       </action>
    </rule>
    
-   <rule lexemes="PROCEDURE,FUNCTION,MEMBER,CONSTRUCTOR">
+   <rule lexemes="TABLE">
+      <action sequence="before" type="enter_scope" scope_name="OBJECT_FIELDS" max_param_count="1">
+         <after value="CREATE" />
+      </action>
+   </rule>
+   
+   <rule lexemes="TRIGGER">
+      <action sequence="after" type="newline" after="COMPOUND" />
+   </rule>
+   
+   <rule lexemes="BEFORE,AFTER,INSTEAD,FOR">
+      <action sequence="before" type="newline" repeat="false" />
+   </rule>
+   
+   <!--
+   <rule lexemes="SELECT,INSERT,UPDATE,DELETE,LOOP,CASE,CLOSE,CONTINUE,EXECUTE,EXIT,FETCH,FOR,FORALL,
+                  GOTO,IF,NULL,OPEN,PIPE,RAISE,RETURN,WHILE,EXCEPTION,COMMIT,ROLLBACK">
+      <action sequence="before" type="empty_line" repeat="false">
+         <after value=";" />
+      </action>
+   </rule>
+   -->
+   
+   <!--
+   <rule lexemes="PROCEDURE,FUNCTION,MEMBER,CONSTRUCTOR,TYPE">
       <action sequence="before" type="empty_line" repeat="false">
          <not_after value="CREATE" />
          <not_after value="REPLACE" />
          <not_after value="MEMBER" />
          <not_after value="CONSTRUCTOR" />
+         <not_after value="TYPE" />
+         <not_after value="%" />
+         <not_after value="," />
       </action>
    </rule>
+   -->
    
    <rule lexemes="MODEL,RULES">
       <action sequence="before" type="newline" />
@@ -38,44 +81,206 @@
       </action>
    </rule>
 
-   <rule lexemes="END,ELSIF,ELSE,WHEN,UNION,INTERSECT,MINUS">
+   <rule lexemes="END,ELSIF,ELSE">
       <action sequence="before" type="unindent" />
       <action sequence="before" type="newline" />
    </rule>
    
-   <rule lexemes="DECLARE,BEGIN,WHEN,ELSE">
+   <rule lexemes="UNION,INTERSECT,MINUS">
+      <action sequence="before" type="unindent" in_scope="SELECT_STATEMENT" />
+      <action sequence="before" type="newline" />
+   </rule>
+   
+   <rule tokens="PLS_SEMI">
+      <action sequence="before" type="exit_scope" scope_name="PLSQL_UNIT_BODY" after="END" />
+   </rule>
+   
+   <rule tokens="PLS_ID">
+      <action sequence="before" type="exit_scope" scope_name="PLSQL_UNIT_BODY" after="END" />
+   </rule>
+   
+   <rule lexemes="WHEN">
+      <action sequence="before" type="unindent">
+         <not_after value="EXCEPTION" />
+      </action>
+      <action sequence="before" type="newline" repeat="false" />
+   </rule>
+   
+   <rule lexemes="EXCEPTION">
+      <action sequence="before" type="unindent" after=";" />
+      <action sequence="before" type="newline" repeat="false" after=";" />
+   </rule>
+   
+   <rule lexemes="BEGIN">
+      <action sequence="before" type="unindent" in_scope="DECLARATIONS" />
+      <action sequence="before" type="newline" />
+      <action sequence="before" type="exit_scope" scope_name="DECLARATIONS" />
+      <action sequence="before" type="exit_scope" scope_name="PLSQL_UNIT_HEADER" />
+      <action sequence="before" type="enter_scope" scope_name="PLSQL_UNIT_BODY" />
+   </rule>
+   
+   <rule lexemes="PROCEDURE,FUNCTION,PACKAGE">
+      <action sequence="before" type="enter_scope" scope_name="PLSQL_UNIT_HEADER" not_in_scope="PARAMETER_LIST" max_param_count="1" />
+   </rule>
+   
+   <rule lexemes="BODY">
+      <action sequence="before" type="enter_scope" scope_name="PLSQL_UNIT_HEADER" not_in_scope="PARAMETER_LIST" after="TYPE" />
+   </rule>
+   
+   <rule lexemes="BEGIN,WHEN,ELSE,ELSIF">
       <action sequence="after" type="indent" />
    </rule>
    
    <rule lexemes="IF,CASE,LOOP">
-      <action sequence="before" type="newline" repeat="false" not_after="END" />
-      <action sequence="after" type="indent" not_after="END" />
+      <action sequence="before" type="newline" repeat="false">
+         <not_after value="(" />
+         <not_after value="END" />
+      </action>
+      <action sequence="after" type="indent">
+         <not_after value="END" />
+      </action>
    </rule>
    
    <rule lexemes="LOOP">
       <action sequence="after" type="newline" not_after="END" />
    </rule>
-
-
-   <rule lexemes="DECLARE,BEGIN,THEN,ELSE,DEFINE,MODEL" tokens="PLS_SEMI,PLS_SL_COMMENT,PLS_ML_COMMENT">
+   
+   <rule lexemes="DECLARE">
+      <action sequence="after" type="enter_scope" scope_name="DECLARATIONS" />
+      <action sequence="after" type="indent" />
       <action sequence="after" type="newline" />
    </rule>
    
-   <rule tokens="PLS_PLUS,PLS_MINUS,PLS_DIVIDE,PLS_EQ,PLS_PERCENTAGE,PLS_ASSIGN,PLS_ARROW,
+   <rule lexemes="AS,IS">
+      <action sequence="after" type="indent" in_scope="PLSQL_UNIT_HEADER" not_after="SELF" />
+      <action sequence="after" type="newline" in_scope="PLSQL_UNIT_HEADER" not_after="SELF" />
+      <action sequence="after" type="enter_scope" scope_name="DECLARATIONS" in_scope="PLSQL_UNIT_HEADER" not_after="SELF" />
+   </rule>
+   
+   <rule tokens="PLS_LPAREN">
+      <action sequence="before" type="enter_scope" scope_name="OBJECT_FIELDS" max_param_count="1">
+         <after value="RECORD" />
+         <after value="OBJECT" />
+         <after value="EXTERNAL" />
+      </action>
+      <action sequence="before" type="newline" in_scope="OBJECT_FIELDS" />
+   </rule>
+      
+   <rule tokens="PLS_LBRACK,PLS_LCURLY_BRACK">
+      <action sequence="after" type="enter_scope" scope_name="PARAMETER_LIST" />
+   </rule>
+   
+   <rule tokens="PLS_LPAREN">
+      <action sequence="after" type="newline" in_scope="OBJECT_FIELDS" />
+      <action sequence="after" type="enter_scope" scope_name="PARAMETER_LIST" />
+   </rule>
+   
+   <rule tokens="PLS_RBRACK,PLS_RCURLY_BRACK">
+      <action sequence="after" type="exit_scope" scope_name="PARAMETER_LIST" />
+   </rule>
+   
+   <rule tokens="PLS_RPAREN">
+      <action sequence="before" type="exit_scope" scope_name="NESTED_SELECT_STATEMENT" />
+      <action sequence="after" type="unindent" in_scope="SELECT_STATEMENT" />
+      <action sequence="after" type="exit_scope" scope_name="SELECT_STATEMENT" />
+      <action sequence="after" type="exit_scope" scope_name="PARAMETER_LIST" />
+   </rule>
+   
+   <rule tokens="PLS_RPAREN">
+      <action sequence="after" type="exit_scope" scope_name="OBJECT_FIELDS" />
+   </rule>
+
+   <rule lexemes="BEGIN,THEN,ELSE,DEFINE,MODEL" tokens="PLS_SEMI,PLS_SL_COMMENT,PLS_ML_COMMENT">
+      <action sequence="after" type="newline" />
+   </rule>
+   
+   <rule tokens="PLS_SEMI">
+      <action sequence="after" type="exit_scope" scope_name="PLSQL_UNIT_HEADER" />
+
+      <action sequence="after" type="unindent" in_scope="SELECT_STATEMENT" />
+      <action sequence="after" type="exit_scope" scope_name="SELECT_STATEMENT" />
+      
+      <action sequence="after" type="unindent" in_scope="UPDATE_STATEMENT" />
+      <action sequence="after" type="exit_scope" scope_name="UPDATE_STATEMENT" />
+      
+      <action sequence="after" type="exit_scope" scope_name="OBJECT_TYPE_DEF" />
+   </rule>
+   
+   <rule tokens="PLS_PLUS,PLS_MINUS,PLS_DIVIDE,PLS_EQ,PLS_ASSIGN,PLS_ARROW,
                  PLS_VERTBAR,PLS_DOUBLEVERTBAR,PLS_NOT_EQ,PLS_LESS_THAN,PLS_LESS_THAN_EQUAL,
                  PLS_GREATER_THAN,PLS_GREATER_THAN_EQUAL,PLS_QUESTION_MARK,PLS_ERROR">
       <action sequence="after" type="space" />
    </rule>
    
-   <rule tokens="PLS_COMMA">
+   <rule tokens="PLS_COMMA,PLS_SEMI">
       <action sequence="before" type="no_space" />
    </rule>
    
-   <rule tokens="PLS_RPAREN,PLS_DOT,PLS_AT_SIGN">
+   <rule tokens="PLS_RPAREN,PLS_DOT,PLS_AT_SIGN,PLS_PERCENTAGE">
       <action sequence="before" type="no_space" />
    </rule>
    
-   <rule tokens="PLS_LPAREN,PLS_DOT,PLS_AT_SIGN">
+   <rule tokens="PLS_LPAREN,PLS_DOT,PLS_AT_SIGN,PLS_PERCENTAGE,PLS_COLON">
       <action sequence="after" type="no_space" />
    </rule>
+   
+   <rule lexemes="SELECT">
+      <action sequence="before" type="enter_scope" scope_name="SELECT_STATEMENT" not_in_scope="NESTED_SELECT_STATEMENT">
+         <not_after value="(" />
+         <not_after value="FOR" />
+         <not_after value="OF" />
+         <not_after value="BEFORE" />
+         <not_after value="AFTER" />
+         <not_after value="OR" />
+      </action>
+      <action sequence="before" type="enter_scope" scope_name="NESTED_SELECT_STATEMENT" after="(" />
+      <action sequence="after" type="indent" in_scope="SELECT_STATEMENT" />
+      <action sequence="after" type="enter_scope" scope_name="SELECT_STATEMENT_SELECT_LIST" />
+      <action sequence="after" type="indent_to_end" additional_space="true" />
+   </rule>
+   
+   <rule lexemes="FROM">
+      <action sequence="before" type="unindent">
+         <in_scope value="SELECT_STATEMENT_SELECT_LIST" />
+         <in_scope value="SELECT_STATEMENT_INTO_LIST" />
+      </action>
+      <action sequence="before" type="exit_scope" scope_name="SELECT_STATEMENT_SELECT_LIST" />
+      <action sequence="before" type="exit_scope" scope_name="SELECT_STATEMENT_INTO_LIST" />
+   </rule>
+   
+   <rule lexemes="UPDATE">
+      <action sequence="before" type="enter_scope" scope_name="UPDATE_STATEMENT" not_in_scope="SELECT_STATEMENT">
+         <not_after value="FOR" />
+         <not_after value="OF" />
+         <not_after value="BEFORE" />
+         <not_after value="AFTER" />
+         <not_after value="OR" />
+      </action>
+      <action sequence="after" type="indent" in_scope="UPDATE_STATEMENT" />
+      <action sequence="after" type="enter_scope" scope_name="UPDATE_STATEMENT_TBL_LIST" in_scope="UPDATE_STATEMENT" />
+   </rule>
+   
+   <rule lexemes="SET">
+      <action sequence="before" type="change_scope" from="UPDATE_STATEMENT_TBL_LIST" to="UPDATE_STATEMENT_SET_LIST" />
+      <action sequence="after" type="indent_to_end" in_scope="UPDATE_STATEMENT_SET_LIST" additional_space="true" /> 
+   </rule>
+   
+   <rule lexemes="WHERE,RETURN,RETURNING,LOG">
+      <action sequence="before" type="unindent" in_scope="UPDATE_STATEMENT_SET_LIST" />
+      <action sequence="before" type="exit_scope" scope_name="UPDATE_STATEMENT_SET_LIST" />
+   </rule>
+   
+   <rule tokens="PLS_COMMA">
+      <action sequence="after" type="newline">
+         <in_scope value="SELECT_STATEMENT_SELECT_LIST" />
+         <in_scope value="SELECT_STATEMENT_INTO_LIST" />
+         <in_scope value="UPDATE_STATEMENT_SET_LIST" />
+      </action>
+   </rule>
+   
+   <rule lexemes="INTO">
+      <action sequence="after" type="newline" in_scope="SELECT_STATEMENT_SELECT_LIST" />
+      <action sequence="after" type="change_scope" from="SELECT_STATEMENT_SELECT_LIST" to="SELECT_STATEMENT_INTO_LIST" />
+   </rule>
+   
 </settings>

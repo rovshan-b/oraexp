@@ -245,7 +245,7 @@ void MultiEditorWidget::pulsate(int startPos, int endPos)
     cur.setPosition(startPos);
     cur.setPosition(endPos, QTextCursor::KeepAnchor);
     editor->ensureVisible(cur);
-    editor->pulsate(cur, 1000);
+    editor->pulsate(cur, 700);
 }
 
 QList<CodeEditorAndSearchPaneWidget *> MultiEditorWidget::getEditors() const
@@ -477,12 +477,24 @@ void MultiEditorWidget::onReparseTimer()
 
     QTextCursor cur = currentTextEditor()->textCursor();
     int cursorPos = cur.position();
-    if(plsqlMode && lastMarkedCursorPos!=cursorPos && lastPosChangeTime.msecsTo(now) >= 300){
-        lastMarkedCursorPos = cursorPos;
-        uiManager->getCodeStructurePane()->setCursorPosition(this, cursorPos);
+    if(lastMarkedCursorPos!=cursorPos && lastPosChangeTime.msecsTo(now) >= 300){
 
-        if(cursorPos < lastHighlightedIdentifierPos.first || cursorPos > lastHighlightedIdentifierPos.second){
-            highlightCurrentIdentifier(cur);
+        bool codeStructurePaneUpdateCondition = plsqlMode;
+        bool identifierHighlightCondition = plsqlMode || (!plsqlMode && lastParseLengthInMs <= 100);
+
+        if(codeStructurePaneUpdateCondition || identifierHighlightCondition){
+            lastMarkedCursorPos = cursorPos;
+        }
+
+        if(codeStructurePaneUpdateCondition){
+            //lastMarkedCursorPos = cursorPos;
+            uiManager->getCodeStructurePane()->setCursorPosition(this, cursorPos);
+        }
+
+        if(identifierHighlightCondition){
+            if(cursorPos < lastHighlightedIdentifierPos.first || cursorPos > lastHighlightedIdentifierPos.second){
+                highlightCurrentIdentifier(cur);
+            }
         }
     }
 
