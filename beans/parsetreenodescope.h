@@ -12,7 +12,7 @@ public:
     ParseTreeNodeScope();
     ~ParseTreeNodeScope();
 
-    QHash<QString, ParseTreeNode*> declarations;
+    QMultiHash<QString, ParseTreeNode*> declarations;
 };
 
 #endif // PARSETREENODESCOPE_H

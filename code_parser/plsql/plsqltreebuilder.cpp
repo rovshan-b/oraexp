@@ -8,11 +8,13 @@
 #include "plsqlrules.h"
 #include <QHash>
 
+#include <QTime>
+
 PlSqlTreeBuilder::PlSqlTreeBuilder() :
     rootNode(0),
     skipEmptyNodes(true),
     calculateCollapsePositions(false),
-    calculateScopes(false)
+    calculateScopes(true)
 {
 }
 
@@ -48,7 +50,7 @@ void PlSqlTreeBuilder::reduced(TokenInfo *ruleInfo, int symbolCount, const QList
         if(ti->tokenType == TokenInfo::Token){
             ParseTreeNode *childNode = new ParseTreeNode();
             childNode->tokenInfo = ti;
-            newNode->children.prepend(childNode);
+            prependChild(newNode, childNode);
         }else{
             ParseTreeNode *childNode = ruleNodesStack.pop();
             //check child node options
@@ -62,7 +64,7 @@ void PlSqlTreeBuilder::reduced(TokenInfo *ruleInfo, int symbolCount, const QList
             if(options && (options->skip || options->noChildren || (options->scope && calculateScopes))){
 
                 if(options->skip){ //skip this node and add its children
-                    newNode->children.append(childNode->children);
+                    appendChildren(newNode, childNode->children);
                     qSort(newNode->children.begin(), newNode->children.end(), parseTreeNodeLessThan);
 
                     //detach children and delete
@@ -70,19 +72,19 @@ void PlSqlTreeBuilder::reduced(TokenInfo *ruleInfo, int symbolCount, const QList
                     delete childNode;
                 }else if(options->noChildren){ //do not add children to tree
 
-                    newNode->children.prepend(childNode);
+                    prependChild(newNode, childNode);
 
                     qDeleteAll(childNode->children);
                     childNode->children.clear();
                 }else if(options->scope){ //find all declarations and set this node as scope for all child nodes not already having scope
 
-                    newNode->children.prepend(childNode);
+                    prependChild(newNode, childNode);
 
                     createNewScope(childNode, parsingTable);
                 }
 
             }else{
-                newNode->children.prepend(childNode);
+                prependChild(newNode, childNode);
             }
             //end process rule options
         }
@@ -191,7 +193,7 @@ void PlSqlTreeBuilder::registerDeclarationInScope(ParseTreeNodeScope *scope, Par
         if(options && options->symbolTableEntry){
             ParseTreeNode *idNode = findNode(node, R_IDENTIFIER, true);
             Q_ASSERT(idNode && idNode->children.size()>0);
-            scope->declarations[idNode->children[0]->tokenInfo->lexeme] = node;
+            scope->declarations.insert(idNode->children[0]->tokenInfo->lexeme.toLower(), node);
         }
     }
 }
@@ -205,7 +207,7 @@ void PlSqlTreeBuilder::accepted(ParsingTable *parsingTable)
     rootNode->tokenInfo->tokenType = TokenInfo::Rule;
     rootNode->tokenInfo->tokenOrRuleId = R_START_RULE_AUG;
     while(!ruleNodesStack.isEmpty()){
-        rootNode->children.prepend(ruleNodesStack.pop());
+        prependChild(rootNode, ruleNodesStack.pop());
     }
     setStartEndPositions(rootNode);
 
@@ -235,6 +237,25 @@ void PlSqlTreeBuilder::error(ParsingTable *parsingTable, QStack<TokenInfo *> &to
     accepted(parsingTable);
 }
 
+void PlSqlTreeBuilder::appendChild(ParseTreeNode *parent, ParseTreeNode *child)
+{
+    child->parentNode = parent;
+    parent->children.append(child);
+}
+
+void PlSqlTreeBuilder::appendChildren(ParseTreeNode *parent, QList<ParseTreeNode *> children)
+{
+    foreach(ParseTreeNode *child, children){
+        appendChild(parent, child);
+    }
+}
+
+void PlSqlTreeBuilder::prependChild(ParseTreeNode *parent, ParseTreeNode *child)
+{
+    child->parentNode = parent;
+    parent->children.prepend(child);
+}
+
 void PlSqlTreeBuilder::setSkipEmptyNodes(bool skip)
 {
     this->skipEmptyNodes = skip;
@@ -255,6 +276,7 @@ void PlSqlTreeBuilder::clearCollapsePositions()
     qDeleteAll(collapsePositions);
     collapsePositions.clear();
 }
+
 /*
 ParseTreeNode *PlSqlTreeBuilder::getNode(const QList<int> rulesPath) const
 {
@@ -330,6 +352,80 @@ QHash<ParseTreeNode *, QString> PlSqlTreeBuilder::findNodesWithHandlers(ParseTre
     fillNodesWithHandlers(nodes, parentNode, PlSqlParsingTable::getInstance());
 
     return nodes;
+}
+
+QList<ParseTreeNode*> PlSqlTreeBuilder::findDeclarations(int position, bool *discarded)
+{
+    QTime t;
+    t.start();
+    *discarded = false;
+
+    ParseTreeNode *node = rootNode->findChildForPosition(position);
+
+    if(node->tokenInfo->tokenOrRuleId != PLS_ID){
+        return QList<ParseTreeNode*>();
+    }
+
+    if(!node->scope){
+        return QList<ParseTreeNode*>();
+    }
+
+    QString lexeme = node->tokenInfo->lexeme.toLower(); //scope contains all variable names in lower case
+
+    QList<ParseTreeNode*> declNodeList = node->scope->declarations.values(lexeme);
+    while(declNodeList.isEmpty()){
+        node = node->parentNode;
+
+        if(node == 0 || node->scope == 0){
+            break;
+        }
+
+        declNodeList = node->scope->declarations.values(lexeme);
+    }
+
+    for(int i=0; i<declNodeList.count(); ++i){
+        ParseTreeNode **declNode = &declNodeList[i];
+        TokenInfo *tokenInfo = (*declNode)->tokenInfo;
+
+        if(tokenInfo->tokenOrRuleId == R_FUNCTION_DECLARATION ||
+                tokenInfo->tokenOrRuleId == R_FUNCTION_DEFINITION ||
+                tokenInfo->tokenOrRuleId == R_PROCEDURE_DECLARATION ||
+                tokenInfo->tokenOrRuleId == R_PROCEDURE_DEFINITION){
+
+            *declNode = findAnyNode(*declNode, QList<int>() << R_PROCEDURE_HEADING << R_FUNCTION_HEADING, true);
+            Q_ASSERT(*declNode);
+        }
+
+        if((*declNode)->containsPosition(position)){ //cursor is on declaration itself
+            *discarded = true;
+            return QList<ParseTreeNode*>();
+        }
+    }
+
+    qDebug() << "found declaration node in" << t.elapsed() << "ms";
+    return declNodeList;
+}
+
+QList<ParseTreeNode *> PlSqlTreeBuilder::findDeclarations(const QString &lexeme)
+{
+    return PlSqlTreeBuilder::findTopLevelDeclarationList(rootNode, lexeme.toLower());
+}
+
+QList<ParseTreeNode *> PlSqlTreeBuilder::findTopLevelDeclarationList(ParseTreeNode *parentNode, const QString &lexeme) //lexeme must be in lower case
+{
+    QList<ParseTreeNode*> list = parentNode->scope->declarations.values(lexeme);
+    if(!list.isEmpty()){
+        return list;
+    }
+
+    foreach(ParseTreeNode *childNode, parentNode->children){
+        list = PlSqlTreeBuilder::findTopLevelDeclarationList(childNode, lexeme);
+        if(!list.isEmpty()){
+            return list;
+        }
+    }
+
+    return list;
 }
 
 void PlSqlTreeBuilder::fillNodesWithHandlers(QHash<ParseTreeNode *, QString> &nodes, ParseTreeNode *parentNode, ParsingTable *parsingTable)

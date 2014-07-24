@@ -12,13 +12,13 @@ CodeStructureTreeItem::CodeStructureTreeItem(ParseTreeNode *node) :
 
 CodeStructureTreeItem::~CodeStructureTreeItem()
 {
-    qDeleteAll(childItems);
+    qDeleteAll(children);
 }
 
 void CodeStructureTreeItem::appendChild(CodeStructureTreeItem *child)
 {
     child->parentItem = this;
-    childItems.append(child);
+    children.append(child);
 }
 
 QVariant CodeStructureTreeItem::data(int role) const
@@ -39,7 +39,7 @@ QVariant CodeStructureTreeItem::data(int role) const
 int CodeStructureTreeItem::row() const
 {
     if(parentItem){
-        return parentItem->childItems.indexOf(const_cast<CodeStructureTreeItem*>(this));
+        return parentItem->children.indexOf(const_cast<CodeStructureTreeItem*>(this));
     }
 
     return 0;
@@ -52,12 +52,12 @@ bool CodeStructureTreeItem::hasChildren() const
 
 CodeStructureTreeItem *CodeStructureTreeItem::child(int row)
 {
-    return childItems.at(row);
+    return children.at(row);
 }
 
 int CodeStructureTreeItem::childCount() const
 {
-    return childItems.count();
+    return children.count();
 }
 
 CodeStructureTreeItem *CodeStructureTreeItem::parent() const
@@ -95,47 +95,7 @@ QList<CodeStructureTreeItem *> CodeStructureTreeItem::populateChildren() const
 
 CodeStructureTreeItem *CodeStructureTreeItem::findChildForPosition(int position) const
 {
-    if(position == -1 || childItems.count() == 0){
-        return 0;
-    }
-
-    if(childItems.count()==1 && childItems[0]->node->containsPosition(position)){
-        return childItems[0];
-    }
-
-    int endIx = childItems.count() - 1;
-
-    int startIx = 0;
-    int checkIx = (endIx-startIx) / 2;
-
-    CodeStructureTreeItem *item = 0;
-
-    while(item == 0){
-        item = childItems[checkIx];
-
-        if(item->node->containsPosition(position)){
-            return item;
-        }else if(position > item->node->tokenInfo->startPos){
-            item = 0;
-            startIx = checkIx + 1;
-        }else if(position < item->node->tokenInfo->startPos){
-            item = 0;
-            endIx = checkIx - 1;
-        }else{
-            item = 0;
-            Q_ASSERT(false);
-            break;
-        }
-
-        checkIx = (endIx-startIx)/2 + startIx;
-
-        if(checkIx < startIx || endIx < startIx){
-            break;
-        }
-    }
-
-
-    return item;
+    return ParseTreeNodeUtil::findChildForPosition(this, position, true);
 }
 
 bool CodeStructureTreeItem::containsPosition(int position) const

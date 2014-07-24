@@ -22,6 +22,9 @@ public:
 
     void setDbObjectTypeName(const QString &dbObjectTypeName);
 
+    void setPairEditorWidget(MultiEditorWidget *multiEditor);
+    MultiEditorWidget *getEditorWidget() const;
+
 private slots:
     void ddlQueryCompleted(const QueryResult &result);
     void ddlFetched(const FetchResult &fetchResult);

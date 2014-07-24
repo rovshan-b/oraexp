@@ -529,6 +529,16 @@ QTextDocument *CodeCreatorWidget::getTextDocument() const
     return currentEditor()->getTextDocument();
 }
 
+MultiEditorWidget *CodeCreatorWidget::getEditorWidget() const
+{
+    return this->multiEditor;
+}
+
+void CodeCreatorWidget::setPairEditorWidget(MultiEditorWidget *multiEditor)
+{
+    this->multiEditor->setPairEditorWidget(multiEditor);
+}
+
 void CodeCreatorWidget::compilationErrorFetchCompleted(const QString &)
 {
     stopProgress();

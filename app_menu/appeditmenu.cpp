@@ -232,6 +232,10 @@ void AppEditMenu::focusWidgetChanged(QWidget * /*old*/, QWidget *now)
         return;
     }
 
+    if(dynamic_cast<QMenu*>(now)){
+        return;
+    }
+
     currentAppWidget=now;
 
     ConnectionPage *cnPage=getConnectionsPane()->currentConnectionPage();

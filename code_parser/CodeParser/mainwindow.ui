@@ -51,6 +51,7 @@
     <addaction name="actionParse"/>
     <addaction name="actionParse_All"/>
     <addaction name="actionNon_strict_parse"/>
+    <addaction name="actionFind_declaration"/>
    </widget>
    <addaction name="menuActions"/>
   </widget>
@@ -93,6 +94,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="actionFind_declaration">
+   <property name="text">
+    <string>Find declaration</string>
    </property>
   </action>
  </widget>

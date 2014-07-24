@@ -36,6 +36,8 @@ MultiEditorWidget::~MultiEditorWidget()
     //qDeleteAll(collapsePositions);
     //collapsePositions.clear();
 
+    qDeleteAll(this->children());
+
     uiManager->getCodeStructurePane()->unregisterWidget(this);
     delete this->treeBuilder;
 }
@@ -210,7 +212,9 @@ CodeEditorAndSearchPaneWidget *MultiEditorWidget::createEditor()
 
     if(editors.size()>1){
         editor->editor()->setDocument(editors.at(0)->editor()->document()); //bind all instances to the same document (first created one)
-        editor->editor()->setLastParseId(editors.at(0)->editor()->getLastParseId());
+        editor->editor()->setLastParseId(editors.at(0)->editor()->getLastParseId(),
+                                         treeBuilder);
+        editor->editor()->setPairEditor(editors.at(0)->editor());
     }
 
     if(editors.size()==1){
@@ -251,6 +255,13 @@ void MultiEditorWidget::pulsate(int startPos, int endPos)
 QList<CodeEditorAndSearchPaneWidget *> MultiEditorWidget::getEditors() const
 {
     return this->editors;
+}
+
+void MultiEditorWidget::setPairEditorWidget(MultiEditorWidget *multiEditor)
+{
+    foreach(CodeEditorAndSearchPaneWidget *editor, editors){
+        editor->editor()->setPairEditor(multiEditor->currentTextEditor());
+    }
 }
 
 int MultiEditorWidget::visibleEditorCount() const
@@ -541,19 +552,22 @@ void MultiEditorWidget::parsingCompleted(int requestId, bool success, PlSqlTreeB
     }
 
     foreach(CodeEditorAndSearchPaneWidget *editor, editors){
-        editor->editor()->setLastParseId(requestId);
+        editor->editor()->setLastParseId(requestId, treeBulder);
     }
 
-    if(plsqlMode){
+    //if(plsqlMode){
         PlSqlTreeBuilder *currentTreeBuilder = this->treeBuilder;
 
         this->treeBuilder = treeBulder;
-        uiManager->getCodeStructurePane()->setTreeBuilder(this, treeBuilder, currentTextEditor()->textCursor().position());
+
+        if(plsqlMode){
+            uiManager->getCodeStructurePane()->setTreeBuilder(this, treeBuilder, currentTextEditor()->textCursor().position());
+        }
 
         delete currentTreeBuilder;
-    }else{
-        delete treeBulder;
-    }
+    //}else{
+    //    delete treeBulder;
+    //}
 }
 
 void MultiEditorWidget::highlightCurrentIdentifier(QTextCursor &cur)

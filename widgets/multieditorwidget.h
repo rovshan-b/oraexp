@@ -38,6 +38,8 @@ public:
     void pulsate(int startPos, int endPos);
 
     QList<CodeEditorAndSearchPaneWidget*> getEditors() const;
+
+    void setPairEditorWidget(MultiEditorWidget *multiEditor);
 signals:
     void escapeKeyPressed();
     void needsCompletionList();

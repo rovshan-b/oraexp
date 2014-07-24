@@ -43,6 +43,8 @@ void PairCodeCreator::createUi()
 
     mainLayout->addWidget(tab);
     setLayout(mainLayout);
+
+    bodyCreatorWidget->setPairEditorWidget(specCreatorWidget->getEditorWidget());
 }
 
 void PairCodeCreator::setConnection(DbConnection *db)

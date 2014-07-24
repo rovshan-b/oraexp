@@ -118,6 +118,16 @@ void DbObjectDdlViewer::setDbObjectTypeName(const QString &dbObjectTypeName)
     this->dbObjectTypeName = dbObjectTypeName;
 }
 
+void DbObjectDdlViewer::setPairEditorWidget(MultiEditorWidget *multiEditor)
+{
+    this->multiEditor->setPairEditorWidget(multiEditor);
+}
+
+MultiEditorWidget *DbObjectDdlViewer::getEditorWidget() const
+{
+    return this->multiEditor;
+}
+
 void DbObjectDdlViewer::showDdlOptions()
 {
     TableDdlOptionsDialog dialog(this);

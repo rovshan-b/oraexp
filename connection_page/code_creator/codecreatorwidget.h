@@ -46,6 +46,9 @@ public:
 
     QTextDocument *getTextDocument() const;
 
+    MultiEditorWidget *getEditorWidget() const;
+    void setPairEditorWidget(MultiEditorWidget *multiEditor);
+
     static QByteArray bottomSplitterSizes;
 
 signals:

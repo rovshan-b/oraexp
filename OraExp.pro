@@ -1164,7 +1164,8 @@ HEADERS  += mainwindow.h \
     code_formatter/plsql/codeformattersettings.h \
     code_formatter/plsql/codeformatterrule.h \
     code_formatter/plsql/codeformatteraction.h \
-    code_formatter/plsql/scopeinfo.h
+    code_formatter/plsql/scopeinfo.h \
+    util/parsetreenodeutil.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

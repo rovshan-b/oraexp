@@ -526,11 +526,11 @@ tail_in_param_declaration {skip}
    :  PLS_COMMA in_param_declaration
    ;
    
-param_declaration {gui_handler:CodeStructureParameterTreeItem}
+param_declaration {symbol_table_entry,gui_handler:CodeStructureParameterTreeItem}
    :  identifier in_param_or_out_param
    ;
    
-in_param_declaration
+in_param_declaration {symbol_table_entry}
    :  identifier in_param
    ;
    
@@ -1353,7 +1353,11 @@ tail_exception_names {skip}
    ;
    
 for_loop_statement {gui_icon:loop}
-   :  'FOR' identifier 'IN' cursor_with_params_or_select_statement_in_parenthesis_or_reverse_expression_range basic_loop_statement
+   :   for_loop_statement_start basic_loop_statement
+   ;
+   
+for_loop_statement_start {symbol_table_entry}
+   :  'FOR' identifier 'IN' cursor_with_params_or_select_statement_in_parenthesis_or_reverse_expression_range
    ;
    
 forall_statement
@@ -2741,7 +2745,7 @@ opt_expression
    |
    ;
 
-expression {no_children}
+expression
    :  subexpression opt_subexpression_tails
    |  PLS_LPAREN expression_list_list PLS_RPAREN opt_subexpression_tails
    |  PLS_LPAREN expression PLS_RPAREN opt_subexpression_tails

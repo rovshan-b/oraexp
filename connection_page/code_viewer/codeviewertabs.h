@@ -3,6 +3,9 @@
 
 #include "connection_page/db_object_viewer/dbobjectviewertabs.h"
 
+class MultiEditorWidget;
+class DbObjectDdlViewer;
+
 class CodeViewerTabs : public DbObjectViewerTabs
 {
     Q_OBJECT
@@ -14,6 +17,12 @@ public:
                             QWidget *parent=0);
     
     virtual void createTabs();
+
+    void setPairEditorWidget(MultiEditorWidget *multiEditor);
+    MultiEditorWidget *getEditorWidget() const;
+
+private:
+    DbObjectDdlViewer *ddlViewer;
 
 
 };

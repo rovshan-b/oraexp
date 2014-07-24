@@ -37,6 +37,8 @@ private slots:
 
     void on_actionNon_strict_parse_triggered();
 
+    void on_actionFind_declaration_triggered();
+
 private:
     Ui::MainWindow *ui;
     QStandardItemModel *model;

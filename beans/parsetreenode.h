@@ -14,9 +14,11 @@ public:
     ParseTreeNode();
     virtual ~ParseTreeNode();
 
+    ParseTreeNode *parentNode;
     QList<ParseTreeNode*> children;
 
     TokenInfo *tokenInfo;
+    inline TokenInfo *getTokenInfo() const {return this->tokenInfo;}
 
     int symbolCount;
 
@@ -24,8 +26,10 @@ public:
     bool ownsScope;
 
     inline bool containsPosition(int position){
-        return position>=tokenInfo->startPos && position<=tokenInfo->endPos;
+        return position>=tokenInfo->startPos && position<tokenInfo->endPos;
     }
+
+    ParseTreeNode *findChildForPosition(int position, bool topLevel = false);
 
 };
 

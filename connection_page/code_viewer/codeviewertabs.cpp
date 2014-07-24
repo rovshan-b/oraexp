@@ -17,7 +17,7 @@ CodeViewerTabs::CodeViewerTabs(const QString &schemaName,
 
 void CodeViewerTabs::createTabs()
 {
-    DbObjectDdlViewer *ddlViewer = new DbObjectDdlViewer(false, uiManager, this);
+    ddlViewer = new DbObjectDdlViewer(false, uiManager, this);
     addTab(ddlViewer, IconUtil::getIcon("ddl"), tr("DDL"));
 
     DbObjectGrantsViewer *grantInfo = new DbObjectGrantsViewer(uiManager, this);
@@ -36,4 +36,14 @@ void CodeViewerTabs::createTabs()
 
     DbObjectDetailsViewer *detailsViewer = new DbObjectDetailsViewer("get_code_details_for_detailed_view", uiManager, this);
     addTab(detailsViewer, IconUtil::getIcon("details"), tr("Details"));
+}
+
+void CodeViewerTabs::setPairEditorWidget(MultiEditorWidget *multiEditor)
+{
+    ddlViewer->setPairEditorWidget(multiEditor);
+}
+
+MultiEditorWidget *CodeViewerTabs::getEditorWidget() const
+{
+    return ddlViewer->getEditorWidget();
 }

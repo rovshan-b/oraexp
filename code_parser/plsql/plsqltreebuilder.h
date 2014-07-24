@@ -32,6 +32,9 @@ public:
     static ParseTreeNode *findAnyNode(ParseTreeNode *parentNode, const QList<int> ruleIds, bool recursive = false);
     static QHash<ParseTreeNode *, QString> findNodesWithHandlers(ParseTreeNode *parentNode);
 
+    QList<ParseTreeNode *> findDeclarations(int position, bool *discarded);
+    QList<ParseTreeNode *> findDeclarations(const QString &lexeme);
+
 private:
     ParseTreeNode *rootNode;
 
@@ -44,6 +47,10 @@ private:
 
     bool calculateScopes;
 
+    void appendChild(ParseTreeNode *parent, ParseTreeNode *child);
+    void appendChildren(ParseTreeNode *parent, QList<ParseTreeNode*> children);
+    void prependChild(ParseTreeNode *parent, ParseTreeNode *child);
+
     void setStartEndPositions(ParseTreeNode *parentNode);
     void firstLastNonNullChildren(ParseTreeNode *parentNode, ParseTreeNode **first, ParseTreeNode **last) const;
 
@@ -52,6 +59,8 @@ private:
     void registerDeclarationInScope(ParseTreeNodeScope *scope, ParseTreeNode *node, ParsingTable *parsingTable);
 
     static void fillNodesWithHandlers(QHash<ParseTreeNode*,QString> &nodes, ParseTreeNode *parentNode, ParsingTable *parsingTable);
+
+    static QList<ParseTreeNode *> findTopLevelDeclarationList(ParseTreeNode *parentNode, const QString &lexeme);
 
 };
 

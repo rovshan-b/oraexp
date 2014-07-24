@@ -155,6 +155,7 @@ bool MainWindow::parseCurrent(bool constructDisplayTree, bool strictMode)
     parser->setStrictMode(strictMode);
     PlSqlTreeBuilder treeBulder;
     treeBulder.setSkipEmptyNodes(false);
+    treeBulder.setCalculateScopes();
     parser->setReduceListener(&treeBulder);
 
     QTime t;
@@ -258,4 +259,26 @@ void MainWindow::on_actionParse_All_triggered()
 void MainWindow::on_actionNon_strict_parse_triggered()
 {
     parseCurrent(true, false);
+}
+
+void MainWindow::on_actionFind_declaration_triggered()
+{
+    int position = ui->codeEditor->textCursor().position();
+
+    /*TextCursorReader* reader=new TextCursorReader(ui->codeEditor->textCursor());
+    CodeParser *parser=CodeParserFactory::createParser("plsql", reader);
+    parser->setStrictMode(strictMode);
+    PlSqlTreeBuilder treeBulder;
+    treeBulder.setSkipEmptyNodes(false);
+    treeBulder.setCalculateScopes();
+    parser->setReduceListener(&treeBulder);
+
+    bool success=parser->parse();
+
+    delete parser;
+
+    if(success){
+
+    }*/
+
 }

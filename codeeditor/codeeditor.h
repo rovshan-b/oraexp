@@ -12,6 +12,7 @@ class QCompleter;
 class CodeCollapsePosition;
 class ToolTipWidget;
 class IQueryScheduler;
+class PlSqlTreeBuilder;
 
 class CodeEditor : public QPlainTextEdit
 {
@@ -76,7 +77,7 @@ public:
     bool blockChanges() const;
     void setBlockChanges(bool block);
 
-    void setLastParseId(int parseId);
+    void setLastParseId(int parseId, PlSqlTreeBuilder *treeBuilder);
     int getLastParseId() const;
 
     void updateAllParts();
@@ -86,6 +87,8 @@ public:
     bool isPlsqlMode() const;
 
     CursorPositionInfo getStartStopPositions(const QTextCursor &cur);
+
+    void setPairEditor(CodeEditor *pairEditor);
 
     static QList<CodeEditor*> openEditors;
 
@@ -217,6 +220,8 @@ private:
     void showTooltipForCollapsedRange(const QTextBlock &block, int endBlockNumber);
     int collapsedRangeCount() const;
 
+    void showTooltipForCurrentToken(QTextCursor &cur);
+
     bool extendSelection(QTextCursor &cur);
     void expandAllBlocks(int startBlock, int endBlock);
     void expandAllBlocks(QKeyEvent *event);
@@ -226,11 +231,15 @@ private:
     void saveFontSettings();
 
     ToolTipWidget *toolTipWidget;
+    void showToolTip(const QString &text, const QPoint &point, const QRect &activeRect);
 
     bool blockEventChanges;
     int lastParseId;
+    PlSqlTreeBuilder *treeBuilder;
 
     bool plsqlMode;
+
+    CodeEditor *pairEditor;
 };
 
 #endif // CODEEDITOR_H

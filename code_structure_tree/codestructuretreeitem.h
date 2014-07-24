@@ -4,6 +4,7 @@
 #include <QList>
 #include <QVariant>
 #include "beans/parsetreenode.h"
+#include "util/parsetreenodeutil.h"
 
 class PlSqlTreeBuilder;
 class ParseTreeNode;
@@ -12,6 +13,7 @@ class CodeStructureTreeItem
 {
     friend bool codeStructureTreeItemLessThan(CodeStructureTreeItem *i1, CodeStructureTreeItem *i2);
     friend bool codeStructureTreeItemNameLessThan(CodeStructureTreeItem *i1, CodeStructureTreeItem *i2);
+    friend class ParseTreeNodeUtil;
 
 public:
     CodeStructureTreeItem(ParseTreeNode *node);
@@ -40,10 +42,12 @@ public:
 
     QString getItemText() const;
 
+    inline TokenInfo *getTokenInfo() const {return node->tokenInfo;}
+
 protected:
     ParseTreeNode *node;
 
-    QList<CodeStructureTreeItem*> childItems;
+    QList<CodeStructureTreeItem*> children;
     CodeStructureTreeItem* parentItem;
 
     void setItemText(const QString &text);
