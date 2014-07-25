@@ -1074,43 +1074,12 @@ int CodeEditor::lineMarkerAreaOffset() const
 
  void CodeEditor::showTooltipForCurrentToken(QTextCursor &cur)
  {
-     if(lastParseId == -1){
-         return;
-     }
+     bool foundInPairEditor = false;
+     TokenInfo *tokenInfo = 0;
 
-     Q_ASSERT(treeBuilder);
-
-     QRect curRect = cursorRect(cur);
-
-     QTextBlock block = cur.block();
-     BlockData *data = static_cast<BlockData*>(block.userData());
-     if(!data){
-         return;
-     }
-
-     TokenInfo *tokenInfo = data->tokenAtPosition(cur.positionInBlock());
-     if(!tokenInfo || tokenInfo->tokenOrRuleId != PLS_ID){
-         return;
-     }
-
-     bool discarded;
-     QList<ParseTreeNode*> nodeList = treeBuilder->findDeclarations(block.position() + tokenInfo->startPos, &discarded);
-
-     if(discarded){
-         return;
-     }
-
-     QTextCursor declCursor = cur;
-
-     if(nodeList.isEmpty() && pairEditor!=0 && pairEditor->lastParseId != -1){
-         cur.setPosition(block.position() + tokenInfo->startPos);
-         cur.setPosition(block.position() + tokenInfo->endPos, QTextCursor::KeepAnchor);
-
-         QString lexeme = cur.selectedText();
-
-         nodeList = pairEditor->treeBuilder->findDeclarations(lexeme);
-         declCursor = pairEditor->textCursor();
-     }
+     QList<ParseTreeNode *> nodeList = CodeEditorUtil::getDeclarationsForCurrentToken(this, cur,
+                                                                                      &foundInPairEditor,
+                                                                                      &tokenInfo);
 
      if(nodeList.isEmpty()){
          return;
@@ -1121,6 +1090,8 @@ int CodeEditor::lineMarkerAreaOffset() const
 
      for(int i=0; i<nodeCount; ++i){
          const ParseTreeNode *node = nodeList[i];
+
+         QTextCursor declCursor = foundInPairEditor ? pairEditor->textCursor() : cur;
 
          declCursor.setPosition(node->tokenInfo->startPos);
          declCursor.setPosition(node->tokenInfo->endPos, QTextCursor::KeepAnchor);
@@ -1135,6 +1106,10 @@ int CodeEditor::lineMarkerAreaOffset() const
 
          declarationText.append(declCursor.selectedText());
      }
+
+     QTextBlock block = cur.block();
+
+     QRect curRect = cursorRect(cur);
 
      cur.setPosition(block.position() + tokenInfo->startPos);
      cur.setPosition(block.position() + tokenInfo->endPos, QTextCursor::KeepAnchor);
@@ -1277,6 +1252,8 @@ int CodeEditor::lineMarkerAreaOffset() const
  void CodeEditor::focusOutEvent(QFocusEvent *event)
  {
      QPlainTextEdit::focusOutEvent(event);
+
+     toolTipWidget->hideToolTip();
 
      emit lostFocus();
  }
@@ -1663,6 +1640,12 @@ int CodeEditor::lineMarkerAreaOffset() const
  {
      this->pairEditor = pairEditor;
  }
+
+ CodeEditor *CodeEditor::getPairEditor() const
+ {
+     return this->pairEditor;
+ }
+
 
  void CodeEditor::moveSelectionUp()
  {
@@ -2355,6 +2338,11 @@ int CodeEditor::lineMarkerAreaOffset() const
  int CodeEditor::getLastParseId() const
  {
      return this->lastParseId;
+ }
+
+ PlSqlTreeBuilder *CodeEditor::getTreeBuilder() const
+ {
+     return this->treeBuilder;
  }
 
  void CodeEditor::loadTextShortcuts()

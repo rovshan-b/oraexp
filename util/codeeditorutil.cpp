@@ -5,7 +5,10 @@
 #include "code_parser/stringreader.h"
 #include "code_parser/plsql/plsqltokens.h"
 #include "code_parser/plsql/plsqlparsehelper.h"
+#include "code_parser/plsql/plsqltreebuilder.h"
 #include "code_formatter/plsql/plsqlformatter.h"
+#include "codeeditor/blockdata.h"
+#include "beans/tokeninfo.h"
 #include "util/strutil.h"
 #include <QTextBlock>
 
@@ -104,55 +107,176 @@ void CodeEditorUtil::markPosition(CodeEditor *editor, int pos)
 
 QString CodeEditorUtil::getCurrentObjectName(CodeEditor *editor)
 {
-    QTextCursor cur = editor->textCursor();
+    return CodeEditorUtil::getObjectNameInfo(editor->textCursor()).toString();
+}
 
-    if(cur.hasSelection()){
-        return cur.selectedText();
+TokenNameInfo CodeEditorUtil::getObjectNameInfo(const QTextCursor &cur)
+{
+    TokenNameInfo result;
+
+    QTextBlock block = cur.block();
+    if(!block.isValid()){
+        return result;
     }
 
-    int cursorPos = cur.position();
-    QTextDocument *doc = editor->document();
-    QChar c = doc->characterAt(cursorPos);
+    BlockData *data = static_cast<BlockData*>(block.userData());
+    Q_ASSERT(data);
 
-    while(c.isSpace() && cursorPos>0){
-        c = doc->characterAt(--cursorPos);
+    TokenInfo *currToken = data->tokenAtPosition(cur.positionInBlock());
+    if(!currToken){
+        return result;
     }
 
-    if(cursorPos<=0){
-        return "";
+    if(!PlSqlParseHelper::isIdentifierToken(currToken->tokenOrRuleId)){
+        return result;
     }
 
-    cur.setPosition(cursorPos);
+    QList<TokenInfo*> blockTokens = data->getTokens();
 
-    bool isWordChar = CodeEditorUtil::isWordChar(c);
+    int currTokenIx = blockTokens.indexOf(currToken);
+    Q_ASSERT(currTokenIx != -1);
 
-    if(!isWordChar){
-        return "";
+    TokenInfo *siblingToken;
+
+    QTextCursor curCopy = cur;
+
+    int tokenIx = currTokenIx;
+    QTextBlock activeBlock = block;
+
+    //scan to left
+    do{
+
+        if(tokenIx < 0){
+            activeBlock = activeBlock.previous();
+            if(!activeBlock.isValid()){
+                break;
+            }
+            data = static_cast<BlockData*>(activeBlock.userData());
+            Q_ASSERT(data);
+            blockTokens = data->getTokens();
+            if(blockTokens.size() == 0){
+                continue;
+            }
+            tokenIx = blockTokens.size()-1;
+        }
+
+        siblingToken = blockTokens.at(tokenIx--);
+
+        if(!PlSqlParseHelper::isIdentifierOrSeparatorToken(siblingToken->tokenOrRuleId)){
+            break;
+        }
+
+        if(!PlSqlParseHelper::isIdentifierSeparatorToken(siblingToken->tokenOrRuleId)){ //if it is not PLS_DOT then it is either PLS_ID or PLS_DOUBLEQUOTED_ID
+            curCopy.setPosition(activeBlock.position() + siblingToken->startPos);
+            curCopy.setPosition(activeBlock.position() + siblingToken->endPos, QTextCursor::KeepAnchor);
+
+            result.parts.prepend(curCopy.selectedText());
+            result.absolutePositions.prepend(qMakePair(curCopy.selectionStart(), curCopy.selectionEnd()));
+        }
+
+    }while(PlSqlParseHelper::isIdentifierOrSeparatorToken(siblingToken->tokenOrRuleId));
+
+    result.currentPartId = result.parts.size() - 1;
+
+    data = static_cast<BlockData*>(block.userData());
+    blockTokens = data->getTokens();
+    activeBlock = block;
+
+    //scan to right
+
+    tokenIx = currTokenIx + 1;
+
+    do{
+
+        if(tokenIx == blockTokens.size()){
+            while(true){
+                activeBlock = activeBlock.next();
+                if(!activeBlock.isValid()){
+                    return result;
+                }
+                data = static_cast<BlockData*>(activeBlock.userData());
+                Q_ASSERT(data);
+                blockTokens = data->getTokens();
+                if(blockTokens.size() == 0){
+                    continue;
+                }
+                tokenIx = 0;
+                break;
+            }
+        }
+
+        siblingToken = blockTokens.at(tokenIx++);
+
+        if(!PlSqlParseHelper::isIdentifierOrSeparatorToken(siblingToken->tokenOrRuleId)){
+            break;
+        }
+
+        if(!PlSqlParseHelper::isIdentifierSeparatorToken(siblingToken->tokenOrRuleId)){ //if it is not PLS_DOT then it is either PLS_ID or PLS_DOUBLEQUOTED_ID
+            curCopy.setPosition(activeBlock.position() + siblingToken->startPos);
+            curCopy.setPosition(activeBlock.position() + siblingToken->endPos, QTextCursor::KeepAnchor);
+
+            result.parts.append(curCopy.selectedText());
+            result.absolutePositions.prepend(qMakePair(curCopy.selectionStart(), curCopy.selectionEnd()));
+        }
+    }while(PlSqlParseHelper::isIdentifierOrSeparatorToken(siblingToken->tokenOrRuleId));
+
+    return result;
+}
+
+QList<ParseTreeNode *> CodeEditorUtil::getDeclarationsForCurrentToken(const CodeEditor *editor,
+                                                                      const QTextCursor &cur,
+                                                                      bool *foundInPairEditor,
+                                                                      TokenInfo **currTokenInfo)
+{
+    QList<ParseTreeNode*> nodeList;
+
+    if(editor->getLastParseId() == -1){
+        return nodeList;
     }
 
-    //first move left
-    QString fullWord;
-    while(isWordChar){
-        fullWord.prepend(c);
+    PlSqlTreeBuilder *treeBuilder = editor->getTreeBuilder();
 
-        c = doc->characterAt(--cursorPos);
-        isWordChar = CodeEditorUtil::isWordChar(c);
+    Q_ASSERT(treeBuilder);
+
+    QTextBlock block = cur.block();
+    BlockData *data = static_cast<BlockData*>(block.userData());
+    if(!data){
+        return nodeList;
     }
 
-    cursorPos = cur.position();
-
-    //now move right
-    c = doc->characterAt(++cursorPos);
-    isWordChar = CodeEditorUtil::isWordChar(c);
-
-    while(isWordChar){
-        fullWord.append(c);
-
-        c = doc->characterAt(++cursorPos);
-        isWordChar = CodeEditorUtil::isWordChar(c);
+    TokenInfo *tokenInfo = data->tokenAtPosition(cur.positionInBlock());
+    if(!tokenInfo || tokenInfo->tokenOrRuleId != PLS_ID){
+        return nodeList;
     }
 
-    return fullWord;
+    bool discarded;
+    nodeList = treeBuilder->findDeclarations(block.position() + tokenInfo->startPos, &discarded);
+
+    if(discarded){
+        return QList<ParseTreeNode*>();
+    }
+
+    CodeEditor *pairEditor = editor->getPairEditor();
+
+    if(nodeList.isEmpty() && pairEditor!=0 && pairEditor->getLastParseId() != -1){
+        QTextCursor copyCur = cur;
+
+        copyCur.setPosition(block.position() + tokenInfo->startPos);
+        copyCur.setPosition(block.position() + tokenInfo->endPos, QTextCursor::KeepAnchor);
+
+        QString lexeme = copyCur.selectedText();
+
+        nodeList = pairEditor->getTreeBuilder()->findDeclarations(lexeme);
+
+        *foundInPairEditor = true;
+    }else{
+        *foundInPairEditor = false;
+    }
+
+    *currTokenInfo = tokenInfo;
+
+    return nodeList;
+
 }
 
 void CodeEditorUtil::formatCode(CodeEditor *editor)
@@ -229,9 +353,4 @@ void CodeEditorUtil::formatCode(CodeEditor *editor)
     cur.endEditBlock();
 
     editor->setTextCursor(cur);
-}
-
-bool CodeEditorUtil::isWordChar(const QChar &c)
-{
-    return PlSqlScanner::isIdCharacter(c) || c=='.' || c=='"';
 }

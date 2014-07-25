@@ -443,6 +443,21 @@ QStringList PlSqlParseHelper::tokenizeName(const QString &objectName)
     return parts;
 }
 
+bool PlSqlParseHelper::isIdentifierOrSeparatorToken(int token)
+{
+    return PlSqlParseHelper::isIdentifierToken(token) ||
+            PlSqlParseHelper::isIdentifierSeparatorToken(token);
+}
+
+bool PlSqlParseHelper::isIdentifierToken(int token)
+{
+    return (token == PLS_ID || token == PLS_DOUBLEQUOTED_STRING);
+}
+
+bool PlSqlParseHelper::isIdentifierSeparatorToken(int token)
+{
+    return token == PLS_DOT;
+}
 
 PlSqlParseHelper::PlSqlParseHelper()
 {

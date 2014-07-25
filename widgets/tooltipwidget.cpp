@@ -3,6 +3,7 @@
 ToolTipWidget::ToolTipWidget(QWidget *parent) : QLabel(parent)
 {
     setWindowFlags(Qt::ToolTip);
+    setMargin(3);
 
     setAutoFillBackground(true);
     setBackgroundRole(QPalette::ToolTipBase);

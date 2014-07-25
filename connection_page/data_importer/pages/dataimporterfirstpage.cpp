@@ -59,7 +59,7 @@ bool DataImporterFirstPage::validatePage()
     QString filename=fileSelector->fileName();
     if(filename.isEmpty()){
         addEOL(message);
-        message.append(tr("  - Filename name must be entered"));
+        message.append(tr("  - Filename must be entered"));
     }else{
         QString errorMessage;
         bool canRead = FileSystemUtil::tryRead(filename, &errorMessage);

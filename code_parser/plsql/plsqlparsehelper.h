@@ -45,6 +45,10 @@ public:
 
     static QStringList tokenizeName(const QString &objectName);
 
+    static bool isIdentifierOrSeparatorToken(int token);
+    static bool isIdentifierToken(int token);
+    static bool isIdentifierSeparatorToken(int token);
+
 private:
     static QString cleanIdentifier(const QString &identifier);
 

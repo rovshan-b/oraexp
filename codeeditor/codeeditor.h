@@ -80,6 +80,8 @@ public:
     void setLastParseId(int parseId, PlSqlTreeBuilder *treeBuilder);
     int getLastParseId() const;
 
+    PlSqlTreeBuilder *getTreeBuilder() const;
+
     void updateAllParts();
 
     void setDocument(QTextDocument * document);
@@ -89,6 +91,7 @@ public:
     CursorPositionInfo getStartStopPositions(const QTextCursor &cur);
 
     void setPairEditor(CodeEditor *pairEditor);
+    CodeEditor *getPairEditor() const;
 
     static QList<CodeEditor*> openEditors;
 
