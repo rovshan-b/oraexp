@@ -396,16 +396,15 @@ void AppEditMenu::describeObject()
     if(!editor){
         return;
     }
+
+    if(editor->describeLocalObject()){
+        return;
+    }
+
     QString currentObjectName = CodeEditorUtil::getCurrentObjectName(editor);
     if(currentObjectName.isEmpty()){
         QMessageBox::critical(MainWindow::defaultInstance(), tr("No selection"),
                               tr("Please, select object name and try again."));
-        return;
-    }
-
-    if(currentObjectName.length()>250){
-        QMessageBox::critical(MainWindow::defaultInstance(), tr("Selection too long"),
-                              tr("Selection is too long. Please, select object name and try again."));
         return;
     }
 
@@ -425,7 +424,7 @@ void AppEditMenu::populateResolveMenu()
 
     qDebug() << "currentObjectName =" << currentObjectName;
 
-    bool willResolve = !currentObjectName.isEmpty() && currentObjectName.length() < 250;
+    bool willResolve = !currentObjectName.isEmpty();
 
     QAction *statusAction = editResolveMenu->addAction(willResolve ? tr("Resolving...") : tr("No object selected"));
     statusAction->setEnabled(false);

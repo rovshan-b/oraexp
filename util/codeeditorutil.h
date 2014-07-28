@@ -17,12 +17,15 @@ public:
     static void markPosition(CodeEditor *editor, int pos);
 
     static QString getCurrentObjectName(CodeEditor *editor);
-    static TokenNameInfo getObjectNameInfo(const QTextCursor &cur);
+    static TokenNameInfo getCurrentObjectNameInfo(CodeEditor *editor);
+    static TokenNameInfo getObjectNameInfo(const QTextCursor &cur, bool upToCurrent = true);
+    static TokenNameInfo getObjectNameInfoFromSelection(const QTextCursor &cur);
 
     static QList<ParseTreeNode*> getDeclarationsForCurrentToken(const CodeEditor *editor,
                                                                 const QTextCursor &cur,
                                                                 bool *foundInPairEditor,
-                                                                TokenInfo **currTokenInfo);
+                                                                TokenInfo **currTokenInfo,
+                                                                ParseTreeNode **discardReason);
 
     static void formatCode(CodeEditor *editor);
 

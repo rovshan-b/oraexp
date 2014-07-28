@@ -6,9 +6,9 @@
 #include "../codeparserfactory.h"
 #include "plsqltokens.h"
 #include "plsqlparsingtable.h"
-#include "plsqltokenfinder.h"
 #include "plsqltreebuilder.h"
 #include "beans/codecollapseposition.h"
+#include "beans/parsetreenode.h"
 #include "util/dbutil.h"
 #include <QDebug>
 
@@ -191,21 +191,42 @@ void PlSqlParseHelper::getNextQueryPos(const QString &query, int startFromPos, i
     *queryEndPos = scanner->getTokenEndPos() + startFromPos;
 }
 
+void PlSqlParseHelper::findObjectName(PlSqlTreeBuilder *treeBuilder, QString *schema, QString *name, const QString &defaultSchema)
+{
+    *schema = QString();
+    *name = QString();
+
+    ParseTreeNode *objectNameNode = treeBuilder->findNode(treeBuilder->getRootNode(), R_OBJECT_NAME, true);
+
+    if(objectNameNode){
+        if(objectNameNode->children.size()==1){
+            *name = objectNameNode->children.at(0)->children.at(0)->tokenInfo->lexeme;
+        }else{
+            Q_ASSERT(objectNameNode->children.size()==3);
+            *schema = objectNameNode->children.at(0)->children.at(0)->tokenInfo->lexeme;
+            *name = objectNameNode->children.at(2)->children.at(0)->tokenInfo->lexeme;
+        }
+    }
+
+    if((*schema).isEmpty()){
+        *schema = defaultSchema;
+    }
+
+    *schema = PlSqlParseHelper::cleanIdentifier(*schema);
+    *name = PlSqlParseHelper::cleanIdentifier(*name);
+}
+
+/*
 void PlSqlParseHelper::findObjectName(const QString &query, QString *schema, QString *name, const QString &defaultSchema)
 {
     StringReader *reader = new StringReader(query);
     bool success;
     QScopedPointer<PlSqlTreeBuilder> treeBuilder(PlSqlParseHelper::createParseTree(reader, &success));
-    //if(success){
-        PlSqlTokenFinder::findObjectName(treeBuilder.data(), schema, name);
-        if(schema->isEmpty()){
-            *schema = defaultSchema;
-        }
-
-        *schema = PlSqlParseHelper::cleanIdentifier(*schema);
-        *name = PlSqlParseHelper::cleanIdentifier(*name);
-    //}
-}
+    PlSqlTokenFinder::findObjectName(treeBuilder.data(), schema, name);
+    if(schema->isEmpty()){
+        *schema = PlSqlParseHelper::cleanIdentifier(defaultSchema);
+    }
+}*/
 
 QString PlSqlParseHelper::cleanIdentifier(const QString &identifier)
 {
@@ -422,7 +443,7 @@ int PlSqlParseHelper::extractPlSqlErrorCode(const QString &errorMessage)
     }
 }
 
-QStringList PlSqlParseHelper::tokenizeName(const QString &objectName)
+/*QStringList PlSqlParseHelper::tokenizeName(const QString &objectName)
 {
     QStringList parts;
 
@@ -441,7 +462,7 @@ QStringList PlSqlParseHelper::tokenizeName(const QString &objectName)
     }while(token != PLS_E_O_F && token != PLS_ERROR);
 
     return parts;
-}
+}*/
 
 bool PlSqlParseHelper::isIdentifierOrSeparatorToken(int token)
 {
@@ -451,7 +472,8 @@ bool PlSqlParseHelper::isIdentifierOrSeparatorToken(int token)
 
 bool PlSqlParseHelper::isIdentifierToken(int token)
 {
-    return (token == PLS_ID || token == PLS_DOUBLEQUOTED_STRING);
+    return (token == PLS_ID || token == PLS_DOUBLEQUOTED_STRING ||
+            (token < NON_LITERAL_START_IX && token >= 0)); //allow keywords as well, because some of them are keywords depending on current context
 }
 
 bool PlSqlParseHelper::isIdentifierSeparatorToken(int token)

@@ -226,6 +226,7 @@ CodeEditorAndSearchPaneWidget *MultiEditorWidget::createEditor()
     connect(editor->editor(), SIGNAL(updated(CodeEditor*)), this, SLOT(updateEditors(CodeEditor*)));
     connect(editor->editor(), SIGNAL(needsCompletionList()), this, SIGNAL(needsCompletionList()));
     connect(editor->editor(), SIGNAL(applyCaseFoldingRequested()), this, SLOT(applyCaseFoldingRequested()));
+    connect(editor->editor(), SIGNAL(switchToPair()), this, SIGNAL(switchToPair()));
 
     return editor;
 }
@@ -244,12 +245,7 @@ void MultiEditorWidget::setInfoLabelTextFormat(const QString &format)
 
 void MultiEditorWidget::pulsate(int startPos, int endPos)
 {
-    CodeEditor *editor = currentTextEditor();
-    QTextCursor cur = editor->textCursor();
-    cur.setPosition(startPos);
-    cur.setPosition(endPos, QTextCursor::KeepAnchor);
-    editor->ensureVisible(cur);
-    editor->pulsate(cur, 700);
+    currentTextEditor()->pulsate(startPos, endPos, true, 700);
 }
 
 QList<CodeEditorAndSearchPaneWidget *> MultiEditorWidget::getEditors() const
@@ -525,6 +521,8 @@ void MultiEditorWidget::parsingCompleted(int requestId, bool success, PlSqlTreeB
 {
     Q_UNUSED(success);
     Q_UNUSED(elapsedTime);
+
+    emit codeParsingCompleted(treeBulder);
 
     lastParseLengthInMs = elapsedTime;
 

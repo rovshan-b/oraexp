@@ -523,7 +523,6 @@ SOURCES += main.cpp\
     code_parser/plsql/plsqltreebuilder.cpp \
     beans/tokeninfo.cpp \
     beans/parsetreenode.cpp \
-    code_parser/plsql/plsqltokenfinder.cpp \
     codeeditor/codecollapsearea.cpp \
     beans/codecollapseposition.cpp \
     models/editableresultsettablemodel.cpp \
@@ -577,7 +576,8 @@ SOURCES += main.cpp\
     code_formatter/plsql/codeformattersettings.cpp \
     code_formatter/plsql/codeformatterrule.cpp \
     code_formatter/plsql/codeformatteraction.cpp \
-    code_formatter/plsql/scopeinfo.cpp
+    code_formatter/plsql/scopeinfo.cpp \
+    beans/tokennameinfo.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1106,7 +1106,6 @@ HEADERS  += mainwindow.h \
     code_parser/plsql/plsqltreebuilder.h \
     beans/tokeninfo.h \
     beans/parsetreenode.h \
-    code_parser/plsql/plsqltokenfinder.h \
     code_parser/plsql/plsqlrules.h.tpl \
     code_parser/plsql/plsqlparsingtable.cpp.tpl \
     codeeditor/codecollapsearea.h \
@@ -1165,7 +1164,8 @@ HEADERS  += mainwindow.h \
     code_formatter/plsql/codeformatterrule.h \
     code_formatter/plsql/codeformatteraction.h \
     code_formatter/plsql/scopeinfo.h \
-    util/parsetreenodeutil.h
+    util/parsetreenodeutil.h \
+    beans/tokennameinfo.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

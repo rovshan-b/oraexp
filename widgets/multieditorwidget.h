@@ -43,6 +43,9 @@ public:
 signals:
     void escapeKeyPressed();
     void needsCompletionList();
+    void codeParsingCompleted(PlSqlTreeBuilder *treeBulder);
+
+    void switchToPair();
 
 private slots:
     void editorCountActionSelected(bool checked);

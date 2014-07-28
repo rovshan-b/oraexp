@@ -40,7 +40,7 @@ TokenInfo *BlockData::tokenAtPosition(int position) const
 {
     foreach(TokenInfo *token, tokens){
         if(position >= token->startPos &&
-                position <= token->endPos){
+                position < token->endPos){
             return token;
         }
     }

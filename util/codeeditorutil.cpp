@@ -107,10 +107,20 @@ void CodeEditorUtil::markPosition(CodeEditor *editor, int pos)
 
 QString CodeEditorUtil::getCurrentObjectName(CodeEditor *editor)
 {
-    return CodeEditorUtil::getObjectNameInfo(editor->textCursor()).toString();
+    return CodeEditorUtil::getCurrentObjectNameInfo(editor).toString();
 }
 
-TokenNameInfo CodeEditorUtil::getObjectNameInfo(const QTextCursor &cur)
+TokenNameInfo CodeEditorUtil::getCurrentObjectNameInfo(CodeEditor *editor)
+{
+    QTextCursor cur = editor->textCursor();
+    if(cur.hasSelection()){
+        return CodeEditorUtil::getObjectNameInfoFromSelection(cur);
+    }else{
+        return CodeEditorUtil::getObjectNameInfo(cur);
+    }
+}
+
+TokenNameInfo CodeEditorUtil::getObjectNameInfo(const QTextCursor &cur, bool upToCurrent)
 {
     TokenNameInfo result;
 
@@ -143,6 +153,8 @@ TokenNameInfo CodeEditorUtil::getObjectNameInfo(const QTextCursor &cur)
     int tokenIx = currTokenIx;
     QTextBlock activeBlock = block;
 
+    int lastTokenType = -1;
+
     //scan to left
     do{
 
@@ -162,6 +174,11 @@ TokenNameInfo CodeEditorUtil::getObjectNameInfo(const QTextCursor &cur)
 
         siblingToken = blockTokens.at(tokenIx--);
 
+        if((PlSqlParseHelper::isIdentifierToken(siblingToken->tokenOrRuleId) && PlSqlParseHelper::isIdentifierToken(lastTokenType)) ||
+                (PlSqlParseHelper::isIdentifierSeparatorToken(siblingToken->tokenOrRuleId) && PlSqlParseHelper::isIdentifierSeparatorToken(lastTokenType))){
+            break;
+        }
+
         if(!PlSqlParseHelper::isIdentifierOrSeparatorToken(siblingToken->tokenOrRuleId)){
             break;
         }
@@ -170,9 +187,13 @@ TokenNameInfo CodeEditorUtil::getObjectNameInfo(const QTextCursor &cur)
             curCopy.setPosition(activeBlock.position() + siblingToken->startPos);
             curCopy.setPosition(activeBlock.position() + siblingToken->endPos, QTextCursor::KeepAnchor);
 
-            result.parts.prepend(curCopy.selectedText());
+            QString lexeme = curCopy.selectedText();
+
+            result.parts.prepend(PlSqlParseHelper::cleanIdentifier(lexeme));
             result.absolutePositions.prepend(qMakePair(curCopy.selectionStart(), curCopy.selectionEnd()));
         }
+
+        lastTokenType = siblingToken->tokenOrRuleId;
 
     }while(PlSqlParseHelper::isIdentifierOrSeparatorToken(siblingToken->tokenOrRuleId));
 
@@ -186,39 +207,96 @@ TokenNameInfo CodeEditorUtil::getObjectNameInfo(const QTextCursor &cur)
 
     tokenIx = currTokenIx + 1;
 
-    do{
+    lastTokenType = currToken->tokenOrRuleId;
 
-        if(tokenIx == blockTokens.size()){
-            while(true){
-                activeBlock = activeBlock.next();
-                if(!activeBlock.isValid()){
-                    return result;
+    if(!upToCurrent){ //do not scan to right if we want to get name up to current token
+
+        do{
+
+            if(tokenIx == blockTokens.size()){
+                while(true){
+                    activeBlock = activeBlock.next();
+                    if(!activeBlock.isValid()){
+                        return result;
+                    }
+                    data = static_cast<BlockData*>(activeBlock.userData());
+                    Q_ASSERT(data);
+                    blockTokens = data->getTokens();
+                    if(blockTokens.size() == 0){
+                        continue;
+                    }
+                    tokenIx = 0;
+                    break;
                 }
-                data = static_cast<BlockData*>(activeBlock.userData());
-                Q_ASSERT(data);
-                blockTokens = data->getTokens();
-                if(blockTokens.size() == 0){
-                    continue;
-                }
-                tokenIx = 0;
+            }
+
+            siblingToken = blockTokens.at(tokenIx++);
+
+            if((PlSqlParseHelper::isIdentifierToken(siblingToken->tokenOrRuleId) && PlSqlParseHelper::isIdentifierToken(lastTokenType)) ||
+                    (PlSqlParseHelper::isIdentifierSeparatorToken(siblingToken->tokenOrRuleId) && PlSqlParseHelper::isIdentifierSeparatorToken(lastTokenType))){
                 break;
             }
-        }
 
-        siblingToken = blockTokens.at(tokenIx++);
+            if(!PlSqlParseHelper::isIdentifierOrSeparatorToken(siblingToken->tokenOrRuleId)){
+                break;
+            }
 
-        if(!PlSqlParseHelper::isIdentifierOrSeparatorToken(siblingToken->tokenOrRuleId)){
+            if(!PlSqlParseHelper::isIdentifierSeparatorToken(siblingToken->tokenOrRuleId)){ //if it is not PLS_DOT then it is either PLS_ID or PLS_DOUBLEQUOTED_ID
+                curCopy.setPosition(activeBlock.position() + siblingToken->startPos);
+                curCopy.setPosition(activeBlock.position() + siblingToken->endPos, QTextCursor::KeepAnchor);
+
+                QString lexeme = curCopy.selectedText();
+
+                result.parts.append(PlSqlParseHelper::cleanIdentifier(lexeme));
+                result.absolutePositions.append(qMakePair(curCopy.selectionStart(), curCopy.selectionEnd()));
+            }
+
+            lastTokenType = siblingToken->tokenOrRuleId;
+
+        }while(PlSqlParseHelper::isIdentifierOrSeparatorToken(siblingToken->tokenOrRuleId));
+
+    }
+
+    return result;
+}
+
+TokenNameInfo CodeEditorUtil::getObjectNameInfoFromSelection(const QTextCursor &cur)
+{
+    Q_ASSERT(cur.hasSelection());
+
+    TokenNameInfo result;
+
+    QString selectedText = cur.selectedText();
+
+    if(selectedText.trimmed().length() > 250){
+        return result;
+    }
+
+    int curPos = qMin(cur.selectionStart(), cur.selectionEnd());
+
+
+    QScopedPointer<PlSqlScanner> scanner(new PlSqlScanner(new StringReader(selectedText)));
+
+    int token;
+    int lastTokenType = -1;
+
+    do{
+        token = scanner->getNextToken();
+
+        if(token == lastTokenType){
             break;
         }
 
-        if(!PlSqlParseHelper::isIdentifierSeparatorToken(siblingToken->tokenOrRuleId)){ //if it is not PLS_DOT then it is either PLS_ID or PLS_DOUBLEQUOTED_ID
-            curCopy.setPosition(activeBlock.position() + siblingToken->startPos);
-            curCopy.setPosition(activeBlock.position() + siblingToken->endPos, QTextCursor::KeepAnchor);
-
-            result.parts.append(curCopy.selectedText());
-            result.absolutePositions.prepend(qMakePair(curCopy.selectionStart(), curCopy.selectionEnd()));
+        if(PlSqlParseHelper::isIdentifierToken(token)){
+            result.parts.append(PlSqlParseHelper::cleanIdentifier(scanner->getTokenLexeme()));
+            result.absolutePositions.append(qMakePair(curPos + scanner->getTokenStartPos(), curPos + scanner->getTokenEndPos()));
         }
-    }while(PlSqlParseHelper::isIdentifierOrSeparatorToken(siblingToken->tokenOrRuleId));
+
+        lastTokenType = token;
+
+    }while(PlSqlParseHelper::isIdentifierOrSeparatorToken(token));
+
+    result.currentPartId = result.parts.count() - 1;
 
     return result;
 }
@@ -226,8 +304,11 @@ TokenNameInfo CodeEditorUtil::getObjectNameInfo(const QTextCursor &cur)
 QList<ParseTreeNode *> CodeEditorUtil::getDeclarationsForCurrentToken(const CodeEditor *editor,
                                                                       const QTextCursor &cur,
                                                                       bool *foundInPairEditor,
-                                                                      TokenInfo **currTokenInfo)
+                                                                      TokenInfo **currTokenInfo,
+                                                                      ParseTreeNode **discardReason)
 {
+    *discardReason = 0;
+
     QList<ParseTreeNode*> nodeList;
 
     if(editor->getLastParseId() == -1){
@@ -245,15 +326,16 @@ QList<ParseTreeNode *> CodeEditorUtil::getDeclarationsForCurrentToken(const Code
     }
 
     TokenInfo *tokenInfo = data->tokenAtPosition(cur.positionInBlock());
-    if(!tokenInfo || tokenInfo->tokenOrRuleId != PLS_ID){
+    if(!tokenInfo || !PlSqlParseHelper::isIdentifierToken(tokenInfo->tokenOrRuleId)){
         return nodeList;
     }
 
-    bool discarded;
-    nodeList = treeBuilder->findDeclarations(block.position() + tokenInfo->startPos, &discarded);
+    *currTokenInfo = tokenInfo;
 
-    if(discarded){
-        return QList<ParseTreeNode*>();
+    nodeList = treeBuilder->findDeclarations(block.position() + tokenInfo->startPos, discardReason);
+
+    if(*discardReason){
+        return nodeList;
     }
 
     CodeEditor *pairEditor = editor->getPairEditor();
@@ -272,8 +354,6 @@ QList<ParseTreeNode *> CodeEditorUtil::getDeclarationsForCurrentToken(const Code
     }else{
         *foundInPairEditor = false;
     }
-
-    *currTokenInfo = tokenInfo;
 
     return nodeList;
 

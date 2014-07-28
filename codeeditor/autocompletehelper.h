@@ -2,6 +2,7 @@
 #define AUTOCOMPLETEHELPER_H
 
 #include <QObject>
+#include "beans/tokennameinfo.h"
 
 class CodeEditor;
 class IQueryScheduler;
@@ -17,7 +18,7 @@ public:
 
     bool isBusy() const {return this->busy;}
 
-    void getChildList(const QStringList &objectNameParts, int cursorPosition);
+    void getChildList(const TokenNameInfo &tokenNameInfo);
 
 signals:
     void modelReady(QAbstractItemModel *model, int cursorPosition);

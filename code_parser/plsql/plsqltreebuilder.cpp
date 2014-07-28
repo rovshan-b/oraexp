@@ -5,6 +5,7 @@
 #include "beans/parsetreenodescope.h"
 #include "code_parser/parsingtable.h"
 #include "code_parser/plsql/plsqlparsingtable.h"
+#include "code_parser/plsql/plsqlparsehelper.h"
 #include "plsqlrules.h"
 #include <QHash>
 
@@ -354,15 +355,15 @@ QHash<ParseTreeNode *, QString> PlSqlTreeBuilder::findNodesWithHandlers(ParseTre
     return nodes;
 }
 
-QList<ParseTreeNode*> PlSqlTreeBuilder::findDeclarations(int position, bool *discarded)
+QList<ParseTreeNode*> PlSqlTreeBuilder::findDeclarations(int position, ParseTreeNode **discardReason)
 {
     QTime t;
     t.start();
-    *discarded = false;
+    *discardReason = 0;
 
     ParseTreeNode *node = rootNode->findChildForPosition(position);
 
-    if(node->tokenInfo->tokenOrRuleId != PLS_ID){
+    if(PlSqlParseHelper::isIdentifierToken(node->tokenInfo->tokenOrRuleId)){
         return QList<ParseTreeNode*>();
     }
 
@@ -397,8 +398,8 @@ QList<ParseTreeNode*> PlSqlTreeBuilder::findDeclarations(int position, bool *dis
         }
 
         if((*declNode)->containsPosition(position)){ //cursor is on declaration itself
-            *discarded = true;
-            return QList<ParseTreeNode*>();
+            *discardReason = *declNode;
+            //return QList<ParseTreeNode*>();
         }
     }
 

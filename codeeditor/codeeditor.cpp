@@ -15,10 +15,11 @@
 #include "app_menu/appeditmenu.h"
 #include "code_parser/plsql/plsqlparsehelper.h"
 #include "code_parser/plsql/plsqltreebuilder.h"
+#include "code_parser/plsql/plsqltokens.h"
 #include "beans/parsetreenode.h"
 #include "beans/codecollapseposition.h"
 #include "beans/tokeninfo.h"
-#include "code_parser/plsql/plsqltokens.h"
+#include "connectivity/dbconnection.h"
 #include "widgets/tooltipwidget.h"
 #include <QPainter>
 
@@ -39,6 +40,7 @@ CodeEditor::CodeEditor(bool plsqlMode, QWidget *parent) :
     QPlainTextEdit(parent),
     lineNumberArea(0),
     lineNavBar(0),
+    queryScheduler(0),
     markedLineIx(-1),
     pulsateTimerId(0),
     lineMarkerUsed(false),
@@ -107,7 +109,7 @@ CodeEditor::~CodeEditor()
 
 void CodeEditor::setQueryScheduler(IQueryScheduler *queryScheduler)
 {
-    Q_UNUSED(queryScheduler);
+    this->queryScheduler = queryScheduler;
 
     Q_ASSERT(this->completer == 0);
 
@@ -356,6 +358,10 @@ int CodeEditor::lineMarkerAreaOffset() const
      TokenInfo *tokenInfo = data->tokenAtPosition(pos);
 
      if(!tokenInfo){
+         //tokenInfo = data->tokenAtPosition(pos - 1);
+         //if(!tokenInfo){
+         //    return;
+         //}
          return;
      }
 
@@ -1077,11 +1083,13 @@ int CodeEditor::lineMarkerAreaOffset() const
      bool foundInPairEditor = false;
      TokenInfo *tokenInfo = 0;
 
+     ParseTreeNode *discardReason;
      QList<ParseTreeNode *> nodeList = CodeEditorUtil::getDeclarationsForCurrentToken(this, cur,
                                                                                       &foundInPairEditor,
-                                                                                      &tokenInfo);
+                                                                                      &tokenInfo,
+                                                                                      &discardReason);
 
-     if(nodeList.isEmpty()){
+     if(nodeList.isEmpty() || discardReason){
          return;
      }
 
@@ -1119,6 +1127,103 @@ int CodeEditor::lineMarkerAreaOffset() const
      showToolTip(replaceParagraphSeparators(declarationText),
                  viewport()->mapToGlobal(curRect.bottomLeft()+QPoint(10, 10)),
                  activeRect);
+ }
+
+ bool CodeEditor::describeLocalObject()
+ {
+     if(!plsqlMode || lastParseId == -1 || queryScheduler == 0){
+         return false;
+     }
+
+     TokenNameInfo nameInfo = CodeEditorUtil::getCurrentObjectNameInfo(this);
+
+     if(nameInfo.isEmpty()){
+         return false;
+     }
+
+     QString schemaName, objectName;
+
+     PlSqlParseHelper::findObjectName(treeBuilder, &schemaName, &objectName, queryScheduler->getDb()->getSchemaName());
+
+     bool foundInPairEditor = false;
+     TokenInfo *tokenInfo = 0;
+
+     QList<ParseTreeNode *> nodeList;
+     ParseTreeNode *discardReason = 0;
+     QTextCursor cur = textCursor();
+
+     bool foundSchemaName = false;
+     bool foundObjectName = false;
+
+     ParseTreeNode *declNode = 0;
+
+     for(int i=0; i<=nameInfo.currentPartId; ++i){
+         cur.setPosition(nameInfo.absolutePositions[i].first);
+         nodeList = CodeEditorUtil::getDeclarationsForCurrentToken(this, cur,
+                                                                   &foundInPairEditor,
+                                                                   &tokenInfo,
+                                                                   &discardReason);
+
+         if(discardReason){
+             declNode = discardReason;
+             break;
+         }
+
+         Q_ASSERT(tokenInfo);
+
+         cur.setPosition(nameInfo.absolutePositions[i].second, QTextCursor::KeepAnchor);
+         QString lexeme = cur.selectedText();
+
+         if(nodeList.isEmpty()){
+             if(i == 0 && !foundSchemaName && lexeme.compare(schemaName, Qt::CaseInsensitive) == 0){ //first part is schema name
+                 foundSchemaName = true;
+                 continue;
+             }else if(i == 0 && !foundObjectName && lexeme.compare(objectName, Qt::CaseInsensitive) == 0){ //first part is object name
+                 foundSchemaName = true;
+                 foundObjectName = true;
+                 continue;
+             }else if(i == 1 && foundSchemaName && !foundObjectName && lexeme.compare(objectName, Qt::CaseInsensitive) == 0){ //second part is object name
+                 foundObjectName = true;
+             }else{ //could not find any declaration locally
+                 return false;
+             }
+         }else{
+             declNode = nodeList[0];
+             break;
+         }
+     }
+
+     if(declNode){
+
+         CodeEditor *editor = foundInPairEditor ? pairEditor : this;
+         QTextCursor declCursor = editor->textCursor();
+
+         ParseTreeNode *nameNode = PlSqlTreeBuilder::findNode(declNode,
+                                                              R_IDENTIFIER, true);
+
+         if(nameNode){
+             declCursor.setPosition(nameNode->tokenInfo->startPos);
+             declCursor.setPosition(nameNode->tokenInfo->endPos, QTextCursor::KeepAnchor);
+         }else{
+             declCursor.setPosition(declNode->tokenInfo->startPos);
+             declCursor.setPosition(declNode->tokenInfo->endPos, QTextCursor::KeepAnchor);
+         }
+
+
+         if(foundInPairEditor){
+             emit switchToPair();
+         }
+
+         editor->setTextCursor(declCursor);
+         editor->ensureCursorVisible();
+         /*editor->pulsate(declNode->tokenInfo->startPos,
+                         declNode->tokenInfo->endPos,
+                         false, 300);*/
+
+         return true;
+     }else{
+         return false;
+     }
  }
 
  bool CodeEditor::extendSelection(QTextCursor &cur)
@@ -1646,7 +1751,6 @@ int CodeEditor::lineMarkerAreaOffset() const
      return this->pairEditor;
  }
 
-
  void CodeEditor::moveSelectionUp()
  {
      QTextCursor cur=textCursor();
@@ -2144,16 +2248,26 @@ int CodeEditor::lineMarkerAreaOffset() const
      pulsate(cursorToPulsate, 700);
  }
 
- void CodeEditor::pulsate(const QTextCursor &cursor, int duration)
+ void CodeEditor::pulsate(const QTextCursor &cursor, bool makeVisible, int duration)
  {
      pulsatePositions.clear();
      pulsatePositions.append(cursor);
+     if(makeVisible){
+        ensureVisible(cursor);
+     }
      highlightCurrentLine();
-     //QTimer::singleShot(duration, this, SLOT(removePulsatePositions()));
      if(pulsateTimerId){
          killTimer(pulsateTimerId);
      }
      pulsateTimerId = startTimer(duration);
+ }
+
+ void CodeEditor::pulsate(int startPos, int endPos, bool makeVisible, int duration)
+ {
+     QTextCursor cur = textCursor();
+     cur.setPosition(startPos);
+     cur.setPosition(endPos, QTextCursor::KeepAnchor);
+     pulsate(cur, makeVisible, duration);
  }
 
  void CodeEditor::ensureVisible(const QTextCursor &cursor)
@@ -2178,7 +2292,6 @@ int CodeEditor::lineMarkerAreaOffset() const
                                    startBlock.blockNumber();
 
      verticalScrollBar()->setValue(qMin(verticalScrollBar()->maximum(), firstBlockNumber));
-
  }
 
  void CodeEditor::setErrorPosition(const QTextCursor &cursor)

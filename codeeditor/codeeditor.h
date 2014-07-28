@@ -55,7 +55,8 @@ public:
 
     void showLinePosition(int line, int linePos);
 
-    void pulsate(const QTextCursor &cursor, int duration = 300);
+    void pulsate(const QTextCursor &cursor, bool makeVisible = false, int duration = 300);
+    void pulsate(int startPos, int endPos, bool makeVisible, int duration = 300);
     void ensureVisible(const QTextCursor &cursor);
 
     void setErrorPosition(const QTextCursor &cursor);
@@ -92,6 +93,8 @@ public:
 
     void setPairEditor(CodeEditor *pairEditor);
     CodeEditor *getPairEditor() const;
+
+    bool describeLocalObject();
 
     static QList<CodeEditor*> openEditors;
 
@@ -134,6 +137,7 @@ signals:
     void needsCompletionList();
     void updated(CodeEditor *editor);
     void applyCaseFoldingRequested();
+    void switchToPair();
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -164,6 +168,8 @@ private:
     QWidget *lineNumberArea;
     CodeCollapseArea *codeCollapseArea;
     LineNavigationBar *lineNavBar;
+
+    IQueryScheduler *queryScheduler;
 
     QTime codeCollapseAreaMouseEnterTime;
 

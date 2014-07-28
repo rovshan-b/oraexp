@@ -23,7 +23,9 @@ public:
 
     static void getNextQueryPos(const QString &query, int startFromPos, int *queryStartPos, int *queryEndPos);
 
-    static void findObjectName(const QString &query, QString *schema, QString *name, const QString &defaultSchema);
+    static void findObjectName(PlSqlTreeBuilder *treeBuilder, QString *schema, QString *name, const QString &defaultSchema);
+
+    //static void findObjectName(const QString &query, QString *schema, QString *name, const QString &defaultSchema);
 
     static PlSqlTreeBuilder *createParseTree(TextReaderBase *reader, bool *success = 0);
 
@@ -43,14 +45,14 @@ public:
 
     static int extractPlSqlErrorCode(const QString &errorMessage);
 
-    static QStringList tokenizeName(const QString &objectName);
+    //static QStringList tokenizeName(const QString &objectName);
 
     static bool isIdentifierOrSeparatorToken(int token);
     static bool isIdentifierToken(int token);
     static bool isIdentifierSeparatorToken(int token);
 
-private:
     static QString cleanIdentifier(const QString &identifier);
+private:
 
     PlSqlParseHelper();
 

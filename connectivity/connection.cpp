@@ -71,10 +71,11 @@ QString Connection::getSchemaName() const
 
 void err_handler(OCI_Error *err)
 {
-    qDebug() << "err_handler, code =" << OCI_ErrorGetOCICode(err)
+    Q_UNUSED(err);
+    /*qDebug() << "err_handler, code =" << OCI_ErrorGetOCICode(err)
            << ", msg =" << toQString(OCI_ErrorGetString(err))
            << ", sql =" << toQString(OCI_GetSql(OCI_ErrorGetStatement(err)))
-    ;
+    ;*/
 }
 
 void Connection::initEnvironment()

@@ -32,7 +32,7 @@ public:
     static ParseTreeNode *findAnyNode(ParseTreeNode *parentNode, const QList<int> ruleIds, bool recursive = false);
     static QHash<ParseTreeNode *, QString> findNodesWithHandlers(ParseTreeNode *parentNode);
 
-    QList<ParseTreeNode *> findDeclarations(int position, bool *discarded);
+    QList<ParseTreeNode *> findDeclarations(int position, ParseTreeNode **discardReason);
     QList<ParseTreeNode *> findDeclarations(const QString &lexeme);
 
 private:

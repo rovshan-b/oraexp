@@ -88,6 +88,8 @@ private slots:
 
     void bottomSplitterMoved();
 
+    void codeParsingCompleted(PlSqlTreeBuilder *treeBulder);
+
     void prepareCompletionList();
 
 private:

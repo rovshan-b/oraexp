@@ -48,6 +48,8 @@ void CodeCreatorWidget::createUi()
     //create right pane
     outerSplitter->addWidget(createRightPane());
     connect(multiEditor, SIGNAL(escapeKeyPressed()), infoPanel, SLOT(closePanel()));
+    connect(multiEditor, SIGNAL(codeParsingCompleted(PlSqlTreeBuilder*)), this, SLOT(codeParsingCompleted(PlSqlTreeBuilder*)));
+    connect(multiEditor, SIGNAL(switchToPair()), this, SIGNAL(specBodySwitchRequested()));
     connect(multiEditor, SIGNAL(needsCompletionList()), this, SLOT(prepareCompletionList()));
 
     //for splitting tree/editor area and info panel
@@ -422,17 +424,6 @@ void CodeCreatorWidget::objectCodeExecuted(const QueryResult &result)
         return;
     }
 
-    QString query = currentEditor()->editor()->toPlainText();
-    QString schema, name;
-    PlSqlParseHelper::findObjectName(query, &schema, &name, this->queryScheduler->getDb()->getUsername());
-    if(name.isEmpty() && objectName.isEmpty()){
-        QMessageBox::critical(this->window(), tr("Parse error"),
-                              tr("Could not parse object name. If you know that code is correct please, submit a bug report."));
-    }else{
-        this->schemaName = schema;
-        this->objectName = name;
-    }
-
     setModified(false);
     compileObject();
 }
@@ -514,6 +505,17 @@ void CodeCreatorWidget::bottomSplitterMoved()
     CodeCreatorWidget::bottomSplitterSizes = bottomSplitter->saveState();
 }
 
+void CodeCreatorWidget::codeParsingCompleted(PlSqlTreeBuilder *treeBulder)
+{
+    QString schema, name;
+
+    PlSqlParseHelper::findObjectName(treeBulder, &schema, &name, this->queryScheduler->getDb()->getUsername());
+    if(!name.isEmpty()){
+        this->schemaName = schema;
+        this->objectName = name;
+    }
+}
+
 QString CodeCreatorWidget::getCurrentFileName() const
 {
     return this->currentFileName;
@@ -568,12 +570,9 @@ void CodeCreatorWidget::prepareCompletionList()
     */
 
     CodeEditor *editor = multiEditor->currentTextEditor();
-    QString currentObjectName = CodeEditorUtil::getCurrentObjectName(editor);
-    if(!currentObjectName.isEmpty() && currentObjectName.length() < 250){
-        QStringList nameParts = PlSqlParseHelper::tokenizeName(currentObjectName);
-        if(nameParts.size() > 0){
-            autocompleteHelper->getChildList(nameParts, editor->textCursor().position());
-        }
+    TokenNameInfo currentObjectNameInfo = CodeEditorUtil::getCurrentObjectNameInfo(editor);
+    if(!currentObjectNameInfo.isEmpty()){
+        autocompleteHelper->getChildList(currentObjectNameInfo);
     }
 }
 
