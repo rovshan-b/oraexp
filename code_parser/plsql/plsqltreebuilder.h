@@ -28,12 +28,23 @@ public:
     void clearCollapsePositions();
 
     //ParseTreeNode *getNode(const QList<int> rulesPath) const;
-    static ParseTreeNode *findNode(ParseTreeNode *parentNode, int ruleId, bool recursive = false);
+    static ParseTreeNode *findNode(const ParseTreeNode *parentNode, int ruleId, bool recursive = false);
     static ParseTreeNode *findAnyNode(ParseTreeNode *parentNode, const QList<int> ruleIds, bool recursive = false);
     static QHash<ParseTreeNode *, QString> findNodesWithHandlers(ParseTreeNode *parentNode);
 
     QList<ParseTreeNode *> findDeclarations(int position, ParseTreeNode **discardReason);
     QList<ParseTreeNode *> findDeclarations(const QString &lexeme);
+
+    static void replaceWithProcHeadingNode(ParseTreeNode **procNode);
+    static ParseTreeNode *findProcHeadingNode(ParseTreeNode *procNode);
+
+    static bool isProcNode(ParseTreeNode *node);
+    static bool isProcNode(int ruleId);
+    static int getPairProcRuleId(int ruleId);
+
+    static bool isIdentifierOrSeparatorToken(int token);
+    static bool isIdentifierToken(int token);
+    static bool isIdentifierSeparatorToken(int token);
 
 private:
     ParseTreeNode *rootNode;

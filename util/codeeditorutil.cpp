@@ -6,9 +6,13 @@
 #include "code_parser/plsql/plsqltokens.h"
 #include "code_parser/plsql/plsqlparsehelper.h"
 #include "code_parser/plsql/plsqltreebuilder.h"
+#include "code_parser/plsql/plsqlrules.h"
 #include "code_formatter/plsql/plsqlformatter.h"
 #include "codeeditor/blockdata.h"
+#include "interfaces/iqueryscheduler.h"
+#include "connectivity/dbconnection.h"
 #include "beans/tokeninfo.h"
+#include "beans/parsetreenode.h"
 #include "util/strutil.h"
 #include <QTextBlock>
 
@@ -132,12 +136,15 @@ TokenNameInfo CodeEditorUtil::getObjectNameInfo(const QTextCursor &cur, bool upT
     BlockData *data = static_cast<BlockData*>(block.userData());
     Q_ASSERT(data);
 
-    TokenInfo *currToken = data->tokenAtPosition(cur.positionInBlock());
+    TokenInfo *currToken = cur.hasSelection() ?
+                            data->tokenAtPosition(qMin(cur.selectionStart(),cur.selectionEnd())-block.position())
+                                :
+                            data->tokenAtPosition(cur.positionInBlock());
     if(!currToken){
         return result;
     }
 
-    if(!PlSqlParseHelper::isIdentifierToken(currToken->tokenOrRuleId)){
+    if(!PlSqlTreeBuilder::isIdentifierToken(currToken->tokenOrRuleId)){
         return result;
     }
 
@@ -174,16 +181,16 @@ TokenNameInfo CodeEditorUtil::getObjectNameInfo(const QTextCursor &cur, bool upT
 
         siblingToken = blockTokens.at(tokenIx--);
 
-        if((PlSqlParseHelper::isIdentifierToken(siblingToken->tokenOrRuleId) && PlSqlParseHelper::isIdentifierToken(lastTokenType)) ||
-                (PlSqlParseHelper::isIdentifierSeparatorToken(siblingToken->tokenOrRuleId) && PlSqlParseHelper::isIdentifierSeparatorToken(lastTokenType))){
+        if((PlSqlTreeBuilder::isIdentifierToken(siblingToken->tokenOrRuleId) && PlSqlTreeBuilder::isIdentifierToken(lastTokenType)) ||
+                (PlSqlTreeBuilder::isIdentifierSeparatorToken(siblingToken->tokenOrRuleId) && PlSqlTreeBuilder::isIdentifierSeparatorToken(lastTokenType))){
             break;
         }
 
-        if(!PlSqlParseHelper::isIdentifierOrSeparatorToken(siblingToken->tokenOrRuleId)){
+        if(!PlSqlTreeBuilder::isIdentifierOrSeparatorToken(siblingToken->tokenOrRuleId)){
             break;
         }
 
-        if(!PlSqlParseHelper::isIdentifierSeparatorToken(siblingToken->tokenOrRuleId)){ //if it is not PLS_DOT then it is either PLS_ID or PLS_DOUBLEQUOTED_ID
+        if(!PlSqlTreeBuilder::isIdentifierSeparatorToken(siblingToken->tokenOrRuleId)){ //if it is not PLS_DOT then it is either PLS_ID or PLS_DOUBLEQUOTED_ID
             curCopy.setPosition(activeBlock.position() + siblingToken->startPos);
             curCopy.setPosition(activeBlock.position() + siblingToken->endPos, QTextCursor::KeepAnchor);
 
@@ -195,7 +202,7 @@ TokenNameInfo CodeEditorUtil::getObjectNameInfo(const QTextCursor &cur, bool upT
 
         lastTokenType = siblingToken->tokenOrRuleId;
 
-    }while(PlSqlParseHelper::isIdentifierOrSeparatorToken(siblingToken->tokenOrRuleId));
+    }while(PlSqlTreeBuilder::isIdentifierOrSeparatorToken(siblingToken->tokenOrRuleId));
 
     result.currentPartId = result.parts.size() - 1;
 
@@ -232,16 +239,16 @@ TokenNameInfo CodeEditorUtil::getObjectNameInfo(const QTextCursor &cur, bool upT
 
             siblingToken = blockTokens.at(tokenIx++);
 
-            if((PlSqlParseHelper::isIdentifierToken(siblingToken->tokenOrRuleId) && PlSqlParseHelper::isIdentifierToken(lastTokenType)) ||
-                    (PlSqlParseHelper::isIdentifierSeparatorToken(siblingToken->tokenOrRuleId) && PlSqlParseHelper::isIdentifierSeparatorToken(lastTokenType))){
+            if((PlSqlTreeBuilder::isIdentifierToken(siblingToken->tokenOrRuleId) && PlSqlTreeBuilder::isIdentifierToken(lastTokenType)) ||
+                    (PlSqlTreeBuilder::isIdentifierSeparatorToken(siblingToken->tokenOrRuleId) && PlSqlTreeBuilder::isIdentifierSeparatorToken(lastTokenType))){
                 break;
             }
 
-            if(!PlSqlParseHelper::isIdentifierOrSeparatorToken(siblingToken->tokenOrRuleId)){
+            if(!PlSqlTreeBuilder::isIdentifierOrSeparatorToken(siblingToken->tokenOrRuleId)){
                 break;
             }
 
-            if(!PlSqlParseHelper::isIdentifierSeparatorToken(siblingToken->tokenOrRuleId)){ //if it is not PLS_DOT then it is either PLS_ID or PLS_DOUBLEQUOTED_ID
+            if(!PlSqlTreeBuilder::isIdentifierSeparatorToken(siblingToken->tokenOrRuleId)){ //if it is not PLS_DOT then it is either PLS_ID or PLS_DOUBLEQUOTED_ID
                 curCopy.setPosition(activeBlock.position() + siblingToken->startPos);
                 curCopy.setPosition(activeBlock.position() + siblingToken->endPos, QTextCursor::KeepAnchor);
 
@@ -253,7 +260,7 @@ TokenNameInfo CodeEditorUtil::getObjectNameInfo(const QTextCursor &cur, bool upT
 
             lastTokenType = siblingToken->tokenOrRuleId;
 
-        }while(PlSqlParseHelper::isIdentifierOrSeparatorToken(siblingToken->tokenOrRuleId));
+        }while(PlSqlTreeBuilder::isIdentifierOrSeparatorToken(siblingToken->tokenOrRuleId));
 
     }
 
@@ -287,24 +294,97 @@ TokenNameInfo CodeEditorUtil::getObjectNameInfoFromSelection(const QTextCursor &
             break;
         }
 
-        if(PlSqlParseHelper::isIdentifierToken(token)){
+        if(PlSqlTreeBuilder::isIdentifierToken(token)){
             result.parts.append(PlSqlParseHelper::cleanIdentifier(scanner->getTokenLexeme()));
             result.absolutePositions.append(qMakePair(curPos + scanner->getTokenStartPos(), curPos + scanner->getTokenEndPos()));
         }
 
         lastTokenType = token;
 
-    }while(PlSqlParseHelper::isIdentifierOrSeparatorToken(token));
+    }while(PlSqlTreeBuilder::isIdentifierOrSeparatorToken(token));
 
     result.currentPartId = result.parts.count() - 1;
 
     return result;
 }
 
+QList<ParseTreeNode *> CodeEditorUtil::getDeclarationsForLocalObject(CodeEditor *editor,
+                                                                     const QTextCursor &cursor,
+                                                                     bool *foundInPairEditor,
+                                                                     ParseTreeNode **discardReason)
+{
+    *discardReason = 0;
+
+    TokenNameInfo nameInfo = CodeEditorUtil::getObjectNameInfo(cursor);
+
+    if(nameInfo.isEmpty()){
+        return QList<ParseTreeNode *>();
+    }
+
+    QString schemaName, objectName;
+
+    PlSqlParseHelper::findObjectName(editor->getTreeBuilder(),
+                                     &schemaName, &objectName,
+                                     editor->getQueryScheduler()->getDb()->getSchemaName());
+
+    *foundInPairEditor = false;
+
+    QList<ParseTreeNode *> nodeList;
+    QTextCursor cur = cursor;
+
+    bool foundSchemaName = false;
+    bool foundObjectName = false;
+
+    for(int i=0; i<=nameInfo.currentPartId; ++i){
+        cur.setPosition(nameInfo.absolutePositions[i].first);
+
+        if(foundObjectName){ //referring to object level declaration
+            nodeList = CodeEditorUtil::getObjectLevelDeclarationsForLexeme(editor,
+                                                                nameInfo.parts[i],
+                                                                foundInPairEditor);
+            //QTextCursor cursor = editor->textCursor();
+            //BlockData *data = static_cast<BlockData*>(cur.block().userData());
+            //tokenInfo = data->tokenAtPosition(cur.positionInBlock());
+            //*discardReason = 0;
+        }else{ //referring to local or object level declaration
+           nodeList = CodeEditorUtil::getDeclarationsForCurrentToken(editor, cur,
+                                                                  foundInPairEditor,
+                                                                  discardReason);
+        }
+
+        if(*discardReason){
+            return nodeList;
+        }
+
+        //Q_ASSERT(tokenInfo);
+
+        cur.setPosition(nameInfo.absolutePositions[i].second, QTextCursor::KeepAnchor);
+        QString lexeme = cur.selectedText();
+
+        if(nodeList.isEmpty()){
+            if(i == 0 && !foundSchemaName && lexeme.compare(schemaName, Qt::CaseInsensitive) == 0){ //first part is schema name
+                foundSchemaName = true;
+                continue;
+            }else if(i == 0 && !foundObjectName && lexeme.compare(objectName, Qt::CaseInsensitive) == 0){ //first part is object name
+                foundSchemaName = true;
+                foundObjectName = true;
+                continue;
+            }else if(i == 1 && foundSchemaName && !foundObjectName && lexeme.compare(objectName, Qt::CaseInsensitive) == 0){ //second part is object name
+                foundObjectName = true;
+            }else{ //could not find any declaration locally
+                break;
+            }
+        }else{
+            break;
+        }
+    }
+
+    return nodeList;
+}
+
 QList<ParseTreeNode *> CodeEditorUtil::getDeclarationsForCurrentToken(const CodeEditor *editor,
                                                                       const QTextCursor &cur,
                                                                       bool *foundInPairEditor,
-                                                                      TokenInfo **currTokenInfo,
                                                                       ParseTreeNode **discardReason)
 {
     *discardReason = 0;
@@ -326,11 +406,9 @@ QList<ParseTreeNode *> CodeEditorUtil::getDeclarationsForCurrentToken(const Code
     }
 
     TokenInfo *tokenInfo = data->tokenAtPosition(cur.positionInBlock());
-    if(!tokenInfo || !PlSqlParseHelper::isIdentifierToken(tokenInfo->tokenOrRuleId)){
+    if(!tokenInfo || !PlSqlTreeBuilder::isIdentifierToken(tokenInfo->tokenOrRuleId)){
         return nodeList;
     }
-
-    *currTokenInfo = tokenInfo;
 
     nodeList = treeBuilder->findDeclarations(block.position() + tokenInfo->startPos, discardReason);
 
@@ -357,6 +435,147 @@ QList<ParseTreeNode *> CodeEditorUtil::getDeclarationsForCurrentToken(const Code
 
     return nodeList;
 
+}
+
+QList<ParseTreeNode *> CodeEditorUtil::getObjectLevelDeclarationsForLexeme(const CodeEditor *editor, const QString &lexeme, bool *foundInPairEditor)
+{
+    QList<ParseTreeNode*> nodeList;
+
+    *foundInPairEditor = false;
+
+    CodeEditor *pairEditor = editor->getPairEditor();
+
+    if(pairEditor!=0 && pairEditor->getLastParseId() != -1){
+        nodeList = pairEditor->getTreeBuilder()->findDeclarations(lexeme);
+
+        if(!nodeList.isEmpty()){
+            *foundInPairEditor = true;
+            return nodeList;
+        }
+    }
+
+    if(editor->getLastParseId() == -1){
+        return nodeList;
+    }
+
+    return editor->getTreeBuilder()->findDeclarations(lexeme);
+}
+
+ParseTreeNode *CodeEditorUtil::getPairDeclaration(CodeEditor *editor,
+                                                  const QTextCursor &cur,
+                                                  ParseTreeNode *procNode,
+                                                  const QList<ParseTreeNode *> &declList,
+                                                  bool *foundInPairEditor)
+{
+    *foundInPairEditor = false;
+
+    Q_ASSERT(PlSqlTreeBuilder::isProcNode(procNode));
+
+    int pairRuleId = PlSqlTreeBuilder::getPairProcRuleId(procNode->tokenInfo->tokenOrRuleId);
+
+    ParseTreeNode *headingNode = PlSqlTreeBuilder::findProcHeadingNode(procNode);
+    Q_ASSERT(headingNode);
+
+    ParseTreeNode *paramsNode = PlSqlTreeBuilder::findNode(headingNode, R_OPT_PARAM_DECLARATIONS, false);
+    if(paramsNode){
+        paramsNode = PlSqlTreeBuilder::findNode(paramsNode, R_PARAM_LIST, true);
+    }
+
+    ParseTreeNode *result = getBestPairDeclarationByParamList(paramsNode, declList, pairRuleId);
+
+    CodeEditor *pairEditor = editor->getPairEditor();
+    if(!result && pairEditor != 0 && pairEditor->getLastParseId() != -1){
+        *foundInPairEditor = true;
+
+        QString lexeme = getObjectNameInfo(cur).currentLexeme();
+        Q_ASSERT(!lexeme.isEmpty());
+
+        QList<ParseTreeNode*> pairDeclList = pairEditor->getTreeBuilder()->findDeclarations(lexeme);
+        if(!pairDeclList.isEmpty()){
+            result = getBestPairDeclarationByParamList(paramsNode, pairDeclList, pairRuleId);
+        }
+    }
+
+    return result;
+}
+
+ParseTreeNode *CodeEditorUtil::getBestPairDeclarationByParamList(const ParseTreeNode *paramsNode, const QList<ParseTreeNode *> &declList, int pairRuleId)
+{
+    ParseTreeNode *bestMatch = 0;
+    int bestMatchedParamCount = 0;
+    int bestMatchedParamNames = 0;
+
+    int matchedParamCount;
+    int matchedParamNames;
+
+    foreach(ParseTreeNode *declNode, declList){
+        if(declNode->tokenInfo->tokenOrRuleId == pairRuleId){
+
+            ParseTreeNode *headingNode = PlSqlTreeBuilder::findProcHeadingNode(declNode);
+            Q_ASSERT(headingNode);
+
+            ParseTreeNode *targetParamsNode = PlSqlTreeBuilder::findNode(headingNode, R_OPT_PARAM_DECLARATIONS, false);
+            if(targetParamsNode){
+                targetParamsNode = PlSqlTreeBuilder::findNode(targetParamsNode, R_PARAM_LIST, true);
+            }
+
+            matchParameterLists(paramsNode, targetParamsNode, &matchedParamCount, &matchedParamNames);
+
+            if(bestMatch == 0){
+                bestMatch = declNode;
+            }
+
+            if(matchedParamNames > bestMatchedParamNames
+                    || (matchedParamNames < bestMatchedParamNames && matchedParamCount > bestMatchedParamCount)){
+                bestMatch = declNode;
+                bestMatchedParamCount = matchedParamCount;
+                bestMatchedParamNames = matchedParamNames;
+            }
+        }
+    }
+
+    return bestMatch;
+}
+
+void CodeEditorUtil::matchParameterLists(const ParseTreeNode *firstNode, const ParseTreeNode *secondNode, int *matchedParamCount, int *matchedParamNames)
+{
+    *matchedParamCount = 0;
+    *matchedParamNames = 0;
+
+    if(firstNode == 0 || secondNode == 0){
+        return;
+    }
+
+    int paramCountToCompare = qMin(firstNode->children.count(), secondNode->children.count());
+
+    *matchedParamCount = paramCountToCompare;
+
+    for(int i=0; i<paramCountToCompare; ++i){
+        ParseTreeNode *firstParamNode = firstNode->children[i];
+        ParseTreeNode *secondParamNode = secondNode->children[i];
+
+        if(firstParamNode->tokenInfo->tokenOrRuleId != R_PARAM_DECLARATION ||
+                secondParamNode->tokenInfo->tokenOrRuleId != R_PARAM_DECLARATION){
+            continue;
+        }
+
+        ParseTreeNode *firstNameNode = PlSqlTreeBuilder::findNode(firstParamNode, R_IDENTIFIER, true);
+        ParseTreeNode *secondNameNode = PlSqlTreeBuilder::findNode(secondParamNode, R_IDENTIFIER, true);
+
+        if(firstNameNode == 0 || secondNameNode == 0){
+            continue;
+        }
+
+        Q_ASSERT(firstNameNode->children.count() == 1);
+        Q_ASSERT(secondNameNode->children.count() == 1);
+
+        QString firstLexeme = firstNameNode->children[0]->tokenInfo->lexeme;
+        QString secondLexeme = secondNameNode->children[0]->tokenInfo->lexeme;
+
+        if(firstLexeme.compare(secondLexeme, Qt::CaseInsensitive) == 0){
+            ++*matchedParamNames;
+        }
+    }
 }
 
 void CodeEditorUtil::formatCode(CodeEditor *editor)

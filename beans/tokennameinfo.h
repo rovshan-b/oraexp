@@ -17,6 +17,7 @@ public:
     bool isEmpty() const;
 
     QString toString() const;
+    QString currentLexeme() const;
 };
 
 #endif // TOKENNAMEINFO_H

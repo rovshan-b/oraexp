@@ -1,6 +1,6 @@
 #include "tokennameinfo.h"
 
-TokenNameInfo::TokenNameInfo()
+TokenNameInfo::TokenNameInfo() : currentPartId(0)
 {
 }
 
@@ -22,4 +22,13 @@ QString TokenNameInfo::toString() const
     }
 
     return result;
+}
+
+QString TokenNameInfo::currentLexeme() const
+{
+    if(isEmpty()){
+        return QString();
+    }
+
+    return parts.at(currentPartId);
 }

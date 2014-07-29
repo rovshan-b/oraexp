@@ -464,23 +464,6 @@ int PlSqlParseHelper::extractPlSqlErrorCode(const QString &errorMessage)
     return parts;
 }*/
 
-bool PlSqlParseHelper::isIdentifierOrSeparatorToken(int token)
-{
-    return PlSqlParseHelper::isIdentifierToken(token) ||
-            PlSqlParseHelper::isIdentifierSeparatorToken(token);
-}
-
-bool PlSqlParseHelper::isIdentifierToken(int token)
-{
-    return (token == PLS_ID || token == PLS_DOUBLEQUOTED_STRING ||
-            (token < NON_LITERAL_START_IX && token >= 0)); //allow keywords as well, because some of them are keywords depending on current context
-}
-
-bool PlSqlParseHelper::isIdentifierSeparatorToken(int token)
-{
-    return token == PLS_DOT;
-}
-
 PlSqlParseHelper::PlSqlParseHelper()
 {
 }

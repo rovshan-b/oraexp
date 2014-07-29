@@ -30,6 +30,7 @@ public:
     virtual ~CodeEditor();
 
     void setQueryScheduler(IQueryScheduler *queryScheduler);
+    IQueryScheduler *getQueryScheduler() const;
 
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth() const;

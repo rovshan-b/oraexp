@@ -6,6 +6,7 @@
 #include "code_parser/parsingtable.h"
 #include "code_parser/plsql/plsqlparsingtable.h"
 #include "code_parser/plsql/plsqlparsehelper.h"
+#include "code_parser/plsql/plsqlscanner.h"
 #include "plsqlrules.h"
 #include <QHash>
 
@@ -296,7 +297,7 @@ ParseTreeNode *PlSqlTreeBuilder::getNode(const QList<int> rulesPath) const
     return n;
 }*/
 
-ParseTreeNode *PlSqlTreeBuilder::findNode(ParseTreeNode *parentNode, int ruleId, bool recursive)
+ParseTreeNode *PlSqlTreeBuilder::findNode(const ParseTreeNode *parentNode, int ruleId, bool recursive)
 {
     ParseTreeNode *n;
     for(int i=0; i<parentNode->children.size(); ++i){
@@ -363,7 +364,11 @@ QList<ParseTreeNode*> PlSqlTreeBuilder::findDeclarations(int position, ParseTree
 
     ParseTreeNode *node = rootNode->findChildForPosition(position);
 
-    if(PlSqlParseHelper::isIdentifierToken(node->tokenInfo->tokenOrRuleId)){
+    if(!node){
+        return QList<ParseTreeNode*>();
+    }
+
+    if(!PlSqlTreeBuilder::isIdentifierToken(node->tokenInfo->tokenOrRuleId)){
         return QList<ParseTreeNode*>();
     }
 
@@ -385,21 +390,12 @@ QList<ParseTreeNode*> PlSqlTreeBuilder::findDeclarations(int position, ParseTree
     }
 
     for(int i=0; i<declNodeList.count(); ++i){
-        ParseTreeNode **declNode = &declNodeList[i];
-        TokenInfo *tokenInfo = (*declNode)->tokenInfo;
+        ParseTreeNode *declNode = declNodeList[i];
 
-        if(tokenInfo->tokenOrRuleId == R_FUNCTION_DECLARATION ||
-                tokenInfo->tokenOrRuleId == R_FUNCTION_DEFINITION ||
-                tokenInfo->tokenOrRuleId == R_PROCEDURE_DECLARATION ||
-                tokenInfo->tokenOrRuleId == R_PROCEDURE_DEFINITION){
+        replaceWithProcHeadingNode(&declNode);
 
-            *declNode = findAnyNode(*declNode, QList<int>() << R_PROCEDURE_HEADING << R_FUNCTION_HEADING, true);
-            Q_ASSERT(*declNode);
-        }
-
-        if((*declNode)->containsPosition(position)){ //cursor is on declaration itself
-            *discardReason = *declNode;
-            //return QList<ParseTreeNode*>();
+        if(declNode->containsPosition(position)){ //cursor is on declaration itself
+            *discardReason = declNodeList[i];
         }
     }
 
@@ -409,7 +405,9 @@ QList<ParseTreeNode*> PlSqlTreeBuilder::findDeclarations(int position, ParseTree
 
 QList<ParseTreeNode *> PlSqlTreeBuilder::findDeclarations(const QString &lexeme)
 {
-    return PlSqlTreeBuilder::findTopLevelDeclarationList(rootNode, lexeme.toLower());
+    QList<ParseTreeNode *> nodeDeclList = PlSqlTreeBuilder::findTopLevelDeclarationList(rootNode, lexeme.toLower());
+
+    return nodeDeclList;
 }
 
 QList<ParseTreeNode *> PlSqlTreeBuilder::findTopLevelDeclarationList(ParseTreeNode *parentNode, const QString &lexeme) //lexeme must be in lower case
@@ -427,6 +425,67 @@ QList<ParseTreeNode *> PlSqlTreeBuilder::findTopLevelDeclarationList(ParseTreeNo
     }
 
     return list;
+}
+
+void PlSqlTreeBuilder::replaceWithProcHeadingNode(ParseTreeNode **procNode)
+{
+    ParseTreeNode *headingNode = findProcHeadingNode(*procNode);
+    if(headingNode){
+        *procNode = headingNode;
+    }
+}
+
+ParseTreeNode *PlSqlTreeBuilder::findProcHeadingNode(ParseTreeNode *procNode)
+{
+    if(isProcNode(procNode)){
+        ParseTreeNode *headingNode = findAnyNode(procNode, QList<int>() << R_PROCEDURE_HEADING << R_FUNCTION_HEADING, true);
+        Q_ASSERT(headingNode);
+        return headingNode;
+    }else{
+        return 0;
+    }
+}
+
+bool PlSqlTreeBuilder::isProcNode(ParseTreeNode *node)
+{
+    TokenInfo *tokenInfo = node->tokenInfo;
+
+    return isProcNode(tokenInfo->tokenOrRuleId);
+}
+
+bool PlSqlTreeBuilder::isProcNode(int ruleId)
+{
+    return ruleId == R_FUNCTION_DECLARATION ||
+            ruleId == R_FUNCTION_DEFINITION ||
+            ruleId == R_PROCEDURE_DECLARATION ||
+            ruleId == R_PROCEDURE_DEFINITION;
+}
+
+int PlSqlTreeBuilder::getPairProcRuleId(int ruleId)
+{
+    Q_ASSERT(isProcNode(ruleId));
+
+    int result = -1;
+
+    switch(ruleId){
+    case R_FUNCTION_DECLARATION:
+        result = R_FUNCTION_DEFINITION;
+        break;
+    case R_FUNCTION_DEFINITION:
+        result = R_FUNCTION_DECLARATION;
+        break;
+    case R_PROCEDURE_DECLARATION:
+        result = R_PROCEDURE_DEFINITION;
+        break;
+    case R_PROCEDURE_DEFINITION:
+        result = R_PROCEDURE_DECLARATION;
+        break;
+    default:
+        Q_ASSERT(false);
+        break;
+    }
+
+    return result;
 }
 
 void PlSqlTreeBuilder::fillNodesWithHandlers(QHash<ParseTreeNode *, QString> &nodes, ParseTreeNode *parentNode, ParsingTable *parsingTable)
@@ -452,4 +511,21 @@ void PlSqlTreeBuilder::fillNodesWithHandlers(QHash<ParseTreeNode *, QString> &no
             nodes[n] = options->guiHandlerName;
         }
     }
+}
+
+bool PlSqlTreeBuilder::isIdentifierOrSeparatorToken(int token)
+{
+    return PlSqlTreeBuilder::isIdentifierToken(token) ||
+            PlSqlTreeBuilder::isIdentifierSeparatorToken(token);
+}
+
+bool PlSqlTreeBuilder::isIdentifierToken(int token)
+{
+    return (token == PLS_ID || token == PLS_DOUBLEQUOTED_STRING ||
+            (token < NON_LITERAL_START_IX && token >= 0)); //allow keywords as well, because some of them are keywords depending on current context
+}
+
+bool PlSqlTreeBuilder::isIdentifierSeparatorToken(int token)
+{
+    return token == PLS_DOT;
 }

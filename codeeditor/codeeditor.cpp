@@ -19,7 +19,6 @@
 #include "beans/parsetreenode.h"
 #include "beans/codecollapseposition.h"
 #include "beans/tokeninfo.h"
-#include "connectivity/dbconnection.h"
 #include "widgets/tooltipwidget.h"
 #include <QPainter>
 
@@ -115,6 +114,11 @@ void CodeEditor::setQueryScheduler(IQueryScheduler *queryScheduler)
 
     QCompleter *completer = new QCompleter(this);
     setCompleter(completer);
+}
+
+IQueryScheduler *CodeEditor::getQueryScheduler() const
+{
+    return this->queryScheduler;
 }
 
 //use only when sure that there's not lots of text in editor
@@ -1068,7 +1072,7 @@ int CodeEditor::lineMarkerAreaOffset() const
 
      QRect blockRect = blockBoundingGeometry(block).translated(contentOffset()).toRect();
 
-     showToolTip(html,
+     showToolTip(Qt::escape(html),
                  viewport()->mapToGlobal(blockRect.bottomLeft()),
                  blockRect);
  }
@@ -1080,14 +1084,14 @@ int CodeEditor::lineMarkerAreaOffset() const
 
  void CodeEditor::showTooltipForCurrentToken(QTextCursor &cur)
  {
-     bool foundInPairEditor = false;
-     TokenInfo *tokenInfo = 0;
+     if(lastParseId == -1 || queryScheduler == 0){
+         return;
+     }
 
-     ParseTreeNode *discardReason;
-     QList<ParseTreeNode *> nodeList = CodeEditorUtil::getDeclarationsForCurrentToken(this, cur,
-                                                                                      &foundInPairEditor,
-                                                                                      &tokenInfo,
-                                                                                      &discardReason);
+     bool foundInPairEditor = false;
+     ParseTreeNode *discardReason = 0;
+
+     QList<ParseTreeNode*> nodeList = CodeEditorUtil::getDeclarationsForLocalObject(this, cur, &foundInPairEditor, &discardReason);
 
      if(nodeList.isEmpty() || discardReason){
          return;
@@ -1097,7 +1101,9 @@ int CodeEditor::lineMarkerAreaOffset() const
      int nodeCount = nodeList.count();
 
      for(int i=0; i<nodeCount; ++i){
-         const ParseTreeNode *node = nodeList[i];
+         ParseTreeNode *node = nodeList[i];
+
+         PlSqlTreeBuilder::replaceWithProcHeadingNode(&node);
 
          QTextCursor declCursor = foundInPairEditor ? pairEditor->textCursor() : cur;
 
@@ -1116,6 +1122,9 @@ int CodeEditor::lineMarkerAreaOffset() const
      }
 
      QTextBlock block = cur.block();
+     BlockData *data = static_cast<BlockData*>(block.userData());
+     TokenInfo *tokenInfo = data->tokenAtPosition(cur.positionInBlock());
+     Q_ASSERT(tokenInfo);
 
      QRect curRect = cursorRect(cur);
 
@@ -1124,7 +1133,7 @@ int CodeEditor::lineMarkerAreaOffset() const
 
      QRect activeRect = cursorRect(cur);
 
-     showToolTip(replaceParagraphSeparators(declarationText),
+     showToolTip(Qt::escape(replaceParagraphSeparators(declarationText)),
                  viewport()->mapToGlobal(curRect.bottomLeft()+QPoint(10, 10)),
                  activeRect);
  }
@@ -1135,67 +1144,26 @@ int CodeEditor::lineMarkerAreaOffset() const
          return false;
      }
 
-     TokenNameInfo nameInfo = CodeEditorUtil::getCurrentObjectNameInfo(this);
-
-     if(nameInfo.isEmpty()){
-         return false;
-     }
-
-     QString schemaName, objectName;
-
-     PlSqlParseHelper::findObjectName(treeBuilder, &schemaName, &objectName, queryScheduler->getDb()->getSchemaName());
-
      bool foundInPairEditor = false;
-     TokenInfo *tokenInfo = 0;
-
-     QList<ParseTreeNode *> nodeList;
      ParseTreeNode *discardReason = 0;
-     QTextCursor cur = textCursor();
 
-     bool foundSchemaName = false;
-     bool foundObjectName = false;
+     QList<ParseTreeNode*> nodeList = CodeEditorUtil::getDeclarationsForLocalObject(this, textCursor(), &foundInPairEditor, &discardReason);
 
      ParseTreeNode *declNode = 0;
+     if(discardReason){
+         declNode = discardReason;
 
-     for(int i=0; i<=nameInfo.currentPartId; ++i){
-         cur.setPosition(nameInfo.absolutePositions[i].first);
-         nodeList = CodeEditorUtil::getDeclarationsForCurrentToken(this, cur,
-                                                                   &foundInPairEditor,
-                                                                   &tokenInfo,
-                                                                   &discardReason);
-
-         if(discardReason){
-             declNode = discardReason;
-             break;
+         if(!foundInPairEditor && PlSqlTreeBuilder::isProcNode(declNode)){
+             declNode = CodeEditorUtil::getPairDeclaration(this, textCursor(), declNode, nodeList, &foundInPairEditor);
          }
 
-         Q_ASSERT(tokenInfo);
-
-         cur.setPosition(nameInfo.absolutePositions[i].second, QTextCursor::KeepAnchor);
-         QString lexeme = cur.selectedText();
-
-         if(nodeList.isEmpty()){
-             if(i == 0 && !foundSchemaName && lexeme.compare(schemaName, Qt::CaseInsensitive) == 0){ //first part is schema name
-                 foundSchemaName = true;
-                 continue;
-             }else if(i == 0 && !foundObjectName && lexeme.compare(objectName, Qt::CaseInsensitive) == 0){ //first part is object name
-                 foundSchemaName = true;
-                 foundObjectName = true;
-                 continue;
-             }else if(i == 1 && foundSchemaName && !foundObjectName && lexeme.compare(objectName, Qt::CaseInsensitive) == 0){ //second part is object name
-                 foundObjectName = true;
-             }else{ //could not find any declaration locally
-                 return false;
-             }
-         }else{
-             declNode = nodeList[0];
-             break;
-         }
+     }else if(nodeList.count() > 0){
+         declNode = nodeList[0];
      }
 
      if(declNode){
 
-         CodeEditor *editor = foundInPairEditor ? pairEditor : this;
+         CodeEditor *editor = foundInPairEditor ? getPairEditor() : this;
          QTextCursor declCursor = editor->textCursor();
 
          ParseTreeNode *nameNode = PlSqlTreeBuilder::findNode(declNode,

@@ -155,6 +155,7 @@ void CodeStructurePane::setNewModel()
         treeView->header()->setResizeMode(QHeaderView::ResizeToContents);
         treeView->header()->setStretchLastSection(false);
 
+        treeView->selectionModel()->setCurrentIndex(newModel->index(0,0), QItemSelectionModel::NoUpdate);
         connect(treeView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this, SLOT(treeCurrentRowChanged(QModelIndex,QModelIndex)));
     }
 
@@ -164,7 +165,9 @@ void CodeStructurePane::setNewModel()
 
 void CodeStructurePane::treeCurrentRowChanged(const QModelIndex & current, const QModelIndex & previous)
 {
-    Q_UNUSED(previous);
+    if(!previous.isValid()){
+        return;
+    }
 
     if(!current.isValid()){
         return;

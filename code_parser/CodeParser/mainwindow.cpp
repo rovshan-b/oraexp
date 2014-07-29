@@ -155,7 +155,6 @@ bool MainWindow::parseCurrent(bool constructDisplayTree, bool strictMode)
     parser->setStrictMode(strictMode);
     PlSqlTreeBuilder treeBulder;
     treeBulder.setSkipEmptyNodes(false);
-    treeBulder.setCalculateScopes();
     parser->setReduceListener(&treeBulder);
 
     QTime t;

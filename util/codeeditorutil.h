@@ -21,11 +21,29 @@ public:
     static TokenNameInfo getObjectNameInfo(const QTextCursor &cur, bool upToCurrent = true);
     static TokenNameInfo getObjectNameInfoFromSelection(const QTextCursor &cur);
 
+    static QList<ParseTreeNode*> getDeclarationsForLocalObject(CodeEditor *editor, const QTextCursor &cursor, bool *foundInPairEditor, ParseTreeNode **discardReason);
+
     static QList<ParseTreeNode*> getDeclarationsForCurrentToken(const CodeEditor *editor,
                                                                 const QTextCursor &cur,
                                                                 bool *foundInPairEditor,
-                                                                TokenInfo **currTokenInfo,
                                                                 ParseTreeNode **discardReason);
+
+    static QList<ParseTreeNode*> getObjectLevelDeclarationsForLexeme(const CodeEditor *editor,
+                                                          const QString &lexeme,
+                                                          bool *foundInPairEditor);
+
+    static ParseTreeNode *getPairDeclaration(CodeEditor *editor,
+                                             const QTextCursor &cur,
+                                             ParseTreeNode *procNode,
+                                             const QList<ParseTreeNode *> &declList, bool *foundInPairEditor);
+
+    static ParseTreeNode *getBestPairDeclarationByParamList(const ParseTreeNode *paramsNode,
+                                                            const QList<ParseTreeNode*> &declList,
+                                                            int pairRuleId);
+
+    static void matchParameterLists(const ParseTreeNode *firstNode, const ParseTreeNode *secondNode,
+                                    int *matchedParamCount, int *matchedParamNames);
+
 
     static void formatCode(CodeEditor *editor);
 

@@ -53,6 +53,7 @@ void PairCodeViewer::setConnection(DbConnection *db)
     bodyViewer->setQueryScheduler(this);
 
     bodyViewer->setPairEditorWidget(specViewer->getEditorWidget());
+    specViewer->setPairEditorWidget(bodyViewer->getEditorWidget());
 
     emitInitCompletedSignal();
 }
