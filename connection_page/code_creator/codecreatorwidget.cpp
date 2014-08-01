@@ -188,6 +188,18 @@ void CodeCreatorWidget::createToolbar()
 
     addSpecBodySwitcher();
 
+    if(DbUtil::isSpecOrBodyType(this->objectType)){
+        toolbar->addSeparator();
+
+        codeStructureComboBox = new CodeStructureComboBox();
+        toolbar->addWidget(codeStructureComboBox);
+
+        toolbar->addSeparator();
+
+        connect(multiEditor, SIGNAL(codeStructureModelAvailable(CodeStructureModel*)), codeStructureComboBox, SLOT(codeStructureModelAvailable(CodeStructureModel*)));
+        connect(codeStructureComboBox, SIGNAL(selectionChanged(int,int)), multiEditor, SLOT(selectRegion(int,int)));
+    }
+
     progressBarAction = WidgetHelper::addProgressBarAction(toolbar, false);
 
     //add buttons for accessing editor splitting functionality
@@ -539,6 +551,11 @@ MultiEditorWidget *CodeCreatorWidget::getEditorWidget() const
 void CodeCreatorWidget::setPairEditorWidget(MultiEditorWidget *multiEditor)
 {
     this->multiEditor->setPairEditorWidget(multiEditor);
+}
+
+void CodeCreatorWidget::setFocusToEditor()
+{
+    multiEditor->setFocus();
 }
 
 void CodeCreatorWidget::compilationErrorFetchCompleted(const QString &)

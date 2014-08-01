@@ -45,6 +45,7 @@ CodeEditor::CodeEditor(bool plsqlMode, QWidget *parent) :
     lineMarkerUsed(false),
     completer(0),
     collapsePositions(0),
+    controlKeyDown(false),
     blockEventChanges(false),
     lastParseId(-1),
     treeBuilder(0),
@@ -329,6 +330,15 @@ int CodeEditor::lineMarkerAreaOffset() const
          collapsibleRegionSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
 
          extraSelections.append(collapsibleRegionSelection);
+     }
+
+     if(!clickablePositions.isNull()){
+         QTextEdit::ExtraSelection clickableSelection;
+         clickableSelection.format.setForeground(palette().link());
+         clickableSelection.format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+         clickableSelection.cursor=clickablePositions;
+
+         extraSelections.append(clickableSelection);
      }
 
      highlightMatchingBraces(extraSelections);
@@ -707,7 +717,7 @@ int CodeEditor::lineMarkerAreaOffset() const
      QTextCursor cur = textCursor();
      cur.setPosition(document()->findBlockByNumber(blockToScrollTo).position());
      setTextCursor(cur);
-     centerCursor();
+     ensureVisible(cur);
 
      updateNavBar();
  }
@@ -751,6 +761,7 @@ int CodeEditor::lineMarkerAreaOffset() const
      QPlainTextEdit::keyReleaseEvent(event);
 
      if(event->key()==Qt::Key_Control){
+         controlKeyReleased();
          event->ignore();
      }else if(event->key()==Qt::Key_Escape){
         emit escapeKeyPressed();
@@ -762,6 +773,10 @@ int CodeEditor::lineMarkerAreaOffset() const
      bool handled=false;
 
      expandAllBlocks(event);
+
+     if(event->key() == Qt::Key_Control){
+         controlKeyPressed();
+     }
 
      if(!isReadOnly()){
          int key=event->key();
@@ -1048,6 +1063,16 @@ int CodeEditor::lineMarkerAreaOffset() const
      this->blockEventChanges=false;
      setUpdatesEnabled(true);
 
+     //should be done by qt itself, check in next version
+     //to fix problem with clicking line nav bar, to go to search result when it is collapsed
+     QTextBlock block = document()->firstBlock();
+     while (block.isValid()) {
+         block.layout()->clearLayout();
+         block.setLineCount(block.isVisible() ? 1 : 0);
+         block = block.next();
+     }
+     //end should be done by qt
+
      document()->markContentsDirty(0,document()->characterCount());
 
      updateAllParts();
@@ -1072,7 +1097,7 @@ int CodeEditor::lineMarkerAreaOffset() const
 
      QRect blockRect = blockBoundingGeometry(block).translated(contentOffset()).toRect();
 
-     showToolTip(Qt::escape(html),
+     showToolTip(html,
                  viewport()->mapToGlobal(blockRect.bottomLeft()),
                  blockRect);
  }
@@ -1138,7 +1163,70 @@ int CodeEditor::lineMarkerAreaOffset() const
                  activeRect);
  }
 
+ void CodeEditor::displayCurrentTokenAsClickable(QTextCursor &cur)
+ {
+     QTextBlock block = cur.block();
+     if(!block.isValid()){
+         clearClickablePositions();
+         return;
+     }
+     BlockData *data = static_cast<BlockData*>(block.userData());
+     if(!data){ //mouse over event arrived before syntax highlighter parses text
+         return;
+     }
+     TokenInfo *tokenInfo = data->tokenAtPosition(cur.positionInBlock());
+
+     if(tokenInfo == 0){
+         clearClickablePositions();
+         return;
+     }
+
+     if(!PlSqlTreeBuilder::isIdentifierToken(tokenInfo->tokenOrRuleId)){
+         clearClickablePositions();
+         return;
+     }
+
+     int currStartPos = qMin(clickablePositions.selectionStart(), clickablePositions.selectionEnd());
+     int currEndPos = qMax(clickablePositions.selectionStart(), clickablePositions.selectionEnd());
+
+     int tokenStartPos = block.position() + tokenInfo->startPos;
+     int tokenEndPos = block.position() + tokenInfo->endPos;
+
+     if(currStartPos == tokenStartPos && currEndPos == tokenEndPos){
+         return;
+     }
+
+     cur.setPosition(tokenStartPos);
+     cur.setPosition(tokenEndPos, QTextCursor::KeepAnchor);
+
+     setClickablePositions(cur);
+ }
+
+ void CodeEditor::setClickablePositions(const QTextCursor &cursor)
+ {
+     if(cursor != clickablePositions){
+         clickablePositions = cursor;
+         highlightCurrentLine();
+         viewport()->setCursor(Qt::PointingHandCursor);
+         qDebug("set new position");
+     }
+ }
+
+ void CodeEditor::clearClickablePositions()
+ {
+     if(!clickablePositions.isNull()){
+         clickablePositions = QTextCursor();
+         highlightCurrentLine();
+         viewport()->setCursor(Qt::IBeamCursor);
+     }
+ }
+
  bool CodeEditor::describeLocalObject()
+ {
+    return describeLocalObject(textCursor());
+ }
+
+ bool CodeEditor::describeLocalObject(const QTextCursor &cur)
  {
      if(!plsqlMode || lastParseId == -1 || queryScheduler == 0){
          return false;
@@ -1147,18 +1235,23 @@ int CodeEditor::lineMarkerAreaOffset() const
      bool foundInPairEditor = false;
      ParseTreeNode *discardReason = 0;
 
-     QList<ParseTreeNode*> nodeList = CodeEditorUtil::getDeclarationsForLocalObject(this, textCursor(), &foundInPairEditor, &discardReason);
+     QList<ParseTreeNode*> nodeList = CodeEditorUtil::getDeclarationsForLocalObject(this, cur, &foundInPairEditor, &discardReason);
 
      ParseTreeNode *declNode = 0;
      if(discardReason){
          declNode = discardReason;
 
          if(!foundInPairEditor && PlSqlTreeBuilder::isProcNode(declNode)){
-             declNode = CodeEditorUtil::getPairDeclaration(this, textCursor(), declNode, nodeList, &foundInPairEditor);
+             declNode = CodeEditorUtil::getPairDeclaration(this, cur, declNode, nodeList, &foundInPairEditor);
          }
 
      }else if(nodeList.count() > 0){
+
          declNode = nodeList[0];
+
+         if(nodeList.count() > 1 && PlSqlTreeBuilder::areProcNodes(nodeList)){
+             declNode = CodeEditorUtil::getBestDeclarationByParamValues(this, cur, nodeList);
+         }
      }
 
      if(declNode){
@@ -1225,6 +1318,13 @@ int CodeEditor::lineMarkerAreaOffset() const
      return false;
  }
 
+ void CodeEditor::expandAllBlocks(const QTextCursor &cur)
+ {
+     CursorPositionInfo inf = getStartStopPositions(cur);
+
+     expandAllBlocks(inf.startBlock, inf.endBlock);
+ }
+
  void CodeEditor::expandAllBlocks(int startBlock, int endBlock)
  {
      if(collapsedRangeCount()==0){
@@ -1277,6 +1377,7 @@ int CodeEditor::lineMarkerAreaOffset() const
      }
 
      BlockData *data = static_cast<BlockData*>(currBlock.userData());
+     Q_ASSERT(data);
      if(data->isCollapsedRangeStart()){
          QTextBlock collapseEndBlock = document()->findBlockByNumber(data->getCollapsedUntil());
          Q_ASSERT(collapseEndBlock.isValid());
@@ -1327,6 +1428,8 @@ int CodeEditor::lineMarkerAreaOffset() const
      QPlainTextEdit::focusOutEvent(event);
 
      toolTipWidget->hideToolTip();
+
+     controlKeyReleased();
 
      emit lostFocus();
  }
@@ -1719,6 +1822,29 @@ int CodeEditor::lineMarkerAreaOffset() const
      return this->pairEditor;
  }
 
+ void CodeEditor::describeObject()
+ {
+     describeObject(textCursor());
+
+     //uiManager->describeObject(currentObjectName);
+ }
+
+ void CodeEditor::describeObject(const QTextCursor &cur)
+ {
+     if(describeLocalObject(cur)){
+         return;
+     }
+
+     QString objectName = CodeEditorUtil::getObjectName(cur);
+     if(objectName.isEmpty()){
+         QMessageBox::critical(window(), tr("No selection"),
+                               tr("Please, select object name and try again."));
+         return;
+     }
+
+     emit needsToDescribeObject(objectName);
+ }
+
  void CodeEditor::moveSelectionUp()
  {
      QTextCursor cur=textCursor();
@@ -1862,6 +1988,31 @@ int CodeEditor::lineMarkerAreaOffset() const
  void CodeEditor::saveFontSettings()
  {
      Settings::setValue("CodeEditor/currentFont", this->font().toString());
+ }
+
+ void CodeEditor::controlKeyPressed()
+ {
+     qDebug("control key pressed");
+     controlKeyDown = true;
+     if(!toolTipWidget->isVisible()){
+        viewport()->setMouseTracking(true);
+     }
+ }
+
+ void CodeEditor::controlKeyReleased()
+ {
+     if(!controlKeyDown){
+         return;
+     }
+
+     qDebug("control key released");
+     controlKeyDown = false;
+
+     if(!toolTipWidget->isVisible()){
+        viewport()->setMouseTracking(false);
+     }
+
+     clearClickablePositions();
  }
 
  void CodeEditor::showToolTip(const QString &text, const QPoint &point, const QRect &activeRect)
@@ -2248,6 +2399,11 @@ int CodeEditor::lineMarkerAreaOffset() const
      }
 
      expandAllBlocks(startBlock.blockNumber(), endBlock.blockNumber());
+
+     //if(!verticalScrollBar()->isVisibleTo(this)){
+     //    return;
+     //}
+
      qreal blockHeight = blockBoundingRect(startBlock).height();
      int visibleBlockCount = qFloor(this->contentsRect().height()/blockHeight);
 
@@ -2260,7 +2416,7 @@ int CodeEditor::lineMarkerAreaOffset() const
                                    startBlock.blockNumber();
 
      verticalScrollBar()->setValue(qMin(verticalScrollBar()->maximum(), firstBlockNumber));
- }
+}
 
  void CodeEditor::setErrorPosition(const QTextCursor &cursor)
  {
@@ -2382,8 +2538,8 @@ int CodeEditor::lineMarkerAreaOffset() const
              }
          }
      }else if(watched == viewport()){
-         if(event->type() == QEvent::ToolTip){
-             QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+         if(event->type() == QEvent::ToolTip && !controlKeyDown){
+             QHelpEvent *helpEvent = static_cast<QHelpEvent*>(event);
              QTextCursor cur = cursorForPosition(helpEvent->pos());
              if(!cur.isNull()){
                  BlockData *data = static_cast<BlockData*>(cur.block().userData());
@@ -2392,6 +2548,30 @@ int CodeEditor::lineMarkerAreaOffset() const
                  }else{
                      showTooltipForCurrentToken(cur);
                  }
+             }
+         }else if(event->type() == QEvent::MouseMove){
+             QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+
+             if(controlKeyDown && (mouseEvent->modifiers() & Qt::ControlModifier) != Qt::ControlModifier){
+                 controlKeyReleased();
+             }else if(controlKeyDown){
+                 QTextCursor cur = cursorForPosition(mouseEvent->pos());
+                 if(!cur.isNull()){
+                     displayCurrentTokenAsClickable(cur);
+                 }
+             }
+         }else if(event->type() == QEvent::Enter && !controlKeyDown){
+             if((qApp->keyboardModifiers() & Qt::ControlModifier) == Qt::ControlModifier){
+                 controlKeyPressed();
+             }
+         }else if(event->type() == QEvent::MouseButtonPress && !clickablePositions.isNull()){
+             QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+             if(mouseEvent->button() == Qt::LeftButton){
+                 QTextCursor cur = clickablePositions;
+                 cur.setPosition(clickablePositions.selectionStart()); //must clear selection for describeObject to scan for all object name
+                 describeObject(cur);
+                 mouseEvent->accept();
+                 return true;
              }
          }
      }

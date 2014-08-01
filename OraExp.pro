@@ -577,7 +577,10 @@ SOURCES += main.cpp\
     code_formatter/plsql/codeformatterrule.cpp \
     code_formatter/plsql/codeformatteraction.cpp \
     code_formatter/plsql/scopeinfo.cpp \
-    beans/tokennameinfo.cpp
+    beans/tokennameinfo.cpp \
+    widgets/codestructurecombobox.cpp \
+    code_structure_tree/codestructurepage.cpp \
+    code_structure_tree/codestructuresortfiltermodel.cpp
 
 HEADERS  += mainwindow.h \
     connectivity/dbconnection.h \
@@ -1165,7 +1168,10 @@ HEADERS  += mainwindow.h \
     code_formatter/plsql/codeformatteraction.h \
     code_formatter/plsql/scopeinfo.h \
     util/parsetreenodeutil.h \
-    beans/tokennameinfo.h
+    beans/tokennameinfo.h \
+    widgets/codestructurecombobox.h \
+    code_structure_tree/codestructurepage.h \
+    code_structure_tree/codestructuresortfiltermodel.h
 
 FORMS    += mainwindow.ui \
     passwordentrydialog.ui \

@@ -25,6 +25,7 @@ QVariant CodeStructureTreeItem::data(int role) const
 {
     switch(role){
     case Qt::DisplayRole:
+    case Qt::EditRole:
         return itemText;
         break;
     case Qt::DecorationRole:

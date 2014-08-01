@@ -15,6 +15,7 @@ class CodeCollapsePosition;
 class TokenInfo;
 class IQueryScheduler;
 class DbUiManager;
+class CodeStructureModel;
 
 class MultiEditorWidget : public QWidget
 {
@@ -37,6 +38,8 @@ public:
 
     void pulsate(int startPos, int endPos);
 
+    PlSqlTreeBuilder *getTreeBuilder() const {return this->treeBuilder;}
+
     QList<CodeEditorAndSearchPaneWidget*> getEditors() const;
 
     void setPairEditorWidget(MultiEditorWidget *multiEditor);
@@ -46,6 +49,14 @@ signals:
     void codeParsingCompleted(PlSqlTreeBuilder *treeBulder);
 
     void switchToPair();
+
+    void codeStructureModelAvailable(CodeStructureModel *model);
+
+public slots:
+    void selectRegion(int startPos, int endPos);
+
+protected:
+    virtual void focusInEvent(QFocusEvent *event);
 
 private slots:
     void editorCountActionSelected(bool checked);
@@ -66,6 +77,8 @@ private slots:
                           int elapsedTime);
 
     void updateEditors(CodeEditor *except);
+
+    void describeObject(const QString &objectName);
 private:
     void createUi();
     void setEditorCount(int count);
@@ -94,6 +107,7 @@ private:
     QString lastEditedWord;
 
     PlSqlTreeBuilder *treeBuilder;
+    CodeStructureModel *currentStructureModel;
 
     QTime lastChangeTime;
     QTime lastParseTime;

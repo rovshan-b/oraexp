@@ -95,7 +95,10 @@ public:
     void setPairEditor(CodeEditor *pairEditor);
     CodeEditor *getPairEditor() const;
 
+    void describeObject();
+    void describeObject(const QTextCursor &cur);
     bool describeLocalObject();
+    bool describeLocalObject(const QTextCursor &cur);
 
     static QList<CodeEditor*> openEditors;
 
@@ -139,6 +142,7 @@ signals:
     void updated(CodeEditor *editor);
     void applyCaseFoldingRequested();
     void switchToPair();
+    void needsToDescribeObject(const QString &objectName);
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -180,6 +184,7 @@ private:
     QList< QTextCursor > currentIdentifierPositions;
     QTextCursor collapsibleRegionPositions;
     int collapsibleRegionStartBlockNumber;
+    QTextCursor clickablePositions;
 
     static QString strTab;
 
@@ -232,13 +237,22 @@ private:
 
     void showTooltipForCurrentToken(QTextCursor &cur);
 
+    void displayCurrentTokenAsClickable(QTextCursor &cur);
+    void setClickablePositions(const QTextCursor &cursor);
+    void clearClickablePositions();
+
     bool extendSelection(QTextCursor &cur);
+    void expandAllBlocks(const QTextCursor &cur);
     void expandAllBlocks(int startBlock, int endBlock);
     void expandAllBlocks(QKeyEvent *event);
     void expandBlock(const QTextBlock &block);
 
     void applyCurrentFontToAllEditors();
     void saveFontSettings();
+
+    void controlKeyPressed();
+    void controlKeyReleased();
+    bool controlKeyDown;
 
     ToolTipWidget *toolTipWidget;
     void showToolTip(const QString &text, const QPoint &point, const QRect &activeRect);

@@ -123,11 +123,13 @@ void PairCodeCreator::creatorInitialized()
 void PairCodeCreator::switchToSpec()
 {
     tab->setCurrentIndex(0);
+    specCreatorWidget->setFocusToEditor();
 }
 
 void PairCodeCreator::switchToBody()
 {
     tab->setCurrentIndex(1);
+    bodyCreatorWidget->setFocusToEditor();
 }
 
 void PairCodeCreator::modificationChanged(bool)

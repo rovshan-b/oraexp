@@ -21,7 +21,7 @@ public:
     virtual void createTabs()=0;
     void addTab(GenericQueryViewerWidget *tab, const QIcon &icon, const QString &title);
 
-    void setQueryScheduler(IQueryScheduler *queryScheduler);
+    virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
 
     IQueryScheduler *scheduler() const;
 

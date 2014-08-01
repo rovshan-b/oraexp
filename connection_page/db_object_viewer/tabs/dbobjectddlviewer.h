@@ -14,6 +14,8 @@ class DbObjectDdlViewer : public DbObjectViewerGenericTab
 public:
     explicit DbObjectDdlViewer(bool addSettingsButton, DbUiManager *uiManager, QWidget *parent = 0);
 
+    virtual void setQueryScheduler(IQueryScheduler *queryScheduler);
+
     virtual void loadData();
 
     virtual void createMainWidget(QLayout *);
@@ -24,6 +26,9 @@ public:
 
     void setPairEditorWidget(MultiEditorWidget *multiEditor);
     MultiEditorWidget *getEditorWidget() const;
+
+signals:
+    void switchToPair();
 
 private slots:
     void ddlQueryCompleted(const QueryResult &result);

@@ -28,6 +28,7 @@ void ToolTipWidget::showToolTip(const QPoint &point, const QRect &activeRect)
 bool ToolTipWidget::eventFilter(QObject *watched, QEvent *event)
 {
     if(event->type()==QEvent::MouseMove && isVisible() && watched == parentWidget()){
+        qDebug("received mouse move");
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
         if(!activeRect.contains(mouseEvent->pos())){
             hideToolTip();

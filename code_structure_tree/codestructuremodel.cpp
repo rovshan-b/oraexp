@@ -8,9 +8,8 @@
 //    int CodeStructureModel::instanceCount = 0;
 //#endif
 
-CodeStructureModel::CodeStructureModel(ParseTreeNode *rootNode, bool sorted, QObject *parent) :
+CodeStructureModel::CodeStructureModel(ParseTreeNode *rootNode, QObject *parent) :
     QAbstractItemModel(parent),
-    sorted(sorted),
     cursorPosition(-1)
 {
     rootItem = new CodeStructureTreeItem(rootNode);
@@ -189,17 +188,31 @@ QModelIndex CodeStructureModel::setCursorPosition(int position)
         }
     }
 
-    if(!itemToReturn){
-        return QModelIndex();
-    }else{
+    QModelIndex result = QModelIndex();
+
+    if(itemToReturn){
         parentIx = itemToReturn->parent()==rootItem ? QModelIndex() : createIndex(itemToReturn->parent()->row(),0,itemToReturn->parent());
-        return index(itemToReturn->row(),0,parentIx);
+        result = index(itemToReturn->row(),0,parentIx);
     }
+
+    emit cursorPositionChanged(result);
+
+    return result;
 }
 
 CodeStructureTreeItem *CodeStructureModel::findItemForPosition(CodeStructureTreeItem *parentItem, int position) const
 {
     return parentItem->findChildForPosition(position);
+}
+
+CodeStructureTreeItem *CodeStructureModel::itemForRow(int row) const
+{
+    int childCount = rootItem->childCount();
+    if(row < 0 || row >= childCount){
+        return 0;
+    }
+
+    return rootItem->child(row);
 }
 
 void CodeStructureModel::populateChildNodes(const QModelIndex &parent)
@@ -212,13 +225,12 @@ void CodeStructureModel::populateChildNodes(const QModelIndex &parent)
     node->setChildrenPopulated();
 
     QList<CodeStructureTreeItem*> childItems = node->populateChildren();
-    if(node==rootItem && sorted){
-        qSort(childItems.begin(), childItems.end(), codeStructureTreeItemNameLessThan);
+    //if(node==rootItem && sorted){
+    //    qSort(childItems.begin(), childItems.end(), codeStructureTreeItemNameLessThan);
+    //
+    //}
 
-    }
-
-    int currentRowCount = rowCount(parent);
-    beginInsertRows(parent, currentRowCount-1, (currentRowCount-1)+(childItems.size()-1));
+    beginInsertRows(parent, 0, childItems.size()-1);
 
     foreach(CodeStructureTreeItem *childItem, childItems){
         node->appendChild(childItem);
@@ -229,6 +241,8 @@ void CodeStructureModel::populateChildNodes(const QModelIndex &parent)
     }
 
     endInsertRows();
+
+    //emit dataChanged(parent.child(0,0), parent.child(rowCount(parent)-1, 0));
 }
 
 bool CodeStructureModel::isValidIndex(const QModelIndex &index) const

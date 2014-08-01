@@ -397,18 +397,7 @@ void AppEditMenu::describeObject()
         return;
     }
 
-    if(editor->describeLocalObject()){
-        return;
-    }
-
-    QString currentObjectName = CodeEditorUtil::getCurrentObjectName(editor);
-    if(currentObjectName.isEmpty()){
-        QMessageBox::critical(MainWindow::defaultInstance(), tr("No selection"),
-                              tr("Please, select object name and try again."));
-        return;
-    }
-
-    uiManager()->describeObject(currentObjectName);
+    editor->describeObject();
 }
 
 void AppEditMenu::populateResolveMenu()

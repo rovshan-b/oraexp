@@ -100,6 +100,8 @@ public:
     static DbTreeModel::DbTreeNodeType getBodyType(DbTreeModel::DbTreeNodeType itemType);
 
     static bool isSpecType(DbTreeModel::DbTreeNodeType itemType);
+    static bool isBodyType(DbTreeModel::DbTreeNodeType itemType);
+    static bool isSpecOrBodyType(DbTreeModel::DbTreeNodeType itemType);
 
     static QString getExtentSizeClause(bool unlimited, uint size, OraExp::ExtentUnit sizeUnit);
     static void parseExtentSize(const QString &textToParse, bool *unlimited, qulonglong *quota, OraExp::ExtentUnit *units);

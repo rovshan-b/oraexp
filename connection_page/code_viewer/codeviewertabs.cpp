@@ -19,6 +19,7 @@ void CodeViewerTabs::createTabs()
 {
     ddlViewer = new DbObjectDdlViewer(false, uiManager, this);
     addTab(ddlViewer, IconUtil::getIcon("ddl"), tr("DDL"));
+    connect(ddlViewer, SIGNAL(switchToPair()), this, SIGNAL(specBodySwitchRequested()));
 
     DbObjectGrantsViewer *grantInfo = new DbObjectGrantsViewer(uiManager, this);
     addTab(grantInfo, IconUtil::getIcon("grants"), tr("Grants"));

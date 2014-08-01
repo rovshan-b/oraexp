@@ -347,6 +347,28 @@ ParseTreeNode *PlSqlTreeBuilder::findAnyNode(ParseTreeNode *parentNode, const QL
     return 0;
 }
 
+ParseTreeNode *PlSqlTreeBuilder::findParentNode(ParseTreeNode *childNode, int ruleId, int maxLevels)
+{
+    Q_ASSERT(childNode != 0);
+
+    ParseTreeNode *parent = childNode->parentNode;
+    int currLevel = 0;
+
+    while(parent != 0){
+        if(parent->tokenInfo->tokenOrRuleId == ruleId){
+            return parent;
+        }else{
+            parent = parent->parentNode;
+        }
+
+        if(maxLevels != -1 && ++currLevel >= maxLevels){
+            break;
+        }
+    }
+
+    return 0;
+}
+
 QHash<ParseTreeNode *, QString> PlSqlTreeBuilder::findNodesWithHandlers(ParseTreeNode *parentNode)
 {
     QHash<ParseTreeNode *, QString> nodes;
@@ -453,6 +475,17 @@ bool PlSqlTreeBuilder::isProcNode(ParseTreeNode *node)
     return isProcNode(tokenInfo->tokenOrRuleId);
 }
 
+bool PlSqlTreeBuilder::areProcNodes(const QList<ParseTreeNode *> &nodes)
+{
+    foreach(ParseTreeNode *node, nodes){
+        if(!isProcNode(node)){
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool PlSqlTreeBuilder::isProcNode(int ruleId)
 {
     return ruleId == R_FUNCTION_DECLARATION ||
@@ -486,6 +519,46 @@ int PlSqlTreeBuilder::getPairProcRuleId(int ruleId)
     }
 
     return result;
+}
+
+ParseTreeNode *PlSqlTreeBuilder::getParamListNode(ParseTreeNode *procNode)
+{
+    ParseTreeNode *headingNode = PlSqlTreeBuilder::findProcHeadingNode(procNode);
+    Q_ASSERT(headingNode);
+
+    ParseTreeNode *paramsNode = PlSqlTreeBuilder::findNode(headingNode, R_OPT_PARAM_DECLARATIONS, false);
+    if(paramsNode){
+        paramsNode = PlSqlTreeBuilder::findNode(paramsNode, R_PARAM_LIST, true);
+    }
+
+    return paramsNode;
+}
+
+ParseTreeNode *PlSqlTreeBuilder::getParamValuesNode(ParseTreeNode *idNode)
+{
+    ParseTreeNode *procCallNode = PlSqlTreeBuilder::findParentNode(idNode, R_PROCEDURE_CALL, 5);
+    if(procCallNode){
+        ParseTreeNode *paramsNode = PlSqlTreeBuilder::findNode(procCallNode, R_OPT_SEQUENTIAL_PARAMETER_VALUES, false);
+        if(paramsNode){
+            paramsNode = PlSqlTreeBuilder::findNode(procCallNode, R_PARAMETER_VALUES, true);
+            return paramsNode;
+        }
+    }
+
+    return 0;
+}
+
+int PlSqlTreeBuilder::getChildCount(ParseTreeNode *parentNode, int childRuleId)
+{
+    int count = 0;
+
+    foreach(ParseTreeNode *childNode, parentNode->children){
+        if(childNode->tokenInfo->tokenOrRuleId == childRuleId){
+            ++count;
+        }
+    }
+
+    return count;
 }
 
 void PlSqlTreeBuilder::fillNodesWithHandlers(QHash<ParseTreeNode *, QString> &nodes, ParseTreeNode *parentNode, ParsingTable *parsingTable)

@@ -114,18 +114,22 @@ QString CodeEditorUtil::getCurrentObjectName(CodeEditor *editor)
     return CodeEditorUtil::getCurrentObjectNameInfo(editor).toString();
 }
 
+QString CodeEditorUtil::getObjectName(const QTextCursor &cur)
+{
+    return CodeEditorUtil::getObjectNameInfo(cur).toString();
+}
+
 TokenNameInfo CodeEditorUtil::getCurrentObjectNameInfo(CodeEditor *editor)
 {
-    QTextCursor cur = editor->textCursor();
-    if(cur.hasSelection()){
-        return CodeEditorUtil::getObjectNameInfoFromSelection(cur);
-    }else{
-        return CodeEditorUtil::getObjectNameInfo(cur);
-    }
+    return getObjectNameInfo(editor->textCursor());
 }
 
 TokenNameInfo CodeEditorUtil::getObjectNameInfo(const QTextCursor &cur, bool upToCurrent)
 {
+    if(cur.hasSelection()){
+        return CodeEditorUtil::getObjectNameInfoFromSelection(cur);
+    }
+
     TokenNameInfo result;
 
     QTextBlock block = cur.block();
@@ -473,17 +477,12 @@ ParseTreeNode *CodeEditorUtil::getPairDeclaration(CodeEditor *editor,
 
     int pairRuleId = PlSqlTreeBuilder::getPairProcRuleId(procNode->tokenInfo->tokenOrRuleId);
 
-    ParseTreeNode *headingNode = PlSqlTreeBuilder::findProcHeadingNode(procNode);
-    Q_ASSERT(headingNode);
+    ParseTreeNode *paramsNode = PlSqlTreeBuilder::getParamListNode(procNode);
 
-    ParseTreeNode *paramsNode = PlSqlTreeBuilder::findNode(headingNode, R_OPT_PARAM_DECLARATIONS, false);
-    if(paramsNode){
-        paramsNode = PlSqlTreeBuilder::findNode(paramsNode, R_PARAM_LIST, true);
-    }
-
-    ParseTreeNode *result = getBestPairDeclarationByParamList(paramsNode, declList, pairRuleId);
+    ParseTreeNode *result = getBestPairDeclarationByParamList(paramsNode, declList, pairRuleId); //first search in current editor
 
     CodeEditor *pairEditor = editor->getPairEditor();
+    //if not found, search in pair editor
     if(!result && pairEditor != 0 && pairEditor->getLastParseId() != -1){
         *foundInPairEditor = true;
 
@@ -511,13 +510,7 @@ ParseTreeNode *CodeEditorUtil::getBestPairDeclarationByParamList(const ParseTree
     foreach(ParseTreeNode *declNode, declList){
         if(declNode->tokenInfo->tokenOrRuleId == pairRuleId){
 
-            ParseTreeNode *headingNode = PlSqlTreeBuilder::findProcHeadingNode(declNode);
-            Q_ASSERT(headingNode);
-
-            ParseTreeNode *targetParamsNode = PlSqlTreeBuilder::findNode(headingNode, R_OPT_PARAM_DECLARATIONS, false);
-            if(targetParamsNode){
-                targetParamsNode = PlSqlTreeBuilder::findNode(targetParamsNode, R_PARAM_LIST, true);
-            }
+            ParseTreeNode *targetParamsNode = PlSqlTreeBuilder::getParamListNode(declNode);
 
             matchParameterLists(paramsNode, targetParamsNode, &matchedParamCount, &matchedParamNames);
 
@@ -576,6 +569,35 @@ void CodeEditorUtil::matchParameterLists(const ParseTreeNode *firstNode, const P
             ++*matchedParamNames;
         }
     }
+}
+
+ParseTreeNode *CodeEditorUtil::getBestDeclarationByParamValues(CodeEditor *editor,
+                                                               const QTextCursor &cur,
+                                                               const QList<ParseTreeNode *> &declList)
+{
+    Q_ASSERT(declList.count() > 1);
+
+    BlockData *data = static_cast<BlockData*>(cur.block().userData());
+    Q_ASSERT(data);
+    TokenInfo *tokenInfo = data->tokenAtPosition(cur.positionInBlock());
+    Q_ASSERT(tokenInfo);
+    ParseTreeNode *currTokenNode = editor->getTreeBuilder()->getRootNode()->findChildForPosition(cur.block().position() + tokenInfo->startPos);
+    Q_ASSERT(currTokenNode);
+    ParseTreeNode *paramValuesNode = PlSqlTreeBuilder::getParamValuesNode(currTokenNode);
+
+    int paramCount = paramValuesNode == 0 ? 0 : PlSqlTreeBuilder::getChildCount(paramValuesNode, R_PARAMETER_VALUE);
+
+    foreach(ParseTreeNode *declNode, declList){
+        ParseTreeNode *targetParamsNode = PlSqlTreeBuilder::getParamListNode(declNode);
+        int targetParamCount = targetParamsNode == 0 ? 0 : PlSqlTreeBuilder::getChildCount(targetParamsNode, R_PARAM_DECLARATION);
+
+        if(paramCount == targetParamCount){
+            return declNode;
+        }
+    }
+
+    //not found, return first one
+    return declList[0];
 }
 
 void CodeEditorUtil::formatCode(CodeEditor *editor)

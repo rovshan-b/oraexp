@@ -13,7 +13,7 @@ class CodeStructureModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    explicit CodeStructureModel(ParseTreeNode *rootNode, bool sorted, QObject *parent);
+    explicit CodeStructureModel(ParseTreeNode *rootNode, QObject *parent);
     virtual ~CodeStructureModel();
     
     QVariant data(const QModelIndex &index, int role) const;
@@ -29,10 +29,13 @@ public:
 
     QModelIndex setCursorPosition(int position);
     CodeStructureTreeItem *findItemForPosition(CodeStructureTreeItem *parentItem, int position) const;
+    CodeStructureTreeItem *itemForRow(int row) const;
+
+signals:
+    void cursorPositionChanged(const QModelIndex &index);
 
 private:
     CodeStructureTreeItem *rootItem;
-    bool sorted;
 
     void populateChildNodes(const QModelIndex & parent);
 

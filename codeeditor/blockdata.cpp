@@ -38,10 +38,18 @@ void BlockData::clear()
 
 TokenInfo *BlockData::tokenAtPosition(int position) const
 {
-    foreach(TokenInfo *token, tokens){
+    int tokenCount = tokens.count();
+    for(int i=0; i<tokenCount; ++i){
+        TokenInfo *token = tokens[i];
+
         if(position >= token->startPos &&
-                position < token->endPos){
+                (position < token->endPos || //given position is less than token end position
+                 (i+1 < tokenCount && tokens[i+1]->startPos > position && position <= token->endPos) || //next token's start position is more than position but current token's end position is same as position
+                 (i == tokenCount - 1 && position <= token->endPos )) //current token is last token and its end position is same as position
+                ){
+
             return token;
+
         }
     }
 

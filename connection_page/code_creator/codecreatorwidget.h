@@ -6,6 +6,7 @@
 #include "widgets/multieditorwidget.h"
 #include "connectivity/queryresult.h"
 #include "connectivity/fetchresult.h"
+#include "widgets/codestructurecombobox.h"
 
 class DbObjectInfo;
 class MetadataLoader;
@@ -48,6 +49,8 @@ public:
 
     MultiEditorWidget *getEditorWidget() const;
     void setPairEditorWidget(MultiEditorWidget *multiEditor);
+
+    void setFocusToEditor();
 
     static QByteArray bottomSplitterSizes;
 
@@ -113,6 +116,7 @@ private:
     IQueryScheduler *queryScheduler;
 
     QToolBar *toolbar;
+    CodeStructureComboBox *codeStructureComboBox;
     QAction *progressBarAction;
     QAction *enableWarningsAction;
     QAction *enableNativeCodeAction;

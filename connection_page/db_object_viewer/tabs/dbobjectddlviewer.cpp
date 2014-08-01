@@ -7,6 +7,7 @@
 #include "util/dbutil.h"
 #include "util/widgethelper.h"
 #include "dialogs/tableddloptionsdialog.h"
+#include "widgets/codestructurecombobox.h"
 #include <QtGui>
 
 DbObjectDdlViewer::DbObjectDdlViewer(bool addSettingsButton, DbUiManager *uiManager, QWidget *parent) :
@@ -24,12 +25,21 @@ DbObjectDdlViewer::DbObjectDdlViewer(bool addSettingsButton, DbUiManager *uiMana
     ddlOptions.sizeByteKeyword="n";
 }
 
+void DbObjectDdlViewer::setQueryScheduler(IQueryScheduler *queryScheduler)
+{
+    DbObjectViewerGenericTab::setQueryScheduler(queryScheduler);
+
+    multiEditor->setQueryScheduler(queryScheduler);
+}
+
 void DbObjectDdlViewer::createMainWidget(QLayout *layout)
 {
     multiEditor=new MultiEditorWidget(uiManager, DbUtil::isPLSQLProgramUnit(itemType));
     multiEditor->setReadOnly(true);
 
     layout->addWidget(multiEditor);
+
+    connect(multiEditor, SIGNAL(switchToPair()), this, SIGNAL(switchToPair()));
 }
 
 void DbObjectDdlViewer::loadData()
@@ -92,18 +102,24 @@ void DbObjectDdlViewer::fetchCompleted(const QString &)
 
 QList<QAction*> DbObjectDdlViewer::getSpecificToolbarButtons(QToolBar *toolbar)
 {
-    Q_UNUSED(toolbar);
-
     QList<QAction*> list;
 
     if(addSettingsButton){
-        QAction *separator=new QAction(this);
-        separator->setSeparator(true);
-        list.append(separator);
+        list.append(WidgetHelper::createSeparatorAction(this));
 
         QAction *settingsAction=new QAction(IconUtil::getIcon("settings"), tr("DDL options"), this);
         connect(settingsAction, SIGNAL(triggered()), this, SLOT(showDdlOptions()));
         list.append(settingsAction);
+    }
+
+    if(DbUtil::isSpecOrBodyType(this->itemType)){
+        list.append(WidgetHelper::createSeparatorAction(this));
+
+        CodeStructureComboBox *codeStructureComboBox = new CodeStructureComboBox();
+        list.append(toolbar->addWidget(codeStructureComboBox));
+
+        connect(multiEditor, SIGNAL(codeStructureModelAvailable(CodeStructureModel*)), codeStructureComboBox, SLOT(codeStructureModelAvailable(CodeStructureModel*)));
+        connect(codeStructureComboBox, SIGNAL(selectionChanged(int,int)), multiEditor, SLOT(selectRegion(int,int)));
     }
 
     list.append(WidgetHelper::addStretchToToolbar(toolbar));

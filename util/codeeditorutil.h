@@ -7,6 +7,7 @@
 
 class ParseTreeNode;
 class TokenInfo;
+class DbUiManager;
 
 class CodeEditorUtil
 {
@@ -17,11 +18,14 @@ public:
     static void markPosition(CodeEditor *editor, int pos);
 
     static QString getCurrentObjectName(CodeEditor *editor);
+    static QString getObjectName(const QTextCursor &cur);
     static TokenNameInfo getCurrentObjectNameInfo(CodeEditor *editor);
     static TokenNameInfo getObjectNameInfo(const QTextCursor &cur, bool upToCurrent = true);
-    static TokenNameInfo getObjectNameInfoFromSelection(const QTextCursor &cur);
 
-    static QList<ParseTreeNode*> getDeclarationsForLocalObject(CodeEditor *editor, const QTextCursor &cursor, bool *foundInPairEditor, ParseTreeNode **discardReason);
+    static QList<ParseTreeNode*> getDeclarationsForLocalObject(CodeEditor *editor,
+                                                               const QTextCursor &cursor,
+                                                               bool *foundInPairEditor,
+                                                               ParseTreeNode **discardReason);
 
     static QList<ParseTreeNode*> getDeclarationsForCurrentToken(const CodeEditor *editor,
                                                                 const QTextCursor &cur,
@@ -44,11 +48,15 @@ public:
     static void matchParameterLists(const ParseTreeNode *firstNode, const ParseTreeNode *secondNode,
                                     int *matchedParamCount, int *matchedParamNames);
 
+    static ParseTreeNode *getBestDeclarationByParamValues(CodeEditor *editor,
+                                                          const QTextCursor &cur, const QList<ParseTreeNode *> &declList);
 
     static void formatCode(CodeEditor *editor);
 
 private:
     CodeEditorUtil();
+
+    static TokenNameInfo getObjectNameInfoFromSelection(const QTextCursor &cur);
 
     static bool isIdentifierOrSeparatorToken(int token);
 };

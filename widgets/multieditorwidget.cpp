@@ -11,6 +11,7 @@
 #include "util/strutil.h"
 #include "connection_page/dbuimanager.h"
 #include "code_structure_tree/codestructurepane.h"
+#include "code_structure_tree/codestructuremodel.h"
 #include <QtGui>
 
 MultiEditorWidget::MultiEditorWidget(DbUiManager *uiManager, bool plsqlMode, QWidget *parent) :
@@ -23,11 +24,16 @@ MultiEditorWidget::MultiEditorWidget(DbUiManager *uiManager, bool plsqlMode, QWi
     plsqlMode(plsqlMode),
     lastEditedWordPosition(-1),
     treeBuilder(0),
+    currentStructureModel(0),
     lastChangeTime(QTime::currentTime()),
     lastParseLengthInMs(1000000),
     lastMarkedCursorPos(-1),
     lastHighlightedIdentifierPos(qMakePair(-1,-1))
 {
+    if(plsqlMode){
+        uiManager->getCodeStructurePane()->registerWidget(this);
+    }
+
     createUi();
 }
 
@@ -38,7 +44,9 @@ MultiEditorWidget::~MultiEditorWidget()
 
     qDeleteAll(this->children());
 
-    uiManager->getCodeStructurePane()->unregisterWidget(this);
+    if(plsqlMode){
+        uiManager->getCodeStructurePane()->unregisterWidget(this);
+    }
     delete this->treeBuilder;
 }
 
@@ -166,8 +174,7 @@ void MultiEditorWidget::codeEditorFocusEvent(QWidget *object, bool focusIn)
     cursorPositionChanged();
 
     if(focusIn && plsqlMode){
-        uiManager->getCodeStructurePane()->setCurrentWidget(this);
-        uiManager->getCodeStructurePane()->setTreeBuilder(this, this->treeBuilder, currentEditor->editor()->textCursor().position());
+        uiManager->getCodeStructurePane()->setCurrentEditor(this);
     }
 }
 
@@ -227,6 +234,7 @@ CodeEditorAndSearchPaneWidget *MultiEditorWidget::createEditor()
     connect(editor->editor(), SIGNAL(needsCompletionList()), this, SIGNAL(needsCompletionList()));
     connect(editor->editor(), SIGNAL(applyCaseFoldingRequested()), this, SLOT(applyCaseFoldingRequested()));
     connect(editor->editor(), SIGNAL(switchToPair()), this, SIGNAL(switchToPair()));
+    connect(editor->editor(), SIGNAL(needsToDescribeObject(QString)), this, SLOT(describeObject(QString)));
 
     return editor;
 }
@@ -241,6 +249,23 @@ void MultiEditorWidget::setReadOnly(bool readOnly)
 void MultiEditorWidget::setInfoLabelTextFormat(const QString &format)
 {
     this->infoLabelTextFormat=format;
+}
+
+void MultiEditorWidget::selectRegion(int startPos, int endPos)
+{
+    CodeEditor *editor = currentTextEditor();
+    QTextCursor cur = editor->textCursor();
+    cur.setPosition(startPos);
+    cur.setPosition(endPos, QTextCursor::KeepAnchor);
+    editor->setTextCursor(cur);
+    editor->ensureVisible(cur);
+
+    editor->setFocus();
+}
+
+void MultiEditorWidget::focusInEvent(QFocusEvent *)
+{
+    currentTextEditor()->setFocus();
 }
 
 void MultiEditorWidget::pulsate(int startPos, int endPos)
@@ -495,7 +520,9 @@ void MultiEditorWidget::onReparseTimer()
 
         if(codeStructurePaneUpdateCondition){
             //lastMarkedCursorPos = cursorPos;
-            uiManager->getCodeStructurePane()->setCursorPosition(this, cursorPos);
+            if(currentStructureModel){
+                currentStructureModel->setCursorPosition(cursorPos);
+            }
         }
 
         if(identifierHighlightCondition){
@@ -559,7 +586,9 @@ void MultiEditorWidget::parsingCompleted(int requestId, bool success, PlSqlTreeB
         this->treeBuilder = treeBulder;
 
         if(plsqlMode){
-            uiManager->getCodeStructurePane()->setTreeBuilder(this, treeBuilder, currentTextEditor()->textCursor().position());
+            currentStructureModel = new CodeStructureModel(this->treeBuilder->getRootNode(), this);
+            emit codeStructureModelAvailable(currentStructureModel);
+            currentStructureModel->setCursorPosition(currentTextEditor()->textCursor().position());
         }
 
         delete currentTreeBuilder;
@@ -647,4 +676,9 @@ void MultiEditorWidget::updateEditors(CodeEditor *except)
             editor->editor()->updateAllParts();
         }
     }
+}
+
+void MultiEditorWidget::describeObject(const QString &objectName)
+{
+    uiManager->describeObject(objectName);
 }

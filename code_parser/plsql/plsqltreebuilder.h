@@ -30,6 +30,7 @@ public:
     //ParseTreeNode *getNode(const QList<int> rulesPath) const;
     static ParseTreeNode *findNode(const ParseTreeNode *parentNode, int ruleId, bool recursive = false);
     static ParseTreeNode *findAnyNode(ParseTreeNode *parentNode, const QList<int> ruleIds, bool recursive = false);
+    static ParseTreeNode *findParentNode(ParseTreeNode *childNode, int ruleId, int maxLevels = -1);
     static QHash<ParseTreeNode *, QString> findNodesWithHandlers(ParseTreeNode *parentNode);
 
     QList<ParseTreeNode *> findDeclarations(int position, ParseTreeNode **discardReason);
@@ -39,8 +40,12 @@ public:
     static ParseTreeNode *findProcHeadingNode(ParseTreeNode *procNode);
 
     static bool isProcNode(ParseTreeNode *node);
+    static bool areProcNodes(const QList<ParseTreeNode*> &nodes);
     static bool isProcNode(int ruleId);
     static int getPairProcRuleId(int ruleId);
+    static ParseTreeNode *getParamListNode(ParseTreeNode *procNode);
+    static ParseTreeNode *getParamValuesNode(ParseTreeNode *idNode);
+    static int getChildCount(ParseTreeNode *parentNode, int childRuleId);
 
     static bool isIdentifierOrSeparatorToken(int token);
     static bool isIdentifierToken(int token);

@@ -1066,6 +1066,26 @@ bool DbUtil::isSpecType(DbTreeModel::DbTreeNodeType itemType)
     }
 }
 
+bool DbUtil::isBodyType(DbTreeModel::DbTreeNodeType itemType)
+{
+    switch(itemType){
+    case DbTreeModel::PackageBodies:
+    case DbTreeModel::PackageBody:
+    case DbTreeModel::TypeBodies:
+    case DbTreeModel::TypeBody:
+        return true;
+        break;
+    default:
+        return false;
+        break;
+    }
+}
+
+bool DbUtil::isSpecOrBodyType(DbTreeModel::DbTreeNodeType itemType)
+{
+    return isSpecType(itemType) || isBodyType(itemType);
+}
+
 QString DbUtil::getExtentSizeClause(bool unlimited, uint size, OraExp::ExtentUnit sizeUnit)
 {
     return (unlimited ? "UNLIMITED" : QString("%1%2").arg(QString::number(size), DbUtil::getSizeUnitText(sizeUnit)));
