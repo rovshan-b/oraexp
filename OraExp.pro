@@ -1192,6 +1192,7 @@ RESOURCES += \
 
 unix:INCLUDEPATH += /usr/local/include
 unix:LIBS += -L/usr/local/lib -locilib
+unix:LIBS += -L/lib/x86_64-linux-gnu/ -lz
 
 windows:INCLUDEPATH += "C:/ocilib-4.0.0/include"
 windows:LIBS += -L"C:/ocilib-4.0.0/lib32" -locilibw

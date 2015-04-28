@@ -224,6 +224,7 @@ QStringList DataImporterColumnMappingsPage::getNonEmptyDates(int previewTableCol
 {
     QStringList results;
 
+    //BUG: choxlu dat olanda back edib yeniden qayidanda model 0 olur ve crash edir
     QAbstractItemModel *model = previewTable->model();
     for(int i=0; i<model->rowCount(); ++i){
         QString date = model->index(i, previewTableColIx).data().toString().trimmed();

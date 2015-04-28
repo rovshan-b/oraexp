@@ -11,6 +11,7 @@ void AsyncReconnect::run()
 {
     //check if already connected
     try{
+        //burda crash edir (deyesen reconnect vaxti hemin worksheetde nese execute edende olur)
         db->executeQueryAndCleanup(QueryUtil::getQuery("ping_query", db));
 
         qDebug("already connected");

@@ -521,6 +521,7 @@ void CodeCreatorWidget::codeParsingCompleted(PlSqlTreeBuilder *treeBulder)
 {
     QString schema, name;
 
+    //burda crash edir
     PlSqlParseHelper::findObjectName(treeBulder, &schema, &name, this->queryScheduler->getDb()->getUsername());
     if(!name.isEmpty()){
         this->schemaName = schema;
