@@ -28,11 +28,7 @@ ConnectionsPane::ConnectionsPane(QWidget *parent) :
 
     new QShortcut(QKeySequence("Ctrl+Tab"), this, SLOT(ctrlTabPressed()));
 
-#ifdef DEBUG
-    addConnection("{c634b747-5780-4a3f-b3b0-5711d749a745}");
-#else
-    addConnection();
-#endif
+    //addConnection();
 }
 
 void ConnectionsPane::addConnection(const QString &uuid)

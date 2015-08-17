@@ -1,3 +1,17 @@
+Version 0.1.2 - 2015-08-17
+
+- Implemented LALR(1) based parser for parsing and highlighting code in editor (automatically fixing problems with code highlighting)
+- Pressing F4 on function or procedure declaration/definition in package editor switches between spec and body
+- Pressing F4 on local variable name will take you to its declaration
+- Hovering mouse over identifier in code editor displays its declaration in tooltip
+- Initial version of code formatter is ready (Ctrl + Shift + F)
+- New code outline pane displays structure of code for packages/procedures/functions in tree view
+- Can navigate between procedures/functions in package editor using new dropdown list at the top of window
+- Code folding in editor
+- Ctrl + Click works same as pressing F4 in editor
+- Automatic case folding (for example, can change case of keywords to upper case as you type). Can be enabled from "Options" dialog
+
+
 Version 0.1.1 - 2013-12-20
 
 - When editing table data show WHERE clause in toolbar if there is one
