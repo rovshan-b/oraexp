@@ -95,7 +95,7 @@ bool CsvImporter::setFilename(const QString &filename)
     return true;
 }
 
-void CsvImporter::readRows(IDataImportListener *importListener, int maxCount)
+void CsvImporter::  readRows(IDataImportListener *importListener, int maxCount)
 {
     this->stopped = false;
 

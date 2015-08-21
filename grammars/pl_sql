@@ -756,7 +756,7 @@ function_declaration_main {gui_skip}
    :  function_heading opt_function_type_specs
    ;
    
-function_declaration {symbol_table_entry,gui_icon:function}
+function_declaration {symbol_table_entry,scope,gui_icon:function}
    :  function_declaration_main PLS_SEMI
    ;
    
@@ -808,7 +808,7 @@ procedure_declaration_main {gui_skip}
    :  procedure_heading
    ;
 
-procedure_declaration {symbol_table_entry,gui_icon:procedure}
+procedure_declaration {symbol_table_entry,scope,gui_icon:procedure}
    :  procedure_declaration_main PLS_SEMI
    ;
    
@@ -2770,7 +2770,7 @@ subexpression_central
    |  cursor_state_check
    |  simple_case_expression
    |  searched_case_expression
-   |  subquery
+   |  select_statement
    |  cell_assignment
    |  'PRIOR' expression
    |  'CONNECT_BY_ROOT' expression

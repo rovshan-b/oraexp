@@ -59,6 +59,8 @@ HEADERS  += mainwindow.h \
     ../../beans/codecollapseposition.h \
     ../../beans/parsetreenodescope.h
 
+include(GeneratedFiles.pri)
+
 
 FORMS    += mainwindow.ui
 

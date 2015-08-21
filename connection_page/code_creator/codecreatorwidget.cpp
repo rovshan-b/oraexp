@@ -27,6 +27,7 @@ CodeCreatorWidget::CodeCreatorWidget(const QString &schemaName,
     objectName(objectName),
     objectType(objectType),
     uiManager(uiManager),
+    queryScheduler(0),
     hasSpecBodySwitcher(false),
     autocompleteHelper(0)
 {
@@ -519,9 +520,12 @@ void CodeCreatorWidget::bottomSplitterMoved()
 
 void CodeCreatorWidget::codeParsingCompleted(PlSqlTreeBuilder *treeBulder)
 {
+    if(this->queryScheduler == 0){
+        return;
+    }
+
     QString schema, name;
 
-    //burda crash edir
     PlSqlParseHelper::findObjectName(treeBulder, &schema, &name, this->queryScheduler->getDb()->getUsername());
     if(!name.isEmpty()){
         this->schemaName = schema;

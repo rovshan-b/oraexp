@@ -134,7 +134,11 @@ void DataImporterThread::rowAvailable(const QStringList &values)
     int colCount = tableOptions.columnsToCompare.size();
 
     for(int colIx=0; colIx<colCount; ++colIx){
-        bulkHelper.setArrayData(stmt, colIx>=valueCount ? "" : values.at(colIx) , colIx+1, currentOffset);
+        bulkHelper.setArrayData(stmt, (colIx>=valueCount || colIx>=columnMappings.count()) ?
+                                    ""
+                                  :
+                                    values.at(columnMappings.at(colIx)->fileFieldIx) ,
+                                colIx+1, currentOffset);
     }
 
     ++currentOffset;

@@ -49,4 +49,5 @@ HEADERS += \
     ../parsingtableaction.h \
     ../filewriter.h \
     ../util.h \
-    ../bnfruleoption.h
+    ../bnfruleoption.h \
+    ../../typedefs.h

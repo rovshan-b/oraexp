@@ -1186,6 +1186,8 @@ RESOURCES += \
     context_menus.qrc \
     scripts.qrc
 
+include(GeneratedFiles.pri)
+
 #unix:INCLUDEPATH += /home/rovshan/Applications/instantclient_11_2/sdk/include
 
 #unix:LIBS += -L/home/rovshan/Applications/instantclient_11_2 -lociei -lclntsh -locci
@@ -1200,3 +1202,5 @@ windows:LIBS += -L"C:/ocilib-4.0.0/lib32" -locilibw
 windows:INCLUDEPATH += "C:/Qt/4.8.5/src/3rdparty/zlib"
 
 windows:RC_FILE = app.rc
+
+windows:QMAKE_CXXFLAGS += /bigobj

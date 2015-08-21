@@ -539,6 +539,10 @@ void MultiEditorWidget::onReparseTimer()
 
 void MultiEditorWidget::reparse()
 {
+    if(this->queryScheduler == 0){
+        return;
+    }
+
     lastParseTime = QTime::currentTime();
 
     codeReparser.parse(currentTextEditor()->toPlainText());

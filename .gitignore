@@ -134,6 +134,7 @@ config.tests/networkmanager/networkmanager
 config.tests/qmf/qmf
 config.tests/maemo5-contacts/maemo5-contacts
 config.tests/bluez/bluez
+.directory
  
 .qmake.cache
 translations/qtmobility_untranslated.ts
@@ -174,3 +175,6 @@ plugin_commonU.def
 # Failed patch
 *.orig
 *.rej
+
+
+code_parser/plsql/generated/*

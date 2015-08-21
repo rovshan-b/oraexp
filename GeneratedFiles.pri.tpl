@@ -1,0 +1,3 @@
+SOURCES += {sources}
+
+HEADERS += {headers}

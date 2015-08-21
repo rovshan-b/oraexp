@@ -1,0 +1,6 @@
+#ifndef PLSQLALLPARSINGACTIONDECL_H
+#define PLSQLALLPARSINGACTIONDECL_H
+
+{declarations}
+
+#endif

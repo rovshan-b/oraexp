@@ -1,8 +1,11 @@
 #include "plsqlparsingtable.h"
+#include "generated/plsqlallparsingactiondecl.h"
+#include "generated/plsqlparsingtableactionsutil_0.h"
+#include "generated/plsqlparsingtablestatesutil_0.h"
 
 PlSqlParsingTable *PlSqlParsingTable::instance = 0;
 
-{action_declarations}
+{action_definitions}
 
 PlSqlParsingTable::PlSqlParsingTable()
 {
@@ -96,11 +99,11 @@ void PlSqlParsingTable::populateRuleOptions()
 }
 
 void PlSqlParsingTable::initializeActions()
-{
-   {action_initializations}
+{		
+   PlSqlParsingTableActionsUtil0::initializeActions();
 }
 
 void PlSqlParsingTable::createStates()
 {
-   {state_initializations}
+   PlSqlParsingTableStatesUtil0::initializeStates(this->rows);
 }

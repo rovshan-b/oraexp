@@ -1208,7 +1208,6 @@ int CodeEditor::lineMarkerAreaOffset() const
          clickablePositions = cursor;
          highlightCurrentLine();
          viewport()->setCursor(Qt::PointingHandCursor);
-         qDebug("set new position");
      }
  }
 
@@ -2493,7 +2492,7 @@ int CodeEditor::lineMarkerAreaOffset() const
      this->completer->setWidget(this);
      this->completer->setCompletionMode(QCompleter::PopupCompletion);
      this->completer->setCaseSensitivity(Qt::CaseInsensitive);
-     this->completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+     //this->completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
      QObject::connect(this->completer, SIGNAL(activated(QString)),
                       this, SLOT(insertCompletion(QString)));
  }
