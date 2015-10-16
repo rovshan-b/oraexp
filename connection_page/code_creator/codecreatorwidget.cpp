@@ -88,6 +88,8 @@ void CodeCreatorWidget::setQueryScheduler(IQueryScheduler *queryScheduler)
 
     Q_ASSERT(autocompleteHelper == 0);
     autocompleteHelper = new AutocompleteHelper(this);
+    autocompleteHelper->setQueryScheduler(queryScheduler);
+    connect(autocompleteHelper, SIGNAL(modelReady(QAbstractItemModel*,int)), multiEditor, SLOT(completionModelReady(QAbstractItemModel*,int)));
 
     if(DbUtil::isPLSQLProgramUnit(this->objectType)){
         if(!this->queryScheduler->getDb()->supportsCompileTimeWarnings()){
@@ -577,25 +579,7 @@ void CodeCreatorWidget::compilationErrorFetchCompleted(const QString &)
 
 void CodeCreatorWidget::prepareCompletionList()
 {
-    if(!this->queryScheduler){
-        return;
-    }
-
-    /*
-        resolve steps (name can consist of several parts)
-        check first token for following
-          1. is it local variable name
-          2. try to find it in all_objects (if it is a snynonym, find out target object)
-          3. is it schema name
-
-        if first token is resolved go on to resolve next parts
-    */
-
-    CodeEditor *editor = multiEditor->currentTextEditor();
-    TokenNameInfo currentObjectNameInfo = CodeEditorUtil::getCurrentObjectNameInfo(editor);
-    if(!currentObjectNameInfo.isEmpty()){
-        autocompleteHelper->getChildList(currentObjectNameInfo);
-    }
+    autocompleteHelper->prepareCompletionList(multiEditor);
 }
 
 void CodeCreatorWidget::startProgress()

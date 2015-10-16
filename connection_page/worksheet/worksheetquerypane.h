@@ -19,6 +19,7 @@ class MultiEditorWidget;
 class Param;
 class BindParamInfo;
 class DbUiManager;
+class AutocompleteHelper;
 
 class WorksheetQueryPane : public QWidget
 {
@@ -71,6 +72,9 @@ signals:
 protected:
     virtual void timerEvent(QTimerEvent *event);
 
+private slots:
+    void prepareCompletionList();
+
 private:
     IQueryScheduler *queryScheduler;
     QToolBar *toolbar;
@@ -83,6 +87,8 @@ private:
     QAction *stopProgressAction;
 
     MultiEditorWidget *multiEditor;
+
+    AutocompleteHelper *autocompleteHelper;
 
     void emitMessage(const QString &msg);
     QList<Param *> promptForBindParams(const QStringList &bindParams, const QList<BindParamInfo::BindParamType> &suggestedParamTypes);

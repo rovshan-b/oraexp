@@ -54,6 +54,7 @@ signals:
 
 public slots:
     void selectRegion(int startPos, int endPos);
+    void completionModelReady(QAbstractItemModel *model, int cursorPosition);
 
 protected:
     virtual void focusInEvent(QFocusEvent *event);

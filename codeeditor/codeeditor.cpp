@@ -795,10 +795,12 @@ int CodeEditor::lineMarkerAreaOffset() const
              }
          }else if((key==Qt::Key_Return || key==Qt::Key_Enter) && event->modifiers()==0){
             handled=true;
-            textCursor().beginEditBlock();
+            QTextCursor cur = textCursor();
+            int cursorPosInBlock = cur.positionInBlock();
+            cur.beginEditBlock();
             QPlainTextEdit::keyPressEvent(event);
-            autoIndentNewBlock();
-            textCursor().endEditBlock();
+            autoIndentNewBlock(cursorPosInBlock);
+            cur.endEditBlock();
          }else if(key==Qt::Key_Tab){
              handled=true;
 
@@ -918,7 +920,7 @@ int CodeEditor::lineMarkerAreaOffset() const
      tc.insertText(textToInsert);
      setTextCursor(tc);
  }
-/*
+
  void CodeEditor::completionModelReady(QAbstractItemModel *model, int cursorPosition)
  {
      //set model
@@ -932,7 +934,7 @@ int CodeEditor::lineMarkerAreaOffset() const
                      + completer->popup()->verticalScrollBar()->sizeHint().width());
          completer->complete(cr); // popup it up!
      }
- }*/
+ }
 
  CodeCollapsePosition CodeEditor::findCollapsePosition(const QTextBlock &block)
  {
@@ -1515,7 +1517,7 @@ int CodeEditor::lineMarkerAreaOffset() const
      painter.restore();
  }*/
 
- void CodeEditor::autoIndentNewBlock()
+ void CodeEditor::autoIndentNewBlock(int cursorPosInBlock)
  {
      this->blockEventChanges = true;
 
@@ -1534,19 +1536,22 @@ int CodeEditor::lineMarkerAreaOffset() const
          prefix.append(c);
      }
      //causes crash when there is unclosed brace at the end of line and you press enter in the middle of line
-     /*int unclosedBracePosition = findLastUnclosedBracePosition(cur.block());
-     int i = prefix.size();
-     while(i++ < unclosedBracePosition){
-         c=prevLine.at(i);
-         if(c.isSpace()){
-            prefix.append(c);
-         }else{
+     int unclosedBracePosition = findLastUnclosedBracePosition(cur.block());
+     if(cursorPosInBlock > unclosedBracePosition){
+         int i = prefix.size();
+         while(i < qMin(unclosedBracePosition, prevLine.length())){
+             c = prevLine.at(i);
+             if(c.isSpace()){
+                prefix.append(c);
+             }else{
+                 prefix.append(' ');
+             }
+             ++i;
+         }
+         if(unclosedBracePosition != -1){ //add one more space for better alignment
              prefix.append(' ');
          }
      }
-     if(unclosedBracePosition != -1){ //add one more space for better alignment
-         prefix.append(' ');
-     }*/
 
      cur.movePosition(QTextCursor::NextBlock);
      if(!prefix.isEmpty()){

@@ -6,6 +6,7 @@
 #include "util/strutil.h"
 #include "util/codeeditorutil.h"
 #include "widgets/multieditorwidget.h"
+#include "codeeditor/autocompletehelper.h"
 #include "code_parser/plsql/plsqlparsehelper.h"
 #include "dialogs/bindparamsdialog.h"
 #include "connectivity/statement.h"
@@ -16,7 +17,7 @@
 using namespace std;
 
 WorksheetQueryPane::WorksheetQueryPane(DbUiManager *uiManager, QWidget *parent) :
-    QWidget(parent), queryScheduler(0)
+    QWidget(parent), queryScheduler(0), autocompleteHelper(0)
 {
     QVBoxLayout *layout=new QVBoxLayout();
 
@@ -84,6 +85,7 @@ WorksheetQueryPane::WorksheetQueryPane(DbUiManager *uiManager, QWidget *parent) 
     connect(&sequentialRunner, SIGNAL(completed(bool)), this, SLOT(sequentialExecutionCompleted()));
 
     connect(multiEditor->getCurrentEditor()->editor()->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
+    connect(multiEditor, SIGNAL(needsCompletionList()), this, SLOT(prepareCompletionList()));
 }
 
 WorksheetQueryPane::~WorksheetQueryPane()
@@ -287,6 +289,11 @@ void WorksheetQueryPane::setQueryScheduler(IQueryScheduler *queryScheduler)
     sequentialRunner.setQueryScheduler(queryScheduler);
     multiEditor->setQueryScheduler(queryScheduler);
 
+    Q_ASSERT(autocompleteHelper == 0);
+    autocompleteHelper = new AutocompleteHelper(this);
+    autocompleteHelper->setQueryScheduler(queryScheduler);
+    connect(autocompleteHelper, SIGNAL(modelReady(QAbstractItemModel*,int)), multiEditor, SLOT(completionModelReady(QAbstractItemModel*,int)));
+
     toolbar->setEnabled(true);
 }
 
@@ -469,4 +476,9 @@ void WorksheetQueryPane::timerEvent(QTimerEvent *event)
     if(event->timerId()==progressTimerId){
         updateProgressLabel();
     }
+}
+
+void WorksheetQueryPane::prepareCompletionList()
+{
+    autocompleteHelper->prepareCompletionList(multiEditor);
 }

@@ -24,6 +24,9 @@ public:
         T *item = 0;
 
         const T* currentParent = parentNode;
+        if(currentParent->children.count() <= checkIx){
+            return 0;
+        }
 
         while(item == 0){
             item = currentParent->children[checkIx];

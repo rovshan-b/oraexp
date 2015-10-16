@@ -340,8 +340,8 @@ QString Resultset::getAsString(unsigned int colIx) const
         result=QObject::tr("[BLOB]");
     }else if(dataType==OraExp::CDTLong && !isTextColumn(colIx)){
         result=QObject::tr("[LONG RAW]");
-    }else if(dataType==OraExp::CDTFile && !isTextColumn(colIx)){
-        result=QObject::tr("[FILE]");
+    /*}else if(dataType==OraExp::CDTFile && !isTextColumn(colIx)){
+        result=QObject::tr("[FILE]");*/
     }else if(dataType==OraExp::CDTDateTime){
         mtext *dateBuffer = new mtext[mtslen(W_DB_DATE_FORMAT)+1];
         OCI_DateToText(OCI_GetDate(ociResultset, colIx),

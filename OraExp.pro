@@ -1196,10 +1196,10 @@ unix:INCLUDEPATH += /usr/local/include
 unix:LIBS += -L/usr/local/lib -locilib
 unix:LIBS += -L/lib/x86_64-linux-gnu/ -lz
 
-windows:INCLUDEPATH += "C:/ocilib-4.0.0/include"
-windows:LIBS += -L"C:/ocilib-4.0.0/lib32" -locilibw
+windows:INCLUDEPATH += "C:/ocilib/include"
+windows:LIBS += -L"C:/ocilib/lib32" -locilibw
 
-windows:INCLUDEPATH += "C:/Qt/4.8.5/src/3rdparty/zlib"
+windows:INCLUDEPATH += "C:/Qt/4.8.6/src/3rdparty/zlib"
 
 windows:RC_FILE = app.rc
 

@@ -40,7 +40,7 @@ void AboutDialog::createTopPane(QBoxLayout *layout)
     titleLabel->setFont(font);
     rightLayout->addWidget(titleLabel);
 
-    rightLayout->addWidget(new QLabel("   Version: 0.1.2"));
+    rightLayout->addWidget(new QLabel("   Version: 0.1.3"));
 
     QLabel *websiteLabel = new QLabel("&nbsp;&nbsp;&nbsp;Website: <a href='http://www.oraexp.com'>www.oraexp.com</a>");
     connect(websiteLabel, SIGNAL(linkActivated(QString)), this, SLOT(linkClicked(QString)));

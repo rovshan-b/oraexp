@@ -8,7 +8,8 @@
 #include <QtGui>
 
 SaveChangesDialog::SaveChangesDialog(bool showDiscardButton, QWidget *parent) :
-    QDialog(parent)
+    QDialog(parent),
+    currentCnPage(0)
 {
     setWindowTitle(tr("Save changes"));
 

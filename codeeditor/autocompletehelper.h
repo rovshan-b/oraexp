@@ -7,6 +7,7 @@
 class CodeEditor;
 class IQueryScheduler;
 class QAbstractItemModel;
+class MultiEditorWidget;
 
 class AutocompleteHelper : public QObject
 {
@@ -18,13 +19,15 @@ public:
 
     bool isBusy() const {return this->busy;}
 
-    void getChildList(const TokenNameInfo &tokenNameInfo);
+    void prepareCompletionList(MultiEditorWidget *multiEditor);
 
 signals:
     void modelReady(QAbstractItemModel *model, int cursorPosition);
 
 private:
     IQueryScheduler *queryScheduler;
+
+    void getChildList(const TokenNameInfo &tokenNameInfo);
 
     bool busy;
     

@@ -283,6 +283,9 @@ OraExp::QueryType Statement::determineStatementType()
     case OCI_CST_DECLARE:
         queryType=OraExp::QueryTypeDeclare;
         break;
+    case OCI_CST_CALL:
+        queryType=OraExp::QueryTypeCall;
+        break;
     default:
         queryType=OraExp::QueryTypeUnknown;
         break;

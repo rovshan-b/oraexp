@@ -263,6 +263,11 @@ void MultiEditorWidget::selectRegion(int startPos, int endPos)
     editor->setFocus();
 }
 
+void MultiEditorWidget::completionModelReady(QAbstractItemModel *model, int cursorPosition)
+{
+    currentTextEditor()->completionModelReady(model, cursorPosition);
+}
+
 void MultiEditorWidget::focusInEvent(QFocusEvent *)
 {
     currentTextEditor()->setFocus();

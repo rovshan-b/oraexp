@@ -13,6 +13,7 @@ class CodeCollapsePosition;
 class ToolTipWidget;
 class IQueryScheduler;
 class PlSqlTreeBuilder;
+class QAbstractItemModel;
 
 class CodeEditor : public QPlainTextEdit
 {
@@ -156,6 +157,9 @@ protected:
 
     void timerEvent(QTimerEvent *event);
 
+public slots:
+    void completionModelReady(QAbstractItemModel *model, int cursorPosition);
+
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
     void highlightCurrentLine();
@@ -166,8 +170,6 @@ private slots:
     void updateNavBar();
 
     void insertCompletion(const QString &completion);
-
-    //void completionModelReady(QAbstractItemModel *model, int cursorPosition);
 
 private:
     QWidget *lineNumberArea;
@@ -192,7 +194,7 @@ private:
 
     int pulsateTimerId;
 
-    void autoIndentNewBlock();
+    void autoIndentNewBlock(int cursorPosInBlock);
     int findLastUnclosedBracePosition(const QTextBlock &block) const;
     void indentSelection();
     void unindentSelection();
