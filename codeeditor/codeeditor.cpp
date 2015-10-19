@@ -856,8 +856,8 @@ int CodeEditor::lineMarkerAreaOffset() const
 
  void CodeEditor::completerHandleKeyPress(QKeyEvent *event)
  {
-     bool isShortcut = ((event->modifiers() & Qt::ControlModifier) && event->key() == Qt::Key_Space); // CTRL+Space
-     if (!isShortcut){ // do not process the shortcut when we have a completer}
+     bool ctrlSpacePressed = ((event->modifiers() & Qt::ControlModifier) && event->key() == Qt::Key_Space); // CTRL+Space
+     if (!ctrlSpacePressed){ // do not process the shortcut when we have a completer}
         QPlainTextEdit::keyPressEvent(event);
      }
 
@@ -872,9 +872,9 @@ int CodeEditor::lineMarkerAreaOffset() const
      //completionPrefix.append(event->text());
 
      static QString triggers("."); //characters to start completer
-     bool startTriggerPressed = !event->text().isEmpty() && triggers.contains(event->text().right(1));
+     bool startTriggerPressed = (!event->text().isEmpty() && triggers.contains(event->text().right(1))) || ctrlSpacePressed;
 
-     if (!isShortcut && (hasModifier || event->text().isEmpty()|| completionPrefix.length() < 1
+     if (!ctrlSpacePressed && (hasModifier || event->text().isEmpty()|| completionPrefix.length() < 1
                          || eow.contains(event->text().right(1))) && !startTriggerPressed) {
          completer->popup()->hide();
          return;
@@ -882,7 +882,7 @@ int CodeEditor::lineMarkerAreaOffset() const
 
 
      if(!completer->popup()->isVisible() && startTriggerPressed){
-         emit needsCompletionList();
+         emit needsCompletionList(ctrlSpacePressed);
          return;
      }else if(completer->popup()->isVisible()){
          if (completionPrefix != completer->completionPrefix()) {
@@ -932,6 +932,8 @@ int CodeEditor::lineMarkerAreaOffset() const
          QRect cr = cursorRect();
          cr.setWidth(completer->popup()->sizeHintForColumn(0)
                      + completer->popup()->verticalScrollBar()->sizeHint().width());
+         cr.adjust(10, 10, 10, 10);
+         completer->popup()->scrollToTop();
          completer->complete(cr); // popup it up!
      }
  }
@@ -2497,6 +2499,7 @@ int CodeEditor::lineMarkerAreaOffset() const
      this->completer->setWidget(this);
      this->completer->setCompletionMode(QCompleter::PopupCompletion);
      this->completer->setCaseSensitivity(Qt::CaseInsensitive);
+     this->completer->setWrapAround(false);
      //this->completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
      QObject::connect(this->completer, SIGNAL(activated(QString)),
                       this, SLOT(insertCompletion(QString)));

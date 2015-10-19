@@ -73,7 +73,7 @@ protected:
     virtual void timerEvent(QTimerEvent *event);
 
 private slots:
-    void prepareCompletionList();
+    void prepareCompletionList(bool topLevel);
 
 private:
     IQueryScheduler *queryScheduler;

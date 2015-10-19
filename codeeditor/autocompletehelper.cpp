@@ -2,7 +2,11 @@
 #include <QStringListModel>
 #include "codeeditor.h"
 #include "util/codeeditorutil.h"
+#include "util/queryscheduler.h"
+#include "connectivity/dbconnection.h"
+#include "connectivity/statement.h"
 #include "widgets/multieditorwidget.h"
+#include "models/resultsettablemodel.h"
 
 #include <QDebug>
 
@@ -19,7 +23,7 @@ void AutocompleteHelper::setQueryScheduler(IQueryScheduler *queryScheduler)
     this->queryScheduler=queryScheduler;
 }
 
-void AutocompleteHelper::prepareCompletionList(MultiEditorWidget *multiEditor)
+void AutocompleteHelper::prepareCompletionList(MultiEditorWidget *multiEditor, bool topLevel)
 {
     if(!this->queryScheduler || this->busy){
         return;
@@ -43,17 +47,51 @@ void AutocompleteHelper::prepareCompletionList(MultiEditorWidget *multiEditor)
 
     TokenNameInfo currentObjectNameInfo = CodeEditorUtil::getObjectNameInfo(cur);
     if(!currentObjectNameInfo.isEmpty()){
-        getChildList(currentObjectNameInfo);
+        getChildList(currentObjectNameInfo, topLevel);
     }
 }
 
-void AutocompleteHelper::getChildList(const TokenNameInfo &tokenNameInfo)
+void AutocompleteHelper::getChildList(const TokenNameInfo &tokenNameInfo, bool topLevel)
 {
     if(this->busy){
         return;
     }
 
     //qDebug() << "get child list for" << tokenNameInfo.toString();
-    QStringListModel *model = new QStringListModel(QStringList() << "item_1" << "item_2" << "item_3", this);
-    emit modelReady(model, 0);
+    //QStringListModel *model = new QStringListModel(QStringList() << "item_1" << "item_2" << "item_3", this);
+
+    queryScheduler->enqueueQuery("get_object_list_for_autocomplete", QList<Param*>() <<
+                                 new Param(":name_parts", tokenNameInfo.parts) <<
+                                 new Param(":name_parts_count", tokenNameInfo.parts.count()) <<
+                                 new Param(":default_schema", queryScheduler->getDb()->getUsername()) <<
+                                 new Param(":top_level", topLevel) <<
+                                 new Param(":rs_out"),
+                                 this,
+                                 "get_object_list_for_autocomplete",
+                                 "childListReady");
+}
+
+void AutocompleteHelper::childListReady(const QueryResult &result)
+{
+    if(result.hasError || result.statement->rsCount() != 1){
+        return;
+    }
+
+    QHash<QString, QString> iconColumns;
+    iconColumns["OBJECT_NAME"] = "ICON_NAME";
+    ResultsetTableModel *model = new ResultsetTableModel(this->queryScheduler,
+                                                         result.statement->rsAt(0),
+                                                         this, QHash<int,StatementDesc*>(), iconColumns);
+
+    connect(model, SIGNAL(firstFetchCompleted()), this, SLOT(firstFetchCompleted()));
+
+    if(model->canFetchMore(QModelIndex())){
+        model->fetchMore(QModelIndex());
+    }
+
+}
+
+void AutocompleteHelper::firstFetchCompleted()
+{
+    emit modelReady(static_cast<QAbstractItemModel*>(sender()), 0);
 }

@@ -139,7 +139,7 @@ signals:
     void escapeKeyPressed();
     void gotFocus();
     void lostFocus();
-    void needsCompletionList();
+    void needsCompletionList(bool topLevel);
     void updated(CodeEditor *editor);
     void applyCaseFoldingRequested();
     void switchToPair();

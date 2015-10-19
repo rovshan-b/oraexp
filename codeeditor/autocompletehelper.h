@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "beans/tokennameinfo.h"
+#include "connectivity/queryresult.h"
 
 class CodeEditor;
 class IQueryScheduler;
@@ -19,15 +20,19 @@ public:
 
     bool isBusy() const {return this->busy;}
 
-    void prepareCompletionList(MultiEditorWidget *multiEditor);
+    void prepareCompletionList(MultiEditorWidget *multiEditor, bool topLevel);
 
 signals:
     void modelReady(QAbstractItemModel *model, int cursorPosition);
 
+private slots:
+    void childListReady(const QueryResult &result);
+    void firstFetchCompleted();
+
 private:
     IQueryScheduler *queryScheduler;
 
-    void getChildList(const TokenNameInfo &tokenNameInfo);
+    void getChildList(const TokenNameInfo &tokenNameInfo, bool topLevel);
 
     bool busy;
     

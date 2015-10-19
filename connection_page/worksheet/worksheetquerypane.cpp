@@ -85,7 +85,7 @@ WorksheetQueryPane::WorksheetQueryPane(DbUiManager *uiManager, QWidget *parent) 
     connect(&sequentialRunner, SIGNAL(completed(bool)), this, SLOT(sequentialExecutionCompleted()));
 
     connect(multiEditor->getCurrentEditor()->editor()->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
-    connect(multiEditor, SIGNAL(needsCompletionList()), this, SLOT(prepareCompletionList()));
+    connect(multiEditor, SIGNAL(needsCompletionList(bool)), this, SLOT(prepareCompletionList(bool)));
 }
 
 WorksheetQueryPane::~WorksheetQueryPane()
@@ -478,7 +478,7 @@ void WorksheetQueryPane::timerEvent(QTimerEvent *event)
     }
 }
 
-void WorksheetQueryPane::prepareCompletionList()
+void WorksheetQueryPane::prepareCompletionList(bool topLevel)
 {
-    autocompleteHelper->prepareCompletionList(multiEditor);
+    autocompleteHelper->prepareCompletionList(multiEditor, topLevel);
 }

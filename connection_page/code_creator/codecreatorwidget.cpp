@@ -51,7 +51,7 @@ void CodeCreatorWidget::createUi()
     connect(multiEditor, SIGNAL(escapeKeyPressed()), infoPanel, SLOT(closePanel()));
     connect(multiEditor, SIGNAL(codeParsingCompleted(PlSqlTreeBuilder*)), this, SLOT(codeParsingCompleted(PlSqlTreeBuilder*)));
     connect(multiEditor, SIGNAL(switchToPair()), this, SIGNAL(specBodySwitchRequested()));
-    connect(multiEditor, SIGNAL(needsCompletionList()), this, SLOT(prepareCompletionList()));
+    connect(multiEditor, SIGNAL(needsCompletionList(bool)), this, SLOT(prepareCompletionList(bool)));
 
     //for splitting tree/editor area and info panel
     bottomSplitter=new QSplitter(Qt::Vertical);
@@ -577,9 +577,9 @@ void CodeCreatorWidget::compilationErrorFetchCompleted(const QString &)
     }
 }
 
-void CodeCreatorWidget::prepareCompletionList()
+void CodeCreatorWidget::prepareCompletionList(bool topLevel)
 {
-    autocompleteHelper->prepareCompletionList(multiEditor);
+    autocompleteHelper->prepareCompletionList(multiEditor, topLevel);
 }
 
 void CodeCreatorWidget::startProgress()

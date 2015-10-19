@@ -53,6 +53,8 @@ ResultsetTableModel::~ResultsetTableModel()
     }
 
     deleteResultset();
+
+    qDebug("deleted ResultsetTableModel");
 }
 
 void ResultsetTableModel::deleteResultset()

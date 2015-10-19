@@ -231,7 +231,7 @@ CodeEditorAndSearchPaneWidget *MultiEditorWidget::createEditor()
     connect(editor, SIGNAL(focusEvent(QWidget*,bool)), this, SLOT(codeEditorFocusEvent(QWidget*,bool)));
     connect(editor->editor(), SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
     connect(editor->editor(), SIGNAL(updated(CodeEditor*)), this, SLOT(updateEditors(CodeEditor*)));
-    connect(editor->editor(), SIGNAL(needsCompletionList()), this, SIGNAL(needsCompletionList()));
+    connect(editor->editor(), SIGNAL(needsCompletionList(bool)), this, SIGNAL(needsCompletionList(bool)));
     connect(editor->editor(), SIGNAL(applyCaseFoldingRequested()), this, SLOT(applyCaseFoldingRequested()));
     connect(editor->editor(), SIGNAL(switchToPair()), this, SIGNAL(switchToPair()));
     connect(editor->editor(), SIGNAL(needsToDescribeObject(QString)), this, SLOT(describeObject(QString)));

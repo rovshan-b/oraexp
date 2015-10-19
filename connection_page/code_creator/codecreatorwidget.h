@@ -93,7 +93,7 @@ private slots:
 
     void codeParsingCompleted(PlSqlTreeBuilder *treeBulder);
 
-    void prepareCompletionList();
+    void prepareCompletionList(bool topLevel);
 
 private:
     QWidget *createRightPane();

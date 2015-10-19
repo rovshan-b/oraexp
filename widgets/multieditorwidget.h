@@ -45,7 +45,7 @@ public:
     void setPairEditorWidget(MultiEditorWidget *multiEditor);
 signals:
     void escapeKeyPressed();
-    void needsCompletionList();
+    void needsCompletionList(bool topLevel);
     void codeParsingCompleted(PlSqlTreeBuilder *treeBulder);
 
     void switchToPair();
