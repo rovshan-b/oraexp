@@ -13,6 +13,9 @@ declare
   
   l_compile_statement varchar2(500);
   
+  success_compile_error EXCEPTION;
+  PRAGMA EXCEPTION_INIT(success_compile_error, -24344);
+  
   {@replace_with:func_execute_clob}
 begin 
   if l_object_type in ('PACKAGE SPEC', 'PACKAGE BODY') then
@@ -49,7 +52,11 @@ begin
      end if;
   end if;
 
-  execute_clob(l_compile_statement);
+  begin
+     execute_clob(l_compile_statement);
+  exception when success_compile_error then
+     null;
+  end;
   
   open :rs_out for select line, position, text, 
                   {@keep_if:>=10}attribute{}
