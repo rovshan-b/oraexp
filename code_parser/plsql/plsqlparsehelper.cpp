@@ -199,10 +199,12 @@ void PlSqlParseHelper::findObjectName(PlSqlTreeBuilder *treeBuilder, QString *sc
     ParseTreeNode *objectNameNode = treeBuilder->findNode(treeBuilder->getRootNode(), R_OBJECT_NAME, true);
 
     if(objectNameNode){
-        if(objectNameNode->children.size()==1){
+        if(objectNameNode->children.size()==1 && objectNameNode->children.at(0)->children.size() > 0){
             *name = objectNameNode->children.at(0)->children.at(0)->tokenInfo->lexeme;
-        }else{
-            Q_ASSERT(objectNameNode->children.size()>=3);
+        }else if(objectNameNode->children.size()>=3 &&
+                 objectNameNode->children.at(0)->children.size() > 0 &&
+                 objectNameNode->children.at(2)->children.size() > 0){
+            //Q_ASSERT(objectNameNode->children.size()>=3);
             *schema = objectNameNode->children.at(0)->children.at(0)->tokenInfo->lexeme;
             *name = objectNameNode->children.at(2)->children.at(0)->tokenInfo->lexeme;
         }

@@ -6,7 +6,7 @@ declare
     l_part_count number := :name_parts_count;
     
     l_default_schema varchar2(50) := :default_schema;
-    l_top_level_list number := :top_level;
+    l_ends_with_separator number := :ends_with_separator;
     
     l_prev_part_type varchar2(50);
     l_found number := 0;
@@ -122,23 +122,22 @@ declare
 		end loop;
     end;
 begin
-   if l_top_level_list = 0 then
+   if l_ends_with_separator = 1 then
 	   find_last_part_object_type;
    end if;
 	
-	if l_object_type is not null and l_top_level_list = 0 then --found all object types until last part
+	if l_object_type is not null and l_ends_with_separator = 1 then --found all object types until last part
 		if l_object_type = 'USER' then
 			open l_cur_result for select lower(object_name) as object_name, owner, object_type, icon_name from (
-                            select table_name as object_name, owner, 'TABLE' as object_type, 'table' as icon_name, (case when owner = l_default_schema then 1 else 2 end) as sort_col1 from sys.all_all_tables 
+                            select table_name as object_name, owner, 'TABLE' as object_type, 'table' as icon_name from sys.all_all_tables where owner = l_object_name
                             union all
-                            select lower(object_name), owner, object_type, replace(lower(object_type),' ','_') as icon_name,
-                            (case when owner = l_default_schema then 1 else 2 end) as sort_col1
+                            select lower(object_name), owner, object_type, replace(lower(object_type),' ','_') as icon_name
                             from sys.all_objects
-                            where object_type in ('VIEW','MATERIALIZED VIEW','SEQUENCE','PACKAGE','PROCEDURE','FUNCTION','JAVA CLASS','SYNONYM') 
+                            where object_type in ('VIEW','MATERIALIZED VIEW','SEQUENCE','PACKAGE','PROCEDURE','FUNCTION','JAVA CLASS','SYNONYM') and owner = l_object_name
                             union all
-                            select lower(type_name) as object_name, owner, 'TYPE' as object_type, 'type' as icon_name, 
-                            (case when owner = l_default_schema then 1 else 2 end) as sort_col1 from sys.all_types where typecode='OBJECT' 
-                            ) t where object_name not like '/%' order by sort_col1, object_name, owner;
+                            select lower(type_name) as object_name, owner, 'TYPE' as object_type, 'type' as icon_name 
+                            from sys.all_types where typecode='OBJECT' and owner = l_object_name
+                            ) t where object_name not like '/%' order by object_name;
 		elsif l_object_type in ('TABLE','VIEW') then
 		    log('looking for columns of table named '||l_object_name||' in schema '||l_schema);
 			open l_cur_result for select lower(column_name) as object_name, owner, 'COLUMN' as object_type, 'column' as icon_name from sys.all_tab_columns cols where owner=l_schema and table_name=l_object_name order by column_id;
@@ -173,7 +172,7 @@ begin
 		
 	end if;
 	
-	if l_top_level_list = 1 then
+	if l_ends_with_separator = 0 then
 	   open l_cur_result for select lower(object_name) as object_name, owner, object_type, icon_name from (
                             select table_name as object_name, owner, 'TABLE' as object_type, 'table' as icon_name from sys.all_all_tables where owner = l_default_schema
                             union all
@@ -188,7 +187,7 @@ begin
                             ) t where object_name not like '/%' order by object_name;
 	end if;
 	
-	if l_object_name is null and l_top_level_list = 0 then
+	if l_object_name is null and l_ends_with_separator = 1 then
 		  --open l_cur_result for select 'nothing selected' from dual;
 		  open l_cur_result for select null as object_name, null as owner, null as object_type, null as icon_name from dual;
 	end if;

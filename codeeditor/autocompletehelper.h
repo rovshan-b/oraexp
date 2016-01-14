@@ -20,7 +20,7 @@ public:
 
     bool isBusy() const {return this->busy;}
 
-    void prepareCompletionList(MultiEditorWidget *multiEditor, bool topLevel);
+    void prepareCompletionList(MultiEditorWidget *multiEditor, bool terminatedBySeparator);
 
 signals:
     void modelReady(QAbstractItemModel *model, int cursorPosition);
@@ -32,7 +32,7 @@ private slots:
 private:
     IQueryScheduler *queryScheduler;
 
-    void getChildList(const TokenNameInfo &tokenNameInfo, bool topLevel);
+    void getChildList(const TokenNameInfo &tokenNameInfo, bool terminatedBySeparator);
 
     bool busy;
     

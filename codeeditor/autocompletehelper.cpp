@@ -23,7 +23,7 @@ void AutocompleteHelper::setQueryScheduler(IQueryScheduler *queryScheduler)
     this->queryScheduler=queryScheduler;
 }
 
-void AutocompleteHelper::prepareCompletionList(MultiEditorWidget *multiEditor, bool topLevel)
+void AutocompleteHelper::prepareCompletionList(MultiEditorWidget *multiEditor, bool terminatedBySeparator)
 {
     if(!this->queryScheduler || this->busy){
         return;
@@ -47,24 +47,24 @@ void AutocompleteHelper::prepareCompletionList(MultiEditorWidget *multiEditor, b
 
     TokenNameInfo currentObjectNameInfo = CodeEditorUtil::getObjectNameInfo(cur);
     if(!currentObjectNameInfo.isEmpty()){
-        getChildList(currentObjectNameInfo, topLevel);
+        getChildList(currentObjectNameInfo, terminatedBySeparator);
     }
 }
 
-void AutocompleteHelper::getChildList(const TokenNameInfo &tokenNameInfo, bool topLevel)
+void AutocompleteHelper::getChildList(const TokenNameInfo &tokenNameInfo, bool terminatedBySeparator)
 {
     if(this->busy){
         return;
     }
 
-    //qDebug() << "get child list for" << tokenNameInfo.toString();
+    qDebug() << "get child list for" << tokenNameInfo.toString();
     //QStringListModel *model = new QStringListModel(QStringList() << "item_1" << "item_2" << "item_3", this);
 
     queryScheduler->enqueueQuery("get_object_list_for_autocomplete", QList<Param*>() <<
                                  new Param(":name_parts", tokenNameInfo.parts) <<
                                  new Param(":name_parts_count", tokenNameInfo.parts.count()) <<
                                  new Param(":default_schema", queryScheduler->getDb()->getUsername()) <<
-                                 new Param(":top_level", topLevel) <<
+                                 new Param(":ends_with_separator", terminatedBySeparator) <<
                                  new Param(":rs_out"),
                                  this,
                                  "get_object_list_for_autocomplete",

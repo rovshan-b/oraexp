@@ -872,7 +872,8 @@ int CodeEditor::lineMarkerAreaOffset() const
      //completionPrefix.append(event->text());
 
      static QString triggers("."); //characters to start completer
-     bool startTriggerPressed = (!event->text().isEmpty() && triggers.contains(event->text().right(1))) || ctrlSpacePressed;
+     bool endsWithTrigger = !event->text().isEmpty() && triggers.contains(event->text().right(1));
+     bool startTriggerPressed = endsWithTrigger || ctrlSpacePressed;
 
      if (!ctrlSpacePressed && (hasModifier || event->text().isEmpty()|| completionPrefix.length() < 1
                          || eow.contains(event->text().right(1))) && !startTriggerPressed) {
@@ -882,7 +883,7 @@ int CodeEditor::lineMarkerAreaOffset() const
 
 
      if(!completer->popup()->isVisible() && startTriggerPressed){
-         emit needsCompletionList(ctrlSpacePressed);
+         emit needsCompletionList(endsWithTrigger);
          return;
      }else if(completer->popup()->isVisible()){
          if (completionPrefix != completer->completionPrefix()) {
